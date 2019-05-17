@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSVAlpin2", "DSVAlpin2\DSVAlpin2.csproj", "{C0432278-8C62-4202-8B96-EA8429BFE435}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSVAlpin2Lib", "DSVAlpin2Lib\DSVAlpin2Lib.csproj", "{CA9C930B-BAEA-480D-AB69-2DF107B9CCB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSVAlpin2LibTest", "DSVAlpin2LibTest\DSVAlpin2LibTest.csproj", "{747DD5C5-01F2-4F7A-B03F-7359F6D88DCE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{C0432278-8C62-4202-8B96-EA8429BFE435}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0432278-8C62-4202-8B96-EA8429BFE435}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0432278-8C62-4202-8B96-EA8429BFE435}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA9C930B-BAEA-480D-AB69-2DF107B9CCB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA9C930B-BAEA-480D-AB69-2DF107B9CCB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA9C930B-BAEA-480D-AB69-2DF107B9CCB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA9C930B-BAEA-480D-AB69-2DF107B9CCB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{747DD5C5-01F2-4F7A-B03F-7359F6D88DCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{747DD5C5-01F2-4F7A-B03F-7359F6D88DCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{747DD5C5-01F2-4F7A-B03F-7359F6D88DCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{747DD5C5-01F2-4F7A-B03F-7359F6D88DCE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

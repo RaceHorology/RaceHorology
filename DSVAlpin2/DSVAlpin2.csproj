@@ -94,5 +94,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DSVAlpin2Lib\DSVAlpin2Lib.csproj">
+      <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>
+      <Name>DSVAlpin2Lib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
