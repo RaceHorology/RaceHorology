@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Microsoft.Win32;
+
+using DSVAlpin2Lib;
+
 namespace DSVAlpin2
 {
   /// <summary>
@@ -20,9 +24,39 @@ namespace DSVAlpin2
   /// </summary>
   public partial class MainWindow : Window
   {
+    Database _db;
+       
     public MainWindow()
     {
       InitializeComponent();
+
+    }
+
+    private void MenuOpen_Click(object sender, RoutedEventArgs e)
+    {
+
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      if (openFileDialog.ShowDialog() == true)
+      {
+        string dbPath = openFileDialog.FileName;
+
+        if (_db != null)
+        {
+          _db.Close();
+          _db = null;
+        }
+
+        _db = new Database();
+        _db.Connect(dbPath);
+      }
+    }
+    private void MenuClose_Click(object sender, RoutedEventArgs e)
+    {
+      if (_db != null)
+      {
+        _db.Close();
+        _db = null;
+      }
     }
   }
 }
