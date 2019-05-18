@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DSVAlpin2Lib
 {
-  class Participant
+  public class Participant
   {
     public string Name { get; set; }
     public string Firstname { get; set; }
