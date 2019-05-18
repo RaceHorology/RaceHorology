@@ -24,12 +24,8 @@ namespace DSVAlpin2Lib
       catch (Exception ex)
       {
         Console.WriteLine("Failed to connect to data source", ex.Message);
-        throw;
-      }
-      finally
-      {
-        _conn.Close();
         _conn = null;
+        throw;
       }
     }
 
