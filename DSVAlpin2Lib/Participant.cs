@@ -25,8 +25,10 @@ namespace DSVAlpin2Lib
 
     public TimeSpan GetTimeSpan()
     {
-      Int64 ticks = 0; // unit: 1 tick = 100 nanoseconds
-      TimeSpan ts = new TimeSpan(ticks);
+      const Int64 nanosecondsPerDay = 24L * 60 * 60 * 1000 * 1000 * 10 ;
+
+      Int64 ticks = (Int64)( nanosecondsPerDay * _value + .5); 
+      TimeSpan ts = new TimeSpan(ticks); // unit: 1 tick = 100 nanoseconds
       return ts;
     }
 

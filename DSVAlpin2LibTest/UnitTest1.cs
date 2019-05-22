@@ -3,6 +3,7 @@
 using System.IO;
 
 using DSVAlpin2Lib;
+using System;
 
 namespace DSVAlpin2LibTest
 {
@@ -19,6 +20,18 @@ namespace DSVAlpin2LibTest
 
       Assert.AreEqual(1900, p.Year);
 
+    }
+
+    [TestMethod]
+    public void TimeMeasurement()
+    {
+      TimeMeasurement t1 = new TimeMeasurement(0.000638078703703704);
+      TimeSpan ts1 = t1.GetTimeSpan();
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 130), ts1);
+
+      TimeMeasurement t2 = new TimeMeasurement(0.000728819444444444);
+      TimeSpan ts2 = t2.GetTimeSpan();
+      Assert.AreEqual(new TimeSpan(0, 0, 1, 2, 970), ts2);
     }
 
     [TestMethod]
