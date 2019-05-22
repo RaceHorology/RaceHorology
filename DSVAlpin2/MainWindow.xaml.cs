@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using Microsoft.Win32;
 
 using DSVAlpin2Lib;
+using System.Collections.ObjectModel;
 
 namespace DSVAlpin2
 {
@@ -48,6 +49,9 @@ namespace DSVAlpin2
 
         _db = new Database();
         _db.Connect(dbPath);
+
+        ObservableCollection<Participant> participants = _db.GetParticipants();
+        dgParticipants.ItemsSource = participants;
       }
     }
     private void MenuClose_Click(object sender, RoutedEventArgs e)

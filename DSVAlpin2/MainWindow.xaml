@@ -6,14 +6,19 @@
         xmlns:local="clr-namespace:DSVAlpin2"
         mc:Ignorable="d"
         Title="DSVAlpin2" Height="450" Width="800">
-    <Grid>
-    <Menu x:Name="menu" VerticalAlignment="Top" Width="Auto">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition/>
+      <RowDefinition Height="14*"/>
+    </Grid.RowDefinitions>
+    <Menu x:Name="menu" VerticalAlignment="Top" Width="Auto" Margin="0,0,0,0" Grid.Row="0">
       <MenuItem Header="File">
         <MenuItem Header="_Open" Click="MenuOpen_Click"/>
         <MenuItem Header="_Close" Click="MenuClose_Click" />
       </MenuItem>
       <MenuItem Header="Help" />
     </Menu>
+    <DataGrid x:Name="dgParticipants" Height="Auto" Margin="10" Width="Auto" Grid.Row="1"/>
 
   </Grid>
 </Window>
