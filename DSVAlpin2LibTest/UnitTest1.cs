@@ -26,6 +26,9 @@ namespace DSVAlpin2LibTest
     {
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
       db.Connect(Path.Combine(databaseRoot, @"KSC2019-2-PSL.mdb"));
+
+      db.GetParticipants();
+
       db.Close();
     }
   }

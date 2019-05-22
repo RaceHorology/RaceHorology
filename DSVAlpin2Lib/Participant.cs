@@ -13,4 +13,23 @@ namespace DSVAlpin2Lib
     public int Year { get; set; }
     public string Club{ get; set; }
   }
+
+  public class TimeMeasurement
+  {
+    private double _value; // time in decimal normalized to a day
+
+    public TimeMeasurement(double value)
+    {
+      _value = value;
+    }
+
+    public TimeSpan GetTimeSpan()
+    {
+      Int64 ticks = 0; // unit: 1 tick = 100 nanoseconds
+      TimeSpan ts = new TimeSpan(ticks);
+      return ts;
+    }
+
+  };
+
 }
