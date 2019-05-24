@@ -71,5 +71,23 @@ namespace DSVAlpin2Lib
       };
       return p;
     }
+
+
+
+    const Int64 nanosecondsPerDay = 24L * 60 * 60 * 1000 * 1000 * 10;
+
+    static public TimeSpan CreateTimeSpan(double fractionPerDay)
+    {
+      Int64 ticks = (Int64)(nanosecondsPerDay * fractionPerDay + .5);
+      TimeSpan ts = new TimeSpan(ticks); // unit: 1 tick = 100 nanoseconds
+      return ts;
+    }
+
+    static public double FractionForTimeSpan(TimeSpan ts)
+    {
+      return (double)ts.Ticks / nanosecondsPerDay;
+    }
+
+
   }
 }

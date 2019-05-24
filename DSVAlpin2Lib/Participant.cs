@@ -14,24 +14,4 @@ namespace DSVAlpin2Lib
     public string Club{ get; set; }
   }
 
-  public class TimeMeasurement
-  {
-    private double _value; // time in decimal normalized to a day
-
-    public TimeMeasurement(double value)
-    {
-      _value = value;
-    }
-
-    public TimeSpan GetTimeSpan()
-    {
-      const Int64 nanosecondsPerDay = 24L * 60 * 60 * 1000 * 1000 * 10 ;
-
-      Int64 ticks = (Int64)( nanosecondsPerDay * _value + .5); 
-      TimeSpan ts = new TimeSpan(ticks); // unit: 1 tick = 100 nanoseconds
-      return ts;
-    }
-
-  };
-
 }

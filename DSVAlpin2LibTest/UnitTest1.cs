@@ -30,17 +30,17 @@ namespace DSVAlpin2LibTest
 
     }
 
-    [TestMethod]
-    public void TimeMeasurement()
-    {
-      TimeMeasurement t1 = new TimeMeasurement(0.000638078703703704);
-      TimeSpan ts1 = t1.GetTimeSpan();
-      Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 130), ts1);
 
-      TimeMeasurement t2 = new TimeMeasurement(0.000728819444444444);
-      TimeSpan ts2 = t2.GetTimeSpan();
-      Assert.AreEqual(new TimeSpan(0, 0, 1, 2, 970), ts2);
+    [TestMethod]
+    public void TimeSpanAndFractions()
+    {
+      const double f1 = 0.000638078703703704;
+      TimeSpan ts1 = DSVAlpin2Lib.Database.CreateTimeSpan(f1);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 130), ts1);
+      TimeSpan ts2 = DSVAlpin2Lib.Database.CreateTimeSpan(DSVAlpin2Lib.Database.FractionForTimeSpan(ts1));
+      Assert.AreEqual(ts1, ts2);
     }
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\KSC2019-2-PSL.mdb")]
