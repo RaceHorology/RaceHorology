@@ -7,10 +7,18 @@ using System;
 
 namespace DSVAlpin2LibTest
 {
+
+
   [TestClass]
   public class UnitTest1
   {
-    string databaseRoot = @"C:\src\DSVAlpin2\work\DSVAlpin2\SampleDatabases";
+    public TestContext TestContext
+    {
+      get { return _testContext; }
+      set { _testContext = value; }
+    }
+
+    private TestContext _testContext;
 
     [TestMethod]
     public void TestMethod1()
@@ -35,10 +43,11 @@ namespace DSVAlpin2LibTest
     }
 
     [TestMethod]
+    [DeploymentItem(@"TestDataBases\KSC2019-2-PSL.mdb")]
     public void DatabaseBasics()
     {
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      db.Connect(Path.Combine(databaseRoot, @"KSC2019-2-PSL.mdb"));
+      db.Connect(Path.Combine(_testContext.TestDeploymentDir, @"KSC2019-2-PSL.mdb"));
 
       db.GetParticipants();
 
