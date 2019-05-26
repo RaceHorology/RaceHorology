@@ -13,6 +13,8 @@ namespace DSVAlpin2Lib
   {
     private System.Data.OleDb.OleDbConnection _conn;
 
+    private Dictionary<uint, Participant> _id2Participant;
+
     public void Connect(string filename)
     {
       _conn = new OleDbConnection
@@ -30,10 +32,16 @@ namespace DSVAlpin2Lib
         _conn = null;
         throw;
       }
+
+      // Setup internal daat structures
+      _id2Participant = new Dictionary<uint, Participant>();
     }
 
     public void Close()
     {
+      // Cleanup internal data structures
+      _id2Participant = null;
+
       _conn.Close();
       _conn = null;
     }
@@ -48,10 +56,8 @@ namespace DSVAlpin2Lib
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())
       {
-        Debug.WriteLine("------------Original data----------------");
         while (reader.Read())
         {
-          Debug.WriteLine("{0} {1}", reader["nachname"].ToString(), reader["vorname"].ToString());
           participants.Add(CreateParticipantFromDB(reader));
         }
       }
@@ -60,20 +66,115 @@ namespace DSVAlpin2Lib
     }
 
 
-    static private Participant CreateParticipantFromDB(OleDbDataReader reader)
+    public RaceRun GetRaceRun(uint run)
     {
-      Participant p = new Participant
+      RaceRun raceRun = new RaceRun(run);
+
+      string sql = @"SELECT tblZeit.*, tblZeit.durchgang, tblZeit.disziplin, tblTeilnehmer.startnrsg, tblTeilnehmer.startnrgs, tblTeilnehmer.startnrsl, tblTeilnehmer.startnrks, tblTeilnehmer.startnrps "+
+                   @"FROM tblTeilnehmer INNER JOIN tblZeit ON tblTeilnehmer.id = tblZeit.teilnehmer "+
+                   @"WHERE(((tblZeit.durchgang) = @durchgang) AND((tblZeit.disziplin) = 2))";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@durchgang", run));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
       {
-        Name      = reader["nachname"].ToString(),
-        Firstname = reader["vorname"].ToString(),
-        Club      = reader["verein"].ToString(),
-        Year      = reader.GetInt16(reader.GetOrdinal("jahrgang"))
-      };
-      return p;
+        while (reader.Read())
+        {
+          // Get Participant
+          uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("teilnehmer"));
+          Participant p = _id2Participant[id];
+
+          // Build Result
+          TimeSpan? runTime = null, startTime = null, finishTime = null;
+          if (!reader.IsDBNull(reader.GetOrdinal("netto")))
+            runTime = CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("netto")));
+          if (!reader.IsDBNull(reader.GetOrdinal("start")))
+            startTime = CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("start")));
+          if (!reader.IsDBNull(reader.GetOrdinal("ziel")))
+            finishTime = CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("ziel")));
+
+          RunResult r = new RunResult
+          {
+            _participant = p,
+            _runTime = runTime,
+            _startTime = startTime,
+            _finishTime = finishTime
+          };
+
+          raceRun.InsertResult(r);
+        }
+      }
+
+      return raceRun;
     }
 
 
 
+    private Participant CreateParticipantFromDB(OleDbDataReader reader)
+    {
+      uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
+
+      if (_id2Participant.ContainsKey(id))
+        return _id2Participant[id];
+      else
+      {
+        Participant p = new Participant
+        {
+          Name = reader["nachname"].ToString(),
+          Firstname = reader["vorname"].ToString(),
+          Sex = reader["sex"].ToString(),
+          Club = reader["verein"].ToString(),
+          Nation = reader["nation"].ToString(),
+          Class = reader["klasse"].ToString(),
+          Year = reader.GetInt16(reader.GetOrdinal("jahrgang")),
+          StartNumber = GetStartNumber(reader)
+        };
+        _id2Participant.Add(id, p);
+
+        return p;
+      }
+    }
+
+    /// <summary>
+    /// Determines and returns the startnumber
+    /// </summary>
+    /// <returns>
+    /// 0 if no startnumber is assigned
+    /// </returns>
+    static private uint GetStartNumber(OleDbDataReader reader)
+    {
+      uint GetValue(string field)
+      {
+        if (!reader.IsDBNull(reader.GetOrdinal(field)))
+        {
+          var v = reader.GetValue(reader.GetOrdinal(field));
+          return Convert.ToUInt32(v);
+        }
+
+        return 0;
+      }
+
+      uint sn = 0;
+      if (sn == 0)
+        sn = GetValue("startnrdh");
+      if (sn == 0)
+        sn = GetValue("startnrsg");
+      if (sn == 0)
+        sn = GetValue("startnrgs");
+      if (sn == 0)
+        sn = GetValue("startnrsl");
+      if (sn == 0)
+        sn = GetValue("startnrks");
+      if (sn == 0)
+        sn = GetValue("startnrps");
+
+      return sn;
+    }
+
+
+    #region TimeSpan and Fraction
     const Int64 nanosecondsPerDay = 24L * 60 * 60 * 1000 * 1000 * 10;
 
     static public TimeSpan CreateTimeSpan(double fractionPerDay)
@@ -87,7 +188,7 @@ namespace DSVAlpin2Lib
     {
       return (double)ts.Ticks / nanosecondsPerDay;
     }
-
+    #endregion
 
   }
 }

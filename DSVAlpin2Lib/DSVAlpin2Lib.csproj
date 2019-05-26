@@ -59,7 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="AppDataModel.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Participant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
