@@ -25,7 +25,7 @@ namespace DSVAlpin2
   /// </summary>
   public partial class MainWindow : Window
   {
-    Database _db;
+    AppDataModel _dataModel;
        
     public MainWindow()
     {
@@ -41,25 +41,23 @@ namespace DSVAlpin2
       {
         string dbPath = openFileDialog.FileName;
 
-        if (_db != null)
-        {
-          _db.Close();
-          _db = null;
-        }
+        if (_dataModel != null)
+          _dataModel = null;
 
-        _db = new Database();
-        _db.Connect(dbPath);
+        Database db = new Database();
+        db.Connect(dbPath);
 
-        ObservableCollection<Participant> participants = _db.GetParticipants();
+        _dataModel = new AppDataModel(db);
+
+        ObservableCollection<Participant> participants = _dataModel.GetParticipants();
         dgParticipants.ItemsSource = participants;
       }
     }
     private void MenuClose_Click(object sender, RoutedEventArgs e)
     {
-      if (_db != null)
+      if (_dataModel != null)
       {
-        _db.Close();
-        _db = null;
+        _dataModel = null;
       }
     }
   }

@@ -72,5 +72,18 @@ namespace DSVAlpin2LibTest
       db.Close();
     }
 
+
+    [TestMethod]
+    //[DeploymentItem(@"TestDataBases\KSC2019-2-PSL.mdb")]
+    [DeploymentItem(@"TestDataBases\Kirchberg U8 U10 10.02.19 RS Neu.mdb")]
+    public void InitializeApplicationModel()
+    {
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      //db.Connect(Path.Combine(_testContext.TestDeploymentDir, @"KSC2019-2-PSL.mdb"));
+      db.Connect(Path.Combine(_testContext.TestDeploymentDir, @"Kirchberg U8 U10 10.02.19 RS Neu.mdb"));
+
+      AppDataModel model = new AppDataModel(db);
+    }
+
   }
 }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace DSVAlpin2Lib
 {
   public class Database
+    : IAppDataModelDataBase
   {
     private System.Data.OleDb.OleDbConnection _conn;
 

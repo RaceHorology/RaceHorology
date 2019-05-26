@@ -62,18 +62,49 @@ namespace DSVAlpin2Lib
       Group
   */
 
+
+  public interface IAppDataModelDataBase
+  {
+    ObservableCollection<Participant> GetParticipants();
+    RaceRun GetRaceRun(uint run);
+
+  };
+
   public class AppDataModel
   {
-    RaceRun[] _runs;
+    private IAppDataModelDataBase _db;
+
+    ObservableCollection<Participant> _participants;
+    List<RaceRun> _runs;
+
+    public ObservableCollection<Participant> GetParticipants()
+    {
+      return _participants;
+    }
+
+    public AppDataModel(IAppDataModelDataBase db)
+    {
+      _db = db;
+      _participants = _db.GetParticipants();
+
+      _runs = new List<RaceRun>();
+
+      // TODO: Assuming 1 run for now
+      var rr1 = _db.GetRaceRun(1);
+      _runs.Add(rr1);
+
+      var rr2 = _db.GetRaceRun(2);
+      _runs.Add(rr2);
+    }
 
 
     public uint GetMaxRun()
     {
-      return (uint)_runs.Length;
+      return (uint)_runs.Count;
     }
     public RaceRun GetRun(uint run)
     {
-      return _runs[run];
+      return _runs.ElementAt((int)run);
     }
 
   }
