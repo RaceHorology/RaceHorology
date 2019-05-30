@@ -27,7 +27,8 @@ namespace DSVAlpin2
   {
     AppDataModel _dataModel;
     MruList _mruList;
-       
+    DSVAlpin2HTTPServer _alpinServer; 
+
     public MainWindow()
     {
       InitializeComponent();
@@ -65,8 +66,10 @@ namespace DSVAlpin2
         Database db = new Database();
         db.Connect(dbPath);
 
+        // Create new Data Model
         _dataModel = new AppDataModel(db);
 
+        // Connect with GUI DataGrids
         ObservableCollection<Participant> participants = _dataModel.GetParticipants();
         dgParticipants.ItemsSource = participants;
 
@@ -74,6 +77,9 @@ namespace DSVAlpin2
         dgStartList.ItemsSource = run.GetStartList();
         dgRunning.ItemsSource = run.GetOnTrackList();
         dgResults.ItemsSource = run.GetResultList();
+
+        // Restart DSVALpinServer (for having the lists on mobile devices)
+        StartDSVAlpinServer();
 
         _mruList.AddFile(dbPath);
       }
@@ -85,6 +91,19 @@ namespace DSVAlpin2
         // Tell the user what happened.
         MessageBox.Show(ex.Message);
       }
+    }
+
+    private void StartDSVAlpinServer()
+    {
+      if (_alpinServer != null)
+      {
+        // Stop and re-create
+        _alpinServer.Stop();
+        _alpinServer = null;
+      }
+
+      _alpinServer = new DSVAlpin2HTTPServer(8081);
+      _alpinServer.Start();
     }
   }
 }
