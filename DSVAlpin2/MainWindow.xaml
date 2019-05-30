@@ -39,19 +39,43 @@
         <TabItem Header="Timing">
           <Grid Background="#FFE5E5E5">
             <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="1*"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="1*"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="1*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="5"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="5"/>
+              <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-            <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="0" Grid.Row="2" VerticalAlignment="Top" FontSize="16"/>
-            <Label x:Name="lblResults" Content="Ergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="4" VerticalAlignment="Top" FontSize="16"/>
-            <DataGrid x:Name="dgStartList" Margin="0" Grid.Row="1" />
-            <DataGrid x:Name="dgRunning" Margin="0" Grid.Row="3" />
-            <DataGrid x:Name="dgResults" Margin="0" Grid.Row="5" />
+
+            <Grid Grid.Row="0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              <DataGrid x:Name="dgStartList" Margin="0" Grid.Row="1" />
+            </Grid>  
+
+            <GridSplitter x:Name="gridSplitter1" HorizontalAlignment="Stretch" Height="5" Grid.Row="1" />
+
+            <Grid Grid.Row="2">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              <DataGrid x:Name="dgRunning" Margin="0" Grid.Row="1" />
+            </Grid>
+
+            <GridSplitter x:Name="gridSplitter2" HorizontalAlignment="Stretch" Height="5" Grid.Row="3" />
+
+            <Grid Grid.Row="4">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Label x:Name="lblResults" Content="Ergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              <DataGrid x:Name="dgResults" Margin="0" Grid.Row="1" />
+            </Grid>
           </Grid>
         </TabItem>
         <TabItem Header="TabItem 2">
