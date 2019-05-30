@@ -79,6 +79,7 @@ namespace DSVAlpin2Lib
       command.Parameters.Add(new OleDbParameter("@durchgang", run));
 
       // Execute command  
+      List<Participant> startList = new List<Participant>();
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -105,8 +106,12 @@ namespace DSVAlpin2Lib
           };
 
           raceRun.InsertResult(r);
+
+          startList.Add(p);
         }
       }
+
+      raceRun.SetStartList(startList);
 
       return raceRun;
     }

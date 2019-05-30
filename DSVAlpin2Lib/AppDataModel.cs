@@ -28,10 +28,15 @@ namespace DSVAlpin2Lib
     }
 
 
-    public ObservableCollection<Participant> GetStartList(uint run)
+    public ObservableCollection<Participant> GetStartList()
     {
-
       return _startList;
+    }
+
+    public void SetStartList(ICollection<Participant> participants)
+    {
+      foreach (var p in participants)
+        _startList.Add(p);
     }
 
     public ObservableCollection<Tuple<Participant, TimeSpan>> GetOnTrackList()

@@ -71,6 +71,8 @@ namespace DSVAlpin2
         dgParticipants.ItemsSource = participants;
 
         var run = _dataModel.GetRun(0);
+        dgStartList.ItemsSource = run.GetStartList();
+        dgRunning.ItemsSource = run.GetOnTrackList();
         dgResults.ItemsSource = run.GetResultList();
 
         _mruList.AddFile(dbPath);
