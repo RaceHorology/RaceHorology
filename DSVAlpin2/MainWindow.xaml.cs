@@ -26,21 +26,39 @@ namespace DSVAlpin2
   public partial class MainWindow : Window
   {
     AppDataModel _dataModel;
+    MruList _mruList;
        
     public MainWindow()
     {
       InitializeComponent();
 
+      _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
+      _mruList.FileSelected += OpenDatabase;
     }
 
-    private void MenuOpen_Click(object sender, RoutedEventArgs e)
+    private void OpenCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
 
       OpenFileDialog openFileDialog = new OpenFileDialog();
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
+        OpenDatabase(dbPath);
+      }
+    }
+    private void CloseCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      if (_dataModel != null)
+      {
+        _dataModel = null;
+      }
+    }
 
+
+    private void OpenDatabase(string dbPath)
+    {
+      try
+      {
         if (_dataModel != null)
           _dataModel = null;
 
@@ -51,13 +69,19 @@ namespace DSVAlpin2
 
         ObservableCollection<Participant> participants = _dataModel.GetParticipants();
         dgParticipants.ItemsSource = participants;
+
+        var run = _dataModel.GetRun(0);
+        dgResults.ItemsSource = run.GetResultList();
+
+        _mruList.AddFile(dbPath);
       }
-    }
-    private void MenuClose_Click(object sender, RoutedEventArgs e)
-    {
-      if (_dataModel != null)
+      catch (Exception ex)
       {
-        _dataModel = null;
+        // Remove the file from the MRU list.
+        _mruList.RemoveFile(dbPath);
+
+        // Tell the user what happened.
+        MessageBox.Show(ex.Message);
       }
     }
   }
