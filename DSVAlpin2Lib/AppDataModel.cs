@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 namespace DSVAlpin2Lib
 {
 
+  /// <summary>
+  /// Represents one race run. Typically a race consists out of two race runs.
+  /// </summary>
   public class RaceRun
   {
     uint _run;
@@ -25,18 +28,18 @@ namespace DSVAlpin2Lib
     }
 
 
-    ObservableCollection<Participant> GetStartList(uint run)
+    public ObservableCollection<Participant> GetStartList(uint run)
     {
 
       return _startList;
     }
 
-    ObservableCollection<Tuple<Participant, TimeSpan>> GetOnTrackList()
+    public ObservableCollection<Tuple<Participant, TimeSpan>> GetOnTrackList()
     {
       return _onTrack;
     }
 
-    ObservableCollection<RunResult> GetResultList()
+    public ObservableCollection<RunResult> GetResultList()
     {
       return _results;
     }
@@ -89,7 +92,7 @@ namespace DSVAlpin2Lib
 
       _runs = new List<RaceRun>();
 
-      // TODO: Assuming 1 run for now
+      // TODO: Assuming 2 runs for now
       var rr1 = _db.GetRaceRun(1);
       _runs.Add(rr1);
 
