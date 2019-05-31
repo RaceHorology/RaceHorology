@@ -6,7 +6,8 @@
  * Copyright (c) 2012 Kaazing Corporation.
  */
 
-var url = "ws://localhost:8082/Echo";
+//var url = "ws://localhost:8082/Echo";
+var url = "ws://localhost:8081/StartList";
 //var url = "wss://localhost:8082/Echo";
 var output;
 
@@ -41,8 +42,18 @@ function onOpen (event) {
 }
 
 function onMessage (event) {
-  writeToScreen ('<span style="color: blue;">RESPONSE: ' + event.data + '</span>');
-  websocket.close ();
+  //writeToScreen ('<span style="color: blue;">RESPONSE: ' + event.data + '</span>');
+  //websocket.close ();
+
+  var json = JSON.parse(event.data);
+  var table = json2table(json);
+
+  var pre = document.createElement("p");
+  pre.innerHTML = table;
+
+  while (output.firstChild) { output.removeChild(output.firstChild); }
+
+  output.appendChild(pre);
 }
 
 function onError (event) {
@@ -64,5 +75,41 @@ function writeToScreen (message) {
   pre.innerHTML = message;
   output.appendChild (pre);
 }
+
+
+
+function json2table(json, classes) {
+  // Everything goes in here
+
+  var cols = Object.keys(json[0]);
+  var headerRow = '';
+  var bodyRows = '';
+
+  classes = classes || '';
+
+  cols.map(function (col) {
+    headerRow += '<th>' + col + '</th>';
+  });
+
+  json.map(function (row) {
+    bodyRows += '<tr>';
+    // To do: Loop over object properties and create cells
+    cols.map(function (colName) {
+      bodyRows += '<td>' + row[colName] + '</td>';
+    });
+    bodyRows += '</tr>';
+  });
+
+
+
+  return '<table class="' +
+  classes +
+    '"><thead><tr>' +
+    headerRow +
+    '</tr></thead><tbody>' +
+    bodyRows +
+    '</tbody></table>';
+}
+
 
 window.addEventListener ("load", init, false);

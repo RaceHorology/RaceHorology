@@ -86,5 +86,6 @@
         </TabItem>
       </TabControl>
     </Grid>
+    <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="910,41,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
   </Grid>
 </Window>

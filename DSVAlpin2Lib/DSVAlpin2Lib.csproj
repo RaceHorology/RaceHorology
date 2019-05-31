@@ -66,6 +66,7 @@
     <Compile Include="Database.cs" />
     <Compile Include="Participant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

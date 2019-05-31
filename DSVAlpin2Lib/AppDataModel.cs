@@ -14,7 +14,7 @@ namespace DSVAlpin2Lib
   public class RaceRun
   {
     uint _run;
-    ObservableCollection<Participant> _startList;
+    ExtendedObservableCollection<Participant> _startList;
     ObservableCollection<Tuple<Participant, TimeSpan>> _onTrack; // Participant and StartTime
     ObservableCollection<RunResult> _results;
 
@@ -22,7 +22,7 @@ namespace DSVAlpin2Lib
     {
       _run = run;
 
-      _startList = new ObservableCollection<Participant>();
+      _startList = new ExtendedObservableCollection<Participant>();
       _onTrack   = new ObservableCollection<Tuple<Participant, TimeSpan>>(); 
       _results   = new ObservableCollection<RunResult>();
     }

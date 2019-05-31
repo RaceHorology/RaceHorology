@@ -8,19 +8,26 @@ using WebSocketSharp;
 using WebSocketSharp.Net;
 using WebSocketSharp.Server;
 
+using DSVAlpin2Lib;
+using System.Collections.Specialized;
+using Newtonsoft.Json;
+
 namespace DSVAlpin2
 {
   class DSVAlpin2HTTPServer
   {
     private HttpServer _httpServer;
     private string _baseFolder;
+    AppDataModel _dataModel;
 
-    public DSVAlpin2HTTPServer(UInt16 port)
+    public DSVAlpin2HTTPServer(UInt16 port, AppDataModel dm)
     {
+      _dataModel = dm;
       // AppFolder + /webroot
       _baseFolder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"webroot");
+      _baseFolder = @"C:\src\DSVAlpin2\work\DSVAlpin2\DSVAlpin2\webroot";
 
-      _httpServer = new HttpServer(port);
+    _httpServer = new HttpServer(port);
       _httpServer.Log.Level = LogLevel.Trace;
       _httpServer.DocumentRootPath = _baseFolder;
 
@@ -30,9 +37,7 @@ namespace DSVAlpin2
 
     public void Start()
     {
-      //_httpServer.AddWebSocketService<TestWebSocket>("/TestWebSocket");
-      //_httpServer.AddWebSocketService<Echo>("/Echo");
-      //_httpServer.AddWebSocketService<Chat>("/Chat");
+      _httpServer.AddWebSocketService<StartListBehavior>("/StartList", (connection) => { connection.SetupThis(_dataModel); });
 
       _httpServer.Start();
     }
@@ -73,4 +78,37 @@ namespace DSVAlpin2
       res.WriteContent(contents);
     }
   }
+
+  public class StartListBehavior : WebSocketBehavior
+  {
+    AppDataModel _dm;
+
+    public void SetupThis(AppDataModel dm)
+    {
+      _dm = dm;
+
+      _dm.GetRun(0).GetStartList().CollectionChanged += StartListChanged;
+    }
+
+
+    private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendStartList();
+    }
+
+    void SendStartList()
+    {
+      string output = JsonConvert.SerializeObject(_dm.GetRun(0).GetStartList());
+      Send(output);
+    }
+
+
+    protected override void OnMessage(MessageEventArgs e)
+    {
+      SendStartList();
+      //var name = Context.QueryString["name"];
+      //Send(!name.IsNullOrEmpty() ? String.Format("\"{0}\" to {1}", e.Data, name) : e.Data);
+    }
+  }
+
 }

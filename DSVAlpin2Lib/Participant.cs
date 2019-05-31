@@ -1,21 +1,84 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DSVAlpin2Lib
 {
-  public class Participant
+  public class Participant : INotifyPropertyChanged
   {
-    public string Name { get; set; }
-    public string Firstname { get; set; }
-    public string Sex { get; set; }
-    public int Year { get; set; }
-    public string Club { get; set; }
-    public string Nation { get; set; }
-    public string Class { get; set; } 
-    public uint StartNumber { get; set; }
+    private string _name;
+    private string _firstname;
+    private string _sex;
+    private int    _year;
+    private string _club;
+    private string _nation;
+    private string _class;
+    private uint   _startnumber;
+
+    public string Name
+    {
+      get => _name;
+      set { _name = value;  NotifyPropertyChanged(); }
+    }
+    public string Firstname
+    {
+      get => _firstname;
+      set { _firstname = value; NotifyPropertyChanged(); }
+    }
+
+    public string Sex
+    {
+      get => _sex;
+      set { _sex = value; NotifyPropertyChanged(); }
+    }
+
+    public int Year
+    {
+      get => _year;
+      set { _year = value; NotifyPropertyChanged(); }
+    }
+    public string Club 
+    {
+      get => _club;
+      set { _club = value; NotifyPropertyChanged(); }
+    }
+
+    public string Nation
+    {
+      get => _nation;
+      set { _nation = value; NotifyPropertyChanged(); }
+    }
+
+    public string Class 
+    {
+      get => _class;
+      set { _class = value; NotifyPropertyChanged(); }
+    }
+    public uint StartNumber 
+    {
+      get => _startnumber;
+      set { _startnumber = value; NotifyPropertyChanged(); }
+    }
+
+
+    #region INotifyPropertyChanged implementation
+
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    
+    #endregion
   }
 
 
