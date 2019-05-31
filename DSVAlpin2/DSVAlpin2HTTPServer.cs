@@ -27,7 +27,7 @@ namespace DSVAlpin2
       _baseFolder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"webroot");
       _baseFolder = @"C:\src\DSVAlpin2\work\DSVAlpin2\DSVAlpin2\webroot";
 
-    _httpServer = new HttpServer(port);
+      _httpServer = new HttpServer(port);
       _httpServer.Log.Level = LogLevel.Trace;
       _httpServer.DocumentRootPath = _baseFolder;
 
