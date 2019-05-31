@@ -32,10 +32,14 @@
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="5"/>
         <ColumnDefinition Width="2*" />
       </Grid.ColumnDefinitions>
-      <DataGrid x:Name="dgParticipants" Height="Auto" Margin="10" Grid.Column="0"/>
-      <TabControl x:Name="tabControl" Height="Auto" Margin="10" Grid.Column="1" Width="Auto">
+      <DataGrid x:Name="dgParticipants" Margin="10" Grid.Column="0"/>
+
+      <GridSplitter x:Name="vertSplitter1" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
+
+      <TabControl x:Name="tabControl" Height="Auto" Margin="10" Grid.Column="2" Width="Auto">
         <TabItem Header="Timing">
           <Grid Background="#FFE5E5E5">
             <Grid.RowDefinitions>
@@ -86,6 +90,6 @@
         </TabItem>
       </TabControl>
     </Grid>
-    <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="910,41,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+    <Button x:Name="button" Content="Test 1" HorizontalAlignment="Left" Margin="910,41,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
   </Grid>
 </Window>
