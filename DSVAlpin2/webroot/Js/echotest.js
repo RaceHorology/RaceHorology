@@ -6,9 +6,8 @@
  * Copyright (c) 2012 Kaazing Corporation.
  */
 
-//var url = "ws://localhost:8082/Echo";
-var url = "ws://localhost:8081/StartList";
-//var url = "wss://localhost:8082/Echo";
+var url = "ws://" + window.location.hostname + ":" + window.location.port + "/StartList";
+
 var output;
 
 function init () {
