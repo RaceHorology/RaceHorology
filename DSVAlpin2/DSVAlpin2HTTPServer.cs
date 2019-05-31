@@ -79,18 +79,59 @@ namespace DSVAlpin2
     }
   }
 
-  public class StartListBehavior : WebSocketBehavior
-  {
-    AppDataModel _dm;
 
-    public void SetupThis(AppDataModel dm)
+  public class DSVAlpinBaseBehavior : WebSocketBehavior
+  {
+    protected AppDataModel _dm;
+
+    ~DSVAlpinBaseBehavior()
+    {
+      TearDown();
+    }
+
+    public virtual void SetupThis(AppDataModel dm)
     {
       _dm = dm;
+    }
+
+    protected virtual void TearDown()
+    {
+      _dm = null;
+    }
+
+
+    protected override void OnClose(CloseEventArgs e)
+    {
+      Log.Debug("Closing websocket:" + ToString() + ", " + e.Reason);
+      TearDown();
+    }
+
+    protected override void OnError(ErrorEventArgs e)
+    {
+      Log.Error("Error on websocket:" + ToString() + ", " + e.ToString());
+      TearDown();
+    }
+  }
+
+
+  public class StartListBehavior : DSVAlpinBaseBehavior
+  {
+    public override void SetupThis(AppDataModel dm)
+    {
+      base.SetupThis(dm);
 
       _dm.GetRun(0).GetStartList().CollectionChanged += StartListChanged;
     }
 
+    protected override void TearDown()
+    {
+      if (_dm != null)
+        _dm.GetRun(0).GetStartList().CollectionChanged -= StartListChanged;
 
+      base.TearDown();
+    }
+
+    
     private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
     {
       SendStartList();
