@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace DSVAlpin2Lib
 {
+  /// <summary>
+  /// Represents a participant (or ski alpin racer)
+  /// </summary>
+  /// <remarks>not yet final</remarks>
   public class Participant : INotifyPropertyChanged
   {
     private string _name;
@@ -82,6 +86,10 @@ namespace DSVAlpin2Lib
   }
 
 
+  /// <summary>
+  /// Represents a run result (a pass / ein durchgang)
+  /// </summary>
+  /// <remarks>not yet final</remarks>
   public class RunResult
   {
     // Some public properties to get displayed in the list

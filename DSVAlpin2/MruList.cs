@@ -8,6 +8,10 @@ using System.IO;
 
 namespace DSVAlpin2
 {
+
+  /// <summary>
+  /// Stores and displays tha last recently used files
+  /// </summary>
   public class MruList
   {
     // The application's name.

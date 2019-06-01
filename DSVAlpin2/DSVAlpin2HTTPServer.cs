@@ -14,6 +14,13 @@ using Newtonsoft.Json;
 
 namespace DSVAlpin2
 {
+  /// <summary>
+  /// Provides the web server backend for the mobile clients
+  /// </summary>
+  /// 
+  /// It starts a web server and user the provided DataModel in order to serve the data.
+  /// 
+  /// Updates are propoageted immediately via WebSockets to the client.
   class DSVAlpin2HTTPServer
   {
     private HttpServer _httpServer;
@@ -51,13 +58,30 @@ namespace DSVAlpin2
       return "http://" + localIP + ":" + _httpServer.Port + "/";
     }
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="port">The port number the web service shall be available</param>
+    /// <param name="dm">The DataModel to use</param>
     public DSVAlpin2HTTPServer(UInt16 port, AppDataModel dm)
     {
       _dataModel = dm;
+
       // AppFolder + /webroot
       _baseFolder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"webroot");
-      _baseFolder = @"C:\src\DSVAlpin2\work\DSVAlpin2\DSVAlpin2\webroot";
 
+      // Use the source folder in case the debugger is attached for easier development
+      if (System.Diagnostics.Debugger.IsAttached)
+      {
+        // This will get the current WORKING directory (i.e. \bin\Debug)
+        string workingDirectory = Environment.CurrentDirectory;         // or: Directory.GetCurrentDirectory() gives the same result
+
+        // This will get the current PROJECT directory
+        string projectDirectory = System.IO.Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+        _baseFolder = System.IO.Path.Combine(projectDirectory, @"webroot");
+      }
+
+      // Configure the server
       _httpServer = new HttpServer(port);
       _httpServer.Log.Level = LogLevel.Trace;
       _httpServer.DocumentRootPath = _baseFolder;
@@ -66,6 +90,9 @@ namespace DSVAlpin2
       _httpServer.OnGet += OnGetHandler;
     }
 
+    /// <summary>
+    /// Actually starts the server
+    /// </summary>
     public void Start()
     {
       _httpServer.AddWebSocketService<StartListBehavior>("/StartList", (connection) => { connection.SetupThis(_dataModel); });
@@ -73,12 +100,17 @@ namespace DSVAlpin2
       _httpServer.Start();
     }
 
+    /// <summary>
+    /// Stops the server
+    /// </summary>
     public void Stop()
     {
       _httpServer.Stop();
     }
 
-
+    /// <summary>
+    /// Get-Handler - Simple method to provide the web pages (e.g. html,javascript, ...)
+    /// </summary>
     private void OnGetHandler(object sender, HttpRequestEventArgs e)
     {
       var req = e.Request;

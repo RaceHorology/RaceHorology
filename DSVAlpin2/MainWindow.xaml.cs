@@ -24,14 +24,19 @@ namespace DSVAlpin2
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
+  /// Main entry point of the application
   /// </summary>
   public partial class MainWindow : Window
   {
+    // Private data structures
     AppDataModel _dataModel;
     MruList _mruList;
     DSVAlpin2HTTPServer _alpinServer;
     string _appTitle;
-
+    
+    /// <summary>
+    /// Constructor of MainWindow
+    /// </summary>
     public MainWindow()
     {
       InitializeComponent();
@@ -39,10 +44,14 @@ namespace DSVAlpin2
       // Remember the Application Name
       _appTitle = this.Title;
 
+      // Last recently used files in menu
       _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
     }
 
+    /// <summary>
+    /// "File Open" callback - opens a data base
+    /// </summary>
     private void OpenCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
 
@@ -53,57 +62,111 @@ namespace DSVAlpin2
         OpenDatabase(dbPath);
       }
     }
+
+    /// <summary>
+    /// File Close - closes the data base
+    /// </summary>
     private void CloseCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
-      if (_dataModel != null)
-      {
-        _dataModel = null;
-      }
+      CloseDatabase();
     }
 
 
+    /// <summary>
+    /// Opens the database and does all jobs to work with the application (connect DatagRids, start web server, ...)
+    /// </summary>
+    /// <param name="dbPath">Path to the database (Access File)</param>
     private void OpenDatabase(string dbPath)
     {
       try
       {
+        // Close database if it was already open
         if (_dataModel != null)
-          _dataModel = null;
+          CloseDatabase();
 
+        // Open the database ...
         Database db = new Database();
         db.Connect(dbPath);
 
-        // Create new Data Model
+        // ... and create the corresponding data model
         _dataModel = new AppDataModel(db);
 
         // Change the Application Window to contain the opened DataBase
         this.Title = _appTitle + " - " + System.IO.Path.GetFileName(dbPath);
 
-        // Connect with GUI DataGrids
-        ObservableCollection<Participant> participants = _dataModel.GetParticipants();
-        dgParticipants.ItemsSource = participants;
-
-        var run = _dataModel.GetRun(0);
-        dgStartList.ItemsSource = run.GetStartList();
-        dgRunning.ItemsSource = run.GetOnTrackList();
-        dgResults.ItemsSource = run.GetResultList();
+        // Connect all GUI lists and so on ...
+        ConnectGUIToDataModel();
 
         // Restart DSVALpinServer (for having the lists on mobile devices)
         StartDSVAlpinServer();
-
+        
         SetupTesting();
 
         _mruList.AddFile(dbPath);
       }
       catch (Exception ex)
       {
+        MessageBox.Show(ex.Message, "Datei kann nicht geöffnet werden", MessageBoxButton.OK, MessageBoxImage.Error);
+
         // Remove the file from the MRU list.
         _mruList.RemoveFile(dbPath);
 
-        // Tell the user what happened.
-        MessageBox.Show(ex.Message);
+        // Close eveything again
+        CloseDatabase();
       }
     }
 
+    /// <summary>
+    /// Closes the data base and performs all shutdown operations (disconnect DatagRids, stop web server, ...)
+    /// </summary>
+    private void CloseDatabase()
+    {
+      StopDSVAlpinServer();
+
+      DisconnectGUIFromDataModel();
+
+      if (_dataModel != null)
+      {
+        _dataModel = null;
+      }
+
+    }
+
+    /// <summary>
+    /// Connects the GUI (e.g. Data Grids, ...) to the data model
+    /// </summary>
+    private void ConnectGUIToDataModel()
+    {
+      // Connect with GUI DataGrids
+      ObservableCollection<Participant> participants = _dataModel.GetParticipants();
+      dgParticipants.ItemsSource = participants;
+
+      // TODO: Just for now, assume first run
+      var run = _dataModel.GetRun(0);
+      dgStartList.ItemsSource = run.GetStartList();
+      dgRunning.ItemsSource = run.GetOnTrackList();
+      dgResults.ItemsSource = run.GetResultList();
+    }
+
+    /// <summary>
+    /// Disconnects the GUI (e.g. Data Grids, ...) from the data model
+    /// </summary>
+    private void DisconnectGUIFromDataModel()
+    {
+      dgParticipants.ItemsSource = null;
+
+      dgStartList.ItemsSource = null;
+      dgRunning.ItemsSource = null;
+      dgResults.ItemsSource = null;
+    }
+
+
+    /// <summary>
+    /// Starts the web backend for the mobile clients (e.g. for speaker) 
+    /// </summary>
+    /// <remarks>
+    /// Also triggers the display of the URL to use / the QR code for the mobile clients
+    /// </remarks>
     private void StartDSVAlpinServer()
     {
       if (_alpinServer != null)
@@ -119,31 +182,65 @@ namespace DSVAlpin2
       DisplayURL();
     }
 
-    private void DisplayURL()
+    /// <summary>
+    /// Stops the web backend for the mobile clients (e.g. for speaker) 
+    /// </summary>
+    private void StopDSVAlpinServer()
     {
-      string url = _alpinServer.GetUrl();
-
-      QRCodeGenerator qrGenerator = new QRCodeGenerator();
-      QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
-      QRCode qrCode = new QRCode(qrCodeData);
-      System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
-
-      BitmapImage bitmapimage = new BitmapImage();
-      using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+      if (_alpinServer != null)
       {
-        bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-        memory.Position = 0;
-        bitmapimage.BeginInit();
-        bitmapimage.StreamSource = memory;
-        bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-        bitmapimage.EndInit();
+        // Stop and re-create
+        _alpinServer.Stop();
+        _alpinServer = null;
       }
 
-      imgQRCode.Source = bitmapimage;
-      lblURL.Content = url;
+      DisplayURL();
+    }
+
+    /// <summary>
+    /// Display of the URL to use / the QR code for the mobile clients
+    /// </summary>
+    /// <remarks>
+    /// If the server is not running, the QR code will be removed and the label displays "not available".
+    /// </remarks>
+    private void DisplayURL()
+    {
+      if (_alpinServer == null)
+      {
+        imgQRCode.Source = null;
+        lblURL.Content = "nicht verfügbar";
+      }
+      else
+      {
+        string url = _alpinServer.GetUrl();
+
+        QRCodeGenerator qrGenerator = new QRCodeGenerator();
+        QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+        QRCode qrCode = new QRCode(qrCodeData);
+        System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
+
+        BitmapImage bitmapimage = new BitmapImage();
+        using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+        {
+          bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+          memory.Position = 0;
+          bitmapimage.BeginInit();
+          bitmapimage.StreamSource = memory;
+          bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+          bitmapimage.EndInit();
+        }
+
+        imgQRCode.Source = bitmapimage;
+        lblURL.Content = url;
+      }
     }
 
 
+    /// <summary>
+    /// Callback for the URL label / QRCode image to open the web browser
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void LblURL_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
       if (_alpinServer != null)
@@ -151,25 +248,26 @@ namespace DSVAlpin2
     }
 
 
+
+    #region Testing
+
     private void Button_Click(object sender, RoutedEventArgs e)
     {
       var run = _dataModel.GetRun(0);
       var startList = run.GetStartList();
       startList.Insert(0, new Participant
-        {
-          Name = "Temp",
-          Firstname = "Vorname",
-          Sex = "M",
-          Club = "Club",
-          Nation = "",
-          Class = "unknown",
-          Year = 2000,
-          StartNumber = 999
-        });
+      {
+        Name = "Temp",
+        Firstname = "Vorname",
+        Sex = "M",
+        Club = "Club",
+        Nation = "",
+        Class = "unknown",
+        Year = 2000,
+        StartNumber = 999
+      });
     }
 
-
-    #region Testing
 
     private CollectionViewSource testParticipantsSrc;
 

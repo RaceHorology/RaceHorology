@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 
 namespace DSVAlpin2Lib
 {
+
+  /// <summary>
+  /// Implements the data base access to and from the "old" DSVAlpin Access Data Base
+  /// </summary>
+  /// <remarks>not yet fully implemented</remarks>
   public class Database
     : IAppDataModelDataBase
   {

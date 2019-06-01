@@ -9,7 +9,55 @@ namespace DSVAlpin2Lib
 {
 
   /// <summary>
-  /// Represents one race run. Typically a race consists out of two race runs.
+  /// Main Application Data Model - all data shall be get through this instance, also modification shall be done on this instance
+  /// </summary>
+  /// 
+  /// Data is loaded from the data base
+  /// Data is written back to the data base in case it is needed (not yet implemented)
+  /// 
+  /// <remarks>not yet fully implemented</remarks>
+  public class AppDataModel
+  {
+    private IAppDataModelDataBase _db;
+
+    ObservableCollection<Participant> _participants;
+    List<RaceRun> _runs;
+
+    public ObservableCollection<Participant> GetParticipants()
+    {
+      return _participants;
+    }
+
+    public AppDataModel(IAppDataModelDataBase db)
+    {
+      _db = db;
+      _participants = _db.GetParticipants();
+
+      _runs = new List<RaceRun>();
+
+      // TODO: Assuming 2 runs for now
+      var rr1 = _db.GetRaceRun(1);
+      _runs.Add(rr1);
+
+      var rr2 = _db.GetRaceRun(2);
+      _runs.Add(rr2);
+    }
+
+
+    public uint GetMaxRun()
+    {
+      return (uint)_runs.Count;
+    }
+    public RaceRun GetRun(uint run)
+    {
+      return _runs.ElementAt((int)run);
+    }
+
+  }
+
+  
+  /// <summary>
+  /// Represents a race run. Typically a race consists out of two race runs.
   /// </summary>
   public class RaceRun
   {
@@ -58,19 +106,10 @@ namespace DSVAlpin2Lib
   }
 
 
-  /*
-    Race
-      Run(n)
-        StartList => Participants
-        OnTrack => Participants, time
-        Result => Participants, result-time
-
-    SplitBy
-      Class
-      Group
-  */
-
-
+  /// <summary>
+  /// Defines the interface to the actual database engine
+  /// </summary>
+  /// <remarks>Assuming the database format changes we can simply create another implementation.</remarks>
   public interface IAppDataModelDataBase
   {
     ObservableCollection<Participant> GetParticipants();
@@ -78,42 +117,5 @@ namespace DSVAlpin2Lib
 
   };
 
-  public class AppDataModel
-  {
-    private IAppDataModelDataBase _db;
 
-    ObservableCollection<Participant> _participants;
-    List<RaceRun> _runs;
-
-    public ObservableCollection<Participant> GetParticipants()
-    {
-      return _participants;
-    }
-
-    public AppDataModel(IAppDataModelDataBase db)
-    {
-      _db = db;
-      _participants = _db.GetParticipants();
-
-      _runs = new List<RaceRun>();
-
-      // TODO: Assuming 2 runs for now
-      var rr1 = _db.GetRaceRun(1);
-      _runs.Add(rr1);
-
-      var rr2 = _db.GetRaceRun(2);
-      _runs.Add(rr2);
-    }
-
-
-    public uint GetMaxRun()
-    {
-      return (uint)_runs.Count;
-    }
-    public RaceRun GetRun(uint run)
-    {
-      return _runs.ElementAt((int)run);
-    }
-
-  }
 }
