@@ -141,7 +141,7 @@
               <RowDefinition Height="1*"/>
               <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Image x:Name="imgQRCode" HorizontalAlignment="Center" Height="200" Margin="0,0,0,0" VerticalAlignment="Top" Width="200" Grid.Row="1"/>
+            <Image x:Name="imgQRCode" HorizontalAlignment="Center" Height="200" Margin="0,0,0,0" VerticalAlignment="Top" Width="200" Grid.Row="1" PreviewMouseDown="LblURL_PreviewMouseDown"/>
             <Label x:Name="lblURL" Content="not running" Margin="0,0,0,0" VerticalAlignment="Bottom" Width="Auto" HorizontalContentAlignment="Center" FontSize="16" PreviewMouseDown="LblURL_PreviewMouseDown"/>
           </Grid>
         </TabItem>
