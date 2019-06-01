@@ -133,7 +133,7 @@ namespace DSVAlpin2Lib
           Sex = reader["sex"].ToString(),
           Club = reader["verein"].ToString(),
           Nation = reader["nation"].ToString(),
-          Class = reader["klasse"].ToString(),
+          Class = GetClass(GetValueUInt(reader, "klasse")),
           Year = reader.GetInt16(reader.GetOrdinal("jahrgang")),
           StartNumber = GetStartNumber(reader)
         };
@@ -143,6 +143,19 @@ namespace DSVAlpin2Lib
       }
     }
 
+
+    static private uint GetValueUInt(OleDbDataReader reader, string field)
+    {
+      if (!reader.IsDBNull(reader.GetOrdinal(field)))
+      {
+        var v = reader.GetValue(reader.GetOrdinal(field));
+        return Convert.ToUInt32(v);
+      }
+
+      return 0;
+    }
+
+
     /// <summary>
     /// Determines and returns the startnumber
     /// </summary>
@@ -151,33 +164,49 @@ namespace DSVAlpin2Lib
     /// </returns>
     static private uint GetStartNumber(OleDbDataReader reader)
     {
-      uint GetValue(string field)
-      {
-        if (!reader.IsDBNull(reader.GetOrdinal(field)))
-        {
-          var v = reader.GetValue(reader.GetOrdinal(field));
-          return Convert.ToUInt32(v);
-        }
-
-        return 0;
-      }
-
       uint sn = 0;
       if (sn == 0)
-        sn = GetValue("startnrdh");
+        sn = GetValueUInt(reader, "startnrdh");
       if (sn == 0)
-        sn = GetValue("startnrsg");
+        sn = GetValueUInt(reader, "startnrsg");
       if (sn == 0)
-        sn = GetValue("startnrgs");
+        sn = GetValueUInt(reader, "startnrgs");
       if (sn == 0)
-        sn = GetValue("startnrsl");
+        sn = GetValueUInt(reader, "startnrsl");
       if (sn == 0)
-        sn = GetValue("startnrks");
+        sn = GetValueUInt(reader, "startnrks");
       if (sn == 0)
-        sn = GetValue("startnrps");
+        sn = GetValueUInt(reader, "startnrps");
 
       return sn;
     }
+
+
+    private Dictionary<uint, string> _id2Class;
+    private string GetClass(uint idClass)
+    {
+      if (_id2Class == null)
+      {
+        _id2Class = new Dictionary<uint, string>();
+
+        // Get Classes from DB
+        string sql = @"SELECT * FROM tblKlasse";
+
+        OleDbCommand command = new OleDbCommand(sql, _conn);
+        // Execute command  
+        using (OleDbDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            uint id = GetValueUInt(reader, "id");
+            string classname = reader["klname"].ToString();
+            _id2Class.Add(id, classname);
+          }
+        }
+      }
+
+      return _id2Class[idClass];
+  }
 
 
     #region TimeSpan and Fraction
