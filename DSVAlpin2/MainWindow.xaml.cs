@@ -17,6 +17,8 @@ using Microsoft.Win32;
 
 using DSVAlpin2Lib;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using QRCoder;
 
 namespace DSVAlpin2
 {
@@ -27,11 +29,15 @@ namespace DSVAlpin2
   {
     AppDataModel _dataModel;
     MruList _mruList;
-    DSVAlpin2HTTPServer _alpinServer; 
+    DSVAlpin2HTTPServer _alpinServer;
+    string _appTitle;
 
     public MainWindow()
     {
       InitializeComponent();
+
+      // Remember the Application Name
+      _appTitle = this.Title;
 
       _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
@@ -69,6 +75,9 @@ namespace DSVAlpin2
         // Create new Data Model
         _dataModel = new AppDataModel(db);
 
+        // Change the Application Window to contain the opened DataBase
+        this.Title = _appTitle + " - " + System.IO.Path.GetFileName(dbPath);
+
         // Connect with GUI DataGrids
         ObservableCollection<Participant> participants = _dataModel.GetParticipants();
         dgParticipants.ItemsSource = participants;
@@ -80,6 +89,8 @@ namespace DSVAlpin2
 
         // Restart DSVALpinServer (for having the lists on mobile devices)
         StartDSVAlpinServer();
+
+        SetupTesting();
 
         _mruList.AddFile(dbPath);
       }
@@ -104,7 +115,41 @@ namespace DSVAlpin2
 
       _alpinServer = new DSVAlpin2HTTPServer(8081, _dataModel);
       _alpinServer.Start();
+
+      DisplayURL();
     }
+
+    private void DisplayURL()
+    {
+      string url = _alpinServer.GetUrl();
+
+      QRCodeGenerator qrGenerator = new QRCodeGenerator();
+      QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+      QRCode qrCode = new QRCode(qrCodeData);
+      System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
+
+      BitmapImage bitmapimage = new BitmapImage();
+      using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+      {
+        bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+        memory.Position = 0;
+        bitmapimage.BeginInit();
+        bitmapimage.StreamSource = memory;
+        bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+        bitmapimage.EndInit();
+      }
+
+      imgQRCode.Source = bitmapimage;
+      lblURL.Content = url;
+    }
+
+
+    private void LblURL_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      if (_alpinServer != null)
+        System.Diagnostics.Process.Start(_alpinServer.GetUrl());
+    }
+
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
@@ -122,5 +167,38 @@ namespace DSVAlpin2
           StartNumber = 999
         });
     }
+
+
+    #region Testing
+
+    private CollectionViewSource testParticipantsSrc;
+
+    private void SetupTesting()
+    {
+      var participants = _dataModel.GetParticipants();
+
+      testParticipantsSrc = new CollectionViewSource();
+      testParticipantsSrc.Source = participants;
+
+      testParticipantsSrc.SortDescriptions.Clear();
+      testParticipantsSrc.SortDescriptions.Add(new SortDescription(nameof(Participant.Year), ListSortDirection.Ascending));
+
+      testParticipantsSrc.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
+
+      dgTest1.ItemsSource = testParticipantsSrc.View;
+
+      string output = Newtonsoft.Json.JsonConvert.SerializeObject(testParticipantsSrc.View);
+      System.Diagnostics.Debug.Write(output);
+    }
+
+
+    private void TxtTest1_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      string text = txtTest1.Text;
+      testParticipantsSrc.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((Participant)ea.Item).Firstname.Contains(text); });
+    }
+
+
+    #endregion
   }
 }

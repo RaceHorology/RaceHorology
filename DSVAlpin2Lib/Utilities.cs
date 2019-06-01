@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DSVAlpin2Lib
 {
-  public class ExtendedObservableCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
+  public class ItemsChangeObservableCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
   {
     protected override void ClearItems()
     {

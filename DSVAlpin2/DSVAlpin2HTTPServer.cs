@@ -20,6 +20,37 @@ namespace DSVAlpin2
     private string _baseFolder;
     AppDataModel _dataModel;
 
+    /// <summary>
+    /// Returns the URL the Application WebPage is available
+    /// </summary>
+    /// <returns> The URL</returns>
+    /// 
+    /// <remarks>
+    /// Connect on a UDP socket has the following effect: 
+    /// it sets the destination for Send/Recv, discards all packets from other addresses, 
+    /// and - which is what we use - transfers the socket into "connected" state, settings 
+    /// its appropriate fields.This includes checking the existence of the route to the 
+    /// destination according to the system's routing table and setting the local endpoint accordingly. 
+    /// The last part seems to be undocumented officially but it looks like an integral trait 
+    /// of Berkeley sockets API (a side effect of UDP "connected" state) that works reliably 
+    /// in both Windows and Linux across versions and distributions.
+    /// 
+    /// So, this method will give the local address that would be used to connect to the 
+    /// specified remote host. There is no real connection established, hence the specified 
+    /// remote ip can be unreachable.
+    /// </remarks>
+    public string GetUrl()
+    {
+      string localIP;
+      using (System.Net.Sockets.Socket socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, 0))
+      {
+        socket.Connect("8.8.8.8", 65530);
+        System.Net.IPEndPoint endPoint = socket.LocalEndPoint as System.Net.IPEndPoint;
+        localIP = endPoint.Address.ToString();
+      }
+      return "http://" + localIP + ":" + _httpServer.Port + "/";
+    }
+
     public DSVAlpin2HTTPServer(UInt16 port, AppDataModel dm)
     {
       _dataModel = dm;
