@@ -6,7 +6,8 @@
  * Copyright (c) 2012 Kaazing Corporation.
  */
 
-var url = "ws://" + window.location.hostname + ":" + window.location.port + "/StartList";
+//var url = "ws://" + window.location.hostname + ":" + window.location.port + "/StartList";
+var url = "ws://" + window.location.hostname + ":" + window.location.port + "/ResultList";
 
 var output;
 
