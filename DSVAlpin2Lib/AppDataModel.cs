@@ -107,7 +107,10 @@ namespace DSVAlpin2Lib
     {
       RunResult result = _results.SingleOrDefault(r => r._participant == participant);
 
-      result._participant = participant;
+      if (result == null)
+        result = new RunResult();
+
+        result._participant = participant;
 
       if (startTime != null)
         result.SetStartTime((TimeSpan)startTime);
@@ -118,19 +121,22 @@ namespace DSVAlpin2Lib
       if (runTime != null && startTime == null && finishTime == null)
         result.SetRunTime((TimeSpan)runTime);
 
-      _UpdateInternals();
+      InsertResult(result);
     }
 
     public void InsertResult(RunResult r)
     {
-      _results.Add(r);
+      // Check if already inserted
+      if (_results.SingleOrDefault(x => x==r)==null)
+        _results.Add(r);
+
       _UpdateInternals();
     }
 
     private void _UpdateInternals()
     {
       // Remove from onTrack list if a result is available
-      var itemsToRemove = _onTrack.Where(r => r.GetRunTime() != null);
+      var itemsToRemove = _onTrack.Where(r => r.GetRunTime() != null).ToList();
       foreach (var itemToRemove in itemsToRemove)
         _onTrack.Remove(itemToRemove);
 

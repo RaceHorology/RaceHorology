@@ -57,32 +57,21 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED"/>
-              <Grid Grid.Row="3">
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="Auto"/>
-                  <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Label x:Name="lblManualMode" Content="Manuelle Erfassung" HorizontalAlignment="Left" Margin="10,0,10,0" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" VerticalAlignment="Center" FontSize="12"/>
-                <Label x:Name="lblManual1" Content="Start" HorizontalAlignment="Left" Margin="10,0,10,0" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontSize="12"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Width="100" VerticalAlignment="Center"/>
-                <Label x:Name="lblManual2" Content="Ziel" HorizontalAlignment="Left" Margin="10,0,10,0" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" FontSize="12"/>
-                <TextBox Grid.Row="1" Grid.Column="3" Width="100" VerticalAlignment="Center"/>
-                <Label x:Name="lblManual3" Content="Laufzeit" HorizontalAlignment="Left" Margin="10,0,10,0" Grid.Row="1" Grid.Column="4" VerticalAlignment="Center" FontSize="12"/>
-                <TextBox Grid.Row="1" Grid.Column="5" Width="100" VerticalAlignment="Center"/>
-                <Button x:Name="btnManualTimeStore" Content="Speichern" Grid.Row="1" Grid.Column="6" Margin="10,0,10,0" VerticalAlignment="Center" />
-              </Grid>
+              <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged"/>
+              <StackPanel Grid.Row="3" Orientation="Horizontal">
+                <Label x:Name="lblManualMode" Content="Manuelle Erfassung" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                <Label x:Name="lblStartNumber" Content="Startnummer" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                <TextBox x:Name="txtStartNumber" Width="40" VerticalAlignment="Center"/>
+                <Label x:Name="lblStart" Content="Start" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                <TextBox x:Name="txtStart" Width="80" VerticalAlignment="Center"/>
+                <Button x:Name="btnManualTimeStart" Content="Now" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeStart_Click"/>
+                <Label x:Name="lblFinish" Content="Ziel" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                <TextBox x:Name="txtFinish" Width="80" VerticalAlignment="Center"/>
+                <Button x:Name="btnManualTimeFinish" Content="Now" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeFinish_Click"/>
+                <Label x:Name="lblRun" Content="Laufzeit" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                <TextBox x:Name="txtRun" Width="80" VerticalAlignment="Center"/>
+                <Button x:Name="btnManualTimeStore" Content="Speichern" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeStore_Click"/>
+              </StackPanel>
             </Grid>
 
             <GridSplitter x:Name="gridSplitter1" HorizontalAlignment="Stretch" Height="5" Grid.Row="1" />

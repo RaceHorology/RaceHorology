@@ -298,5 +298,74 @@ namespace DSVAlpin2
 
 
     #endregion
+
+    private void BtnManualTimeStore_Click(object sender, RoutedEventArgs e)
+    {
+      TimeSpan? start=null, finish = null, run = null;
+
+      try { start = TimeSpan.Parse(txtStart.Text); } catch (Exception) { }
+      try { finish = TimeSpan.Parse(txtFinish.Text); } catch (Exception) { }
+      try { run = TimeSpan.Parse(txtRun.Text); } catch (Exception) { }
+
+      Participant participant = dgStartList.SelectedItem as Participant;
+
+      if (participant != null)
+      {
+        RaceRun rr = _dataModel.GetRun(0);
+        rr.UpdateTimeMeasurement(participant, start, finish, run);
+      }
+    }
+
+    private void BtnManualTimeFinish_Click(object sender, RoutedEventArgs e)
+    {
+      TimeSpan finish = DateTime.Now - DateTime.Today;
+      txtFinish.Text = finish.ToString();
+      UpdateRunTime();
+    }
+
+    private void BtnManualTimeStart_Click(object sender, RoutedEventArgs e)
+    {
+      TimeSpan start = DateTime.Now - DateTime.Today;
+      txtStart.Text = start.ToString();
+      UpdateRunTime();
+    }
+
+    private void UpdateRunTime()
+    {
+      try
+      {
+        TimeSpan start = TimeSpan.Parse(txtStart.Text);
+        TimeSpan finish = TimeSpan.Parse(txtFinish.Text);
+        TimeSpan run = finish - start;
+        txtRun.Text = run.ToString();
+      }
+      catch (Exception)
+      { }
+
+    }
+
+    private void DgStartList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      Participant participant = dgStartList.SelectedItem as Participant;
+
+      if (participant!=null)
+      {
+        RaceRun rr = _dataModel.GetRun(0);
+        RunResult result = rr.GetResultList().SingleOrDefault(r => r._participant == participant);
+
+        if (result!=null)
+        {
+          txtStart.Text = result.GetStartTime()?.ToString();
+          txtFinish.Text = result.GetFinishTime()?.ToString();
+          txtRun.Text = result.GetRunTime()?.ToString();
+        }
+        else
+        {
+          txtStart.Text = txtFinish.Text = txtRun.Text = "";
+        }
+
+        txtStartNumber.Text = participant.StartNumber.ToString();
+      }
+    }
   }
 }
