@@ -37,9 +37,11 @@ namespace DSVAlpin2Lib
 
       // TODO: Assuming 2 runs for now
       var rr1 = _db.GetRaceRun(1);
+      rr1.SetStartList(_participants);
       _runs.Add(rr1);
 
       var rr2 = _db.GetRaceRun(2);
+      rr2.SetStartList(_participants);
       _runs.Add(rr2);
     }
 
@@ -63,16 +65,18 @@ namespace DSVAlpin2Lib
   {
     uint _run;
     ItemsChangeObservableCollection<Participant> _startList;
-    ObservableCollection<Tuple<Participant, TimeSpan>> _onTrack; // Participant and StartTime
-    ObservableCollection<RunResult> _results;
+    ItemsChangeObservableCollection<RunResult> _results; // This list represents the actual results
+
+    ItemsChangeObservableCollection<RunResult> _onTrack; // TODO: This list only contains the particpants that are on the run (might get removed later)
+
 
     public RaceRun(uint run)
     {
       _run = run;
 
       _startList = new ItemsChangeObservableCollection<Participant>();
-      _onTrack   = new ObservableCollection<Tuple<Participant, TimeSpan>>(); 
-      _results   = new ObservableCollection<RunResult>();
+      _onTrack   = new ItemsChangeObservableCollection<RunResult>(); 
+      _results   = new ItemsChangeObservableCollection<RunResult>();
     }
 
 
@@ -87,20 +91,54 @@ namespace DSVAlpin2Lib
         _startList.Add(p);
     }
 
-    public ObservableCollection<Tuple<Participant, TimeSpan>> GetOnTrackList()
+    public ItemsChangeObservableCollection<RunResult> GetOnTrackList()
     {
       return _onTrack;
     }
 
-    public ObservableCollection<RunResult> GetResultList()
+    public ItemsChangeObservableCollection<RunResult> GetResultList()
     {
       return _results;
     }
 
-        
+
+
+    public void UpdateTimeMeasurement(Participant participant, TimeSpan? startTime = null, TimeSpan? finishTime = null, TimeSpan? runTime = null)
+    {
+      RunResult result = _results.SingleOrDefault(r => r._participant == participant);
+
+      result._participant = participant;
+
+      if (startTime != null)
+        result.SetStartTime((TimeSpan)startTime);
+
+      if (finishTime != null)
+        result.SetFinishTime((TimeSpan)finishTime);
+
+      if (runTime != null && startTime == null && finishTime == null)
+        result.SetRunTime((TimeSpan)runTime);
+
+      _UpdateInternals();
+    }
+
     public void InsertResult(RunResult r)
     {
       _results.Add(r);
+      _UpdateInternals();
+    }
+
+    private void _UpdateInternals()
+    {
+      // Remove from onTrack list if a result is available
+      var itemsToRemove = _onTrack.Where(r => r.GetRunTime() != null);
+      foreach (var itemToRemove in itemsToRemove)
+        _onTrack.Remove(itemToRemove);
+
+      // Add to onTrack list if run result is not yet available
+      foreach (var res in _results)
+        if (res.GetRunTime() == null)
+          if (!_onTrack.Contains(res))
+            _onTrack.Add(res);
     }
 
   }

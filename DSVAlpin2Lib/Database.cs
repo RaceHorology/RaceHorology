@@ -84,7 +84,6 @@ namespace DSVAlpin2Lib
       command.Parameters.Add(new OleDbParameter("@durchgang", run));
 
       // Execute command  
-      List<Participant> startList = new List<Participant>();
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -104,19 +103,18 @@ namespace DSVAlpin2Lib
 
           RunResult r = new RunResult
           {
-            _participant = p,
-            _runTime = runTime,
-            _startTime = startTime,
-            _finishTime = finishTime
+            _participant = p
           };
+          if (startTime!=null)
+            r.SetStartTime((TimeSpan)startTime);
+          if (finishTime != null)
+            r.SetFinishTime((TimeSpan)finishTime);
+          if (runTime != null)
+            r.SetRunTime((TimeSpan)runTime);
 
           raceRun.InsertResult(r);
-
-          startList.Add(p);
         }
       }
-
-      raceRun.SetStartList(startList);
 
       return raceRun;
     }

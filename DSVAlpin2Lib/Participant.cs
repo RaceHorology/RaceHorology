@@ -90,7 +90,7 @@ namespace DSVAlpin2Lib
   /// Represents a run result (a pass / ein durchgang)
   /// </summary>
   /// <remarks>not yet final</remarks>
-  public class RunResult
+  public class RunResult : INotifyPropertyChanged
   {
     // Some public properties to get displayed in the list
     // TODO: This should not be part of this calss, instead another entity should do the conversion
@@ -99,16 +99,87 @@ namespace DSVAlpin2Lib
     public string Firstname { get { return _participant.Firstname; } }
     public string Club { get { return _participant.Club; } }
     public string Class { get { return _participant.Class; } }
+    public TimeSpan? Runtime { get { return _runTime; } }
 
-    public string Runtime { get { return _runTime == null ? "niz" : _runTime.ToString(); } }
 
+    public void SetRunTime(TimeSpan t)
+    {
+      _runTime = t;
+
+      // Clear Start & Finish Time (might be inconsistent to the start & finish time)
+      MakeConsistencyCheck();
+
+      NotifyPropertyChanged(propertyName: nameof(Runtime));
+    }
+
+    public TimeSpan? GetRunTime() { return _runTime;  }
+
+
+    public void SetStartTime(TimeSpan t)
+    {
+      _startTime = t;
+
+      if (_startTime != null && _finishTime != null)
+        if (_runTime == null)
+          _runTime = _finishTime - _startTime;
+        else
+          MakeConsistencyCheck();
+
+      NotifyPropertyChanged(propertyName: nameof(Runtime));
+    }
+
+    public TimeSpan? GetStartTime() { return _startTime; }
+
+
+    public void SetFinishTime(TimeSpan t)
+    {
+      _finishTime = t;
+
+      if (_startTime != null && _finishTime != null)
+        if (_runTime == null)
+          _runTime = _finishTime - _startTime;
+        else
+          MakeConsistencyCheck();
+
+      NotifyPropertyChanged(propertyName: nameof(Runtime));
+    }
+
+    public TimeSpan? GetFinishTime() { return _finishTime; }
+
+
+    private void MakeConsistencyCheck()
+    {
+      // Consistency check
+      if (_runTime != null && _startTime != null && _finishTime != null)
+      {
+        TimeSpan calcRunTime = (TimeSpan )_runTime;
+        TimeSpan diff = calcRunTime - (TimeSpan)_runTime;
+
+        System.Diagnostics.Debug.Assert(Math.Abs(diff.TotalMilliseconds) < 1.0);
+      }
+    }
 
     public Participant _participant;
 
-    public TimeSpan? _runTime;
+    private TimeSpan? _runTime;
+    private TimeSpan? _startTime;
+    private TimeSpan? _finishTime;
 
-    public TimeSpan? _startTime;
-    public TimeSpan? _finishTime;
+
+    #region INotifyPropertyChanged implementation
+
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+
+    #endregion
   }
 
 }
