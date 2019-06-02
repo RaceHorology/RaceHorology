@@ -96,8 +96,6 @@ namespace DSVAlpin2
     public void Start()
     {
       _httpServer.AddWebSocketService<StartListBehavior>("/StartList", (connection) => { connection.SetupThis(_dataModel); });
-      _httpServer.AddWebSocketService<ResultListBehavior>("/ResultList", (connection) => { connection.SetupThis(_dataModel); });
-
 
       _httpServer.Start();
     }
@@ -216,44 +214,5 @@ namespace DSVAlpin2
       //Send(!name.IsNullOrEmpty() ? String.Format("\"{0}\" to {1}", e.Data, name) : e.Data);
     }
   }
-
-  public class ResultListBehavior : DSVAlpinBaseBehavior
-  {
-    public override void SetupThis(AppDataModel dm)
-    {
-      base.SetupThis(dm);
-
-      _dm.GetRun(0).GetResultList().CollectionChanged += StartListChanged;
-    }
-
-    protected override void TearDown()
-    {
-      if (_dm != null)
-        _dm.GetRun(0).GetResultList().CollectionChanged -= StartListChanged;
-
-      base.TearDown();
-    }
-
-
-    private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
-    {
-      SendResultList();
-    }
-
-    void SendResultList()
-    {
-      string output = JsonConvert.SerializeObject(_dm.GetRun(0).GetResultList());
-      Send(output);
-    }
-
-
-    protected override void OnMessage(MessageEventArgs e)
-    {
-      SendResultList();
-      //var name = Context.QueryString["name"];
-      //Send(!name.IsNullOrEmpty() ? String.Format("\"{0}\" to {1}", e.Data, name) : e.Data);
-    }
-  }
-
 
 }
