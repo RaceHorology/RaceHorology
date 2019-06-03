@@ -80,7 +80,7 @@ namespace DSVAlpin2Lib
     }
 
 
-    public ObservableCollection<Participant> GetStartList()
+    public ItemsChangeObservableCollection<Participant> GetStartList()
     {
       return _startList;
     }

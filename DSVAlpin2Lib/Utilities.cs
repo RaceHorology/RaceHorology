@@ -10,6 +10,18 @@ namespace DSVAlpin2Lib
 {
   public class ItemsChangeObservableCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
   {
+    /// <summary>
+    /// Specifies whether the collection itself shall be reset and trigger a CollectionChanged event in case an item's property changed
+    /// </summary>
+    public bool CollectionResetIfItemChanged { get; set; } = false;
+
+
+    public delegate void ItemChangedEventHandler(object sender, PropertyChangedEventArgs e);
+    /// <summary>
+    /// If an item of the collection changed its properties this event triggers
+    /// </summary>
+    public event ItemChangedEventHandler ItemChanged;
+
     protected override void ClearItems()
     {
       foreach (var item in Items) item.PropertyChanged -= ItemPropertyChanged;
@@ -37,7 +49,11 @@ namespace DSVAlpin2Lib
 
     void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+      ItemChangedEventHandler handler = ItemChanged;
+      handler?.Invoke(this, e);
+
+      if (CollectionResetIfItemChanged)
+        OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
     }
   }
 }

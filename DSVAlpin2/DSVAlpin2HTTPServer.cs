@@ -11,6 +11,7 @@ using WebSocketSharp.Server;
 using DSVAlpin2Lib;
 using System.Collections.Specialized;
 using Newtonsoft.Json;
+using System.ComponentModel;
 
 namespace DSVAlpin2
 {
@@ -186,18 +187,26 @@ namespace DSVAlpin2
       base.SetupThis(dm);
 
       _dm.GetRun(0).GetStartList().CollectionChanged += StartListChanged;
+      _dm.GetRun(0).GetStartList().ItemChanged += StartListItemChanged;
     }
 
     protected override void TearDown()
     {
       if (_dm != null)
+      {
+        _dm.GetRun(0).GetStartList().ItemChanged -= StartListItemChanged;
         _dm.GetRun(0).GetStartList().CollectionChanged -= StartListChanged;
+      }
 
       base.TearDown();
     }
 
-    
+
     private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendStartList();
+    }
+    private void StartListItemChanged(object sender, PropertyChangedEventArgs args)
     {
       SendStartList();
     }
@@ -223,22 +232,33 @@ namespace DSVAlpin2
     {
       base.SetupThis(dm);
 
-      _dm.GetRun(0).GetResultList().CollectionChanged += StartListChanged;
+      _dm.GetRun(0).GetResultList().CollectionChanged += ResultListChanged;
+      _dm.GetRun(0).GetResultList().ItemChanged += ResultListItemChanged;
+
     }
 
     protected override void TearDown()
     {
       if (_dm != null)
-        _dm.GetRun(0).GetResultList().CollectionChanged -= StartListChanged;
+      {
+        _dm.GetRun(0).GetResultList().ItemChanged -= ResultListItemChanged;
+        _dm.GetRun(0).GetResultList().CollectionChanged -= ResultListChanged;
+      }
 
       base.TearDown();
     }
 
 
-    private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    private void ResultListChanged(object sender, NotifyCollectionChangedEventArgs args)
     {
       SendResultList();
     }
+
+    private void ResultListItemChanged(object sender, PropertyChangedEventArgs args)
+    {
+      SendResultList();
+    }
+
 
     void SendResultList()
     {
