@@ -162,4 +162,27 @@ namespace DSVAlpin2Lib
   };
 
 
+  #region Time Measurement
+
+  public class TimeMeasurementEventArgs : EventArgs
+  {
+    public uint StartNumber;
+    public TimeSpan? RunTime;
+    public TimeSpan? StartTime;
+    public TimeSpan? FinishTime;
+  }
+
+  public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);
+
+  public interface ILiveTimeMeasurement
+  {
+    /// <summary>
+    /// If a time measurement happend, this event is triggered
+    /// </summary>
+    event TimeMeasurementEventHandler TimeMeasurementReceived;
+
+  }
+
+  #endregion
+
 }
