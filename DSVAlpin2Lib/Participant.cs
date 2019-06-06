@@ -120,7 +120,6 @@ namespace DSVAlpin2Lib
       _startTime = t;
 
       if (_startTime != null && _finishTime != null)
-        if (_runTime == null)
           _runTime = _finishTime - _startTime;
         else
           MakeConsistencyCheck();
@@ -136,7 +135,6 @@ namespace DSVAlpin2Lib
       _finishTime = t;
 
       if (_startTime != null && _finishTime != null)
-        if (_runTime == null)
           _runTime = _finishTime - _startTime;
         else
           MakeConsistencyCheck();
