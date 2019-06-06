@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace DSVAlpin2Lib
 {
@@ -20,7 +23,7 @@ namespace DSVAlpin2Lib
   {
     private IAppDataModelDataBase _db;
 
-    ObservableCollection<Participant> _participants;
+    ItemsChangeObservableCollection<Participant> _participants;
     List<RaceRun> _runs;
 
     public ObservableCollection<Participant> GetParticipants()
@@ -37,7 +40,8 @@ namespace DSVAlpin2Lib
 
       // TODO: Assuming 2 runs for now
       var rr1 = _db.GetRaceRun(1);
-      rr1.SetStartList(_participants);
+      //rr1.SetStartList(_participants);
+      rr1.SetStartListProvider(this);
       _runs.Add(rr1);
 
       var rr2 = _db.GetRaceRun(2);
@@ -69,6 +73,7 @@ namespace DSVAlpin2Lib
 
     ItemsChangeObservableCollection<RunResult> _onTrack; // TODO: This list only contains the particpants that are on the run (might get removed later)
 
+    private StartListProvider _slp;
 
     public RaceRun(uint run)
     {
@@ -83,6 +88,15 @@ namespace DSVAlpin2Lib
     public ItemsChangeObservableCollection<Participant> GetStartList()
     {
       return _startList;
+    }
+    public System.Collections.IEnumerable GetStartListV()
+    {
+      return _slp.GetStartList();
+    }
+
+    public void SetStartListProvider(AppDataModel dm)
+    {
+      _slp = new StartListProvider(dm, _startList);
     }
 
     public void SetStartList(ICollection<Participant> participants)
@@ -150,13 +164,76 @@ namespace DSVAlpin2Lib
   }
 
 
+
+
+
+  public class StartListProvider
+  {
+    private AppDataModel _dm;
+
+    ObservableCollection<Participant> _participants;
+    CollectionViewSource _startListView;
+
+    ItemsChangeObservableCollection<Participant> _startList;
+
+    public StartListProvider(AppDataModel dm, ItemsChangeObservableCollection<Participant> startList)
+    {
+      _dm = dm;
+
+      _participants = _dm.GetParticipants();
+      _startList = startList;
+
+      _startListView = new CollectionViewSource();
+      _startListView.Source = _participants;
+
+      _startListView.SortDescriptions.Clear();
+      _startListView.SortDescriptions.Add(new SortDescription(nameof(Participant.StartNumber), ListSortDirection.Ascending));
+
+      _startListView.LiveSortingProperties.Add(nameof(Participant.StartNumber));
+      _startListView.IsLiveSortingRequested = true;
+
+      _startListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
+      _startListView.LiveGroupingProperties.Add(nameof(Participant.Class));
+      _startListView.IsLiveGroupingRequested = true;
+
+      //dgTest1.ItemsSource = testParticipantsSrc.View;
+
+      //string output = Newtonsoft.Json.JsonConvert.SerializeObject(testParticipantsSrc.View);
+      //System.Diagnostics.Debug.Write(output);
+
+      //_startListView.View.CollectionChanged += StartListChanged;
+
+
+      //_participants.CollectionChanged +=
+    }
+
+    private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      _startList.Clear();
+      foreach (object item in _startListView.View)
+      {
+        Participant participant = (Participant) item ;
+        _startList.Add(participant);
+      }
+
+    }
+
+    public System.Collections.IEnumerable GetStartList()
+    {
+      return _startListView.View;
+    }
+
+
+  }
+
+
   /// <summary>
   /// Defines the interface to the actual database engine
   /// </summary>
   /// <remarks>Assuming the database format changes we can simply create another implementation.</remarks>
   public interface IAppDataModelDataBase
   {
-    ObservableCollection<Participant> GetParticipants();
+    ItemsChangeObservableCollection<Participant> GetParticipants();
     RaceRun GetRaceRun(uint run);
 
   };

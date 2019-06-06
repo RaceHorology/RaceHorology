@@ -52,9 +52,9 @@ namespace DSVAlpin2Lib
       _conn = null;
     }
 
-    public ObservableCollection<Participant> GetParticipants()
+    public ItemsChangeObservableCollection<Participant> GetParticipants()
     {
-      ObservableCollection<Participant> participants = new ObservableCollection<Participant>();
+      ItemsChangeObservableCollection<Participant> participants = new ItemsChangeObservableCollection<Participant>();
 
       string sql = @"SELECT * FROM tblTeilnehmer";
 

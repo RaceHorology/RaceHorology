@@ -143,7 +143,7 @@ namespace DSVAlpin2
 
       // TODO: Just for now, assume first run
       var run = _dataModel.GetRun(0);
-      dgStartList.ItemsSource = run.GetStartList();
+      dgStartList.ItemsSource = run.GetStartListV();
       dgRunning.ItemsSource = run.GetOnTrackList();
       dgResults.ItemsSource = run.GetResultList();
     }
