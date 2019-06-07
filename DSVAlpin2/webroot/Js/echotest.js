@@ -6,6 +6,7 @@
  * Copyright (c) 2012 Kaazing Corporation.
  */
 
+// Test for Bernd
 //var url = "ws://" + window.location.hostname + ":" + window.location.port + "/StartList";
 var url = "ws://" + window.location.hostname + ":" + window.location.port + "/ResultList";
 
