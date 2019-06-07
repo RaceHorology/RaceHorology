@@ -1,4 +1,4 @@
-﻿<Window x:Class="DSVAlpin2.MainWindow"
+<Window x:Class="DSVAlpin2.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -57,16 +57,15 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged">
-                <DataGrid.GroupStyle>
-                  <GroupStyle>
-                    <GroupStyle.HeaderTemplate>
-                      <DataTemplate>
-                        <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
-                      </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
-                  </GroupStyle>
-                </DataGrid.GroupStyle>
+              <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber}" />
+                  <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}" />
+                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}" />
+                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class}" />
+                  <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club}" />
+                </DataGrid.Columns>
               </DataGrid>
               <StackPanel Grid.Row="3" Orientation="Horizontal">
                 <Label x:Name="lblManualMode" Content="Manuelle Erfassung" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
@@ -92,7 +91,17 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED"/>
+              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber}" />
+                  <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}" />
+                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}" />
+                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class}" />
+                  <DataGridTextColumn Header="Verein" Binding="{Binding Club}" />
+                  <DataGridTextColumn Header="Aktuelle Zeit" />
+                </DataGrid.Columns>
+              </DataGrid>
             </Grid>
 
             <GridSplitter x:Name="gridSplitter2" HorizontalAlignment="Stretch" Height="5" Grid.Row="3" />
@@ -103,7 +112,27 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblResults" Content="Ergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" />
+              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Platz" Binding="{Binding Position}" />
+                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber}" />
+                  <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}" />
+                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}" />
+                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class}" />
+                  <DataGridTextColumn Header="Verein" Binding="{Binding Club}" />
+                  <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+                </DataGrid.Columns>
+                <DataGrid.GroupStyle>
+                  <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                      <DataTemplate>
+                        <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                      </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                  </GroupStyle>
+                </DataGrid.GroupStyle>
+              </DataGrid>
             </Grid>
           </Grid>
         </TabItem>

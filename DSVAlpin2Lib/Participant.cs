@@ -94,9 +94,11 @@ namespace DSVAlpin2Lib
   {
     // Some public properties to get displayed in the list
     // TODO: This should not be part of this calss, instead another entity should do the conversion
+    public Participant Participant { get { return _participant; } }
     public string StartNumber { get { return _participant.StartNumber.ToString(); } }
     public string Name { get { return _participant.Name; } }
     public string Firstname { get { return _participant.Firstname; } }
+    public int Year { get { return _participant.Year; } }
     public string Club { get { return _participant.Club; } }
     public string Class { get { return _participant.Class; } }
     public TimeSpan? Runtime { get { return _runTime; } }

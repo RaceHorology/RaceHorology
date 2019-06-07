@@ -192,9 +192,9 @@ namespace DSVAlpin2Lib
       _startListView.LiveSortingProperties.Add(nameof(Participant.StartNumber));
       _startListView.IsLiveSortingRequested = true;
 
-      _startListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
-      _startListView.LiveGroupingProperties.Add(nameof(Participant.Class));
-      _startListView.IsLiveGroupingRequested = true;
+      //_startListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
+      //_startListView.LiveGroupingProperties.Add(nameof(Participant.Class));
+      //_startListView.IsLiveGroupingRequested = true;
 
       //dgTest1.ItemsSource = testParticipantsSrc.View;
 

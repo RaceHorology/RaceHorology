@@ -144,6 +144,10 @@ namespace DSVAlpin2
       // TODO: Just for now, assume first run
       var run = _dataModel.GetRun(0);
       dgStartList.ItemsSource = run.GetStartListV();
+
+      // TODO: Hide not needed columns
+      //dgStartList.Columns[5].Visibility = Visibility.Collapsed;
+
       dgRunning.ItemsSource = run.GetOnTrackList();
       dgResults.ItemsSource = run.GetResultList();
     }
@@ -337,7 +341,7 @@ namespace DSVAlpin2
         TimeSpan start = TimeSpan.Parse(txtStart.Text);
         TimeSpan finish = TimeSpan.Parse(txtFinish.Text);
         TimeSpan run = finish - start;
-        txtRun.Text = run.ToString();
+        txtRun.Text = run.ToString(@"mm\:ss\,ff");
       }
       catch (Exception)
       { }

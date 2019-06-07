@@ -39,6 +39,9 @@ namespace DSVAlpin2LibTest
       Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 130), ts1);
       TimeSpan ts2 = DSVAlpin2Lib.Database.CreateTimeSpan(DSVAlpin2Lib.Database.FractionForTimeSpan(ts1));
       Assert.AreEqual(ts1, ts2);
+
+      TimeSpan ts3 = new TimeSpan(0, 0, 1, 55, 130);
+      string s3 = ts3.ToString(@"mm\:s\,ff");
     }
 
 
