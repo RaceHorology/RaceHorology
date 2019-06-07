@@ -66,12 +66,12 @@
               <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
               <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False">
                 <DataGrid.Columns>
-                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber}" />
-                  <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}" />
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}" />
-                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class}" />
-                  <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club}" />
+                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+                  <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                 </DataGrid.Columns>
               </DataGrid>
               <StackPanel Grid.Row="3" Orientation="Horizontal">
@@ -100,12 +100,12 @@
               <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
               <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False">
                 <DataGrid.Columns>
-                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber}" />
-                  <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}" />
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}" />
-                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class}" />
-                  <DataGridTextColumn Header="Verein" Binding="{Binding Club}" />
+                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                   <DataGridTextColumn Header="Aktuelle Zeit" />
                 </DataGrid.Columns>
               </DataGrid>
@@ -121,14 +121,14 @@
               <Label x:Name="lblResults" Content="Ergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
               <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False">
                 <DataGrid.Columns>
-                  <DataGridTextColumn Header="Platz" Binding="{Binding Position}" />
-                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber}" />
-                  <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}" />
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}" />
-                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class}" />
-                  <DataGridTextColumn Header="Verein" Binding="{Binding Club}" />
-                  <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+                  <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
                 </DataGrid.Columns>
                 <DataGrid.GroupStyle>
                   <GroupStyle>
