@@ -64,7 +64,7 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False">
+              <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
                   <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
@@ -98,7 +98,7 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False">
+              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
                   <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
@@ -119,7 +119,7 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblResults" Content="Ergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False">
+              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay}" />
                   <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
