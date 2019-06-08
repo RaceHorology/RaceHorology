@@ -236,6 +236,9 @@ namespace DSVAlpin2Lib
     ItemsChangeObservableCollection<Participant> GetParticipants();
     RaceRun GetRaceRun(uint run);
 
+    void CreateOrUpdateParticipant(Participant participant);
+    void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result);
+
   };
 
 

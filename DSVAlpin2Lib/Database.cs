@@ -52,6 +52,10 @@ namespace DSVAlpin2Lib
       _conn = null;
     }
 
+
+    #region IAppDataModelDataBase implementation
+
+
     public ItemsChangeObservableCollection<Participant> GetParticipants()
     {
       ItemsChangeObservableCollection<Participant> participants = new ItemsChangeObservableCollection<Participant>();
@@ -120,8 +124,29 @@ namespace DSVAlpin2Lib
     }
 
 
+    /// <summary>
+    /// Creates or updates a participant in the DataBase
+    /// </summary>
+    /// <param name="participant">The participant to store.</param>
+    public void CreateOrUpdateParticipant(Participant participant)
+    {
+      throw new Exception("not implemented");
+    }
 
-    private Participant CreateParticipantFromDB(OleDbDataReader reader)
+    /// <summary>
+    /// Stores the RunResult
+    /// </summary>
+    /// <param name="raceRun">The correlated RaceRun the reuslt is associated with.</param>
+    /// <param name="result">The RunResult to store.</param>
+    public void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result)
+    {
+      throw new Exception("not implemented");
+    }
+
+  #endregion
+
+  #region Internal Implementation
+  private Participant CreateParticipantFromDB(OleDbDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
 
@@ -209,8 +234,10 @@ namespace DSVAlpin2Lib
       }
 
       return _id2Class[idClass];
-  }
+    }
 
+
+    #endregion
 
     #region TimeSpan and Fraction
     const Int64 nanosecondsPerDay = 24L * 60 * 60 * 1000 * 1000 * 10;
