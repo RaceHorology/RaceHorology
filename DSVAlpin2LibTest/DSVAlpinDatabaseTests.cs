@@ -64,31 +64,42 @@ namespace DSVAlpin2LibTest
 
 
     [TestMethod]
-    //[DeploymentItem(@"TestDataBases\KSC2019-2-PSL.mdb")]
-    [DeploymentItem(@"TestDataBases\Kirchberg U8 U10 10.02.19 RS Neu.mdb")]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void DatabaseOpenClose()
     {
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      //db.Connect(Path.Combine(_testContext.TestDeploymentDir, @"KSC2019-2-PSL.mdb"));
-      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"Kirchberg U8 U10 10.02.19 RS Neu.mdb"));
+      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb"));
 
-      db.GetParticipants();
+      var participants = db.GetParticipants();
+
+      Assert.IsTrue(participants.Count() == 5);
+      Assert.IsTrue(participants.Where(x => x.Name == "Nachname 3").Count() == 1);
 
       db.Close();
     }
 
     [TestMethod]
-    //[DeploymentItem(@"TestDataBases\KSC2019-2-PSL.mdb")]
-    [DeploymentItem(@"TestDataBases\Kirchberg U8 U10 10.02.19 RS Neu.mdb")]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void DatabaseRaceRuns()
     {
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      //db.Connect(Path.Combine(_testContext.TestDeploymentDir, @"KSC2019-2-PSL.mdb"));
-      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"Kirchberg U8 U10 10.02.19 RS Neu.mdb"));
+      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb"));
 
       db.GetParticipants();
       RaceRun rr1 = db.GetRaceRun(1);
       RaceRun rr2 = db.GetRaceRun(2);
+
+      Assert.IsTrue(rr1.GetOnTrackList().Count() == 1);
+      Assert.IsTrue(rr2.GetOnTrackList().Count() == 1);
+
+      Assert.IsTrue(rr1.GetResultList().Count() == 4);
+      Assert.IsTrue(rr2.GetResultList().Count() == 4);
+
+      Assert.IsTrue(rr1.GetResultList().Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Name == "Nachname 3");
+
+      Assert.IsTrue(rr2.GetResultList().Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Name == "Nachname 2");
+
+      Assert.IsTrue(rr2.GetResultList().Where(x => x.Participant.Name == "Nachname 5").Count() == 0);
 
       db.Close();
     }
