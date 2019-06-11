@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace DSVAlpin2Lib
       _conn = new OleDbConnection
       {
         ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename
+        //ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename + @";OLEDB:Flush Transaction Timeout=0"
       };
 
       try
@@ -130,7 +132,51 @@ namespace DSVAlpin2Lib
     /// <param name="participant">The participant to store.</param>
     public void CreateOrUpdateParticipant(Participant participant)
     {
-      throw new Exception("not implemented");
+      // Test whether the participant exists
+      uint id = _id2Participant.Where(x => x.Value == participant).FirstOrDefault().Key;
+      bool bNew = (id == 0);
+
+      OleDbCommand cmd;
+
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblTeilnehmer " +
+                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, klasse = @klasse, jahrgang = @jahrgang " +
+                     @"WHERE id = @id";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        // Figure out the new ID
+        using (OleDbCommand command = new OleDbCommand("SELECT MAX(id) FROM tblTeilnehmer;", _conn))
+        {
+          object oId = command.ExecuteScalar();
+          if (oId == DBNull.Value)
+            id = 0;
+          else
+            id = Convert.ToUInt32(oId);
+          id++;
+        }
+               
+        string sql = @"INSERT INTO tblTeilnehmer (id, nachname, vorname, sex, verein, nation, klasse, jahrgang) " +
+                     @"VALUES (@id, @nachname, @vorname, @sex, @verein, @nation, @klasse, @jahrgang) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+
+      cmd.CommandType = CommandType.Text;
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      cmd.Parameters.Add(new OleDbParameter("@nachname", participant.Name));
+      cmd.Parameters.Add(new OleDbParameter("@vorname", participant.Firstname));
+      cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex));
+      cmd.Parameters.Add(new OleDbParameter("@verein", participant.Club));
+      cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
+      cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
+      cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
+
+      cmd.ExecuteNonQuery();
+
+      if (bNew)
+        _id2Participant.Add((uint)id, participant);
     }
 
     /// <summary>
@@ -171,6 +217,14 @@ namespace DSVAlpin2Lib
       }
     }
 
+
+    private static int GetLatestAutonumber(OleDbConnection connection)
+    {
+      using (OleDbCommand command = new OleDbCommand("SELECT @@IDENTITY;", connection))
+      {
+        return (int)command.ExecuteScalar();
+      }
+    }
 
     static private uint GetValueUInt(OleDbDataReader reader, string field)
     {
