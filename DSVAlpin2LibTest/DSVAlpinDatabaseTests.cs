@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DSVAlpin2Lib;
 using System.IO;
 using System.Data.OleDb;
+using System.Linq;
 
 namespace DSVAlpin2LibTest
 {
@@ -116,6 +117,13 @@ namespace DSVAlpin2LibTest
 
       var participants = db.GetParticipants();
 
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        participants = db.GetParticipants();
+      }
+
       Participant pNew1 = new Participant
       {
         Name = "Nachname 6",
@@ -127,6 +135,7 @@ namespace DSVAlpin2LibTest
         Year = 2009
       };
       db.CreateOrUpdateParticipant(pNew1);
+      DBCacheWorkaround();
       Assert.IsTrue(CheckParticipant(dbFilename, pNew1, 1));
       
 
@@ -141,10 +150,12 @@ namespace DSVAlpin2LibTest
         Year = 2010
       };
       db.CreateOrUpdateParticipant(pNew2);
+      DBCacheWorkaround();
       Assert.IsTrue(CheckParticipant(dbFilename, pNew2, 2));
 
 
       // Update a Participant
+      pNew1 = participants.Where(x => x.Name == "Nachname 6").FirstOrDefault();
       pNew1.Name = "Nachname 6.1";
       pNew1.Firstname = "Vorname 6.1";
       pNew1.Sex = "W";
@@ -153,6 +164,7 @@ namespace DSVAlpin2LibTest
       pNew1.Class = "Testklasse 1.1";
       pNew1.Year = 2008;
       db.CreateOrUpdateParticipant(pNew1);
+      DBCacheWorkaround();
       Assert.IsTrue(CheckParticipant(dbFilename, pNew1, 1));
     }
 
