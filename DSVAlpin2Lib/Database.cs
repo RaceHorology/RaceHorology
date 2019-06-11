@@ -144,6 +144,14 @@ namespace DSVAlpin2Lib
                      @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, klasse = @klasse, jahrgang = @jahrgang " +
                      @"WHERE id = @id";
         cmd = new OleDbCommand(sql, _conn);
+        cmd.Parameters.Add(new OleDbParameter("@nachname", participant.Name));
+        cmd.Parameters.Add(new OleDbParameter("@vorname", participant.Firstname));
+        cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex));
+        cmd.Parameters.Add(new OleDbParameter("@verein", participant.Club));
+        cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
+        cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
+        cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
+        cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
       }
       else
       {
@@ -161,17 +169,17 @@ namespace DSVAlpin2Lib
         string sql = @"INSERT INTO tblTeilnehmer (id, nachname, vorname, sex, verein, nation, klasse, jahrgang) " +
                      @"VALUES (@id, @nachname, @vorname, @sex, @verein, @nation, @klasse, @jahrgang) ";
         cmd = new OleDbCommand(sql, _conn);
+        cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+        cmd.Parameters.Add(new OleDbParameter("@nachname", participant.Name));
+        cmd.Parameters.Add(new OleDbParameter("@vorname", participant.Firstname));
+        cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex));
+        cmd.Parameters.Add(new OleDbParameter("@verein", participant.Club));
+        cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
+        cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
+        cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
       }
 
       cmd.CommandType = CommandType.Text;
-      cmd.Parameters.Add(new OleDbParameter("@id", id));
-      cmd.Parameters.Add(new OleDbParameter("@nachname", participant.Name));
-      cmd.Parameters.Add(new OleDbParameter("@vorname", participant.Firstname));
-      cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex));
-      cmd.Parameters.Add(new OleDbParameter("@verein", participant.Club));
-      cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
-      cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
-      cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
 
       cmd.ExecuteNonQuery();
 
