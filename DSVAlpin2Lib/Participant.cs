@@ -17,16 +17,16 @@ namespace DSVAlpin2Lib
     private string _name;
     private string _firstname;
     private string _sex;
-    private int    _year;
+    private int _year;
     private string _club;
     private string _nation;
     private string _class;
-    private uint   _startnumber;
+    private uint _startnumber;
 
     public string Name
     {
       get => _name;
-      set { _name = value;  NotifyPropertyChanged(); }
+      set { _name = value; NotifyPropertyChanged(); }
     }
     public string Firstname
     {
@@ -45,7 +45,7 @@ namespace DSVAlpin2Lib
       get => _year;
       set { _year = value; NotifyPropertyChanged(); }
     }
-    public string Club 
+    public string Club
     {
       get => _club;
       set { _club = value; NotifyPropertyChanged(); }
@@ -57,12 +57,12 @@ namespace DSVAlpin2Lib
       set { _nation = value; NotifyPropertyChanged(); }
     }
 
-    public string Class 
+    public string Class
     {
       get => _class;
       set { _class = value; NotifyPropertyChanged(); }
     }
-    public uint StartNumber 
+    public uint StartNumber
     {
       get => _startnumber;
       set { _startnumber = value; NotifyPropertyChanged(); }
@@ -81,7 +81,7 @@ namespace DSVAlpin2Lib
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    
+
     #endregion
   }
 
@@ -92,6 +92,8 @@ namespace DSVAlpin2Lib
   /// <remarks>not yet final</remarks>
   public class RunResult : INotifyPropertyChanged
   {
+    public enum EResultCode { Normal = 0, NaS = 1, NiZ = 2, DIS = 3, NQ = 4 }; // 0;"Normal";1;"Nicht am Start";2;"Nicht im Ziel";3;"Disqualifiziert";4;"Nicht qualifiziert"
+
     // Some public properties to get displayed in the list
     // TODO: This should not be part of this calss, instead another entity should do the conversion
     public Participant Participant { get { return _participant; } }
@@ -102,6 +104,8 @@ namespace DSVAlpin2Lib
     public string Club { get { return _participant.Club; } }
     public string Class { get { return _participant.Class; } }
     public TimeSpan? Runtime { get { return _runTime; } }
+    public EResultCode ResultCode { get { return _resultCode; } set { _resultCode = value; NotifyPropertyChanged(); } }
+    public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
 
 
     public void SetRunTime(TimeSpan t)
@@ -164,6 +168,8 @@ namespace DSVAlpin2Lib
     private TimeSpan? _runTime;
     private TimeSpan? _startTime;
     private TimeSpan? _finishTime;
+    private EResultCode _resultCode;
+    private string _disqualText;
 
 
     #region INotifyPropertyChanged implementation

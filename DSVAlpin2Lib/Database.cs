@@ -133,7 +133,7 @@ namespace DSVAlpin2Lib
     public void CreateOrUpdateParticipant(Participant participant)
     {
       // Test whether the participant exists
-      uint id = _id2Participant.Where(x => x.Value == participant).FirstOrDefault().Key;
+      uint id = GetParticipantId(participant);
       bool bNew = (id == 0);
 
       OleDbCommand cmd;
@@ -181,7 +181,8 @@ namespace DSVAlpin2Lib
 
       cmd.CommandType = CommandType.Text;
 
-      cmd.ExecuteNonQuery();
+      int temp = cmd.ExecuteNonQuery();
+      Debug.Assert(temp == 1, "Database could not be updated");
 
       if (bNew)
         _id2Participant.Add((uint)id, participant);
@@ -194,13 +195,65 @@ namespace DSVAlpin2Lib
     /// <param name="result">The RunResult to store.</param>
     public void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result)
     {
-      throw new Exception("not implemented");
+      uint idParticipant = GetParticipantId(result.Participant);
+
+      bool bNew = true;
+      using (OleDbCommand command = new OleDbCommand("SELECT COUNT(*) FROM tblZeit WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang", _conn))
+      {
+        command.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+        command.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
+        command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+        object oId = command.ExecuteScalar();
+
+        bNew = (oId == DBNull.Value || (int)oId == 0);
+      }
+
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblZeit " +
+                     @"SET ergcode = @ergcode, start = @start, ziel = @ziel, netto = @netto, disqualtext = @disqualtext " +
+                     @"WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        string sql = @"INSERT INTO tblZeit (ergcode, start, ziel, netto, disqualtext, teilnehmer, disziplin, durchgang) " +
+                     @"VALUES (@ergcode, @start, @ziel, @netto, @disqualtext, @teilnehmer, @disziplin, @durchgang) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      cmd.Parameters.Add(new OleDbParameter("@ergcode", (byte)result.ResultCode));
+      if (result.GetStartTime() == null)
+        cmd.Parameters.Add(new OleDbParameter("@start", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@start", FractionForTimeSpan((TimeSpan)result.GetStartTime())));
+      if (result.GetFinishTime() == null)
+        cmd.Parameters.Add(new OleDbParameter("@ziel", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@ziel", FractionForTimeSpan((TimeSpan)result.GetFinishTime())));
+      if (result.GetRunTime() == null)
+        cmd.Parameters.Add(new OleDbParameter("@netto", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime())));
+      if (result.DisqualText == null || result.DisqualText == "")
+        cmd.Parameters.Add(new OleDbParameter("@disqualtext", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@disqualtext", result.DisqualText));
+
+      cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+      cmd.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
+      cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+
+      cmd.CommandType = CommandType.Text;
+      int temp = cmd.ExecuteNonQuery();
+      Debug.Assert(temp == 1, "Database could not be updated");
     }
 
-  #endregion
+    #endregion
 
-  #region Internal Implementation
-  private Participant CreateParticipantFromDB(OleDbDataReader reader)
+    #region Internal Implementation
+    private Participant CreateParticipantFromDB(OleDbDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
 
@@ -223,6 +276,11 @@ namespace DSVAlpin2Lib
 
         return p;
       }
+    }
+
+    private uint GetParticipantId(Participant participant)
+    {
+      return _id2Participant.Where(x => x.Value == participant).FirstOrDefault().Key;
     }
 
 

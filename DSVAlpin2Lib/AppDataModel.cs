@@ -75,6 +75,9 @@ namespace DSVAlpin2Lib
 
     private StartListProvider _slp;
 
+
+    public uint Run { get { return _run; } }
+
     public RaceRun(uint run)
     {
       _run = run;

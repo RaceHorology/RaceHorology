@@ -118,7 +118,6 @@ namespace DSVAlpin2LibTest
     }
 
     [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
     public void CreateAndUpdateParticipants()
     {
@@ -179,7 +178,6 @@ namespace DSVAlpin2LibTest
       Assert.IsTrue(CheckParticipant(dbFilename, pNew1, 1));
     }
 
-
     private bool CheckParticipant(string dbFilename, Participant participant, int id)
     {
       bool bRes = true;
@@ -213,5 +211,115 @@ namespace DSVAlpin2LibTest
 
       return bRes;
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void CreateAndUpdateRunResults()
+    {
+      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(dbFilename);
+
+      var participants = db.GetParticipants();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        participants = db.GetParticipants();
+      }
+
+      RaceRun rr1 = new RaceRun(1);
+      RaceRun rr2 = new RaceRun(2);
+
+      Participant participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      RunResult rr1r1 = new RunResult();
+      rr1r1._participant = participant1;
+
+      rr1r1.SetStartTime(new TimeSpan(0, 12, 0, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      db.CreateOrUpdateRunResult(rr1, rr1r1);
+      DBCacheWorkaround();
+      rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+
+      rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      db.CreateOrUpdateRunResult(rr1, rr1r1);
+      DBCacheWorkaround();
+      rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+
+      rr1r1.ResultCode = RunResult.EResultCode.DIS;
+      rr1r1.DisqualText = "TF Tor 9";
+      db.CreateOrUpdateRunResult(rr1, rr1r1);
+      DBCacheWorkaround();
+      rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+
+      Participant participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      RunResult rr5r1 = new RunResult();
+      rr5r1._participant = participant5;
+      rr5r1.SetStartTime(new TimeSpan(0, 12, 1, 1, 1)); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr5r1.ResultCode = RunResult.EResultCode.NiZ;
+      db.CreateOrUpdateRunResult(rr1, rr5r1);
+      DBCacheWorkaround();
+      rr5r1._participant = participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr5r1, 5, 1));
+
+      RunResult rr5r2 = new RunResult();
+      rr5r2._participant = participant5;
+      rr5r2.ResultCode = RunResult.EResultCode.NaS;
+      db.CreateOrUpdateRunResult(rr2, rr5r2);
+      DBCacheWorkaround();
+      rr5r2._participant = participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr5r2, 5, 2));
+    }
+
+
+    private bool CheckRunResult(string dbFilename, RunResult runResult, int idParticipant, uint raceRun)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      OleDbCommand command = new OleDbCommand("SELECT * FROM tblZeit WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang", conn);
+      command.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+      command.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
+      command.Parameters.Add(new OleDbParameter("@durchgang", raceRun));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= (byte) runResult.ResultCode == reader.GetByte(reader.GetOrdinal("ergcode"));
+
+          TimeSpan? runTime = null, startTime = null, finishTime = null;
+          if (!reader.IsDBNull(reader.GetOrdinal("netto")))
+            runTime = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("netto")));
+          if (!reader.IsDBNull(reader.GetOrdinal("start")))
+            startTime = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("start")));
+          if (!reader.IsDBNull(reader.GetOrdinal("ziel")))
+            finishTime = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("ziel")));
+
+          bRes &= runResult.GetStartTime() == startTime;
+          bRes &= runResult.GetFinishTime() == finishTime;
+          bRes &= runResult.GetRunTime() == runTime;
+
+          if (reader.IsDBNull(reader.GetOrdinal("disqualtext")))
+            bRes &= runResult.DisqualText == null || runResult.DisqualText == "";
+          else
+            bRes &= runResult.DisqualText == reader["disqualtext"].ToString();
+        }
+        else
+          bRes = false;
+      }
+
+      conn.Close();
+
+      return bRes;
+    }
+
   }
 }
