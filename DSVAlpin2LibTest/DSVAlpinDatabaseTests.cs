@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -86,20 +86,17 @@ namespace DSVAlpin2LibTest
       db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb"));
 
       db.GetParticipants();
-      RaceRun rr1 = db.GetRaceRun(1);
-      RaceRun rr2 = db.GetRaceRun(2);
+      var rr1 = db.GetRaceRun(1);
+      var rr2 = db.GetRaceRun(2);
 
-      Assert.IsTrue(rr1.GetOnTrackList().Count() == 1);
-      Assert.IsTrue(rr2.GetOnTrackList().Count() == 1);
+      Assert.IsTrue(rr1.Count() == 4);
+      Assert.IsTrue(rr2.Count() == 4);
 
-      Assert.IsTrue(rr1.GetResultList().Count() == 4);
-      Assert.IsTrue(rr2.GetResultList().Count() == 4);
+      Assert.IsTrue(rr1.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Name == "Nachname 3");
 
-      Assert.IsTrue(rr1.GetResultList().Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Name == "Nachname 3");
+      Assert.IsTrue(rr2.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Name == "Nachname 2");
 
-      Assert.IsTrue(rr2.GetResultList().Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Name == "Nachname 2");
-
-      Assert.IsTrue(rr2.GetResultList().Where(x => x.Participant.Name == "Nachname 5").Count() == 0);
+      Assert.IsTrue(rr2.Where(x => x.Participant.Name == "Nachname 5").Count() == 0);
 
       db.Close();
     }

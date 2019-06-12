@@ -78,9 +78,9 @@ namespace DSVAlpin2Lib
     }
 
 
-    public RaceRun GetRaceRun(uint run)
+    public List<RunResult> GetRaceRun(uint run)
     {
-      RaceRun raceRun = new RaceRun(run);
+      List<RunResult> runResult = new List<RunResult>();
 
       string sql = @"SELECT tblZeit.*, tblZeit.durchgang, tblZeit.disziplin, tblTeilnehmer.startnrsg, tblTeilnehmer.startnrgs, tblTeilnehmer.startnrsl, tblTeilnehmer.startnrks, tblTeilnehmer.startnrps "+
                    @"FROM tblTeilnehmer INNER JOIN tblZeit ON tblTeilnehmer.id = tblZeit.teilnehmer "+
@@ -118,11 +118,11 @@ namespace DSVAlpin2Lib
           if (runTime != null)
             r.SetRunTime((TimeSpan)runTime);
 
-          raceRun.InsertResult(r);
+          runResult.Add(r);
         }
       }
 
-      return raceRun;
+      return runResult;
     }
 
 

@@ -39,16 +39,25 @@ namespace DSVAlpin2Lib
       _runs = new List<RaceRun>();
 
       // TODO: Assuming 2 runs for now
-      var rr1 = _db.GetRaceRun(1);
-      //rr1.SetStartList(_participants);
-      rr1.SetStartListProvider(this);
-      _runs.Add(rr1);
+      CreateRaceRun(2);
 
-      var rr2 = _db.GetRaceRun(2);
-      rr2.SetStartList(_participants);
-      _runs.Add(rr2);
+      _runs[0].InsertResults(_db.GetRaceRun(1));
+      _runs[1].InsertResults(_db.GetRaceRun(2));
     }
 
+
+    public void CreateRaceRun(int numRuns)
+    {
+      if (_runs.Count() > 0)
+        throw new Exception("Runs already existing");
+
+      for(uint i=0; i<numRuns; i++)
+      {
+        RaceRun rr = new RaceRun(i+1);
+        rr.SetStartListProvider(this);
+        _runs.Add(rr);
+      }
+    }
 
     public uint GetMaxRun()
     {
@@ -150,6 +159,15 @@ namespace DSVAlpin2Lib
       _UpdateInternals();
     }
 
+    public void InsertResults(List<RunResult> r)
+    {
+      foreach (var v in r)
+        _results.Add(v);
+
+      _UpdateInternals();
+    }
+
+
     private void _UpdateInternals()
     {
       // Remove from onTrack list if a result is available
@@ -237,7 +255,7 @@ namespace DSVAlpin2Lib
   public interface IAppDataModelDataBase
   {
     ItemsChangeObservableCollection<Participant> GetParticipants();
-    RaceRun GetRaceRun(uint run);
+    List<RunResult> GetRaceRun(uint run);
 
     void CreateOrUpdateParticipant(Participant participant);
     void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result);
