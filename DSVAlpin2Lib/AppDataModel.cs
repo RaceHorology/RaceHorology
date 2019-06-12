@@ -75,6 +75,9 @@ namespace DSVAlpin2Lib
 
     private StartListProvider _slp;
 
+
+    public uint Run { get { return _run; } }
+
     public RaceRun(uint run)
     {
       _run = run;
@@ -235,6 +238,9 @@ namespace DSVAlpin2Lib
   {
     ItemsChangeObservableCollection<Participant> GetParticipants();
     RaceRun GetRaceRun(uint run);
+
+    void CreateOrUpdateParticipant(Participant participant);
+    void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result);
 
   };
 

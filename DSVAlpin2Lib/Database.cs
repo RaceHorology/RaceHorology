@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace DSVAlpin2Lib
       _conn = new OleDbConnection
       {
         ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename
+        //ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename + @";OLEDB:Flush Transaction Timeout=0"
       };
 
       try
@@ -51,6 +53,10 @@ namespace DSVAlpin2Lib
       _conn.Close();
       _conn = null;
     }
+
+
+    #region IAppDataModelDataBase implementation
+
 
     public ItemsChangeObservableCollection<Participant> GetParticipants()
     {
@@ -120,7 +126,133 @@ namespace DSVAlpin2Lib
     }
 
 
+    /// <summary>
+    /// Creates or updates a participant in the DataBase
+    /// </summary>
+    /// <param name="participant">The participant to store.</param>
+    public void CreateOrUpdateParticipant(Participant participant)
+    {
+      // Test whether the participant exists
+      uint id = GetParticipantId(participant);
+      bool bNew = (id == 0);
 
+      OleDbCommand cmd;
+
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblTeilnehmer " +
+                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, klasse = @klasse, jahrgang = @jahrgang " +
+                     @"WHERE id = @id";
+        cmd = new OleDbCommand(sql, _conn);
+        cmd.Parameters.Add(new OleDbParameter("@nachname", participant.Name));
+        cmd.Parameters.Add(new OleDbParameter("@vorname", participant.Firstname));
+        cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex));
+        cmd.Parameters.Add(new OleDbParameter("@verein", participant.Club));
+        cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
+        cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
+        cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
+        cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      }
+      else
+      {
+        // Figure out the new ID
+        using (OleDbCommand command = new OleDbCommand("SELECT MAX(id) FROM tblTeilnehmer;", _conn))
+        {
+          object oId = command.ExecuteScalar();
+          if (oId == DBNull.Value)
+            id = 0;
+          else
+            id = Convert.ToUInt32(oId);
+          id++;
+        }
+               
+        string sql = @"INSERT INTO tblTeilnehmer (id, nachname, vorname, sex, verein, nation, klasse, jahrgang) " +
+                     @"VALUES (@id, @nachname, @vorname, @sex, @verein, @nation, @klasse, @jahrgang) ";
+        cmd = new OleDbCommand(sql, _conn);
+        cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+        cmd.Parameters.Add(new OleDbParameter("@nachname", participant.Name));
+        cmd.Parameters.Add(new OleDbParameter("@vorname", participant.Firstname));
+        cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex));
+        cmd.Parameters.Add(new OleDbParameter("@verein", participant.Club));
+        cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
+        cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
+        cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
+      }
+
+      cmd.CommandType = CommandType.Text;
+
+      int temp = cmd.ExecuteNonQuery();
+      Debug.Assert(temp == 1, "Database could not be updated");
+
+      if (bNew)
+        _id2Participant.Add((uint)id, participant);
+    }
+
+    /// <summary>
+    /// Stores the RunResult
+    /// </summary>
+    /// <param name="raceRun">The correlated RaceRun the reuslt is associated with.</param>
+    /// <param name="result">The RunResult to store.</param>
+    public void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result)
+    {
+      uint idParticipant = GetParticipantId(result.Participant);
+
+      bool bNew = true;
+      using (OleDbCommand command = new OleDbCommand("SELECT COUNT(*) FROM tblZeit WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang", _conn))
+      {
+        command.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+        command.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
+        command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+        object oId = command.ExecuteScalar();
+
+        bNew = (oId == DBNull.Value || (int)oId == 0);
+      }
+
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblZeit " +
+                     @"SET ergcode = @ergcode, start = @start, ziel = @ziel, netto = @netto, disqualtext = @disqualtext " +
+                     @"WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        string sql = @"INSERT INTO tblZeit (ergcode, start, ziel, netto, disqualtext, teilnehmer, disziplin, durchgang) " +
+                     @"VALUES (@ergcode, @start, @ziel, @netto, @disqualtext, @teilnehmer, @disziplin, @durchgang) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      cmd.Parameters.Add(new OleDbParameter("@ergcode", (byte)result.ResultCode));
+      if (result.GetStartTime() == null)
+        cmd.Parameters.Add(new OleDbParameter("@start", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@start", FractionForTimeSpan((TimeSpan)result.GetStartTime())));
+      if (result.GetFinishTime() == null)
+        cmd.Parameters.Add(new OleDbParameter("@ziel", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@ziel", FractionForTimeSpan((TimeSpan)result.GetFinishTime())));
+      if (result.GetRunTime() == null)
+        cmd.Parameters.Add(new OleDbParameter("@netto", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime())));
+      if (result.DisqualText == null || result.DisqualText == "")
+        cmd.Parameters.Add(new OleDbParameter("@disqualtext", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@disqualtext", result.DisqualText));
+
+      cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+      cmd.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
+      cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+
+      cmd.CommandType = CommandType.Text;
+      int temp = cmd.ExecuteNonQuery();
+      Debug.Assert(temp == 1, "Database could not be updated");
+    }
+
+    #endregion
+
+    #region Internal Implementation
     private Participant CreateParticipantFromDB(OleDbDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
@@ -146,6 +278,19 @@ namespace DSVAlpin2Lib
       }
     }
 
+    private uint GetParticipantId(Participant participant)
+    {
+      return _id2Participant.Where(x => x.Value == participant).FirstOrDefault().Key;
+    }
+
+
+    private static int GetLatestAutonumber(OleDbConnection connection)
+    {
+      using (OleDbCommand command = new OleDbCommand("SELECT @@IDENTITY;", connection))
+      {
+        return (int)command.ExecuteScalar();
+      }
+    }
 
     static private uint GetValueUInt(OleDbDataReader reader, string field)
     {
@@ -209,8 +354,10 @@ namespace DSVAlpin2Lib
       }
 
       return _id2Class[idClass];
-  }
+    }
 
+
+    #endregion
 
     #region TimeSpan and Fraction
     const Int64 nanosecondsPerDay = 24L * 60 * 60 * 1000 * 1000 * 10;
