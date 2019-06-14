@@ -257,19 +257,6 @@ namespace DSVAlpin2
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-      var run = _dataModel.GetRun(0);
-      var startList = run.GetStartList();
-      startList.Insert(0, new Participant
-      {
-        Name = "Temp",
-        Firstname = "Vorname",
-        Sex = "M",
-        Club = "Club",
-        Nation = "",
-        Class = "unknown",
-        Year = 2000,
-        StartNumber = 999
-      });
     }
 
 
