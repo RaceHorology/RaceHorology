@@ -50,7 +50,7 @@ namespace DSVAlpin2Lib
     void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       ItemChangedEventHandler handler = ItemChanged;
-      handler?.Invoke(this, e);
+      handler?.Invoke(sender, e);
 
       if (CollectionResetIfItemChanged)
         OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
