@@ -111,12 +111,10 @@ namespace DSVAlpin2Lib
           {
             _participant = p
           };
-          if (startTime!=null)
-            r.SetStartTime((TimeSpan)startTime);
-          if (finishTime != null)
-            r.SetFinishTime((TimeSpan)finishTime);
-          if (runTime != null)
-            r.SetRunTime((TimeSpan)runTime);
+          if (startTime!=null && finishTime!=null)
+            r.SetStartFinishTime(startTime, finishTime);
+          else if (runTime != null)
+            r.SetRunTime(runTime);
 
           runResult.Add(r);
         }

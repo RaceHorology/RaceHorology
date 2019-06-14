@@ -316,7 +316,11 @@ namespace DSVAlpin2
       if (participant != null)
       {
         RaceRun rr = _dataModel.GetRun(0);
-        rr.UpdateTimeMeasurement(participant, start, finish, run);
+
+        if (start != null || finish != null)
+          rr.SetTimeMeasurement(participant, start, finish);
+        else if (run != null)
+          rr.SetTimeMeasurement(participant, run);
       }
     }
 

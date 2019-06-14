@@ -108,8 +108,10 @@ namespace DSVAlpin2Lib
     public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
 
 
-    public void SetRunTime(TimeSpan t)
+    public void SetRunTime(TimeSpan? t)
     {
+      _startTime = null;
+      _finishTime = null;
       _runTime = t;
 
       // Clear Start & Finish Time (might be inconsistent to the start & finish time)
@@ -121,9 +123,11 @@ namespace DSVAlpin2Lib
     public TimeSpan? GetRunTime() { return _runTime;  }
 
 
-    public void SetStartTime(TimeSpan t)
+    public void SetStartFinishTime(TimeSpan? startTime, TimeSpan? finishTime)
     {
-      _startTime = t;
+      _runTime = null;
+      _startTime = startTime;
+      _finishTime = finishTime;
 
       if (_startTime != null && _finishTime != null)
           _runTime = _finishTime - _startTime;
@@ -134,20 +138,6 @@ namespace DSVAlpin2Lib
     }
 
     public TimeSpan? GetStartTime() { return _startTime; }
-
-
-    public void SetFinishTime(TimeSpan t)
-    {
-      _finishTime = t;
-
-      if (_startTime != null && _finishTime != null)
-          _runTime = _finishTime - _startTime;
-        else
-          MakeConsistencyCheck();
-
-      NotifyPropertyChanged(propertyName: nameof(Runtime));
-    }
-
     public TimeSpan? GetFinishTime() { return _finishTime; }
 
 

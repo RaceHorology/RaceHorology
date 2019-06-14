@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -234,13 +234,13 @@ namespace DSVAlpin2LibTest
       RunResult rr1r1 = new RunResult();
       rr1r1._participant = participant1;
 
-      rr1r1.SetStartTime(new TimeSpan(0, 12, 0, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetStartFinishTime(new TimeSpan(0, 12, 0, 0, 0), null); //int days, int hours, int minutes, int seconds, int milliseconds
       db.CreateOrUpdateRunResult(rr1, rr1r1);
       DBCacheWorkaround();
       rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
-      rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetStartFinishTime(rr1r1.GetStartTime(), new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
       db.CreateOrUpdateRunResult(rr1, rr1r1);
       DBCacheWorkaround();
       rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
@@ -256,7 +256,7 @@ namespace DSVAlpin2LibTest
       Participant participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
       RunResult rr5r1 = new RunResult();
       rr5r1._participant = participant5;
-      rr5r1.SetStartTime(new TimeSpan(0, 12, 1, 1, 1)); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr5r1.SetStartFinishTime(new TimeSpan(0, 12, 1, 1, 1), null); //int days, int hours, int minutes, int seconds, int milliseconds
       rr5r1.ResultCode = RunResult.EResultCode.NiZ;
       db.CreateOrUpdateRunResult(rr1, rr5r1);
       DBCacheWorkaround();
@@ -318,5 +318,109 @@ namespace DSVAlpin2LibTest
       return bRes;
     }
 
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void AppDataModelTest_TimingScenario1()
+    {
+      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(dbFilename);
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+      }
+
+      AppDataModel model = new AppDataModel(db);
+      {
+
+        // Create a RaceRun with 2 runs
+        //model.CreateRaceRun(2);
+        RaceRun rr1 = model.GetRun(0);
+        RaceRun rr2 = model.GetRun(1);
+
+        Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+        rr1.SetTimeMeasurement(participant1, new TimeSpan(0, 12, 0, 0, 0), null); // Start
+        rr1.SetTimeMeasurement(participant1, new TimeSpan(0, 12, 0, 0, 0), new TimeSpan(0, 12, 1, 0, 0)); // Finish
+
+
+        Participant participant2 = db.GetParticipants().Where(x => x.Name == "Nachname 2").FirstOrDefault();
+        rr1.SetTimeMeasurement(participant2, new TimeSpan(0, 12, 2, 0, 0), null); // Start
+                                                                               // TODO: Set to NiZ
+
+        Participant participant3 = db.GetParticipants().Where(x => x.Name == "Nachname 3").FirstOrDefault();
+        rr1.SetTimeMeasurement(participant3, null, null); // NaS
+
+        Participant participant4 = db.GetParticipants().Where(x => x.Name == "Nachname 4").FirstOrDefault();
+        rr1.SetTimeMeasurement(participant4, new TimeSpan(0, 12, 4, 0, 0), null); // Start
+        rr1.SetTimeMeasurement(participant4, new TimeSpan(0, 12, 4, 0, 0), new TimeSpan(0, 12, 4, 30, 0)); // Finish
+        // TODO: Set to Disqualify
+
+      }
+
+      DBCacheWorkaround();
+
+      // Test 1: Check internal app model
+      // Test 2: Check whether database is correct
+      {
+        RaceRun rr1 = model.GetRun(0);
+        RaceRun rr2 = model.GetRun(1);
+
+        // Participant 1 / Test 1
+        RunResult rr1res1 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 1").FirstOrDefault();
+        Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1res1.GetStartTime());
+        Assert.AreEqual(new TimeSpan(0, 12, 1, 0, 0), rr1res1.GetFinishTime());
+        Assert.AreEqual(new TimeSpan(0,  0, 1, 0, 0), rr1res1.GetRunTime());
+        // Participant 1 / Test 2
+        Assert.IsTrue(CheckRunResult(dbFilename, rr1res1, 1, 1));
+
+        // Participant 2 / Test 1
+        RunResult rr1res2 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 2").FirstOrDefault();
+        Assert.AreEqual(new TimeSpan(0, 12, 2, 0, 0), rr1res2.GetStartTime());
+        Assert.IsNull(rr1res2.GetFinishTime());
+        Assert.IsNull(rr1res2.GetRunTime());
+        //Assert.Equals(RunResult.EResultCode.NiZ, rr1res2.ResultCode);
+        // Participant 2 / Test 2
+        Assert.IsTrue(CheckRunResult(dbFilename, rr1res2, 2, 1));
+
+        // Participant 3 / Test 1
+        RunResult rr1res3 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 3").FirstOrDefault();
+        Assert.IsNull(rr1res3.GetStartTime());
+        Assert.IsNull(rr1res3.GetFinishTime());
+        Assert.IsNull(rr1res3.GetRunTime());
+        //Assert.Equals(RunResult.EResultCode.NaS, rr1res3.ResultCode);
+        // Participant 3 / Test 2
+        Assert.IsTrue(CheckRunResult(dbFilename, rr1res3, 3, 1));
+
+        // Participant 4 / Test 1
+        RunResult rr1res4 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 4").FirstOrDefault();
+        Assert.AreEqual(new TimeSpan(0, 12, 4,  0, 0), rr1res4.GetStartTime());
+        Assert.AreEqual(new TimeSpan(0, 12, 4, 30, 0), rr1res4.GetFinishTime());
+        Assert.AreEqual(new TimeSpan(0,  0, 0, 30, 0), rr1res4.GetRunTime());
+        //Assert.Equals(RunResult.EResultCode.Normal, rr1res4.ResultCode);
+        // Participant 4 / Test 2
+        Assert.IsTrue(CheckRunResult(dbFilename, rr1res4, 4, 1));
+      }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void AppDataModelTest_EditParticipants()
+    {
+      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      participant1.Name = "Nachname 1.1";
+
+      // Test 1: Check whether database is correct
+
+    }
+
   }
-}
+  }

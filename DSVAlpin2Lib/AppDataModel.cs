@@ -24,7 +24,7 @@ namespace DSVAlpin2Lib
     private IAppDataModelDataBase _db;
 
     ItemsChangeObservableCollection<Participant> _participants;
-    List<RaceRun> _runs;
+    List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
 
     public ObservableCollection<Participant> GetParticipants()
     {
@@ -36,13 +36,17 @@ namespace DSVAlpin2Lib
       _db = db;
       _participants = _db.GetParticipants();
 
-      _runs = new List<RaceRun>();
+      // TODO: Get notification if a participant got changed / added / removed and trigger storage in DB
+      //new DatabaseDelegatorParticipant(_participants, _db);
+
+
+      _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
 
       // TODO: Assuming 2 runs for now
       CreateRaceRun(2);
 
-      _runs[0].InsertResults(_db.GetRaceRun(1));
-      _runs[1].InsertResults(_db.GetRaceRun(2));
+      _runs[0].Item1.InsertResults(_db.GetRaceRun(1));
+      _runs[1].Item1.InsertResults(_db.GetRaceRun(2));
     }
 
 
@@ -55,7 +59,10 @@ namespace DSVAlpin2Lib
       {
         RaceRun rr = new RaceRun(i+1);
         rr.SetStartListProvider(this);
-        _runs.Add(rr);
+
+        // Get notification if a result got modified and trigger storage in DB
+        DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(rr, _db);
+        _runs.Add((rr, ddrr));
       }
     }
 
@@ -65,7 +72,7 @@ namespace DSVAlpin2Lib
     }
     public RaceRun GetRun(uint run)
     {
-      return _runs.ElementAt((int)run);
+      return _runs.ElementAt((int)run).Item1;
     }
 
   }
@@ -128,27 +135,34 @@ namespace DSVAlpin2Lib
     }
 
 
-
-    public void UpdateTimeMeasurement(Participant participant, TimeSpan? startTime = null, TimeSpan? finishTime = null, TimeSpan? runTime = null)
+    public void SetTimeMeasurement(Participant participant, TimeSpan? startTime, TimeSpan? finishTime)
     {
       RunResult result = _results.SingleOrDefault(r => r._participant == participant);
 
       if (result == null)
         result = new RunResult();
 
-        result._participant = participant;
-
-      if (startTime != null)
-        result.SetStartTime((TimeSpan)startTime);
-
-      if (finishTime != null)
-        result.SetFinishTime((TimeSpan)finishTime);
-
-      if (runTime != null && startTime == null && finishTime == null)
-        result.SetRunTime((TimeSpan)runTime);
+      result._participant = participant;
+      result.SetStartFinishTime(startTime, finishTime);
 
       InsertResult(result);
     }
+
+    public void SetTimeMeasurement(Participant participant, TimeSpan? runTime)
+    {
+      RunResult result = _results.SingleOrDefault(r => r._participant == participant);
+
+      if (result == null)
+        result = new RunResult();
+
+      result._participant = participant;
+
+      result.SetRunTime(runTime);
+
+      InsertResult(result);
+    }
+
+
 
     public void InsertResult(RunResult r)
     {
@@ -185,6 +199,43 @@ namespace DSVAlpin2Lib
   }
 
 
+  internal class DatabaseDelegatorRaceRun
+  {
+    private RaceRun _rr;
+    private IAppDataModelDataBase _db;
+
+    public DatabaseDelegatorRaceRun(RaceRun rr, IAppDataModelDataBase db)
+    {
+      _db = db;
+      _rr = rr;
+
+      rr.GetResultList().ItemChanged += OnItemChanged;
+      rr.GetResultList().CollectionChanged += OnCollectionChanged;
+    }
+
+    private void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RunResult result = (RunResult)sender;
+      _db.CreateOrUpdateRunResult(_rr, result);
+    }
+
+    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach(RunResult v in e.NewItems)
+            _db.CreateOrUpdateRunResult(_rr, v);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Remove:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
 
 
 
