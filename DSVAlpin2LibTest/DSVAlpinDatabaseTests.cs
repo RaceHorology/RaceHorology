@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -161,6 +161,22 @@ namespace DSVAlpin2LibTest
       Assert.IsTrue(CheckParticipant(dbFilename, pNew2, 2));
 
 
+      // Create with non-mandatory properties
+      Participant pNew3 = new Participant
+      {
+        Name = "Nachname 8",
+        Firstname = "Vorname 8",
+        Sex = "",
+        Club = "",
+        Nation = "",
+        Class = "Testklasse 1",
+        Year = 2010
+      };
+      db.CreateOrUpdateParticipant(pNew3);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckParticipant(dbFilename, pNew3, 3));
+      
+
       // Update a Participant
       pNew1 = participants.Where(x => x.Name == "Nachname 6").FirstOrDefault();
       pNew1.Name = "Nachname 6.1";
@@ -173,6 +189,20 @@ namespace DSVAlpin2LibTest
       db.CreateOrUpdateParticipant(pNew1);
       DBCacheWorkaround();
       Assert.IsTrue(CheckParticipant(dbFilename, pNew1, 1));
+
+      // Update with non-mandatory properties
+      pNew1 = participants.Where(x => x.Name == "Nachname 6.1").FirstOrDefault();
+      pNew1.Name = "Nachname 6.2";
+      pNew1.Firstname = "Vorname 6.2";
+      pNew1.Sex = "";
+      pNew1.Club = "";
+      pNew1.Nation = "";
+      pNew1.Class = "Testklasse 1.1";
+      pNew1.Year = 2008;
+      db.CreateOrUpdateParticipant(pNew1);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckParticipant(dbFilename, pNew1, 1));
+
     }
 
     private bool CheckParticipant(string dbFilename, Participant participant, int id)
