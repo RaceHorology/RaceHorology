@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -443,13 +443,37 @@ namespace DSVAlpin2LibTest
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
       db.Connect(dbFilename);
 
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+      }
+
       AppDataModel model = new AppDataModel(db);
 
       Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       participant1.Name = "Nachname 1.1";
 
-      // Test 1: Check whether database is correct
+      Participant participant6 = new Participant
+      {
+        Name = "Nachname 6",
+        Firstname = "Vorname 6",
+        Sex = "M",
+        Club = "Verein 6",
+        Nation = "Nation 6",
+        Class = "unknown",
+        Year = 2000,
+        StartNumber = 999
+      };
+      model.GetParticipants().Add(participant6);
 
+
+      DBCacheWorkaround();
+
+
+      // Test 1: Check whether database is correct
+      CheckParticipant(dbFilename, participant1, 1);
+      CheckParticipant(dbFilename, participant6, 6);
     }
 
   }

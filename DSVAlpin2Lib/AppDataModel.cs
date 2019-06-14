@@ -24,6 +24,8 @@ namespace DSVAlpin2Lib
     private IAppDataModelDataBase _db;
 
     ItemsChangeObservableCollection<Participant> _participants;
+    DatabaseDelegatorParticipant _participantsDelegatorDB;
+
     List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
 
     public ObservableCollection<Participant> GetParticipants()
@@ -33,13 +35,15 @@ namespace DSVAlpin2Lib
 
     public AppDataModel(IAppDataModelDataBase db)
     {
+      //// DB Backend ////
       _db = db;
+
+      //// Particpants ////
       _participants = _db.GetParticipants();
+      // Get notification if a participant got changed / added / removed and trigger storage in DB
+      _participantsDelegatorDB = new DatabaseDelegatorParticipant(_participants, _db);
 
-      // TODO: Get notification if a participant got changed / added / removed and trigger storage in DB
-      //new DatabaseDelegatorParticipant(_participants, _db);
-
-
+      //// RaceRuns ////
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
 
       // TODO: Assuming 2 runs for now
@@ -92,8 +96,19 @@ namespace DSVAlpin2Lib
     private StartListProvider _slp;
 
 
+    /// <summary>
+    /// Returns the run number for this run (round, durchgang)
+    /// </summary>
     public uint Run { get { return _run; } }
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="run">The run number</param>
+    /// <remarks>
+    /// This object is usually created by the method AppDataModel.CreateRaceRun()
+    /// </remarks>
+    /// 
     public RaceRun(uint run)
     {
       _run = run;
@@ -116,12 +131,6 @@ namespace DSVAlpin2Lib
     public void SetStartListProvider(AppDataModel dm)
     {
       _slp = new StartListProvider(dm, _startList);
-    }
-
-    public void SetStartList(ICollection<Participant> participants)
-    {
-      foreach (var p in participants)
-        _startList.Add(p);
     }
 
     public ItemsChangeObservableCollection<RunResult> GetOnTrackList()
@@ -199,6 +208,12 @@ namespace DSVAlpin2Lib
   }
 
 
+  /// <summary>
+  /// Observes the run results and triggers a database store in case time / run results changed
+  /// </summary>
+  /// <remarks>
+  /// Delete not implemented (actually not needed)
+  /// </remarks>
   internal class DatabaseDelegatorRaceRun
   {
     private RaceRun _rr;
@@ -236,6 +251,51 @@ namespace DSVAlpin2Lib
       }
     }
   }
+
+  /// <summary>
+  /// Observes the Patients and triggers a database store if needed
+  /// </summary>
+  /// <remarks>
+  /// Delete not yet implemented
+  /// </remarks>
+  internal class DatabaseDelegatorParticipant
+  {
+    private ItemsChangeObservableCollection<Participant> _participants;
+    private IAppDataModelDataBase _db;
+
+    public DatabaseDelegatorParticipant(ItemsChangeObservableCollection<Participant> participants, IAppDataModelDataBase db)
+    {
+      _db = db;
+      _participants = participants;
+
+      _participants.ItemChanged += OnItemChanged;
+      _participants.CollectionChanged += OnCollectionChanged;
+    }
+
+    private void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      Participant participant = (Participant)sender;
+      _db.CreateOrUpdateParticipant(participant);
+    }
+
+    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (Participant participant in e.NewItems)
+            _db.CreateOrUpdateParticipant(participant);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Remove:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
 
 
 
