@@ -16,7 +16,7 @@ namespace DSVAlpin2Lib
   /// </summary>
   /// 
   /// Data is loaded from the data base
-  /// Data is written back to the data base in case it is needed (not yet implemented)
+  /// Data is written back to the data base in case it is needed
   /// 
   /// <remarks>not yet fully implemented</remarks>
   public class AppDataModel
@@ -28,11 +28,11 @@ namespace DSVAlpin2Lib
 
     List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
 
-    public ObservableCollection<Participant> GetParticipants()
-    {
-      return _participants;
-    }
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="db">An object that represents the database backend. Typically a object of type DSVAlpin.Database for DSV-Alpin Databases</param>
     public AppDataModel(IAppDataModelDataBase db)
     {
       //// DB Backend ////
@@ -47,14 +47,28 @@ namespace DSVAlpin2Lib
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
 
       // TODO: Assuming 2 runs for now
-      CreateRaceRun(2);
+      CreateRaceRuns(2);
 
+      // Fill the data from the DB initially (TODO: to be done better)
       _runs[0].Item1.InsertResults(_db.GetRaceRun(1));
       _runs[1].Item1.InsertResults(_db.GetRaceRun(2));
     }
 
 
-    public void CreateRaceRun(int numRuns)
+    /// <summary>
+    /// Returns the list of participants
+    /// </summary>
+    /// <returns>The list of participants</returns>
+    public ObservableCollection<Participant> GetParticipants()
+    {
+      return _participants;
+    }
+
+    /// <summary>
+    /// Creates the RaceRun structures
+    /// </summary>
+    /// <param name="numRuns">Number of runs</param>
+    public void CreateRaceRuns(int numRuns)
     {
       if (_runs.Count() > 0)
         throw new Exception("Runs already existing");
@@ -70,10 +84,18 @@ namespace DSVAlpin2Lib
       }
     }
 
+    /// <summary>
+    /// Returns the number of race runs.
+    /// </summary>
     public uint GetMaxRun()
     {
       return (uint)_runs.Count;
     }
+
+    /// <summary>
+    /// Returns the corresponding run.
+    /// </summary>
+    /// <param name="run">Run number. Counting starts at 0.</param>
     public RaceRun GetRun(uint run)
     {
       return _runs.ElementAt((int)run).Item1;
