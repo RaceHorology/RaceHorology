@@ -111,7 +111,7 @@ namespace DSVAlpin2Lib
           {
             _participant = p
           };
-          if (startTime!=null && finishTime!=null)
+          if (startTime!=null || finishTime!=null)
             r.SetStartFinishTime(startTime, finishTime);
           else if (runTime != null)
             r.SetRunTime(runTime);
