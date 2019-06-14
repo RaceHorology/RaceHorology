@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -135,17 +135,12 @@ namespace DSVAlpin2Lib
     {
       _run = run;
 
-      _startList = new ItemsChangeObservableCollection<Participant>();
       _onTrack   = new ItemsChangeObservableCollection<RunResult>(); 
       _results   = new ItemsChangeObservableCollection<RunResult>();
     }
 
 
-    public ItemsChangeObservableCollection<Participant> GetStartList()
-    {
-      return _startList;
-    }
-    public System.Collections.IEnumerable GetStartListV()
+    public ICollectionView GetStartList()
     {
       return _slp.GetStartList();
     }
@@ -338,6 +333,7 @@ namespace DSVAlpin2Lib
       _startList = startList;
 
       _startListView = new CollectionViewSource();
+
       _startListView.Source = _participants;
 
       _startListView.SortDescriptions.Clear();
@@ -372,7 +368,7 @@ namespace DSVAlpin2Lib
 
     }
 
-    public System.Collections.IEnumerable GetStartList()
+    public System.ComponentModel.ICollectionView GetStartList()
     {
       return _startListView.View;
     }

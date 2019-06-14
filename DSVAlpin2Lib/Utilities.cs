@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,74 @@ using System.Threading.Tasks;
 
 namespace DSVAlpin2Lib
 {
+
+  public class ItemsChangedNotifier : INotifyCollectionChanged
+  {
+    INotifyCollectionChanged _source;
+
+    public bool CollectionResetIfItemChanged { get; set; } = false;
+
+    public ItemsChangedNotifier(INotifyCollectionChanged source)
+    {
+      _source = source;
+
+      _source.CollectionChanged += OnCollectionChanged;
+    }
+
+    ~ItemsChangedNotifier()
+    {
+      _source.CollectionChanged -= OnCollectionChanged;
+    }
+
+
+    public INotifyCollectionChanged Source { get { return _source; } }
+
+
+
+    public delegate void ItemChangedEventHandler(object sender, PropertyChangedEventArgs e);
+    /// <summary>
+    /// If an item of the collection changed its properties this event triggers
+    /// </summary>
+    public event ItemChangedEventHandler ItemChanged;
+
+
+
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+
+
+    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      foreach (INotifyPropertyChanged item in e.OldItems)
+      {
+        item.PropertyChanged -= ItemPropertyChanged;
+      }
+
+      foreach (INotifyPropertyChanged item in e.NewItems)
+      {
+        item.PropertyChanged += ItemPropertyChanged;
+      }
+
+      NotifyCollectionChangedEventHandler handler = CollectionChanged;
+      handler?.Invoke(sender, e);
+    }
+
+
+    private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      ItemChangedEventHandler handler = ItemChanged;
+      handler?.Invoke(sender, e);
+
+      if (CollectionResetIfItemChanged)
+      {
+        NotifyCollectionChangedEventHandler handlerCC = CollectionChanged;
+        handlerCC?.Invoke(sender, new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+      }
+    }
+
+  }
+
+
   public class ItemsChangeObservableCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
   {
     /// <summary>

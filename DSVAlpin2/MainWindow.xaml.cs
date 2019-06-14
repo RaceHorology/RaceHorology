@@ -143,7 +143,7 @@ namespace DSVAlpin2
 
       // TODO: Just for now, assume first run
       var run = _dataModel.GetRun(0);
-      dgStartList.ItemsSource = run.GetStartListV();
+      dgStartList.ItemsSource = run.GetStartList();
 
       // TODO: Hide not needed columns
       //dgStartList.Columns[5].Visibility = Visibility.Collapsed;
