@@ -108,7 +108,27 @@ namespace DSVAlpin2Lib
     public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
 
 
-    public void SetRunTime(TimeSpan? t)
+
+    public RunResult(Participant particpant)
+    {
+      _participant = particpant;
+
+      _runTime = null;
+      _startTime = null;
+      _finishTime = null;
+      _resultCode = EResultCode.Normal;
+      _disqualText = null;
+    }
+
+  protected RunResult(RunResult original)
+    {
+      _participant = original._participant;
+      _startTime = original._startTime;
+      _runTime = original._runTime;
+      _finishTime = original._finishTime;
+    }
+
+  public void SetRunTime(TimeSpan? t)
     {
       _startTime = null;
       _finishTime = null;
@@ -155,11 +175,11 @@ namespace DSVAlpin2Lib
 
     public Participant _participant;
 
-    private TimeSpan? _runTime;
-    private TimeSpan? _startTime;
-    private TimeSpan? _finishTime;
-    private EResultCode _resultCode;
-    private string _disqualText;
+    protected TimeSpan? _runTime;
+    protected TimeSpan? _startTime;
+    protected TimeSpan? _finishTime;
+    protected EResultCode _resultCode;
+    protected string _disqualText;
 
 
     #region INotifyPropertyChanged implementation
@@ -169,7 +189,7 @@ namespace DSVAlpin2Lib
     // This method is called by the Set accessor of each property.  
     // The CallerMemberName attribute that is applied to the optional propertyName  
     // parameter causes the property name of the caller to be substituted as an argument.  
-    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

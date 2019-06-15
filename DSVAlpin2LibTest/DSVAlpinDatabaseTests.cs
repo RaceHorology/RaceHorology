@@ -261,8 +261,7 @@ namespace DSVAlpin2LibTest
       RaceRun rr2 = new RaceRun(2);
 
       Participant participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
-      RunResult rr1r1 = new RunResult();
-      rr1r1._participant = participant1;
+      RunResult rr1r1 = new RunResult(participant1);
 
       rr1r1.SetStartFinishTime(new TimeSpan(0, 12, 0, 0, 0), null); //int days, int hours, int minutes, int seconds, int milliseconds
       db.CreateOrUpdateRunResult(rr1, rr1r1);
@@ -284,8 +283,7 @@ namespace DSVAlpin2LibTest
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
       Participant participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
-      RunResult rr5r1 = new RunResult();
-      rr5r1._participant = participant5;
+      RunResult rr5r1 = new RunResult(participant5);
       rr5r1.SetStartFinishTime(new TimeSpan(0, 12, 1, 1, 1), null); //int days, int hours, int minutes, int seconds, int milliseconds
       rr5r1.ResultCode = RunResult.EResultCode.NiZ;
       db.CreateOrUpdateRunResult(rr1, rr5r1);
@@ -293,8 +291,7 @@ namespace DSVAlpin2LibTest
       rr5r1._participant = participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr5r1, 5, 1));
 
-      RunResult rr5r2 = new RunResult();
-      rr5r2._participant = participant5;
+      RunResult rr5r2 = new RunResult(participant5);
       rr5r2.ResultCode = RunResult.EResultCode.NaS;
       db.CreateOrUpdateRunResult(rr2, rr5r2);
       DBCacheWorkaround();

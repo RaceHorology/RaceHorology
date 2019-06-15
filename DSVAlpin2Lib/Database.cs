@@ -27,7 +27,6 @@ namespace DSVAlpin2Lib
       _conn = new OleDbConnection
       {
         ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename
-        //ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename + @";OLEDB:Flush Transaction Timeout=0"
       };
 
       try
@@ -107,10 +106,7 @@ namespace DSVAlpin2Lib
           if (!reader.IsDBNull(reader.GetOrdinal("ziel")))
             finishTime = CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("ziel")));
 
-          RunResult r = new RunResult
-          {
-            _participant = p
-          };
+          RunResult r = new RunResult(p);
           if (startTime!=null || finishTime!=null)
             r.SetStartFinishTime(startTime, finishTime);
           else if (runTime != null)

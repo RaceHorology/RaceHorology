@@ -106,7 +106,7 @@
                   <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
                   <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                   <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Aktuelle Zeit" />
+                  <DataGridTextColumn Header="Aktuelle Zeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\}}" />
                 </DataGrid.Columns>
               </DataGrid>
             </Grid>

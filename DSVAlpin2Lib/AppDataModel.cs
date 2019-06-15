@@ -103,17 +103,39 @@ namespace DSVAlpin2Lib
 
   }
 
-  
+
+  public class LiveResult : RunResult
+  {
+    System.Timers.Timer _timer;
+
+    public LiveResult(RunResult original) : base(original)
+    {
+      _timer = new System.Timers.Timer(1000);
+      _timer.Elapsed += OnTimedEvent;
+      _timer.AutoReset = true;
+      _timer.Enabled = true;
+    }
+
+    private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      if (_startTime!=null)
+      {
+        _runTime = (DateTime.Now - DateTime.Today) - _startTime;
+        NotifyPropertyChanged(propertyName: nameof(Runtime));
+      }
+    }
+
+  }
+
   /// <summary>
   /// Represents a race run. Typically a race consists out of two race runs.
   /// </summary>
   public class RaceRun
   {
     uint _run;
-    ItemsChangeObservableCollection<Participant> _startList;
     ItemsChangeObservableCollection<RunResult> _results; // This list represents the actual results
 
-    ItemsChangeObservableCollection<RunResult> _onTrack; // TODO: This list only contains the particpants that are on the run (might get removed later)
+    ItemsChangeObservableCollection<LiveResult> _onTrack; // TODO: This list only contains the particpants that are on the run (might get removed later)
 
     private StartListProvider _slp;
 
@@ -135,7 +157,7 @@ namespace DSVAlpin2Lib
     {
       _run = run;
 
-      _onTrack   = new ItemsChangeObservableCollection<RunResult>(); 
+      _onTrack   = new ItemsChangeObservableCollection<LiveResult>(); 
       _results   = new ItemsChangeObservableCollection<RunResult>();
     }
 
@@ -147,10 +169,10 @@ namespace DSVAlpin2Lib
 
     public void SetStartListProvider(AppDataModel dm)
     {
-      _slp = new StartListProvider(dm, _startList);
+      _slp = new StartListProvider(dm);
     }
 
-    public ItemsChangeObservableCollection<RunResult> GetOnTrackList()
+    public ItemsChangeObservableCollection<LiveResult> GetOnTrackList()
     {
       return _onTrack;
     }
@@ -166,9 +188,8 @@ namespace DSVAlpin2Lib
       RunResult result = _results.SingleOrDefault(r => r._participant == participant);
 
       if (result == null)
-        result = new RunResult();
+        result = new RunResult(participant);
 
-      result._participant = participant;
       result.SetStartFinishTime(startTime, finishTime);
 
       InsertResult(result);
@@ -179,9 +200,7 @@ namespace DSVAlpin2Lib
       RunResult result = _results.SingleOrDefault(r => r._participant == participant);
 
       if (result == null)
-        result = new RunResult();
-
-      result._participant = participant;
+        result = new RunResult(participant);
 
       result.SetRunTime(runTime);
 
@@ -219,7 +238,7 @@ namespace DSVAlpin2Lib
       foreach (var res in _results)
         if (res.GetRunTime() == null)
           if (!_onTrack.Contains(res))
-            _onTrack.Add(res);
+            _onTrack.Add(new LiveResult(res));
     }
 
   }
@@ -323,14 +342,11 @@ namespace DSVAlpin2Lib
     ObservableCollection<Participant> _participants;
     CollectionViewSource _startListView;
 
-    ItemsChangeObservableCollection<Participant> _startList;
-
-    public StartListProvider(AppDataModel dm, ItemsChangeObservableCollection<Participant> startList)
+    public StartListProvider(AppDataModel dm)
     {
       _dm = dm;
 
       _participants = _dm.GetParticipants();
-      _startList = startList;
 
       _startListView = new CollectionViewSource();
 
@@ -357,16 +373,6 @@ namespace DSVAlpin2Lib
       //_participants.CollectionChanged +=
     }
 
-    private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
-    {
-      _startList.Clear();
-      foreach (object item in _startListView.View)
-      {
-        Participant participant = (Participant) item ;
-        _startList.Add(participant);
-      }
-
-    }
 
     public System.ComponentModel.ICollectionView GetStartList()
     {
