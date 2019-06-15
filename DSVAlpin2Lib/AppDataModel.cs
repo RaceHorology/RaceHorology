@@ -249,16 +249,21 @@ namespace DSVAlpin2Lib
 
     private void _UpdateInternals()
     {
+      bool IsOnTrack(RunResult r)
+      {
+        return r.GetStartTime()!=null && r.GetRunTime() == null;
+      }
+
       // Remove from onTrack list if a result is available
-      var itemsToRemove = _onTrack.Where(r => r.GetRunTime() != null).ToList();
+      var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
         _onTrack.Remove(itemToRemove);
 
       // Add to onTrack list if run result is not yet available
-      foreach (var res in _results)
-        if (res.GetRunTime() == null)
-          if (!_onTrack.Contains(res))
-            _onTrack.Add(new LiveResult(res));
+      foreach (var r in _results)
+        if (IsOnTrack(r))
+          if (!_onTrack.Contains(r))
+            _onTrack.Add(new LiveResult(r));
     }
 
   }
