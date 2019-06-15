@@ -47,15 +47,13 @@ namespace DSVAlpin2Lib
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      foreach (INotifyPropertyChanged item in e.OldItems)
-      {
-        item.PropertyChanged -= ItemPropertyChanged;
-      }
+      if (e.OldItems!=null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+          item.PropertyChanged -= ItemPropertyChanged;
 
-      foreach (INotifyPropertyChanged item in e.NewItems)
-      {
-        item.PropertyChanged += ItemPropertyChanged;
-      }
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+          item.PropertyChanged += ItemPropertyChanged;
 
       NotifyCollectionChangedEventHandler handler = CollectionChanged;
       handler?.Invoke(sender, e);
