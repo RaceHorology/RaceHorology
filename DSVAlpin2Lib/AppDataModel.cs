@@ -114,11 +114,18 @@ namespace DSVAlpin2Lib
       _timer.Elapsed += OnTimedEvent;
       _timer.AutoReset = true;
       _timer.Enabled = true;
+
+      CalcRunTime();
     }
 
     private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
     {
-      if (_startTime!=null)
+      CalcRunTime();
+    }
+
+    private void CalcRunTime()
+    {
+      if (_startTime != null)
       {
         _runTime = (DateTime.Now - DateTime.Today) - _startTime;
         NotifyPropertyChanged(propertyName: nameof(Runtime));
