@@ -12,6 +12,7 @@ using DSVAlpin2Lib;
 using System.Collections.Specialized;
 using Newtonsoft.Json;
 using System.ComponentModel;
+using System.Windows;
 
 namespace DSVAlpin2
 {
@@ -182,20 +183,26 @@ namespace DSVAlpin2
 
   public class StartListBehavior : DSVAlpinBaseBehavior
   {
+    ItemsChangedNotifier _notifier;
+
     public override void SetupThis(AppDataModel dm)
     {
       base.SetupThis(dm);
 
-      _dm.GetRun(0).GetStartList().CollectionChanged += StartListChanged;
-      _dm.GetRun(0).GetStartList().ItemChanged += StartListItemChanged;
+      Application.Current.Dispatcher.Invoke(() => 
+      {
+        _notifier = new ItemsChangedNotifier(_dm.GetRun(0).GetStartList());
+        _notifier.CollectionChanged += StartListChanged;
+        _notifier.ItemChanged += StartListItemChanged;
+      });
     }
 
     protected override void TearDown()
     {
       if (_dm != null)
       {
-        _dm.GetRun(0).GetStartList().ItemChanged -= StartListItemChanged;
-        _dm.GetRun(0).GetStartList().CollectionChanged -= StartListChanged;
+        _notifier.CollectionChanged -= StartListChanged;
+        _notifier.ItemChanged -= StartListItemChanged;
       }
 
       base.TearDown();
@@ -213,7 +220,12 @@ namespace DSVAlpin2
 
     void SendStartList()
     {
-      string output = JsonConvert.SerializeObject(_dm.GetRun(0).GetStartList());
+      string output=null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConvert.SerializeObject(_dm.GetRun(0).GetStartList());
+      });
+
       Send(output);
     }
 
@@ -228,12 +240,19 @@ namespace DSVAlpin2
 
   public class ResultListBehavior : DSVAlpinBaseBehavior
   {
+    ItemsChangedNotifier _notifier;
+
     public override void SetupThis(AppDataModel dm)
     {
       base.SetupThis(dm);
 
-      _dm.GetRun(0).GetResultList().CollectionChanged += ResultListChanged;
-      _dm.GetRun(0).GetResultList().ItemChanged += ResultListItemChanged;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        _notifier = new ItemsChangedNotifier(_dm.GetRun(0).GetResultList());
+        _notifier.CollectionChanged += ResultListChanged;
+        _notifier.ItemChanged += ResultListItemChanged;
+      });
+
 
     }
 
@@ -241,8 +260,8 @@ namespace DSVAlpin2
     {
       if (_dm != null)
       {
-        _dm.GetRun(0).GetResultList().ItemChanged -= ResultListItemChanged;
-        _dm.GetRun(0).GetResultList().CollectionChanged -= ResultListChanged;
+        _notifier.CollectionChanged -= ResultListChanged;
+        _notifier.ItemChanged -= ResultListItemChanged;
       }
 
       base.TearDown();
@@ -262,7 +281,13 @@ namespace DSVAlpin2
 
     void SendResultList()
     {
-      string output = JsonConvert.SerializeObject(_dm.GetRun(0).GetResultList());
+      string output = null;
+
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConvert.SerializeObject(_dm.GetRun(0).GetResultList());
+      });
+
       Send(output);
     }
 

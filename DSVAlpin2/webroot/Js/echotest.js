@@ -7,42 +7,58 @@
  */
 
 // Test for Bernd
-//var url = "ws://" + window.location.hostname + ":" + window.location.port + "/StartList";
-var url = "ws://" + window.location.hostname + ":" + window.location.port + "/ResultList";
+var urlStartList = "ws://" + window.location.hostname + ":" + window.location.port + "/StartList";
+var urlResultList = "ws://" + window.location.hostname + ":" + window.location.port + "/ResultList";
 
-var output;
+var outputSL, outputRL, outputInfo;
 
 function init () {
-  output = document.getElementById ("output");
+  outputInfo = document.getElementById("outputInfo");
+  outputSL = document.getElementById("outputSL");
+  outputRL = document.getElementById("outputRL");
   doWebSocket ();
 }
 
 function doWebSocket () {
-  websocket = new WebSocket (url);
+  websocketSL = new WebSocket(urlStartList);
+  websocketRL = new WebSocket(urlResultList);
 
-  websocket.onopen = function (e) {
-    onOpen (e);
+  websocketSL.onopen = function (e) {
+    onOpen(e);
+  };
+  websocketRL.onopen = function (e) {
+    onOpen(e);
   };
 
-  websocket.onmessage = function (e) {
-    onMessage (e);
+  websocketSL.onmessage = function (e) {
+    onMessageSL(e);
   };
 
-  websocket.onerror = function (e) {
-    onError (e);
+  websocketRL.onmessage = function (e) {
+    onMessageRL(e);
   };
 
-  websocket.onclose = function (e) {
-    onClose (e);
+  websocketSL.onerror = function (e) {
+    onError(e);
+  };
+  websocketRL.onerror = function (e) {
+    onError(e);
+  };
+
+  websocketSL.onclose = function (e) {
+    onClose(e);
+  };
+  websocketRL.onclose = function (e) {
+    onClose(e);
   };
 }
 
 function onOpen (event) {
-  writeToScreen ("CONNECTED");
-  send ("WebSocket rocks");
+  writeToScreen("CONNECTED");
+  event.srcElement.send("WebSocket rocks");
 }
 
-function onMessage (event) {
+function onMessageSL(event) {
   //writeToScreen ('<span style="color: blue;">RESPONSE: ' + event.data + '</span>');
   //websocket.close ();
 
@@ -52,9 +68,24 @@ function onMessage (event) {
   var pre = document.createElement("p");
   pre.innerHTML = table;
 
-  while (output.firstChild) { output.removeChild(output.firstChild); }
+  while (outputSL.firstChild) { outputSL.removeChild(outputSL.firstChild); }
 
-  output.appendChild(pre);
+  outputSL.appendChild(pre);
+}
+
+function onMessageRL(event) {
+  //writeToScreen ('<span style="color: blue;">RESPONSE: ' + event.data + '</span>');
+  //websocket.close ();
+
+  var json = JSON.parse(event.data);
+  var table = json2table(json);
+
+  var pre = document.createElement("p");
+  pre.innerHTML = table;
+
+  while (outputRL.firstChild) { outputRL.removeChild(outputRL.firstChild); }
+
+  outputRL.appendChild(pre);
 }
 
 function onError (event) {
@@ -67,14 +98,14 @@ function onClose (event) {
 
 function send (message) {
   writeToScreen ("SENT: " + message);
-  websocket.send (message);
+  //websocket.send (message);
 }
 
 function writeToScreen (message) {
   var pre = document.createElement ("p");
   pre.style.wordWrap = "break-word";
   pre.innerHTML = message;
-  output.appendChild (pre);
+  outputInfo.appendChild (pre);
 }
 
 
