@@ -98,6 +98,8 @@ namespace DSVAlpin2Lib
           Participant p = _id2Participant[id];
 
           // Build Result
+          RunResult r = new RunResult(p);
+
           TimeSpan? runTime = null, startTime = null, finishTime = null;
           if (!reader.IsDBNull(reader.GetOrdinal("netto")))
             runTime = CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("netto")));
@@ -106,11 +108,16 @@ namespace DSVAlpin2Lib
           if (!reader.IsDBNull(reader.GetOrdinal("ziel")))
             finishTime = CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("ziel")));
 
-          RunResult r = new RunResult(p);
           if (startTime!=null || finishTime!=null)
             r.SetStartFinishTime(startTime, finishTime);
           else if (runTime != null)
             r.SetRunTime(runTime);
+
+          if (!reader.IsDBNull(reader.GetOrdinal("ergcode")))
+            r.ResultCode = (RunResult.EResultCode)(byte)reader.GetValue(reader.GetOrdinal("ergcode"));
+
+          if (!reader.IsDBNull(reader.GetOrdinal("disqualtext")))
+            r.DisqualText = reader["nachname"].ToString();
 
           runResult.Add(r);
         }
