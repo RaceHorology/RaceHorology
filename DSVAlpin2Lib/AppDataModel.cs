@@ -77,6 +77,7 @@ namespace DSVAlpin2Lib
       {
         RaceRun rr = new RaceRun(i+1);
         rr.SetStartListProvider(this);
+        rr.SetResultViewProvider();
 
         // Get notification if a result got modified and trigger storage in DB
         DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(rr, _db);
@@ -145,6 +146,7 @@ namespace DSVAlpin2Lib
     ItemsChangeObservableCollection<LiveResult> _onTrack; // TODO: This list only contains the particpants that are on the run (might get removed later)
 
     private StartListProvider _slp;
+    private ResultViewProvider _rvp;
 
 
     /// <summary>
@@ -188,6 +190,17 @@ namespace DSVAlpin2Lib
     {
       return _results;
     }
+
+    public void SetResultViewProvider()
+    {
+      _rvp = new ResultViewProvider(_results);
+    }
+
+    public ICollectionView GetResultView()
+    {
+      return _rvp.GetResultView(); ;
+    }
+
 
 
     public void SetTimeMeasurement(Participant participant, TimeSpan? startTime, TimeSpan? finishTime)
@@ -368,26 +381,47 @@ namespace DSVAlpin2Lib
       //_startListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
       //_startListView.LiveGroupingProperties.Add(nameof(Participant.Class));
       //_startListView.IsLiveGroupingRequested = true;
-
-      //dgTest1.ItemsSource = testParticipantsSrc.View;
-
-      //string output = Newtonsoft.Json.JsonConvert.SerializeObject(testParticipantsSrc.View);
-      //System.Diagnostics.Debug.Write(output);
-
-      //_startListView.View.CollectionChanged += StartListChanged;
-
-
-      //_participants.CollectionChanged +=
     }
-
 
     public System.ComponentModel.ICollectionView GetStartList()
     {
       return _startListView.View;
     }
-
-
   }
+
+
+  public class ResultViewProvider
+  {
+    private AppDataModel _dm;
+
+    ItemsChangeObservableCollection<RunResult> _results;
+    CollectionViewSource _resultListView;
+
+    public ResultViewProvider(ItemsChangeObservableCollection<RunResult> results)
+    {
+      _results = results;
+
+      _resultListView = new CollectionViewSource();
+
+      _resultListView.Source = _results;
+
+      _resultListView.SortDescriptions.Clear();
+      _resultListView.SortDescriptions.Add(new SortDescription(nameof(RunResult.Runtime), ListSortDirection.Ascending));
+
+      _resultListView.LiveSortingProperties.Add(nameof(RunResult.Runtime));
+      _resultListView.IsLiveSortingRequested = true;
+
+      _resultListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
+      _resultListView.LiveGroupingProperties.Add(nameof(Participant.Class));
+      _resultListView.IsLiveGroupingRequested = true;
+    }
+
+    public System.ComponentModel.ICollectionView GetResultView()
+    {
+      return _resultListView.View;
+    }
+  }
+
 
 
   /// <summary>

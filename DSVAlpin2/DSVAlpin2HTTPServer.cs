@@ -248,7 +248,7 @@ namespace DSVAlpin2
 
       Application.Current.Dispatcher.Invoke(() =>
       {
-        _notifier = new ItemsChangedNotifier(_dm.GetRun(0).GetResultList());
+        _notifier = new ItemsChangedNotifier(_dm.GetRun(0).GetResultView());
         _notifier.CollectionChanged += ResultListChanged;
         _notifier.ItemChanged += ResultListItemChanged;
       });
@@ -285,7 +285,7 @@ namespace DSVAlpin2
 
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConvert.SerializeObject(_dm.GetRun(0).GetResultList());
+        output = JsonConvert.SerializeObject(_dm.GetRun(0).GetResultView());
       });
 
       Send(output);

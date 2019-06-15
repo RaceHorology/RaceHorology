@@ -149,7 +149,7 @@ namespace DSVAlpin2
       //dgStartList.Columns[5].Visibility = Visibility.Collapsed;
 
       dgRunning.ItemsSource = run.GetOnTrackList();
-      dgResults.ItemsSource = run.GetResultList();
+      dgResults.ItemsSource = run.GetResultView();
     }
 
     /// <summary>
