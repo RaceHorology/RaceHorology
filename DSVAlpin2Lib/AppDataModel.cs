@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -26,7 +27,7 @@ namespace DSVAlpin2Lib
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
 
-    List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
+    Race _race;
 
 
     /// <summary>
@@ -43,15 +44,7 @@ namespace DSVAlpin2Lib
       // Get notification if a participant got changed / added / removed and trigger storage in DB
       _participantsDelegatorDB = new DatabaseDelegatorParticipant(_participants, _db);
 
-      //// RaceRuns ////
-      _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
-
-      // TODO: Assuming 2 runs for now
-      CreateRaceRuns(2);
-
-      // Fill the data from the DB initially (TODO: to be done better)
-      _runs[0].Item1.InsertResults(_db.GetRaceRun(1));
-      _runs[1].Item1.InsertResults(_db.GetRaceRun(2));
+      _race = new Race(_db, _participants);
     }
 
 
@@ -64,6 +57,39 @@ namespace DSVAlpin2Lib
       return _participants;
     }
 
+    public Race GetRace()
+    {
+      return _race;
+    }
+
+
+  }
+
+
+
+  public class Race
+  {
+    private IAppDataModelDataBase _db;
+
+    ItemsChangeObservableCollection<Participant> _participants;
+
+    List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
+    RaceResultProvider _raceResultsProvider;
+
+    public Race(IAppDataModelDataBase db, ItemsChangeObservableCollection<Participant> participants)
+    {
+      // Database Backend
+      _db = db;
+
+      _participants = participants;
+
+      //// RaceRuns ////
+      _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
+
+      // TODO: Assuming 2 runs for now
+      CreateRaceRuns(2);
+    }
+
     /// <summary>
     /// Creates the RaceRun structures
     /// </summary>
@@ -73,16 +99,25 @@ namespace DSVAlpin2Lib
       if (_runs.Count() > 0)
         throw new Exception("Runs already existing");
 
-      for(uint i=0; i<numRuns; i++)
+      RaceRun[] raceRunsArr = new RaceRun[numRuns];
+      for (uint i = 0; i < numRuns; i++)
       {
-        RaceRun rr = new RaceRun(i+1);
-        rr.SetStartListProvider(this);
+        RaceRun rr = new RaceRun(i + 1);
+
+        // Fill the data from the DB initially (TODO: to be done better)
+        rr.InsertResults(_db.GetRaceRun(i+1));
+
+        rr.SetStartListProvider(new StartListProvider(this, _participants));
         rr.SetResultViewProvider();
 
         // Get notification if a result got modified and trigger storage in DB
         DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(rr, _db);
         _runs.Add((rr, ddrr));
+
+        raceRunsArr[i] = rr;
       }
+
+      _raceResultsProvider = new RaceResultProvider(this, raceRunsArr);
     }
 
     /// <summary>
@@ -102,8 +137,69 @@ namespace DSVAlpin2Lib
       return _runs.ElementAt((int)run).Item1;
     }
 
+
+    public ItemsChangeObservableCollection<Participant> GetParticipants()
+    {
+      return _participants;
+    }
+
+    public System.ComponentModel.ICollectionView GetTotalResultView()
+    {
+      return _raceResultsProvider.GetView();
+    }
+
   }
 
+
+  public class RaceResultItem : INotifyPropertyChanged
+  {
+    public Participant Participant { get { return _participant; } }
+
+    public Dictionary<uint, TimeSpan?> RunTimes{ get { return _runTimes; } }
+
+    public TimeSpan? TotalTime
+    {
+      get { return _totalTime; }
+      set { _totalTime = value; NotifyPropertyChanged(); }
+    }
+
+
+    Participant _participant;
+    Dictionary<uint, TimeSpan?> _runTimes;
+    TimeSpan? _totalTime;
+
+
+    public RaceResultItem(Participant participant)
+    {
+      _participant = participant;
+      _runTimes = new Dictionary<uint, TimeSpan?>();
+    }
+
+
+    public void SetRunResult(uint run, RunResult result)
+    {
+      _runTimes[run] = result?.Runtime;
+
+      NotifyPropertyChanged(nameof(RunTimes));
+    }
+
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
+
+
+  }
 
   public class LiveResult : RunResult
   {
@@ -176,9 +272,9 @@ namespace DSVAlpin2Lib
       return _slp.GetStartList();
     }
 
-    public void SetStartListProvider(AppDataModel dm)
+    public void SetStartListProvider(StartListProvider slp)
     {
-      _slp = new StartListProvider(dm);
+      _slp = slp;
     }
 
     public ItemsChangeObservableCollection<LiveResult> GetOnTrackList()
@@ -362,16 +458,16 @@ namespace DSVAlpin2Lib
 
   public class StartListProvider
   {
-    private AppDataModel _dm;
+    private Race _race;
 
     ObservableCollection<Participant> _participants;
     CollectionViewSource _startListView;
 
-    public StartListProvider(AppDataModel dm)
+    public StartListProvider(Race race, ObservableCollection<Participant> participants)
     {
-      _dm = dm;
+      _race = race;
 
-      _participants = _dm.GetParticipants();
+      _participants = participants;
 
       _startListView = new CollectionViewSource();
 
@@ -397,8 +493,6 @@ namespace DSVAlpin2Lib
 
   public class ResultViewProvider
   {
-    private AppDataModel _dm;
-
     ItemsChangeObservableCollection<RunResult> _results;
     CollectionViewSource _resultListView;
 
@@ -450,6 +544,141 @@ namespace DSVAlpin2Lib
       return _resultListView.View;
     }
   }
+
+
+
+  public class RaceResultProvider
+  {
+    Race _race;
+    RaceRun[] _raceRuns;
+    ItemsChangeObservableCollection<RaceResultItem> _raceResults;
+    CollectionViewSource _raceResultsView;
+
+
+    public RaceResultProvider(Race race, RaceRun[] rr)
+    {
+      _race = race;
+      _raceRuns = rr;
+      _raceResults = new ItemsChangeObservableCollection<RaceResultItem>();
+
+      foreach (RaceRun r in _raceRuns)
+      {
+        r.GetResultList().CollectionChanged += OnResultListCollectionChanged;
+      }
+
+
+      _raceResultsView = new CollectionViewSource();
+
+      _raceResultsView.Source = _raceResults;
+
+      _raceResultsView.SortDescriptions.Clear();
+      _raceResultsView.SortDescriptions.Add(new SortDescription(nameof(RaceResultItem.TotalTime), ListSortDirection.Ascending));
+
+      // TODO: Check this out
+      //ListCollectionView llview = _raceResultsView.View as ListCollectionView;
+      //llview.CustomSort = new CustomerSorter();
+
+      _raceResultsView.LiveSortingProperties.Add(nameof(RaceResultItem.TotalTime));
+      _raceResultsView.IsLiveSortingRequested = true;
+
+      _raceResultsView.GroupDescriptions.Add(new PropertyGroupDescription("Participant.Class"));
+      _raceResultsView.LiveGroupingProperties.Add("Participant.Class");
+      _raceResultsView.IsLiveGroupingRequested = true;
+
+      UpdateAll();
+    }
+
+
+    public System.ComponentModel.ICollectionView GetView()
+    {
+      return _raceResultsView.View;
+    }
+
+
+    private void OnRunResultItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RunResult rr = sender as RunResult;
+
+      if (rr!=null)
+        UpdateResultsFor(rr.Participant);
+    }
+
+    private void OnResultListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+          item.PropertyChanged -= OnRunResultItemChanged;
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+          item.PropertyChanged += OnRunResultItemChanged;
+    }
+
+
+    private void UpdateAll()
+    {
+      foreach (Participant p in _race.GetParticipants())
+        UpdateResultsFor(p);
+    }
+
+    private void UpdateResultsFor(Participant participant)
+    {
+      RaceResultItem rri = _raceResults.SingleOrDefault(x=>x.Participant == participant);
+      if (rri == null)
+      {
+        rri = new RaceResultItem(participant);
+        _raceResults.Add(rri);
+      }
+
+      // Look for the sub-result
+      Dictionary<uint, RunResult> results = new Dictionary<uint, RunResult>();
+      foreach ( RaceRun run in _raceRuns)
+      {
+        RunResult result = run.GetResultList().SingleOrDefault(x => x.Participant == participant);
+        results.Add(run.Run, result);
+      }
+
+      // Combine and update the race result
+      rri.TotalTime = MinimumTime(results);
+      foreach (var res in results)
+      {
+        rri.SetRunResult(res.Key, res.Value);
+      }
+    }
+
+    TimeSpan? MinimumTime(Dictionary<uint, RunResult> results)
+    {
+      TimeSpan? minTime = null;
+
+      foreach (var res in results)
+      {
+        if (res.Value != null && res.Value.Runtime != null)
+        {
+          if (minTime == null || TimeSpan.Compare((TimeSpan)res.Value.Runtime, (TimeSpan)minTime) < 0)
+            minTime = res.Value.Runtime;
+        }
+      }
+
+      return minTime;
+    }
+
+    TimeSpan? SumTime(Dictionary<uint, RunResult> results)
+    {
+      TimeSpan sumTime = new TimeSpan(0);
+
+      foreach (var res in results)
+      {
+        if (res.Value != null && res.Value.Runtime != null)
+        {
+            sumTime += (TimeSpan)res.Value.Runtime;
+        }
+      }
+
+      return sumTime;
+    }
+
+  }
+
 
 
 

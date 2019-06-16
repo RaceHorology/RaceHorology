@@ -191,7 +191,7 @@ namespace DSVAlpin2
 
       Application.Current.Dispatcher.Invoke(() => 
       {
-        _notifier = new ItemsChangedNotifier(_dm.GetRun(0).GetStartList());
+        _notifier = new ItemsChangedNotifier(_dm.GetRace().GetRun(0).GetStartList());
         _notifier.CollectionChanged += StartListChanged;
         _notifier.ItemChanged += StartListItemChanged;
       });
@@ -223,7 +223,7 @@ namespace DSVAlpin2
       string output=null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConvert.SerializeObject(_dm.GetRun(0).GetStartList());
+        output = JsonConvert.SerializeObject(_dm.GetRace().GetRun(0).GetStartList());
       });
 
       Send(output);
@@ -248,7 +248,7 @@ namespace DSVAlpin2
 
       Application.Current.Dispatcher.Invoke(() =>
       {
-        _notifier = new ItemsChangedNotifier(_dm.GetRun(0).GetResultView());
+        _notifier = new ItemsChangedNotifier(_dm.GetRace().GetRun(0).GetResultView());
         _notifier.CollectionChanged += ResultListChanged;
         _notifier.ItemChanged += ResultListItemChanged;
       });
@@ -285,7 +285,7 @@ namespace DSVAlpin2
 
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConvert.SerializeObject(_dm.GetRun(0).GetResultView());
+        output = JsonConvert.SerializeObject(_dm.GetRace().GetRun(0).GetResultView());
       });
 
       Send(output);

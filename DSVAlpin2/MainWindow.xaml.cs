@@ -78,7 +78,7 @@ namespace DSVAlpin2
     /// <param name="dbPath">Path to the database (Access File)</param>
     private void OpenDatabase(string dbPath)
     {
-      try
+      //try
       {
         // Close database if it was already open
         if (_dataModel != null)
@@ -104,16 +104,14 @@ namespace DSVAlpin2
 
         _mruList.AddFile(dbPath);
       }
+      /*
       catch (Exception ex)
       {
         MessageBox.Show(ex.Message, "Datei kann nicht geöffnet werden", MessageBoxButton.OK, MessageBoxImage.Error);
 
-        // Remove the file from the MRU list.
-        _mruList.RemoveFile(dbPath);
-
         // Close eveything again
         CloseDatabase();
-      }
+      }*/
     }
 
     /// <summary>
@@ -142,7 +140,7 @@ namespace DSVAlpin2
       dgParticipants.ItemsSource = participants;
 
       // TODO: Just for now, assume first run
-      var run = _dataModel.GetRun(0);
+      var run = _dataModel.GetRace().GetRun(0);
       dgStartList.ItemsSource = run.GetStartList();
 
       // TODO: Hide not needed columns
@@ -150,6 +148,10 @@ namespace DSVAlpin2
 
       dgRunning.ItemsSource = run.GetOnTrackList();
       dgResults.ItemsSource = run.GetResultView();
+
+
+
+      dgTotalResults.ItemsSource = _dataModel.GetRace().GetTotalResultView();
     }
 
     /// <summary>
@@ -260,31 +262,60 @@ namespace DSVAlpin2
     }
 
 
-    private CollectionViewSource testParticipantsSrc;
+
+
+    //private CollectionViewSource testParticipantsSrc;
+    System.Data.DataTable _testingDT;
+    System.Timers.Timer _testingTimer;
 
     private void SetupTesting()
     {
       var participants = _dataModel.GetParticipants();
 
+
+      // ***** Testing of DataTable *****
+      _testingDT = new System.Data.DataTable();
+
+      _testingDT.Columns.Add("Name", typeof(string));
+      _testingDT.Columns.Add("Vorname", typeof(string));
+
+      foreach(Participant p in participants)
+        _testingDT.Rows.Add(p.Name, p.Firstname);
+
+      dgTest1.ItemsSource = _testingDT.DefaultView;
+      /*
       testParticipantsSrc = new CollectionViewSource();
-      testParticipantsSrc.Source = participants;
+      testParticipantsSrc.Source = _testingDT;
 
       testParticipantsSrc.SortDescriptions.Clear();
-      testParticipantsSrc.SortDescriptions.Add(new SortDescription(nameof(Participant.Year), ListSortDirection.Ascending));
+      testParticipantsSrc.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
 
-      testParticipantsSrc.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
+      testParticipantsSrc.GroupDescriptions.Add(new PropertyGroupDescription("Name"));
 
       dgTest1.ItemsSource = testParticipantsSrc.View;
+      _testingTimer = new System.Timers.Timer(1000);
+      _testingTimer.Elapsed += OnTestingTimedEvent;
+      _testingTimer.AutoReset = true;
+      _testingTimer.Enabled = true;
+      */
 
-      string output = Newtonsoft.Json.JsonConvert.SerializeObject(testParticipantsSrc.View);
+      /*
+      string output = Newtonsoft.Json.JsonConvert.SerializeObject(_testingDT);
       System.Diagnostics.Debug.Write(output);
+      */
     }
+
+    private void OnTestingTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      _testingDT.Rows.Add(e.SignalTime.ToString(), "Auto");
+    }
+
 
 
     private void TxtTest1_TextChanged(object sender, TextChangedEventArgs e)
     {
       string text = txtTest1.Text;
-      testParticipantsSrc.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((Participant)ea.Item).Firstname.Contains(text); });
+      //testParticipantsSrc.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((Participant)ea.Item).Firstname.Contains(text); });
     }
 
 
@@ -302,7 +333,7 @@ namespace DSVAlpin2
 
       if (participant != null)
       {
-        RaceRun rr = _dataModel.GetRun(0);
+        RaceRun rr = _dataModel.GetRace().GetRun(0);
 
         if (start != null || finish != null)
           rr.SetTimeMeasurement(participant, start, finish);
@@ -345,7 +376,7 @@ namespace DSVAlpin2
 
       if (participant!=null)
       {
-        RaceRun rr = _dataModel.GetRun(0);
+        RaceRun rr = _dataModel.GetRace().GetRun(0);
         RunResult result = rr.GetResultList().SingleOrDefault(r => r._participant == participant);
 
         if (result!=null)

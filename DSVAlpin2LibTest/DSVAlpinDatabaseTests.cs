@@ -365,8 +365,8 @@ namespace DSVAlpin2LibTest
 
         // Create a RaceRun with 2 runs
         //model.CreateRaceRun(2);
-        RaceRun rr1 = model.GetRun(0);
-        RaceRun rr2 = model.GetRun(1);
+        RaceRun rr1 = model.GetRace().GetRun(0);
+        RaceRun rr2 = model.GetRace().GetRun(1);
 
         Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
         rr1.SetTimeMeasurement(participant1, new TimeSpan(0, 12, 0, 0, 0), null); // Start
@@ -392,8 +392,8 @@ namespace DSVAlpin2LibTest
       // Test 1: Check internal app model
       // Test 2: Check whether database is correct
       {
-        RaceRun rr1 = model.GetRun(0);
-        RaceRun rr2 = model.GetRun(1);
+        RaceRun rr1 = model.GetRace().GetRun(0);
+        RaceRun rr2 = model.GetRace().GetRun(1);
 
         // Participant 1 / Test 1
         RunResult rr1res1 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 1").FirstOrDefault();

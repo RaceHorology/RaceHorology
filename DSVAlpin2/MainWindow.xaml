@@ -34,9 +34,11 @@
     </Menu>
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="2*"/>
         <ColumnDefinition Width="5"/>
-        <ColumnDefinition Width="2*" />
+        <ColumnDefinition Width="3*" />
+        <ColumnDefinition Width="5"/>
+        <ColumnDefinition Width="3*" />
       </Grid.ColumnDefinitions>
       <Grid Grid.Column="0" Background="#FFE5E5E5">
         <Grid.RowDefinitions>
@@ -125,12 +127,12 @@
               <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
                   <!-- seem like this does not update the field ... move conversion into the RunResult ... -->
                   <!-- DataGridTextColumn Header="Laufzeit" Binding="{Binding Path=., Mode=OneWay, Converter={StaticResource RunResultRunTimeConverter}}"/ -->
                   <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
@@ -187,6 +189,44 @@
           </Grid>
         </TabItem>
       </TabControl>
+
+      <GridSplitter x:Name="vertSplitter2" VerticalAlignment="Stretch" Width="5" Grid.Column="3" HorizontalAlignment="Center" />
+
+      <Grid Grid.Column="4" Background="#FFE5E5E5">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Label x:Name="lblTotalResult" Content="Gesamtergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+        <DataGrid x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay}" />
+            <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
+            <DataGridTextColumn Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
+            <DataGridTextColumn Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
+            <DataGridTextColumn Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
+            <DataGridTextColumn Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
+            <DataGridTextColumn Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
+
+            <DataGridTextColumn Header="Zeit 1" Binding="{Binding Path=RunTimes[1], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+            <DataGridTextColumn Header="Zeit 2" Binding="{Binding Path=RunTimes[2], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+
+            <DataGridTextColumn Header="Zeit" Binding="{Binding Path=TotalTime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+
+            <DataGridTextColumn Header="Anmerkung" />
+          </DataGrid.Columns>
+          <DataGrid.GroupStyle>
+            <GroupStyle>
+              <GroupStyle.HeaderTemplate>
+                <DataTemplate>
+                  <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                </DataTemplate>
+              </GroupStyle.HeaderTemplate>
+            </GroupStyle>
+          </DataGrid.GroupStyle>
+        </DataGrid>
+      </Grid>
+      
     </Grid>
     <Button x:Name="button" Content="Test: Add Participant" HorizontalAlignment="Left" Margin="910,41,0,0" VerticalAlignment="Top" Width="Auto" Click="Button_Click"/>
   </Grid>
