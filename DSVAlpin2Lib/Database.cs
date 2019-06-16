@@ -171,11 +171,11 @@ namespace DSVAlpin2Lib
       else
         cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex));
 
-      if (string.IsNullOrEmpty(participant.Sex))
+      if (string.IsNullOrEmpty(participant.Club))
         cmd.Parameters.Add(new OleDbParameter("@verein", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@verein", participant.Club));
-      if (string.IsNullOrEmpty(participant.Sex))
+      if (string.IsNullOrEmpty(participant.Nation))
         cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
