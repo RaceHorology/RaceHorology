@@ -402,6 +402,26 @@ namespace DSVAlpin2Lib
     ItemsChangeObservableCollection<RunResult> _results;
     CollectionViewSource _resultListView;
 
+    public class CustomerSorter : System.Collections.IComparer
+    {
+      public int Compare(object x, object y)
+      {
+        RunResult rrX = x as RunResult;
+        RunResult rrY = y as RunResult;
+
+        if (rrX.Runtime == null && rrY.Runtime == null)
+          return 0;
+
+        if (rrX.Runtime != null && rrY.Runtime == null)
+          return -1;
+
+        if (rrX.Runtime == null && rrY.Runtime != null)
+          return 1;
+
+        return TimeSpan.Compare((TimeSpan)rrX.Runtime, (TimeSpan)rrY.Runtime);
+      }
+    }
+
     public ResultViewProvider(ItemsChangeObservableCollection<RunResult> results)
     {
       _results = results;
@@ -411,7 +431,11 @@ namespace DSVAlpin2Lib
       _resultListView.Source = _results;
 
       _resultListView.SortDescriptions.Clear();
-      _resultListView.SortDescriptions.Add(new SortDescription(nameof(RunResult.Runtime), ListSortDirection.Ascending));
+      //_resultListView.SortDescriptions.Add(new SortDescription(nameof(RunResult.Runtime), ListSortDirection.Ascending));
+
+      // TODO: Check this out
+      ListCollectionView llview = _resultListView.View as ListCollectionView;
+      llview.CustomSort = new CustomerSorter();
 
       _resultListView.LiveSortingProperties.Add(nameof(RunResult.Runtime));
       _resultListView.IsLiveSortingRequested = true;
