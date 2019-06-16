@@ -130,6 +130,9 @@ namespace DSVAlpin2
 
     }
 
+    static RunResult highlight = null;
+    static System.Timers.Timer timer = null;
+
     /// <summary>
     /// Connects the GUI (e.g. Data Grids, ...) to the data model
     /// </summary>
@@ -148,6 +151,35 @@ namespace DSVAlpin2
 
       dgRunning.ItemsSource = run.GetOnTrackList();
       dgResults.ItemsSource = run.GetResultView();
+
+      run.GetResultView().CollectionChanged += OnResultViewChanged;
+
+      void OnResultViewChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+      {
+        if (e.NewItems != null)
+        {
+          foreach(RunResult r in e.NewItems)
+          {
+            highlight = r;
+            timer = new System.Timers.Timer(200);
+            timer.Elapsed += OnTimedEvent;
+            timer.AutoReset = false;
+            timer.Enabled = true;
+
+
+            break;
+          }
+        }
+      }
+
+      void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+      {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          dgResults.ScrollIntoView(highlight);
+          dgResults.SelectedItem = highlight;
+        });
+      }
 
 
 
