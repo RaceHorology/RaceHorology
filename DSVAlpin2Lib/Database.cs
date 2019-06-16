@@ -117,7 +117,7 @@ namespace DSVAlpin2Lib
             r.ResultCode = (RunResult.EResultCode)(byte)reader.GetValue(reader.GetOrdinal("ergcode"));
 
           if (!reader.IsDBNull(reader.GetOrdinal("disqualtext")))
-            r.DisqualText = reader["nachname"].ToString();
+            r.DisqualText = reader["disqualtext"].ToString();
 
           runResult.Add(r);
         }
