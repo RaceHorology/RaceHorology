@@ -527,6 +527,10 @@ namespace DSVAlpin2Lib
       _resultListView.SortDescriptions.Clear();
       //_resultListView.SortDescriptions.Add(new SortDescription(nameof(RunResult.Runtime), ListSortDirection.Ascending));
 
+      _resultListView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).Runtime != null; });
+      _resultListView.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
+      _resultListView.IsLiveFilteringRequested = true;
+
       // TODO: Check this out
       ListCollectionView llview = _resultListView.View as ListCollectionView;
       llview.CustomSort = new CustomerSorter();
