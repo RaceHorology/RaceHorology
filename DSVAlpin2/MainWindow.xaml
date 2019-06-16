@@ -15,6 +15,9 @@
     <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
     <KeyBinding Key="C" Modifiers="Control" Command="Close"/>
   </Window.InputBindings>
+  <Window.Resources>
+    <local:RunResultRunTimeConverter x:Key="RunResultRunTimeConverter" />
+  </Window.Resources>
 
   <Grid>
     <Grid.RowDefinitions>
@@ -128,7 +131,10 @@
                   <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
                   <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                   <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <!-- seem like this does not update the field ... move conversion into the RunResult ... -->
+                  <!-- DataGridTextColumn Header="Laufzeit" Binding="{Binding Path=., Mode=OneWay, Converter={StaticResource RunResultRunTimeConverter}}"/ -->
                   <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+                  <DataGridTextColumn Header="Anmerkung" />
                 </DataGrid.Columns>
                 <DataGrid.GroupStyle>
                   <GroupStyle>
