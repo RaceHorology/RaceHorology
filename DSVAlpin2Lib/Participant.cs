@@ -120,7 +120,7 @@ namespace DSVAlpin2Lib
       _disqualText = null;
     }
 
-  protected RunResult(RunResult original)
+    protected RunResult(RunResult original)
     {
       _participant = original._participant;
       _startTime = original._startTime;
@@ -128,7 +128,7 @@ namespace DSVAlpin2Lib
       _finishTime = original._finishTime;
     }
 
-  public void SetRunTime(TimeSpan? t)
+    public void SetRunTime(TimeSpan? t)
     {
       _startTime = null;
       _finishTime = null;
