@@ -5,8 +5,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace DSVAlpin2Lib
@@ -105,7 +103,7 @@ namespace DSVAlpin2Lib
         RaceRun rr = new RaceRun(i + 1);
 
         // Fill the data from the DB initially (TODO: to be done better)
-        rr.InsertResults(_db.GetRaceRun(i+1));
+        rr.InsertResults(_db.GetRaceRun(i + 1));
 
         rr.SetStartListProvider(new StartListProvider(this, _participants));
         rr.SetResultViewProvider();
@@ -155,7 +153,7 @@ namespace DSVAlpin2Lib
   {
     public Participant Participant { get { return _participant; } }
 
-    public Dictionary<uint, TimeSpan?> RunTimes{ get { return _runTimes; } }
+    public Dictionary<uint, TimeSpan?> RunTimes { get { return _runTimes; } }
 
     public TimeSpan? TotalTime
     {
@@ -262,8 +260,8 @@ namespace DSVAlpin2Lib
     {
       _run = run;
 
-      _onTrack   = new ItemsChangeObservableCollection<LiveResult>(); 
-      _results   = new ItemsChangeObservableCollection<RunResult>();
+      _onTrack = new ItemsChangeObservableCollection<LiveResult>();
+      _results = new ItemsChangeObservableCollection<RunResult>();
     }
 
 
@@ -328,7 +326,7 @@ namespace DSVAlpin2Lib
     public void InsertResult(RunResult r)
     {
       // Check if already inserted
-      if (_results.SingleOrDefault(x => x==r)==null)
+      if (_results.SingleOrDefault(x => x == r) == null)
         _results.Add(r);
 
       _UpdateInternals();
@@ -347,7 +345,7 @@ namespace DSVAlpin2Lib
     {
       bool IsOnTrack(RunResult r)
       {
-        return r.GetStartTime()!=null && r.GetRunTime() == null;
+        return r.GetStartTime() != null && r.GetRunTime() == null;
       }
 
       // Remove from onTrack list if a result is available
@@ -396,7 +394,7 @@ namespace DSVAlpin2Lib
       switch (e.Action)
       {
         case NotifyCollectionChangedAction.Add:
-          foreach(RunResult v in e.NewItems)
+          foreach (RunResult v in e.NewItems)
             _db.CreateOrUpdateRunResult(_rr, v);
           break;
 
@@ -630,7 +628,7 @@ namespace DSVAlpin2Lib
     {
       RunResult rr = sender as RunResult;
 
-      if (rr!=null)
+      if (rr != null)
         UpdateResultsFor(rr.Participant);
     }
 
@@ -658,7 +656,7 @@ namespace DSVAlpin2Lib
 
     private void UpdateResultsFor(Participant participant)
     {
-      RaceResultItem rri = _raceResults.SingleOrDefault(x=>x.Participant == participant);
+      RaceResultItem rri = _raceResults.SingleOrDefault(x => x.Participant == participant);
       if (rri == null)
       {
         rri = new RaceResultItem(participant);
@@ -667,7 +665,7 @@ namespace DSVAlpin2Lib
 
       // Look for the sub-result
       Dictionary<uint, RunResult> results = new Dictionary<uint, RunResult>();
-      foreach ( RaceRun run in _raceRuns)
+      foreach (RaceRun run in _raceRuns)
       {
         RunResult result = run.GetResultList().SingleOrDefault(x => x.Participant == participant);
         results.Add(run.Run, result);
@@ -703,7 +701,7 @@ namespace DSVAlpin2Lib
       {
         if (res.Value != null && res.Value.Runtime != null)
         {
-            sumTime += (TimeSpan)res.Value.Runtime;
+          sumTime += (TimeSpan)res.Value.Runtime;
         }
       }
 
