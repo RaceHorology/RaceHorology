@@ -126,7 +126,25 @@ namespace DSVAlpin2Lib
       _startTime = original._startTime;
       _runTime = original._runTime;
       _finishTime = original._finishTime;
+      _resultCode = original._resultCode;
+      _disqualText = original._disqualText;
     }
+
+    public void UpdateRunResult(RunResult original)
+    {
+      System.Diagnostics.Debug.Assert(_participant == original._participant);
+
+      _startTime = original._startTime;
+      _runTime = original._runTime;
+      _finishTime = original._finishTime;
+      _resultCode = original._resultCode;
+      _disqualText = original._disqualText;
+
+      NotifyPropertyChanged(propertyName: nameof(Runtime));
+      NotifyPropertyChanged(propertyName: nameof(ResultCode));
+      NotifyPropertyChanged(propertyName: nameof(DisqualText));
+    }
+
 
     public void SetRunTime(TimeSpan? t)
     {

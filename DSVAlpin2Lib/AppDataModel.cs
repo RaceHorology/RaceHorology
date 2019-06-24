@@ -151,6 +151,15 @@ namespace DSVAlpin2Lib
 
   public class RaceResultItem : INotifyPropertyChanged
   {
+    #region private
+
+    Participant _participant;
+    Dictionary<uint, TimeSpan?> _runTimes;
+    TimeSpan? _totalTime;
+    private uint _position;
+    
+    #endregion
+
     public Participant Participant { get { return _participant; } }
 
     public Dictionary<uint, TimeSpan?> RunTimes { get { return _runTimes; } }
@@ -162,24 +171,38 @@ namespace DSVAlpin2Lib
     }
 
 
-    Participant _participant;
-    Dictionary<uint, TimeSpan?> _runTimes;
-    TimeSpan? _totalTime;
-
-
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="participant">The participant the results belong to.</param>
     public RaceResultItem(Participant participant)
     {
       _participant = participant;
       _runTimes = new Dictionary<uint, TimeSpan?>();
     }
 
-
+    /// <summary>
+    /// Sets the results for one specific run
+    /// </summary>
+    /// <param name="run">Run number, typically either 1 or 2</param>
+    /// <param name="result">The corresponding results</param>
     public void SetRunResult(uint run, RunResult result)
     {
       _runTimes[run] = result?.Runtime;
 
       NotifyPropertyChanged(nameof(RunTimes));
     }
+
+
+    /// <summary>
+    /// The position within the classement
+    /// </summary>
+    public uint Position
+    {
+      get { return _position; }
+      set { _position = value; NotifyPropertyChanged(); }
+    }
+
 
 
 
@@ -489,53 +512,89 @@ namespace DSVAlpin2Lib
   }
 
 
+  public class RunResultWithPosition :  RunResult
+  {
+    private uint _position;
+
+    public RunResultWithPosition(RunResult result) : base(result)
+    {
+    }
+
+    /// <summary>
+    /// The position within the classement
+    /// </summary>
+    public uint Position
+    {
+      get { return _position; }
+      set { _position = value; NotifyPropertyChanged(); }
+    }
+  }
+
   public class ResultViewProvider
   {
-    ItemsChangeObservableCollection<RunResult> _results;
+    ItemsChangeObservableCollection<RunResult> _originalResults;
+    ItemsChangeObservableCollection<RunResultWithPosition> _results;
+    System.Collections.Generic.IComparer<RunResultWithPosition> _sorter;
+
     CollectionViewSource _resultListView;
 
-    public class RuntimeSorter : System.Collections.IComparer
+    public class RuntimeSorter : System.Collections.Generic.IComparer<RunResultWithPosition>
     {
-      public int Compare(object x, object y)
+      public int Compare(RunResultWithPosition rrX, RunResultWithPosition rrY)
       {
-        RunResult rrX = x as RunResult;
-        RunResult rrY = y as RunResult;
+        TimeSpan? tX = rrX.Runtime;
+        TimeSpan? tY = rrY.Runtime;
 
-        if (rrX.Runtime == null && rrY.Runtime == null)
+        int classCompare = rrX.Class.CompareTo(rrY.Class);
+        if (classCompare != 0)
+          return classCompare;
+
+        if (tX == null && tY == null)
           return 0;
 
-        if (rrX.Runtime != null && rrY.Runtime == null)
+        if (tX != null && tY == null)
           return -1;
 
-        if (rrX.Runtime == null && rrY.Runtime != null)
+        if (tX == null && tY != null)
           return 1;
 
-        return TimeSpan.Compare((TimeSpan)rrX.Runtime, (TimeSpan)rrY.Runtime);
+        return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
       }
     }
 
 
     public ResultViewProvider(ItemsChangeObservableCollection<RunResult> results)
     {
-      _results = results;
+      _sorter = new RuntimeSorter();
+
+      _originalResults = results;
+
+      _originalResults.CollectionChanged += OnOriginalResultsChanged;
+      _originalResults.ItemChanged += OnOriginalResultItemChanged;
 
       _resultListView = new CollectionViewSource();
 
+      _results = new ItemsChangeObservableCollection<RunResultWithPosition>();
+      foreach(var result in _originalResults)
+        _results.Add(new RunResultWithPosition(result));
+      ResortResults();
+
       _resultListView.Source = _results;
+
 
       _resultListView.SortDescriptions.Clear();
       //_resultListView.SortDescriptions.Add(new SortDescription(nameof(RunResult.Runtime), ListSortDirection.Ascending));
 
-      _resultListView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).Runtime != null; });
+      //_resultListView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).Runtime != null; });
       _resultListView.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
       _resultListView.IsLiveFilteringRequested = true;
 
       // TODO: Check this out
       ListCollectionView llview = _resultListView.View as ListCollectionView;
-      llview.CustomSort = new RuntimeSorter();
+      //llview.CustomSort = new RuntimeSorter();
 
-      _resultListView.LiveSortingProperties.Add(nameof(RunResult.Runtime));
-      _resultListView.IsLiveSortingRequested = true;
+      //_resultListView.LiveSortingProperties.Add(nameof(RunResult.Runtime));
+      //_resultListView.IsLiveSortingRequested = true;
 
       _resultListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
       _resultListView.LiveGroupingProperties.Add(nameof(Participant.Class));
@@ -546,6 +605,91 @@ namespace DSVAlpin2Lib
     {
       return _resultListView.View;
     }
+
+    void OnOriginalResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RunResult result = (RunResult)item;
+          var itemsToRemove = _results.Where(r => r == result).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _results.Remove(itemToRemove);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          // Add to results
+          RunResult result = (RunResult)item;
+          _results.Add(new RunResultWithPosition(result));
+        }
+
+      ResortResults();
+    }
+
+    void OnOriginalResultItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RunResult result = (RunResult)sender;
+      RunResultWithPosition rrWP = _results.FirstOrDefault(r => r == result);
+
+      rrWP.UpdateRunResult(result);
+
+      // Anything to update?
+      ResortResults();
+    }
+
+
+    void ResortResults()
+    {
+      // TODO: Could be much more efficient; consumes O(nlogn * n); but underlaying dat structure _results needs to be changed to support in-place sorting (e.g. an array)
+      // Sort:
+      // 1. by Class
+      // 2. by Time
+
+      var sortedResults = _results.ToList();
+      sortedResults.Sort(_sorter);
+      _results.Clear();
+
+      uint curPosition = 1;
+      uint samePosition = 1;
+      string curClass = "";
+      TimeSpan? lastTime = null;
+      foreach (var sortedItem in sortedResults)
+      {
+        if (sortedItem.Class != curClass)
+        {
+          curClass = sortedItem.Class;
+          curPosition = 1;
+          lastTime = null;
+        }
+
+        if (sortedItem.Runtime != null)
+        {
+          sortedItem.Position = curPosition;
+
+          // Same position in case same time
+          if (sortedItem.Runtime == lastTime)//< TimeSpan.FromMilliseconds(9))
+          {
+            samePosition++;
+          }
+          else
+          {
+            curPosition += samePosition;
+            samePosition = 1;
+          }
+          lastTime = sortedItem.Runtime;
+        }
+        else
+        {
+          sortedItem.Position = 0;
+        }
+
+        _results.Add(sortedItem);
+      }
+    }
+
   }
 
 
