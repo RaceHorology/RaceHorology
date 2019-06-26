@@ -64,16 +64,23 @@ namespace DSVAlpin2Lib
   }
 
 
-
+  /// <summary>
+  /// Represents a race / contest.
+  /// A race typically consists out of 1 or 2 runs.
+  /// </summary>
+  /// 
   public class Race
   {
     private IAppDataModelDataBase _db;
+    private ItemsChangeObservableCollection<Participant> _participants;
+    private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
+    private RaceResultProvider _raceResultsProvider;
 
-    ItemsChangeObservableCollection<Participant> _participants;
-
-    List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
-    RaceResultProvider _raceResultsProvider;
-
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="db">Database for loading and storing</param>
+    /// <param name="participants">Participants takeing part in that race</param>
     public Race(IAppDataModelDataBase db, ItemsChangeObservableCollection<Participant> participants)
     {
       // Database Backend
@@ -89,9 +96,10 @@ namespace DSVAlpin2Lib
     }
 
     /// <summary>
-    /// Creates the RaceRun structures
+    /// Creates the RaceRun structures. After this call, the Races can be accessed and worked with via GetRun().
     /// </summary>
     /// <param name="numRuns">Number of runs</param>
+    /// <seealso cref="GetRun()"/>
     public void CreateRaceRuns(int numRuns)
     {
       if (_runs.Count() > 0)
@@ -135,12 +143,20 @@ namespace DSVAlpin2Lib
       return _runs.ElementAt((int)run).Item1;
     }
 
-
+    /// <summary>
+    /// Returns the participants of the race.
+    /// </summary>
+    /// <returns></returns>
     public ItemsChangeObservableCollection<Participant> GetParticipants()
     {
       return _participants;
     }
 
+    /// <summary>
+    /// Returns the results of the race.
+    /// </summary>
+    /// <returns>Race results</returns>
+    /// <remarks>The race result is grouped by e.g. class and ordered by the position within the group.</remarks>
     public System.ComponentModel.ICollectionView GetTotalResultView()
     {
       return _raceResultsProvider.GetView();
@@ -149,6 +165,9 @@ namespace DSVAlpin2Lib
   }
 
 
+  /// <summary>
+  /// Represents a race result. It contains out of the participant including its run results (run, time, status) and its final position within the group.
+  /// </summary>
   public class RaceResultItem : INotifyPropertyChanged
   {
     #region private
@@ -157,19 +176,8 @@ namespace DSVAlpin2Lib
     Dictionary<uint, TimeSpan?> _runTimes;
     TimeSpan? _totalTime;
     private uint _position;
-    
+
     #endregion
-
-    public Participant Participant { get { return _participant; } }
-
-    public Dictionary<uint, TimeSpan?> RunTimes { get { return _runTimes; } }
-
-    public TimeSpan? TotalTime
-    {
-      get { return _totalTime; }
-      set { _totalTime = value; NotifyPropertyChanged(); }
-    }
-
 
     /// <summary>
     /// Constructor
@@ -182,15 +190,17 @@ namespace DSVAlpin2Lib
     }
 
     /// <summary>
-    /// Sets the results for one specific run
+    /// Returns the participant
     /// </summary>
-    /// <param name="run">Run number, typically either 1 or 2</param>
-    /// <param name="result">The corresponding results</param>
-    public void SetRunResult(uint run, RunResult result)
-    {
-      _runTimes[run] = result?.Runtime;
+    public Participant Participant { get { return _participant; } }
 
-      NotifyPropertyChanged(nameof(RunTimes));
+    /// <summary>
+    /// Returns the final time (sum or minimum time depending on the race type)
+    /// </summary>
+    public TimeSpan? TotalTime
+    {
+      get { return _totalTime; }
+      set { _totalTime = value; NotifyPropertyChanged(); }
     }
 
 
@@ -204,6 +214,23 @@ namespace DSVAlpin2Lib
     }
 
 
+    /// <summary>
+    /// Returns the separate run results per run
+    /// </summary>
+    public Dictionary<uint, TimeSpan?> RunTimes { get { return _runTimes; } }
+
+
+    /// <summary>
+    /// Sets the results for one specific run
+    /// </summary>
+    /// <param name="run">Run number, typically either 1 or 2</param>
+    /// <param name="result">The corresponding results</param>
+    public void SetRunResult(uint run, RunResult result)
+    {
+      _runTimes[run] = result?.Runtime;
+
+      NotifyPropertyChanged(nameof(RunTimes));
+    }
 
 
     #region INotifyPropertyChanged implementation
@@ -222,10 +249,18 @@ namespace DSVAlpin2Lib
 
   }
 
+  /// <summary>
+  /// Represents a temporary RunResult used for displayig the live time while the participant is running.
+  /// </summary>
+  /// <remarks>Run time is updated continuously.</remarks>
   public class LiveResult : RunResult
   {
     System.Timers.Timer _timer;
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="original"></param>
     public LiveResult(RunResult original) : base(original)
     {
       _timer = new System.Timers.Timer(1000);
@@ -236,11 +271,17 @@ namespace DSVAlpin2Lib
       CalcRunTime();
     }
 
+    /// <summary>
+    /// Callback to update the run time continuously
+    /// </summary>
     private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
     {
       CalcRunTime();
     }
 
+    /// <summary>
+    /// Calculates and updates the run time internally
+    /// </summary>
     private void CalcRunTime()
     {
       if (_startTime != null)
@@ -257,19 +298,15 @@ namespace DSVAlpin2Lib
   /// </summary>
   public class RaceRun
   {
-    uint _run;
-    ItemsChangeObservableCollection<RunResult> _results; // This list represents the actual results
+    private uint _run;
 
-    ItemsChangeObservableCollection<LiveResult> _onTrack; // TODO: This list only contains the particpants that are on the run (might get removed later)
+    private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
+
+    private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
 
     private StartListProvider _slp;
     private ResultViewProvider _rvp;
 
-
-    /// <summary>
-    /// Returns the run number for this run (round, durchgang)
-    /// </summary>
-    public uint Run { get { return _run; } }
 
     /// <summary>
     /// Constructor
@@ -288,14 +325,18 @@ namespace DSVAlpin2Lib
     }
 
 
+    /// <summary>
+    /// Returns the run number for this run (round, durchgang)
+    /// </summary>
+    public uint Run { get { return _run; } }
+
+    /// <summary>
+    /// Returns the start list
+    /// </summary>
+    /// <returns>Start list</returns>
     public ICollectionView GetStartList()
     {
       return _slp.GetStartList();
-    }
-
-    public void SetStartListProvider(StartListProvider slp)
-    {
-      _slp = slp;
     }
 
     public ItemsChangeObservableCollection<LiveResult> GetOnTrackList()
@@ -303,9 +344,26 @@ namespace DSVAlpin2Lib
       return _onTrack;
     }
 
+    /// <summary>
+    /// Returns the internal results.
+    /// </summary>
     public ItemsChangeObservableCollection<RunResult> GetResultList()
     {
       return _results;
+    }
+
+    /// <summary>
+    /// Returns the results to display including position.
+    /// </summary>
+    public ICollectionView GetResultView()
+    {
+      return _rvp.GetResultView(); ;
+    }
+
+
+    public void SetStartListProvider(StartListProvider slp)
+    {
+      _slp = slp;
     }
 
     public void SetResultViewProvider()
@@ -313,13 +371,14 @@ namespace DSVAlpin2Lib
       _rvp = new ResultViewProvider(_results);
     }
 
-    public ICollectionView GetResultView()
-    {
-      return _rvp.GetResultView(); ;
-    }
 
-
-
+    /// <summary>
+    /// Sets the measured times for a participant based on start and finish time.
+    /// </summary>
+    /// <param name="participant">The participant</param>
+    /// <param name="startTime">Start time</param>
+    /// <param name="finishTime">Finish time</param>
+    /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
     public void SetTimeMeasurement(Participant participant, TimeSpan? startTime, TimeSpan? finishTime)
     {
       RunResult result = _results.SingleOrDefault(r => r._participant == participant);
@@ -332,6 +391,12 @@ namespace DSVAlpin2Lib
       InsertResult(result);
     }
 
+    /// <summary>
+    /// Sets the measured times for a participant based on run time (netto)
+    /// </summary>
+    /// <param name="participant">The participant</param>
+    /// <param name="runTime">Run time</param>
+    /// <remarks>Can be null. In that case it is stored as not available. Start and end time are set to null.</remarks>
     public void SetTimeMeasurement(Participant participant, TimeSpan? runTime)
     {
       RunResult result = _results.SingleOrDefault(r => r._participant == participant);
@@ -346,7 +411,7 @@ namespace DSVAlpin2Lib
 
 
 
-    public void InsertResult(RunResult r)
+    protected void InsertResult(RunResult r)
     {
       // Check if already inserted
       if (_results.SingleOrDefault(x => x == r) == null)
@@ -363,20 +428,23 @@ namespace DSVAlpin2Lib
       _UpdateInternals();
     }
 
-
+    /// <summary>
+    /// Updates internal strucutures based on _results
+    /// </summary>
     private void _UpdateInternals()
     {
+      // Helper definition for a participant is on track
       bool IsOnTrack(RunResult r)
       {
         return r.GetStartTime() != null && r.GetRunTime() == null;
       }
 
-      // Remove from onTrack list if a result is available
+      // Remove from onTrack list if a result is available (= not on track anymore)
       var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
         _onTrack.Remove(itemToRemove);
 
-      // Add to onTrack list if run result is not yet available
+      // Add to onTrack list if run result is not yet available (= is on track)
       foreach (var r in _results)
         if (IsOnTrack(r))
           if (!_onTrack.Contains(r))
@@ -544,11 +612,14 @@ namespace DSVAlpin2Lib
       {
         TimeSpan? tX = rrX.Runtime;
         TimeSpan? tY = rrY.Runtime;
-
+        
+        // Sort by grouping (class or group or ...)
+        // TODO: Shall be configurable
         int classCompare = rrX.Class.CompareTo(rrY.Class);
         if (classCompare != 0)
           return classCompare;
 
+        // Sort by time
         if (tX == null && tY == null)
           return 0;
 
@@ -643,7 +714,7 @@ namespace DSVAlpin2Lib
 
     void ResortResults()
     {
-      // TODO: Could be much more efficient; consumes O(nlogn * n); but underlaying dat structure _results needs to be changed to support in-place sorting (e.g. an array)
+      // TODO: Could be much more efficient; consumes O(nlogn * n); but underlaying data structure _results needs to be changed to support in-place sorting (e.g. an array)
       // Sort:
       // 1. by Class
       // 2. by Time
