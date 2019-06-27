@@ -1,4 +1,4 @@
-using DSVAlpin2Lib;
+﻿using DSVAlpin2Lib;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,16 +9,14 @@ using System.Windows.Data;
 
 namespace DSVAlpin2
 {
-  class RunResultRunTimeConverter : IValueConverter
-  {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+  /// <summary>
+  /// Converts a position number into a string. Position 0 is transferred into "./."
+  /// </summary>
   class PositionConverter : IValueConverter
   {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
       uint position = (uint)value;
-
-      string result = "";
 
       if (position == 0)
         return "./.";
