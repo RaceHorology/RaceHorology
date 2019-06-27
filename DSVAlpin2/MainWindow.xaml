@@ -135,8 +135,6 @@
                   <DataGridTextColumn Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
                   <DataGridTextColumn Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
                   <DataGridTextColumn Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
-                  <!-- seem like this does not update the field ... move conversion into the RunResult ... -->
-                  <!-- DataGridTextColumn Header="Laufzeit" Binding="{Binding Path=., Mode=OneWay, Converter={StaticResource RunResultRunTimeConverter}}"/ -->
                   <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
                   <DataGridTextColumn Header="Anmerkung" />
                 </DataGrid.Columns>
