@@ -199,7 +199,7 @@
         <Label x:Name="lblTotalResult" Content="Gesamtergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
         <DataGrid x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
           <DataGrid.Columns>
-            <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay}" />
+            <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
             <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
             <DataGridTextColumn Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
             <DataGridTextColumn Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />

@@ -657,8 +657,8 @@ namespace DSVAlpin2Lib
       //_resultListView.SortDescriptions.Add(new SortDescription(nameof(RunResult.Runtime), ListSortDirection.Ascending));
 
       //_resultListView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).Runtime != null; });
-      _resultListView.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
-      _resultListView.IsLiveFilteringRequested = true;
+      //_resultListView.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
+      //_resultListView.IsLiveFilteringRequested = true;
 
       // TODO: Check this out
       ListCollectionView llview = _resultListView.View as ListCollectionView;
@@ -705,7 +705,10 @@ namespace DSVAlpin2Lib
       RunResult result = (RunResult)sender;
       RunResultWithPosition rrWP = _results.FirstOrDefault(r => r == result);
 
-      rrWP.UpdateRunResult(result);
+      if (rrWP==null)
+        _results.Add(new RunResultWithPosition(result));
+      else
+        rrWP.UpdateRunResult(result);
 
       // Anything to update?
       ResortResults();
@@ -770,26 +773,34 @@ namespace DSVAlpin2Lib
     Race _race;
     RaceRun[] _raceRuns;
     ItemsChangeObservableCollection<RaceResultItem> _raceResults;
+    System.Collections.Generic.IComparer<RaceResultItem> _sorter = new TotalTimeSorter();
     CollectionViewSource _raceResultsView;
 
 
-    public class TotalTimeSorter : System.Collections.IComparer
+    public class TotalTimeSorter : System.Collections.Generic.IComparer<RaceResultItem>
     {
-      public int Compare(object x, object y)
+      public int Compare(RaceResultItem rrX, RaceResultItem rrY)
       {
-        RaceResultItem rrX = x as RaceResultItem;
-        RaceResultItem rrY = y as RaceResultItem;
+        TimeSpan? tX = rrX.TotalTime;
+        TimeSpan? tY = rrY.TotalTime;
 
-        if (rrX.TotalTime == null && rrY.TotalTime == null)
+        // Sort by grouping (class or group or ...)
+        // TODO: Shall be configurable
+        int classCompare = rrX.Participant.Class.CompareTo(rrY.Participant.Class);
+        if (classCompare != 0)
+          return classCompare;
+
+        // Sort by time
+        if (tX == null && tY == null)
           return 0;
 
-        if (rrX.TotalTime != null && rrY.TotalTime == null)
+        if (tX != null && tY == null)
           return -1;
 
-        if (rrX.TotalTime == null && rrY.TotalTime != null)
+        if (tX == null && tY != null)
           return 1;
 
-        return TimeSpan.Compare((TimeSpan)rrX.TotalTime, (TimeSpan)rrY.TotalTime);
+        return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
       }
     }
 
@@ -804,6 +815,7 @@ namespace DSVAlpin2Lib
       foreach (RaceRun r in _raceRuns)
       {
         r.GetResultList().CollectionChanged += OnResultListCollectionChanged;
+        OnResultListCollectionChanged(r.GetResultList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, r.GetResultList().ToList()));
       }
 
 
@@ -814,16 +826,16 @@ namespace DSVAlpin2Lib
       _raceResultsView.SortDescriptions.Clear();
       //_raceResultsView.SortDescriptions.Add(new SortDescription(nameof(RaceResultItem.TotalTime), ListSortDirection.Ascending));
 
-      _raceResultsView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RaceResultItem)ea.Item).TotalTime != null; });
-      _raceResultsView.LiveFilteringProperties.Add(nameof(RaceResultItem.TotalTime));
-      _raceResultsView.IsLiveFilteringRequested = true;
+      //_raceResultsView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RaceResultItem)ea.Item).TotalTime != null; });
+      //_raceResultsView.LiveFilteringProperties.Add(nameof(RaceResultItem.TotalTime));
+      //_raceResultsView.IsLiveFilteringRequested = true;
 
       // TODO: Seems like sorting null at the end does not work ... visible if the Filter above is turned off ...
       ListCollectionView llview = _raceResultsView.View as ListCollectionView;
-      llview.CustomSort = new TotalTimeSorter();
+      //llview.CustomSort = new TotalTimeSorter();
 
-      _raceResultsView.LiveSortingProperties.Add(nameof(RaceResultItem.TotalTime));
-      _raceResultsView.IsLiveSortingRequested = true;
+      //_raceResultsView.LiveSortingProperties.Add(nameof(RaceResultItem.TotalTime));
+      //_raceResultsView.IsLiveSortingRequested = true;
 
       _raceResultsView.GroupDescriptions.Add(new PropertyGroupDescription("Participant.Class"));
       _raceResultsView.LiveGroupingProperties.Add("Participant.Class");
@@ -844,22 +856,35 @@ namespace DSVAlpin2Lib
       RunResult rr = sender as RunResult;
 
       if (rr != null)
+      {
         UpdateResultsFor(rr.Participant);
+        ResortResults();
+      }
     }
 
     private void OnResultListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.OldItems != null)
+      {
         foreach (INotifyPropertyChanged item in e.OldItems)
+        {
           item.PropertyChanged -= OnRunResultItemChanged;
+          RunResult rr = item as RunResult;
+          UpdateResultsFor(rr?.Participant);
+        }
+        ResortResults();
+      }
 
       if (e.NewItems != null)
+      {
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
           item.PropertyChanged += OnRunResultItemChanged;
           RunResult rr = item as RunResult;
           UpdateResultsFor(rr?.Participant);
         }
+        ResortResults();
+      }
     }
 
 
@@ -867,6 +892,8 @@ namespace DSVAlpin2Lib
     {
       foreach (Participant p in _race.GetParticipants())
         UpdateResultsFor(p);
+
+      ResortResults();
     }
 
     private void UpdateResultsFor(Participant participant)
@@ -891,6 +918,57 @@ namespace DSVAlpin2Lib
         rri.SetRunResult(res.Key, res.Value);
       rri.TotalTime = MinimumTime(results);
     }
+
+    void ResortResults()
+    {
+      // TODO: Could be much more efficient; consumes O(nlogn * n); but underlaying data structure _results needs to be changed to support in-place sorting (e.g. an array)
+      // Sort:
+      // 1. by Class
+      // 2. by Time
+
+      var sortedResults = _raceResults.ToList();
+      sortedResults.Sort(_sorter);
+      _raceResults.Clear();
+
+      uint curPosition = 1;
+      uint samePosition = 1;
+      string curClass = "";
+      TimeSpan? lastTime = null;
+      foreach (var sortedItem in sortedResults)
+      {
+        if (sortedItem.Participant.Class != curClass)
+        {
+          curClass = sortedItem.Participant.Class;
+          curPosition = 1;
+          lastTime = null;
+        }
+
+        if (sortedItem.TotalTime != null)
+        {
+          sortedItem.Position = curPosition;
+
+          // Same position in case same time
+          if (sortedItem.TotalTime == lastTime)//< TimeSpan.FromMilliseconds(9))
+          {
+            samePosition++;
+          }
+          else
+          {
+            curPosition += samePosition;
+            samePosition = 1;
+          }
+          lastTime = sortedItem.TotalTime;
+        }
+        else
+        {
+          sortedItem.Position = 0;
+        }
+
+        _raceResults.Add(sortedItem);
+      }
+    }
+
+
 
     TimeSpan? MinimumTime(Dictionary<uint, RunResult> results)
     {
