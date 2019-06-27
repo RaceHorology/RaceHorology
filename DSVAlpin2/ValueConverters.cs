@@ -35,4 +35,25 @@ namespace DSVAlpin2
       throw new NotImplementedException();
     }
   }
+
+  class PositionConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      uint position = (uint)value;
+
+      string result = "";
+
+      if (position == 0)
+        return "./.";
+
+      return position.ToString();
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
 }

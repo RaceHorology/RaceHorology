@@ -1,4 +1,4 @@
-﻿<Window x:Class="DSVAlpin2.MainWindow"
+<Window x:Class="DSVAlpin2.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -17,6 +17,7 @@
   </Window.InputBindings>
   <Window.Resources>
     <local:RunResultRunTimeConverter x:Key="RunResultRunTimeConverter" />
+    <local:PositionConverter x:Key="PositionConverter" />
   </Window.Resources>
 
   <Grid>
@@ -127,7 +128,7 @@
               <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
 
                 <DataGrid.Columns>
-                  <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
                   <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
                   <DataGridTextColumn Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
                   <DataGridTextColumn Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
