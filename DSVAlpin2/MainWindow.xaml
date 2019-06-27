@@ -16,7 +16,6 @@
     <KeyBinding Key="C" Modifiers="Control" Command="Close"/>
   </Window.InputBindings>
   <Window.Resources>
-    <local:RunResultRunTimeConverter x:Key="RunResultRunTimeConverter" />
     <local:PositionConverter x:Key="PositionConverter" />
   </Window.Resources>
 
