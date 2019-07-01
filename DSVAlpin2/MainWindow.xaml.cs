@@ -177,7 +177,6 @@ namespace DSVAlpin2
         Application.Current.Dispatcher.Invoke(() =>
         {
           dgResults.ScrollIntoView(highlight);
-          dgResults.SelectedItem = highlight;
         });
       }
 

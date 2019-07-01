@@ -381,7 +381,7 @@ namespace DSVAlpin2Lib
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
     public void SetTimeMeasurement(Participant participant, TimeSpan? startTime, TimeSpan? finishTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r._participant == participant);
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
 
       if (result == null)
         result = new RunResult(participant);
@@ -399,7 +399,7 @@ namespace DSVAlpin2Lib
     /// <remarks>Can be null. In that case it is stored as not available. Start and end time are set to null.</remarks>
     public void SetTimeMeasurement(Participant participant, TimeSpan? runTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r._participant == participant);
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
 
       if (result == null)
         result = new RunResult(participant);
@@ -436,7 +436,7 @@ namespace DSVAlpin2Lib
       // Helper definition for a participant is on track
       bool IsOnTrack(RunResult r)
       {
-        return r.GetStartTime() != null && r.GetRunTime() == null;
+        return r.ModifiedTimestamp!=null && r.GetStartTime() != null && r.GetRunTime() == null;
       }
 
       // Remove from onTrack list if a result is available (= not on track anymore)
@@ -583,6 +583,7 @@ namespace DSVAlpin2Lib
   public class RunResultWithPosition :  RunResult
   {
     private uint _position;
+    private bool _justModified;
 
     public RunResultWithPosition(RunResult result) : base(result)
     {
@@ -595,6 +596,12 @@ namespace DSVAlpin2Lib
     {
       get { return _position; }
       set { _position = value; NotifyPropertyChanged(); }
+    }
+
+    public bool JustModified
+    {
+      get { return _justModified; }
+      set { _justModified = value; NotifyPropertyChanged(); }
     }
   }
 
@@ -703,7 +710,7 @@ namespace DSVAlpin2Lib
     void OnOriginalResultItemChanged(object sender, PropertyChangedEventArgs e)
     {
       RunResult result = (RunResult)sender;
-      RunResultWithPosition rrWP = _results.FirstOrDefault(r => r == result);
+      RunResultWithPosition rrWP = _results.FirstOrDefault(r => r.Participant == result.Participant);
 
       if (rrWP==null)
         _results.Add(new RunResultWithPosition(result));
@@ -760,9 +767,13 @@ namespace DSVAlpin2Lib
           sortedItem.Position = 0;
         }
 
+        sortedItem.JustModified = DateTime.Now - sortedItem.ModifiedTimestamp < delta;
+
+
         _results.Add(sortedItem);
       }
     }
+    static readonly TimeSpan delta = new TimeSpan(0, 0, 1); // 1 sec
 
   }
 

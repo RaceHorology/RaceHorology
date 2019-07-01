@@ -17,6 +17,7 @@
   </Window.InputBindings>
   <Window.Resources>
     <local:PositionConverter x:Key="PositionConverter" />
+    <local:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
   </Window.Resources>
 
   <Grid>
@@ -137,6 +138,13 @@
                   <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
                   <DataGridTextColumn Header="Anmerkung" />
                 </DataGrid.Columns>
+
+                <DataGrid.Style>
+                  <Style TargetType="DataGrid">
+                    <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
+                  </Style>
+                </DataGrid.Style>
+                
                 <DataGrid.GroupStyle>
                   <GroupStyle>
                     <GroupStyle.HeaderTemplate>
@@ -146,6 +154,17 @@
                     </GroupStyle.HeaderTemplate>
                   </GroupStyle>
                 </DataGrid.GroupStyle>
+                
+                <DataGrid.RowStyle>
+                  <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding JustModified}" Value="true">
+                        <Setter Property="Background" Value="Orange" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </DataGrid.RowStyle>
+                
               </DataGrid>
             </Grid>
           </Grid>

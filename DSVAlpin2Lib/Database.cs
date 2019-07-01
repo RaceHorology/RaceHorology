@@ -109,9 +109,9 @@ namespace DSVAlpin2Lib
             finishTime = CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("ziel")));
 
           if (startTime!=null || finishTime!=null)
-            r.SetStartFinishTime(startTime, finishTime);
+            r.SetStartFinishTime(startTime, finishTime, true /*internal*/);
           else if (runTime != null)
-            r.SetRunTime(runTime);
+            r.SetRunTime(runTime, true /*internal*/);
 
           if (!reader.IsDBNull(reader.GetOrdinal("ergcode")))
             r.ResultCode = (RunResult.EResultCode)(byte)reader.GetValue(reader.GetOrdinal("ergcode"));
