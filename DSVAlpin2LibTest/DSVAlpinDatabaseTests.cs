@@ -257,8 +257,9 @@ namespace DSVAlpin2LibTest
         participants = db.GetParticipants();
       }
 
-      RaceRun rr1 = new RaceRun(1);
-      RaceRun rr2 = new RaceRun(2);
+      AppDataModel dataModel = new AppDataModel(db);
+      RaceRun rr1 = new RaceRun(1, dataModel);
+      RaceRun rr2 = new RaceRun(2, dataModel);
 
       Participant participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
       RunResult rr1r1 = new RunResult(participant1);

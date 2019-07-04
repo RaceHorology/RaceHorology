@@ -27,6 +27,9 @@ namespace DSVAlpin2Lib
 
     Race _race;
 
+    private Dictionary<Participant, DateTime> _interactiveTimeMeasurements; // Contains the time measurements made interactively
+
+
 
     /// <summary>
     /// Constructor
@@ -36,13 +39,15 @@ namespace DSVAlpin2Lib
     {
       //// DB Backend ////
       _db = db;
+      _interactiveTimeMeasurements = new Dictionary<Participant, DateTime>();
 
       //// Particpants ////
       _participants = _db.GetParticipants();
       // Get notification if a participant got changed / added / removed and trigger storage in DB
       _participantsDelegatorDB = new DatabaseDelegatorParticipant(_participants, _db);
 
-      _race = new Race(_db, _participants);
+      _race = new Race(_db, this);
+
     }
 
 
@@ -60,7 +65,26 @@ namespace DSVAlpin2Lib
       return _race;
     }
 
+    public void InsertInteractiveTimeMeasurement(Participant participant)
+    {
+      _interactiveTimeMeasurements[participant] = DateTime.Now;
+    }
 
+    public bool TodayMeasured(Participant participant)
+    {
+      return _interactiveTimeMeasurements.ContainsKey(participant);
+    }
+
+    public bool JustMeasured(Participant participant)
+    {
+      DateTime measuredAt;
+      if (_interactiveTimeMeasurements.TryGetValue(participant, out measuredAt))
+      {
+        return DateTime.Now - measuredAt < delta;
+      }
+      return false;
+    }
+    static readonly TimeSpan delta = new TimeSpan(0, 0, 1); // 1 sec
   }
 
 
@@ -71,22 +95,25 @@ namespace DSVAlpin2Lib
   /// 
   public class Race
   {
+    private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
     private ItemsChangeObservableCollection<Participant> _participants;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
     private RaceResultProvider _raceResultsProvider;
+
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="db">Database for loading and storing</param>
     /// <param name="participants">Participants takeing part in that race</param>
-    public Race(IAppDataModelDataBase db, ItemsChangeObservableCollection<Participant> participants)
+    public Race(IAppDataModelDataBase db, AppDataModel appDataModel)
     {
       // Database Backend
       _db = db;
+      _appDataModel = appDataModel;
 
-      _participants = participants;
+      _participants = (ItemsChangeObservableCollection < Participant > )_appDataModel.GetParticipants();
 
       //// RaceRuns ////
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
@@ -108,7 +135,7 @@ namespace DSVAlpin2Lib
       RaceRun[] raceRunsArr = new RaceRun[numRuns];
       for (uint i = 0; i < numRuns; i++)
       {
-        RaceRun rr = new RaceRun(i + 1);
+        RaceRun rr = new RaceRun(i + 1, _appDataModel);
 
         // Fill the data from the DB initially (TODO: to be done better)
         rr.InsertResults(_db.GetRaceRun(i + 1));
@@ -123,7 +150,7 @@ namespace DSVAlpin2Lib
         raceRunsArr[i] = rr;
       }
 
-      _raceResultsProvider = new RaceResultProvider(this, raceRunsArr);
+      _raceResultsProvider = new RaceResultProvider(this, raceRunsArr, _appDataModel);
     }
 
     /// <summary>
@@ -176,6 +203,8 @@ namespace DSVAlpin2Lib
     Dictionary<uint, TimeSpan?> _runTimes;
     TimeSpan? _totalTime;
     private uint _position;
+    private bool _justModified;
+
 
     #endregion
 
@@ -212,6 +241,13 @@ namespace DSVAlpin2Lib
       get { return _position; }
       set { _position = value; NotifyPropertyChanged(); }
     }
+
+    public bool JustModified
+    {
+      get { return _justModified; }
+      set { _justModified = value; NotifyPropertyChanged(); }
+    }
+
 
 
     /// <summary>
@@ -299,6 +335,7 @@ namespace DSVAlpin2Lib
   public class RaceRun
   {
     private uint _run;
+    AppDataModel _appDataModel;
 
     private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
 
@@ -316,9 +353,10 @@ namespace DSVAlpin2Lib
     /// This object is usually created by the method AppDataModel.CreateRaceRun()
     /// </remarks>
     /// 
-    public RaceRun(uint run)
+    public RaceRun(uint run, AppDataModel appDataModel)
     {
       _run = run;
+      _appDataModel = appDataModel;
 
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
@@ -368,7 +406,7 @@ namespace DSVAlpin2Lib
 
     public void SetResultViewProvider()
     {
-      _rvp = new ResultViewProvider(_results);
+      _rvp = new ResultViewProvider(_results, _appDataModel);
     }
 
 
@@ -382,6 +420,8 @@ namespace DSVAlpin2Lib
     public void SetTimeMeasurement(Participant participant, TimeSpan? startTime, TimeSpan? finishTime)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+
+      _appDataModel.InsertInteractiveTimeMeasurement(participant);
 
       if (result == null)
         result = new RunResult(participant);
@@ -400,6 +440,8 @@ namespace DSVAlpin2Lib
     public void SetTimeMeasurement(Participant participant, TimeSpan? runTime)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+
+      _appDataModel.InsertInteractiveTimeMeasurement(participant);
 
       if (result == null)
         result = new RunResult(participant);
@@ -436,7 +478,8 @@ namespace DSVAlpin2Lib
       // Helper definition for a participant is on track
       bool IsOnTrack(RunResult r)
       {
-        return r.ModifiedTimestamp!=null && r.GetStartTime() != null && r.GetRunTime() == null;
+        //FIXME: Consider whether added in programm and not DB
+        return r.GetStartTime() != null && r.GetRunTime() == null && _appDataModel.TodayMeasured(r.Participant);
       }
 
       // Remove from onTrack list if a result is available (= not on track anymore)
@@ -608,6 +651,7 @@ namespace DSVAlpin2Lib
   public class ResultViewProvider
   {
     ItemsChangeObservableCollection<RunResult> _originalResults;
+    AppDataModel _appDataModel;
     ItemsChangeObservableCollection<RunResultWithPosition> _results;
     System.Collections.Generic.IComparer<RunResultWithPosition> _sorter;
 
@@ -641,11 +685,12 @@ namespace DSVAlpin2Lib
     }
 
 
-    public ResultViewProvider(ItemsChangeObservableCollection<RunResult> results)
+    public ResultViewProvider(ItemsChangeObservableCollection<RunResult> results, AppDataModel appDataModel)
     {
       _sorter = new RuntimeSorter();
 
       _originalResults = results;
+      _appDataModel = appDataModel;
 
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
@@ -767,14 +812,14 @@ namespace DSVAlpin2Lib
           sortedItem.Position = 0;
         }
 
-        sortedItem.JustModified = DateTime.Now - sortedItem.ModifiedTimestamp < delta;
-
+        // Set the JustModified flag to highlight new results
+        sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant);
 
         _results.Add(sortedItem);
       }
     }
-    static readonly TimeSpan delta = new TimeSpan(0, 0, 1); // 1 sec
 
+    static readonly TimeSpan delta = new TimeSpan(0, 0, 1); // 1 sec
   }
 
 
@@ -783,6 +828,7 @@ namespace DSVAlpin2Lib
   {
     Race _race;
     RaceRun[] _raceRuns;
+    AppDataModel _appDataModel;
     ItemsChangeObservableCollection<RaceResultItem> _raceResults;
     System.Collections.Generic.IComparer<RaceResultItem> _sorter = new TotalTimeSorter();
     CollectionViewSource _raceResultsView;
@@ -817,10 +863,11 @@ namespace DSVAlpin2Lib
 
 
 
-    public RaceResultProvider(Race race, RaceRun[] rr)
+    public RaceResultProvider(Race race, RaceRun[] rr, AppDataModel appDataModel)
     {
       _race = race;
       _raceRuns = rr;
+      _appDataModel = appDataModel;
       _raceResults = new ItemsChangeObservableCollection<RaceResultItem>();
 
       foreach (RaceRun r in _raceRuns)
@@ -974,6 +1021,9 @@ namespace DSVAlpin2Lib
         {
           sortedItem.Position = 0;
         }
+
+        // Set the JustModified flag to highlight new results
+        sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant);
 
         _raceResults.Add(sortedItem);
       }

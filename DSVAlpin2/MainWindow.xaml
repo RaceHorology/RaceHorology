@@ -233,6 +233,13 @@
 
             <DataGridTextColumn Header="Anmerkung" />
           </DataGrid.Columns>
+
+          <DataGrid.Style>
+            <Style TargetType="DataGrid">
+              <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
+            </Style>
+          </DataGrid.Style>
+
           <DataGrid.GroupStyle>
             <GroupStyle>
               <GroupStyle.HeaderTemplate>
@@ -242,6 +249,17 @@
               </GroupStyle.HeaderTemplate>
             </GroupStyle>
           </DataGrid.GroupStyle>
+
+          <DataGrid.RowStyle>
+            <Style TargetType="DataGridRow">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding JustModified}" Value="true">
+                  <Setter Property="Background" Value="Orange" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </DataGrid.RowStyle>
+
         </DataGrid>
       </Grid>
       

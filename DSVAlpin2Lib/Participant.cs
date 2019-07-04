@@ -101,7 +101,6 @@ namespace DSVAlpin2Lib
     protected TimeSpan? _runTime;
     protected TimeSpan? _startTime;
     protected TimeSpan? _finishTime;
-    protected DateTime? _modifiedTimestamp; // Last time, the runTime, startTime, finishTime was updated in this application but not from DB
     protected EResultCode _resultCode;
     protected string _disqualText;
     
@@ -121,8 +120,6 @@ namespace DSVAlpin2Lib
     public EResultCode ResultCode { get { return _resultCode; } set { _resultCode = value; NotifyPropertyChanged(); } }
     public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
 
-    public DateTime? ModifiedTimestamp { get { return _modifiedTimestamp; } } // Modified timestamp in case it was internally modified
-
 
     public RunResult(Participant particpant)
     {
@@ -131,7 +128,6 @@ namespace DSVAlpin2Lib
       _runTime = null;
       _startTime = null;
       _finishTime = null;
-      _modifiedTimestamp = null;
       _resultCode = EResultCode.Normal;
       _disqualText = null;
     }
@@ -142,7 +138,6 @@ namespace DSVAlpin2Lib
       _startTime = original._startTime;
       _runTime = original._runTime;
       _finishTime = original._finishTime;
-      _modifiedTimestamp = original._modifiedTimestamp;
       _resultCode = original._resultCode;
       _disqualText = original._disqualText;
     }
@@ -154,7 +149,6 @@ namespace DSVAlpin2Lib
       _startTime = original._startTime;
       _runTime = original._runTime;
       _finishTime = original._finishTime;
-      _modifiedTimestamp = original._modifiedTimestamp;
       _resultCode = original._resultCode;
       _disqualText = original._disqualText;
 
@@ -164,16 +158,11 @@ namespace DSVAlpin2Lib
     }
 
 
-    public void SetRunTime(TimeSpan? t, bool internally = false)
+    public void SetRunTime(TimeSpan? t)
     {
       _startTime = null;
       _finishTime = null;
       _runTime = t;
-
-      if (!internally)
-        _modifiedTimestamp = DateTime.Now;
-      else
-        _modifiedTimestamp = null;
 
       // Clear Start & Finish Time (might be inconsistent to the start & finish time)
       MakeConsistencyCheck();
@@ -184,7 +173,7 @@ namespace DSVAlpin2Lib
     public TimeSpan? GetRunTime() { return _runTime;  }
 
 
-    public void SetStartFinishTime(TimeSpan? startTime, TimeSpan? finishTime, bool internally = false)
+    public void SetStartFinishTime(TimeSpan? startTime, TimeSpan? finishTime)
     {
       _runTime = null;
       _startTime = startTime;
@@ -194,11 +183,6 @@ namespace DSVAlpin2Lib
           _runTime = _finishTime - _startTime;
         else
           MakeConsistencyCheck();
-
-      if (!internally)
-        _modifiedTimestamp = DateTime.Now;
-      else
-        _modifiedTimestamp = null;
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
