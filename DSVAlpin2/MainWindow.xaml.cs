@@ -36,6 +36,8 @@ namespace DSVAlpin2
 
     ScrollToMeasuredItemBehavior dgResultsScrollBehavior;
     ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
+
+    RaceRun _currentRaceRun;
     
     /// <summary>
     /// Constructor of MainWindow
@@ -50,10 +52,6 @@ namespace DSVAlpin2
       // Last recently used files in menu
       _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
-
-
-      cmbRaceRun.Items.Add("1. Durchgang");
-      cmbRaceRun.Items.Add("2. Durchgang");
     }
 
     /// <summary>
@@ -146,19 +144,50 @@ namespace DSVAlpin2
       ObservableCollection<Participant> participants = _dataModel.GetParticipants();
       dgParticipants.ItemsSource = participants;
 
-      // TODO: Just for now, assume first run
-      var run = _dataModel.GetRace().GetRun(0);
-      dgStartList.ItemsSource = run.GetStartList();
-
       // TODO: Hide not needed columns
       //dgStartList.Columns[5].Visibility = Visibility.Collapsed;
 
-      dgRunning.ItemsSource = run.GetOnTrackList();
-      dgResults.ItemsSource = run.GetResultView();
-      dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
+      FillCmbRaceRun();
 
       dgTotalResults.ItemsSource = _dataModel.GetRace().GetTotalResultView();
       dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
+    }
+
+
+    private void FillCmbRaceRun()
+    {
+      // Fill Runs
+      List<KeyValuePair<RaceRun, string>> races = new List<KeyValuePair<RaceRun, string>>();
+      for (uint i = 0; i < _dataModel.GetRace().GetMaxRun(); i++)
+      {
+        string sz1 = String.Format("{0}. Durchgang", i + 1);
+        races.Add(new KeyValuePair<RaceRun, string>(_dataModel.GetRace().GetRun(i), sz1));
+      }
+      cmbRaceRun.ItemsSource = races;
+      cmbRaceRun.DisplayMemberPath = "Value";
+      cmbRaceRun.SelectedValuePath = "Key";
+
+      cmbRaceRun.SelectedIndex = 0;
+    }
+
+    private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      _currentRaceRun = (sender as ComboBox).SelectedValue as RaceRun;
+      if (_currentRaceRun != null)
+      {
+        dgStartList.ItemsSource = _currentRaceRun.GetStartList();
+
+        dgRunning.ItemsSource = _currentRaceRun.GetOnTrackList();
+        dgResults.ItemsSource = _currentRaceRun.GetResultView();
+        dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
+      }
+      else
+      {
+        dgStartList.ItemsSource = null;
+        dgRunning.ItemsSource = null;
+        dgResults.ItemsSource = null;
+        dgResultsScrollBehavior = null;
+      }
     }
 
     /// <summary>
@@ -171,6 +200,7 @@ namespace DSVAlpin2
       dgStartList.ItemsSource = null;
       dgRunning.ItemsSource = null;
       dgResults.ItemsSource = null;
+      dgResultsScrollBehavior = null;
     }
 
 
@@ -340,12 +370,10 @@ namespace DSVAlpin2
 
       if (participant != null)
       {
-        RaceRun rr = _dataModel.GetRace().GetRun(0);
-
         if (start != null || finish != null)
-          rr.SetTimeMeasurement(participant, start, finish);
+          _currentRaceRun.SetTimeMeasurement(participant, start, finish);
         else if (run != null)
-          rr.SetTimeMeasurement(participant, run);
+          _currentRaceRun.SetTimeMeasurement(participant, run);
       }
     }
 
@@ -383,8 +411,7 @@ namespace DSVAlpin2
 
       if (participant!=null)
       {
-        RaceRun rr = _dataModel.GetRace().GetRun(0);
-        RunResult result = rr.GetResultList().SingleOrDefault(r => r._participant == participant);
+        RunResult result = _currentRaceRun.GetResultList().SingleOrDefault(r => r._participant == participant);
 
         if (result!=null)
         {
