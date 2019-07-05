@@ -299,59 +299,13 @@ namespace DSVAlpin2
     }
 
 
-
-
-    //private CollectionViewSource testParticipantsSrc;
-    System.Data.DataTable _testingDT;
-    System.Timers.Timer _testingTimer;
-
     private void SetupTesting()
     {
-      var participants = _dataModel.GetParticipants();
-
-
-      // ***** Testing of DataTable *****
-      _testingDT = new System.Data.DataTable();
-
-      _testingDT.Columns.Add("Name", typeof(string));
-      _testingDT.Columns.Add("Vorname", typeof(string));
-
-      foreach(Participant p in participants)
-        _testingDT.Rows.Add(p.Name, p.Firstname);
-
-      dgTest1.ItemsSource = _testingDT.DefaultView;
-      /*
-      testParticipantsSrc = new CollectionViewSource();
-      testParticipantsSrc.Source = _testingDT;
-
-      testParticipantsSrc.SortDescriptions.Clear();
-      testParticipantsSrc.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-
-      testParticipantsSrc.GroupDescriptions.Add(new PropertyGroupDescription("Name"));
-
-      dgTest1.ItemsSource = testParticipantsSrc.View;
-      _testingTimer = new System.Timers.Timer(1000);
-      _testingTimer.Elapsed += OnTestingTimedEvent;
-      _testingTimer.AutoReset = true;
-      _testingTimer.Enabled = true;
-      */
-
-      /*
-      string output = Newtonsoft.Json.JsonConvert.SerializeObject(_testingDT);
-      System.Diagnostics.Debug.Write(output);
-      */
     }
-
-    private void OnTestingTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
-    {
-      _testingDT.Rows.Add(e.SignalTime.ToString(), "Auto");
-    }
-
-
 
     private void TxtTest1_TextChanged(object sender, TextChangedEventArgs e)
     {
-      string text = txtTest1.Text;
+      //string text = txtTest1.Text;
       //testParticipantsSrc.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((Participant)ea.Item).Firstname.Contains(text); });
     }
 

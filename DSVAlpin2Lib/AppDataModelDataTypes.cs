@@ -220,4 +220,128 @@ namespace DSVAlpin2Lib
     #endregion
   }
 
+
+
+  public class RunResultWithPosition : RunResult
+  {
+    private uint _position;
+    private bool _justModified;
+
+    public RunResultWithPosition(RunResult result) : base(result)
+    {
+    }
+
+    /// <summary>
+    /// The position within the classement
+    /// </summary>
+    public uint Position
+    {
+      get { return _position; }
+      set { _position = value; NotifyPropertyChanged(); }
+    }
+
+    public bool JustModified
+    {
+      get { return _justModified; }
+      set { if (_justModified != value) { _justModified = value; NotifyPropertyChanged(); } }
+    }
+  }
+
+
+
+
+  /// <summary>
+  /// Represents a race result. It contains out of the participant including its run results (run, time, status) and its final position within the group.
+  /// </summary>
+  public class RaceResultItem : INotifyPropertyChanged
+  {
+    #region private
+
+    Participant _participant;
+    Dictionary<uint, TimeSpan?> _runTimes;
+    TimeSpan? _totalTime;
+    private uint _position;
+    private bool _justModified;
+
+
+    #endregion
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="participant">The participant the results belong to.</param>
+    public RaceResultItem(Participant participant)
+    {
+      _participant = participant;
+      _runTimes = new Dictionary<uint, TimeSpan?>();
+    }
+
+    /// <summary>
+    /// Returns the participant
+    /// </summary>
+    public Participant Participant { get { return _participant; } }
+
+    /// <summary>
+    /// Returns the final time (sum or minimum time depending on the race type)
+    /// </summary>
+    public TimeSpan? TotalTime
+    {
+      get { return _totalTime; }
+      set { _totalTime = value; NotifyPropertyChanged(); }
+    }
+
+
+    /// <summary>
+    /// The position within the classement
+    /// </summary>
+    public uint Position
+    {
+      get { return _position; }
+      set { _position = value; NotifyPropertyChanged(); }
+    }
+
+    public bool JustModified
+    {
+      get { return _justModified; }
+      set { if (_justModified != value) { _justModified = value; NotifyPropertyChanged(); } }
+    }
+
+
+
+    /// <summary>
+    /// Returns the separate run results per run
+    /// </summary>
+    public Dictionary<uint, TimeSpan?> RunTimes { get { return _runTimes; } }
+
+
+    /// <summary>
+    /// Sets the results for one specific run
+    /// </summary>
+    /// <param name="run">Run number, typically either 1 or 2</param>
+    /// <param name="result">The corresponding results</param>
+    public void SetRunResult(uint run, RunResult result)
+    {
+      _runTimes[run] = result?.Runtime;
+
+      NotifyPropertyChanged(nameof(RunTimes));
+    }
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
+
+
+  }
+
+
 }
