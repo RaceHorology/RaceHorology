@@ -68,6 +68,8 @@ namespace DSVAlpin2Lib
     public void InsertInteractiveTimeMeasurement(Participant participant)
     {
       _interactiveTimeMeasurements[participant] = DateTime.Now;
+      ParticipantMeasuredHandler handler = ParticipantMeasuredEvent;
+      handler?.Invoke(this, participant);
     }
 
     public bool TodayMeasured(Participant participant)
@@ -84,7 +86,10 @@ namespace DSVAlpin2Lib
       }
       return false;
     }
-    static readonly TimeSpan delta = new TimeSpan(0, 0, 1); // 1 sec
+    static readonly TimeSpan delta = new TimeSpan(0, 0, 5); // 1 sec
+
+    public delegate void ParticipantMeasuredHandler(object sender, Participant participant);
+    public event ParticipantMeasuredHandler ParticipantMeasuredEvent;
   }
 
 

@@ -33,6 +33,9 @@ namespace DSVAlpin2
     MruList _mruList;
     DSVAlpin2HTTPServer _alpinServer;
     string _appTitle;
+
+    ScrollToMeasuredItemBehavior dgResultsScrollBehavior;
+    ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
     
     /// <summary>
     /// Constructor of MainWindow
@@ -130,9 +133,6 @@ namespace DSVAlpin2
 
     }
 
-    static RunResult highlight = null;
-    static System.Timers.Timer timer = null;
-
     /// <summary>
     /// Connects the GUI (e.g. Data Grids, ...) to the data model
     /// </summary>
@@ -151,38 +151,10 @@ namespace DSVAlpin2
 
       dgRunning.ItemsSource = run.GetOnTrackList();
       dgResults.ItemsSource = run.GetResultView();
-
-      run.GetResultView().CollectionChanged += OnResultViewChanged;
-
-      void OnResultViewChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-      {
-        if (e.NewItems != null)
-        {
-          foreach(RunResult r in e.NewItems)
-          {
-            highlight = r;
-            timer = new System.Timers.Timer(200);
-            timer.Elapsed += OnTimedEvent;
-            timer.AutoReset = false;
-            timer.Enabled = true;
-
-
-            break;
-          }
-        }
-      }
-
-      void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
-      {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-          dgResults.ScrollIntoView(highlight);
-        });
-      }
-
-
+      dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
 
       dgTotalResults.ItemsSource = _dataModel.GetRace().GetTotalResultView();
+      dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
     }
 
     /// <summary>
@@ -425,4 +397,55 @@ namespace DSVAlpin2
       }
     }
   }
+
+  public class ScrollToMeasuredItemBehavior
+  {
+    DataGrid _dataGrid;
+    AppDataModel _dataModel;
+    Participant _scrollToParticipant;
+
+    System.Timers.Timer _timer;
+
+
+    public ScrollToMeasuredItemBehavior(DataGrid dataGrid, AppDataModel dataModel)
+    {
+      _dataGrid = dataGrid;
+      _dataModel = dataModel;
+      _dataModel.ParticipantMeasuredEvent += OnParticipantMeasured;
+      _timer = null;
+    }
+
+
+    void OnParticipantMeasured(object sender, Participant participant)
+    {
+      _scrollToParticipant = participant;
+
+      _timer = new System.Timers.Timer(200);
+      _timer.Elapsed += OnTimedEvent;
+      _timer.AutoReset = false;
+      _timer.Enabled = true;
+
+    }
+
+    void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        foreach (var x in _dataGrid.ItemsSource)
+        {
+          Participant xp = null;
+          xp = (x as RunResult)?.Participant;
+          if (xp == null)
+            xp = (x as RaceResultItem)?.Participant;
+
+          if (xp == _scrollToParticipant)
+          {
+            _dataGrid.ScrollIntoView(x);
+            break;
+          }
+        }
+      });
+    }
+  }
+
 }
