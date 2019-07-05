@@ -245,7 +245,7 @@ namespace DSVAlpin2Lib
     public bool JustModified
     {
       get { return _justModified; }
-      set { _justModified = value; NotifyPropertyChanged(); }
+      set { if (_justModified != value) { _justModified = value; NotifyPropertyChanged(); } }
     }
 
 
@@ -644,7 +644,7 @@ namespace DSVAlpin2Lib
     public bool JustModified
     {
       get { return _justModified; }
-      set { _justModified = value; NotifyPropertyChanged(); }
+      set { if (_justModified != value) { _justModified = value; NotifyPropertyChanged(); } }
     }
   }
 
