@@ -50,6 +50,10 @@ namespace DSVAlpin2
       // Last recently used files in menu
       _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
+
+
+      cmbRaceRun.Items.Add("1. Durchgang");
+      cmbRaceRun.Items.Add("2. Durchgang");
     }
 
     /// <summary>
