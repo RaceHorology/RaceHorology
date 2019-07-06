@@ -60,6 +60,16 @@ namespace DSVAlpin2Lib
       return _participants;
     }
 
+    /// <summary>
+    /// Get the particpant by startnumber
+    /// </summary>
+    /// <returns>The list of participants</returns>
+    public Participant GetParticipant(uint startNumber)
+    {
+      return _participants.FirstOrDefault(p => p.StartNumber == startNumber);
+    }
+
+
     public Race GetRace()
     {
       return _race;
@@ -327,9 +337,8 @@ namespace DSVAlpin2Lib
     /// </summary>
     /// <param name="participant">The participant</param>
     /// <param name="startTime">Start time</param>
-    /// <param name="finishTime">Finish time</param>
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
-    public void SetTimeMeasurement(Participant participant, TimeSpan? startTime, TimeSpan? finishTime)
+    public void SetStartTime(Participant participant, TimeSpan? startTime)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
 
@@ -338,10 +347,53 @@ namespace DSVAlpin2Lib
       if (result == null)
         result = new RunResult(participant);
 
-      result.SetStartFinishTime(startTime, finishTime);
+      result.SetStartTime(startTime);
 
       InsertResult(result);
     }
+
+    /// <summary>
+    /// Sets the measured times for a participant based on start and finish time.
+    /// </summary>
+    /// <param name="participant">The participant</param>
+    /// <param name="startTime">Start time</param>
+    /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
+    public void SetFinishTime(Participant participant, TimeSpan? finishTime)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+
+      _appDataModel.InsertInteractiveTimeMeasurement(participant);
+
+      if (result == null)
+        result = new RunResult(participant);
+
+      result.SetFinishTime(finishTime);
+
+      InsertResult(result);
+    }
+
+    /// <summary>
+    /// Sets the measured times for a participant based on start and finish time.
+    /// </summary>
+    /// <param name="participant">The participant</param>
+    /// <param name="startTime">Start time</param>
+    /// <param name="finishTime">Finish time</param>
+    /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
+    public void SetStartFinishTime(Participant participant, TimeSpan? startTime, TimeSpan? finishTime)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+
+      _appDataModel.InsertInteractiveTimeMeasurement(participant);
+
+      if (result == null)
+        result = new RunResult(participant);
+
+      result.SetStartTime(startTime);
+      result.SetFinishTime(finishTime);
+
+      InsertResult(result);
+    }
+
 
     /// <summary>
     /// Sets the measured times for a participant based on run time (netto)
@@ -349,7 +401,7 @@ namespace DSVAlpin2Lib
     /// <param name="participant">The participant</param>
     /// <param name="runTime">Run time</param>
     /// <remarks>Can be null. In that case it is stored as not available. Start and end time are set to null.</remarks>
-    public void SetTimeMeasurement(Participant participant, TimeSpan? runTime)
+    public void SetRunTime(Participant participant, TimeSpan? runTime)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
 

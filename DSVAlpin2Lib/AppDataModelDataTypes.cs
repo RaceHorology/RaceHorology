@@ -173,16 +173,28 @@ namespace DSVAlpin2Lib
     public TimeSpan? GetRunTime() { return _runTime;  }
 
 
-    public void SetStartFinishTime(TimeSpan? startTime, TimeSpan? finishTime)
+    public void SetStartTime(TimeSpan? startTime)
     {
       _runTime = null;
       _startTime = startTime;
+
+      if (_startTime != null && _finishTime != null)
+        _runTime = _finishTime - _startTime;
+      else
+        MakeConsistencyCheck();
+
+      NotifyPropertyChanged(propertyName: nameof(Runtime));
+    }
+
+    public void SetFinishTime(TimeSpan? finishTime)
+    {
+      _runTime = null;
       _finishTime = finishTime;
 
       if (_startTime != null && _finishTime != null)
-          _runTime = _finishTime - _startTime;
-        else
-          MakeConsistencyCheck();
+        _runTime = _finishTime - _startTime;
+      else
+        MakeConsistencyCheck();
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
