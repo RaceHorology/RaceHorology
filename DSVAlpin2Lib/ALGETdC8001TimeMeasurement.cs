@@ -78,26 +78,36 @@ namespace DSVAlpin2Lib
     }
 
 
-    private TimeMeasurementEventArgs TransferToTimemeasurementData(ALGETdC8001LiveTimingData parsedData)
+    public static TimeMeasurementEventArgs TransferToTimemeasurementData(in ALGETdC8001LiveTimingData parsedData)
     {
+      TimeSpan? parsedDataTime = parsedData.Time;
+
       // Fill the data
       TimeMeasurementEventArgs data = new TimeMeasurementEventArgs();
 
       // Sort out invalid data
-      if (parsedData.Flag == 'p' || parsedData.Flag == '?' || parsedData.Flag == 'b' || parsedData.Flag == 'm' || parsedData.Flag == 'p')
+      if ( parsedData.Flag == 'p' 
+        || parsedData.Flag == '?' 
+        || parsedData.Flag == 'b' 
+        || parsedData.Flag == 'm'
+        || parsedData.Flag == 'n')
         return null;
+
+      if (parsedData.Flag == 'd'
+        || parsedData.Flag == 'c')
+        parsedDataTime = null;
 
       data.StartNumber = parsedData.StartNumber;
 
       switch (parsedData.Channel)
       {
         case "C0":
-          data.StartTime = parsedData.Time;
+          data.StartTime = parsedDataTime;
           data.BStartTime = true;
           break;
 
         case "C1":
-          data.FinishTime = parsedData.Time;
+          data.FinishTime = parsedDataTime;
           data.BFinishTime = true;
           break;
 
@@ -108,61 +118,63 @@ namespace DSVAlpin2Lib
 
       return data;
     }
+  }
 
 
-    public class ALGETdC8001LiveTimingData
+
+  public class ALGETdC8001LiveTimingData
+  {
+    public ALGETdC8001LiveTimingData()
     {
-      public ALGETdC8001LiveTimingData()
-      {
-        Flag = ' ';
-        StartNumber = 0;
-        Channel = "";
-        ChannelModifier = ' ';
-        Time = new TimeSpan();
-        Group = 0;
-      }
-
-      public char Flag { get; set; }
-      public uint StartNumber { get; set; }
-      public string Channel { get; set; }
-      public char ChannelModifier { get; set; }
-      public TimeSpan Time { get; set; }
-      public uint Group { get; set; }
+      Flag = ' ';
+      StartNumber = 0;
+      Channel = "";
+      ChannelModifier = ' ';
+      Time = new TimeSpan();
+      Group = 0;
     }
 
+    public char Flag { get; set; }
+    public uint StartNumber { get; set; }
+    public string Channel { get; set; }
+    public char ChannelModifier { get; set; }
+    public TimeSpan Time { get; set; }
+    public uint Group { get; set; }
+  }
 
-    public class ALGETdC8001LineParser
+
+  public class ALGETdC8001LineParser
+  {
+    public ALGETdC8001LineParser()
+    { }
+
+    public ALGETdC8001LiveTimingData Parse(string dataLine)
     {
-      public ALGETdC8001LineParser()
-      { }
+      ALGETdC8001LiveTimingData parsedData = new ALGETdC8001LiveTimingData();
 
-      public ALGETdC8001LiveTimingData Parse(string dataLine)
+      parsedData.Flag = dataLine[0];
+      parsedData.StartNumber = UInt32.Parse(dataLine.Substring(1, 4));
+
+      if (dataLine.Length > 5)
       {
-        ALGETdC8001LiveTimingData parsedData = new ALGETdC8001LiveTimingData();
-
-        parsedData.Flag = dataLine[0];
-        parsedData.StartNumber = UInt32.Parse(dataLine.Substring(1, 4));
-
-        if (dataLine.Length > 5)
+        parsedData.Channel = dataLine.Substring(6, 2);
+        parsedData.ChannelModifier = dataLine[8];
+        string timeStr = dataLine.Substring(10, 13);
+        try
         {
-          parsedData.Channel = dataLine.Substring(6, 2);
-          parsedData.ChannelModifier = dataLine[8];
-          string timeStr = dataLine.Substring(10, 13);
-          try
-          {
-            string[] formats = { @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff" };
-            timeStr = timeStr.TrimEnd(' ');
-            parsedData.Time = TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
-          }
-          catch (FormatException)
-          {
-            throw;
-          }
-          parsedData.Group = UInt32.Parse(dataLine.Substring(24, 2));
+          string[] formats = { @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff" };
+          timeStr = timeStr.TrimEnd(' ');
+          parsedData.Time = TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
         }
-
-        return parsedData;
+        catch (FormatException)
+        {
+          throw;
+        }
+        parsedData.Group = UInt32.Parse(dataLine.Substring(24, 2));
       }
+
+      return parsedData;
     }
   }
+
 }

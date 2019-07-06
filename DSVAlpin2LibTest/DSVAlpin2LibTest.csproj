@@ -69,6 +69,7 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ALGETdC8001Tests.cs" />
     <Compile Include="DSVAlpinDatabaseTests.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
