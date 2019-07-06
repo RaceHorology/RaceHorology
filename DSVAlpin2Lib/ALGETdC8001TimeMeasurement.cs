@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
@@ -20,7 +20,8 @@ namespace DSVAlpin2Lib
 
     public ALGETdC8001TimeMeasurement(string comport)
     {
-      _dumpFile = new System.IO.StreamWriter(@"ALGETdC8001.dump");
+      string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
+      _dumpFile = new System.IO.StreamWriter(dumpFilename);
 
       _serialPort = new SerialPort(comport, 9600, Parity.None, 8, StopBits.One);
       _serialPort.NewLine = "\r"; // CR, ASCII(13)
