@@ -264,13 +264,14 @@ namespace DSVAlpin2LibTest
       Participant participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
       RunResult rr1r1 = new RunResult(participant1);
 
-      rr1r1.SetStartFinishTime(new TimeSpan(0, 12, 0, 0, 0), null); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetStartTime(new TimeSpan(0, 12, 0, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
       db.CreateOrUpdateRunResult(rr1, rr1r1);
       DBCacheWorkaround();
       rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
-      rr1r1.SetStartFinishTime(rr1r1.GetStartTime(), new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetStartTime(rr1r1.GetStartTime()); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
       db.CreateOrUpdateRunResult(rr1, rr1r1);
       DBCacheWorkaround();
       rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
@@ -285,7 +286,7 @@ namespace DSVAlpin2LibTest
 
       Participant participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
       RunResult rr5r1 = new RunResult(participant5);
-      rr5r1.SetStartFinishTime(new TimeSpan(0, 12, 1, 1, 1), null); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr5r1.SetStartTime(new TimeSpan(0, 12, 1, 1, 1)); //int days, int hours, int minutes, int seconds, int milliseconds
       rr5r1.ResultCode = RunResult.EResultCode.NiZ;
       db.CreateOrUpdateRunResult(rr1, rr5r1);
       DBCacheWorkaround();
@@ -370,20 +371,20 @@ namespace DSVAlpin2LibTest
         RaceRun rr2 = model.GetRace().GetRun(1);
 
         Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
-        rr1.SetTimeMeasurement(participant1, new TimeSpan(0, 12, 0, 0, 0), null); // Start
-        rr1.SetTimeMeasurement(participant1, new TimeSpan(0, 12, 0, 0, 0), new TimeSpan(0, 12, 1, 0, 0)); // Finish
+        rr1.SetStartTime(participant1, new TimeSpan(0, 12, 0, 0, 0)); // Start
+        rr1.SetFinishTime(participant1, new TimeSpan(0, 12, 1, 0, 0)); // Finish
 
 
         Participant participant2 = db.GetParticipants().Where(x => x.Name == "Nachname 2").FirstOrDefault();
-        rr1.SetTimeMeasurement(participant2, new TimeSpan(0, 12, 2, 0, 0), null); // Start
+        rr1.SetStartTime(participant2, new TimeSpan(0, 12, 2, 0, 0)); // Start
                                                                                // TODO: Set to NiZ
 
         Participant participant3 = db.GetParticipants().Where(x => x.Name == "Nachname 3").FirstOrDefault();
-        rr1.SetTimeMeasurement(participant3, null, null); // NaS
+        rr1.SetStartFinishTime(participant3, null, null); // NaS
 
         Participant participant4 = db.GetParticipants().Where(x => x.Name == "Nachname 4").FirstOrDefault();
-        rr1.SetTimeMeasurement(participant4, new TimeSpan(0, 12, 4, 0, 0), null); // Start
-        rr1.SetTimeMeasurement(participant4, new TimeSpan(0, 12, 4, 0, 0), new TimeSpan(0, 12, 4, 30, 0)); // Finish
+        rr1.SetStartTime(participant4, new TimeSpan(0, 12, 4, 0, 0)); // Start
+        rr1.SetFinishTime(participant4, new TimeSpan(0, 12, 4, 30, 0)); // Finish
         // TODO: Set to Disqualify
 
       }

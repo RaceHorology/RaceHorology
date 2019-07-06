@@ -322,6 +322,8 @@ namespace DSVAlpin2
         _alge = new ALGETdC8001TimeMeasurement(cmbCOMPort.SelectedItem?.ToString());
 
       _alge.RawMessageReceived += Alge_OnMessageReceived;
+
+      _alge.TimeMeasurementReceived += OnTimeMeasurementReceived;
     }
 
     private void Alge_OnMessageReceived(object sender, string message)
@@ -330,6 +332,28 @@ namespace DSVAlpin2
       {
         txtCOMPort.Text += message + "\n";
         txtCOMPort.ScrollToEnd();
+      });
+    }
+
+
+    private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
+    {
+      Participant participant = _dataModel.GetParticipant(e.StartNumber);
+
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        if (participant != null)
+        {
+
+          if (e.BStartTime)
+            _currentRaceRun.SetStartTime(participant, e.StartTime);
+
+          if (e.BFinishTime)
+            _currentRaceRun.SetFinishTime(participant, e.FinishTime);
+
+          if (e.BRunTime)
+            _currentRaceRun.SetRunTime(participant, e.RunTime);
+        }
       });
     }
 
@@ -356,9 +380,9 @@ namespace DSVAlpin2
       if (participant != null)
       {
         if (start != null || finish != null)
-          _currentRaceRun.SetTimeMeasurement(participant, start, finish);
+          _currentRaceRun.SetStartFinishTime(participant, start, finish);
         else if (run != null)
-          _currentRaceRun.SetTimeMeasurement(participant, run);
+          _currentRaceRun.SetRunTime(participant, run);
       }
     }
 

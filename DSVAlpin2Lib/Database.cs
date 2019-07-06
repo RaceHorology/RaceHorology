@@ -108,8 +108,11 @@ namespace DSVAlpin2Lib
           if (!reader.IsDBNull(reader.GetOrdinal("ziel")))
             finishTime = CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("ziel")));
 
-          if (startTime!=null || finishTime!=null)
-            r.SetStartFinishTime(startTime, finishTime);
+          if (startTime != null || finishTime != null)
+          {
+            r.SetStartTime(startTime);
+            r.SetFinishTime(finishTime);
+          }
           else if (runTime != null)
             r.SetRunTime(runTime);
 
