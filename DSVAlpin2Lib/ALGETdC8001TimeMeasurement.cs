@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
@@ -93,10 +93,12 @@ namespace DSVAlpin2Lib
       {
         case "C0":
           data.StartTime = parsedData.Time;
+          data.BStartTime = true;
           break;
 
         case "C1":
           data.FinishTime = parsedData.Time;
+          data.BFinishTime = true;
           break;
 
         case "RT":   // RunTime, calculated automatically

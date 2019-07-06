@@ -430,10 +430,24 @@ namespace DSVAlpin2Lib
 
   public class TimeMeasurementEventArgs : EventArgs
   {
+    public TimeMeasurementEventArgs()
+    {
+      StartNumber = 0;
+      RunTime = null;
+      BRunTime = false;
+      StartTime = null;
+      BStartTime = false;
+      FinishTime = null;
+      BFinishTime = false;
+    }
+
     public uint StartNumber;
-    public TimeSpan? RunTime;
-    public TimeSpan? StartTime;
-    public TimeSpan? FinishTime;
+    public TimeSpan? RunTime;    // if null and corresponding time property is set true => time shall be deleted
+    public bool BRunTime;        // true if RunTime is set
+    public TimeSpan? StartTime;  // if null and corresponding time property is set true => time shall be deleted
+    public bool BStartTime;      // true if StartTime is set
+    public TimeSpan? FinishTime; // if null and corresponding time property is set true => time shall be deleted
+    public bool BFinishTime;     // true if FinishTime is set
   }
 
   public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);
