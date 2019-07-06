@@ -52,6 +52,9 @@ namespace DSVAlpin2
       // Last recently used files in menu
       _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
+
+      SetupTesting();
+
     }
 
     /// <summary>
@@ -105,7 +108,6 @@ namespace DSVAlpin2
         // Restart DSVALpinServer (for having the lists on mobile devices)
         StartDSVAlpinServer();
         
-        SetupTesting();
 
         _mruList.AddFile(dbPath);
       }
@@ -294,14 +296,43 @@ namespace DSVAlpin2
 
     #region Testing
 
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-    }
-
+    ALGETdC8001TimeMeasurement _alge;
 
     private void SetupTesting()
     {
+      FillCOMPorts(cmbCOMPort);
+
     }
+
+    protected void FillCOMPorts(ComboBox combo)
+    {
+      // Get a list of serial port names.
+      string[] ports = System.IO.Ports.SerialPort.GetPortNames();
+
+      // Display each port name to the console.
+      foreach (string port in ports)
+      {
+        combo.Items.Add(port);
+      }
+    }
+
+    private void CmbCOMPort_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbCOMPort.SelectedItem != null)
+        _alge = new ALGETdC8001TimeMeasurement(cmbCOMPort.SelectedItem?.ToString());
+
+      _alge.RawMessageReceived += Alge_OnMessageReceived;
+    }
+
+    private void Alge_OnMessageReceived(object sender, string message)
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        txtCOMPort.Text += message + "\n";
+        txtCOMPort.ScrollToEnd();
+      });
+    }
+
 
     private void TxtTest1_TextChanged(object sender, TextChangedEventArgs e)
     {

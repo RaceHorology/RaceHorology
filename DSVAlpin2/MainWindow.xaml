@@ -190,20 +190,10 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
-              <Label x:Name="lblTest1" Content="Test" HorizontalAlignment="Left" Margin="0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
-              <TextBox x:Name="txtTest1" Text="" Width="120" Grid.Column="1" TextChanged="TxtTest1_TextChanged"/>
+              <Label x:Name="lblTest1" Content="COM Port" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
+              <ComboBox x:Name="cmbCOMPort" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center" Width="120" Grid.Column="1" SelectionChanged="CmbCOMPort_SelectionChanged"/>
             </Grid>
-            <DataGrid x:Name="dgTest1" Margin="0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED">
-              <DataGrid.GroupStyle>
-                <GroupStyle>
-                  <GroupStyle.HeaderTemplate>
-                    <DataTemplate>
-                      <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
-                    </DataTemplate>
-                  </GroupStyle.HeaderTemplate>
-                </GroupStyle>
-              </DataGrid.GroupStyle>
-            </DataGrid>
+            <TextBox x:Name="txtCOMPort" Margin="0" Grid.Row="1" TextWrapping="Wrap" AcceptsReturn="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
           </Grid>
         </TabItem>
         <TabItem Header="Sprecher">
@@ -274,6 +264,5 @@
       </Grid>
       
     </Grid>
-    <Button x:Name="button" Content="Test: Add Participant" HorizontalAlignment="Left" Margin="910,41,0,0" VerticalAlignment="Top" Width="Auto" Click="Button_Click"/>
   </Grid>
 </Window>
