@@ -17,9 +17,6 @@ namespace DSVAlpin2LibTest
   {
     public DSVAlpinDatabaseTests()
     {
-      //
-      // TODO: Add constructor logic here
-      //
     }
 
     private TestContext testContextInstance;

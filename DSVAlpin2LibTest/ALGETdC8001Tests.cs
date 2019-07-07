@@ -13,9 +13,6 @@ namespace DSVAlpin2LibTest
   {
     public ALGETdC8001Tests()
     {
-      //
-      // TODO: Add constructor logic here
-      //
     }
 
     private TestContext testContextInstance;
