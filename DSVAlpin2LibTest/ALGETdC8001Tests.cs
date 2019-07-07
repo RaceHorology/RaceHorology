@@ -99,6 +99,24 @@ namespace DSVAlpin2LibTest
         Assert.AreEqual(' ', pd.ChannelModifier);
         Assert.AreEqual(new TimeSpan(), pd.Time);
       }
+
+      {
+        var pd = parser.Parse("?0034 C1M 21:46:48.1230 00");
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 123), pd.Time);
+      }
+      {
+        var pd = parser.Parse("?0034 C1M 21:46:48.123  00");
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 123), pd.Time);
+      }
+      {
+        var pd = parser.Parse("?0034 C1M 21:46:48.12   00");
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 120), pd.Time);
+      }
+      {
+        var pd = parser.Parse("?0034 C1M 21:46:48.1    00");
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 100), pd.Time);
+      }
+
     }
 
     [TestMethod]

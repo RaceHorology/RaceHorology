@@ -162,7 +162,7 @@ namespace DSVAlpin2Lib
         string timeStr = dataLine.Substring(10, 13);
         try
         {
-          string[] formats = { @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff" };
+          string[] formats = { @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff", @"hh\:mm\:ss\.f" };
           timeStr = timeStr.TrimEnd(' ');
           parsedData.Time = TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
         }
