@@ -210,7 +210,7 @@ namespace DSVAlpin2Lib
     /// <param name="result">The RunResult to store.</param>
     public void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result)
     {
-      uint idParticipant = GetParticipantId(result.Participant);
+      uint idParticipant = GetParticipantId(result.Participant.Participant);
 
       bool bNew = true;
       using (OleDbCommand command = new OleDbCommand("SELECT COUNT(*) FROM tblZeit WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang", _conn))
@@ -285,7 +285,6 @@ namespace DSVAlpin2Lib
           Nation = reader["nation"].ToString(),
           Class = GetClass(GetValueUInt(reader, "klasse")),
           Year = reader.GetInt16(reader.GetOrdinal("jahrgang")),
-          StartNumber = GetStartNumber(reader)
         };
         _id2Participant.Add(id, p);
 

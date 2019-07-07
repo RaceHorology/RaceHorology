@@ -60,16 +60,6 @@ namespace DSVAlpin2Lib
       return _participants;
     }
 
-    /// <summary>
-    /// Get the particpant by startnumber
-    /// </summary>
-    /// <returns>The list of participants</returns>
-    public Participant GetParticipant(uint startNumber)
-    {
-      return _participants.FirstOrDefault(p => p.StartNumber == startNumber);
-    }
-
-
     public Race GetRace()
     {
       return _race;
@@ -112,7 +102,7 @@ namespace DSVAlpin2Lib
   {
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
-    private ItemsChangeObservableCollection<Participant> _participants;
+    private ItemsChangeObservableCollection<RaceParticipant> _participants;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
     private RaceResultProvider _raceResultsProvider;
 
@@ -189,10 +179,20 @@ namespace DSVAlpin2Lib
     /// Returns the participants of the race.
     /// </summary>
     /// <returns></returns>
-    public ItemsChangeObservableCollection<Participant> GetParticipants()
+    public ItemsChangeObservableCollection<RaceParticipant> GetParticipants()
     {
       return _participants;
     }
+
+    /// <summary>
+    /// Get the particpant by startnumber
+    /// </summary>
+    /// <returns>The list of participants</returns>
+    public RaceParticipant GetParticipant(uint startNumber)
+    {
+      return _participants.FirstOrDefault(p => p.StartNumber == startNumber);
+    }
+
 
     /// <summary>
     /// Returns the results of the race.
@@ -338,11 +338,11 @@ namespace DSVAlpin2Lib
     /// <param name="participant">The participant</param>
     /// <param name="startTime">Start time</param>
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
-    public void SetStartTime(Participant participant, TimeSpan? startTime)
+    public void SetStartTime(RaceParticipant participant, TimeSpan? startTime)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
 
-      _appDataModel.InsertInteractiveTimeMeasurement(participant);
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       if (result == null)
         result = new RunResult(participant);
@@ -358,11 +358,11 @@ namespace DSVAlpin2Lib
     /// <param name="participant">The participant</param>
     /// <param name="startTime">Start time</param>
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
-    public void SetFinishTime(Participant participant, TimeSpan? finishTime)
+    public void SetFinishTime(RaceParticipant participant, TimeSpan? finishTime)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
 
-      _appDataModel.InsertInteractiveTimeMeasurement(participant);
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       if (result == null)
         result = new RunResult(participant);
@@ -379,11 +379,11 @@ namespace DSVAlpin2Lib
     /// <param name="startTime">Start time</param>
     /// <param name="finishTime">Finish time</param>
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
-    public void SetStartFinishTime(Participant participant, TimeSpan? startTime, TimeSpan? finishTime)
+    public void SetStartFinishTime(RaceParticipant participant, TimeSpan? startTime, TimeSpan? finishTime)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
 
-      _appDataModel.InsertInteractiveTimeMeasurement(participant);
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       if (result == null)
         result = new RunResult(participant);
@@ -401,11 +401,11 @@ namespace DSVAlpin2Lib
     /// <param name="participant">The participant</param>
     /// <param name="runTime">Run time</param>
     /// <remarks>Can be null. In that case it is stored as not available. Start and end time are set to null.</remarks>
-    public void SetRunTime(Participant participant, TimeSpan? runTime)
+    public void SetRunTime(RaceParticipant participant, TimeSpan? runTime)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
 
-      _appDataModel.InsertInteractiveTimeMeasurement(participant);
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       if (result == null)
         result = new RunResult(participant);
@@ -443,7 +443,7 @@ namespace DSVAlpin2Lib
       bool IsOnTrack(RunResult r)
       {
         //FIXME: Consider whether added in programm and not DB
-        return r.GetStartTime() != null && r.GetRunTime() == null && _appDataModel.TodayMeasured(r.Participant);
+        return r.GetStartTime() != null && r.GetRunTime() == null && _appDataModel.TodayMeasured(r.Participant.Participant);
       }
 
       // Remove from onTrack list if a result is available (= not on track anymore)

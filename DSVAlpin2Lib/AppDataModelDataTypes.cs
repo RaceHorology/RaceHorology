@@ -21,7 +21,6 @@ namespace DSVAlpin2Lib
     private string _club;
     private string _nation;
     private string _class;
-    private uint _startnumber;
 
     public string Name
     {
@@ -62,11 +61,6 @@ namespace DSVAlpin2Lib
       get => _class;
       set { _class = value; NotifyPropertyChanged(); }
     }
-    public uint StartNumber
-    {
-      get => _startnumber;
-      set { _startnumber = value; NotifyPropertyChanged(); }
-    }
 
 
     #region INotifyPropertyChanged implementation
@@ -86,6 +80,34 @@ namespace DSVAlpin2Lib
   }
 
 
+  public class RaceParticipant : INotifyPropertyChanged
+  {
+    public Participant _participant;
+    private uint _startnumber;
+
+    public Participant Participant { get { return _participant; } }
+
+    public uint StartNumber
+    {
+      get => _startnumber;
+      set { _startnumber = value; NotifyPropertyChanged(); }
+    }
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
+  }
+
+
   /// <summary>
   /// Represents a run result (a pass / ein durchgang)
   /// </summary>
@@ -97,7 +119,7 @@ namespace DSVAlpin2Lib
 
     #region internal members
 
-    public Participant _participant;
+    public RaceParticipant _participant;
     protected TimeSpan? _runTime;
     protected TimeSpan? _startTime;
     protected TimeSpan? _finishTime;
@@ -109,19 +131,21 @@ namespace DSVAlpin2Lib
 
     // Some public properties to get displayed in the list
     // TODO: This should not be part of this calss, instead another entity should do the conversion
-    public Participant Participant { get { return _participant; } }
+    public RaceParticipant Participant { get { return _participant; } }
     public string StartNumber { get { return _participant.StartNumber.ToString(); } }
-    public string Name { get { return _participant.Name; } }
-    public string Firstname { get { return _participant.Firstname; } }
-    public int Year { get { return _participant.Year; } }
-    public string Club { get { return _participant.Club; } }
-    public string Class { get { return _participant.Class; } }
+    public string Name { get { return _participant.Participant.Name; } }
+    public string Firstname { get { return _participant.Participant.Firstname; } }
+    public int Year { get { return _participant.Participant.Year; } }
+    public string Club { get { return _participant.Participant.Club; } }
+    public string Class { get { return _participant.Participant.Class; } }
+
+
     public TimeSpan? Runtime { get { return _runTime; } }
     public EResultCode ResultCode { get { return _resultCode; } set { _resultCode = value; NotifyPropertyChanged(); } }
     public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
 
 
-    public RunResult(Participant particpant)
+    public RunResult(RaceParticipant particpant)
     {
       _participant = particpant;
 
@@ -269,7 +293,7 @@ namespace DSVAlpin2Lib
   {
     #region private
 
-    Participant _participant;
+    RaceParticipant _participant;
     Dictionary<uint, TimeSpan?> _runTimes;
     TimeSpan? _totalTime;
     private uint _position;
@@ -282,7 +306,7 @@ namespace DSVAlpin2Lib
     /// Constructor
     /// </summary>
     /// <param name="participant">The participant the results belong to.</param>
-    public RaceResultItem(Participant participant)
+    public RaceResultItem(RaceParticipant participant)
     {
       _participant = participant;
       _runTimes = new Dictionary<uint, TimeSpan?>();
@@ -291,7 +315,7 @@ namespace DSVAlpin2Lib
     /// <summary>
     /// Returns the participant
     /// </summary>
-    public Participant Participant { get { return _participant; } }
+    public RaceParticipant Participant { get { return _participant; } }
 
     /// <summary>
     /// Returns the final time (sum or minimum time depending on the race type)

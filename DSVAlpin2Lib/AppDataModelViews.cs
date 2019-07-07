@@ -15,10 +15,10 @@ namespace DSVAlpin2Lib
   {
     private Race _race;
 
-    ObservableCollection<Participant> _participants;
+    ObservableCollection<RaceParticipant> _participants;
     CollectionViewSource _startListView;
 
-    public StartListProvider(Race race, ObservableCollection<Participant> participants)
+    public StartListProvider(Race race, ObservableCollection<RaceParticipant> participants)
     {
       _race = race;
 
@@ -29,9 +29,9 @@ namespace DSVAlpin2Lib
       _startListView.Source = _participants;
 
       _startListView.SortDescriptions.Clear();
-      _startListView.SortDescriptions.Add(new SortDescription(nameof(Participant.StartNumber), ListSortDirection.Ascending));
+      _startListView.SortDescriptions.Add(new SortDescription(nameof(RaceParticipant.StartNumber), ListSortDirection.Ascending));
 
-      _startListView.LiveSortingProperties.Add(nameof(Participant.StartNumber));
+      _startListView.LiveSortingProperties.Add(nameof(RaceParticipant.StartNumber));
       _startListView.IsLiveSortingRequested = true;
 
       //_startListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
@@ -211,7 +211,7 @@ namespace DSVAlpin2Lib
         }
 
         // Set the JustModified flag to highlight new results
-        sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant);
+        sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant.Participant);
 
         _results.Add(sortedItem);
       }
@@ -241,7 +241,7 @@ namespace DSVAlpin2Lib
 
         // Sort by grouping (class or group or ...)
         // TODO: Shall be configurable
-        int classCompare = rrX.Participant.Class.CompareTo(rrY.Participant.Class);
+        int classCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
         if (classCompare != 0)
           return classCompare;
 
@@ -346,13 +346,13 @@ namespace DSVAlpin2Lib
 
     private void UpdateAll()
     {
-      foreach (Participant p in _race.GetParticipants())
+      foreach (RaceParticipant p in _race.GetParticipants())
         UpdateResultsFor(p);
 
       ResortResults();
     }
 
-    private void UpdateResultsFor(Participant participant)
+    private void UpdateResultsFor(RaceParticipant participant)
     {
       RaceResultItem rri = _raceResults.SingleOrDefault(x => x.Participant == participant);
       if (rri == null)
@@ -392,9 +392,9 @@ namespace DSVAlpin2Lib
       TimeSpan? lastTime = null;
       foreach (var sortedItem in sortedResults)
       {
-        if (sortedItem.Participant.Class != curClass)
+        if (sortedItem.Participant.Participant.Class != curClass)
         {
-          curClass = sortedItem.Participant.Class;
+          curClass = sortedItem.Participant.Participant.Class;
           curPosition = 1;
           lastTime = null;
         }
@@ -421,7 +421,7 @@ namespace DSVAlpin2Lib
         }
 
         // Set the JustModified flag to highlight new results
-        sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant);
+        sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant.Participant);
 
         _raceResults.Add(sortedItem);
       }
