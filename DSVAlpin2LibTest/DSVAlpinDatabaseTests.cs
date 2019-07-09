@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -177,7 +177,6 @@ namespace DSVAlpin2LibTest
       Race.RaceProperties rprops = new Race.RaceProperties();
       rprops.RaceType = Race.ERaceType.GiantSlalom;
       rprops.Runs = 2;
-
       Race race = new Race(db, model, rprops);
 
       var rr1 = db.GetRaceRun(race, 1);
@@ -338,62 +337,64 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void CreateAndUpdateRunResults()
     {
-      //string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      //DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      //db.Connect(dbFilename);
+      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(dbFilename);
 
-      //var participants = db.GetParticipants();
+      AppDataModel dataModel = new AppDataModel(db);
+      Race race = dataModel.GetRace();
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
 
-      //void DBCacheWorkaround()
-      //{
-      //  db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
-      //  db.Connect(dbFilename);
-      //  participants = db.GetParticipants();
-      //}
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        dataModel = new AppDataModel(db);
+        race = dataModel.GetRace();
+        rr1 = race.GetRun(0);
+        rr2 = race.GetRun(1);
+      }
 
-      //AppDataModel dataModel = new AppDataModel(db);
-      //Race race = new Race(db, dataModel);
-      //RaceRun rr1 = new RaceRun(1, dataModel);
-      //RaceRun rr2 = new RaceRun(2, dataModel);
 
-      //Participant participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
-      //RunResult rr1r1 = new RunResult(participant1);
+      RaceParticipant participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      RunResult rr1r1 = new RunResult(participant1);
 
-      //rr1r1.SetStartTime(new TimeSpan(0, 12, 0, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
-      //db.CreateOrUpdateRunResult(rr1, rr1r1);
-      //DBCacheWorkaround();
-      //rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
-      //Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+      rr1r1.SetStartTime(new TimeSpan(0, 12, 0, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      db.CreateOrUpdateRunResult(race, rr1, rr1r1);
+      DBCacheWorkaround();
+      rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
-      //rr1r1.SetStartTime(rr1r1.GetStartTime()); //int days, int hours, int minutes, int seconds, int milliseconds
-      //rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
-      //db.CreateOrUpdateRunResult(rr1, rr1r1);
-      //DBCacheWorkaround();
-      //rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
-      //Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+      rr1r1.SetStartTime(rr1r1.GetStartTime()); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      db.CreateOrUpdateRunResult(race, rr1, rr1r1);
+      DBCacheWorkaround();
+      rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
-      //rr1r1.ResultCode = RunResult.EResultCode.DIS;
-      //rr1r1.DisqualText = "TF Tor 9";
-      //db.CreateOrUpdateRunResult(rr1, rr1r1);
-      //DBCacheWorkaround();
-      //rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
-      //Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+      rr1r1.ResultCode = RunResult.EResultCode.DIS;
+      rr1r1.DisqualText = "TF Tor 9";
+      db.CreateOrUpdateRunResult(race, rr1, rr1r1);
+      DBCacheWorkaround();
+      rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
-      //Participant participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
-      //RunResult rr5r1 = new RunResult(participant5);
-      //rr5r1.SetStartTime(new TimeSpan(0, 12, 1, 1, 1)); //int days, int hours, int minutes, int seconds, int milliseconds
-      //rr5r1.ResultCode = RunResult.EResultCode.NiZ;
-      //db.CreateOrUpdateRunResult(rr1, rr5r1);
-      //DBCacheWorkaround();
-      //rr5r1._participant = participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
-      //Assert.IsTrue(CheckRunResult(dbFilename, rr5r1, 5, 1));
+      RaceParticipant participant5 = race.GetParticipants().Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      RunResult rr5r1 = new RunResult(participant5);
+      rr5r1.SetStartTime(new TimeSpan(0, 12, 1, 1, 1)); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr5r1.ResultCode = RunResult.EResultCode.NiZ;
+      db.CreateOrUpdateRunResult(race, rr1, rr5r1);
+      DBCacheWorkaround();
+      rr5r1._participant = participant5 = race.GetParticipants().Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr5r1, 5, 1));
 
-      //RunResult rr5r2 = new RunResult(participant5);
-      //rr5r2.ResultCode = RunResult.EResultCode.NaS;
-      //db.CreateOrUpdateRunResult(rr2, rr5r2);
-      //DBCacheWorkaround();
-      //rr5r2._participant = participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
-      //Assert.IsTrue(CheckRunResult(dbFilename, rr5r2, 5, 2));
+      RunResult rr5r2 = new RunResult(participant5);
+      rr5r2.ResultCode = RunResult.EResultCode.NaS;
+      db.CreateOrUpdateRunResult(race, rr2, rr5r2);
+      DBCacheWorkaround();
+      rr5r2._participant = participant5 = race.GetParticipants().Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr5r2, 5, 2));
     }
 
 
