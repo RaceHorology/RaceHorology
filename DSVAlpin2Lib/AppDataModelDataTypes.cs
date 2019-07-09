@@ -80,10 +80,20 @@ namespace DSVAlpin2Lib
   }
 
 
+  /// <summary>
+  /// Participant with start number
+  /// </summary>
   public class RaceParticipant : INotifyPropertyChanged
   {
     public Participant _participant;
     private uint _startnumber;
+
+
+    public RaceParticipant(Participant participant, uint startnumber)
+    {
+      _participant = participant;
+      _startnumber = startnumber;
+    }
 
     public Participant Participant { get { return _participant; } }
 
@@ -257,7 +267,9 @@ namespace DSVAlpin2Lib
   }
 
 
-
+  /// <summary>
+  /// Represents a RunResult with position (for a run result list)
+  /// </summary>
   public class RunResultWithPosition : RunResult
   {
     private uint _position;
@@ -283,9 +295,7 @@ namespace DSVAlpin2Lib
     }
   }
 
-
-
-
+   
   /// <summary>
   /// Represents a race result. It contains out of the participant including its run results (run, time, status) and its final position within the group.
   /// </summary>

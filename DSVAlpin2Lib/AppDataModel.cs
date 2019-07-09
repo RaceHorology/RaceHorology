@@ -46,8 +46,10 @@ namespace DSVAlpin2Lib
       // Get notification if a participant got changed / added / removed and trigger storage in DB
       _participantsDelegatorDB = new DatabaseDelegatorParticipant(_participants, _db);
 
-      _race = new Race(_db, this);
 
+      var races = _db.GetRaces();
+      foreach (Race.RaceProperties raceProperties in races)
+        _race = new Race(_db, this, raceProperties);
     }
 
 
@@ -59,6 +61,7 @@ namespace DSVAlpin2Lib
     {
       return _participants;
     }
+
 
     public Race GetRace()
     {
@@ -100,6 +103,20 @@ namespace DSVAlpin2Lib
   /// 
   public class Race
   {
+    public enum ERaceType { DownHill = 0, SuperG = 1, GiantSlalom = 2, Slalom = 3, KOSlalom = 4, ParallelSlalom = 5 };
+    public class RaceProperties
+    {
+      public Race.ERaceType RaceType;
+      public uint Runs;
+      public string RaceNumber;
+      public string Description;
+      public DateTime DateStart;
+      public DateTime DateResult;
+    }
+
+
+    RaceProperties _properties;
+
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
@@ -107,18 +124,26 @@ namespace DSVAlpin2Lib
     private RaceResultProvider _raceResultsProvider;
 
 
+    public ERaceType RaceType { get { return _properties.RaceType;  } }
+
+
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="db">Database for loading and storing</param>
     /// <param name="participants">Participants takeing part in that race</param>
-    public Race(IAppDataModelDataBase db, AppDataModel appDataModel)
+    public Race(IAppDataModelDataBase db, AppDataModel appDataModel, RaceProperties properties)
     {
       // Database Backend
       _db = db;
       _appDataModel = appDataModel;
+      _properties = properties;
 
-      _participants = (ItemsChangeObservableCollection < Participant > )_appDataModel.GetParticipants();
+      // Get initially from DB
+      _participants = new ItemsChangeObservableCollection<RaceParticipant>();
+      var particpants = _db.GetRaceParticipants(this);
+      foreach (var p in particpants)
+        _participants.Add(p);
 
       //// RaceRuns ////
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
@@ -143,13 +168,13 @@ namespace DSVAlpin2Lib
         RaceRun rr = new RaceRun(i + 1, _appDataModel);
 
         // Fill the data from the DB initially (TODO: to be done better)
-        rr.InsertResults(_db.GetRaceRun(i + 1));
+        rr.InsertResults(_db.GetRaceRun(this, i + 1));
 
         rr.SetStartListProvider(new StartListProvider(this, _participants));
         rr.SetResultViewProvider();
 
         // Get notification if a result got modified and trigger storage in DB
-        DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(rr, _db);
+        DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
         _runs.Add((rr, ddrr));
 
         raceRunsArr[i] = rr;
@@ -187,10 +212,19 @@ namespace DSVAlpin2Lib
     /// <summary>
     /// Get the particpant by startnumber
     /// </summary>
-    /// <returns>The list of participants</returns>
+    /// <returns>The RaceParticipant for the specified startnumber</returns>
     public RaceParticipant GetParticipant(uint startNumber)
     {
       return _participants.FirstOrDefault(p => p.StartNumber == startNumber);
+    }
+
+    /// <summary>
+    /// Get the race particpant by its original participant
+    /// </summary>
+    /// <returns>The RaceParticipant for the specified particpant</returns>
+    public RaceParticipant GetParticipant(Participant participant)
+    {
+      return _participants.FirstOrDefault(p => p.Participant == participant);
     }
 
 
@@ -470,10 +504,13 @@ namespace DSVAlpin2Lib
   public interface IAppDataModelDataBase
   {
     ItemsChangeObservableCollection<Participant> GetParticipants();
-    List<RunResult> GetRaceRun(uint run);
+    List<Race.RaceProperties> GetRaces();
+    List<RaceParticipant> GetRaceParticipants(Race race);
+
+    List<RunResult> GetRaceRun(Race race, uint run);
 
     void CreateOrUpdateParticipant(Participant participant);
-    void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result);
+    void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
 
   };
 

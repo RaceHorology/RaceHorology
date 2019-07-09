@@ -77,16 +77,107 @@ namespace DSVAlpin2Lib
     }
 
 
-    public List<RunResult> GetRaceRun(uint run)
+    public List<Race.RaceProperties> GetRaces()
+    {
+      List<Race.RaceProperties> races = new List<Race.RaceProperties>();
+
+      string sql = @"SELECT * FROM tblDisziplin WHERE aktiv = true";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          Race.RaceProperties race = new Race.RaceProperties();
+
+          race.RaceType = (Race.ERaceType)(byte)reader.GetValue(reader.GetOrdinal("dtyp"));
+          race.Runs = (uint)(byte)reader.GetValue(reader.GetOrdinal("durchgaenge"));
+          if (!reader.IsDBNull(reader.GetOrdinal("bewerbsnummer")))
+            race.RaceNumber = reader["bewerbsnummer"].ToString();
+          if (!reader.IsDBNull(reader.GetOrdinal("bewerbsbezeichnung")))
+            race.Description = reader["bewerbsbezeichnung"].ToString();
+          if (!reader.IsDBNull(reader.GetOrdinal("datum_startliste")))
+            race.DateStart = (DateTime)reader.GetValue(reader.GetOrdinal("datum_startliste"));
+          if (!reader.IsDBNull(reader.GetOrdinal("datum_rangliste")))
+            race.DateResult= (DateTime)reader.GetValue(reader.GetOrdinal("datum_rangliste"));
+
+          //string s7 = reader["finalisten"].ToString();
+          //string s8 = reader["freier_listenkopf"].ToString();
+
+          races.Add(race);
+        }
+      }
+
+      return races;
+    }
+
+
+    public List<RaceParticipant> GetRaceParticipants(Race race)
+    {
+      List<RaceParticipant> participants = new List<RaceParticipant>();
+
+      string sql = @"SELECT * FROM tblTeilnehmer";
+
+      string startNumberField = null;
+      switch (race.RaceType)
+      {
+        case Race.ERaceType.DownHill:
+          sql += " WHERE dhaktiv = true";
+          startNumberField = "startnrdh";
+          break;
+        case Race.ERaceType.SuperG:
+          sql += " WHERE sgaktiv = true";
+          startNumberField = "startnrsg";
+          break;
+        case Race.ERaceType.GiantSlalom:
+          sql += " WHERE gsaktiv = true";
+          startNumberField = "startnrgs";
+          break;
+        case Race.ERaceType.Slalom:
+          sql += " WHERE slaktiv = true";
+          startNumberField = "startnrsl";
+          break;
+        case Race.ERaceType.KOSlalom:
+          sql += " WHERE ksaktiv = true";
+          startNumberField = "startnrks";
+          break;
+        case Race.ERaceType.ParallelSlalom:
+          sql += " WHERE psaktiv = true";
+          startNumberField = "startnrps";
+          break;
+      }
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          Participant participant = CreateParticipantFromDB(reader);
+          uint startNo = GetValueUInt(reader, startNumberField);
+
+          RaceParticipant raceParticpant = new RaceParticipant(participant, startNo);
+          participants.Add(raceParticpant);
+        }
+      }
+
+      return participants;
+    }
+
+
+
+    public List<RunResult> GetRaceRun(Race race, uint run)
     {
       List<RunResult> runResult = new List<RunResult>();
 
       string sql = @"SELECT tblZeit.*, tblZeit.durchgang, tblZeit.disziplin, tblTeilnehmer.startnrsg, tblTeilnehmer.startnrgs, tblTeilnehmer.startnrsl, tblTeilnehmer.startnrks, tblTeilnehmer.startnrps "+
                    @"FROM tblTeilnehmer INNER JOIN tblZeit ON tblTeilnehmer.id = tblZeit.teilnehmer "+
-                   @"WHERE(((tblZeit.durchgang) = @durchgang) AND((tblZeit.disziplin) = 2))";
+                   @"WHERE(((tblZeit.durchgang) = @durchgang) AND((tblZeit.disziplin) = @disziplin))";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
       command.Parameters.Add(new OleDbParameter("@durchgang", run));
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int) race.RaceType));
 
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())
@@ -96,9 +187,10 @@ namespace DSVAlpin2Lib
           // Get Participant
           uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("teilnehmer"));
           Participant p = _id2Participant[id];
+          RaceParticipant rp = race.GetParticipant(p);
 
           // Build Result
-          RunResult r = new RunResult(p);
+          RunResult r = new RunResult(rp);
 
           TimeSpan? runTime = null, startTime = null, finishTime = null;
           if (!reader.IsDBNull(reader.GetOrdinal("netto")))
@@ -208,7 +300,7 @@ namespace DSVAlpin2Lib
     /// </summary>
     /// <param name="raceRun">The correlated RaceRun the reuslt is associated with.</param>
     /// <param name="result">The RunResult to store.</param>
-    public void CreateOrUpdateRunResult(RaceRun raceRun, RunResult result)
+    public void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result)
     {
       uint idParticipant = GetParticipantId(result.Participant.Participant);
 
@@ -216,7 +308,7 @@ namespace DSVAlpin2Lib
       using (OleDbCommand command = new OleDbCommand("SELECT COUNT(*) FROM tblZeit WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang", _conn))
       {
         command.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
-        command.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
+        command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType)); 
         command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
         object oId = command.ExecuteScalar();
 
@@ -257,7 +349,7 @@ namespace DSVAlpin2Lib
         cmd.Parameters.Add(new OleDbParameter("@disqualtext", result.DisqualText));
 
       cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
-      cmd.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
+      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType)); 
       cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
 
       cmd.CommandType = CommandType.Text;
