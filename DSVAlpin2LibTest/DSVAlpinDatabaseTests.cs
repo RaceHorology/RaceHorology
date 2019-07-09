@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -473,7 +473,8 @@ namespace DSVAlpin2LibTest
 
         RaceParticipant participant2 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 2").FirstOrDefault();
         rr1.SetStartTime(participant2, new TimeSpan(0, 12, 2, 0, 0)); // Start
-                                                                      // TODO: Set to NiZ
+        rr1.SetFinishTime(participant2, null); // No Finish
+                                               // TODO: Set to NiZ
 
         RaceParticipant participant3 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 3").FirstOrDefault();
         rr1.SetStartFinishTime(participant3, null, null); // NaS
