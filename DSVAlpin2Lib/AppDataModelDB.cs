@@ -16,12 +16,14 @@ namespace DSVAlpin2Lib
   /// </remarks>
   internal class DatabaseDelegatorRaceRun
   {
+    private Race _race;
     private RaceRun _rr;
     private IAppDataModelDataBase _db;
 
-    public DatabaseDelegatorRaceRun(RaceRun rr, IAppDataModelDataBase db)
+    public DatabaseDelegatorRaceRun(Race race, RaceRun rr, IAppDataModelDataBase db)
     {
       _db = db;
+      _race = race;
       _rr = rr;
 
       rr.GetResultList().ItemChanged += OnItemChanged;
@@ -31,7 +33,7 @@ namespace DSVAlpin2Lib
     private void OnItemChanged(object sender, PropertyChangedEventArgs e)
     {
       RunResult result = (RunResult)sender;
-      _db.CreateOrUpdateRunResult(_rr, result);
+      _db.CreateOrUpdateRunResult(_race, _rr, result);
     }
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -40,7 +42,7 @@ namespace DSVAlpin2Lib
       {
         case NotifyCollectionChangedAction.Add:
           foreach (RunResult v in e.NewItems)
-            _db.CreateOrUpdateRunResult(_rr, v);
+            _db.CreateOrUpdateRunResult(_race, _rr, v);
           break;
 
         case NotifyCollectionChangedAction.Move:

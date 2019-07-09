@@ -76,6 +76,94 @@ namespace DSVAlpin2LibTest
     }
 
     [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
+    public void DatabaseRaces()
+    {
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb"));
+
+      var races = db.GetRaces();
+
+      {
+        var race = races.Where(r => r.RaceType == Race.ERaceType.DownHill).First();
+        Assert.AreEqual(2U, race.Runs);
+        Assert.AreEqual(null, race.RaceNumber);
+        Assert.AreEqual("Abfahrt - Bezeichnung 1\r\nAbfahrt - Bezeichnung 2", race.Description);
+        Assert.AreEqual(new DateTime(2019, 1, 19), race.DateStart);
+        Assert.AreEqual(new DateTime(2019, 1, 19), race.DateResult);
+      }
+      {
+        var race = races.Where(r => r.RaceType == Race.ERaceType.SuperG).First();
+        Assert.AreEqual(1U, race.Runs);
+        Assert.AreEqual("20190120_B", race.RaceNumber);
+        Assert.AreEqual("Super G Bezeichnung 1\r\nSuper G Bezeichnung 2", race.Description);
+        Assert.AreEqual(new DateTime(2019, 1, 18), race.DateStart);
+        Assert.AreEqual(new DateTime(), race.DateResult);
+      }
+      {
+        var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
+        Assert.AreEqual(2U, race.Runs);
+        Assert.AreEqual("20190120_C", race.RaceNumber);
+        Assert.AreEqual("Glonner Zwergerlrennen\r\nWSV Glonn", race.Description);
+        Assert.AreEqual(new DateTime(), race.DateStart);
+        Assert.AreEqual(new DateTime(2019, 1, 20), race.DateResult);
+      }
+      {
+        var race = races.Where(r => r.RaceType == Race.ERaceType.Slalom).First();
+        Assert.AreEqual(1U, race.Runs);
+        Assert.AreEqual("20190120_D", race.RaceNumber);
+        Assert.AreEqual(null, race.Description);
+        Assert.AreEqual(new DateTime(2019, 2, 21), race.DateStart);
+        Assert.AreEqual(new DateTime(2019, 1, 21), race.DateResult);
+      }
+
+      //
+      Assert.AreEqual(0, races.Where(r => r.RaceType == Race.ERaceType.ParallelSlalom).Count());
+      Assert.AreEqual(0, races.Where(r => r.RaceType == Race.ERaceType.KOSlalom).Count());
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
+    public void DatabaseRaceParticipants()
+    {
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb"));
+
+      var races = db.GetRaces();
+      AppDataModel model = new AppDataModel(db);
+
+      {
+        var race = races.Where(r => r.RaceType == Race.ERaceType.DownHill).First();
+        var raceParticipants = db.GetRaceParticipants(new Race(db, model, race));
+        Assert.AreEqual(6, raceParticipants.Count());
+        Assert.AreEqual(1, raceParticipants.Where(p => p.Participant.Name == "Nachname 6").Count());
+        Assert.AreEqual(0, raceParticipants.Where(p => p.Participant.Name == "Nachname 10").Count());
+      }
+      {
+        var race = races.Where(r => r.RaceType == Race.ERaceType.SuperG).First();
+        var raceParticipants = db.GetRaceParticipants(new Race(db, model, race));
+        Assert.AreEqual(6, raceParticipants.Count());
+        Assert.AreEqual(1, raceParticipants.Where(p => p.Participant.Name == "Nachname 7").Count());
+        Assert.AreEqual(0, raceParticipants.Where(p => p.Participant.Name == "Nachname 10").Count());
+      }
+      {
+        var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
+        var raceParticipants = db.GetRaceParticipants(new Race(db, model, race));
+        Assert.AreEqual(6, raceParticipants.Count());
+        Assert.AreEqual(1, raceParticipants.Where(p => p.Participant.Name == "Nachname 8").Count());
+        Assert.AreEqual(0, raceParticipants.Where(p => p.Participant.Name == "Nachname 10").Count());
+      }
+      {
+        var race = races.Where(r => r.RaceType == Race.ERaceType.Slalom).First();
+        var raceParticipants = db.GetRaceParticipants(new Race(db, model, race));
+        Assert.AreEqual(6, raceParticipants.Count());
+        Assert.AreEqual(1, raceParticipants.Where(p => p.Participant.Name == "Nachname 9").Count());
+        Assert.AreEqual(0, raceParticipants.Where(p => p.Participant.Name == "Nachname 10").Count());
+      }
+    }
+
+
+    [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void DatabaseRaceRuns()
     {
@@ -83,17 +171,25 @@ namespace DSVAlpin2LibTest
       db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb"));
 
       db.GetParticipants();
-      var rr1 = db.GetRaceRun(1);
-      var rr2 = db.GetRaceRun(2);
+
+      AppDataModel model = new AppDataModel(db);
+
+      Race.RaceProperties rprops = new Race.RaceProperties();
+      rprops.RaceType = Race.ERaceType.GiantSlalom;
+      rprops.Runs = 2;
+      Race race = new Race(db, model, rprops);
+
+      var rr1 = db.GetRaceRun(race, 1);
+      var rr2 = db.GetRaceRun(race, 2);
 
       Assert.IsTrue(rr1.Count() == 4);
       Assert.IsTrue(rr2.Count() == 4);
 
-      Assert.IsTrue(rr1.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Name == "Nachname 3");
+      Assert.IsTrue(rr1.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 3");
 
-      Assert.IsTrue(rr2.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Name == "Nachname 2");
+      Assert.IsTrue(rr2.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 2");
 
-      Assert.IsTrue(rr2.Where(x => x.Participant.Name == "Nachname 5").Count() == 0);
+      Assert.IsTrue(rr2.Where(x => x.Participant.Participant.Name == "Nachname 5").Count() == 0);
 
       db.Close();
     }
@@ -245,56 +341,59 @@ namespace DSVAlpin2LibTest
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
       db.Connect(dbFilename);
 
-      var participants = db.GetParticipants();
+      AppDataModel dataModel = new AppDataModel(db);
+      Race race = dataModel.GetRace();
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
 
       void DBCacheWorkaround()
       {
         db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
         db.Connect(dbFilename);
-        participants = db.GetParticipants();
+        dataModel = new AppDataModel(db);
+        race = dataModel.GetRace();
+        rr1 = race.GetRun(0);
+        rr2 = race.GetRun(1);
       }
 
-      AppDataModel dataModel = new AppDataModel(db);
-      RaceRun rr1 = new RaceRun(1, dataModel);
-      RaceRun rr2 = new RaceRun(2, dataModel);
 
-      Participant participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      RaceParticipant participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       RunResult rr1r1 = new RunResult(participant1);
 
       rr1r1.SetStartTime(new TimeSpan(0, 12, 0, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
-      db.CreateOrUpdateRunResult(rr1, rr1r1);
+      db.CreateOrUpdateRunResult(race, rr1, rr1r1);
       DBCacheWorkaround();
-      rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
       rr1r1.SetStartTime(rr1r1.GetStartTime()); //int days, int hours, int minutes, int seconds, int milliseconds
       rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
-      db.CreateOrUpdateRunResult(rr1, rr1r1);
+      db.CreateOrUpdateRunResult(race, rr1, rr1r1);
       DBCacheWorkaround();
-      rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
       rr1r1.ResultCode = RunResult.EResultCode.DIS;
       rr1r1.DisqualText = "TF Tor 9";
-      db.CreateOrUpdateRunResult(rr1, rr1r1);
+      db.CreateOrUpdateRunResult(race, rr1, rr1r1);
       DBCacheWorkaround();
-      rr1r1._participant = participant1 = participants.Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
-      Participant participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      RaceParticipant participant5 = race.GetParticipants().Where(x => x.Name == "Nachname 5").FirstOrDefault();
       RunResult rr5r1 = new RunResult(participant5);
       rr5r1.SetStartTime(new TimeSpan(0, 12, 1, 1, 1)); //int days, int hours, int minutes, int seconds, int milliseconds
       rr5r1.ResultCode = RunResult.EResultCode.NiZ;
-      db.CreateOrUpdateRunResult(rr1, rr5r1);
+      db.CreateOrUpdateRunResult(race, rr1, rr5r1);
       DBCacheWorkaround();
-      rr5r1._participant = participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      rr5r1._participant = participant5 = race.GetParticipants().Where(x => x.Name == "Nachname 5").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr5r1, 5, 1));
 
       RunResult rr5r2 = new RunResult(participant5);
       rr5r2.ResultCode = RunResult.EResultCode.NaS;
-      db.CreateOrUpdateRunResult(rr2, rr5r2);
+      db.CreateOrUpdateRunResult(race, rr2, rr5r2);
       DBCacheWorkaround();
-      rr5r2._participant = participant5 = participants.Where(x => x.Name == "Nachname 5").FirstOrDefault();
+      rr5r2._participant = participant5 = race.GetParticipants().Where(x => x.Name == "Nachname 5").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr5r2, 5, 2));
     }
 
@@ -364,22 +463,24 @@ namespace DSVAlpin2LibTest
 
         // Create a RaceRun with 2 runs
         //model.CreateRaceRun(2);
+        Race race = model.GetRace();
         RaceRun rr1 = model.GetRace().GetRun(0);
         RaceRun rr2 = model.GetRace().GetRun(1);
 
-        Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+        RaceParticipant participant1 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 1").FirstOrDefault();
         rr1.SetStartTime(participant1, new TimeSpan(0, 12, 0, 0, 0)); // Start
         rr1.SetFinishTime(participant1, new TimeSpan(0, 12, 1, 0, 0)); // Finish
 
 
-        Participant participant2 = db.GetParticipants().Where(x => x.Name == "Nachname 2").FirstOrDefault();
+        RaceParticipant participant2 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 2").FirstOrDefault();
         rr1.SetStartTime(participant2, new TimeSpan(0, 12, 2, 0, 0)); // Start
-                                                                               // TODO: Set to NiZ
+        rr1.SetFinishTime(participant2, null); // No Finish
+                                               // TODO: Set to NiZ
 
-        Participant participant3 = db.GetParticipants().Where(x => x.Name == "Nachname 3").FirstOrDefault();
+        RaceParticipant participant3 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 3").FirstOrDefault();
         rr1.SetStartFinishTime(participant3, null, null); // NaS
 
-        Participant participant4 = db.GetParticipants().Where(x => x.Name == "Nachname 4").FirstOrDefault();
+        RaceParticipant participant4 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 4").FirstOrDefault();
         rr1.SetStartTime(participant4, new TimeSpan(0, 12, 4, 0, 0)); // Start
         rr1.SetFinishTime(participant4, new TimeSpan(0, 12, 4, 30, 0)); // Finish
         // TODO: Set to Disqualify
@@ -391,11 +492,12 @@ namespace DSVAlpin2LibTest
       // Test 1: Check internal app model
       // Test 2: Check whether database is correct
       {
+        Race race = model.GetRace();
         RaceRun rr1 = model.GetRace().GetRun(0);
         RaceRun rr2 = model.GetRace().GetRun(1);
 
         // Participant 1 / Test 1
-        RunResult rr1res1 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 1").FirstOrDefault();
+        RunResult rr1res1 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 1").FirstOrDefault();
         Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1res1.GetStartTime());
         Assert.AreEqual(new TimeSpan(0, 12, 1, 0, 0), rr1res1.GetFinishTime());
         Assert.AreEqual(new TimeSpan(0,  0, 1, 0, 0), rr1res1.GetRunTime());
@@ -403,7 +505,7 @@ namespace DSVAlpin2LibTest
         Assert.IsTrue(CheckRunResult(dbFilename, rr1res1, 1, 1));
 
         // Participant 2 / Test 1
-        RunResult rr1res2 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 2").FirstOrDefault();
+        RunResult rr1res2 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 2").FirstOrDefault();
         Assert.AreEqual(new TimeSpan(0, 12, 2, 0, 0), rr1res2.GetStartTime());
         Assert.IsNull(rr1res2.GetFinishTime());
         Assert.IsNull(rr1res2.GetRunTime());
@@ -412,7 +514,7 @@ namespace DSVAlpin2LibTest
         Assert.IsTrue(CheckRunResult(dbFilename, rr1res2, 2, 1));
 
         // Participant 3 / Test 1
-        RunResult rr1res3 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 3").FirstOrDefault();
+        RunResult rr1res3 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 3").FirstOrDefault();
         Assert.IsNull(rr1res3.GetStartTime());
         Assert.IsNull(rr1res3.GetFinishTime());
         Assert.IsNull(rr1res3.GetRunTime());
@@ -421,7 +523,7 @@ namespace DSVAlpin2LibTest
         Assert.IsTrue(CheckRunResult(dbFilename, rr1res3, 3, 1));
 
         // Participant 4 / Test 1
-        RunResult rr1res4 = rr1.GetResultList().Where(x => x._participant.Name == "Nachname 4").FirstOrDefault();
+        RunResult rr1res4 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 4").FirstOrDefault();
         Assert.AreEqual(new TimeSpan(0, 12, 4,  0, 0), rr1res4.GetStartTime());
         Assert.AreEqual(new TimeSpan(0, 12, 4, 30, 0), rr1res4.GetFinishTime());
         Assert.AreEqual(new TimeSpan(0,  0, 0, 30, 0), rr1res4.GetRunTime());
@@ -459,7 +561,6 @@ namespace DSVAlpin2LibTest
         Nation = "Nation 6",
         Class = "unknown",
         Year = 2000,
-        StartNumber = 999
       };
       model.GetParticipants().Add(participant6);
 

@@ -30,6 +30,9 @@ namespace DSVAlpin2
   {
     // Private data structures
     AppDataModel _dataModel;
+    Race _currentRace;
+    RaceRun _currentRaceRun;
+
     MruList _mruList;
     DSVAlpin2HTTPServer _alpinServer;
     string _appTitle;
@@ -37,8 +40,7 @@ namespace DSVAlpin2
     ScrollToMeasuredItemBehavior dgResultsScrollBehavior;
     ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
 
-    RaceRun _currentRaceRun;
-    
+
     /// <summary>
     /// Constructor of MainWindow
     /// </summary>
@@ -142,6 +144,8 @@ namespace DSVAlpin2
     /// </summary>
     private void ConnectGUIToDataModel()
     {
+      _currentRace = _dataModel.GetRace();
+
       // Connect with GUI DataGrids
       ObservableCollection<Participant> participants = _dataModel.GetParticipants();
       dgParticipants.ItemsSource = participants;
@@ -160,10 +164,10 @@ namespace DSVAlpin2
     {
       // Fill Runs
       List<KeyValuePair<RaceRun, string>> races = new List<KeyValuePair<RaceRun, string>>();
-      for (uint i = 0; i < _dataModel.GetRace().GetMaxRun(); i++)
+      for (uint i = 0; i < _currentRace.GetMaxRun(); i++)
       {
         string sz1 = String.Format("{0}. Durchgang", i + 1);
-        races.Add(new KeyValuePair<RaceRun, string>(_dataModel.GetRace().GetRun(i), sz1));
+        races.Add(new KeyValuePair<RaceRun, string>(_currentRace.GetRun(i), sz1));
       }
       cmbRaceRun.ItemsSource = races;
       cmbRaceRun.DisplayMemberPath = "Value";
@@ -203,6 +207,9 @@ namespace DSVAlpin2
       dgRunning.ItemsSource = null;
       dgResults.ItemsSource = null;
       dgResultsScrollBehavior = null;
+
+      _currentRace = null;
+      _currentRaceRun = null;
     }
 
 
@@ -338,7 +345,7 @@ namespace DSVAlpin2
 
     private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
-      Participant participant = _dataModel.GetParticipant(e.StartNumber);
+      RaceParticipant participant = _currentRace.GetParticipant(e.StartNumber);
 
       Application.Current.Dispatcher.Invoke(() =>
       {
@@ -375,7 +382,7 @@ namespace DSVAlpin2
       try { finish = TimeSpan.Parse(txtFinish.Text); } catch (Exception) { }
       try { run = TimeSpan.Parse(txtRun.Text); } catch (Exception) { }
 
-      Participant participant = dgStartList.SelectedItem as Participant;
+      RaceParticipant participant = dgStartList.SelectedItem as RaceParticipant;
 
       if (participant != null)
       {
@@ -416,7 +423,7 @@ namespace DSVAlpin2
 
     private void DgStartList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      Participant participant = dgStartList.SelectedItem as Participant;
+      RaceParticipant participant = dgStartList.SelectedItem as RaceParticipant;
 
       if (participant!=null)
       {
@@ -474,9 +481,9 @@ namespace DSVAlpin2
         foreach (var x in _dataGrid.ItemsSource)
         {
           Participant xp = null;
-          xp = (x as RunResult)?.Participant;
+          xp = (x as RunResult)?.Participant.Participant;
           if (xp == null)
-            xp = (x as RaceResultItem)?.Participant;
+            xp = (x as RaceResultItem)?.Participant.Participant;
 
           if (xp == _scrollToParticipant)
           {
