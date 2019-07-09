@@ -97,6 +97,39 @@ namespace DSVAlpin2Lib
 
     public Participant Participant { get { return _participant; } }
 
+    public string Name
+    {
+      get => _participant.Name;
+    }
+    public string Firstname
+    {
+      get => _participant.Firstname;
+    }
+
+    public string Sex
+    {
+      get => _participant.Sex;
+    }
+
+    public int Year
+    {
+      get => _participant.Year;
+    }
+    public string Club
+    {
+      get => _participant.Club;
+    }
+
+    public string Nation
+    {
+      get => _participant.Nation;
+    }
+
+    public string Class
+    {
+      get => _participant.Class;
+    }
+
     public uint StartNumber
     {
       get => _startnumber;
