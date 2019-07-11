@@ -181,6 +181,8 @@ namespace DSVAlpin2Lib
     public int Year { get { return _participant.Participant.Year; } }
     public string Club { get { return _participant.Participant.Club; } }
     public string Class { get { return _participant.Participant.Class; } }
+    public string Sex { get { return _participant.Participant.Sex; } }
+    public string Nation { get { return _participant.Participant.Nation; } }
 
 
     public TimeSpan? Runtime { get { return _runTime; } }
