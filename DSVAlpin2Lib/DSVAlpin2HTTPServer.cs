@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Windows;
 
-namespace DSVAlpin2
+namespace DSVAlpin2Lib
 {
   /// <summary>
   /// Provides the web server backend for the mobile clients
@@ -23,7 +23,7 @@ namespace DSVAlpin2
   /// It starts a web server and user the provided DataModel in order to serve the data.
   /// 
   /// Updates are propoageted immediately via WebSockets to the client.
-  class DSVAlpin2HTTPServer
+  public class DSVAlpin2HTTPServer
   {
     private HttpServer _httpServer;
     private string _baseFolder;
@@ -223,7 +223,7 @@ namespace DSVAlpin2
       string output=null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConvert.SerializeObject(_dm.GetRace().GetRun(0).GetStartList());
+        output = JsonConversion.ConvertStartList(_dm.GetRace().GetRun(0).GetStartList());
       });
 
       Send(output);
@@ -285,7 +285,7 @@ namespace DSVAlpin2
 
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConvert.SerializeObject(_dm.GetRace().GetRun(0).GetResultView());
+        output = JsonConversion.ConvertRunResults(_dm.GetRace().GetRun(0).GetResultView());
       });
 
       Send(output);

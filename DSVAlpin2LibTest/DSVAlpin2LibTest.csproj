@@ -67,9 +67,11 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ALGETdC8001Tests.cs" />
+    <Compile Include="DSVAlpin2HTTPServerTest.cs" />
     <Compile Include="DSVAlpinDatabaseTests.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

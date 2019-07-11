@@ -88,7 +88,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DSVAlpin2HTTPServer.cs" />
     <Compile Include="RegistryTools.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="MainWindow.xaml">
