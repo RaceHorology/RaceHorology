@@ -141,6 +141,7 @@
     <Content Include="webroot\index.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="webroot\Js\DSVAlpin2.js" />
     <Content Include="webroot\Js\echotest.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
