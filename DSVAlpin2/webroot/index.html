@@ -1,17 +1,90 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>WebSocket Echo Test</title>
-    <script type="text/javascript" src="/Js/echotest.js">
-    </script>
-  </head>
+<head>
+  <title>DSVAlpin 2</title>
+  <script type="text/javascript" src="./Js/Vue.js"></script>
+</head>
   <body>
-    <h2>DSV Alpin 2 - Mobile View</h2>
-    <h3>Startliste</h3>
-    <div id="outputSL"></div>
-    <h3>Ergebnisliste</h3>
-    <div id="outputRL"></div>
-    <h3>Info</h3>
-    <div id="outputInfo"></div>
+    <div id="app">
+    
+      <p>{{ message }}</p>
+
+      <dsv-startlist inline-template>
+        <div>
+          <h2>Startliste</h2>
+          <table class="table-hover" v-if="startlist">
+            <thead>
+              <tr>
+                <th>Index</th>
+                <th>StNr</th>
+                <th>Name</th>
+                <th>Vorname</th>
+                <th>Geschlecht</th>
+                <th>Jahrgang</th>
+                <th>Verein</th>
+                <th>Klasse</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, idx) in startlist">
+                <td>{{ idx }}</td>
+                <td>{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+                <td>{{ item.Name }}</td>
+                <td>{{ item.Firstname }}</td>
+                <td>{{ item.Sex }}</td>
+                <td>{{ item.Year }}</td>
+                <td>{{ item.Club }}</td>
+                <td>{{ item.Class }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Updated: {{ lastUpdate }}</p>
+        </div>
+
+      </dsv-startlist>
+
+
+      <dsv-runresultslist inline-template>
+          <div>
+            <h2>Aktueller Lauf</h2>
+            <table class="table-hover" v-if="runresultslist">
+              <thead>
+                <tr>
+                  <th>Position</th>
+                  <th>StNr</th>
+                  <th>Name</th>
+                  <th>Vorname</th>
+                  <th>Geschlecht</th>
+                  <th>Jahrgang</th>
+                  <th>Verein</th>
+                  <th>Klasse</th>
+                  <th>Zeit</th>
+                  <th>&nbsp;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, idx) in runresultslist">
+                  <td>{{ item.Position ==0 ? "---" : item.Position }}</td>
+                  <td>{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+                  <td>{{ item.Name }}</td>
+                  <td>{{ item.Firstname }}</td>
+                  <td>{{ item.Sex }}</td>
+                  <td>{{ item.Year }}</td>
+                  <td>{{ item.Club }}</td>
+                  <td>{{ item.Class }}</td>
+                  <td>{{ item.Runtime }}</td>
+                  <td>{{ item.DisqualText }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <p>Updated: {{ lastUpdate }}</p>
+          </div>
+  
+        </dsv-runresultslist>
+  
+
+    </div>
+
+    <script type="text/javascript" src="./Js/DSVAlpin2.js"></script>
   </body>
 </html>
