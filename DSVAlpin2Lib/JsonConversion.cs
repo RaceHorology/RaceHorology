@@ -63,6 +63,12 @@ namespace DSVAlpin2Lib
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
       writer.WriteValue(value.Class);
+      writer.WritePropertyName("Runtime");
+      writer.WriteValue(value.Runtime?.ToString(@"mm\:ss\,ff"));
+      writer.WritePropertyName("DisqualText");
+      writer.WriteValue(value.DisqualText);
+      writer.WritePropertyName("JustModified");
+      writer.WriteValue(value.JustModified);
       writer.WriteEndObject();
     }
 
