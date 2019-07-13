@@ -144,6 +144,8 @@
     <Content Include="webroot\Js\echotest.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="webroot\Js\vue.js" />
+    <Content Include="webroot\Js\vue.min.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
