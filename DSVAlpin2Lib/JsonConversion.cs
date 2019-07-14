@@ -15,6 +15,8 @@ namespace DSVAlpin2Lib
     public override void WriteJson(JsonWriter writer, RaceParticipant value, JsonSerializer serializer)
     {
       writer.WriteStartObject();
+      writer.WritePropertyName("Id");
+      writer.WriteValue(value.Id);
       writer.WritePropertyName("StartNumber");
       writer.WriteValue(value.StartNumber);
       writer.WritePropertyName("Name");
@@ -45,6 +47,8 @@ namespace DSVAlpin2Lib
     public override void WriteJson(JsonWriter writer, RunResultWithPosition value, JsonSerializer serializer)
     {
       writer.WriteStartObject();
+      writer.WritePropertyName("Id");
+      writer.WriteValue(value.Id);
       writer.WritePropertyName("Position");
       writer.WriteValue(value.Position);
       writer.WritePropertyName("StartNumber");

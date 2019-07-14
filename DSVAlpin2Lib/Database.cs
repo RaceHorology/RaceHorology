@@ -370,6 +370,7 @@ namespace DSVAlpin2Lib
       {
         Participant p = new Participant
         {
+          Id = reader["id"].ToString(),
           Name = reader["nachname"].ToString(),
           Firstname = reader["vorname"].ToString(),
           Sex = reader["sex"].ToString(),

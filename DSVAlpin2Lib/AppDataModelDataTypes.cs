@@ -14,6 +14,7 @@ namespace DSVAlpin2Lib
   /// <remarks>not yet final</remarks>
   public class Participant : INotifyPropertyChanged
   {
+    private string _id;
     private string _name;
     private string _firstname;
     private string _sex;
@@ -21,6 +22,12 @@ namespace DSVAlpin2Lib
     private string _club;
     private string _nation;
     private string _class;
+
+    public string Id
+    {
+      get => _id;
+      set { _id = value; NotifyPropertyChanged(); }
+    }
 
     public string Name
     {
@@ -97,6 +104,10 @@ namespace DSVAlpin2Lib
 
     public Participant Participant { get { return _participant; } }
 
+    public string Id
+    {
+      get => _participant.Id;
+    }
     public string Name
     {
       get => _participant.Name;
@@ -176,6 +187,7 @@ namespace DSVAlpin2Lib
     // TODO: This should not be part of this calss, instead another entity should do the conversion
     public RaceParticipant Participant { get { return _participant; } }
     public string StartNumber { get { return _participant.StartNumber.ToString(); } }
+    public string Id { get { return _participant.Participant.Id; } }
     public string Name { get { return _participant.Participant.Name; } }
     public string Firstname { get { return _participant.Participant.Firstname; } }
     public int Year { get { return _participant.Participant.Year; } }
