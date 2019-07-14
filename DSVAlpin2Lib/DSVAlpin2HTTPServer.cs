@@ -241,6 +241,7 @@ namespace DSVAlpin2Lib
   public class ResultListBehavior : DSVAlpinBaseBehavior
   {
     ItemsChangedNotifier _notifier;
+    System.Timers.Timer _timer;
 
     public override void SetupThis(AppDataModel dm)
     {
@@ -280,6 +281,22 @@ namespace DSVAlpin2Lib
 
 
     void SendResultList()
+    {
+      if (_timer != null)
+        _timer.Stop();
+      else
+      {
+        _timer = new System.Timers.Timer(200);
+        _timer.Elapsed += DoSendResultList;
+        _timer.AutoReset = false;
+        _timer.Enabled = true;
+      }
+
+      _timer.Start();
+
+    }
+
+    void DoSendResultList(object sender, System.Timers.ElapsedEventArgs e)
     {
       string output = null;
 
