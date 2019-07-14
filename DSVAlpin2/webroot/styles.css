@@ -1,0 +1,42 @@
+body {
+  background-color: white;
+}
+
+* {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+h1 {
+  color: black;
+}
+
+
+.dsvalpin-lists {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.dsvalpin-lists tr:nth-child(even){background-color: #f2f2f2;}
+
+.dsvalpin-lists tr:hover {background-color: #ddd;}
+
+.dsvalpin-lists th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #4CAF50;
+  color: white;
+}
+
+.dsvalpin-lists td, .dsvalpin-lists th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.cell-centered {
+  text-align: center;
+}
+
+.just_modified {
+  background-color: coral !important;
+}

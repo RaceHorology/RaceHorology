@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>DSVAlpin 2</title>
+  <link rel="stylesheet" href="styles.css">
   <script type="text/javascript" src="./Js/Vue.js"></script>
 </head>
   <body>
@@ -12,27 +13,25 @@
       <dsv-startlist inline-template>
         <div>
           <h2>Startliste</h2>
-          <table class="table-hover" v-if="startlist">
+          <table class="dsvalpin-lists" v-if="startlist">
             <thead>
               <tr>
-                <th>Index</th>
-                <th>StNr</th>
+                <th class="cell-centered">StNr</th>
                 <th>Name</th>
                 <th>Vorname</th>
-                <th>Geschlecht</th>
-                <th>Jahrgang</th>
+                <th class="cell-centered">Geschlecht</th>
+                <th class="cell-centered">Jahrgang</th>
                 <th>Verein</th>
                 <th>Klasse</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, idx) in startlist">
-                <td>{{ idx }}</td>
-                <td>{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+              <tr v-for="item in startlist" v-bind:class="{ just_modified: item.JustModified }">
+                <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
                 <td>{{ item.Name }}</td>
                 <td>{{ item.Firstname }}</td>
-                <td>{{ item.Sex }}</td>
-                <td>{{ item.Year }}</td>
+                <td class="cell-centered">{{ item.Sex }}</td>
+                <td class="cell-centered">{{ item.Year }}</td>
                 <td>{{ item.Club }}</td>
                 <td>{{ item.Class }}</td>
               </tr>
@@ -47,32 +46,32 @@
       <dsv-runresultslist inline-template>
           <div>
             <h2>Aktueller Lauf</h2>
-            <table class="table-hover" v-if="runresultslist">
+            <table class="dsvalpin-lists" v-if="runresultslist">
               <thead>
                 <tr>
-                  <th>Position</th>
-                  <th>StNr</th>
+                  <th class="cell-centered">Position</th>
+                  <th class="cell-centered">StNr</th>
                   <th>Name</th>
                   <th>Vorname</th>
-                  <th>Geschlecht</th>
-                  <th>Jahrgang</th>
+                  <th class="cell-centered">Geschlecht</th>
+                  <th class="cell-centered">Jahrgang</th>
                   <th>Verein</th>
                   <th>Klasse</th>
-                  <th>Zeit</th>
+                  <th class="cell-centered">Zeit</th>
                   <th>&nbsp;</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in runresultslist" v-bind:key="item.Id">
-                  <td>{{ item.Position ==0 ? "---" : item.Position }}</td>
-                  <td>{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+                <tr v-for="item in runresultslist" v-bind:key="item.Id" v-bind:class="{ just_modified: item.JustModified }">
+                  <td class="cell-centered">{{ item.Position ==0 ? "---" : item.Position }}</td>
+                  <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
                   <td>{{ item.Name }}</td>
                   <td>{{ item.Firstname }}</td>
-                  <td>{{ item.Sex }}</td>
-                  <td>{{ item.Year }}</td>
+                  <td class="cell-centered">{{ item.Sex }}</td>
+                  <td class="cell-centered">{{ item.Year }}</td>
                   <td>{{ item.Club }}</td>
                   <td>{{ item.Class }}</td>
-                  <td>{{ item.Runtime }}</td>
+                  <td class="cell-centered">{{ item.Runtime }}</td>
                   <td>{{ item.DisqualText }}</td>
                 </tr>
               </tbody>
