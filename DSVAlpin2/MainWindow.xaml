@@ -24,6 +24,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="18"/>
       <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <Menu x:Name="menu" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top">
       <MenuItem Header="File">
@@ -35,108 +36,178 @@
     </Menu>
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="2*"/>
-        <ColumnDefinition Width="5"/>
-        <ColumnDefinition Width="3*" />
-        <ColumnDefinition Width="5"/>
-        <ColumnDefinition Width="3*" />
+        <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
-      <Grid Grid.Column="0" Background="#FFE5E5E5">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-        <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-        <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"/>
-      </Grid>
 
-      <GridSplitter x:Name="vertSplitter1" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
-
-      <TabControl x:Name="tabControl" Height="Auto" Margin="10" Grid.Column="2" Width="Auto">
-        <TabItem Header="Timing">
-          <Grid Background="#FFE5E5E5">
+      <TabControl x:Name="tabControl" Height="Auto" Margin="10" Grid.Column="0" Width="Auto">
+        <TabItem Header="Teilnehmer" FontSize="16">
+          <Grid Grid.Column="0" Background="#FFE5E5E5">
             <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="5"/>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="5"/>
-              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
+            <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+            <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  FontSize="12"/>
+          </Grid>
+        </TabItem>
+        <TabItem Header="Rennen 1" FontSize="16">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="1*"/>
+              <ColumnDefinition Width="5"/>
+              <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <TabControl x:Name="tabControlRace1" Height="Auto" Margin="10" Grid.Column="0" Width="Auto">
+              <TabItem Header="Renndaten" FontSize="12">
+              </TabItem>
+              <TabItem Header="Teilnehmer &amp; Startnummern" FontSize="12">
+              </TabItem>
+              <TabItem Header="Zeitnahme" FontSize="12" >
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0">
+                  <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*"/>
+                      <RowDefinition Height="5"/>
+                      <RowDefinition Height="*"/>
+                      <RowDefinition Height="5"/>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                      </Grid.RowDefinitions>
+                      <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="Auto"/>
+                          <ColumnDefinition Width="*"/>
+                          <ColumnDefinition Width="Auto"/>
+                          <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
+                        <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
+                        <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged"/>
+                      </Grid>
+                      <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+                        <DataGrid.Columns>
+                          <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+                          <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                        </DataGrid.Columns>
+                      </DataGrid>
+                      <StackPanel Grid.Row="3" Orientation="Horizontal">
+                        <Label x:Name="lblManualMode" Content="Manuelle Erfassung" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                        <Label x:Name="lblStartNumber" Content="Startnummer" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                        <TextBox x:Name="txtStartNumber" Width="40" VerticalAlignment="Center"/>
+                        <Label x:Name="lblStart" Content="Start" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                        <TextBox x:Name="txtStart" Width="80" VerticalAlignment="Center"/>
+                        <Button x:Name="btnManualTimeStart" Content="Now" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeStart_Click"/>
+                        <Label x:Name="lblFinish" Content="Ziel" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                        <TextBox x:Name="txtFinish" Width="80" VerticalAlignment="Center"/>
+                        <Button x:Name="btnManualTimeFinish" Content="Now" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeFinish_Click"/>
+                        <Label x:Name="lblRun" Content="Laufzeit" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+                        <TextBox x:Name="txtRun" Width="80" VerticalAlignment="Center"/>
+                        <Button x:Name="btnManualTimeStore" Content="Speichern" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeStore_Click"/>
+                      </StackPanel>
+                    </Grid>
+
+                    <GridSplitter x:Name="gridSplitter1" HorizontalAlignment="Stretch" Height="5" Grid.Row="1" />
+
+                    <Grid Grid.Row="2">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                      </Grid.RowDefinitions>
+                      <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+                      <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+                        <DataGrid.Columns>
+                          <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Aktuelle Zeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\}}" />
+                        </DataGrid.Columns>
+                      </DataGrid>
+                    </Grid>
+
+                    <GridSplitter x:Name="gridSplitter2" HorizontalAlignment="Stretch" Height="5" Grid.Row="3" />
+
+                    <Grid Grid.Row="4">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                      </Grid.RowDefinitions>
+                      <Label x:Name="lblResults" Content="Ergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+                      <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+                        <DataGrid.Columns>
+                          <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
+                          <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
+                          <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+                          <DataGridTextColumn Header="Anmerkung" />
+                        </DataGrid.Columns>
+
+                        <DataGrid.Style>
+                          <Style TargetType="DataGrid">
+                            <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
+                          </Style>
+                        </DataGrid.Style>
+
+                        <DataGrid.GroupStyle>
+                          <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                              <DataTemplate>
+                                <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                              </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                          </GroupStyle>
+                        </DataGrid.GroupStyle>
+
+                        <DataGrid.RowStyle>
+                          <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding JustModified}" Value="true">
+                                <Setter Property="Background" Value="Orange" />
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </DataGrid.RowStyle>
+
+                      </DataGrid>
+                    </Grid>
+                  </Grid>
+
+                </Grid>
+
+              </TabItem>
+              <TabItem Header="Disqualifikation" FontSize="12">
+              </TabItem>
+            </TabControl>
+
+            <GridSplitter x:Name="gridSplitter3" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
+
+            <Grid Grid.Column="2" >
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1*"/>
               </Grid.RowDefinitions>
-              <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
-                <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
-                <ComboBox x:Name="cmbRaceRun" Grid.Column="3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center" Width="120" SelectionChanged="CmbRaceRun_SelectionChanged"/>
-              </Grid>
-              <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
-                <DataGrid.Columns>
-                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-                  <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-                </DataGrid.Columns>
-              </DataGrid>
-              <StackPanel Grid.Row="3" Orientation="Horizontal">
-                <Label x:Name="lblManualMode" Content="Manuelle Erfassung" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
-                <Label x:Name="lblStartNumber" Content="Startnummer" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
-                <TextBox x:Name="txtStartNumber" Width="40" VerticalAlignment="Center"/>
-                <Label x:Name="lblStart" Content="Start" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
-                <TextBox x:Name="txtStart" Width="80" VerticalAlignment="Center"/>
-                <Button x:Name="btnManualTimeStart" Content="Now" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeStart_Click"/>
-                <Label x:Name="lblFinish" Content="Ziel" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
-                <TextBox x:Name="txtFinish" Width="80" VerticalAlignment="Center"/>
-                <Button x:Name="btnManualTimeFinish" Content="Now" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeFinish_Click"/>
-                <Label x:Name="lblRun" Content="Laufzeit" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
-                <TextBox x:Name="txtRun" Width="80" VerticalAlignment="Center"/>
-                <Button x:Name="btnManualTimeStore" Content="Speichern" Margin="10,0,10,0" VerticalAlignment="Center" Click="BtnManualTimeStore_Click"/>
-              </StackPanel>
-            </Grid>
-
-            <GridSplitter x:Name="gridSplitter1" HorizontalAlignment="Stretch" Height="5" Grid.Row="1" />
-
-            <Grid Grid.Row="2">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
-                <DataGrid.Columns>
-                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Aktuelle Zeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\}}" />
-                </DataGrid.Columns>
-              </DataGrid>
-            </Grid>
-
-            <GridSplitter x:Name="gridSplitter2" HorizontalAlignment="Stretch" Height="5" Grid.Row="3" />
-
-            <Grid Grid.Row="4">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Label x:Name="lblResults" Content="Ergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
-
+              <Label x:Name="lblTotalResult" Content="Rennergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
                   <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
@@ -145,7 +216,12 @@
                   <DataGridTextColumn Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
                   <DataGridTextColumn Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
                   <DataGridTextColumn Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+
+                  <DataGridTextColumn Header="Zeit 1" Binding="{Binding Path=RunTimes[1], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+                  <DataGridTextColumn Header="Zeit 2" Binding="{Binding Path=RunTimes[2], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+
+                  <DataGridTextColumn Header="Zeit" Binding="{Binding Path=TotalTime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+
                   <DataGridTextColumn Header="Anmerkung" />
                 </DataGrid.Columns>
 
@@ -154,7 +230,7 @@
                     <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
                   </Style>
                 </DataGrid.Style>
-                
+
                 <DataGrid.GroupStyle>
                   <GroupStyle>
                     <GroupStyle.HeaderTemplate>
@@ -164,7 +240,7 @@
                     </GroupStyle.HeaderTemplate>
                   </GroupStyle>
                 </DataGrid.GroupStyle>
-                
+
                 <DataGrid.RowStyle>
                   <Style TargetType="DataGridRow">
                     <Style.Triggers>
@@ -174,95 +250,66 @@
                     </Style.Triggers>
                   </Style>
                 </DataGrid.RowStyle>
-                
+
               </DataGrid>
             </Grid>
           </Grid>
         </TabItem>
-        <TabItem Header="Test Gruppierung und Suche">
-          <Grid Background="#FFE5E5E5">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Label x:Name="lblTest1" Content="COM Port" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
-              <ComboBox x:Name="cmbCOMPort" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center" Width="120" Grid.Column="1" SelectionChanged="CmbCOMPort_SelectionChanged"/>
-            </Grid>
-            <TextBox x:Name="txtCOMPort" Margin="0" Grid.Row="1" TextWrapping="Wrap" AcceptsReturn="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
-          </Grid>
-        </TabItem>
-        <TabItem Header="Sprecher">
-          <Grid Background="#FFE5E5E5">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="1*"/>
-              <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
-            <Image x:Name="imgQRCode" HorizontalAlignment="Center" Height="200" Margin="0,0,0,0" VerticalAlignment="Top" Width="200" Grid.Row="1" PreviewMouseDown="LblURL_PreviewMouseDown"/>
-            <Label x:Name="lblURL" Content="not running" Margin="0,0,0,0" VerticalAlignment="Bottom" Width="Auto" HorizontalContentAlignment="Center" FontSize="16" PreviewMouseDown="LblURL_PreviewMouseDown"/>
-          </Grid>
+        <TabItem Header="Neues Rennen" FontSize="16">
         </TabItem>
       </TabControl>
-
-      <GridSplitter x:Name="vertSplitter2" VerticalAlignment="Stretch" Width="5" Grid.Column="3" HorizontalAlignment="Center" />
-
-      <Grid Grid.Column="4" Background="#FFE5E5E5">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-        <Label x:Name="lblTotalResult" Content="Gesamtergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-        <DataGrid x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
-          <DataGrid.Columns>
-            <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
-            <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
-            <DataGridTextColumn Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
-            <DataGridTextColumn Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
-            <DataGridTextColumn Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
-            <DataGridTextColumn Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
-            <DataGridTextColumn Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
-
-            <DataGridTextColumn Header="Zeit 1" Binding="{Binding Path=RunTimes[1], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
-            <DataGridTextColumn Header="Zeit 2" Binding="{Binding Path=RunTimes[2], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
-
-            <DataGridTextColumn Header="Zeit" Binding="{Binding Path=TotalTime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
-
-            <DataGridTextColumn Header="Anmerkung" />
-          </DataGrid.Columns>
-
-          <DataGrid.Style>
-            <Style TargetType="DataGrid">
-              <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
-            </Style>
-          </DataGrid.Style>
-
-          <DataGrid.GroupStyle>
-            <GroupStyle>
-              <GroupStyle.HeaderTemplate>
-                <DataTemplate>
-                  <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
-                </DataTemplate>
-              </GroupStyle.HeaderTemplate>
-            </GroupStyle>
-          </DataGrid.GroupStyle>
-
-          <DataGrid.RowStyle>
-            <Style TargetType="DataGridRow">
-              <Style.Triggers>
-                <DataTrigger Binding="{Binding JustModified}" Value="true">
-                  <Setter Property="Background" Value="Orange" />
-                </DataTrigger>
-              </Style.Triggers>
-            </Style>
-          </DataGrid.RowStyle>
-
-        </DataGrid>
-      </Grid>
-      
     </Grid>
+    <StatusBar Height="Auto" Margin="0" Grid.Row="2" VerticalAlignment="Top" Width="Auto">
+      <StatusBar.ItemsPanel>
+        <ItemsPanelTemplate>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="500" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="100" />
+            </Grid.ColumnDefinitions>
+          </Grid>
+        </ItemsPanelTemplate>
+      </StatusBar.ItemsPanel>
+
+      <Separator Grid.Column="1" />
+
+      <StatusBarItem Grid.Column="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <Grid >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+          </Grid.RowDefinitions>
+          <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblTimingDeviceLBL" Grid.Row="0" Content="Zeitnahmegeraet: " Margin="0" VerticalAlignment="Top" FontSize="12" />
+            <Label x:Name="lblTest1" Content="COM Port" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="2"/>
+            <ComboBox x:Name="cmbCOMPort" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center" Width="120" Grid.Column="3" SelectionChanged="CmbCOMPort_SelectionChanged"/>
+          </Grid>
+
+          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="not running" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="85" VerticalScrollBarVisibility="Auto"/>
+        </Grid>
+      </StatusBarItem>
+
+      <Separator Grid.Column="3" />
+      
+      <StatusBarItem Grid.Column="4"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Image x:Name="imgQRCode" Grid.Row="0" HorizontalAlignment="Center" Height="100" Margin="0,0,0,0" VerticalAlignment="Top" Width="100" PreviewMouseDown="LblURL_PreviewMouseDown"/>
+          <Label x:Name="lblURL" Grid.Row="1" Content="not running" Margin="0,0,0,0" VerticalAlignment="Bottom" Width="Auto" HorizontalContentAlignment="Left" FontSize="10" PreviewMouseDown="LblURL_PreviewMouseDown"/>
+        </Grid>
+      </StatusBarItem>
+    </StatusBar>
   </Grid>
 </Window>
