@@ -342,7 +342,7 @@ namespace DSVAlpin2LibTest
       db.Connect(dbFilename);
 
       AppDataModel dataModel = new AppDataModel(db);
-      Race race = dataModel.GetRace();
+      Race race = dataModel.GetCurrentRace();
       RaceRun rr1 = race.GetRun(0);
       RaceRun rr2 = race.GetRun(1);
 
@@ -351,7 +351,7 @@ namespace DSVAlpin2LibTest
         db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
         db.Connect(dbFilename);
         dataModel = new AppDataModel(db);
-        race = dataModel.GetRace();
+        race = dataModel.GetCurrentRace();
         rr1 = race.GetRun(0);
         rr2 = race.GetRun(1);
       }
@@ -463,9 +463,9 @@ namespace DSVAlpin2LibTest
 
         // Create a RaceRun with 2 runs
         //model.CreateRaceRun(2);
-        Race race = model.GetRace();
-        RaceRun rr1 = model.GetRace().GetRun(0);
-        RaceRun rr2 = model.GetRace().GetRun(1);
+        Race race = model.GetCurrentRace();
+        RaceRun rr1 = model.GetCurrentRace().GetRun(0);
+        RaceRun rr2 = model.GetCurrentRace().GetRun(1);
 
         RaceParticipant participant1 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 1").FirstOrDefault();
         rr1.SetStartTime(participant1, new TimeSpan(0, 12, 0, 0, 0)); // Start
@@ -492,9 +492,9 @@ namespace DSVAlpin2LibTest
       // Test 1: Check internal app model
       // Test 2: Check whether database is correct
       {
-        Race race = model.GetRace();
-        RaceRun rr1 = model.GetRace().GetRun(0);
-        RaceRun rr2 = model.GetRace().GetRun(1);
+        Race race = model.GetCurrentRace();
+        RaceRun rr1 = model.GetCurrentRace().GetRun(0);
+        RaceRun rr2 = model.GetCurrentRace().GetRun(1);
 
         // Participant 1 / Test 1
         RunResult rr1res1 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 1").FirstOrDefault();

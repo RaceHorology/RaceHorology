@@ -69,7 +69,7 @@ namespace DSVAlpin2LibTest
       db.Connect(dbFilename);
 
       AppDataModel dataModel = new AppDataModel(db);
-      Race race = dataModel.GetRace();
+      Race race = dataModel.GetCurrentRace();
       RaceRun rr1 = race.GetRun(0);
 
 

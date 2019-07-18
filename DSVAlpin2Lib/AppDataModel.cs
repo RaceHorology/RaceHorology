@@ -25,7 +25,8 @@ namespace DSVAlpin2Lib
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
 
-    Race _race;
+    List<Race> _races;
+    Race _currentRace;
 
     private Dictionary<Participant, DateTime> _interactiveTimeMeasurements; // Contains the time measurements made interactively
 
@@ -47,9 +48,13 @@ namespace DSVAlpin2Lib
       _participantsDelegatorDB = new DatabaseDelegatorParticipant(_participants, _db);
 
 
+      _races = new List<Race>();
+
       var races = _db.GetRaces();
       foreach (Race.RaceProperties raceProperties in races)
-        _race = new Race(_db, this, raceProperties);
+        _races.Add(new Race(_db, this, raceProperties));
+
+      _currentRace = _races.First();
     }
 
 
@@ -62,10 +67,14 @@ namespace DSVAlpin2Lib
       return _participants;
     }
 
-
-    public Race GetRace()
+    public List<Race> GetRaces()
     {
-      return _race;
+      return _races;
+    }
+
+    public Race GetCurrentRace()
+    {
+      return _currentRace;
     }
 
     public void InsertInteractiveTimeMeasurement(Participant participant)

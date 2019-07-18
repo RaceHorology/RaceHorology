@@ -196,7 +196,7 @@ namespace DSVAlpin2Lib
 
       Application.Current.Dispatcher.Invoke(() => 
       {
-        _notifier = new ItemsChangedNotifier(_dm.GetRace().GetRun(0).GetStartList());
+        _notifier = new ItemsChangedNotifier(_dm.GetCurrentRace().GetRun(0).GetStartList());
         _notifier.CollectionChanged += StartListChanged;
         _notifier.ItemChanged += StartListItemChanged;
       });
@@ -228,7 +228,7 @@ namespace DSVAlpin2Lib
       string output=null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConversion.ConvertStartList(_dm.GetRace().GetRun(0).GetStartList());
+        output = JsonConversion.ConvertStartList(_dm.GetCurrentRace().GetRun(0).GetStartList());
       });
 
       Send(output);
@@ -254,7 +254,7 @@ namespace DSVAlpin2Lib
 
       Application.Current.Dispatcher.Invoke(() =>
       {
-        _notifier = new ItemsChangedNotifier(_dm.GetRace().GetRun(0).GetResultView());
+        _notifier = new ItemsChangedNotifier(_dm.GetCurrentRace().GetRun(0).GetResultView());
         _notifier.CollectionChanged += ResultListChanged;
         _notifier.ItemChanged += ResultListItemChanged;
       });
@@ -307,7 +307,7 @@ namespace DSVAlpin2Lib
 
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConversion.ConvertRunResults(_dm.GetRace().GetRun(0).GetResultView());
+        output = JsonConversion.ConvertRunResults(_dm.GetCurrentRace().GetRun(0).GetResultView());
       });
 
       Send(output);
