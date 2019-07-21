@@ -11,6 +11,7 @@
     <CommandBinding Command="Open"  Executed="OpenCommandBinding_Executed" />
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
+    <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
   </Window.CommandBindings>
   <Window.InputBindings>
     <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
@@ -34,7 +35,7 @@
         <MenuItem Name="mnuClose" Header="_Close" Command="Close" InputGestureText="Ctrl+C"/>
       </MenuItem>
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties" />
-      <MenuItem Header="Help" />
+      <MenuItem Name="mnuHelp" Header="Help" Command="Help"/>
     </Menu>
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>

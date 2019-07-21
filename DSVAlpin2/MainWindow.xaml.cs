@@ -84,6 +84,12 @@ namespace DSVAlpin2
       SettingsDlg dlg = new SettingsDlg();
       dlg.ShowDialog();
     }
+    private void HelpCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      AboutDlg dlg = new AboutDlg();
+      dlg.ShowDialog();
+    }
+
 
     /// <summary>
     /// Opens the database and does all jobs to work with the application (connect DatagRids, start web server, ...)
