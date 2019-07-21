@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +19,7 @@ using DSVAlpin2Lib;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using QRCoder;
+using System.Configuration;
 
 namespace DSVAlpin2
 {
@@ -78,6 +79,11 @@ namespace DSVAlpin2
       CloseDatabase();
     }
 
+    private void OptionsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      SettingsDlg dlg = new SettingsDlg();
+      dlg.ShowDialog();
+    }
 
     /// <summary>
     /// Opens the database and does all jobs to work with the application (connect DatagRids, start web server, ...)

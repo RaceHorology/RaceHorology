@@ -10,6 +10,7 @@
   <Window.CommandBindings>
     <CommandBinding Command="Open"  Executed="OpenCommandBinding_Executed" />
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
+    <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
   </Window.CommandBindings>
   <Window.InputBindings>
     <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
@@ -28,10 +29,11 @@
     </Grid.RowDefinitions>
     <Menu x:Name="menu" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top">
       <MenuItem Header="File">
-        <MenuItem Name="mnuOpen" Header="_Open" Command="Open" InputGestureText="Ctrrl+O"/>
+        <MenuItem Name="mnuOpen" Header="_Open" Command="Open" InputGestureText="Ctrl+O"/>
         <MenuItem Name="mnuRecentFiles" Header="Recent Files" />
-        <MenuItem Name="mnuClose" Header="_Close" Command="Close" InputGestureText="Ctrrl+C"/>
+        <MenuItem Name="mnuClose" Header="_Close" Command="Close" InputGestureText="Ctrl+C"/>
       </MenuItem>
+      <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties" />
       <MenuItem Header="Help" />
     </Menu>
     <Grid Grid.Row="1">
@@ -88,8 +90,7 @@
             <Label x:Name="lblTest1" Content="COM Port" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="2"/>
             <ComboBox x:Name="cmbCOMPort" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center" Width="120" Grid.Column="3" SelectionChanged="CmbCOMPort_SelectionChanged"/>
           </Grid>
-
-          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="not running" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="85" VerticalScrollBarVisibility="Auto"/>
+          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="85" VerticalScrollBarVisibility="Auto"/>
         </Grid>
       </StatusBarItem>
 
