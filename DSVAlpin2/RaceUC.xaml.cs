@@ -44,6 +44,7 @@ namespace DSVAlpin2
 
 
     public Race GetRace() { return _currentRace; }
+    public RaceRun GetRaceRun() { return _currentRaceRun; }
 
 
     private void FillCmbRaceRun()
@@ -67,6 +68,7 @@ namespace DSVAlpin2
       _currentRaceRun = (sender as ComboBox).SelectedValue as RaceRun;
       if (_currentRaceRun != null)
       {
+        _dataModel.SetCurrentRaceRun(_currentRaceRun);
         dgStartList.ItemsSource = _currentRaceRun.GetStartList();
 
         dgRunning.ItemsSource = _currentRaceRun.GetOnTrackList();

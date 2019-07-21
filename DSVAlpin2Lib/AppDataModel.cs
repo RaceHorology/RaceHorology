@@ -27,8 +27,23 @@ namespace DSVAlpin2Lib
 
     List<Race> _races;
     Race _currentRace;
+    RaceRun _currentRaceRun;
 
     private Dictionary<Participant, DateTime> _interactiveTimeMeasurements; // Contains the time measurements made interactively
+
+    public class CurrentRaceEventArgs :  EventArgs
+    {
+      Race CurrentRace { get; set; }
+      RaceRun CurrentRaceRun { get; set; }
+      public CurrentRaceEventArgs(Race currentRace, RaceRun currentRaceRun)
+      {
+        CurrentRace = currentRace;
+        CurrentRaceRun = currentRaceRun;
+      }
+    }
+    public delegate void CurrentRaceChangedHandler(object sender, CurrentRaceEventArgs e);
+
+    public event CurrentRaceChangedHandler CurrentRaceChanged;
 
 
 
@@ -72,9 +87,40 @@ namespace DSVAlpin2Lib
       return _races;
     }
 
+    public void SetCurrentRace(Race race)
+    {
+      if (_currentRace != race)
+      {
+        _currentRace = race;
+        _currentRaceRun = null;
+
+        CurrentRaceChangedHandler handler = CurrentRaceChanged;
+        handler?.Invoke(this, new CurrentRaceEventArgs(_currentRace, _currentRaceRun));
+      }
+    }
+
+
     public Race GetCurrentRace()
     {
       return _currentRace;
+    }
+
+
+    public void SetCurrentRaceRun(RaceRun raceRun)
+    {
+      if (_currentRaceRun != raceRun)
+      {
+        _currentRaceRun = raceRun;
+
+        CurrentRaceChangedHandler handler = CurrentRaceChanged;
+        handler?.Invoke(this, new CurrentRaceEventArgs(_currentRace, _currentRaceRun));
+      }
+    }
+
+
+    public RaceRun GetCurrentRaceRun()
+    {
+      return _currentRaceRun;
     }
 
     public void InsertInteractiveTimeMeasurement(Participant participant)
@@ -522,43 +568,5 @@ namespace DSVAlpin2Lib
     void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
 
   };
-
-
-  #region Time Measurement
-
-  public class TimeMeasurementEventArgs : EventArgs
-  {
-    public TimeMeasurementEventArgs()
-    {
-      StartNumber = 0;
-      RunTime = null;
-      BRunTime = false;
-      StartTime = null;
-      BStartTime = false;
-      FinishTime = null;
-      BFinishTime = false;
-    }
-
-    public uint StartNumber;
-    public TimeSpan? RunTime;    // if null and corresponding time property is set true => time shall be deleted
-    public bool BRunTime;        // true if RunTime is set
-    public TimeSpan? StartTime;  // if null and corresponding time property is set true => time shall be deleted
-    public bool BStartTime;      // true if StartTime is set
-    public TimeSpan? FinishTime; // if null and corresponding time property is set true => time shall be deleted
-    public bool BFinishTime;     // true if FinishTime is set
-  }
-
-  public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);
-
-  public interface ILiveTimeMeasurement
-  {
-    /// <summary>
-    /// If a time measurement happend, this event is triggered
-    /// </summary>
-    event TimeMeasurementEventHandler TimeMeasurementReceived;
-
-  }
-
-  #endregion
 
 }

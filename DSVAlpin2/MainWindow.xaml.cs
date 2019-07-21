@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,8 +31,6 @@ namespace DSVAlpin2
   {
     // Private data structures
     AppDataModel _dataModel;
-    Race _currentRace;
-    RaceRun _currentRaceRun;
 
     MruList _mruList;
     DSVAlpin2HTTPServer _alpinServer;
@@ -52,9 +50,11 @@ namespace DSVAlpin2
       // Last recently used files in menu
       _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
+    }
 
-      SetupTesting();
-
+    protected override void OnClosed(EventArgs e)
+    {
+      CloseDatabase();
     }
 
     /// <summary>
@@ -110,6 +110,8 @@ namespace DSVAlpin2
         // Connect all GUI lists and so on ...
         ConnectGUIToDataModel();
 
+        StartTiming();
+
         // Restart DSVALpinServer (for having the lists on mobile devices)
         StartDSVAlpinServer();
 
@@ -132,6 +134,8 @@ namespace DSVAlpin2
     private void CloseDatabase()
     {
       StopDSVAlpinServer();
+
+      StopTiming();
 
       DisconnectGUIFromDataModel();
 
@@ -176,10 +180,6 @@ namespace DSVAlpin2
 
       while (tabControlTopLevel.Items.Count > 2)
         tabControlTopLevel.Items.RemoveAt(1);
-
-
-      _currentRace = null;
-      _currentRaceRun = null;
     }
 
 
@@ -271,37 +271,32 @@ namespace DSVAlpin2
 
 
 
-    #region Testing
-
     ALGETdC8001TimeMeasurement _alge;
+    LiveTimingMeasurement _liveTimingMeasurement;
 
-    private void SetupTesting()
+    private void StartTiming()
     {
-      FillCOMPorts(cmbCOMPort);
-
-    }
-
-    protected void FillCOMPorts(ComboBox combo)
-    {
-      // Get a list of serial port names.
-      string[] ports = System.IO.Ports.SerialPort.GetPortNames();
-
-      // Display each port name to the console.
-      foreach (string port in ports)
-      {
-        combo.Items.Add(port);
-      }
-    }
-
-    private void CmbCOMPort_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (cmbCOMPort.SelectedItem != null)
-        _alge = new ALGETdC8001TimeMeasurement(cmbCOMPort.SelectedItem?.ToString());
-
+      _alge = new ALGETdC8001TimeMeasurement(ConfigurationManager.AppSettings.Get("TimingDevice.Port"));
       _alge.RawMessageReceived += Alge_OnMessageReceived;
 
-      _alge.TimeMeasurementReceived += OnTimeMeasurementReceived;
+      _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, _alge);
+
+      _alge.Start();
     }
+
+    private void StopTiming()
+    {
+      if (_alge == null)
+        return;
+
+      _alge.Stop();
+
+      _liveTimingMeasurement = null;
+
+      _alge.RawMessageReceived -= Alge_OnMessageReceived;
+      _alge = null;
+    }
+
 
     private void Alge_OnMessageReceived(object sender, string message)
     {
@@ -313,43 +308,14 @@ namespace DSVAlpin2
     }
 
 
-    private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
-    {
-      RaceParticipant participant = _currentRace.GetParticipant(e.StartNumber);
-
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        if (participant != null)
-        {
-
-          if (e.BStartTime)
-            _currentRaceRun.SetStartTime(participant, e.StartTime);
-
-          if (e.BFinishTime)
-            _currentRaceRun.SetFinishTime(participant, e.FinishTime);
-
-          if (e.BRunTime)
-            _currentRaceRun.SetRunTime(participant, e.RunTime);
-        }
-      });
-    }
-
-
-    private void TxtTest1_TextChanged(object sender, TextChangedEventArgs e)
-    {
-      //string text = txtTest1.Text;
-      //testParticipantsSrc.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((Participant)ea.Item).Firstname.Contains(text); });
-    }
-
-
-    #endregion
-
     private void TabControlTopLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       var selected = tabControlTopLevel.SelectedContent as RaceUC;
       if (selected != null)
-        _currentRace = selected.GetRace();
-
+      {
+        _dataModel.SetCurrentRace(selected.GetRace());
+        _dataModel.SetCurrentRaceRun(selected.GetRaceRun());
+      }
     }
   }
 }

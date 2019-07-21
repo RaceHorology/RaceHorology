@@ -69,6 +69,7 @@
     <Compile Include="AppDataModelDataTypes.cs" />
     <Compile Include="DSVAlpin2HTTPServer.cs" />
     <Compile Include="JsonConversion.cs" />
+    <Compile Include="LiveTimingMeasurement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>

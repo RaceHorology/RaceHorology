@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:DSVAlpin2"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+      <ResourceDictionary Source="Resources.xaml"/>
     </Application.Resources>
 </Application>

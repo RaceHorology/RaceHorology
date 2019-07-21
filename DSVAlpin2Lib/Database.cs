@@ -288,7 +288,10 @@ namespace DSVAlpin2Lib
         Debug.Assert(temp == 1, "Database could not be updated");
 
         if (bNew)
+        {
           _id2Participant.Add((uint)id, participant);
+          participant.Id = id.ToString();
+        }
       }catch(Exception e)
       {
         Debug.Print(e.Message);

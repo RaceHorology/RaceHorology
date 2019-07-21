@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -14,57 +15,107 @@ namespace DSVAlpin2Lib
     public delegate void RawMessageReceivedEventHandler(object sender, string message);
     public event RawMessageReceivedEventHandler RawMessageReceived;
 
-
+    private string _serialPortName;
     private SerialPort _serialPort;
     System.IO.StreamWriter _dumpFile;
 
+    bool _stopRequest;
+
     public ALGETdC8001TimeMeasurement(string comport)
     {
+      _serialPortName = comport;
+    }
+
+
+    public void Start()
+    {
+      _stopRequest = false;
+
       string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
       _dumpFile = new System.IO.StreamWriter(dumpFilename);
 
-      _serialPort = new SerialPort(comport, 9600, Parity.None, 8, StopBits.One);
+      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
       _serialPort.NewLine = "\r"; // CR, ASCII(13)
       _serialPort.Handshake = Handshake.RequestToSend;
-      _serialPort.Open();
+      _serialPort.ReadTimeout = 1000;
 
       // Start processing in a separate Thread
       System.Threading.Thread InstanceCaller = new System.Threading.Thread(
           new System.Threading.ThreadStart(this.MainLoop));
       InstanceCaller.Start();
     }
+    public void Stop()
+    {
+      _stopRequest = true;
+    }
 
     private void MainLoop()
     {
       ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
 
-      while (true)
+      while (!_stopRequest)
       {
-        string dataLine = _serialPort.ReadLine();
-        DebugLine(dataLine);
-
-        ALGETdC8001LiveTimingData parsedData = null;
-        try
+        if (!EnsureOpenPort())
         {
-          parsedData = parser.Parse(dataLine);
+          System.Threading.Thread.Sleep(2000);
+          continue;
         }
-        catch(FormatException)
-        { continue; }
 
         try
         {
-          TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(parsedData);
+          string dataLine = _serialPort.ReadLine();
+          DebugLine(dataLine);
 
-          if (timeMeasurmentData!=null)
+          ALGETdC8001LiveTimingData parsedData = null;
+          try
           {
-            // Trigger event
-            var handle = TimeMeasurementReceived;
-            handle?.Invoke(this, timeMeasurmentData);
+            parsedData = parser.Parse(dataLine);
           }
+          catch (FormatException)
+          { continue; }
+
+          try
+          {
+            TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(parsedData);
+
+            if (timeMeasurmentData != null)
+            {
+              // Trigger event
+              var handle = TimeMeasurementReceived;
+              handle?.Invoke(this, timeMeasurmentData);
+            }
+          }
+          catch (FormatException)
+          { continue; }
         }
-        catch (FormatException)
+        catch (TimeoutException)
         { continue; }
       }
+    }
+
+
+    bool EnsureOpenPort()
+    {
+      if (!_serialPort.IsOpen)
+      {
+        try
+        {
+          _serialPort.Open();
+        }
+        catch (ArgumentException)
+        {
+          return false;
+        }
+        catch (IOException)
+        {
+          return false;
+        }
+        catch (InvalidOperationException)
+        {
+          return false;
+        }
+      }
+      return true;
     }
 
 
