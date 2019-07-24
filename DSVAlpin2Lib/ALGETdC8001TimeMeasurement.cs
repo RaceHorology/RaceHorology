@@ -29,6 +29,9 @@ namespace DSVAlpin2Lib
 
     public void Start()
     {
+      if (_serialPortName == "")
+        return;
+
       _stopRequest = false;
 
       string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
