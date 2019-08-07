@@ -90,7 +90,7 @@ namespace DSVAlpin2Lib
   /// <summary>
   /// Participant with start number
   /// </summary>
-  public class RaceParticipant : INotifyPropertyChanged
+  public class RaceParticipant : INotifyPropertyChanged, IDisposable
   {
     public Participant _participant;
     private uint _startnumber;
@@ -100,46 +100,45 @@ namespace DSVAlpin2Lib
     {
       _participant = participant;
       _startnumber = startnumber;
+
+      _participant.PropertyChanged += OnParticipantPropertyChanged;
     }
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _participant.PropertyChanged -= OnParticipantPropertyChanged;
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+      Dispose(true);
+    }
+    #endregion
 
     public Participant Participant { get { return _participant; } }
 
-    public string Id
-    {
-      get => _participant.Id;
-    }
-    public string Name
-    {
-      get => _participant.Name;
-    }
-    public string Firstname
-    {
-      get => _participant.Firstname;
-    }
+    public string Id { get => _participant.Id; }
+    public string Name { get => _participant.Name; }
+    public string Firstname { get => _participant.Firstname; }
+    public string Sex { get => _participant.Sex; }
+    public int Year { get => _participant.Year; }
+    public string Club { get => _participant.Club; }
+    public string Nation { get => _participant.Nation; }
 
-    public string Sex
-    {
-      get => _participant.Sex;
-    }
-
-    public int Year
-    {
-      get => _participant.Year;
-    }
-    public string Club
-    {
-      get => _participant.Club;
-    }
-
-    public string Nation
-    {
-      get => _participant.Nation;
-    }
-
-    public string Class
-    {
-      get => _participant.Class;
-    }
+    public string Class { get => _participant.Class; }
 
     public uint StartNumber
     {
@@ -158,6 +157,77 @@ namespace DSVAlpin2Lib
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    // Pass through the property change
+    private void OnParticipantPropertyChanged(object sender, PropertyChangedEventArgs args)
+    {
+      NotifyPropertyChanged(args.PropertyName);
+    }
+
+    #endregion
+  }
+
+
+  /// <summary>
+  /// Represents a run result (a pass / ein durchgang)
+  /// </summary>
+  /// <remarks>not yet final</remarks>
+  public class StartListEntry : INotifyPropertyChanged
+  {
+    private RaceParticipant _participant;
+    private bool _started;
+
+    public StartListEntry(RaceParticipant participant)
+    {
+      _participant = participant;
+      _started = false;
+      _participant.PropertyChanged += OnParticipantPropertyChanged;
+    }
+
+
+    // Some public properties to get displayed in the list
+    public RaceParticipant Participant { get { return _participant; } }
+    public uint StartNumber { get { return _participant.StartNumber; } }
+    public string Id { get { return _participant.Id; } }
+    public string Name { get { return _participant.Name; } }
+    public string Firstname { get { return _participant.Firstname; } }
+    public int Year { get { return _participant.Year; } }
+    public string Club { get { return _participant.Club; } }
+    public string Class { get { return _participant.Class; } }
+    public string Sex { get { return _participant.Sex; } }
+    public string Nation { get { return _participant.Nation; } }
+
+    public bool Started
+    {
+      get => _started;
+      set
+      {
+        if (_started != value)
+        {
+          _started = value;
+          NotifyPropertyChanged();
+        }
+      }
+    }
+
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    // Pass through the property change
+    private void OnParticipantPropertyChanged(object sender, PropertyChangedEventArgs args)
+    {
+      NotifyPropertyChanged(args.PropertyName);
+    }
+
     #endregion
   }
 
@@ -169,7 +239,6 @@ namespace DSVAlpin2Lib
   public class RunResult : INotifyPropertyChanged
   {
     public enum EResultCode { Normal = 0, NaS = 1, NiZ = 2, DIS = 3, NQ = 4 }; // 0;"Normal";1;"Nicht am Start";2;"Nicht im Ziel";3;"Disqualifiziert";4;"Nicht qualifiziert"
-
 
     #region internal members
 
@@ -184,17 +253,16 @@ namespace DSVAlpin2Lib
 
 
     // Some public properties to get displayed in the list
-    // TODO: This should not be part of this calss, instead another entity should do the conversion
     public RaceParticipant Participant { get { return _participant; } }
     public string StartNumber { get { return _participant.StartNumber.ToString(); } }
-    public string Id { get { return _participant.Participant.Id; } }
-    public string Name { get { return _participant.Participant.Name; } }
-    public string Firstname { get { return _participant.Participant.Firstname; } }
-    public int Year { get { return _participant.Participant.Year; } }
-    public string Club { get { return _participant.Participant.Club; } }
-    public string Class { get { return _participant.Participant.Class; } }
-    public string Sex { get { return _participant.Participant.Sex; } }
-    public string Nation { get { return _participant.Participant.Nation; } }
+    public string Id { get { return _participant.Id; } }
+    public string Name { get { return _participant.Name; } }
+    public string Firstname { get { return _participant.Firstname; } }
+    public int Year { get { return _participant.Year; } }
+    public string Club { get { return _participant.Club; } }
+    public string Class { get { return _participant.Class; } }
+    public string Sex { get { return _participant.Sex; } }
+    public string Nation { get { return _participant.Nation; } }
 
 
     public TimeSpan? Runtime { get { return _runTime; } }

@@ -14,19 +14,44 @@ namespace DSVAlpin2Lib
   public class StartListProvider
   {
     private Race _race;
-
+    private RaceRun _raceRun;
+    private ItemsChangeObservableCollection<RunResult> _results;
     ObservableCollection<RaceParticipant> _participants;
+
+    ItemsChangeObservableCollection<StartListEntry> _startList;
+
+
     CollectionViewSource _startListView;
 
-    public StartListProvider(Race race, ObservableCollection<RaceParticipant> participants)
+    public StartListProvider()
     {
-      _race = race;
+    }
 
-      _participants = participants;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="race">The current Race</param>
+    /// <param name="results">The results of this race (to derive the information whether a participant already started)</param>
+    public void Initialize (Race race, RaceRun raceRun, ItemsChangeObservableCollection<RunResult> results)
+    { 
+      _race = race;
+      _raceRun = raceRun;
+      _results = results;
+
+      _startList = new ItemsChangeObservableCollection<StartListEntry>();
+
+      _participants = _race.GetParticipants();
+
+      _participants.CollectionChanged += OnParticipantsChanged;
+
+      _results.CollectionChanged += OnResultsChanged;
+      _results.ItemChanged+= OnResultItemChanged;
+
 
       _startListView = new CollectionViewSource();
 
-      _startListView.Source = _participants;
+      _startListView.Source = _startList;
 
       _startListView.SortDescriptions.Clear();
       _startListView.SortDescriptions.Add(new SortDescription(nameof(RaceParticipant.StartNumber), ListSortDirection.Ascending));
@@ -37,11 +62,94 @@ namespace DSVAlpin2Lib
       //_startListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
       //_startListView.LiveGroupingProperties.Add(nameof(Participant.Class));
       //_startListView.IsLiveGroupingRequested = true;
+
+      InitSync();
+    }
+
+    private void OnResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RunResult result = (RunResult)item;
+          UpdateStartListEntry(result);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          // Remove from _results
+          RunResult result = (RunResult)item;
+          UpdateStartListEntry(result);
+        }
+    }
+
+    private void OnResultItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RunResult result = (RunResult)sender;
+      UpdateStartListEntry(result);
+    }
+
+    private void UpdateStartListEntry(RunResult result)
+    {
+      StartListEntry se = _startList.Where(r => r.Participant == result.Participant).FirstOrDefault();
+      if (se != null)
+        se.Started = _raceRun.IsOrWasOnTrack(result);
+    }
+
+    private void UpdateStartListEntry(StartListEntry se)
+    {
+      RunResult result = _results.Where(r => r.Participant == se.Participant).FirstOrDefault();
+
+      if (result != null)
+        se.Started = _raceRun.IsOrWasOnTrack(result);
+    }
+
+
+    private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RaceParticipant participant = (RaceParticipant)item;
+          var itemsToRemove = _startList.Where(r => r.Participant.Participant == participant.Participant).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _startList.Remove(itemToRemove);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          // Add to results
+          RaceParticipant participant = (RaceParticipant)item;
+          StartListEntry se = new StartListEntry(participant);
+          _startList.Add(se);
+          UpdateStartListEntry(se);
+        }
+    }
+
+
+    private void InitSync()
+    {
+      foreach (RaceParticipant participant in _participants)
+      {
+        // Add to results
+        StartListEntry se = new StartListEntry(participant);
+        _startList.Add(se);
+        UpdateStartListEntry(se);
+      }
     }
 
     public System.ComponentModel.ICollectionView GetStartList()
     {
       return _startListView.View;
+    }
+
+    public ItemsChangeObservableCollection<StartListEntry> GetRawStartList()
+    {
+      return _startList;
     }
   }
 
@@ -83,7 +191,13 @@ namespace DSVAlpin2Lib
     }
 
 
-    public ResultViewProvider(ItemsChangeObservableCollection<RunResult> results, AppDataModel appDataModel)
+    public ResultViewProvider()
+    {
+
+    }
+
+
+    public void Initialize(Race race, ItemsChangeObservableCollection<RunResult> results, AppDataModel appDataModel)
     {
       _sorter = new RuntimeSorter();
 

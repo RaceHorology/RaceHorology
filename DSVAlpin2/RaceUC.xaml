@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DSVAlpin2"
-             mc:Ignorable="d">
+             mc:Ignorable="d"
+             MinHeight="400">
 
   <UserControl.Resources>
     <local:PositionConverter x:Key="PositionConverter" />
@@ -132,6 +133,16 @@
         </ScrollViewer>
       </TabItem>
       <TabItem Header="Teilnehmer &amp; Startnummern" FontSize="12">
+        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+            <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+            <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+            <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+            <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+          </DataGrid.Columns>
+        </DataGrid>
       </TabItem>
       <TabItem Header="Zeitnahme" FontSize="12" >
         <Grid>
@@ -165,14 +176,14 @@
                 <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
                 <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged"/>
               </Grid>
-              <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+              <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgRemainingStarters_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
                   <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
                   <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
                   <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
                   <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-                  <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                 </DataGrid.Columns>
               </DataGrid>
               <StackPanel Grid.Row="3" Orientation="Horizontal">

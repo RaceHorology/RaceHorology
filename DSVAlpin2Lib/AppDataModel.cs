@@ -220,13 +220,14 @@ namespace DSVAlpin2Lib
       RaceRun[] raceRunsArr = new RaceRun[numRuns];
       for (uint i = 0; i < numRuns; i++)
       {
-        RaceRun rr = new RaceRun(i + 1, _appDataModel);
+        RaceRun rr = new RaceRun(i + 1, this, _appDataModel);
 
         // Fill the data from the DB initially (TODO: to be done better)
         rr.InsertResults(_db.GetRaceRun(this, i + 1));
 
-        rr.SetStartListProvider(new StartListProvider(this, _participants));
-        rr.SetResultViewProvider();
+        rr.SetStartListProvider(new StartListProvider());
+
+        rr.SetResultViewProvider(new ResultViewProvider());
 
         // Get notification if a result got modified and trigger storage in DB
         DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
@@ -346,13 +347,15 @@ namespace DSVAlpin2Lib
   public class RaceRun
   {
     private uint _run;
-    AppDataModel _appDataModel;
+    private Race _race;
+    private AppDataModel _appDataModel;
 
     private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
 
     private StartListProvider _slp;
+    private CollectionViewSource _slpRemainingView;
     private ResultViewProvider _rvp;
 
 
@@ -364,9 +367,10 @@ namespace DSVAlpin2Lib
     /// This object is usually created by the method AppDataModel.CreateRaceRun()
     /// </remarks>
     /// 
-    public RaceRun(uint run, AppDataModel appDataModel)
+    public RaceRun(uint run, Race race, AppDataModel appDataModel)
     {
       _run = run;
+      _race = race;
       _appDataModel = appDataModel;
 
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
@@ -387,6 +391,16 @@ namespace DSVAlpin2Lib
     {
       return _slp.GetStartList();
     }
+
+    /// <summary>
+    /// Returns the start list
+    /// </summary>
+    /// <returns>Start list</returns>
+    public ICollectionView GetRemainingStarterList()
+    {
+      return _slpRemainingView.View;
+    }
+
 
     public ItemsChangeObservableCollection<LiveResult> GetOnTrackList()
     {
@@ -412,12 +426,21 @@ namespace DSVAlpin2Lib
 
     public void SetStartListProvider(StartListProvider slp)
     {
+      slp.Initialize(_race, this, _results);
       _slp = slp;
+
+      _slpRemainingView = new CollectionViewSource();
+      _slpRemainingView.Source = _slp.GetRawStartList();
+
+      _slpRemainingView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
+      _slpRemainingView.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
+      _slpRemainingView.IsLiveFilteringRequested = true;
     }
 
-    public void SetResultViewProvider()
+    public void SetResultViewProvider(ResultViewProvider rvp)
     {
-      _rvp = new ResultViewProvider(_results, _appDataModel);
+      rvp.Initialize(_race, _results, _appDataModel);
+      _rvp = rvp;
     }
 
 
@@ -523,17 +546,23 @@ namespace DSVAlpin2Lib
       _UpdateInternals();
     }
 
+    // Helper definition for a participant is on track
+    public bool IsOnTrack(RunResult r)
+    {
+      return r.GetStartTime() != null && r.GetRunTime() == null && _appDataModel.TodayMeasured(r.Participant.Participant);
+    }
+
+    // Helper definition for a participant is on track
+    public bool IsOrWasOnTrack(RunResult r)
+    {
+      return r.GetStartTime() != null || r.GetRunTime() != null;
+    }
+
     /// <summary>
     /// Updates internal strucutures based on _results
     /// </summary>
     private void _UpdateInternals()
     {
-      // Helper definition for a participant is on track
-      bool IsOnTrack(RunResult r)
-      {
-        //FIXME: Consider whether added in programm and not DB
-        return r.GetStartTime() != null && r.GetRunTime() == null && _appDataModel.TodayMeasured(r.Participant.Participant);
-      }
 
       // Remove from onTrack list if a result is available (= not on track anymore)
       var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r)).ToList();

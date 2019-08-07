@@ -69,8 +69,10 @@ namespace DSVAlpin2
       if (_currentRaceRun != null)
       {
         _dataModel.SetCurrentRaceRun(_currentRaceRun);
+
         dgStartList.ItemsSource = _currentRaceRun.GetStartList();
 
+        dgRemainingStarters.ItemsSource = _currentRaceRun.GetRemainingStarterList();
         dgRunning.ItemsSource = _currentRaceRun.GetOnTrackList();
         dgResults.ItemsSource = _currentRaceRun.GetResultView();
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
@@ -78,6 +80,7 @@ namespace DSVAlpin2
       else
       {
         dgStartList.ItemsSource = null;
+        dgRemainingStarters.ItemsSource = null;
         dgRunning.ItemsSource = null;
         dgResults.ItemsSource = null;
         dgResultsScrollBehavior = null;
@@ -93,7 +96,7 @@ namespace DSVAlpin2
       try { finish = TimeSpan.Parse(txtFinish.Text); } catch (Exception) { }
       try { run = TimeSpan.Parse(txtRun.Text); } catch (Exception) { }
 
-      RaceParticipant participant = dgStartList.SelectedItem as RaceParticipant;
+      RaceParticipant participant = (dgRemainingStarters.SelectedItem as StartListEntry)?.Participant;
 
       if (participant != null)
       {
@@ -134,7 +137,12 @@ namespace DSVAlpin2
 
     private void DgStartList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      RaceParticipant participant = dgStartList.SelectedItem as RaceParticipant;
+
+    }
+
+    private void DgRemainingStarters_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      RaceParticipant participant = (dgRemainingStarters.SelectedItem as StartListEntry)?.Participant;
 
       if (participant != null)
       {
