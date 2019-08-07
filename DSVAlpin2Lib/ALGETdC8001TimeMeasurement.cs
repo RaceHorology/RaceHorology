@@ -19,13 +19,13 @@ namespace DSVAlpin2Lib
     private SerialPort _serialPort;
     System.IO.StreamWriter _dumpFile;
 
+    System.Threading.Thread _instanceCaller;
     bool _stopRequest;
 
     public ALGETdC8001TimeMeasurement(string comport)
     {
       _serialPortName = comport;
     }
-
 
     public void Start()
     {
@@ -35,7 +35,7 @@ namespace DSVAlpin2Lib
       _stopRequest = false;
 
       string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
-      _dumpFile = new System.IO.StreamWriter(dumpFilename);
+      _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
 
       _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
       _serialPort.NewLine = "\r"; // CR, ASCII(13)
@@ -43,13 +43,16 @@ namespace DSVAlpin2Lib
       _serialPort.ReadTimeout = 1000;
 
       // Start processing in a separate Thread
-      System.Threading.Thread InstanceCaller = new System.Threading.Thread(
+      _instanceCaller = new System.Threading.Thread(
           new System.Threading.ThreadStart(this.MainLoop));
-      InstanceCaller.Start();
+      _instanceCaller.Start();
     }
     public void Stop()
     {
       _stopRequest = true;
+      _instanceCaller.Join(); // Wait until thread has been terminated
+
+      _dumpFile.Close();
     }
 
     private void MainLoop()
@@ -94,6 +97,8 @@ namespace DSVAlpin2Lib
         catch (TimeoutException)
         { continue; }
       }
+
+      _serialPort.Close();
     }
 
 
