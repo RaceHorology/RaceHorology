@@ -123,4 +123,20 @@ namespace DSVAlpin2Lib
         OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
     }
   }
+
+
+  // Define other methods and classes here
+  public static class Extensions
+  {
+    public static DateTime AddMicroseconds(this DateTime datetime, Int32 value)
+    {
+      return new DateTime(datetime.Ticks + value*10, datetime.Kind);
+    }
+
+
+    public static TimeSpan AddMicroseconds(this TimeSpan timespan, Int32 value)
+    {
+      return new TimeSpan(timespan.Ticks + value*10);
+    }
+  }
 }
