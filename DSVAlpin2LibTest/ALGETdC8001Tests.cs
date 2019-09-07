@@ -97,6 +97,8 @@ namespace DSVAlpin2LibTest
         Assert.AreEqual(new TimeSpan(), pd.Time);
       }
 
+
+      #region Different Time Accuracy
       {
         var pd = parser.Parse("?0034 C1M 21:46:48.1230 00");
         Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 123), pd.Time);
@@ -113,6 +115,19 @@ namespace DSVAlpin2LibTest
         var pd = parser.Parse("?0034 C1M 21:46:48.1    00");
         Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 100), pd.Time);
       }
+      #endregion
+
+      #region ALGE WTN 
+      {
+        var pd = parser.Parse("t0003 C1  16:01:56.6585 00");
+        Assert.AreEqual('t', pd.Flag);
+        Assert.AreEqual(3U, pd.StartNumber);
+        Assert.AreEqual("C1", pd.Channel);
+        Assert.AreEqual(' ', pd.ChannelModifier);
+        Assert.AreEqual((new TimeSpan(0, 16, 01, 56, 658)).AddMicroseconds(500), pd.Time);
+      }
+      #endregion
+
 
     }
 
