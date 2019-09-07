@@ -18,7 +18,7 @@ namespace DSVAlpin2Lib
   /// Data is written back to the data base in case it is needed
   /// 
   /// <remarks>not yet fully implemented</remarks>
-  public class AppDataModel
+  public class AppDataModel : ILiveDateTimeProvider
   {
     private IAppDataModelDataBase _db;
 
@@ -45,6 +45,25 @@ namespace DSVAlpin2Lib
 
     public event CurrentRaceChangedHandler CurrentRaceChanged;
 
+
+    #region Implementation of ILiveDateTimeProvider
+    public event LiveDateTimeChangedHandler LiveDateTimeChanged;
+
+    TimeSpan _currentDayTimeDelta;
+
+    public void SetCurrentDayTime(TimeSpan currentDayTime)
+    {
+      _currentDayTimeDelta = (DateTime.Now - DateTime.Today) - currentDayTime;
+      var handler = LiveDateTimeChanged;
+      handler?.Invoke(this, new LiveDateTimeEventArgs(_currentDayTimeDelta));
+    }
+
+    public TimeSpan GetCurrentDayTime()
+    {
+      return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
+    }
+
+    #endregion
 
 
     /// <summary>
@@ -304,13 +323,16 @@ namespace DSVAlpin2Lib
   public class LiveResult : RunResult
   {
     System.Timers.Timer _timer;
+    ILiveDateTimeProvider _timeProvider;
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="original"></param>
-    public LiveResult(RunResult original) : base(original)
+    public LiveResult(RunResult original, ILiveDateTimeProvider timeProvider) : base(original)
     {
+      _timeProvider = timeProvider;
+
       _timer = new System.Timers.Timer(1000);
       _timer.Elapsed += OnTimedEvent;
       _timer.AutoReset = true;
@@ -334,7 +356,7 @@ namespace DSVAlpin2Lib
     {
       if (_startTime != null)
       {
-        _runTime = (DateTime.Now - DateTime.Today) - _startTime;
+        _runTime = _timeProvider.GetCurrentDayTime() - _startTime;
         NotifyPropertyChanged(propertyName: nameof(Runtime));
       }
     }
@@ -563,7 +585,6 @@ namespace DSVAlpin2Lib
     /// </summary>
     private void _UpdateInternals()
     {
-
       // Remove from onTrack list if a result is available (= not on track anymore)
       var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
@@ -573,7 +594,7 @@ namespace DSVAlpin2Lib
       foreach (var r in _results)
         if (IsOnTrack(r))
           if (!_onTrack.Contains(r))
-            _onTrack.Add(new LiveResult(r));
+            _onTrack.Add(new LiveResult(r, _appDataModel));
     }
 
   }

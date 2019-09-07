@@ -44,18 +44,48 @@ namespace DSVAlpin2Lib
   }
 
 
+  public class LiveDateTimeEventArgs : EventArgs
+  {
+    public LiveDateTimeEventArgs(TimeSpan currentDayTime)
+    {
+      CurrentDayTime = currentDayTime;
+    }
 
+    public TimeSpan CurrentDayTime;
+  }
+
+
+  public delegate void LiveDateTimeChangedHandler(object sender, LiveDateTimeEventArgs e);
+
+  /// <summary>
+  /// Interface providing the current day live time synchron with the actual live time measurement
+  /// </summary>
+  public interface ILiveDateTimeProvider
+  {
+    event LiveDateTimeChangedHandler LiveDateTimeChanged;
+
+    TimeSpan GetCurrentDayTime();
+  }
+
+
+  /// <summary>
+  /// Reacts on the Live Timing (e.g. ALGE TdC8001) and updates the DataModel accordingly
+  /// </summary>
   public class LiveTimingMeasurement
   {
     AppDataModel _dm;
     ILiveTimeMeasurement _liveTimer;
+    ILiveDateTimeProvider _liveDateTimeProvider;
 
-    public LiveTimingMeasurement(AppDataModel dm, ILiveTimeMeasurement liveTimer)
+    public LiveTimingMeasurement(AppDataModel dm, ILiveTimeMeasurement liveTimer, ILiveDateTimeProvider liveDateTimeProvider)
     {
       _dm = dm;
       _liveTimer = liveTimer;
+      _liveDateTimeProvider = liveDateTimeProvider;
 
       _liveTimer.TimeMeasurementReceived += OnTimeMeasurementReceived;
+
+      _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
     }
 
 
@@ -82,6 +112,10 @@ namespace DSVAlpin2Lib
       });
     }
 
+    private void OnLiveDateTimeChanged(object sender, LiveDateTimeEventArgs e)
+    {
+      _dm.SetCurrentDayTime(e.CurrentDayTime);
+    }
 
 
   }

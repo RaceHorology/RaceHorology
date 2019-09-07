@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DSVAlpin2Lib
 {
-  public class ALGETdC8001TimeMeasurement : ILiveTimeMeasurement
+  public class ALGETdC8001TimeMeasurement : ILiveTimeMeasurement, ILiveDateTimeProvider
   {
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
 
@@ -22,10 +22,20 @@ namespace DSVAlpin2Lib
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
 
+
+    TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
+
     public ALGETdC8001TimeMeasurement(string comport)
     {
       _serialPortName = comport;
     }
+
+
+    public TimeSpan GetCurrentDayTime()
+    {
+      return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
+    }
+
 
     public void Start()
     {
@@ -47,6 +57,7 @@ namespace DSVAlpin2Lib
           new System.Threading.ThreadStart(this.MainLoop));
       _instanceCaller.Start();
     }
+
     public void Stop()
     {
       _stopRequest = true;
@@ -82,8 +93,9 @@ namespace DSVAlpin2Lib
 
           try
           {
-            TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(parsedData);
+            UpdateLiveDayTime(parsedData);
 
+            TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(parsedData);
             if (timeMeasurmentData != null)
             {
               // Trigger event
@@ -177,8 +189,38 @@ namespace DSVAlpin2Lib
 
       return data;
     }
+
+
+
+    #region Implementation of ILiveDateTimeProvider
+    public event LiveDateTimeChangedHandler LiveDateTimeChanged;
+
+    void UpdateLiveDayTime(in ALGETdC8001LiveTimingData justReceivedData)
+    {
+      // Sort out invalid data
+      if (justReceivedData.Flag == 'p'
+        || justReceivedData.Flag == 'm'
+        || justReceivedData.Flag == 'n'
+        || justReceivedData.Flag == 'd'
+        || justReceivedData.Flag == 'c')
+        return;
+
+      if (!(justReceivedData.Flag == ' ' || justReceivedData.Flag == '?'))
+        return;
+
+      if (justReceivedData.Channel[0] != 'C')
+        return;
+
+      TimeSpan tDiff = (DateTime.Now - DateTime.Today) - justReceivedData.Time;
+      _currentDayTimeDelta = tDiff;
+
+      var handler = LiveDateTimeChanged;
+      handler?.Invoke(this, new LiveDateTimeEventArgs(justReceivedData.Time));
+
+    }
   }
 
+  #endregion
 
 
   public class ALGETdC8001LiveTimingData
