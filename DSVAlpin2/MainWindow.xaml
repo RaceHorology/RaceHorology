@@ -53,7 +53,7 @@
             <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  FontSize="12"/>
           </Grid>
         </TabItem>
-        <TabItem Header="Neues Rennen" FontSize="16">
+        <TabItem Header="Neues Rennen" FontSize="16" IsEnabled="False">
         </TabItem>
       </TabControl>
     </Grid>
@@ -87,7 +87,7 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-              <Label x:Name="lblTimingDeviceLBL" Content="Zeitnahmegeraet: " Margin="0" VerticalAlignment="Top" FontSize="12" />
+              <Label x:Name="lblTimingDeviceLBL" Content="Zeitnahmeger&#228;t: " Margin="0" VerticalAlignment="Top" FontSize="12" />
               <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" />
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal">
