@@ -21,18 +21,25 @@ namespace DSVAlpin2
   /// </summary>
   public partial class RaceUC : UserControl
   {
+    // Input Data
     AppDataModel _dataModel;
     Race _currentRace;
+    LiveTimingMeasurement _liveTimingMeasurement;
+
+    // Working Data
     RaceRun _currentRaceRun;
 
     ScrollToMeasuredItemBehavior dgResultsScrollBehavior;
     ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
 
 
-    public RaceUC(AppDataModel dm, Race race)
+    public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement)
     {
       _dataModel = dm;
       _currentRace = race;
+      _liveTimingMeasurement = liveTimingMeasurement;
+
+      _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
       InitializeComponent();
 
@@ -86,6 +93,18 @@ namespace DSVAlpin2
         dgResultsScrollBehavior = null;
       }
     }
+
+
+    /// <summary>
+    /// Enables / disable the recerun combobox depending on whether LiveTimingMeasurement is performed or not
+    /// </summary>
+    private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
+    {
+      cmbRaceRun.IsEnabled = !isRunning;
+
+      System.Diagnostics.Debug.Assert(cmbRaceRun.SelectedValue == _currentRaceRun);
+    }
+
 
 
     private void BtnManualTimeStore_Click(object sender, RoutedEventArgs e)

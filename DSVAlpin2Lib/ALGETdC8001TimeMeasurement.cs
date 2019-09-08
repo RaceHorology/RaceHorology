@@ -22,12 +22,14 @@ namespace DSVAlpin2Lib
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
 
+    string _statusText;
 
     TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
 
     public ALGETdC8001TimeMeasurement(string comport)
     {
       _serialPortName = comport;
+      _statusText = "Not running";
     }
 
 
@@ -36,11 +38,24 @@ namespace DSVAlpin2Lib
       return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
     }
 
+    public string GetInfo()
+    {
+      return "ALGE TdC 8001 (" + _serialPortName + ")";
+    }
+
+
+    public string GetStatusInfo()
+    {
+      return _statusText;
+    }
+
 
     public void Start()
     {
       if (_serialPortName == "")
         return;
+
+      _statusText = "Starting";
 
       _stopRequest = false;
 
@@ -60,6 +75,8 @@ namespace DSVAlpin2Lib
 
     public void Stop()
     {
+      _statusText = "Stopping";
+
       _stopRequest = true;
       _instanceCaller.Join(); // Wait until thread has been terminated
 
@@ -74,12 +91,16 @@ namespace DSVAlpin2Lib
       {
         if (!EnsureOpenPort())
         {
+          _statusText = "Serial port not available";
+
           System.Threading.Thread.Sleep(2000);
           continue;
         }
 
         try
         {
+          _statusText = "Running";
+
           string dataLine = _serialPort.ReadLine();
           DebugLine(dataLine);
 
@@ -111,6 +132,8 @@ namespace DSVAlpin2Lib
       }
 
       _serialPort.Close();
+
+      _statusText = "Stopped";
     }
 
 

@@ -113,10 +113,10 @@ namespace DSVAlpin2
         // Change the Application Window to contain the opened DataBase
         this.Title = _appTitle + " - " + System.IO.Path.GetFileName(dbPath);
 
+        InitializeTiming();
+
         // Connect all GUI lists and so on ...
         ConnectGUIToDataModel();
-
-        StartTiming();
 
         // Restart DSVALpinServer (for having the lists on mobile devices)
         StartDSVAlpinServer();
@@ -141,9 +141,9 @@ namespace DSVAlpin2
     {
       StopDSVAlpinServer();
 
-      StopTiming();
-
       DisconnectGUIFromDataModel();
+
+      DeinitializeTiming();
 
       if (_dataModel != null)
       {
@@ -171,7 +171,7 @@ namespace DSVAlpin2
 
         tabRace.FontSize = 16;
 
-        RaceUC raceUC = new RaceUC(_dataModel, r);
+        RaceUC raceUC = new RaceUC(_dataModel, r, _liveTimingMeasurement);
         tabRace.Content = raceUC;
       }
     }
@@ -276,31 +276,65 @@ namespace DSVAlpin2
     }
 
 
+    #region LiveTiming
 
     ALGETdC8001TimeMeasurement _alge;
     LiveTimingMeasurement _liveTimingMeasurement;
+    System.Timers.Timer _liveTimingStatusTimer;
 
-    private void StartTiming()
+    private void InitializeTiming()
     {
+      _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel);
+      _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
+
       _alge = new ALGETdC8001TimeMeasurement(ConfigurationManager.AppSettings.Get("TimingDevice.Port"));
       _alge.RawMessageReceived += Alge_OnMessageReceived;
 
-      _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, _alge, _alge);
+      _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
+
+      _liveTimingStatusTimer = new System.Timers.Timer(300);
+      _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
+      _liveTimingStatusTimer.AutoReset = true;
+      _liveTimingStatusTimer.Enabled = true;
 
       _alge.Start();
     }
 
-    private void StopTiming()
+    private void DeinitializeTiming()
     {
-      if (_alge == null)
-        return;
-
       _alge.Stop();
 
+      _liveTimingStatusTimer.Elapsed -= UpdateLiveTimingDeviceStatus;
+      _liveTimingStatusTimer = null;
+
+      _liveTimingMeasurement.LiveTimingMeasurementStatusChanged -= OnLiveTimingMeasurementStatusChanged;
       _liveTimingMeasurement = null;
 
       _alge.RawMessageReceived -= Alge_OnMessageReceived;
       _alge = null;
+    }
+
+
+    private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
+    {
+      _liveTimingMeasurement.Start();
+    }
+
+    private void LiveTimingStop_Click(object sender, RoutedEventArgs e)
+    {
+      _liveTimingMeasurement.Stop();
+    }
+
+    private void UpdateLiveTimingStartStopButtons(bool isRunning)
+    {
+      btnLiveTimingStart.IsChecked = isRunning;
+      btnLiveTimingStop.IsChecked = !isRunning;
+    }
+
+    private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
+    {
+      EnsureOnlyCurrentRaceCanBeSelected(isRunning);
+      UpdateLiveTimingStartStopButtons(isRunning);
     }
 
 
@@ -313,6 +347,32 @@ namespace DSVAlpin2
       });
     }
 
+    private void UpdateLiveTimingDeviceStatus(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      string str = _alge.GetInfo() + ", " + _alge.GetStatusInfo() + ", " + _alge.GetCurrentDayTime().ToString(@"hh\:mm\:ss");
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        lblTimingDevice.Content = str;
+      });
+    }
+
+    #endregion
+
+
+    #region Tab Management
+
+    private void EnsureOnlyCurrentRaceCanBeSelected(bool onlyCurrentRace)
+    {
+      foreach (TabItem tab in tabControlTopLevel.Items)
+      {
+        RaceUC raceUC = tab.Content as RaceUC;
+        if (raceUC != null)
+        {
+          bool isEnabled = !onlyCurrentRace || (_dataModel.GetCurrentRace() == raceUC.GetRace());
+          tab.IsEnabled = isEnabled;
+        }
+      }
+    }
 
     private void TabControlTopLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -323,5 +383,7 @@ namespace DSVAlpin2
         _dataModel.SetCurrentRaceRun(selected.GetRaceRun());
       }
     }
+
+    #endregion
   }
 }

@@ -91,10 +91,10 @@
               <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" />
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal">
-              <ToggleButton Margin="5,0,0,0">
+              <ToggleButton x:Name="btnLiveTimingStart" Margin="5,0,0,0" Click="LiveTimingStart_Click">
                 <Image Source="{StaticResource IconPlay}" Height="20"/>
               </ToggleButton>
-              <ToggleButton Margin="5,0,0,0">
+              <ToggleButton x:Name="btnLiveTimingStop" Margin="5,0,0,0" Click="LiveTimingStop_Click">
                 <Image Source="{StaticResource IconStop}" Height="20"/>
               </ToggleButton>
             </StackPanel>

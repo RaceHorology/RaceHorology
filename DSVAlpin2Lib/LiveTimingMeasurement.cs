@@ -69,28 +69,75 @@ namespace DSVAlpin2Lib
 
 
   /// <summary>
-  /// Reacts on the Live Timing (e.g. ALGE TdC8001) and updates the DataModel accordingly
+  /// Reacts on the Live Timing (e.g. ALGE TdC8001) and updates the DataModel accordingly by transferring the received time data into the DataModel
   /// </summary>
   public class LiveTimingMeasurement
   {
     AppDataModel _dm;
     ILiveTimeMeasurement _liveTimer;
     ILiveDateTimeProvider _liveDateTimeProvider;
+    bool _isRunning;
 
-    public LiveTimingMeasurement(AppDataModel dm, ILiveTimeMeasurement liveTimer, ILiveDateTimeProvider liveDateTimeProvider)
+    public LiveTimingMeasurement(AppDataModel dm)
     {
       _dm = dm;
-      _liveTimer = liveTimer;
-      _liveDateTimeProvider = liveDateTimeProvider;
+      _isRunning = false;
+    }
 
+
+    #region Public Interface
+
+    public delegate void LiveTimingMeasurementStatusEventHandler(object sender, bool isRunning);
+    public event LiveTimingMeasurementStatusEventHandler LiveTimingMeasurementStatusChanged;
+
+
+    public void SetTimingDevice(ILiveTimeMeasurement liveTimer, ILiveDateTimeProvider liveDateTimeProvider)
+    {
+      // Cleanup if already used
+      if (_liveTimer != null)
+      {
+        _liveTimer.TimeMeasurementReceived -= OnTimeMeasurementReceived;
+        _liveTimer = null;
+      }
+      if (_liveDateTimeProvider != null)
+      { 
+        _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
+        _liveDateTimeProvider = null;
+      }
+
+      _liveTimer = liveTimer;
       _liveTimer.TimeMeasurementReceived += OnTimeMeasurementReceived;
 
+      _liveDateTimeProvider = liveDateTimeProvider;
       _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
     }
 
 
+    public void Start()
+    {
+      _isRunning = true;
+
+      var handler = LiveTimingMeasurementStatusChanged;
+      handler?.Invoke(this, _isRunning);
+    }
+
+
+    public void Stop()
+    {
+      _isRunning = false;
+
+      var handler = LiveTimingMeasurementStatusChanged;
+      handler?.Invoke(this, _isRunning);
+    }
+
+    #endregion
+
+    #region Internal Implementation
     private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
+      if (!_isRunning)
+        return;
+
       Race currentRace = _dm.GetCurrentRace();
       RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
       RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
@@ -114,9 +161,12 @@ namespace DSVAlpin2Lib
 
     private void OnLiveDateTimeChanged(object sender, LiveDateTimeEventArgs e)
     {
+      if (!_isRunning)
+        return;
+
       _dm.SetCurrentDayTime(e.CurrentDayTime);
     }
-
+    #endregion
 
   }
 }
