@@ -32,7 +32,7 @@ namespace DSVAlpin2Lib
       writer.WritePropertyName("Nation");
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
-      writer.WriteValue(value.Class);
+      writer.WriteValue(value.Class.ToString());
       writer.WriteEndObject();
     }
 
@@ -66,7 +66,7 @@ namespace DSVAlpin2Lib
       writer.WritePropertyName("Nation");
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
-      writer.WriteValue(value.Class);
+      writer.WriteValue(value.Class.ToString());
       writer.WritePropertyName("Runtime");
       writer.WriteValue(value.Runtime?.ToString(@"mm\:ss\,ff"));
       writer.WritePropertyName("DisqualText");
@@ -83,6 +83,39 @@ namespace DSVAlpin2Lib
   }
 
 
+  public class StartListEntryConverter : JsonConverter<StartListEntry>
+  {
+    public override void WriteJson(JsonWriter writer, StartListEntry value, JsonSerializer serializer)
+    {
+      writer.WriteStartObject();
+      writer.WritePropertyName("Id");
+      writer.WriteValue(value.Id);
+      writer.WritePropertyName("StartNumber");
+      writer.WriteValue(value.StartNumber);
+      writer.WritePropertyName("Name");
+      writer.WriteValue(value.Name);
+      writer.WritePropertyName("Firstname");
+      writer.WriteValue(value.Firstname);
+      writer.WritePropertyName("Sex");
+      writer.WriteValue(value.Sex);
+      writer.WritePropertyName("Year");
+      writer.WriteValue(value.Year);
+      writer.WritePropertyName("Club");
+      writer.WriteValue(value.Club);
+      writer.WritePropertyName("Nation");
+      writer.WriteValue(value.Nation);
+      writer.WritePropertyName("Class");
+      writer.WriteValue(value.Class.ToString());
+      writer.WriteEndObject();
+    }
+
+    public override StartListEntry ReadJson(JsonReader reader, Type objectType, StartListEntry existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
   public static class JsonConversion
   {
     public static string ConvertStartList(IEnumerable startList)
@@ -90,6 +123,7 @@ namespace DSVAlpin2Lib
       JsonSerializer serializer = new JsonSerializer();
 
       serializer.Converters.Add(new RaceParticipantConverter());
+      serializer.Converters.Add(new StartListEntryConverter());
 
       StringWriter sw = new StringWriter();
       using (JsonWriter writer = new JsonTextWriter(sw))
