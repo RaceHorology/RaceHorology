@@ -109,6 +109,11 @@ namespace DSVAlpin2Lib
       //set { _year = value; NotifyPropertyChanged(); }
     }
 
+    public ParticipantGroup Group
+    {
+      get => _group;
+    }
+
     public override string ToString()
     {
       return _name;

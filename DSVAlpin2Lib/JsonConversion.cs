@@ -33,6 +33,8 @@ namespace DSVAlpin2Lib
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
       writer.WriteValue(value.Class.ToString());
+      writer.WritePropertyName("Group");
+      writer.WriteValue(value.Class.Group.ToString());
       writer.WriteEndObject();
     }
 
@@ -67,6 +69,8 @@ namespace DSVAlpin2Lib
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
       writer.WriteValue(value.Class.ToString());
+      writer.WritePropertyName("Group");
+      writer.WriteValue(value.Class.Group.ToString());
       writer.WritePropertyName("Runtime");
       writer.WriteValue(value.Runtime?.ToString(@"mm\:ss\,ff"));
       writer.WritePropertyName("DisqualText");
@@ -106,6 +110,8 @@ namespace DSVAlpin2Lib
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
       writer.WriteValue(value.Class.ToString());
+      writer.WritePropertyName("Group");
+      writer.WriteValue(value.Class.Group.ToString());
       writer.WriteEndObject();
     }
 
