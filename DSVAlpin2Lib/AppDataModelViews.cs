@@ -292,7 +292,7 @@ namespace DSVAlpin2Lib
 
       uint curPosition = 1;
       uint samePosition = 1;
-      string curClass = "";
+      ParticipantClass curClass = null;
       TimeSpan? lastTime = null;
       foreach (var sortedItem in sortedResults)
       {
@@ -502,7 +502,7 @@ namespace DSVAlpin2Lib
 
       uint curPosition = 1;
       uint samePosition = 1;
-      string curClass = "";
+      ParticipantClass curClass = null;
       TimeSpan? lastTime = null;
       foreach (var sortedItem in sortedResults)
       {

@@ -8,6 +8,138 @@ using System.Threading.Tasks;
 
 namespace DSVAlpin2Lib
 {
+
+
+  public class ParticipantGroup : INotifyPropertyChanged, IComparable<ParticipantGroup>
+  {
+    private string _id;
+    private string _name;
+    private uint _sortpos;
+
+    public ParticipantGroup(string id, string name, uint sortpos)
+    {
+      _id = id;
+      _name = name;
+      _sortpos = sortpos;
+    }
+
+    public string Id
+    {
+      get => _id;
+    }
+
+    public string Name
+    {
+      get => _name;
+      //set { _name = value; NotifyPropertyChanged(); }
+    }
+
+    public override string ToString()
+    {
+      return _name;
+    }
+
+
+    public int CompareTo(ParticipantGroup other)
+    {
+      if (_sortpos == other._sortpos)
+        return _name.CompareTo(other._name);
+
+      return _sortpos.CompareTo(other._sortpos);
+    }
+
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
+
+  }
+
+
+  public class ParticipantClass : INotifyPropertyChanged, IComparable<ParticipantClass>
+  {
+    private string _id;
+    private ParticipantGroup _group;
+    private string _name;
+    private string _sex;
+    private uint _year; // ältester mit erfaßter Jahrgang
+    private uint _sortpos;
+
+
+    public ParticipantClass(string id, ParticipantGroup parentGroup, string name, string sex, uint year, uint sortpos)
+    {
+      _id = id;
+      _group = parentGroup;
+      _name = name;
+      _sex = sex;
+      _year = year;
+      _sortpos = sortpos;
+    }
+
+    private string Id
+    {
+      get => _id;
+    }
+
+    public string Name
+    {
+      get => _name;
+      //set { _name = value; NotifyPropertyChanged(); }
+    }
+
+    public string Sex
+    {
+      get => _sex;
+      //set { _sex = value; NotifyPropertyChanged(); }
+    }
+
+    public uint Year
+    {
+      get => _year;
+      //set { _year = value; NotifyPropertyChanged(); }
+    }
+
+    public override string ToString()
+    {
+      return _name;
+    }
+
+    public int CompareTo(ParticipantClass other)
+    {
+      if (_sortpos == other._sortpos)
+        return _name.CompareTo(other._name);
+
+      return _sortpos.CompareTo(other._sortpos);
+    }
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
+  }
+
+
+
+
+
   /// <summary>
   /// Represents a participant (or ski alpin racer)
   /// </summary>
@@ -18,10 +150,10 @@ namespace DSVAlpin2Lib
     private string _name;
     private string _firstname;
     private string _sex;
-    private int _year;
+    private uint _year;
     private string _club;
     private string _nation;
-    private string _class;
+    private ParticipantClass _class;
 
     public string Id
     {
@@ -46,7 +178,7 @@ namespace DSVAlpin2Lib
       set { _sex = value; NotifyPropertyChanged(); }
     }
 
-    public int Year
+    public uint Year
     {
       get => _year;
       set { _year = value; NotifyPropertyChanged(); }
@@ -63,7 +195,7 @@ namespace DSVAlpin2Lib
       set { _nation = value; NotifyPropertyChanged(); }
     }
 
-    public string Class
+    public ParticipantClass Class
     {
       get => _class;
       set { _class = value; NotifyPropertyChanged(); }
@@ -134,11 +266,11 @@ namespace DSVAlpin2Lib
     public string Name { get => _participant.Name; }
     public string Firstname { get => _participant.Firstname; }
     public string Sex { get => _participant.Sex; }
-    public int Year { get => _participant.Year; }
+    public uint Year { get => _participant.Year; }
     public string Club { get => _participant.Club; }
     public string Nation { get => _participant.Nation; }
 
-    public string Class { get => _participant.Class; }
+    public ParticipantClass Class { get => _participant.Class; }
 
     public uint StartNumber
     {
@@ -190,9 +322,9 @@ namespace DSVAlpin2Lib
     public string Id { get { return _participant.Id; } }
     public string Name { get { return _participant.Name; } }
     public string Firstname { get { return _participant.Firstname; } }
-    public int Year { get { return _participant.Year; } }
+    public uint Year { get { return _participant.Year; } }
     public string Club { get { return _participant.Club; } }
-    public string Class { get { return _participant.Class; } }
+    public ParticipantClass Class { get { return _participant.Class; } }
     public string Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
 
@@ -258,9 +390,9 @@ namespace DSVAlpin2Lib
     public string Id { get { return _participant.Id; } }
     public string Name { get { return _participant.Name; } }
     public string Firstname { get { return _participant.Firstname; } }
-    public int Year { get { return _participant.Year; } }
+    public uint Year { get { return _participant.Year; } }
     public string Club { get { return _participant.Club; } }
-    public string Class { get { return _participant.Class; } }
+    public ParticipantClass Class { get { return _participant.Class; } }
     public string Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
 

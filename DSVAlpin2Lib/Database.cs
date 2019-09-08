@@ -21,6 +21,8 @@ namespace DSVAlpin2Lib
     private System.Data.OleDb.OleDbConnection _conn;
 
     private Dictionary<uint, Participant> _id2Participant;
+    private Dictionary<uint, ParticipantGroup> _id2ParticipantGroups;
+    private Dictionary<uint, ParticipantClass> _id2ParticipantClasses;
 
     public void Connect(string filename)
     {
@@ -42,12 +44,17 @@ namespace DSVAlpin2Lib
 
       // Setup internal daat structures
       _id2Participant = new Dictionary<uint, Participant>();
+      _id2ParticipantGroups = new Dictionary<uint, ParticipantGroup>();
+      _id2ParticipantClasses = new Dictionary<uint, ParticipantClass>();
+
     }
 
     public void Close()
     {
       // Cleanup internal data structures
       _id2Participant = null;
+      _id2ParticipantGroups = null;
+      _id2ParticipantClasses = null;
 
       _conn.Close();
       _conn = null;
@@ -74,6 +81,30 @@ namespace DSVAlpin2Lib
       }
 
       return participants;
+    }
+
+
+    public List<ParticipantGroup> GetParticipantGroups()
+    {
+      ReadParticipantClasses();
+
+      List<ParticipantGroup> groups = new List<ParticipantGroup>();
+      foreach (var p in _id2ParticipantGroups)
+        groups.Add(p.Value);
+
+      return groups;
+    }
+
+
+    public List<ParticipantClass> GetParticipantClasses()
+    {
+      ReadParticipantClasses();
+
+      List<ParticipantClass> classes = new List<ParticipantClass>();
+      foreach (var p in _id2ParticipantClasses)
+        classes.Add(p.Value);
+
+      return classes;
     }
 
 
@@ -363,6 +394,8 @@ namespace DSVAlpin2Lib
     #endregion
 
     #region Internal Implementation
+
+    /* ************************ Participant ********************* */
     private Participant CreateParticipantFromDB(OleDbDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
@@ -379,8 +412,8 @@ namespace DSVAlpin2Lib
           Sex = reader["sex"].ToString(),
           Club = reader["verein"].ToString(),
           Nation = reader["nation"].ToString(),
-          Class = GetClass(GetValueUInt(reader, "klasse")),
-          Year = reader.GetInt16(reader.GetOrdinal("jahrgang")),
+          Class = GetParticipantClass(GetValueUInt(reader, "klasse")),
+          Year = GetValueUInt(reader, "jahrgang"),
         };
         _id2Participant.Add(id, p);
 
@@ -392,6 +425,118 @@ namespace DSVAlpin2Lib
     {
       return _id2Participant.Where(x => x.Value == participant).FirstOrDefault().Key;
     }
+
+
+
+
+
+    /* ************************ Groups ********************* */
+    public void ReadParticipantGroups()
+    {
+      if (_id2ParticipantGroups.Count() > 0)
+        return;
+
+      string sql = @"SELECT * FROM tblGruppe";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          CreateParticipantGroupFromDB(reader);
+        }
+      }
+    }
+
+
+    private ParticipantGroup CreateParticipantGroupFromDB(OleDbDataReader reader)
+    {
+      uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
+
+      if (_id2ParticipantGroups.ContainsKey(id))
+        return _id2ParticipantGroups[id];
+      else
+      {
+        ParticipantGroup p = new ParticipantGroup(
+          reader["id"].ToString(),
+          reader["grpname"].ToString(),
+          GetValueUInt(reader, "sortpos")
+        );
+        _id2ParticipantGroups.Add(id, p);
+
+        return p;
+      }
+    }
+
+    private uint GetParticipantGroupId(ParticipantGroup group)
+    {
+      ReadParticipantGroups();
+      return _id2ParticipantGroups.Where(x => x.Value == group).FirstOrDefault().Key;
+    }
+
+    private ParticipantGroup GetParticipantGroup(uint id)
+    {
+      ReadParticipantGroups();
+      return _id2ParticipantGroups[id];
+    }
+
+
+
+    /* ************************ Classes ********************* */
+    public void ReadParticipantClasses()
+    {
+      if (_id2ParticipantClasses.Count() > 0)
+        return;
+
+      string sql = @"SELECT * FROM tblKlasse";
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          CreateParticipantClassFromDB(reader);
+        }
+      }
+    }
+
+    private ParticipantClass CreateParticipantClassFromDB(OleDbDataReader reader)
+    {
+      uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
+
+      if (_id2ParticipantClasses.ContainsKey(id))
+        return _id2ParticipantClasses[id];
+      else
+      {
+
+        ParticipantClass p = new ParticipantClass(
+          reader["id"].ToString(),
+          GetParticipantGroup(GetValueUInt(reader, "gruppe")),
+          reader["klname"].ToString(),
+          reader["geschlecht"].ToString(),
+          GetValueUInt(reader, "bis_jahrgang"),
+          GetValueUInt(reader, "sortpos")
+        );
+        _id2ParticipantClasses.Add(id, p);
+
+        return p;
+      }
+    }
+
+    private uint GetParticipantClassId(ParticipantClass participantClass)
+    {
+      ReadParticipantClasses();
+      return _id2ParticipantClasses.Where(x => x.Value == participantClass).FirstOrDefault().Key;
+    }
+
+    private ParticipantClass GetParticipantClass(uint id)
+    {
+      ReadParticipantClasses();
+      return _id2ParticipantClasses[id];
+    }
+
+
 
 
     private static int GetLatestAutonumber(OleDbConnection connection)
@@ -437,33 +582,6 @@ namespace DSVAlpin2Lib
         sn = GetValueUInt(reader, "startnrps");
 
       return sn;
-    }
-
-
-    private Dictionary<uint, string> _id2Class;
-    private string GetClass(uint idClass)
-    {
-      if (_id2Class == null)
-      {
-        _id2Class = new Dictionary<uint, string>();
-
-        // Get Classes from DB
-        string sql = @"SELECT * FROM tblKlasse";
-
-        OleDbCommand command = new OleDbCommand(sql, _conn);
-        // Execute command  
-        using (OleDbDataReader reader = command.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            uint id = GetValueUInt(reader, "id");
-            string classname = reader["klname"].ToString();
-            _id2Class.Add(id, classname);
-          }
-        }
-      }
-
-      return _id2Class[idClass];
     }
 
 
