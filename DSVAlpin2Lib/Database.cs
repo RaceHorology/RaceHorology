@@ -151,31 +151,38 @@ namespace DSVAlpin2Lib
       string sql = @"SELECT * FROM tblTeilnehmer";
 
       string startNumberField = null;
+      string pointsField = null;
       switch (race.RaceType)
       {
         case Race.ERaceType.DownHill:
           sql += " WHERE dhaktiv = true";
           startNumberField = "startnrdh";
+          pointsField = "pktedh";
           break;
         case Race.ERaceType.SuperG:
           sql += " WHERE sgaktiv = true";
           startNumberField = "startnrsg";
+          pointsField = "pktesg";
           break;
         case Race.ERaceType.GiantSlalom:
           sql += " WHERE gsaktiv = true";
           startNumberField = "startnrgs";
+          pointsField = "pktegs";
           break;
         case Race.ERaceType.Slalom:
           sql += " WHERE slaktiv = true";
           startNumberField = "startnrsl";
+          pointsField = "pktesl";
           break;
         case Race.ERaceType.KOSlalom:
           sql += " WHERE ksaktiv = true";
           startNumberField = "startnrks";
+          pointsField = "pkteks";
           break;
         case Race.ERaceType.ParallelSlalom:
           sql += " WHERE psaktiv = true";
           startNumberField = "startnrps";
+          pointsField = "pkteps";
           break;
       }
 
@@ -187,8 +194,9 @@ namespace DSVAlpin2Lib
         {
           Participant participant = CreateParticipantFromDB(reader);
           uint startNo = GetValueUInt(reader, startNumberField);
+          double points = GetValueDouble(reader, pointsField);
 
-          RaceParticipant raceParticpant = new RaceParticipant(participant, startNo);
+          RaceParticipant raceParticpant = new RaceParticipant(participant, startNo, points);
           participants.Add(raceParticpant);
         }
       }
@@ -553,6 +561,17 @@ namespace DSVAlpin2Lib
       {
         var v = reader.GetValue(reader.GetOrdinal(field));
         return Convert.ToUInt32(v);
+      }
+
+      return 0;
+    }
+
+    static private double GetValueDouble(OleDbDataReader reader, string field)
+    {
+      if (!reader.IsDBNull(reader.GetOrdinal(field)))
+      {
+        var v = reader.GetValue(reader.GetOrdinal(field));
+        return Convert.ToDouble(v);
       }
 
       return 0;

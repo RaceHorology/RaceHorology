@@ -138,6 +138,8 @@ namespace DSVAlpin2LibTest
         Assert.AreEqual(6, raceParticipants.Count());
         Assert.AreEqual(1, raceParticipants.Where(p => p.Participant.Name == "Nachname 6").Count());
         Assert.AreEqual(0, raceParticipants.Where(p => p.Participant.Name == "Nachname 10").Count());
+
+        Assert.AreEqual(100.0, raceParticipants.Where(p => p.Participant.Name == "Nachname 6").First().Points);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.SuperG).First();
@@ -145,6 +147,8 @@ namespace DSVAlpin2LibTest
         Assert.AreEqual(6, raceParticipants.Count());
         Assert.AreEqual(1, raceParticipants.Where(p => p.Participant.Name == "Nachname 7").Count());
         Assert.AreEqual(0, raceParticipants.Where(p => p.Participant.Name == "Nachname 10").Count());
+
+        Assert.AreEqual(200.1, raceParticipants.Where(p => p.Participant.Name == "Nachname 7").First().Points);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
@@ -152,6 +156,8 @@ namespace DSVAlpin2LibTest
         Assert.AreEqual(6, raceParticipants.Count());
         Assert.AreEqual(1, raceParticipants.Where(p => p.Participant.Name == "Nachname 8").Count());
         Assert.AreEqual(0, raceParticipants.Where(p => p.Participant.Name == "Nachname 10").Count());
+
+        Assert.AreEqual(9999.98, raceParticipants.Where(p => p.Participant.Name == "Nachname 8").First().Points);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.Slalom).First();
@@ -159,6 +165,8 @@ namespace DSVAlpin2LibTest
         Assert.AreEqual(6, raceParticipants.Count());
         Assert.AreEqual(1, raceParticipants.Where(p => p.Participant.Name == "Nachname 9").Count());
         Assert.AreEqual(0, raceParticipants.Where(p => p.Participant.Name == "Nachname 10").Count());
+
+        Assert.AreEqual(0.0, raceParticipants.Where(p => p.Participant.Name == "Nachname 9").First().Points);
       }
     }
 
