@@ -231,12 +231,14 @@ namespace DSVAlpin2Lib
   {
     public Participant _participant;
     private uint _startnumber;
+    private double _points; // Points prior to the race
 
 
-    public RaceParticipant(Participant participant, uint startnumber)
+    public RaceParticipant(Participant participant, uint startnumber, double points)
     {
       _participant = participant;
       _startnumber = startnumber;
+      _points = points;
 
       _participant.PropertyChanged += OnParticipantPropertyChanged;
     }
@@ -281,6 +283,12 @@ namespace DSVAlpin2Lib
     {
       get => _startnumber;
       set { _startnumber = value; NotifyPropertyChanged(); }
+    }
+
+    public double Points // Points prior to the race
+    {
+      get => _points;
+      set { _points = value; NotifyPropertyChanged(); }
     }
 
     #region INotifyPropertyChanged implementation
