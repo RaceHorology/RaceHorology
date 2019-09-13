@@ -77,7 +77,8 @@ namespace DSVAlpin2
       {
         _dataModel.SetCurrentRaceRun(_currentRaceRun);
 
-        dgStartList.ItemsSource = _currentRaceRun.GetStartList();
+        //dgStartList.ItemsSource = _currentRaceRun.GetStartList();
+        dgStartList.ItemsSource = _currentRace.GetParticipants();
 
         dgRemainingStarters.ItemsSource = _currentRaceRun.GetRemainingStarterList();
         dgRunning.ItemsSource = _currentRaceRun.GetOnTrackList();
