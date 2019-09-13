@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -156,7 +156,18 @@ namespace DSVAlpin2Lib
 
     public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer)
     {
-      throw new NotImplementedException();
+      for (int n = collection.Count(); n > 1; --n)
+      {
+        for (int i = 0; i < n - 1; ++i)
+        {
+          if (comparer.Compare(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
+          {
+            TC temp = collection.ElementAt(i);
+            collection[i] = collection.ElementAt(i + 1);
+            collection[i + 1] = temp;
+          }
+        }
+      }
     }
 
 
