@@ -26,7 +26,7 @@ namespace DSVAlpin2LibTest
       Participant p = new Participant();
       p.Year = 1900;
 
-      Assert.AreEqual(1900, p.Year);
+      Assert.AreEqual(1900U, p.Year);
 
     }
 
