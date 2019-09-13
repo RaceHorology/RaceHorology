@@ -51,19 +51,6 @@ namespace DSVAlpin2Lib
       _results.ItemChanged+= OnResultItemChanged;
 
 
-      _startListView = new CollectionViewSource();
-
-      _startListView.Source = _startList;
-
-      _startListView.SortDescriptions.Clear();
-      _startListView.SortDescriptions.Add(new SortDescription(nameof(RaceParticipant.StartNumber), ListSortDirection.Ascending));
-
-      _startListView.LiveSortingProperties.Add(nameof(RaceParticipant.StartNumber));
-      _startListView.IsLiveSortingRequested = true;
-
-      //_startListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
-      //_startListView.LiveGroupingProperties.Add(nameof(Participant.Class));
-      //_startListView.IsLiveGroupingRequested = true;
 
       InitSync();
     }
@@ -142,16 +129,6 @@ namespace DSVAlpin2Lib
         _startList.Add(se);
         UpdateStartListEntry(se);
       }
-    }
-
-    public System.ComponentModel.ICollectionView GetStartList()
-    {
-      return _startListView.View;
-    }
-
-    public ItemsChangeObservableCollection<StartListEntry> GetRawStartList()
-    {
-      return _startList;
     }
   }
 

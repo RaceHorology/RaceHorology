@@ -11,27 +11,134 @@ using System.Windows.Data;
 namespace DSVAlpin2Lib
 {
 
-
+  /// <summary>
+  /// BaseClass for all ViewProvider
+  /// </summary>
   public class ViewProvider
   {
+    protected CollectionViewSource _view;
+
+    protected string _defaultGrouping;
+    protected string _activeGrouping;
+
+
+    public ViewProvider()
+    {
+      _view = new CollectionViewSource();
+    }
+
     public ICollectionView GetView()
     {
+      return _view.View;
+    }
 
+    public void SetDefaultGrouping(string propertyName)
+    {
+      _defaultGrouping = propertyName;
+    }
+
+    public void ChangeGrouping(string propertyName)
+    {
+      if (_activeGrouping != propertyName)
+      {
+        _view.GroupDescriptions.Clear();
+        _view.LiveGroupingProperties.Clear();
+        _view.IsLiveGroupingRequested = false;
+      }
+
+      if (!string.IsNullOrEmpty(propertyName))
+      { 
+        _view.GroupDescriptions.Add(new PropertyGroupDescription(propertyName));
+        _view.LiveGroupingProperties.Add(propertyName);
+        _view.IsLiveGroupingRequested = true;
+      }
+
+      _activeGrouping = propertyName;
+    }
+
+    public void ResetToDefaultGrouping()
+    {
+      ChangeGrouping(_defaultGrouping);
+    }
+
+
+    public delegate T1 Creator<T1, T2>(T2 source);
+    protected static void PopulateInitially<TC, TSource>(Collection<TC> collection, System.Collections.IEnumerable sourceItems, IComparer<TC> comparer, Creator<TC, TSource> creator)
+    {
+      foreach (TSource item in sourceItems)
+      {
+        TC colItem = creator(item);
+        collection.InsertSorted(colItem, comparer);
+      }
     }
 
   }
 
 
+  public class StartListEntryComparer : System.Collections.Generic.IComparer<StartListEntry>
+  {
+    public int Compare(StartListEntry left, StartListEntry right)
+    {
+      if (left.StartNumber < right.StartNumber)
+        return -1;
+      else if (left.StartNumber > right.StartNumber)
+        return 1;
+      else
+        return 0;
+    }
+
+  }
+
   public class StartListViewProvider : ViewProvider
   {
+    private ObservableCollection<RaceParticipant> _participants;
+    private ObservableCollection<StartListEntry> _viewList;
+    protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
 
     // Input: List<RaceParticipant>
+    public void Init(ObservableCollection<RaceParticipant> participants)
+    {
+      _participants = participants;
+
+      _viewList = new ObservableCollection<StartListEntry>();
+
+      _comparer = new StartListEntryComparer();
+
+      // Initialize and observe source list
+      PopulateInitially<StartListEntry, RaceParticipant>(_viewList, _participants, _comparer, CreateStartListEntry);
+      _participants.CollectionChanged += OnParticipantsChanged;
+
+      _view.Source = _viewList;
+    }
 
     // Output: sorted List<StartListEntry> according to StartNumber
+    public ObservableCollection<StartListEntry> GetViewList()
+    {
+      return _viewList;
+    }
 
-    public void SetDefaultGrouping(string propertyName) { }
-    public void ChangeGrouping(string propertyName) { }
-    public void ResetToDefaultGrouping(string propertyName) { }
+
+    private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RaceParticipant participant = (RaceParticipant)item;
+          var itemsToRemove = _viewList.Where(r => r.Participant.Participant == participant.Participant).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _viewList.Remove(itemToRemove);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+    }
+
+    private static StartListEntry CreateStartListEntry(RaceParticipant participant)
+    {
+      return new StartListEntry(participant);
+    }
 
   }
 
@@ -100,12 +207,8 @@ namespace DSVAlpin2Lib
 
 
 
-  public class ResultViewProvider : IViewProvider
+  public class ResultViewProvider : ViewProvider
   {
-    public void SetDefaultGrouping(string propertyName) { }
-    public void ChangeGrouping(string propertyName) { }
-    public void ResetToDefaultGrouping(string propertyName) { }
-
   }
 
 

@@ -195,7 +195,7 @@ namespace DSVAlpin2Lib
     private IAppDataModelDataBase _db;
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
-    private RaceResultProvider _raceResultsProvider;
+    private RaceResultViewProvider _raceResultsProvider;
 
 
     public ERaceType RaceType { get { return _properties.RaceType;  } }
@@ -244,7 +244,7 @@ namespace DSVAlpin2Lib
         // Fill the data from the DB initially (TODO: to be done better)
         rr.InsertResults(_db.GetRaceRun(this, i + 1));
 
-        rr.SetStartListProvider(new StartListProvider());
+        rr.SetStartListProvider(new StartListViewProvider());
 
         rr.SetResultViewProvider(new ResultViewProvider());
 
@@ -255,7 +255,7 @@ namespace DSVAlpin2Lib
         raceRunsArr[i] = rr;
       }
 
-      _raceResultsProvider = new RaceResultProvider(this, raceRunsArr, _appDataModel);
+      _raceResultsProvider = new RaceResultViewProvider(); // (this, raceRunsArr, _appDataModel);
     }
 
     /// <summary>
@@ -376,7 +376,7 @@ namespace DSVAlpin2Lib
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
 
-    private StartListProvider _slp;
+    private StartListViewProvider _slp;
     private CollectionViewSource _slpRemainingView;
     private ResultViewProvider _rvp;
 
@@ -411,7 +411,7 @@ namespace DSVAlpin2Lib
     /// <returns>Start list</returns>
     public ICollectionView GetStartList()
     {
-      return _slp.GetStartList();
+      return _slp.GetView();
     }
 
     /// <summary>
@@ -442,17 +442,17 @@ namespace DSVAlpin2Lib
     /// </summary>
     public ICollectionView GetResultView()
     {
-      return _rvp.GetResultView(); ;
+      return _rvp.GetView(); ;
     }
 
 
-    public void SetStartListProvider(StartListProvider slp)
+    public void SetStartListProvider(StartListViewProvider slp)
     {
-      slp.Initialize(_race, this, _results);
+      slp.Init(_race.GetParticipants());
       _slp = slp;
 
       _slpRemainingView = new CollectionViewSource();
-      _slpRemainingView.Source = _slp.GetRawStartList();
+      _slpRemainingView.Source = _slp.GetViewList();
 
       _slpRemainingView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
       _slpRemainingView.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
@@ -461,7 +461,7 @@ namespace DSVAlpin2Lib
 
     public void SetResultViewProvider(ResultViewProvider rvp)
     {
-      rvp.Initialize(_race, _results, _appDataModel);
+      //rvp.Initialize(_race, _results, _appDataModel);
       _rvp = rvp;
     }
 
