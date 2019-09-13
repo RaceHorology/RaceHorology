@@ -90,7 +90,7 @@ namespace DSVAlpin2LibTest
       Assert.AreEqual("Name 4", provider.GetViewList()[2].Name);
 
       // Test Update when startnumber changes
-      participants[1].StartNumber = 1; // Name 4 => StNr 2
+      participants[1].StartNumber = 2; // Name 4 => StNr 2
       Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
       Assert.AreEqual("Name 4", provider.GetViewList()[1].Name);
       Assert.AreEqual("Name 3", provider.GetViewList()[2].Name);

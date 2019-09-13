@@ -94,6 +94,7 @@ namespace DSVAlpin2Lib
     private ObservableCollection<RaceParticipant> _participants;
     private ObservableCollection<StartListEntry> _viewList;
     protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
+    protected ItemsChangedNotifier _sourceItemChangedNotifier;
 
     // Input: List<RaceParticipant>
     public void Init(ObservableCollection<RaceParticipant> participants)
@@ -107,8 +108,18 @@ namespace DSVAlpin2Lib
       // Initialize and observe source list
       PopulateInitially<StartListEntry, RaceParticipant>(_viewList, _participants, _comparer, CreateStartListEntry);
       _participants.CollectionChanged += OnParticipantsChanged;
+      _sourceItemChangedNotifier = new ItemsChangedNotifier(_participants);
+      _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
+
+
 
       _view.Source = _viewList;
+    }
+
+    private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      // Ensure list is sorted again
+      _viewList.Sort(_comparer);
     }
 
     // Output: sorted List<StartListEntry> according to StartNumber
