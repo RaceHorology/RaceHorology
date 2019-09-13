@@ -174,8 +174,8 @@ namespace DSVAlpin2Lib
           if (comparer.Compare(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
           {
             TC temp = collection.ElementAt(i);
-            collection[i] = collection.ElementAt(i + 1);
-            collection[i + 1] = temp;
+            collection.RemoveAt(i);
+            collection.Insert(i+1, temp);
           }
         }
       }
