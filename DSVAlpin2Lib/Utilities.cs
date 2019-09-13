@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -21,6 +21,9 @@ namespace DSVAlpin2Lib
       _source = source;
 
       _source.CollectionChanged += OnCollectionChanged;
+
+      // Populate initially
+      Initialize();
     }
 
     ~ItemsChangedNotifier()
@@ -47,7 +50,7 @@ namespace DSVAlpin2Lib
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      if (e.OldItems!=null)
+      if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
           item.PropertyChanged -= ItemPropertyChanged;
 
@@ -57,6 +60,14 @@ namespace DSVAlpin2Lib
 
       NotifyCollectionChangedEventHandler handler = CollectionChanged;
       handler?.Invoke(sender, e);
+    }
+
+    private void Initialize()
+    {
+      System.Collections.IEnumerable items = _source as System.Collections.IEnumerable;
+      if (items!=null)
+        foreach (var item in items)
+          ((INotifyPropertyChanged)item).PropertyChanged += ItemPropertyChanged;
     }
 
 
