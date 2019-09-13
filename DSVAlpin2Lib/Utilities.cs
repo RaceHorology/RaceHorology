@@ -125,6 +125,44 @@ namespace DSVAlpin2Lib
   }
 
 
+  public static class ObservableCollectionExtensions
+  {
+    /// <summary>
+    /// Inserts a new element in a sorted collection
+    /// </summary>
+    /// <typeparam name="TC"></typeparam>
+    /// <typeparam name="TI"></typeparam>
+    /// <param name="col"></param>
+    /// <param name="item"></param>
+    /// <param name="comparer"></param>
+    public static void InsertSorted<TC>(this Collection<TC> collection, TC item, System.Collections.Generic.IComparer<TC> comparer)
+    {
+      // Find right position and insert
+      int i = 0;
+      for (; i < collection.Count(); ++i)
+        if (comparer.Compare(item, collection.ElementAt(i)) < 0)
+          break;
+
+      // Not yet inserted, insert at the end
+      collection.Insert(i, item);
+    }
+
+    public static void InsertSorted<TC>(this Collection<TC> collection, TC[] items, IComparer<TC> comparer)
+    {
+      foreach (TC item in items)
+        collection.InsertSorted(item, comparer);
+
+    }
+
+    public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer)
+    {
+      throw new NotImplementedException();
+    }
+
+
+  }
+
+
   // Define other methods and classes here
   public static class Extensions
   {
