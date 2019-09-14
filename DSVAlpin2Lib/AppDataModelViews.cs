@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -177,13 +177,42 @@ namespace DSVAlpin2Lib
   }
 
 
+
+  public class PointsStartListEntryComparer : StartListEntryComparer
+  {
+    protected int _firstNStartnumbers;
+    public PointsStartListEntryComparer(int firstNStartnumbers)
+    { }
+
+    public new int Compare(StartListEntry left, StartListEntry right)
+    {
+      if (left.StartNumber < _firstNStartnumbers + 1)
+      {
+        if (right.StartNumber < _firstNStartnumbers + 1)
+          return left.StartNumber.CompareTo(right.StartNumber);
+        else
+          return -1;
+      }
+
+      // Left Startnumber is bigger than _firstNStartnumbers
+
+      if (right.StartNumber < _firstNStartnumbers + 1)
+        return +1;
+
+      // According to points, but other direction
+      return right.Points.CompareTo(left.Points);
+    }
+  }
+
+
+
   // First n (15) per grouping are always kept constant
   public class DSVFirstRunStartListViewProvider : FirstRunStartListViewProvider
   {
-
-    // Input: List<RaceParticipant>
-
-    // Output: sorted List<StartListEntry> according to StartNumber
+    public DSVFirstRunStartListViewProvider(int firstNStartnumbers)
+    {
+      _comparer = new PointsStartListEntryComparer(firstNStartnumbers);
+    }
 
     // Parameter: first n
 
@@ -233,6 +262,10 @@ namespace DSVAlpin2Lib
 
   public class ResultViewProvider : ViewProvider
   {
+    protected override object GetViewSource()
+    {
+      throw new NotImplementedException();
+    }
   }
 
 
