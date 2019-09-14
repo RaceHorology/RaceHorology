@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -14,7 +14,7 @@ namespace DSVAlpin2Lib
   /// <summary>
   /// BaseClass for all ViewProvider
   /// </summary>
-  public class ViewProvider
+  public abstract class ViewProvider
   {
     protected CollectionViewSource _view;
 
@@ -25,6 +25,12 @@ namespace DSVAlpin2Lib
     public ViewProvider()
     {
       _view = new CollectionViewSource();
+    }
+
+
+    protected void FinalizeInit()
+    {
+      _view.Source = GetViewSource();
     }
 
     public ICollectionView GetView()
@@ -72,6 +78,8 @@ namespace DSVAlpin2Lib
       }
     }
 
+    protected abstract object GetViewSource();
+
   }
 
 
@@ -86,8 +94,8 @@ namespace DSVAlpin2Lib
       else
         return 0;
     }
-
   }
+
 
   public class StartListViewProvider : ViewProvider
   {
@@ -96,6 +104,11 @@ namespace DSVAlpin2Lib
     protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
     protected ItemsChangedNotifier _sourceItemChangedNotifier;
 
+    public StartListViewProvider()
+    {
+      _comparer = new StartListEntryComparer();
+    }
+
     // Input: List<RaceParticipant>
     public void Init(ObservableCollection<RaceParticipant> participants)
     {
@@ -103,17 +116,13 @@ namespace DSVAlpin2Lib
 
       _viewList = new ObservableCollection<StartListEntry>();
 
-      _comparer = new StartListEntryComparer();
-
       // Initialize and observe source list
       PopulateInitially<StartListEntry, RaceParticipant>(_viewList, _participants, _comparer, CreateStartListEntry);
       _participants.CollectionChanged += OnParticipantsChanged;
       _sourceItemChangedNotifier = new ItemsChangedNotifier(_participants);
       _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
 
-
-
-      _view.Source = _viewList;
+      base.FinalizeInit();
     }
 
     private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
@@ -151,6 +160,10 @@ namespace DSVAlpin2Lib
       return new StartListEntry(participant);
     }
 
+    protected override object GetViewSource()
+    {
+      return _viewList;
+    }
   }
 
 
