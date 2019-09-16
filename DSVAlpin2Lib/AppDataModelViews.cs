@@ -85,7 +85,7 @@ namespace DSVAlpin2Lib
 
   public class StartListEntryComparer : System.Collections.Generic.IComparer<StartListEntry>
   {
-    public int Compare(StartListEntry left, StartListEntry right)
+    public virtual int Compare(StartListEntry left, StartListEntry right)
     {
       if (left.StartNumber < right.StartNumber)
         return -1;
@@ -182,9 +182,11 @@ namespace DSVAlpin2Lib
   {
     protected int _firstNStartnumbers;
     public PointsStartListEntryComparer(int firstNStartnumbers)
-    { }
+    {
+      _firstNStartnumbers = firstNStartnumbers;
+    }
 
-    public new int Compare(StartListEntry left, StartListEntry right)
+    public override int Compare(StartListEntry left, StartListEntry right)
     {
       if (left.StartNumber < _firstNStartnumbers + 1)
       {
@@ -200,7 +202,7 @@ namespace DSVAlpin2Lib
         return +1;
 
       // According to points, but other direction
-      return right.Points.CompareTo(left.Points);
+      return left.Points.CompareTo(right.Points);
     }
   }
 

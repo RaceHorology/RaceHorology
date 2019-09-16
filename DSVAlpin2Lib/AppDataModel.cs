@@ -244,7 +244,8 @@ namespace DSVAlpin2Lib
         // Fill the data from the DB initially (TODO: to be done better)
         rr.InsertResults(_db.GetRaceRun(this, i + 1));
 
-        rr.SetStartListProvider(new StartListViewProvider());
+        //rr.SetStartListProvider(new FirstRunStartListViewProvider());
+        rr.SetStartListProvider(new DSVFirstRunStartListViewProvider(15));
 
         rr.SetResultViewProvider(new ResultViewProvider());
 
