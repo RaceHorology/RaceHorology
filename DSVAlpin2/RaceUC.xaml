@@ -194,6 +194,7 @@
             <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
             <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
             <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+            <DataGridTextColumn x:Name="Punkte" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
           </DataGrid.Columns>
         </DataGrid>
       </TabItem>
@@ -237,6 +238,7 @@
                   <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
                   <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                   <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
                 </DataGrid.Columns>
               </DataGrid>
               <StackPanel Grid.Row="3" Orientation="Horizontal">
