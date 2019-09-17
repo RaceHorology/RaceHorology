@@ -247,7 +247,9 @@ namespace DSVAlpin2Lib
         //rr.SetStartListProvider(new FirstRunStartListViewProvider());
         rr.SetStartListProvider(new DSVFirstRunStartListViewProvider(15));
 
-        rr.SetResultViewProvider(new ResultViewProvider());
+        RaceRunResultViewProvider rVP = new RaceRunResultViewProvider();
+        rVP.Init(rr, _appDataModel);
+        rr.SetResultViewProvider(rVP);
 
         // Get notification if a result got modified and trigger storage in DB
         DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
@@ -449,7 +451,6 @@ namespace DSVAlpin2Lib
 
     public void SetResultViewProvider(ResultViewProvider rvp)
     {
-      //rvp.Initialize(_race, _results, _appDataModel);
       _rvp = rvp;
     }
 

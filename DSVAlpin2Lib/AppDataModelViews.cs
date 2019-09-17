@@ -347,44 +347,198 @@ namespace DSVAlpin2Lib
 
 
 
-  public class ResultViewProvider : ViewProvider
+  public abstract class ResultViewProvider : ViewProvider
   {
-    protected override object GetViewSource()
+  }
+
+
+
+  // Propagate class to sorter
+  public class RuntimeSorter : System.Collections.Generic.IComparer<RunResultWithPosition>
+  {
+    public int Compare(RunResultWithPosition rrX, RunResultWithPosition rrY)
     {
-      throw new NotImplementedException();
+      TimeSpan? tX = rrX.Runtime;
+      TimeSpan? tY = rrY.Runtime;
+
+      throw new NotImplementedException;
+      // Sort by grouping (class or group or ...)
+      // TODO: Shall be configurable
+      int classCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+      if (classCompare != 0)
+        return classCompare;
+
+      // Sort by time
+      if (tX == null && tY == null)
+        return 0;
+
+      if (tX != null && tY == null)
+        return -1;
+
+      if (tX == null && tY != null)
+        return 1;
+
+      return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
     }
   }
 
 
   public class RaceRunResultViewProvider : ResultViewProvider
   {
+    // Input Data
+    ItemsChangeObservableCollection<RunResult> _originalResults;
+    AppDataModel _appDataModel;
+
+    // Working Data
+    ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
+    System.Collections.Generic.IComparer<RunResultWithPosition> _comparer;
+
+
+    public RaceRunResultViewProvider()
+    {
+      _comparer = new RuntimeSorter();
+    }
+
     // Input: RaceRun
+    public void Init(RaceRun raceRun, AppDataModel appDataModel)
+    {
+      _originalResults = raceRun.GetResultList();
+      _appDataModel = appDataModel;
+
+      _viewList = new ItemsChangeObservableCollection<RunResultWithPosition>();
+
+      // Initialize and observe source list
+      PopulateInitially<RunResultWithPosition, RunResult>(_viewList, _originalResults, _comparer, CreateRunResultWithPosition);
+      _originalResults.CollectionChanged += OnOriginalResultsChanged;
+      _originalResults.ItemChanged += OnOriginalResultItemChanged;
+
+      FinalizeInit();
+    }
+
 
     // Output: List<RunResultWithPosition>
 
 
+    protected override object GetViewSource()
+    {
+      return _viewList;
+    }
+
+
+    private static RunResultWithPosition CreateRunResultWithPosition(RunResult r)
+    {
+      return new RunResultWithPosition(r);
+    }
+
+
+    void OnOriginalResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RunResult result = (RunResult)item;
+          var itemsToRemove = _viewList.Where(r => r == result).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _viewList.Remove(itemToRemove);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          _viewList.InsertSorted(CreateRunResultWithPosition((RunResult)item), _comparer);
+        }
+
+      UpdatePositions();
+    }
+
+
+    void OnOriginalResultItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RunResult result = (RunResult)sender;
+      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == result.Participant);
+
+      if (rrWP == null)
+        _viewList.InsertSorted(CreateRunResultWithPosition(result), _comparer);
+      else
+      {
+        rrWP.UpdateRunResult(result);
+        _viewList.Sort(_comparer);
+      }
+
+      UpdatePositions();
+    }
+
+    void UpdatePositions()
+    {
+      uint curPosition = 1;
+      uint samePosition = 1;
+      ParticipantClass curClass = null;
+      TimeSpan? lastTime = null;
+      foreach (RunResultWithPosition item in _viewList)
+      {
+        if (item.Class != curClass)
+        {
+          curClass = item.Class;
+          curPosition = 1;
+          lastTime = null;
+        }
+
+        if (item.Runtime != null)
+        {
+          item.Position = curPosition;
+
+          // Same position in case same time
+          if (item.Runtime == lastTime)//< TimeSpan.FromMilliseconds(9))
+            samePosition++;
+          else
+          {
+            curPosition += samePosition;
+            samePosition = 1;
+          }
+          lastTime = item.Runtime;
+        }
+        else
+          item.Position = 0;
+
+        // Set the JustModified flag to highlight new results
+        item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
+      }
+    }
+
+    static readonly TimeSpan delta = new TimeSpan(0, 0, 1); // 1 sec
   }
 
 
   public class RaceResultViewProvider : ResultViewProvider
   {
     // Input: Race
+    public void Init(Race race)
+    {
+
+    }
+
+    protected override object GetViewSource()
+    {
+      throw new NotImplementedException();
+    }
+
 
     // Output: List<RunResultWithPosition>
 
 
   }
 
-/* e.g. FamilienWertung
-  public class SpecialRaceResultViewProvider : ResultViewProvider
-  {
-    // Input: Race
+  /* e.g. FamilienWertung
+    public class SpecialRaceResultViewProvider : ResultViewProvider
+    {
+      // Input: Race
 
-    // Output: List<RunResultWithPosition>
+      // Output: List<RunResultWithPosition>
 
 
-  }
-  */
+    }
+    */
 
 
 
