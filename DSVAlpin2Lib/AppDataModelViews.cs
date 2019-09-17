@@ -96,8 +96,14 @@ namespace DSVAlpin2Lib
     }
   }
 
+  interface IStartListViewProvider
+  {
+    ICollectionView GetView();
 
-  public class StartListViewProvider : ViewProvider
+
+  }
+
+  public class StartListViewProvider : ViewProvider, IStartListViewProvider
   {
     private ObservableCollection<RaceParticipant> _participants;
     private ObservableCollection<StartListEntry> _viewList;
@@ -251,12 +257,91 @@ namespace DSVAlpin2Lib
 
 
 
-  public class RemainingStartListViewProvider : StartListViewProvider
+  public class RemainingStartListViewProvider : IStartListViewProvider
   {
+    StartListViewProvider _srcStartListProvider;
+    RaceRun _raceRun;
+
+    ObservableCollection<StartListEntry> _viewList;
+    CollectionViewSource _view;
+
+    public RemainingStartListViewProvider()
+    {
+      _view = new CollectionViewSource();
+    }
 
     // Input: StartListViewProvider or List<StartListEntry>
+    public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
+    {
+      // Remember the source
+      _srcStartListProvider = startListProvider;
+      _raceRun = raceRun;
 
-    // Output: sorted List<StartListEntry> according to StartNumber
+      // Observe the results
+      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
+      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
+
+      // Create working list
+      _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => new StartListEntry(sle.Participant));
+
+      
+      // Create View with filtered items
+      ObservableCollection<StartListEntry> startList = _viewList;
+      _view.Source = startList;
+      _view.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
+      _view.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
+      _view.IsLiveFilteringRequested = true;
+    }
+
+
+    // Output: List<StartListEntry> same way sorted as input StartList
+    public ICollectionView GetView()
+    {
+      return _view.View;
+    }
+
+
+    private void OnResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RunResult result = (RunResult)item;
+          UpdateStartListEntry(result);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          // Remove from _results
+          RunResult result = (RunResult)item;
+          UpdateStartListEntry(result);
+        }
+    }
+
+    private void OnResultItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RunResult result = (RunResult)sender;
+      UpdateStartListEntry(result);
+    }
+
+    private void UpdateStartListEntry(RunResult result)
+    {
+      StartListEntry se = _viewList.Where(r => r.Participant == result.Participant).FirstOrDefault();
+      if (se != null)
+        se.Started = _raceRun.IsOrWasOnTrack(result);
+    }
+
+    private void UpdateStartListEntry(StartListEntry se)
+    {
+      RunResult result = _raceRun.GetResultList().Where(r => r.Participant == se.Participant).FirstOrDefault();
+
+      if (result != null)
+        se.Started = _raceRun.IsOrWasOnTrack(result);
+    }
+
+
 
   }
 

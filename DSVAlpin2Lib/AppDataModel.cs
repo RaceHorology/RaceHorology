@@ -377,8 +377,7 @@ namespace DSVAlpin2Lib
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
 
-    private StartListViewProvider _slp;
-    private CollectionViewSource _slpRemainingView;
+    private StartListViewProvider _slVP;
     private ResultViewProvider _rvp;
 
 
@@ -412,16 +411,7 @@ namespace DSVAlpin2Lib
     /// <returns>Start list</returns>
     public ICollectionView GetStartList()
     {
-      return _slp.GetView();
-    }
-
-    /// <summary>
-    /// Returns the start list
-    /// </summary>
-    /// <returns>Start list</returns>
-    public ICollectionView GetRemainingStarterList()
-    {
-      return _slpRemainingView.View;
+      return _slVP.GetView();
     }
 
 
@@ -450,14 +440,11 @@ namespace DSVAlpin2Lib
     public void SetStartListProvider(StartListViewProvider slp)
     {
       slp.Init(_race.GetParticipants());
-      _slp = slp;
-
-      _slpRemainingView = new CollectionViewSource();
-      _slpRemainingView.Source = _slp.GetViewList();
-
-      _slpRemainingView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
-      _slpRemainingView.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
-      _slpRemainingView.IsLiveFilteringRequested = true;
+      _slVP = slp;
+    }
+    public StartListViewProvider GetStartListProvider()
+    {
+      return _slVP;
     }
 
     public void SetResultViewProvider(ResultViewProvider rvp)

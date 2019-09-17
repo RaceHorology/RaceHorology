@@ -77,10 +77,12 @@ namespace DSVAlpin2
       {
         _dataModel.SetCurrentRaceRun(_currentRaceRun);
 
-        //dgStartList.ItemsSource = _currentRaceRun.GetStartList();
         dgStartList.ItemsSource = _currentRace.GetParticipants();
 
-        dgRemainingStarters.ItemsSource = _currentRaceRun.GetRemainingStarterList();
+        RemainingStartListViewProvider rslVP = new RemainingStartListViewProvider();
+        rslVP.Init(_currentRaceRun.GetStartListProvider(), _currentRaceRun);
+        dgRemainingStarters.ItemsSource = rslVP.GetView();
+
         dgRunning.ItemsSource = _currentRaceRun.GetOnTrackList();
         dgResults.ItemsSource = _currentRaceRun.GetResultView();
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
@@ -116,7 +118,9 @@ namespace DSVAlpin2
       try { finish = TimeSpan.Parse(txtFinish.Text); } catch (Exception) { }
       try { run = TimeSpan.Parse(txtRun.Text); } catch (Exception) { }
 
-      RaceParticipant participant = (dgRemainingStarters.SelectedItem as StartListEntry)?.Participant;
+      uint startNumber = 0U;
+      try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+      RaceParticipant participant = _currentRace.GetParticipant(startNumber);
 
       if (participant != null)
       {
@@ -217,17 +221,20 @@ namespace DSVAlpin2
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        foreach (var x in _dataGrid.ItemsSource)
+        if (_dataGrid.ItemsSource != null)
         {
-          Participant xp = null;
-          xp = (x as RunResult)?.Participant.Participant;
-          if (xp == null)
-            xp = (x as RaceResultItem)?.Participant.Participant;
-
-          if (xp == _scrollToParticipant)
+          foreach (var x in _dataGrid.ItemsSource)
           {
-            _dataGrid.ScrollIntoView(x);
-            break;
+            Participant xp = null;
+            xp = (x as RunResult)?.Participant.Participant;
+            if (xp == null)
+              xp = (x as RaceResultItem)?.Participant.Participant;
+
+            if (xp == _scrollToParticipant)
+            {
+              _dataGrid.ScrollIntoView(x);
+              break;
+            }
           }
         }
       });
