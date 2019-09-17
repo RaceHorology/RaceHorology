@@ -136,6 +136,89 @@ namespace DSVAlpin2Lib
   }
 
 
+
+  public class CopyObservableCollection<T> : ObservableCollection<T>
+  {
+    ObservableCollection<T> _source;
+    Cloner<T> _cloner;
+
+    public delegate TC Cloner<TC>(TC source);
+    public CopyObservableCollection(ObservableCollection<T> source, Cloner<T> cloner)
+    {
+      _source = source;
+      _cloner = cloner;
+
+      _source.CollectionChanged += OnCollectionChanged;
+
+      FillInitially();
+    }
+
+    ~CopyObservableCollection()
+    {
+      _source.CollectionChanged -= OnCollectionChanged;
+    }
+
+
+    private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      // Clone
+      throw new NotImplementedException();
+    }
+
+    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      // Unhook from PropertyChanged
+      if (e.OldItems != null)
+        foreach (T item in e.OldItems)
+        {
+          if (item is INotifyPropertyChanged item2)
+            item2.PropertyChanged -= ItemPropertyChanged;
+        }
+
+      // Sync Lists
+      int i,j;
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          i = 0;
+          foreach (T item in e.NewItems)
+          {
+            Insert(e.NewStartingIndex+i, _cloner(item));
+            i++;
+          }
+          break;
+        case NotifyCollectionChangedAction.Remove:
+          for (i = 0; i < e.OldItems.Count; i++)
+            RemoveAt(e.OldStartingIndex + i);
+          break;
+        case NotifyCollectionChangedAction.Replace:
+          throw new NotImplementedException();
+        case NotifyCollectionChangedAction.Reset:
+          Clear();
+          break;
+        case NotifyCollectionChangedAction.Move:
+          for (i = e.OldStartingIndex, j = e.NewStartingIndex; i < e.OldItems.Count; i++, j++)
+            Move(i, j);
+          break;
+      }
+
+      // Unhook to PropertyChanged
+      if (e.NewItems != null)
+        foreach (T item in e.NewItems)
+        {
+          if (item is INotifyPropertyChanged item2)
+            item2.PropertyChanged += ItemPropertyChanged;
+        }
+    }
+
+    private void FillInitially()
+    {
+      for(int i=0; i<_source.Count(); i++)
+        Add(_cloner(_source[i]));
+    }
+
+  }
+
   public static class ObservableCollectionExtensions
   {
     /// <summary>
