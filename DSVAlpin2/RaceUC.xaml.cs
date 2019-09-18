@@ -45,6 +45,10 @@ namespace DSVAlpin2
 
       FillCmbRaceRun();
 
+      FillGrouping(cmbConfigStartlist1Grouping);
+      FillGrouping(cmbConfigStartlist2Grouping);
+      FillGrouping(cmbTotalResultGrouping);
+
       dgTotalResults.ItemsSource = _currentRace.GetTotalResultView();
       dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
     }
@@ -185,6 +189,31 @@ namespace DSVAlpin2
 
         txtStartNumber.Text = participant.StartNumber.ToString();
       }
+    }
+
+    public class GroupingCBItem
+    {
+      public string Text { get; set; }
+      public string Value { get; set; }
+
+      public override string ToString()
+      {
+        return Text;
+      }
+    }
+
+    private void CmbTotalResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbTotalResultGrouping.SelectedValue is GroupingCBItem grouping)
+        _currentRace.GetResultViewProvider().ChangeGrouping(grouping.Value);
+    }
+
+
+    public static void FillGrouping(ComboBox comboBox)
+    {
+      comboBox.Items.Add(new GroupingCBItem { Text = "Klasse", Value = "Participant.Class" });
+      comboBox.Items.Add(new GroupingCBItem { Text = "Gruppe", Value = "Participant.Group" });
+      comboBox.Items.Add(new GroupingCBItem { Text = "Kategorie", Value = "Participant.Sex" });
     }
   }
 

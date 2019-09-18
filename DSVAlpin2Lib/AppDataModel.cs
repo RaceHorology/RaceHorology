@@ -326,6 +326,10 @@ namespace DSVAlpin2Lib
     {
       return _raceResultsProvider.GetView();
     }
+    public RaceResultViewProvider GetResultViewProvider()
+    {
+      return _raceResultsProvider;
+    }
 
   }
 
