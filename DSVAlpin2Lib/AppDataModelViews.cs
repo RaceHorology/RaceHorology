@@ -508,8 +508,6 @@ namespace DSVAlpin2Lib
         item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
       }
     }
-
-    static readonly TimeSpan delta = new TimeSpan(0, 0, 1); // 1 sec
   }
 
 
