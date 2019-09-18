@@ -99,8 +99,6 @@ namespace DSVAlpin2Lib
   interface IStartListViewProvider
   {
     ICollectionView GetView();
-
-
   }
 
   public class StartListViewProvider : ViewProvider, IStartListViewProvider
@@ -248,7 +246,7 @@ namespace DSVAlpin2Lib
 
 
   // basierend auf (1. DG) Ergebnisliste: rückwärts, ersten n gelost, mit/ohne disqualifizierten vorwärts oder rückwärts
-  public class BasedOnResultsSecondRunStartListViewProvider : SecondRunStartListViewProvider
+  public class BasedOnResultsFirstRunStartListViewProvider : SecondRunStartListViewProvider
   {
 
 
@@ -740,6 +738,9 @@ namespace DSVAlpin2Lib
 
     }
     */
+
+
+    
 
 
 
