@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -283,8 +283,10 @@ namespace DSVAlpin2Lib
 
       // Create working list
       _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => new StartListEntry(sle.Participant));
+      foreach (StartListEntry entry in _viewList)
+        UpdateStartListEntry(entry);
 
-      
+
       // Create View with filtered items
       ObservableCollection<StartListEntry> startList = _viewList;
       _view.Source = startList;
