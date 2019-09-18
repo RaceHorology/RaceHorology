@@ -411,6 +411,7 @@ namespace DSVAlpin2Lib
 
       // Initialize and observe source list
       PopulateInitially<RunResultWithPosition, RunResult>(_viewList, _originalResults, _comparer, CreateRunResultWithPosition);
+      UpdatePositions();
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
 
