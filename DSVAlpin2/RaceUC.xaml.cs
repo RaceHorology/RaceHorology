@@ -58,7 +58,7 @@ namespace DSVAlpin2
     {
       // Fill Runs
       List<KeyValuePair<RaceRun, string>> races = new List<KeyValuePair<RaceRun, string>>();
-      for (uint i = 0; i < _currentRace.GetMaxRun(); i++)
+      for (int i = 0; i < _currentRace.GetMaxRun(); i++)
       {
         string sz1 = String.Format("{0}. Durchgang", i + 1);
         races.Add(new KeyValuePair<RaceRun, string>(_currentRace.GetRun(i), sz1));

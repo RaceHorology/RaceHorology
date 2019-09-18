@@ -258,25 +258,36 @@ namespace DSVAlpin2Lib
         raceRunsArr[i] = rr;
       }
 
-      _raceResultsProvider = new RaceResultViewProvider(); // (this, raceRunsArr, _appDataModel);
+      _raceResultsProvider = new RaceResultViewProvider();
+      _raceResultsProvider.Init(this, _appDataModel);
     }
 
     /// <summary>
     /// Returns the number of race runs.
     /// </summary>
-    public uint GetMaxRun()
+    public int GetMaxRun()
     {
-      return (uint)_runs.Count;
+      return _runs.Count;
     }
 
     /// <summary>
     /// Returns the corresponding run.
     /// </summary>
     /// <param name="run">Run number. Counting starts at 0.</param>
-    public RaceRun GetRun(uint run)
+    public RaceRun GetRun(int run)
     {
-      return _runs.ElementAt((int)run).Item1;
+      return _runs.ElementAt(run).Item1;
     }
+
+    public RaceRun[] GetRuns()
+    {
+      RaceRun[] runs = new RaceRun[_runs.Count];
+      for (int i = 0; i < _runs.Count; i++)
+        runs[i] = GetRun(i);
+
+      return runs;
+    }
+
 
     /// <summary>
     /// Returns the participants of the race.
