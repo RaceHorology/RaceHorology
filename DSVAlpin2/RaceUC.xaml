@@ -228,7 +228,7 @@
                 </Grid.ColumnDefinitions>
                 <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
                 <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
-                <ComboBox x:Name="cmbStartListGrouping" Margin="5,5,15,5" Grid.Column="2" SelectionChanged="CmbStartListGrouping_SelectionChanged"/>
+                <ComboBox x:Name="cmbStartListGrouping" FontSize="16" Margin="5,5,15,5" Grid.Column="2" SelectionChanged="CmbStartListGrouping_SelectionChanged"/>
                 <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged"/>
               </Grid>
               <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgRemainingStarters_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
@@ -301,7 +301,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="lblResults" Content="Ergebnis (Aktueller Lauf)" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-                <ComboBox x:Name="cmbResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbResultGrouping_SelectionChanged"/>
+                <ComboBox x:Name="cmbResultGrouping" FontSize="16" Margin="5" Grid.Column="1" SelectionChanged="CmbResultGrouping_SelectionChanged"/>
               </Grid>
               <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.Columns>
