@@ -211,7 +211,12 @@ namespace DSVAlpin2Lib
         return +1;
 
       // According to points, but other direction
-      return left.Points.CompareTo(right.Points);
+      int compPoints = left.Points.CompareTo(right.Points);
+      if (compPoints != 0)
+        return compPoints;
+
+      // If Points are equal, sort by startnumber
+      return left.StartNumber.CompareTo(right.StartNumber);
     }
   }
 
