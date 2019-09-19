@@ -469,6 +469,11 @@ namespace DSVAlpin2Lib
       _rvp = rvp;
     }
 
+    public ResultViewProvider GetResultViewProvider()
+    {
+      return _rvp;
+    }
+
 
     /// <summary>
     /// Sets the measured times for a participant based on start and finish time.

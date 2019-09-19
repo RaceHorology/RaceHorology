@@ -228,6 +228,7 @@
                 </Grid.ColumnDefinitions>
                 <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
                 <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
+                <ComboBox x:Name="cmbStartListGrouping" Margin="5,5,15,5" Grid.Column="2" SelectionChanged="CmbStartListGrouping_SelectionChanged"/>
                 <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged"/>
               </Grid>
               <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgRemainingStarters_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
@@ -240,6 +241,15 @@
                   <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                   <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
                 </DataGrid.Columns>
+                <DataGrid.GroupStyle>
+                  <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                      <DataTemplate>
+                        <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                      </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                  </GroupStyle>
+                </DataGrid.GroupStyle>
               </DataGrid>
               <StackPanel Grid.Row="3" Orientation="Horizontal">
                 <Label x:Name="lblManualMode" Content="Manuelle Erfassung" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
@@ -285,7 +295,14 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <Label x:Name="lblResults" Content="Ergebnis (Aktueller Lauf)" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              <Grid Width="Auto">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblResults" Content="Ergebnis (Aktueller Lauf)" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+                <ComboBox x:Name="cmbResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbResultGrouping_SelectionChanged"/>
+              </Grid>
               <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
@@ -349,8 +366,6 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Label x:Name="lblTotalResult" Content="Rennergebnis" HorizontalAlignment="Left" Margin="0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
-        <Separator Width="20" Background="Transparent"/>
-        <!-- Label x:Name="lblTotalResultGrouping" Content="Gruppierung" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/ -->
         <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
       </Grid>
       <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">

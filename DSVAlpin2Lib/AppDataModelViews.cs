@@ -268,10 +268,45 @@ namespace DSVAlpin2Lib
     ObservableCollection<StartListEntry> _viewList;
     CollectionViewSource _view;
 
+    protected string _defaultGrouping;
+    protected string _activeGrouping;
+
+
     public RemainingStartListViewProvider()
     {
       _view = new CollectionViewSource();
     }
+
+
+    public void SetDefaultGrouping(string propertyName)
+    {
+      _defaultGrouping = propertyName;
+    }
+
+    public void ChangeGrouping(string propertyName)
+    {
+      if (_activeGrouping != propertyName)
+      {
+        _view.GroupDescriptions.Clear();
+        _view.LiveGroupingProperties.Clear();
+        _view.IsLiveGroupingRequested = false;
+      }
+
+      if (!string.IsNullOrEmpty(propertyName))
+      {
+        _view.GroupDescriptions.Add(new PropertyGroupDescription(propertyName));
+        _view.LiveGroupingProperties.Add(propertyName);
+        _view.IsLiveGroupingRequested = true;
+      }
+
+      _activeGrouping = propertyName;
+    }
+
+    public void ResetToDefaultGrouping()
+    {
+      ChangeGrouping(_defaultGrouping);
+    }
+
 
     // Input: StartListViewProvider or List<StartListEntry>
     public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
@@ -391,7 +426,7 @@ namespace DSVAlpin2Lib
       if (_groupingPropertyName == "Participant.Class")
         groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
         groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
 
@@ -403,7 +438,7 @@ namespace DSVAlpin2Lib
       if (_groupingPropertyName == "Participant.Class")
         groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
         groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
 

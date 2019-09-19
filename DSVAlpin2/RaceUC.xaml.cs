@@ -29,6 +29,8 @@ namespace DSVAlpin2
     // Working Data
     RaceRun _currentRaceRun;
 
+    RemainingStartListViewProvider _rslVP;
+
     ScrollToMeasuredItemBehavior dgResultsScrollBehavior;
     ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
 
@@ -45,8 +47,15 @@ namespace DSVAlpin2
 
       FillCmbRaceRun();
 
+      // Configuration Screen
       FillGrouping(cmbConfigStartlist1Grouping);
       FillGrouping(cmbConfigStartlist2Grouping);
+
+      // Timing
+      FillGrouping(cmbStartListGrouping);
+      FillGrouping(cmbResultGrouping);
+
+      // Race Results
       FillGrouping(cmbTotalResultGrouping);
 
       dgTotalResults.ItemsSource = _currentRace.GetTotalResultView();
@@ -83,9 +92,9 @@ namespace DSVAlpin2
 
         dgStartList.ItemsSource = _currentRace.GetParticipants();
 
-        RemainingStartListViewProvider rslVP = new RemainingStartListViewProvider();
-        rslVP.Init(_currentRaceRun.GetStartListProvider(), _currentRaceRun);
-        dgRemainingStarters.ItemsSource = rslVP.GetView();
+        _rslVP = new RemainingStartListViewProvider();
+        _rslVP.Init(_currentRaceRun.GetStartListProvider(), _currentRaceRun);
+        dgRemainingStarters.ItemsSource = _rslVP.GetView();
 
         dgRunning.ItemsSource = _currentRaceRun.GetOnTrackList();
         dgResults.ItemsSource = _currentRaceRun.GetResultView();
@@ -207,13 +216,25 @@ namespace DSVAlpin2
       if (cmbTotalResultGrouping.SelectedValue is GroupingCBItem grouping)
         _currentRace.GetResultViewProvider().ChangeGrouping(grouping.Value);
     }
+    private void CmbStartListGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbStartListGrouping.SelectedValue is GroupingCBItem grouping)
+        _rslVP.ChangeGrouping(grouping.Value);
+    }
+    private void CmbResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbResultGrouping.SelectedValue is GroupingCBItem grouping)
+        _currentRaceRun.GetResultViewProvider().ChangeGrouping(grouping.Value);
+    }
 
 
     public static void FillGrouping(ComboBox comboBox)
     {
+      comboBox.Items.Add(new GroupingCBItem { Text = "---", Value = null });
       comboBox.Items.Add(new GroupingCBItem { Text = "Klasse", Value = "Participant.Class" });
       comboBox.Items.Add(new GroupingCBItem { Text = "Gruppe", Value = "Participant.Group" });
       comboBox.Items.Add(new GroupingCBItem { Text = "Kategorie", Value = "Participant.Sex" });
+      comboBox.SelectedIndex = 0;
     }
   }
 
