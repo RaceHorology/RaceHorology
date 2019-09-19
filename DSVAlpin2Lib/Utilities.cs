@@ -21,6 +21,9 @@ namespace DSVAlpin2Lib
       _source = source;
 
       _source.CollectionChanged += OnCollectionChanged;
+
+      // Populate initially
+      Initialize();
     }
 
     ~ItemsChangedNotifier()
@@ -47,7 +50,7 @@ namespace DSVAlpin2Lib
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      if (e.OldItems!=null)
+      if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
           item.PropertyChanged -= ItemPropertyChanged;
 
@@ -57,6 +60,14 @@ namespace DSVAlpin2Lib
 
       NotifyCollectionChangedEventHandler handler = CollectionChanged;
       handler?.Invoke(sender, e);
+    }
+
+    private void Initialize()
+    {
+      System.Collections.IEnumerable items = _source as System.Collections.IEnumerable;
+      if (items!=null)
+        foreach (var item in items)
+          ((INotifyPropertyChanged)item).PropertyChanged += ItemPropertyChanged;
     }
 
 
@@ -122,6 +133,138 @@ namespace DSVAlpin2Lib
       if (CollectionResetIfItemChanged)
         OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
     }
+  }
+
+
+
+  public class CopyObservableCollection<T> : ObservableCollection<T>
+  {
+    ObservableCollection<T> _source;
+    Cloner<T> _cloner;
+
+    public delegate TC Cloner<TC>(TC source);
+    public CopyObservableCollection(ObservableCollection<T> source, Cloner<T> cloner)
+    {
+      _source = source;
+      _cloner = cloner;
+
+      _source.CollectionChanged += OnCollectionChanged;
+
+      FillInitially();
+    }
+
+    ~CopyObservableCollection()
+    {
+      _source.CollectionChanged -= OnCollectionChanged;
+    }
+
+
+    private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      // Clone
+      throw new NotImplementedException();
+    }
+
+    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      // Unhook from PropertyChanged
+      if (e.OldItems != null)
+        foreach (T item in e.OldItems)
+        {
+          if (item is INotifyPropertyChanged item2)
+            item2.PropertyChanged -= ItemPropertyChanged;
+        }
+
+      // Sync Lists
+      int i,j;
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          i = 0;
+          foreach (T item in e.NewItems)
+          {
+            Insert(e.NewStartingIndex+i, _cloner(item));
+            i++;
+          }
+          break;
+        case NotifyCollectionChangedAction.Remove:
+          for (i = 0; i < e.OldItems.Count; i++)
+            RemoveAt(e.OldStartingIndex + i);
+          break;
+        case NotifyCollectionChangedAction.Replace:
+          throw new NotImplementedException();
+        case NotifyCollectionChangedAction.Reset:
+          Clear();
+          break;
+        case NotifyCollectionChangedAction.Move:
+          for (i = e.OldStartingIndex, j = e.NewStartingIndex; i < e.OldItems.Count; i++, j++)
+            Move(i, j);
+          break;
+      }
+
+      // Unhook to PropertyChanged
+      if (e.NewItems != null)
+        foreach (T item in e.NewItems)
+        {
+          if (item is INotifyPropertyChanged item2)
+            item2.PropertyChanged += ItemPropertyChanged;
+        }
+    }
+
+    private void FillInitially()
+    {
+      for(int i=0; i<_source.Count(); i++)
+        Add(_cloner(_source[i]));
+    }
+
+  }
+
+  public static class ObservableCollectionExtensions
+  {
+    /// <summary>
+    /// Inserts a new element in a sorted collection
+    /// </summary>
+    /// <typeparam name="TC"></typeparam>
+    /// <typeparam name="TI"></typeparam>
+    /// <param name="col"></param>
+    /// <param name="item"></param>
+    /// <param name="comparer"></param>
+    public static void InsertSorted<TC>(this Collection<TC> collection, TC item, System.Collections.Generic.IComparer<TC> comparer)
+    {
+      // Find right position and insert
+      int i = 0;
+      for (; i < collection.Count(); ++i)
+        if (comparer.Compare(item, collection.ElementAt(i)) < 0)
+          break;
+
+      // Not yet inserted, insert at the end
+      collection.Insert(i, item);
+    }
+
+    public static void InsertSorted<TC>(this Collection<TC> collection, TC[] items, IComparer<TC> comparer)
+    {
+      foreach (TC item in items)
+        collection.InsertSorted(item, comparer);
+
+    }
+
+    public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer)
+    {
+      for (int n = collection.Count(); n > 1; --n)
+      {
+        for (int i = 0; i < n - 1; ++i)
+        {
+          if (comparer.Compare(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
+          {
+            TC temp = collection.ElementAt(i);
+            collection.RemoveAt(i);
+            collection.Insert(i+1, temp);
+          }
+        }
+      }
+    }
+
+
   }
 
 

@@ -75,12 +75,15 @@ namespace DSVAlpin2Lib
 
     public void Stop()
     {
-      _statusText = "Stopping";
+      if (_instanceCaller != null)
+      {
+        _statusText = "Stopping";
 
-      _stopRequest = true;
-      _instanceCaller.Join(); // Wait until thread has been terminated
+        _stopRequest = true;
+        _instanceCaller.Join(); // Wait until thread has been terminated
 
-      _dumpFile.Close();
+        _dumpFile.Close();
+      }
     }
 
     private void MainLoop()

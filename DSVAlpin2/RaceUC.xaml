@@ -19,6 +19,59 @@
       <ColumnDefinition Width="1*"/>
     </Grid.ColumnDefinitions>
     <TabControl x:Name="tabControlRace1" Height="Auto" Margin="10" Grid.Column="0" Width="Auto">
+      <TabItem Header="Konfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <Grid >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <DockPanel Height="25" Grid.Row="0" Grid.ColumnSpan="3">
+            <Label DockPanel.Dock="Left" Content="Durchgang 1"/>
+            <Separator/>
+          </DockPanel>
+
+          <Label x:Name="lblConfigStartlist1Grouping" Margin="5" Content="Gruppierung:" Grid.Row="1" Grid.Column="0"/>
+          <ComboBox x:Name="cmbConfigStartlist1Grouping" Margin="5" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+          <Label x:Name="lblConfigStartlist1" Margin="5" Content="Startsortierung:" Grid.Row="2" Grid.Column="0"/>
+          <ComboBox x:Name="cmbConfigStartlist1" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+          <DockPanel Height="25" Grid.Row="3" Grid.ColumnSpan="3">
+            <Label DockPanel.Dock="Left" Content="Durchgang 2"/>
+            <Separator/>
+          </DockPanel>
+
+          <Label x:Name="lblConfigStartlist2Grouping" Margin="5" Content="Gruppierung:" Grid.Row="4" Grid.Column="0"/>
+          <ComboBox x:Name="cmbConfigStartlist2Grouping" Margin="5" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+          <Label x:Name="lblConfigStartlist2" Margin="5" Content="Startsortierung:" Grid.Row="5" Grid.Column="0"/>
+          <ComboBox x:Name="cmbConfigStartlist2" Margin="5" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+          <DockPanel Height="25" Grid.Row="6" Grid.ColumnSpan="3">
+            <Label DockPanel.Dock="Left" Content="Ergebnis"/>
+            <Separator/>
+          </DockPanel>
+
+          <Label x:Name="lblConfigErgebnis" Margin="5" Content="Startsortierung:" Grid.Row="8" Grid.Column="0"/>
+          <ComboBox x:Name="cmbConfigErgebnis" Margin="5" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+
+
+        </Grid>
+      </TabItem>
       <TabItem Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
           <Grid >
@@ -133,14 +186,15 @@
         </ScrollViewer>
       </TabItem>
       <TabItem Header="Teilnehmer &amp; Startnummern" FontSize="12">
-        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgStartList_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
           <DataGrid.Columns>
-            <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+            <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
             <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
             <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
             <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
             <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
             <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+            <DataGridTextColumn x:Name="Punkte" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
           </DataGrid.Columns>
         </DataGrid>
       </TabItem>
@@ -174,6 +228,7 @@
                 </Grid.ColumnDefinitions>
                 <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
                 <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
+                <ComboBox x:Name="cmbStartListGrouping" FontSize="16" Margin="5,5,15,5" Grid.Column="2" SelectionChanged="CmbStartListGrouping_SelectionChanged"/>
                 <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged"/>
               </Grid>
               <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" SelectionChanged="DgRemainingStarters_SelectionChanged" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
@@ -184,7 +239,17 @@
                   <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
                   <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                   <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
                 </DataGrid.Columns>
+                <DataGrid.GroupStyle>
+                  <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                      <DataTemplate>
+                        <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                      </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                  </GroupStyle>
+                </DataGrid.GroupStyle>
               </DataGrid>
               <StackPanel Grid.Row="3" Orientation="Horizontal">
                 <Label x:Name="lblManualMode" Content="Manuelle Erfassung" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/>
@@ -230,7 +295,14 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <Label x:Name="lblResults" Content="Ergebnis (Aktueller Lauf)" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              <Grid Width="Auto">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblResults" Content="Ergebnis (Aktueller Lauf)" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+                <ComboBox x:Name="cmbResultGrouping" FontSize="16" Margin="5" Grid.Column="1" SelectionChanged="CmbResultGrouping_SelectionChanged"/>
+              </Grid>
               <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
@@ -288,7 +360,14 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="1*"/>
       </Grid.RowDefinitions>
-      <Label x:Name="lblTotalResult" Content="Rennergebnis" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+      <Grid Width="Auto">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="lblTotalResult" Content="Rennergebnis" HorizontalAlignment="Left" Margin="0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
+        <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
+      </Grid>
       <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
         <DataGrid.Columns>
           <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />

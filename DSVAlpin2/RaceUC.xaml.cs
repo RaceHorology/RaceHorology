@@ -29,6 +29,8 @@ namespace DSVAlpin2
     // Working Data
     RaceRun _currentRaceRun;
 
+    RemainingStartListViewProvider _rslVP;
+
     ScrollToMeasuredItemBehavior dgResultsScrollBehavior;
     ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
 
@@ -45,6 +47,17 @@ namespace DSVAlpin2
 
       FillCmbRaceRun();
 
+      // Configuration Screen
+      FillGrouping(cmbConfigStartlist1Grouping);
+      FillGrouping(cmbConfigStartlist2Grouping);
+
+      // Timing
+      FillGrouping(cmbStartListGrouping);
+      FillGrouping(cmbResultGrouping);
+
+      // Race Results
+      FillGrouping(cmbTotalResultGrouping);
+
       dgTotalResults.ItemsSource = _currentRace.GetTotalResultView();
       dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
     }
@@ -58,7 +71,7 @@ namespace DSVAlpin2
     {
       // Fill Runs
       List<KeyValuePair<RaceRun, string>> races = new List<KeyValuePair<RaceRun, string>>();
-      for (uint i = 0; i < _currentRace.GetMaxRun(); i++)
+      for (int i = 0; i < _currentRace.GetMaxRun(); i++)
       {
         string sz1 = String.Format("{0}. Durchgang", i + 1);
         races.Add(new KeyValuePair<RaceRun, string>(_currentRace.GetRun(i), sz1));
@@ -77,9 +90,12 @@ namespace DSVAlpin2
       {
         _dataModel.SetCurrentRaceRun(_currentRaceRun);
 
-        dgStartList.ItemsSource = _currentRaceRun.GetStartList();
+        dgStartList.ItemsSource = _currentRace.GetParticipants();
 
-        dgRemainingStarters.ItemsSource = _currentRaceRun.GetRemainingStarterList();
+        _rslVP = new RemainingStartListViewProvider();
+        _rslVP.Init(_currentRaceRun.GetStartListProvider(), _currentRaceRun);
+        dgRemainingStarters.ItemsSource = _rslVP.GetView();
+
         dgRunning.ItemsSource = _currentRaceRun.GetOnTrackList();
         dgResults.ItemsSource = _currentRaceRun.GetResultView();
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
@@ -115,7 +131,9 @@ namespace DSVAlpin2
       try { finish = TimeSpan.Parse(txtFinish.Text); } catch (Exception) { }
       try { run = TimeSpan.Parse(txtRun.Text); } catch (Exception) { }
 
-      RaceParticipant participant = (dgRemainingStarters.SelectedItem as StartListEntry)?.Participant;
+      uint startNumber = 0U;
+      try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+      RaceParticipant participant = _currentRace.GetParticipant(startNumber);
 
       if (participant != null)
       {
@@ -181,6 +199,43 @@ namespace DSVAlpin2
         txtStartNumber.Text = participant.StartNumber.ToString();
       }
     }
+
+    public class GroupingCBItem
+    {
+      public string Text { get; set; }
+      public string Value { get; set; }
+
+      public override string ToString()
+      {
+        return Text;
+      }
+    }
+
+    private void CmbTotalResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbTotalResultGrouping.SelectedValue is GroupingCBItem grouping)
+        _currentRace.GetResultViewProvider().ChangeGrouping(grouping.Value);
+    }
+    private void CmbStartListGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbStartListGrouping.SelectedValue is GroupingCBItem grouping)
+        _rslVP.ChangeGrouping(grouping.Value);
+    }
+    private void CmbResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbResultGrouping.SelectedValue is GroupingCBItem grouping)
+        _currentRaceRun.GetResultViewProvider().ChangeGrouping(grouping.Value);
+    }
+
+
+    public static void FillGrouping(ComboBox comboBox)
+    {
+      comboBox.Items.Add(new GroupingCBItem { Text = "---", Value = null });
+      comboBox.Items.Add(new GroupingCBItem { Text = "Klasse", Value = "Participant.Class" });
+      comboBox.Items.Add(new GroupingCBItem { Text = "Gruppe", Value = "Participant.Group" });
+      comboBox.Items.Add(new GroupingCBItem { Text = "Kategorie", Value = "Participant.Sex" });
+      comboBox.SelectedIndex = 0;
+    }
   }
 
   public class ScrollToMeasuredItemBehavior
@@ -216,17 +271,20 @@ namespace DSVAlpin2
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        foreach (var x in _dataGrid.ItemsSource)
+        if (_dataGrid.ItemsSource != null)
         {
-          Participant xp = null;
-          xp = (x as RunResult)?.Participant.Participant;
-          if (xp == null)
-            xp = (x as RaceResultItem)?.Participant.Participant;
-
-          if (xp == _scrollToParticipant)
+          foreach (var x in _dataGrid.ItemsSource)
           {
-            _dataGrid.ScrollIntoView(x);
-            break;
+            Participant xp = null;
+            xp = (x as RunResult)?.Participant.Participant;
+            if (xp == null)
+              xp = (x as RaceResultItem)?.Participant.Participant;
+
+            if (xp == _scrollToParticipant)
+            {
+              _dataGrid.ScrollIntoView(x);
+              break;
+            }
           }
         }
       });

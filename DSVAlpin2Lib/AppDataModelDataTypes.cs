@@ -205,6 +205,10 @@ namespace DSVAlpin2Lib
       get => _class;
       set { _class = value; NotifyPropertyChanged(); }
     }
+    public ParticipantGroup Group
+    {
+      get => _class.Group;
+    }
 
 
     #region INotifyPropertyChanged implementation
@@ -278,6 +282,7 @@ namespace DSVAlpin2Lib
     public string Nation { get => _participant.Nation; }
 
     public ParticipantClass Class { get => _participant.Class; }
+    public ParticipantGroup Group { get => _participant.Group; }
 
     public uint StartNumber
     {
@@ -332,12 +337,14 @@ namespace DSVAlpin2Lib
     // Some public properties to get displayed in the list
     public RaceParticipant Participant { get { return _participant; } }
     public uint StartNumber { get { return _participant.StartNumber; } }
+    public double Points { get { return _participant.Points; } }
     public string Id { get { return _participant.Id; } }
     public string Name { get { return _participant.Name; } }
     public string Firstname { get { return _participant.Firstname; } }
     public uint Year { get { return _participant.Year; } }
     public string Club { get { return _participant.Club; } }
     public ParticipantClass Class { get { return _participant.Class; } }
+    public ParticipantGroup Group { get => _participant.Group; }
     public string Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
 
@@ -406,6 +413,7 @@ namespace DSVAlpin2Lib
     public uint Year { get { return _participant.Year; } }
     public string Club { get { return _participant.Club; } }
     public ParticipantClass Class { get { return _participant.Class; } }
+    public ParticipantGroup Group { get => _participant.Group; }
     public string Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
 

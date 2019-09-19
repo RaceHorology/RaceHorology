@@ -11,60 +11,340 @@ using System.Windows.Data;
 namespace DSVAlpin2Lib
 {
 
-  public class StartListProvider
+  /// <summary>
+  /// BaseClass for all ViewProvider
+  /// </summary>
+  public abstract class ViewProvider
   {
-    private Race _race;
-    private RaceRun _raceRun;
-    private ItemsChangeObservableCollection<RunResult> _results;
-    ObservableCollection<RaceParticipant> _participants;
+    protected CollectionViewSource _view;
 
-    ItemsChangeObservableCollection<StartListEntry> _startList;
+    protected string _defaultGrouping;
+    protected string _activeGrouping;
 
 
-    CollectionViewSource _startListView;
-
-    public StartListProvider()
+    public ViewProvider()
     {
+      _view = new CollectionViewSource();
     }
 
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="race">The current Race</param>
-    /// <param name="results">The results of this race (to derive the information whether a participant already started)</param>
-    public void Initialize (Race race, RaceRun raceRun, ItemsChangeObservableCollection<RunResult> results)
-    { 
-      _race = race;
-      _raceRun = raceRun;
-      _results = results;
+    protected void FinalizeInit()
+    {
+      _view.Source = GetViewSource();
+    }
 
-      _startList = new ItemsChangeObservableCollection<StartListEntry>();
+    public ICollectionView GetView()
+    {
+      return _view.View;
+    }
 
-      _participants = _race.GetParticipants();
+    public void SetDefaultGrouping(string propertyName)
+    {
+      _defaultGrouping = propertyName;
+    }
 
+    public void ChangeGrouping(string propertyName)
+    {
+      if (_activeGrouping != propertyName)
+      {
+        _view.GroupDescriptions.Clear();
+        _view.LiveGroupingProperties.Clear();
+        _view.IsLiveGroupingRequested = false;
+      }
+
+      if (!string.IsNullOrEmpty(propertyName))
+      { 
+        _view.GroupDescriptions.Add(new PropertyGroupDescription(propertyName));
+        _view.LiveGroupingProperties.Add(propertyName);
+        _view.IsLiveGroupingRequested = true;
+      }
+
+      _activeGrouping = propertyName;
+
+      OnChangeGrouping(propertyName);
+    }
+
+    protected virtual void OnChangeGrouping(string propertyName) { }
+
+
+    public void ResetToDefaultGrouping()
+    {
+      ChangeGrouping(_defaultGrouping);
+    }
+
+
+    public delegate T1 Creator<T1, T2>(T2 source);
+    protected static void PopulateInitially<TC, TSource>(Collection<TC> collection, System.Collections.IEnumerable sourceItems, IComparer<TC> comparer, Creator<TC, TSource> creator)
+    {
+      foreach (TSource item in sourceItems)
+      {
+        TC colItem = creator(item);
+        collection.InsertSorted(colItem, comparer);
+      }
+    }
+
+    protected abstract object GetViewSource();
+
+  }
+
+
+  public class StartListEntryComparer : System.Collections.Generic.IComparer<StartListEntry>
+  {
+    public virtual int Compare(StartListEntry left, StartListEntry right)
+    {
+      if (left.StartNumber < right.StartNumber)
+        return -1;
+      else if (left.StartNumber > right.StartNumber)
+        return 1;
+      else
+        return 0;
+    }
+  }
+
+  interface IStartListViewProvider
+  {
+    ICollectionView GetView();
+  }
+
+  public class StartListViewProvider : ViewProvider, IStartListViewProvider
+  {
+    private ObservableCollection<RaceParticipant> _participants;
+    private ObservableCollection<StartListEntry> _viewList;
+    protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
+    protected ItemsChangedNotifier _sourceItemChangedNotifier;
+
+    public StartListViewProvider()
+    {
+      _comparer = new StartListEntryComparer();
+    }
+
+    // Input: List<RaceParticipant>
+    public void Init(ObservableCollection<RaceParticipant> participants)
+    {
+      _participants = participants;
+
+      _viewList = new ObservableCollection<StartListEntry>();
+
+      // Initialize and observe source list
+      PopulateInitially<StartListEntry, RaceParticipant>(_viewList, _participants, _comparer, CreateStartListEntry);
       _participants.CollectionChanged += OnParticipantsChanged;
+      _sourceItemChangedNotifier = new ItemsChangedNotifier(_participants);
+      _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
 
-      _results.CollectionChanged += OnResultsChanged;
-      _results.ItemChanged+= OnResultItemChanged;
-
-
-      _startListView = new CollectionViewSource();
-
-      _startListView.Source = _startList;
-
-      _startListView.SortDescriptions.Clear();
-      _startListView.SortDescriptions.Add(new SortDescription(nameof(RaceParticipant.StartNumber), ListSortDirection.Ascending));
-
-      _startListView.LiveSortingProperties.Add(nameof(RaceParticipant.StartNumber));
-      _startListView.IsLiveSortingRequested = true;
-
-      //_startListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
-      //_startListView.LiveGroupingProperties.Add(nameof(Participant.Class));
-      //_startListView.IsLiveGroupingRequested = true;
-
-      InitSync();
+      base.FinalizeInit();
     }
+
+    private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      // Ensure list is sorted again
+      _viewList.Sort(_comparer);
+    }
+
+    // Output: sorted List<StartListEntry> according to StartNumber
+    public ObservableCollection<StartListEntry> GetViewList()
+    {
+      return _viewList;
+    }
+
+
+    private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RaceParticipant participant = (RaceParticipant)item;
+          var itemsToRemove = _viewList.Where(r => r.Participant.Participant == participant.Participant).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _viewList.Remove(itemToRemove);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+    }
+
+    private static StartListEntry CreateStartListEntry(RaceParticipant participant)
+    {
+      return new StartListEntry(participant);
+    }
+
+    protected override object GetViewSource()
+    {
+      return _viewList;
+    }
+  }
+
+
+  public class FirstRunStartListViewProvider :  StartListViewProvider
+  {
+
+    // Input: List<RaceParticipant>
+
+    // Output: sorted List<StartListEntry> according to StartNumber
+
+  }
+
+
+
+  public class PointsStartListEntryComparer : StartListEntryComparer
+  {
+    protected int _firstNStartnumbers;
+    public PointsStartListEntryComparer(int firstNStartnumbers)
+    {
+      _firstNStartnumbers = firstNStartnumbers;
+    }
+
+    public override int Compare(StartListEntry left, StartListEntry right)
+    {
+      if (left.StartNumber < _firstNStartnumbers + 1)
+      {
+        if (right.StartNumber < _firstNStartnumbers + 1)
+          return left.StartNumber.CompareTo(right.StartNumber);
+        else
+          return -1;
+      }
+
+      // Left Startnumber is bigger than _firstNStartnumbers
+
+      if (right.StartNumber < _firstNStartnumbers + 1)
+        return +1;
+
+      // According to points, but other direction
+      int compPoints = left.Points.CompareTo(right.Points);
+      if (compPoints != 0)
+        return compPoints;
+
+      // If Points are equal, sort by startnumber
+      return left.StartNumber.CompareTo(right.StartNumber);
+    }
+  }
+
+
+
+  // First n (15) per grouping are always kept constant
+  public class DSVFirstRunStartListViewProvider : FirstRunStartListViewProvider
+  {
+    public DSVFirstRunStartListViewProvider(int firstNStartnumbers)
+    {
+      _comparer = new PointsStartListEntryComparer(firstNStartnumbers);
+    }
+
+    // Parameter: first n
+
+  }
+
+
+
+
+  public class SecondRunStartListViewProvider : StartListViewProvider
+  {
+    // Input: List<StartListEntry> (1st run),
+    //        List<RaceResultWithPosition> (1st run)
+
+    // Output: sorted List<StartListEntry> according to StartNumber
+
+  }
+
+
+  // wie 1. DG, 1. DG rückwärts
+  public class SimpleSecondRunStartListViewProvider : SecondRunStartListViewProvider
+  {
+    
+
+  }
+
+
+  // basierend auf (1. DG) Ergebnisliste: rückwärts, ersten n gelost, mit/ohne disqualifizierten vorwärts oder rückwärts
+  public class BasedOnResultsFirstRunStartListViewProvider : SecondRunStartListViewProvider
+  {
+
+
+  }
+
+
+
+
+  public class RemainingStartListViewProvider : IStartListViewProvider
+  {
+    StartListViewProvider _srcStartListProvider;
+    RaceRun _raceRun;
+
+    ObservableCollection<StartListEntry> _viewList;
+    CollectionViewSource _view;
+
+    protected string _defaultGrouping;
+    protected string _activeGrouping;
+
+
+    public RemainingStartListViewProvider()
+    {
+      _view = new CollectionViewSource();
+    }
+
+
+    public void SetDefaultGrouping(string propertyName)
+    {
+      _defaultGrouping = propertyName;
+    }
+
+    public void ChangeGrouping(string propertyName)
+    {
+      if (_activeGrouping != propertyName)
+      {
+        _view.GroupDescriptions.Clear();
+        _view.LiveGroupingProperties.Clear();
+        _view.IsLiveGroupingRequested = false;
+      }
+
+      if (!string.IsNullOrEmpty(propertyName))
+      {
+        _view.GroupDescriptions.Add(new PropertyGroupDescription(propertyName));
+        _view.LiveGroupingProperties.Add(propertyName);
+        _view.IsLiveGroupingRequested = true;
+      }
+
+      _activeGrouping = propertyName;
+    }
+
+    public void ResetToDefaultGrouping()
+    {
+      ChangeGrouping(_defaultGrouping);
+    }
+
+
+    // Input: StartListViewProvider or List<StartListEntry>
+    public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
+    {
+      // Remember the source
+      _srcStartListProvider = startListProvider;
+      _raceRun = raceRun;
+
+      // Observe the results
+      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
+      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
+
+      // Create working list
+      _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => new StartListEntry(sle.Participant));
+      foreach (StartListEntry entry in _viewList)
+        UpdateStartListEntry(entry);
+
+
+      // Create View with filtered items
+      ObservableCollection<StartListEntry> startList = _viewList;
+      _view.Source = startList;
+      _view.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
+      _view.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
+      _view.IsLiveFilteringRequested = true;
+    }
+
+
+    // Output: List<StartListEntry> same way sorted as input StartList
+    public ICollectionView GetView()
+    {
+      return _view.View;
+    }
+
 
     private void OnResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -93,153 +373,170 @@ namespace DSVAlpin2Lib
 
     private void UpdateStartListEntry(RunResult result)
     {
-      StartListEntry se = _startList.Where(r => r.Participant == result.Participant).FirstOrDefault();
+      StartListEntry se = _viewList.Where(r => r.Participant == result.Participant).FirstOrDefault();
       if (se != null)
         se.Started = _raceRun.IsOrWasOnTrack(result);
     }
 
     private void UpdateStartListEntry(StartListEntry se)
     {
-      RunResult result = _results.Where(r => r.Participant == se.Participant).FirstOrDefault();
+      RunResult result = _raceRun.GetResultList().Where(r => r.Participant == se.Participant).FirstOrDefault();
 
       if (result != null)
         se.Started = _raceRun.IsOrWasOnTrack(result);
     }
 
 
-    private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
+
+  }
+
+
+
+  public abstract class ResultViewProvider : ViewProvider
+  {
+
+    public static object GetGroupValue(object obj, string propertyName)
     {
-      if (e.OldItems != null)
-        foreach (INotifyPropertyChanged item in e.OldItems)
-        {
-          // Remove from _results
-          RaceParticipant participant = (RaceParticipant)item;
-          var itemsToRemove = _startList.Where(r => r.Participant.Participant == participant.Participant).ToList();
-          foreach (var itemToRemove in itemsToRemove)
-            _startList.Remove(itemToRemove);
-        }
+      if (propertyName == null || obj == null)
+        return null;
 
-      if (e.NewItems != null)
-        foreach (INotifyPropertyChanged item in e.NewItems)
-        {
-          // Add to results
-          RaceParticipant participant = (RaceParticipant)item;
-          StartListEntry se = new StartListEntry(participant);
-          _startList.Add(se);
-          UpdateStartListEntry(se);
-        }
-    }
-
-
-    private void InitSync()
-    {
-      foreach (RaceParticipant participant in _participants)
+      foreach (string part in propertyName.Split('.'))
       {
-        // Add to results
-        StartListEntry se = new StartListEntry(participant);
-        _startList.Add(se);
-        UpdateStartListEntry(se);
+        if (obj == null) { return null; }
+
+        Type type = obj.GetType();
+        System.Reflection.PropertyInfo info = type.GetProperty(part);
+        if (info == null) { return null; }
+
+        obj = info.GetValue(obj, null);
       }
+      return obj;
     }
 
-    public System.ComponentModel.ICollectionView GetStartList()
+  }
+
+
+
+  public abstract class ResultSorter<T> : IComparer<T>
+  {
+    string _groupingPropertyName;
+    public void SetGrouping(string propertyName)
     {
-      return _startListView.View;
+      _groupingPropertyName = propertyName;
     }
 
-    public ItemsChangeObservableCollection<StartListEntry> GetRawStartList()
+    protected int CompareGroup(RunResultWithPosition rrX, RunResultWithPosition rrY)
     {
-      return _startList;
+      int groupCompare = 0;
+      if (_groupingPropertyName == "Participant.Class")
+        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+      else if (_groupingPropertyName == "Participant.Group")
+        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+      else if (_groupingPropertyName == "Participant.Sex")
+        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+
+      return groupCompare;
+    }
+    protected int CompareGroup(RaceResultItem rrX, RaceResultItem rrY)
+    {
+      int groupCompare = 0;
+      if (_groupingPropertyName == "Participant.Class")
+        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+      else if (_groupingPropertyName == "Participant.Group")
+        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+      else if (_groupingPropertyName == "Participant.Sex")
+        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+
+      return groupCompare;
+    }
+
+    public abstract int Compare(T rrX, T rrY);
+
+  }
+
+
+  //Propagate class to sorter
+  public class RuntimeSorter : ResultSorter<RunResultWithPosition>
+  {
+
+    public override int Compare(RunResultWithPosition rrX, RunResultWithPosition rrY)
+    {
+      TimeSpan? tX = rrX.Runtime;
+      TimeSpan? tY = rrY.Runtime;
+
+      int groupCompare = CompareGroup(rrX, rrY);
+      if (groupCompare != 0)
+        return groupCompare;
+
+      // Sort by time
+      if (tX == null && tY == null)
+        return 0;
+
+      if (tX != null && tY == null)
+        return -1;
+
+      if (tX == null && tY != null)
+        return 1;
+
+      return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
     }
   }
 
 
-  public class ResultViewProvider
+  public class RaceRunResultViewProvider : ResultViewProvider
   {
+    // Input Data
     ItemsChangeObservableCollection<RunResult> _originalResults;
     AppDataModel _appDataModel;
-    ItemsChangeObservableCollection<RunResultWithPosition> _results;
-    System.Collections.Generic.IComparer<RunResultWithPosition> _sorter;
 
-    CollectionViewSource _resultListView;
+    // Working Data
+    ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
+    ResultSorter<RunResultWithPosition> _comparer;
 
-    public class RuntimeSorter : System.Collections.Generic.IComparer<RunResultWithPosition>
+
+    public RaceRunResultViewProvider()
     {
-      public int Compare(RunResultWithPosition rrX, RunResultWithPosition rrY)
-      {
-        TimeSpan? tX = rrX.Runtime;
-        TimeSpan? tY = rrY.Runtime;
-
-        // Sort by grouping (class or group or ...)
-        // TODO: Shall be configurable
-        int classCompare = rrX.Class.CompareTo(rrY.Class);
-        if (classCompare != 0)
-          return classCompare;
-
-        // Sort by time
-        if (tX == null && tY == null)
-          return 0;
-
-        if (tX != null && tY == null)
-          return -1;
-
-        if (tX == null && tY != null)
-          return 1;
-
-        return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
-      }
+      _comparer = new RuntimeSorter();
     }
 
-
-    public ResultViewProvider()
+    // Input: RaceRun
+    public void Init(RaceRun raceRun, AppDataModel appDataModel)
     {
-
-    }
-
-
-    public void Initialize(Race race, ItemsChangeObservableCollection<RunResult> results, AppDataModel appDataModel)
-    {
-      _sorter = new RuntimeSorter();
-
-      _originalResults = results;
+      _originalResults = raceRun.GetResultList();
       _appDataModel = appDataModel;
 
+      _viewList = new ItemsChangeObservableCollection<RunResultWithPosition>();
+
+      // Initialize and observe source list
+      PopulateInitially<RunResultWithPosition, RunResult>(_viewList, _originalResults, _comparer, CreateRunResultWithPosition);
+      UpdatePositions();
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
 
-      _resultListView = new CollectionViewSource();
-
-      _results = new ItemsChangeObservableCollection<RunResultWithPosition>();
-      foreach (var result in _originalResults)
-        _results.Add(new RunResultWithPosition(result));
-      ResortResults();
-
-      _resultListView.Source = _results;
-
-
-      _resultListView.SortDescriptions.Clear();
-      //_resultListView.SortDescriptions.Add(new SortDescription(nameof(RunResult.Runtime), ListSortDirection.Ascending));
-
-      //_resultListView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).Runtime != null; });
-      //_resultListView.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
-      //_resultListView.IsLiveFilteringRequested = true;
-
-      // TODO: Check this out
-      ListCollectionView llview = _resultListView.View as ListCollectionView;
-      //llview.CustomSort = new RuntimeSorter();
-
-      //_resultListView.LiveSortingProperties.Add(nameof(RunResult.Runtime));
-      //_resultListView.IsLiveSortingRequested = true;
-
-      _resultListView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Participant.Class)));
-      _resultListView.LiveGroupingProperties.Add(nameof(Participant.Class));
-      _resultListView.IsLiveGroupingRequested = true;
+      FinalizeInit();
     }
 
-    public System.ComponentModel.ICollectionView GetResultView()
+
+    // Output: List<RunResultWithPosition>
+    protected override object GetViewSource()
     {
-      return _resultListView.View;
+      return _viewList;
     }
+
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+      _viewList.Sort(_comparer);
+      UpdatePositions();
+    }
+
+
+    private static RunResultWithPosition CreateRunResultWithPosition(RunResult r)
+    {
+      return new RunResultWithPosition(r);
+    }
+
 
     void OnOriginalResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -248,139 +545,129 @@ namespace DSVAlpin2Lib
         {
           // Remove from _results
           RunResult result = (RunResult)item;
-          var itemsToRemove = _results.Where(r => r == result).ToList();
+          var itemsToRemove = _viewList.Where(r => r == result).ToList();
           foreach (var itemToRemove in itemsToRemove)
-            _results.Remove(itemToRemove);
+            _viewList.Remove(itemToRemove);
         }
 
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
-          // Add to results
-          RunResult result = (RunResult)item;
-          _results.Add(new RunResultWithPosition(result));
+          _viewList.InsertSorted(CreateRunResultWithPosition((RunResult)item), _comparer);
         }
 
-      ResortResults();
+      UpdatePositions();
     }
+
 
     void OnOriginalResultItemChanged(object sender, PropertyChangedEventArgs e)
     {
       RunResult result = (RunResult)sender;
-      RunResultWithPosition rrWP = _results.FirstOrDefault(r => r.Participant == result.Participant);
+      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == result.Participant);
 
       if (rrWP == null)
-        _results.Add(new RunResultWithPosition(result));
+        _viewList.InsertSorted(CreateRunResultWithPosition(result), _comparer);
       else
+      {
         rrWP.UpdateRunResult(result);
+        _viewList.Sort(_comparer);
+      }
 
-      // Anything to update?
-      ResortResults();
+      UpdatePositions();
     }
 
-
-    void ResortResults()
+    void UpdatePositions()
     {
-      // TODO: Could be much more efficient; consumes O(nlogn * n); but underlaying data structure _results needs to be changed to support in-place sorting (e.g. an array)
-      // Sort:
-      // 1. by Class
-      // 2. by Time
-
-      var sortedResults = _results.ToList();
-      sortedResults.Sort(_sorter);
-      _results.Clear();
-
       uint curPosition = 1;
       uint samePosition = 1;
-      ParticipantClass curClass = null;
+      object curGroup = null;
       TimeSpan? lastTime = null;
-      foreach (var sortedItem in sortedResults)
+      foreach (RunResultWithPosition item in _viewList)
       {
-        if (sortedItem.Class != curClass)
+        if (!Equals(GetGroupValue(item, _activeGrouping), curGroup))
         {
-          curClass = sortedItem.Class;
+          curGroup = GetGroupValue(item, _activeGrouping);
           curPosition = 1;
           lastTime = null;
         }
 
-        if (sortedItem.Runtime != null)
+        if (item.Runtime != null)
         {
-          sortedItem.Position = curPosition;
+          item.Position = curPosition;
 
           // Same position in case same time
-          if (sortedItem.Runtime == lastTime)//< TimeSpan.FromMilliseconds(9))
-          {
+          if (item.Runtime == lastTime)//< TimeSpan.FromMilliseconds(9))
             samePosition++;
-          }
           else
           {
             curPosition += samePosition;
             samePosition = 1;
           }
-          lastTime = sortedItem.Runtime;
+          lastTime = item.Runtime;
         }
         else
-        {
-          sortedItem.Position = 0;
-        }
+          item.Position = 0;
 
         // Set the JustModified flag to highlight new results
-        sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant.Participant);
-
-        _results.Add(sortedItem);
+        item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
       }
     }
-
-    static readonly TimeSpan delta = new TimeSpan(0, 0, 1); // 1 sec
   }
 
 
 
-  public class RaceResultProvider
+  public class TotalTimeSorter : ResultSorter<RaceResultItem>
   {
+    public override int Compare(RaceResultItem rrX, RaceResultItem rrY)
+    {
+      int groupCompare = CompareGroup(rrX, rrY);
+      if (groupCompare != 0)
+        return groupCompare;
+
+      TimeSpan? tX = rrX.TotalTime;
+      TimeSpan? tY = rrY.TotalTime;
+
+      // Sort by time
+      if (tX == null && tY == null)
+        return 0;
+
+      if (tX != null && tY == null)
+        return -1;
+
+      if (tX == null && tY != null)
+        return 1;
+
+      return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
+    }
+  }
+
+
+  public class RaceResultViewProvider : ResultViewProvider
+  {
+    // Input Data
     Race _race;
     RaceRun[] _raceRuns;
     AppDataModel _appDataModel;
-    ItemsChangeObservableCollection<RaceResultItem> _raceResults;
-    System.Collections.Generic.IComparer<RaceResultItem> _sorter = new TotalTimeSorter();
-    CollectionViewSource _raceResultsView;
+
+    // Working Data
+    ItemsChangeObservableCollection<RaceResultItem> _viewList;
+    ResultSorter<RaceResultItem> _comparer;
 
 
-    public class TotalTimeSorter : System.Collections.Generic.IComparer<RaceResultItem>
+    public RaceResultViewProvider()
     {
-      public int Compare(RaceResultItem rrX, RaceResultItem rrY)
-      {
-        TimeSpan? tX = rrX.TotalTime;
-        TimeSpan? tY = rrY.TotalTime;
-
-        // Sort by grouping (class or group or ...)
-        // TODO: Shall be configurable
-        int classCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
-        if (classCompare != 0)
-          return classCompare;
-
-        // Sort by time
-        if (tX == null && tY == null)
-          return 0;
-
-        if (tX != null && tY == null)
-          return -1;
-
-        if (tX == null && tY != null)
-          return 1;
-
-        return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
-      }
+      _comparer = new TotalTimeSorter();
     }
 
 
-
-    public RaceResultProvider(Race race, RaceRun[] rr, AppDataModel appDataModel)
+    // Input: Race
+    public void Init(Race race, AppDataModel appDataModel)
     {
       _race = race;
-      _raceRuns = rr;
+      _raceRuns = _race.GetRuns();
       _appDataModel = appDataModel;
-      _raceResults = new ItemsChangeObservableCollection<RaceResultItem>();
+
+      _viewList = new ItemsChangeObservableCollection<RaceResultItem>();
 
       foreach (RaceRun r in _raceRuns)
       {
@@ -388,38 +675,22 @@ namespace DSVAlpin2Lib
         OnResultListCollectionChanged(r.GetResultList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, r.GetResultList().ToList()));
       }
 
-
-      _raceResultsView = new CollectionViewSource();
-
-      _raceResultsView.Source = _raceResults;
-
-      _raceResultsView.SortDescriptions.Clear();
-      //_raceResultsView.SortDescriptions.Add(new SortDescription(nameof(RaceResultItem.TotalTime), ListSortDirection.Ascending));
-
-      //_raceResultsView.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RaceResultItem)ea.Item).TotalTime != null; });
-      //_raceResultsView.LiveFilteringProperties.Add(nameof(RaceResultItem.TotalTime));
-      //_raceResultsView.IsLiveFilteringRequested = true;
-
-      // TODO: Seems like sorting null at the end does not work ... visible if the Filter above is turned off ...
-      ListCollectionView llview = _raceResultsView.View as ListCollectionView;
-      //llview.CustomSort = new TotalTimeSorter();
-
-      //_raceResultsView.LiveSortingProperties.Add(nameof(RaceResultItem.TotalTime));
-      //_raceResultsView.IsLiveSortingRequested = true;
-
-      _raceResultsView.GroupDescriptions.Add(new PropertyGroupDescription("Participant.Class"));
-      _raceResultsView.LiveGroupingProperties.Add("Participant.Class");
-      _raceResultsView.IsLiveGroupingRequested = true;
-
       UpdateAll();
+
+      FinalizeInit();
     }
 
-
-    public System.ComponentModel.ICollectionView GetView()
+    // Output: List<RunResultWithPosition>
+    protected override object GetViewSource()
     {
-      return _raceResultsView.View;
+      return _viewList;
     }
 
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+      ResortResults();
+    }
 
     private void OnRunResultItemChanged(object sender, PropertyChangedEventArgs e)
     {
@@ -457,7 +728,6 @@ namespace DSVAlpin2Lib
       }
     }
 
-
     private void UpdateAll()
     {
       foreach (RaceParticipant p in _race.GetParticipants())
@@ -468,11 +738,11 @@ namespace DSVAlpin2Lib
 
     private void UpdateResultsFor(RaceParticipant participant)
     {
-      RaceResultItem rri = _raceResults.SingleOrDefault(x => x.Participant == participant);
+      RaceResultItem rri = _viewList.SingleOrDefault(x => x.Participant == participant);
       if (rri == null)
       {
         rri = new RaceResultItem(participant);
-        _raceResults.Add(rri);
+        _viewList.Add(rri);
       }
 
       // Look for the sub-result
@@ -489,26 +759,22 @@ namespace DSVAlpin2Lib
       rri.TotalTime = MinimumTime(results);
     }
 
+
     void ResortResults()
     {
-      // TODO: Could be much more efficient; consumes O(nlogn * n); but underlaying data structure _results needs to be changed to support in-place sorting (e.g. an array)
-      // Sort:
-      // 1. by Class
-      // 2. by Time
-
-      var sortedResults = _raceResults.ToList();
-      sortedResults.Sort(_sorter);
-      _raceResults.Clear();
+      _viewList.Sort(_comparer);
 
       uint curPosition = 1;
       uint samePosition = 1;
-      ParticipantClass curClass = null;
+
+      object curGroup = null;
+
       TimeSpan? lastTime = null;
-      foreach (var sortedItem in sortedResults)
+      foreach (var sortedItem in _viewList)
       {
-        if (sortedItem.Participant.Participant.Class != curClass)
+        if (!Equals(GetGroupValue(sortedItem, _activeGrouping), curGroup))
         {
-          curClass = sortedItem.Participant.Participant.Class;
+          curGroup = GetGroupValue(sortedItem, _activeGrouping);
           curPosition = 1;
           lastTime = null;
         }
@@ -536,11 +802,8 @@ namespace DSVAlpin2Lib
 
         // Set the JustModified flag to highlight new results
         sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant.Participant);
-
-        _raceResults.Add(sortedItem);
       }
     }
-
 
 
     TimeSpan? MinimumTime(Dictionary<uint, RunResult> results)
@@ -574,7 +837,22 @@ namespace DSVAlpin2Lib
       return sumTime;
     }
 
+
   }
+
+  /* e.g. FamilienWertung
+    public class SpecialRaceResultViewProvider : ResultViewProvider
+    {
+      // Input: Race
+
+      // Output: List<RunResultWithPosition>
+
+
+    }
+    */
+
+
+    
 
 
 

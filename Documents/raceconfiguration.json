@@ -1,0 +1,35 @@
+
+
+RaceConfiguration
+{
+	Grouping = Category
+	
+	Run1
+	{
+		StartList
+		{
+			FirstRunStartListViewProvider|DSVFirstRunStartListViewProvider
+		}
+		ResultList
+		{
+			RaceRunResultViewProvider
+		}
+	}
+	
+	Run2
+	{
+		StartList
+		{
+			SimpleSecondRunStartListViewProvider|BasedOnResultsFirstRunStartListViewProvider
+		}
+		ResultList
+		{
+			RaceRunResultViewProvider
+		}
+	}
+	
+	ResultList
+	{
+		RaceResultViewProvider
+	}
+}
