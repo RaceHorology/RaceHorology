@@ -60,7 +60,12 @@ namespace DSVAlpin2Lib
       }
 
       _activeGrouping = propertyName;
+
+      OnChangeGrouping(propertyName);
     }
+
+    protected virtual void OnChangeGrouping(string propertyName) { }
+
 
     public void ResetToDefaultGrouping()
     {
@@ -349,24 +354,79 @@ namespace DSVAlpin2Lib
 
   public abstract class ResultViewProvider : ViewProvider
   {
+
+    public static object GetGroupValue(object obj, string propertyName)
+    {
+      if (propertyName == null || obj == null)
+        return null;
+
+      foreach (string part in propertyName.Split('.'))
+      {
+        if (obj == null) { return null; }
+
+        Type type = obj.GetType();
+        System.Reflection.PropertyInfo info = type.GetProperty(part);
+        if (info == null) { return null; }
+
+        obj = info.GetValue(obj, null);
+      }
+      return obj;
+    }
+
   }
 
 
 
-   //Propagate class to sorter
-  public class RuntimeSorter : System.Collections.Generic.IComparer<RunResultWithPosition>
+  public abstract class ResultSorter<T> : IComparer<T>
   {
-    public int Compare(RunResultWithPosition rrX, RunResultWithPosition rrY)
+    string _groupingPropertyName;
+    public void SetGrouping(string propertyName)
+    {
+      _groupingPropertyName = propertyName;
+    }
+
+    protected int CompareGroup(RunResultWithPosition rrX, RunResultWithPosition rrY)
+    {
+      int groupCompare = 0;
+      if (_groupingPropertyName == "Participant.Class")
+        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+      else if (_groupingPropertyName == "Participant.Group")
+        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+      else if (_groupingPropertyName == "Participant.Sex")
+        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+
+      return groupCompare;
+    }
+    protected int CompareGroup(RaceResultItem rrX, RaceResultItem rrY)
+    {
+      int groupCompare = 0;
+      if (_groupingPropertyName == "Participant.Class")
+        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+      else if (_groupingPropertyName == "Participant.Group")
+        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+      else if (_groupingPropertyName == "Participant.Sex")
+        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+
+      return groupCompare;
+    }
+
+    public abstract int Compare(T rrX, T rrY);
+
+  }
+
+
+  //Propagate class to sorter
+  public class RuntimeSorter : ResultSorter<RunResultWithPosition>
+  {
+
+    public override int Compare(RunResultWithPosition rrX, RunResultWithPosition rrY)
     {
       TimeSpan? tX = rrX.Runtime;
       TimeSpan? tY = rrY.Runtime;
 
-      //throw new NotImplementedException;
-      // Sort by grouping (class or group or ...) alternatively have separated lists in the view provider and sort them individually
-      // TODO: Shall be configurable
-      int classCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
-      if (classCompare != 0)
-        return classCompare;
+      int groupCompare = CompareGroup(rrX, rrY);
+      if (groupCompare != 0)
+        return groupCompare;
 
       // Sort by time
       if (tX == null && tY == null)
@@ -391,7 +451,7 @@ namespace DSVAlpin2Lib
 
     // Working Data
     ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
-    System.Collections.Generic.IComparer<RunResultWithPosition> _comparer;
+    ResultSorter<RunResultWithPosition> _comparer;
 
 
     public RaceRunResultViewProvider()
@@ -421,6 +481,14 @@ namespace DSVAlpin2Lib
     protected override object GetViewSource()
     {
       return _viewList;
+    }
+
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+      _viewList.Sort(_comparer);
+      UpdatePositions();
     }
 
 
@@ -472,13 +540,13 @@ namespace DSVAlpin2Lib
     {
       uint curPosition = 1;
       uint samePosition = 1;
-      ParticipantClass curClass = null;
+      object curGroup = null;
       TimeSpan? lastTime = null;
       foreach (RunResultWithPosition item in _viewList)
       {
-        if (item.Class != curClass)
+        if (!Equals(GetGroupValue(item, _activeGrouping), curGroup))
         {
-          curClass = item.Class;
+          curGroup = GetGroupValue(item, _activeGrouping);
           curPosition = 1;
           lastTime = null;
         }
@@ -508,18 +576,16 @@ namespace DSVAlpin2Lib
 
 
 
-  public class TotalTimeSorter : System.Collections.Generic.IComparer<RaceResultItem>
+  public class TotalTimeSorter : ResultSorter<RaceResultItem>
   {
-    public int Compare(RaceResultItem rrX, RaceResultItem rrY)
+    public override int Compare(RaceResultItem rrX, RaceResultItem rrY)
     {
+      int groupCompare = CompareGroup(rrX, rrY);
+      if (groupCompare != 0)
+        return groupCompare;
+
       TimeSpan? tX = rrX.TotalTime;
       TimeSpan? tY = rrY.TotalTime;
-
-      // Sort by grouping (class or group or ...)
-      // TODO: Shall be configurable
-      int classCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
-      if (classCompare != 0)
-        return classCompare;
 
       // Sort by time
       if (tX == null && tY == null)
@@ -536,8 +602,6 @@ namespace DSVAlpin2Lib
   }
 
 
-
-
   public class RaceResultViewProvider : ResultViewProvider
   {
     // Input Data
@@ -547,7 +611,7 @@ namespace DSVAlpin2Lib
 
     // Working Data
     ItemsChangeObservableCollection<RaceResultItem> _viewList;
-    System.Collections.Generic.IComparer<RaceResultItem> _comparer;
+    ResultSorter<RaceResultItem> _comparer;
 
 
     public RaceResultViewProvider()
@@ -580,6 +644,12 @@ namespace DSVAlpin2Lib
     protected override object GetViewSource()
     {
       return _viewList;
+    }
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+      ResortResults();
     }
 
     private void OnRunResultItemChanged(object sender, PropertyChangedEventArgs e)
@@ -656,13 +726,15 @@ namespace DSVAlpin2Lib
 
       uint curPosition = 1;
       uint samePosition = 1;
-      ParticipantClass curClass = null;
+
+      object curGroup = null;
+
       TimeSpan? lastTime = null;
       foreach (var sortedItem in _viewList)
       {
-        if (sortedItem.Participant.Participant.Class != curClass)
+        if (!Equals(GetGroupValue(sortedItem, _activeGrouping), curGroup))
         {
-          curClass = sortedItem.Participant.Participant.Class;
+          curGroup = GetGroupValue(sortedItem, _activeGrouping);
           curPosition = 1;
           lastTime = null;
         }
