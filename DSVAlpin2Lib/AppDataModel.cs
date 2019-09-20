@@ -255,7 +255,7 @@ namespace DSVAlpin2Lib
         }
         else
         {
-          SecondRunStartListViewProvider srslVP = new SimpleSecondRunStartListViewProvider();
+          SecondRunStartListViewProvider srslVP = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
           //srslVP = new BasedOnResultsFirstRunStartListViewProvider(15);
           srslVP.Init(raceRunsArr[i - 1]);
           slVP = srslVP;

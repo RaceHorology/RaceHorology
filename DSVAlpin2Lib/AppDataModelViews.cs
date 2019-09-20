@@ -262,15 +262,12 @@ namespace DSVAlpin2Lib
 
 
 
-  public class SecondRunStartListViewProvider : StartListViewProvider
+  public abstract class SecondRunStartListViewProvider : StartListViewProvider
   {
     // Input: List<StartListEntry> (1st run),
     //        List<RaceResultWithPosition> (1st run)
 
-    public void Init(RaceRun previousRun)
-    {
-
-    }
+    public abstract void Init(RaceRun previousRun);
 
     // Output: sorted List<StartListEntry> according to StartNumber
 
@@ -280,7 +277,61 @@ namespace DSVAlpin2Lib
   // wie 1. DG, 1. DG rückwärts
   public class SimpleSecondRunStartListViewProvider : SecondRunStartListViewProvider
   {
-    
+    // Input
+    protected ObservableCollection<StartListEntry> _startList1stRun;
+
+    // Working
+    ItemsChangedNotifier _sourceItemChangedNotifier;
+
+
+    public SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction direction)
+    {
+      _comparer = new StartListEntryComparer(direction);
+    }
+
+    public override void Init(RaceRun previousRun)
+    {
+      _viewList = new ObservableCollection<StartListEntry>();
+
+      StartListViewProvider slPR1st = previousRun.GetStartListProvider();
+      _startList1stRun = slPR1st.GetViewList();
+
+      // Initialize and observe source list
+      PopulateInitially<StartListEntry, StartListEntry>(_viewList, _startList1stRun, _comparer, CreateStartListEntry);
+      _startList1stRun.CollectionChanged += OnSourceChanged;
+      _sourceItemChangedNotifier = new ItemsChangedNotifier(_startList1stRun);
+      _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
+    }
+
+    private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          StartListEntry sle = (StartListEntry)item;
+          var itemsToRemove = _viewList.Where(i => i.Participant == sle.Participant).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _viewList.Remove(itemToRemove);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+    }
+
+    private StartListEntry CreateStartListEntry(StartListEntry sleSRC)
+    {
+      return new StartListEntry(sleSRC.Participant);
+    }
+
+
+    private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      // Ensure list is sorted again
+      _viewList.Sort(_comparer);
+    }
+
 
   }
 
@@ -288,7 +339,10 @@ namespace DSVAlpin2Lib
   // basierend auf (1. DG) Ergebnisliste: rückwärts, ersten n gelost, mit/ohne disqualifizierten vorwärts oder rückwärts
   public class BasedOnResultsFirstRunStartListViewProvider : SecondRunStartListViewProvider
   {
-
+    public override void Init(RaceRun previousRun)
+    {
+      throw new NotImplementedException();
+    }
 
   }
 
