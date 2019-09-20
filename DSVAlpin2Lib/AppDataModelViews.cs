@@ -553,16 +553,22 @@ namespace DSVAlpin2Lib
         return groupCompare;
 
       // Sort by time
-      if (tX == null && tY == null)
-        return 0;
-
       if (tX != null && tY == null)
         return -1;
 
       if (tX == null && tY != null)
         return 1;
 
-      return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
+      // If no time, use startnumber
+      if (tX == null && tY == null)
+        return rrX.StartNumber.CompareTo(rrY.StartNumber);
+
+      // If equal, consider startnumber as well
+      int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
+      if (timeComp == 0)
+        return rrX.StartNumber.CompareTo(rrY.StartNumber);
+
+      return timeComp;
     }
   }
 
