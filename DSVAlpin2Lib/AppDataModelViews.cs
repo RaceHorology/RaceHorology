@@ -90,12 +90,18 @@ namespace DSVAlpin2Lib
 
   public class StartListEntryComparer : System.Collections.Generic.IComparer<StartListEntry>
   {
+    public enum  Direction : int { Ascending = 1, Descending = -1 };
+    Direction _direction;
+    public StartListEntryComparer(Direction direction = Direction.Ascending)
+    {
+      _direction = direction;
+    }
     public virtual int Compare(StartListEntry left, StartListEntry right)
     {
       if (left.StartNumber < right.StartNumber)
-        return -1;
+        return -1 * (int)_direction;
       else if (left.StartNumber > right.StartNumber)
-        return 1;
+        return 1  * (int)_direction;
       else
         return 0;
     }
