@@ -115,11 +115,9 @@ namespace DSVAlpin2Lib
   public abstract class StartListViewProvider : ViewProvider, IStartListViewProvider
   {
     protected ObservableCollection<StartListEntry> _viewList;
-    protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
 
     public StartListViewProvider()
     {
-      _comparer = new StartListEntryComparer();
     }
 
     // Output: sorted List<StartListEntry> according to StartNumber
@@ -128,23 +126,6 @@ namespace DSVAlpin2Lib
       return _viewList;
     }
 
-
-    private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-      if (e.OldItems != null)
-        foreach (INotifyPropertyChanged item in e.OldItems)
-        {
-          // Remove from _results
-          RaceParticipant participant = (RaceParticipant)item;
-          var itemsToRemove = _viewList.Where(r => r.Participant.Participant == participant.Participant).ToList();
-          foreach (var itemToRemove in itemsToRemove)
-            _viewList.Remove(itemToRemove);
-        }
-
-      if (e.NewItems != null)
-        foreach (INotifyPropertyChanged item in e.NewItems)
-          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
-    }
 
     protected static StartListEntry CreateStartListEntry(RaceParticipant participant)
     {
@@ -163,6 +144,9 @@ namespace DSVAlpin2Lib
   {
     protected ObservableCollection<RaceParticipant> _participants;
     protected ItemsChangedNotifier _sourceItemChangedNotifier;
+
+    protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
+
 
     public FirstRunStartListViewProvider()
     {
@@ -185,12 +169,6 @@ namespace DSVAlpin2Lib
       base.FinalizeInit();
     }
 
-    private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
-    {
-      // Ensure list is sorted again
-      _viewList.Sort(_comparer);
-    }
-
     private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.OldItems != null)
@@ -206,6 +184,13 @@ namespace DSVAlpin2Lib
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
           _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+    }
+
+
+    private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      // Ensure list is sorted again
+      _viewList.Sort(_comparer);
     }
 
   }
@@ -282,6 +267,7 @@ namespace DSVAlpin2Lib
 
     // Working
     ItemsChangedNotifier _sourceItemChangedNotifier;
+    StartListEntryComparer _comparer;
 
 
     public SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction direction)
@@ -339,9 +325,103 @@ namespace DSVAlpin2Lib
   // basierend auf (1. DG) Ergebnisliste: rückwärts, ersten n gelost, mit/ohne disqualifizierten vorwärts oder rückwärts
   public class BasedOnResultsFirstRunStartListViewProvider : SecondRunStartListViewProvider
   {
+    int _reverseBestN;
+    bool _allowNonResults;
+    RuntimeSorter _resultsComparer;
+
+
+    //RaceRunResultViewProvider _resultVPPreviousRun;
+    ItemsChangeObservableCollection<RunResult> _resultsPreviousRun;
+
+    public BasedOnResultsFirstRunStartListViewProvider(int reverseBestN, bool allowNonResults)
+    {
+      _reverseBestN = reverseBestN;
+      _allowNonResults = allowNonResults;
+
+      _resultsComparer = new RuntimeSorter();
+    }
+
     public override void Init(RaceRun previousRun)
     {
-      throw new NotImplementedException();
+      _viewList = new ObservableCollection<StartListEntry>();
+
+      _resultsPreviousRun = previousRun.GetResultList();
+      _resultsPreviousRun.CollectionChanged += OnSourceChanged;
+      _resultsPreviousRun.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
+
+      UpdateStartList();
+
+      FinalizeInit();
+    }
+
+
+    private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      UpdateStartList();
+    }
+    private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      UpdateStartList();
+    }
+
+
+    class SortByStartnumberDesc : IComparer<RunResult>
+    {
+      public int Compare(RunResult rrX, RunResult rrY)
+      {
+        return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber) * -1;
+      }
+
+    }
+
+
+    private void UpdateStartList()
+    {
+      List<RunResult> srcResults = new List<RunResult>();
+      foreach (RunResult r in _resultsPreviousRun)
+        srcResults.Add(r);
+
+      srcResults.Sort(_resultsComparer);
+
+      List<StartListEntry> newStartList = new List<StartListEntry>();
+
+      // Pick best n starter in reverse order
+      for (int i = _reverseBestN-1; i>=0; --i)
+      {
+        if (i >= srcResults.Count())
+          continue;
+
+        newStartList.Add(CreateStartListEntry(srcResults[i]));
+      }
+
+      List<RunResult> omittedResults = new List<RunResult>();
+      for (int i=_reverseBestN; i<srcResults.Count(); ++i)
+      {
+        RunResult result = srcResults[i];
+        if (result.Runtime != null)
+          newStartList.Add(CreateStartListEntry(result));
+        else
+          omittedResults.Add(result);
+      }
+
+      if (_allowNonResults)
+      {
+        // Remaining in reverse order
+
+        omittedResults.Sort(new SortByStartnumberDesc());
+        foreach (RunResult result in omittedResults)
+        {
+          newStartList.Add(CreateStartListEntry(result));
+        }
+      }
+
+      _viewList.Clear();
+      _viewList.InsertRange(newStartList);
+    }
+
+    StartListEntry CreateStartListEntry(RunResult result)
+    {
+      return new StartListEntry(result.Participant);
     }
 
   }
@@ -509,7 +589,7 @@ namespace DSVAlpin2Lib
       _groupingPropertyName = propertyName;
     }
 
-    protected int CompareGroup(RunResultWithPosition rrX, RunResultWithPosition rrY)
+    protected int CompareGroup(RunResult rrX, RunResult rrY)
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
@@ -540,10 +620,10 @@ namespace DSVAlpin2Lib
 
 
   //Propagate class to sorter
-  public class RuntimeSorter : ResultSorter<RunResultWithPosition>
+  public class RuntimeSorter : ResultSorter<RunResult>
   {
 
-    public override int Compare(RunResultWithPosition rrX, RunResultWithPosition rrY)
+    public override int Compare(RunResult rrX, RunResult rrY)
     {
       TimeSpan? tX = rrX.Runtime;
       TimeSpan? tY = rrY.Runtime;
@@ -561,12 +641,12 @@ namespace DSVAlpin2Lib
 
       // If no time, use startnumber
       if (tX == null && tY == null)
-        return rrX.StartNumber.CompareTo(rrY.StartNumber);
+        return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
       // If equal, consider startnumber as well
       int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
       if (timeComp == 0)
-        return rrX.StartNumber.CompareTo(rrY.StartNumber);
+        return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
       return timeComp;
     }
@@ -581,7 +661,7 @@ namespace DSVAlpin2Lib
 
     // Working Data
     ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
-    ResultSorter<RunResultWithPosition> _comparer;
+    ResultSorter<RunResult> _comparer;
 
 
     public RaceRunResultViewProvider()
@@ -612,6 +692,12 @@ namespace DSVAlpin2Lib
     {
       return _viewList;
     }
+
+    public ItemsChangeObservableCollection<RunResultWithPosition> GetViewList()
+    {
+      return _viewList;
+    }
+
 
 
     protected override void OnChangeGrouping(string propertyName)
@@ -718,16 +804,22 @@ namespace DSVAlpin2Lib
       TimeSpan? tY = rrY.TotalTime;
 
       // Sort by time
-      if (tX == null && tY == null)
-        return 0;
-
       if (tX != null && tY == null)
         return -1;
 
       if (tX == null && tY != null)
         return 1;
 
-      return TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
+      // If no time, use startnumber
+      if (tX == null && tY == null)
+        return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
+
+      // If equal, consider startnumber as well
+      int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
+      if (timeComp == 0)
+        return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
+
+      return timeComp;
     }
   }
 
