@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -106,38 +106,14 @@ namespace DSVAlpin2Lib
     ICollectionView GetView();
   }
 
-  public class StartListViewProvider : ViewProvider, IStartListViewProvider
+  public abstract class StartListViewProvider : ViewProvider, IStartListViewProvider
   {
-    private ObservableCollection<RaceParticipant> _participants;
-    private ObservableCollection<StartListEntry> _viewList;
+    protected ObservableCollection<StartListEntry> _viewList;
     protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
-    protected ItemsChangedNotifier _sourceItemChangedNotifier;
 
     public StartListViewProvider()
     {
       _comparer = new StartListEntryComparer();
-    }
-
-    // Input: List<RaceParticipant>
-    public void Init(ObservableCollection<RaceParticipant> participants)
-    {
-      _participants = participants;
-
-      _viewList = new ObservableCollection<StartListEntry>();
-
-      // Initialize and observe source list
-      PopulateInitially<StartListEntry, RaceParticipant>(_viewList, _participants, _comparer, CreateStartListEntry);
-      _participants.CollectionChanged += OnParticipantsChanged;
-      _sourceItemChangedNotifier = new ItemsChangedNotifier(_participants);
-      _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
-
-      base.FinalizeInit();
-    }
-
-    private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
-    {
-      // Ensure list is sorted again
-      _viewList.Sort(_comparer);
     }
 
     // Output: sorted List<StartListEntry> according to StartNumber
@@ -164,7 +140,7 @@ namespace DSVAlpin2Lib
           _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
     }
 
-    private static StartListEntry CreateStartListEntry(RaceParticipant participant)
+    protected static StartListEntry CreateStartListEntry(RaceParticipant participant)
     {
       return new StartListEntry(participant);
     }
@@ -173,15 +149,58 @@ namespace DSVAlpin2Lib
     {
       return _viewList;
     }
+
   }
 
 
   public class FirstRunStartListViewProvider :  StartListViewProvider
   {
+    protected ObservableCollection<RaceParticipant> _participants;
+    protected ItemsChangedNotifier _sourceItemChangedNotifier;
+
+    public FirstRunStartListViewProvider()
+    {
+      _comparer = new StartListEntryComparer();
+    }
 
     // Input: List<RaceParticipant>
+    public void Init(ObservableCollection<RaceParticipant> participants)
+    {
+      _participants = participants;
 
-    // Output: sorted List<StartListEntry> according to StartNumber
+      _viewList = new ObservableCollection<StartListEntry>();
+
+      // Initialize and observe source list
+      PopulateInitially<StartListEntry, RaceParticipant>(_viewList, _participants, _comparer, CreateStartListEntry);
+      _participants.CollectionChanged += OnParticipantsChanged;
+      _sourceItemChangedNotifier = new ItemsChangedNotifier(_participants);
+      _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
+
+      base.FinalizeInit();
+    }
+
+    private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      // Ensure list is sorted again
+      _viewList.Sort(_comparer);
+    }
+
+    private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RaceParticipant participant = (RaceParticipant)item;
+          var itemsToRemove = _viewList.Where(r => r.Participant.Participant == participant.Participant).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _viewList.Remove(itemToRemove);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+    }
 
   }
 
@@ -241,6 +260,11 @@ namespace DSVAlpin2Lib
   {
     // Input: List<StartListEntry> (1st run),
     //        List<RaceResultWithPosition> (1st run)
+
+    public void Init(RaceRun previousRun)
+    {
+
+    }
 
     // Output: sorted List<StartListEntry> according to StartNumber
 

@@ -64,7 +64,7 @@ namespace DSVAlpin2LibTest
       ObservableCollection<RaceParticipant> participants = new ObservableCollection<RaceParticipant> ();
       FillTestRaceParticipants(participants);
 
-      StartListViewProvider provider = new StartListViewProvider();
+      FirstRunStartListViewProvider provider = new FirstRunStartListViewProvider();
       provider.Init(participants);
 
       // Test initial order

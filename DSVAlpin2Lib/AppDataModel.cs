@@ -244,8 +244,23 @@ namespace DSVAlpin2Lib
         // Fill the data from the DB initially (TODO: to be done better)
         rr.InsertResults(_db.GetRaceRun(this, i + 1));
 
-        //rr.SetStartListProvider(new FirstRunStartListViewProvider());
-        rr.SetStartListProvider(new DSVFirstRunStartListViewProvider(15));
+
+        StartListViewProvider slVP;
+        if (i == 0)
+        {
+          FirstRunStartListViewProvider frslVP = new FirstRunStartListViewProvider();
+          //frslVP = new DSVFirstRunStartListViewProvider(15);
+          frslVP.Init(this.GetParticipants());
+          slVP = frslVP;
+        }
+        else
+        {
+          SecondRunStartListViewProvider srslVP = new SimpleSecondRunStartListViewProvider();
+          //srslVP = new BasedOnResultsFirstRunStartListViewProvider(15);
+          srslVP.Init(raceRunsArr[i - 1]);
+          slVP = srslVP;
+        }
+        rr.SetStartListProvider(slVP);
 
         RaceRunResultViewProvider rVP = new RaceRunResultViewProvider();
         rVP.Init(rr, _appDataModel);
@@ -456,7 +471,6 @@ namespace DSVAlpin2Lib
 
     public void SetStartListProvider(StartListViewProvider slp)
     {
-      slp.Init(_race.GetParticipants());
       _slVP = slp;
     }
     public StartListViewProvider GetStartListProvider()
