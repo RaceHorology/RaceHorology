@@ -334,6 +334,12 @@ namespace DSVAlpin2Lib
     }
 
 
+    public StartListEntry ShallowCopy()
+    {
+      return (StartListEntry)this.MemberwiseClone();
+    }
+
+
     // Some public properties to get displayed in the list
     public RaceParticipant Participant { get { return _participant; } }
     public uint StartNumber { get { return _participant.StartNumber; } }
@@ -381,6 +387,23 @@ namespace DSVAlpin2Lib
     }
 
     #endregion
+  }
+
+
+  /// <summary>
+  /// Represents a run result (a pass / ein durchgang)
+  /// </summary>
+  /// <remarks>not yet final</remarks>
+  public class StartListEntryAdditionalRun : StartListEntry
+  {
+    private RunResult _resultPreviousRun;
+
+    public StartListEntryAdditionalRun(RunResult resultPreviousRun) : base(resultPreviousRun.Participant)
+    {
+      _resultPreviousRun = resultPreviousRun;
+    }
+
+    public TimeSpan? Runtime { get { return _resultPreviousRun.Runtime; } }
   }
 
 
