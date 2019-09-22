@@ -10,6 +10,16 @@ using System.Windows.Data;
 
 namespace DSVAlpin2Lib
 {
+  /* Just fro Debugging 
+  class DebugSort : System.Collections.IComparer
+  {
+    public int Compare(object x, object y)
+    {
+      return 0;
+    }
+  }
+  */
+
 
   /// <summary>
   /// BaseClass for all ViewProvider
@@ -54,7 +64,11 @@ namespace DSVAlpin2Lib
 
       if (!string.IsNullOrEmpty(propertyName))
       { 
-        _view.GroupDescriptions.Add(new PropertyGroupDescription(propertyName));
+        GroupDescription gd = new PropertyGroupDescription(propertyName);
+        gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+        //gd.CustomSort = new DebugSort();
+        _view.GroupDescriptions.Add(gd);
+
         _view.LiveGroupingProperties.Add(propertyName);
         _view.IsLiveGroupingRequested = true;
       }
@@ -482,6 +496,7 @@ namespace DSVAlpin2Lib
       _defaultGrouping = propertyName;
     }
 
+
     public void ChangeGrouping(string propertyName)
     {
       _srcStartListProvider.ChangeGrouping(propertyName);
@@ -495,7 +510,10 @@ namespace DSVAlpin2Lib
 
       if (!string.IsNullOrEmpty(propertyName))
       {
-        _view.GroupDescriptions.Add(new PropertyGroupDescription(propertyName));
+        GroupDescription gd = new PropertyGroupDescription(propertyName);
+        gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+        //gd.CustomSort = new DebugSort();
+        _view.GroupDescriptions.Add(gd);
         _view.LiveGroupingProperties.Add(propertyName);
         _view.IsLiveGroupingRequested = true;
       }
