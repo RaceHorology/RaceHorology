@@ -592,23 +592,6 @@ namespace DSVAlpin2Lib
   public abstract class ResultViewProvider : ViewProvider
   {
 
-    public static object GetGroupValue(object obj, string propertyName)
-    {
-      if (propertyName == null || obj == null)
-        return null;
-
-      foreach (string part in propertyName.Split('.'))
-      {
-        if (obj == null) { return null; }
-
-        Type type = obj.GetType();
-        System.Reflection.PropertyInfo info = type.GetProperty(part);
-        if (info == null) { return null; }
-
-        obj = info.GetValue(obj, null);
-      }
-      return obj;
-    }
 
   }
 
@@ -793,9 +776,9 @@ namespace DSVAlpin2Lib
       TimeSpan? lastTime = null;
       foreach (RunResultWithPosition item in _viewList)
       {
-        if (!Equals(GetGroupValue(item, _activeGrouping), curGroup))
+        if (!Equals(PropertyUtilities.GetGroupValue(item, _activeGrouping), curGroup))
         {
-          curGroup = GetGroupValue(item, _activeGrouping);
+          curGroup = PropertyUtilities.GetGroupValue(item, _activeGrouping);
           curPosition = 1;
           lastTime = null;
         }
@@ -987,9 +970,9 @@ namespace DSVAlpin2Lib
       TimeSpan? lastTime = null;
       foreach (var sortedItem in _viewList)
       {
-        if (!Equals(GetGroupValue(sortedItem, _activeGrouping), curGroup))
+        if (!Equals(PropertyUtilities.GetGroupValue(sortedItem, _activeGrouping), curGroup))
         {
-          curGroup = GetGroupValue(sortedItem, _activeGrouping);
+          curGroup = PropertyUtilities.GetGroupValue(sortedItem, _activeGrouping);
           curPosition = 1;
           lastTime = null;
         }

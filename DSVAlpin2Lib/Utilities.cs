@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -292,6 +292,29 @@ namespace DSVAlpin2Lib
 
       type.InvokeMember("OnCollectionChanged", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic, null,
         collection, new object[] { new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset) });
+    }
+
+  }
+
+
+  public static class PropertyUtilities
+  {
+    public static object GetGroupValue(object obj, string propertyName)
+    {
+      if (propertyName == null || obj == null)
+        return null;
+
+      foreach (string part in propertyName.Split('.'))
+      {
+        if (obj == null) { return null; }
+
+        Type type = obj.GetType();
+        System.Reflection.PropertyInfo info = type.GetProperty(part);
+        if (info == null) { return null; }
+
+        obj = info.GetValue(obj, null);
+      }
+      return obj;
     }
 
   }
