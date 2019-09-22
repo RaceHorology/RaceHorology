@@ -478,11 +478,14 @@ namespace DSVAlpin2Lib
 
     public void SetDefaultGrouping(string propertyName)
     {
+      _srcStartListProvider.SetDefaultGrouping(propertyName);
       _defaultGrouping = propertyName;
     }
 
     public void ChangeGrouping(string propertyName)
     {
+      _srcStartListProvider.ChangeGrouping(propertyName);
+
       if (_activeGrouping != propertyName)
       {
         _view.GroupDescriptions.Clear();
@@ -502,6 +505,7 @@ namespace DSVAlpin2Lib
 
     public void ResetToDefaultGrouping()
     {
+      _srcStartListProvider.ChangeGrouping(_defaultGrouping);
       ChangeGrouping(_defaultGrouping);
     }
 
@@ -513,14 +517,14 @@ namespace DSVAlpin2Lib
       _srcStartListProvider = startListProvider;
       _raceRun = raceRun;
 
-      // Observe the results
-      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
-      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
 
       // Create working list
-      _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => new StartListEntry(sle.Participant));
+      _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
       foreach (StartListEntry entry in _viewList)
         UpdateStartListEntry(entry);
+      // Observe the results
+      _viewList.CollectionChanged += OnResultsChanged;
+      //_viewList.ItemChanged += OnResultItemChanged;
 
 
       // Create View with filtered items
