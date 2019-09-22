@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -139,8 +140,8 @@ namespace DSVAlpin2Lib
 
   public class CopyObservableCollection<T> : ObservableCollection<T>
   {
-    ObservableCollection<T> _source;
-    Cloner<T> _cloner;
+    protected ObservableCollection<T> _source;
+    protected Cloner<T> _cloner;
 
     public delegate TC Cloner<TC>(TC source);
     public CopyObservableCollection(ObservableCollection<T> source, Cloner<T> cloner)
@@ -159,7 +160,7 @@ namespace DSVAlpin2Lib
     }
 
 
-    private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+    protected void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       // Clone
       throw new NotImplementedException();
@@ -195,6 +196,12 @@ namespace DSVAlpin2Lib
           throw new NotImplementedException();
         case NotifyCollectionChangedAction.Reset:
           Clear();
+
+          List<T> toInsert = new List<T>();
+          foreach (T item in _source)
+            toInsert.Add(_cloner(item));
+          this.InsertRange(toInsert);
+
           break;
         case NotifyCollectionChangedAction.Move:
           for (i = e.OldStartingIndex, j = e.NewStartingIndex; i < e.OldItems.Count; i++, j++)
@@ -264,6 +271,57 @@ namespace DSVAlpin2Lib
       }
     }
 
+
+    public static void InsertRange<T>(this ObservableCollection<T> collection, IEnumerable<T> items)
+    {
+      var enumerable = items as List<T> ?? items.ToList();
+      if (collection == null || items == null || !enumerable.Any())
+      {
+        return;
+      }
+
+      Type type = collection.GetType();
+
+      type.InvokeMember("CheckReentrancy", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic, null, collection, null);
+      var itemsProp = type.BaseType.GetProperty("Items", BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
+      var privateItems = itemsProp.GetValue(collection) as IList<T>;
+      foreach (var item in enumerable)
+      {
+        privateItems.Add(item);
+      }
+
+      type.InvokeMember("OnPropertyChanged", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic, null,
+        collection, new object[] { new PropertyChangedEventArgs("Count") });
+
+      type.InvokeMember("OnPropertyChanged", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic, null,
+        collection, new object[] { new PropertyChangedEventArgs("Item[]") });
+
+      type.InvokeMember("OnCollectionChanged", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic, null,
+        collection, new object[] { new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset) });
+    }
+
+  }
+
+
+  public static class PropertyUtilities
+  {
+    public static object GetGroupValue(object obj, string propertyName)
+    {
+      if (propertyName == null || obj == null)
+        return null;
+
+      foreach (string part in propertyName.Split('.'))
+      {
+        if (obj == null) { return null; }
+
+        Type type = obj.GetType();
+        System.Reflection.PropertyInfo info = type.GetProperty(part);
+        if (info == null) { return null; }
+
+        obj = info.GetValue(obj, null);
+      }
+      return obj;
+    }
 
   }
 

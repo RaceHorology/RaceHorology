@@ -10,7 +10,7 @@ namespace DSVAlpin2Lib
 {
 
 
-  public class ParticipantGroup : INotifyPropertyChanged, IComparable<ParticipantGroup>
+  public class ParticipantGroup : INotifyPropertyChanged, IComparable<ParticipantGroup>, IComparable
   {
     private string _id;
     private string _name;
@@ -48,6 +48,13 @@ namespace DSVAlpin2Lib
       return _sortpos.CompareTo(other._sortpos);
     }
 
+    int IComparable.CompareTo(object obj)
+    {
+      if (obj is ParticipantGroup other)
+        return CompareTo(other);
+
+      return -1;
+    }
 
 
     #region INotifyPropertyChanged implementation
@@ -65,8 +72,8 @@ namespace DSVAlpin2Lib
 
   }
 
-
-  public class ParticipantClass : INotifyPropertyChanged, IComparable<ParticipantClass>
+  
+  public class ParticipantClass : INotifyPropertyChanged, IComparable<ParticipantClass>, IComparable
   {
     private string _id;
     private ParticipantGroup _group;
@@ -125,6 +132,14 @@ namespace DSVAlpin2Lib
         return _name.CompareTo(other._name);
 
       return _sortpos.CompareTo(other._sortpos);
+    }
+
+    int IComparable.CompareTo(object obj)
+    {
+      if (obj is ParticipantClass other)
+        return CompareTo(other);
+
+      return -1;
     }
 
     #region INotifyPropertyChanged implementation
@@ -210,6 +225,11 @@ namespace DSVAlpin2Lib
       get => _class.Group;
     }
 
+    public override string ToString()
+    {
+      return _name + ", " + _firstname + "(" + _year + ")";
+    }
+
 
     #region INotifyPropertyChanged implementation
 
@@ -246,6 +266,7 @@ namespace DSVAlpin2Lib
 
       _participant.PropertyChanged += OnParticipantPropertyChanged;
     }
+
 
     #region IDisposable Support
     private bool disposedValue = false; // To detect redundant calls
@@ -296,6 +317,12 @@ namespace DSVAlpin2Lib
       set { _points = value; NotifyPropertyChanged(); }
     }
 
+    public override string ToString()
+    {
+      return "StNr: " + _startnumber + " " + _participant.ToString();
+    }
+
+
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -323,14 +350,20 @@ namespace DSVAlpin2Lib
   /// <remarks>not yet final</remarks>
   public class StartListEntry : INotifyPropertyChanged
   {
-    private RaceParticipant _participant;
-    private bool _started;
+    protected RaceParticipant _participant;
+    protected bool _started;
 
     public StartListEntry(RaceParticipant participant)
     {
       _participant = participant;
       _started = false;
       _participant.PropertyChanged += OnParticipantPropertyChanged;
+    }
+
+
+    public StartListEntry ShallowCopy()
+    {
+      return (StartListEntry)this.MemberwiseClone();
     }
 
 
@@ -361,6 +394,10 @@ namespace DSVAlpin2Lib
       }
     }
 
+    public override string ToString()
+    {
+      return _participant.ToString();
+    }
 
 
     #region INotifyPropertyChanged implementation
@@ -381,6 +418,29 @@ namespace DSVAlpin2Lib
     }
 
     #endregion
+  }
+
+
+  /// <summary>
+  /// Represents a run result (a pass / ein durchgang)
+  /// </summary>
+  /// <remarks>not yet final</remarks>
+  public class StartListEntryAdditionalRun : StartListEntry
+  {
+    private RunResult _resultPreviousRun;
+
+    public StartListEntryAdditionalRun(RunResult resultPreviousRun) : base(resultPreviousRun.Participant)
+    {
+      _resultPreviousRun = resultPreviousRun;
+    }
+
+    public TimeSpan? Runtime { get { return _resultPreviousRun.Runtime; } }
+
+    public override string ToString()
+    {
+      return _participant.ToString() + " (" + Runtime?.ToString(@"mm\:s\,ff") + ")";
+    }
+
   }
 
 
@@ -518,6 +578,12 @@ namespace DSVAlpin2Lib
     }
 
 
+    public override string ToString()
+    {
+      return "T: " + _runTime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
+    }
+
+
     #region INotifyPropertyChanged implementation
 
 
@@ -561,9 +627,15 @@ namespace DSVAlpin2Lib
       get { return _justModified; }
       set { if (_justModified != value) { _justModified = value; NotifyPropertyChanged(); } }
     }
+
+    public override string ToString()
+    {
+      return "P:" + _position + " " + base.ToString();
+    }
+
   }
 
-   
+
   /// <summary>
   /// Represents a race result. It contains out of the participant including its run results (run, time, status) and its final position within the group.
   /// </summary>
@@ -638,6 +710,12 @@ namespace DSVAlpin2Lib
       _runTimes[run] = result?.Runtime;
 
       NotifyPropertyChanged(nameof(RunTimes));
+    }
+
+
+    public override string ToString()
+    {
+      return "P:" + _position + " (" + string.Join(",", _runTimes) + ")";
     }
 
 
