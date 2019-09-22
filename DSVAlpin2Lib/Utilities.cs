@@ -196,6 +196,12 @@ namespace DSVAlpin2Lib
           throw new NotImplementedException();
         case NotifyCollectionChangedAction.Reset:
           Clear();
+
+          List<T> toInsert = new List<T>();
+          foreach (T item in _source)
+            toInsert.Add(_cloner(item));
+          this.InsertRange(toInsert);
+
           break;
         case NotifyCollectionChangedAction.Move:
           for (i = e.OldStartingIndex, j = e.NewStartingIndex; i < e.OldItems.Count; i++, j++)
