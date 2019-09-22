@@ -365,6 +365,13 @@ namespace DSVAlpin2Lib
     }
 
 
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _resultsComparer.SetGrouping(propertyName);
+      UpdateStartList();
+    }
+
+
     class SortByStartnumberDesc : IComparer<RunResult>
     {
       public int Compare(RunResult rrX, RunResult rrY)
@@ -377,27 +384,50 @@ namespace DSVAlpin2Lib
 
     private void UpdateStartList()
     {
-      List<RunResult> srcResults = new List<RunResult>();
-      foreach (RunResult r in _resultsPreviousRun)
-        srcResults.Add(r);
-
-      srcResults.Sort(_resultsComparer);
-
       List<StartListEntry> newStartList = new List<StartListEntry>();
 
-      // Pick best n starter in reverse order
-      for (int i = _reverseBestN-1; i>=0; --i)
+      // Create sorted results for all participants
+      List<RunResult> srcResults = new List<RunResult>();
+      srcResults.AddRange(_resultsPreviousRun);
+      srcResults.Sort(_resultsComparer);
+
+
+      // Process each group separately
+      object curGroup = null;
+      List<RunResult> resultsCurGroup = new List<RunResult>();
+      foreach (var curSortedItem in srcResults)
       {
-        if (i >= srcResults.Count())
+        object itemGroup = PropertyUtilities.GetGroupValue(curSortedItem, _activeGrouping);
+        if (!Equals(PropertyUtilities.GetGroupValue(curSortedItem, _activeGrouping), curGroup))
+        {
+          ProcessGroup(resultsCurGroup, newStartList);
+          curGroup = itemGroup;
+        }
+        resultsCurGroup.Add(curSortedItem);
+      }
+      ProcessGroup(resultsCurGroup, newStartList);
+
+      // Copy at once to trigger only one change notification
+      _viewList.Clear();
+      _viewList.InsertRange(newStartList);
+    }
+
+
+    protected void ProcessGroup(List<RunResult> resultsCurGroup, List<StartListEntry> newStartList)
+    { 
+      // Pick best n starter in reverse order
+      for (int i = _reverseBestN - 1; i >= 0; --i)
+      {
+        if (i >= resultsCurGroup.Count())
           continue;
 
-        newStartList.Add(CreateStartListEntry(srcResults[i]));
+        newStartList.Add(CreateStartListEntry(resultsCurGroup[i]));
       }
 
       List<RunResult> omittedResults = new List<RunResult>();
-      for (int i=_reverseBestN; i<srcResults.Count(); ++i)
+      for (int i = _reverseBestN; i < resultsCurGroup.Count(); ++i)
       {
-        RunResult result = srcResults[i];
+        RunResult result = resultsCurGroup[i];
         if (result.Runtime != null)
           newStartList.Add(CreateStartListEntry(result));
         else
@@ -415,13 +445,12 @@ namespace DSVAlpin2Lib
         }
       }
 
-      _viewList.Clear();
-      _viewList.InsertRange(newStartList);
+      resultsCurGroup.Clear();
     }
 
     StartListEntry CreateStartListEntry(RunResult result)
     {
-      return new StartListEntry(result.Participant);
+      return new StartListEntryAdditionalRun(result);
     }
 
   }
