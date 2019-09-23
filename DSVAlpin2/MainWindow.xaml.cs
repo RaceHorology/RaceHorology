@@ -302,6 +302,9 @@ namespace DSVAlpin2
 
     private void DeinitializeTiming()
     {
+      if (_alge == null)
+        return;
+
       _alge.Stop();
 
       _liveTimingStatusTimer.Elapsed -= UpdateLiveTimingDeviceStatus;
