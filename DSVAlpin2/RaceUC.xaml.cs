@@ -48,8 +48,28 @@ namespace DSVAlpin2
       FillCmbRaceRun();
 
       // Configuration Screen
+      cmbRuns.Items.Add(new GroupingCBItem { Text = "1", Value = "1" });
+      cmbRuns.Items.Add(new GroupingCBItem { Text = "2", Value = "2" });
+      
+      // Run 1
       FillGrouping(cmbConfigStartlist1Grouping);
+      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend)", Value = "StartnumberAscending" });
+      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Punkte", Value = "Points" });
+
+      // Run 2
       FillGrouping(cmbConfigStartlist2Grouping);
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend)", Value = "StartnumberAscending" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "StartnumberAscending" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend)", Value = "StartnumberDescending" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend, inkl. ohne Ergebnis)", Value = "StartnumberDescending" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Vorheriger Lauf nach Zeit", Value = "PreviousRun" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Vorheriger Lauf nach Zeit (inkl. ohne Ergebnis)", Value = "PreviousRun" });
+
+      // Result
+      FillGrouping(cmbConfigErgebnisGrouping);
+      cmbConfigErgebnis.Items.Add(new GroupingCBItem { Text = "Bester Durchgang", Value = "BestOfTwo" });
+      cmbConfigErgebnis.Items.Add(new GroupingCBItem { Text = "Summe", Value = "Sum" });
+
 
       // Timing
       FillGrouping(cmbStartListGrouping);
