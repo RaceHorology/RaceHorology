@@ -64,8 +64,10 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void DatabaseOpenClose()
     {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb"));
+      db.Connect(dbFilename);
 
       var participants = db.GetParticipants();
 
@@ -79,8 +81,10 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
     public void DatabaseRaces()
     {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
+
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb"));
+      db.Connect(dbFilename);
 
       var races = db.GetRaces();
 
@@ -126,8 +130,9 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
     public void DatabaseRaceParticipants()
     {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb"));
+      db.Connect(dbFilename);
 
       var races = db.GetRaces();
       AppDataModel model = new AppDataModel(db);
@@ -175,8 +180,9 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void DatabaseRaceRuns()
     {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb"));
+      db.Connect(dbFilename);
 
       db.GetParticipants();
 
@@ -208,9 +214,9 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\Kirchberg U8 U10 10.02.19 RS Neu.mdb")]
     public void InitializeApplicationModel()
     {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"Kirchberg U8 U10 10.02.19 RS Neu.mdb");
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
-      //db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"KSC2019-2-PSL.mdb"));
-      db.Connect(Path.Combine(testContextInstance.TestDeploymentDir, @"Kirchberg U8 U10 10.02.19 RS Neu.mdb"));
+      db.Connect(dbFilename);
 
       AppDataModel model = new AppDataModel(db);
     }
@@ -219,7 +225,7 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
     public void CreateAndUpdateParticipants()
     {
-      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
       db.Connect(dbFilename);
 
@@ -345,7 +351,7 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void CreateAndUpdateRunResults()
     {
-      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
       db.Connect(dbFilename);
 
@@ -456,7 +462,7 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void AppDataModelTest_TimingScenario1()
     {
-      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
       db.Connect(dbFilename);
 
@@ -545,7 +551,7 @@ namespace DSVAlpin2LibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void AppDataModelTest_EditParticipants()
     {
-      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
       db.Connect(dbFilename);
 
@@ -580,6 +586,5 @@ namespace DSVAlpin2LibTest
       CheckParticipant(dbFilename, participant1, 1);
       CheckParticipant(dbFilename, participant6, 6);
     }
-
   }
-  }
+}

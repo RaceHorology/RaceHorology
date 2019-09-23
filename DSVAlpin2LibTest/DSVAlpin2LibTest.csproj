@@ -74,6 +74,7 @@
     <Compile Include="AppDataModelViewTests.cs" />
     <Compile Include="DSVAlpin2HTTPServerTest.cs" />
     <Compile Include="DSVAlpinDatabaseTests.cs" />
+    <Compile Include="TestUtilities.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilitiesTest.cs" />
