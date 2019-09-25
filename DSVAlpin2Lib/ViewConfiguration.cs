@@ -49,8 +49,65 @@ namespace DSVAlpin2Lib
 
 
 
-
-  class ViewConfiguration
+  /// <summary>
+  /// Stores the View Configuration Parameter for a Race
+  /// </summary>
+  public class ViewConfiguration
   {
+    public int Runs;
+
+    public string DefaultGrouping;
+
+    public string RaceResultView;
+    public Dictionary<string,object> RaceResultViewParams;
+
+    public string Run1_StartistView;
+    public Dictionary<string, object> Run1_StartistViewParams;
+
+    public string Run2_StartistView;
+    public Dictionary<string, object> Run2_StartistViewParams;
+
+  }
+
+
+
+  /*
+   * Wie bekommen die existierenden Views eine Änderung der Konfiguration mit?
+   * a) beim GetView ... einen Callback registrieren
+   * b) beim GetView ... in einen Container zurückgeben
+   * c) fire Event => WPF UI oder HTML5 UI baut sich neu auf
+   * 
+   * Wie wird eine Configänderung in das AppDataModel zurückgespielt?
+   * 
+   * Sollen die Views Teil des AppDataModels sein?
+   * Nein:
+   * - ViewConfigurator kennt Abhängigkeiten
+   * 
+   * Ja:
+   * - AppDataModel kann einfach Accesoren bereitstellen
+   */
+
+  public class ViewConfigurator
+  {
+    public ViewProvider GetStartlistViewProvider(string context = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ViewProvider GetRaceRunResultViewProvider(string context = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ViewProvider GetRaceResultViewProvider(string context = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ConfigureAppDataModel(AppDataModel model)
+    {
+      throw new NotImplementedException();
+    }
+
   }
 }
