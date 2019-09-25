@@ -37,6 +37,8 @@ namespace DSVAlpin2Lib
       _view = new CollectionViewSource();
     }
 
+    public abstract ViewProvider Clone();
+
 
     protected void FinalizeInit()
     {
@@ -167,6 +169,11 @@ namespace DSVAlpin2Lib
       _comparer = new StartListEntryComparer();
     }
 
+    public override ViewProvider Clone()
+    {
+      return new FirstRunStartListViewProvider();
+    }
+
     // Input: List<RaceParticipant>
     public void Init(ObservableCollection<RaceParticipant> participants)
     {
@@ -249,13 +256,18 @@ namespace DSVAlpin2Lib
   // First n (15) per grouping are always kept constant
   public class DSVFirstRunStartListViewProvider : FirstRunStartListViewProvider
   {
+    int _firstNStartnumbers;
+
     public DSVFirstRunStartListViewProvider(int firstNStartnumbers)
     {
+      _firstNStartnumbers = firstNStartnumbers;
       _comparer = new PointsStartListEntryComparer(firstNStartnumbers);
     }
 
-    // Parameter: first n
-
+    public override ViewProvider Clone()
+    {
+      return new DSVFirstRunStartListViewProvider(_firstNStartnumbers);
+    }
   }
 
 
@@ -278,6 +290,7 @@ namespace DSVAlpin2Lib
   {
     // Input
     protected ObservableCollection<StartListEntry> _startList1stRun;
+    protected StartListEntryComparer.Direction _direction;
 
     // Working
     ItemsChangedNotifier _sourceItemChangedNotifier;
@@ -286,8 +299,15 @@ namespace DSVAlpin2Lib
 
     public SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction direction)
     {
+      _direction = direction;
       _comparer = new StartListEntryComparer(direction);
     }
+
+    public override ViewProvider Clone()
+    {
+      return new SimpleSecondRunStartListViewProvider(_direction);
+    }
+
 
     public override void Init(RaceRun previousRun)
     {
@@ -354,6 +374,13 @@ namespace DSVAlpin2Lib
 
       _resultsComparer = new RuntimeSorter();
     }
+
+
+    public override ViewProvider Clone()
+    {
+      return new BasedOnResultsFirstRunStartListViewProvider(_reverseBestN, _allowNonResults);
+    }
+
 
     public override void Init(RaceRun previousRun)
     {
@@ -702,6 +729,13 @@ namespace DSVAlpin2Lib
     {
       _comparer = new RuntimeSorter();
     }
+
+
+    public override ViewProvider Clone()
+    {
+      return new RaceRunResultViewProvider();
+    }
+
 
     // Input: RaceRun
     public void Init(RaceRun raceRun, AppDataModel appDataModel)
