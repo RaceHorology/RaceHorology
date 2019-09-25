@@ -65,6 +65,22 @@
             <Label x:Name="lblRuns" Margin="5" Content="Durchgänge:" Grid.Row="0" Grid.Column="0"/>
             <ComboBox x:Name="cmbRuns" Margin="5" Grid.Row="0" Grid.Column="1"/>
           </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblConfigErgebnis" Margin="5" Content="Berechnung:" Grid.Column="0"/>
+            <ComboBox x:Name="cmbConfigErgebnis" Margin="5" Grid.Column="1" />
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblConfigErgebnisGrouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
+            <ComboBox x:Name="cmbConfigErgebnisGrouping" Margin="5" Grid.Column="1" />
+          </Grid>
 
           <Grid Margin="0,15,0,0">
             <Grid.ColumnDefinitions>
@@ -91,7 +107,13 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="lblConfigStartlist1" Margin="5" Content="Startsortierung:" Grid.Column="0"/>
-            <ComboBox x:Name="cmbConfigStartlist1" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+              <ComboBox x:Name="cmbConfigStartlist1" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+              <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Left">
+                <Label Margin="0,0,0,0" Content="Anzahl gelost: "/>
+                <TextBox Width="30"/>
+              </StackPanel>
+            </StackPanel>
           </Grid>
 
           <Grid Margin="0,15,0,0">
@@ -118,34 +140,14 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="lblConfigStartlist2" Margin="5" Content="Startsortierung:" Grid.Column="0"/>
-            <ComboBox x:Name="cmbConfigStartlist2" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
-          </Grid>
-
-          <Grid Margin="0,15,0,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <DockPanel Height="25" Grid.ColumnSpan="2">
-              <Label DockPanel.Dock="Left" Content="Ergebnis"/>
-              <Separator/>
-            </DockPanel>
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigErgebnis" Margin="5" Content="Berechnung:" Grid.Column="0"/>
-            <ComboBox x:Name="cmbConfigErgebnis" Margin="5" Grid.Column="1" />
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigErgebnisGrouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
-            <ComboBox x:Name="cmbConfigErgebnisGrouping" Margin="5" Grid.Column="1" />
+            <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+              <ComboBox x:Name="cmbConfigStartlist2" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+              <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Left">
+                <Label Margin="0,0,0,0" Content="Anzahl gelost: " />
+                <TextBox Width="30"/>
+                <CheckBox Margin="30,0,0,0" Content="inklusiv Ergebnislose aus Lauf 1" VerticalContentAlignment="Center"/>
+              </StackPanel>
+            </StackPanel>            
           </Grid>
 
         </StackPanel>
