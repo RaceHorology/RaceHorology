@@ -894,6 +894,9 @@ namespace DSVAlpin2Lib
 
   public class RaceResultViewProvider : ResultViewProvider
   {
+    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResult> results);
+
+    TimeCombination _timeCombination;
     // Input Data
     Race _race;
     RaceRun[] _raceRuns;
@@ -902,14 +905,32 @@ namespace DSVAlpin2Lib
     // Working Data
     ItemsChangeObservableCollection<RaceResultItem> _viewList;
     ResultSorter<RaceResultItem> _comparer;
+    RunResultCombiner _combineTime;
 
-
-    public RaceResultViewProvider()
+    public enum TimeCombination { BestRun, Sum };
+    public RaceResultViewProvider(TimeCombination timeCombination)
     {
       _comparer = new TotalTimeSorter();
+
+      _timeCombination = timeCombination;
+      switch(_timeCombination)
+      {
+        case TimeCombination.BestRun:
+          _combineTime = MinimumTime;
+          break;
+        case TimeCombination.Sum:
+          _combineTime = SumTime;
+          break;
+      }
     }
 
 
+    public override ViewProvider Clone()
+    {
+      return new RaceResultViewProvider(_timeCombination);
+    }
+
+    
     // Input: Race
     public void Init(Race race, AppDataModel appDataModel)
     {
@@ -1006,7 +1027,7 @@ namespace DSVAlpin2Lib
       // Combine and update the race result
       foreach (var res in results)
         rri.SetRunResult(res.Key, res.Value);
-      rri.TotalTime = MinimumTime(results);
+      rri.TotalTime = _combineTime(results);
     }
 
 
