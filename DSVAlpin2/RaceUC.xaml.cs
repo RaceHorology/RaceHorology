@@ -53,17 +53,18 @@ namespace DSVAlpin2
       
       // Run 1
       FillGrouping(cmbConfigStartlist1Grouping);
-      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend)", Value = "StartnumberAscending" });
-      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Punkte", Value = "Points" });
+      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_1stRun_StartnumberAscending" });
+      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Punkte (ersten 15 gelost)", Value = "Startlist_1stRun_Points_15" });
+      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Punkte (ersten 30 gelost)", Value = "Startlist_1stRun_Points_30" });
 
       // Run 2
       FillGrouping(cmbConfigStartlist2Grouping);
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend)", Value = "StartnumberAscending" });
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "StartnumberAscending" });
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend)", Value = "StartnumberDescending" });
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend, inkl. ohne Ergebnis)", Value = "StartnumberDescending" });
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Vorheriger Lauf nach Zeit", Value = "PreviousRun" });
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Vorheriger Lauf nach Zeit (inkl. ohne Ergebnis)", Value = "PreviousRun" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_2nd_StartnumberAscending" });
+      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberAscending" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend)", Value = "Startlist_2nd_StartnumberDescending" });
+      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberDescending" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Vorheriger Lauf nach Zeit", Value = "Startlist_2nd_PreviousRunOnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Vorheriger Lauf nach Zeit (inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRunAlsoWithoutResults" });
 
       // Result
       FillGrouping(cmbConfigErgebnisGrouping);
