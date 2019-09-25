@@ -40,52 +40,64 @@ namespace DSVAlpin2
       _dataModel = dm;
       _currentRace = race;
       _liveTimingMeasurement = liveTimingMeasurement;
-
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
       InitializeComponent();
 
-      FillCmbRaceRun();
+      InitializeConfiguration();
 
-      // Configuration Screen
-      cmbRuns.Items.Add(new GroupingCBItem { Text = "1", Value = "1" });
-      cmbRuns.Items.Add(new GroupingCBItem { Text = "2", Value = "2" });
-      
-      // Run 1
-      FillGrouping(cmbConfigStartlist1Grouping);
-      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_1stRun_StartnumberAscending" });
-      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Punkte (ersten 15 gelost)", Value = "Startlist_1stRun_Points_15" });
-      cmbConfigStartlist1.Items.Add(new GroupingCBItem { Text = "Punkte (ersten 30 gelost)", Value = "Startlist_1stRun_Points_30" });
+      InitializeTiming();
 
-      // Run 2
-      FillGrouping(cmbConfigStartlist2Grouping);
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_2nd_StartnumberAscending" });
-      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberAscending" });
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend)", Value = "Startlist_2nd_StartnumberDescending" });
-      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberDescending" });
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Vorheriger Lauf nach Zeit", Value = "Startlist_2nd_PreviousRunOnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Vorheriger Lauf nach Zeit (inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRunAlsoWithoutResults" });
-
-      // Result
-      FillGrouping(cmbConfigErgebnisGrouping);
-      cmbConfigErgebnis.Items.Add(new GroupingCBItem { Text = "Bester Durchgang", Value = "BestOfTwo" });
-      cmbConfigErgebnis.Items.Add(new GroupingCBItem { Text = "Summe", Value = "Sum" });
-
-
-      // Timing
-      FillGrouping(cmbStartListGrouping);
-      FillGrouping(cmbResultGrouping);
-
-      // Race Results
-      FillGrouping(cmbTotalResultGrouping);
-
-      dgTotalResults.ItemsSource = _currentRace.GetTotalResultView();
-      dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
+      InitializeTotalResults();
     }
-
 
     public Race GetRace() { return _currentRace; }
     public RaceRun GetRaceRun() { return _currentRaceRun; }
+
+
+    #region Configuration
+    
+    private void InitializeConfiguration()
+    {
+      // Configuration Screen
+      cmbRuns.Items.Add(new CBItem { Text = "1", Value = "1" });
+      cmbRuns.Items.Add(new CBItem { Text = "2", Value = "2" });
+
+      // Run 1
+      FillGrouping(cmbConfigStartlist1Grouping);
+      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_1stRun_StartnumberAscending" });
+      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 15 gelost)", Value = "Startlist_1stRun_Points_15" });
+      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 30 gelost)", Value = "Startlist_1stRun_Points_30" });
+
+      // Run 2
+      FillGrouping(cmbConfigStartlist2Grouping);
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_2nd_StartnumberAscending" });
+      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberAscending" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (absteigend)", Value = "Startlist_2nd_StartnumberDescending" });
+      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberDescending" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit", Value = "Startlist_2nd_PreviousRunOnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRunAlsoWithoutResults" });
+
+      // Result
+      FillGrouping(cmbConfigErgebnisGrouping);
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "BestOfTwo" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "Sum" });
+
+    }
+
+    #endregion
+
+
+    #region Timing
+
+
+    private void InitializeTiming()
+    {
+      FillCmbRaceRun();
+
+      FillGrouping(cmbStartListGrouping);
+      FillGrouping(cmbResultGrouping);
+    }
 
 
     private void FillCmbRaceRun()
@@ -196,11 +208,6 @@ namespace DSVAlpin2
 
     }
 
-    private void DgStartList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-
-    }
-
     private void DgRemainingStarters_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       RaceParticipant participant = (dgRemainingStarters.SelectedItem as StartListEntry)?.Participant;
@@ -224,43 +231,56 @@ namespace DSVAlpin2
       }
     }
 
-    public class GroupingCBItem
+    private void CmbStartListGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      public string Text { get; set; }
-      public string Value { get; set; }
-
-      public override string ToString()
-      {
-        return Text;
-      }
+      if (cmbStartListGrouping.SelectedValue is CBItem grouping)
+        _rslVP.ChangeGrouping(grouping.Value);
     }
+
+    private void CmbResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbResultGrouping.SelectedValue is CBItem grouping)
+        _currentRaceRun.GetResultViewProvider().ChangeGrouping(grouping.Value);
+    }
+
+    #endregion
+
+
+    #region TotalResults
+
+    private void InitializeTotalResults()
+    {
+      // Race Results
+      FillGrouping(cmbTotalResultGrouping);
+
+      dgTotalResults.ItemsSource = _currentRace.GetTotalResultView();
+      dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
+    }
+
 
     private void CmbTotalResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      if (cmbTotalResultGrouping.SelectedValue is GroupingCBItem grouping)
+      if (cmbTotalResultGrouping.SelectedValue is CBItem grouping)
         _currentRace.GetResultViewProvider().ChangeGrouping(grouping.Value);
     }
-    private void CmbStartListGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (cmbStartListGrouping.SelectedValue is GroupingCBItem grouping)
-        _rslVP.ChangeGrouping(grouping.Value);
-    }
-    private void CmbResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (cmbResultGrouping.SelectedValue is GroupingCBItem grouping)
-        _currentRaceRun.GetResultViewProvider().ChangeGrouping(grouping.Value);
-    }
+
+    #endregion
+
 
 
     public static void FillGrouping(ComboBox comboBox)
     {
-      comboBox.Items.Add(new GroupingCBItem { Text = "---", Value = null });
-      comboBox.Items.Add(new GroupingCBItem { Text = "Klasse", Value = "Participant.Class" });
-      comboBox.Items.Add(new GroupingCBItem { Text = "Gruppe", Value = "Participant.Group" });
-      comboBox.Items.Add(new GroupingCBItem { Text = "Kategorie", Value = "Participant.Sex" });
+      comboBox.Items.Add(new CBItem { Text = "---", Value = null });
+      comboBox.Items.Add(new CBItem { Text = "Klasse", Value = "Participant.Class" });
+      comboBox.Items.Add(new CBItem { Text = "Gruppe", Value = "Participant.Group" });
+      comboBox.Items.Add(new CBItem { Text = "Kategorie", Value = "Participant.Sex" });
       comboBox.SelectedIndex = 0;
     }
   }
+
+
+
+  #region Utilities
 
   public class ScrollToMeasuredItemBehavior
   {
@@ -315,5 +335,6 @@ namespace DSVAlpin2
     }
   }
 
+  #endregion
 
 }
