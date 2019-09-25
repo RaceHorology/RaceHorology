@@ -273,7 +273,7 @@ namespace DSVAlpin2Lib
         raceRunsArr[i] = rr;
       }
 
-      _raceResultsProvider = new RaceResultViewProvider();
+      _raceResultsProvider = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
       _raceResultsProvider.Init(this, _appDataModel);
     }
 
