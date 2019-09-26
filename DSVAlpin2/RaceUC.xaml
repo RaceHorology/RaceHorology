@@ -149,6 +149,16 @@
               </StackPanel>
             </StackPanel>            
           </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right">
+              <Button x:Name="btnReset" Content="Reset" Margin="5" Padding="5" Click="BtnReset_Click"/>
+              <Button x:Name="btnApply" Content="Apply" Margin="5" Padding="5" Click="BtnApply_Click"/>
+            </StackPanel>
+          </Grid>
 
         </StackPanel>
 

@@ -56,12 +56,36 @@ namespace DSVAlpin2
 
 
     #region Configuration
-    
+
+    RaceConfiguration _raceConfiguration;
+
     private void InitializeConfiguration()
     {
+
+      _raceConfiguration = new RaceConfiguration
+      {
+        Runs = 2,
+        DefaultGrouping = "Participant.Class",
+        RaceResultView = "Sum",
+
+        Run1_StartistView = "Startlist_1stRun_StartnumberAscending",
+        Run1_StartistViewGrouping = "Participant.Class",
+
+        Run2_StartistView = "Startlist_2nd_StartnumberAscending",
+        Run2_StartistViewGrouping = "Participant.Class"
+      };
+
+
       // Configuration Screen
-      cmbRuns.Items.Add(new CBItem { Text = "1", Value = "1" });
-      cmbRuns.Items.Add(new CBItem { Text = "2", Value = "2" });
+      cmbRuns.Items.Add(new CBItem { Text = "1", Value = 1 });
+      cmbRuns.Items.Add(new CBItem { Text = "2", Value = 2 });
+
+      // Result
+      FillGrouping(cmbConfigErgebnisGrouping);
+      
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "BestOfTwo" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "Sum" });
+
 
       // Run 1
       FillGrouping(cmbConfigStartlist1Grouping);
@@ -78,12 +102,51 @@ namespace DSVAlpin2
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit", Value = "Startlist_2nd_PreviousRunOnlyWithResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRunAlsoWithoutResults" });
 
-      // Result
-      FillGrouping(cmbConfigErgebnisGrouping);
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "BestOfTwo" });
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "Sum" });
+      ResetConfigurationSelection(_raceConfiguration);
+    }
+
+    private void ResetConfigurationSelection(RaceConfiguration cfg)
+    {
+      cmbRuns.SelectCBItem(cfg.Runs);
+      cmbConfigErgebnisGrouping.SelectCBItem(cfg.DefaultGrouping);
+      cmbConfigErgebnis.SelectCBItem(cfg.RaceResultView);
+      cmbConfigStartlist1.SelectCBItem(cfg.Run1_StartistView);
+      cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
+      cmbConfigStartlist2.SelectCBItem(cfg.Run2_StartistView);
+      cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
+    }
+
+    private void StoreConfigurationSelection(RaceConfiguration cfg)
+    {
+      cfg.Runs = (int)((CBItem)cmbRuns.SelectedValue).Value;
+      cfg.DefaultGrouping = (string)((CBItem)cmbConfigErgebnisGrouping.SelectedValue).Value;
+      cfg.RaceResultView = (string)((CBItem)cmbConfigErgebnis.SelectedValue).Value;
+      cfg.Run1_StartistView = (string)((CBItem)cmbConfigStartlist1.SelectedValue).Value;
+      cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
+      cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
+      cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;
+    }
+
+    private void BtnReset_Click(object sender, RoutedEventArgs e)
+    {
+      ResetConfigurationSelection(_raceConfiguration);
+    }
+
+    private void BtnApply_Click(object sender, RoutedEventArgs e)
+    {
+      RaceConfiguration cfg = new RaceConfiguration();
+      StoreConfigurationSelection(cfg);
+
+      string configFile = System.IO.Path.Combine(_dataModel.GetDB().GetDBPathDirectory(), _dataModel.GetDB().GetDBFileName() + ".config");
+      System.IO.File.WriteAllText(configFile, Newtonsoft.Json.JsonConvert.SerializeObject(cfg, Newtonsoft.Json.Formatting.Indented));
+
+      //string sf = System.IO.File.ReadAllText(@"alpinconfig.json");
+      //RaceConfiguration config = new RaceConfiguration();
+      //Newtonsoft.Json.JsonConvert.PopulateObject(sf, config);
+
 
     }
+
 
     #endregion
 
@@ -234,13 +297,13 @@ namespace DSVAlpin2
     private void CmbStartListGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       if (cmbStartListGrouping.SelectedValue is CBItem grouping)
-        _rslVP.ChangeGrouping(grouping.Value);
+        _rslVP.ChangeGrouping((string)grouping.Value);
     }
 
     private void CmbResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       if (cmbResultGrouping.SelectedValue is CBItem grouping)
-        _currentRaceRun.GetResultViewProvider().ChangeGrouping(grouping.Value);
+        _currentRaceRun.GetResultViewProvider().ChangeGrouping((string)grouping.Value);
     }
 
     #endregion
@@ -261,7 +324,7 @@ namespace DSVAlpin2
     private void CmbTotalResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       if (cmbTotalResultGrouping.SelectedValue is CBItem grouping)
-        _currentRace.GetResultViewProvider().ChangeGrouping(grouping.Value);
+        _currentRace.GetResultViewProvider().ChangeGrouping((string)grouping.Value);
     }
 
     #endregion
@@ -276,6 +339,7 @@ namespace DSVAlpin2
       comboBox.Items.Add(new CBItem { Text = "Kategorie", Value = "Participant.Sex" });
       comboBox.SelectedIndex = 0;
     }
+
   }
 
 

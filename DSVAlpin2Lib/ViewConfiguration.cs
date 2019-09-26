@@ -52,19 +52,21 @@ namespace DSVAlpin2Lib
   /// <summary>
   /// Stores the View Configuration Parameter for a Race
   /// </summary>
-  public class ViewConfiguration
+  public class RaceConfiguration
   {
     public int Runs;
 
     public string DefaultGrouping;
 
     public string RaceResultView;
-    public Dictionary<string,object> RaceResultViewParams;
+    public Dictionary<string, object> RaceResultViewParams;
 
     public string Run1_StartistView;
+    public string Run1_StartistViewGrouping;
     public Dictionary<string, object> Run1_StartistViewParams;
 
     public string Run2_StartistView;
+    public string Run2_StartistViewGrouping;
     public Dictionary<string, object> Run2_StartistViewParams;
 
   }
