@@ -92,6 +92,11 @@ namespace DSVAlpin2Lib
     }
 
 
+    public IAppDataModelDataBase GetDB()
+    {
+      return _db;
+    }
+
     /// <summary>
     /// Returns the list of participants
     /// </summary>
@@ -631,6 +636,11 @@ namespace DSVAlpin2Lib
   /// <remarks>Assuming the database format changes we can simply create another implementation.</remarks>
   public interface IAppDataModelDataBase
   {
+    string GetDBPath();
+    string GetDBFileName();
+    string GetDBPathDirectory();
+
+
     ItemsChangeObservableCollection<Participant> GetParticipants();
     List<Race.RaceProperties> GetRaces();
     List<RaceParticipant> GetRaceParticipants(Race race);
