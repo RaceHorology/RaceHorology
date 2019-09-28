@@ -37,6 +37,8 @@ namespace DSVAlpin2Lib
       _view = new CollectionViewSource();
     }
 
+    public abstract ViewProvider Clone();
+
 
     protected void FinalizeInit()
     {
@@ -51,11 +53,15 @@ namespace DSVAlpin2Lib
     public void SetDefaultGrouping(string propertyName)
     {
       _defaultGrouping = propertyName;
+      ResetToDefaultGrouping();
     }
 
     public void ChangeGrouping(string propertyName)
     {
-      if (_activeGrouping != propertyName)
+      if (_activeGrouping == propertyName)
+        return;
+
+      if (!string.IsNullOrEmpty(_activeGrouping))
       {
         _view.GroupDescriptions.Clear();
         _view.LiveGroupingProperties.Clear();
@@ -85,6 +91,8 @@ namespace DSVAlpin2Lib
     {
       ChangeGrouping(_defaultGrouping);
     }
+
+    public string ActiveGrouping { get { return _activeGrouping;  } }
 
 
     public delegate T1 Creator<T1, T2>(T2 source);
@@ -165,6 +173,11 @@ namespace DSVAlpin2Lib
     public FirstRunStartListViewProvider()
     {
       _comparer = new StartListEntryComparer();
+    }
+
+    public override ViewProvider Clone()
+    {
+      return new FirstRunStartListViewProvider();
     }
 
     // Input: List<RaceParticipant>
@@ -249,13 +262,18 @@ namespace DSVAlpin2Lib
   // First n (15) per grouping are always kept constant
   public class DSVFirstRunStartListViewProvider : FirstRunStartListViewProvider
   {
+    int _firstNStartnumbers;
+
     public DSVFirstRunStartListViewProvider(int firstNStartnumbers)
     {
+      _firstNStartnumbers = firstNStartnumbers;
       _comparer = new PointsStartListEntryComparer(firstNStartnumbers);
     }
 
-    // Parameter: first n
-
+    public override ViewProvider Clone()
+    {
+      return new DSVFirstRunStartListViewProvider(_firstNStartnumbers);
+    }
   }
 
 
@@ -278,6 +296,7 @@ namespace DSVAlpin2Lib
   {
     // Input
     protected ObservableCollection<StartListEntry> _startList1stRun;
+    protected StartListEntryComparer.Direction _direction;
 
     // Working
     ItemsChangedNotifier _sourceItemChangedNotifier;
@@ -286,8 +305,15 @@ namespace DSVAlpin2Lib
 
     public SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction direction)
     {
+      _direction = direction;
       _comparer = new StartListEntryComparer(direction);
     }
+
+    public override ViewProvider Clone()
+    {
+      return new SimpleSecondRunStartListViewProvider(_direction);
+    }
+
 
     public override void Init(RaceRun previousRun)
     {
@@ -355,6 +381,13 @@ namespace DSVAlpin2Lib
       _resultsComparer = new RuntimeSorter();
     }
 
+
+    public override ViewProvider Clone()
+    {
+      return new BasedOnResultsFirstRunStartListViewProvider(_reverseBestN, _allowNonResults);
+    }
+
+
     public override void Init(RaceRun previousRun)
     {
       _viewList = new ObservableCollection<StartListEntry>();
@@ -398,13 +431,16 @@ namespace DSVAlpin2Lib
 
     private void UpdateStartList()
     {
+      // Not yet initialized
+      if (_resultsPreviousRun == null)
+        return;
+
       List<StartListEntry> newStartList = new List<StartListEntry>();
 
       // Create sorted results for all participants
       List<RunResult> srcResults = new List<RunResult>();
       srcResults.AddRange(_resultsPreviousRun);
       srcResults.Sort(_resultsComparer);
-
 
       // Process each group separately
       object curGroup = null;
@@ -494,14 +530,18 @@ namespace DSVAlpin2Lib
     {
       _srcStartListProvider.SetDefaultGrouping(propertyName);
       _defaultGrouping = propertyName;
+      ResetToDefaultGrouping();
     }
 
 
     public void ChangeGrouping(string propertyName)
     {
+      if (_activeGrouping == propertyName)
+        return;
+
       _srcStartListProvider.ChangeGrouping(propertyName);
 
-      if (_activeGrouping != propertyName)
+      if (!string.IsNullOrEmpty(_activeGrouping))
       {
         _view.GroupDescriptions.Clear();
         _view.LiveGroupingProperties.Clear();
@@ -526,6 +566,9 @@ namespace DSVAlpin2Lib
       _srcStartListProvider.ChangeGrouping(_defaultGrouping);
       ChangeGrouping(_defaultGrouping);
     }
+
+    public string ActiveGrouping { get { return _activeGrouping; } }
+
 
 
     // Input: StartListViewProvider or List<StartListEntry>
@@ -703,6 +746,13 @@ namespace DSVAlpin2Lib
       _comparer = new RuntimeSorter();
     }
 
+
+    public override ViewProvider Clone()
+    {
+      return new RaceRunResultViewProvider();
+    }
+
+
     // Input: RaceRun
     public void Init(RaceRun raceRun, AppDataModel appDataModel)
     {
@@ -737,6 +787,10 @@ namespace DSVAlpin2Lib
     protected override void OnChangeGrouping(string propertyName)
     {
       _comparer.SetGrouping(propertyName);
+
+      if (_viewList == null)
+        return;
+
       _viewList.Sort(_comparer);
       UpdatePositions();
     }
@@ -860,6 +914,9 @@ namespace DSVAlpin2Lib
 
   public class RaceResultViewProvider : ResultViewProvider
   {
+    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResult> results);
+
+    TimeCombination _timeCombination;
     // Input Data
     Race _race;
     RaceRun[] _raceRuns;
@@ -868,14 +925,32 @@ namespace DSVAlpin2Lib
     // Working Data
     ItemsChangeObservableCollection<RaceResultItem> _viewList;
     ResultSorter<RaceResultItem> _comparer;
+    RunResultCombiner _combineTime;
 
-
-    public RaceResultViewProvider()
+    public enum TimeCombination { BestRun, Sum };
+    public RaceResultViewProvider(TimeCombination timeCombination)
     {
       _comparer = new TotalTimeSorter();
+
+      _timeCombination = timeCombination;
+      switch(_timeCombination)
+      {
+        case TimeCombination.BestRun:
+          _combineTime = MinimumTime;
+          break;
+        case TimeCombination.Sum:
+          _combineTime = SumTime;
+          break;
+      }
     }
 
 
+    public override ViewProvider Clone()
+    {
+      return new RaceResultViewProvider(_timeCombination);
+    }
+
+    
     // Input: Race
     public void Init(Race race, AppDataModel appDataModel)
     {
@@ -972,12 +1047,15 @@ namespace DSVAlpin2Lib
       // Combine and update the race result
       foreach (var res in results)
         rri.SetRunResult(res.Key, res.Value);
-      rri.TotalTime = MinimumTime(results);
+      rri.TotalTime = _combineTime(results);
     }
 
 
     void ResortResults()
     {
+      if (_viewList == null)
+        return;
+
       _viewList.Sort(_comparer);
 
       uint curPosition = 1;
@@ -1040,12 +1118,15 @@ namespace DSVAlpin2Lib
 
     TimeSpan? SumTime(Dictionary<uint, RunResult> results)
     {
-      TimeSpan sumTime = new TimeSpan(0);
+      TimeSpan? sumTime = null;
 
       foreach (var res in results)
       {
         if (res.Value != null && res.Value.Runtime != null)
         {
+          if (sumTime == null)
+            sumTime = new TimeSpan(0);
+
           sumTime += (TimeSpan)res.Value.Runtime;
         }
       }

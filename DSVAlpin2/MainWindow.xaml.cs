@@ -29,6 +29,8 @@ namespace DSVAlpin2
   /// </summary>
   public partial class MainWindow : Window
   {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
     // Private data structures
     AppDataModel _dataModel;
 
@@ -42,6 +44,8 @@ namespace DSVAlpin2
     /// </summary>
     public MainWindow()
     {
+      Logger.Info("Application started");
+
       InitializeComponent();
 
       // Remember the Application Name
@@ -97,8 +101,10 @@ namespace DSVAlpin2
     /// <param name="dbPath">Path to the database (Access File)</param>
     private void OpenDatabase(string dbPath)
     {
-      //try
+      try
       {
+        Logger.Info("Open DSVAlpin database: {dbpath}", dbPath);
+
         // Close database if it was already open
         if (_dataModel != null)
           CloseDatabase();
@@ -121,17 +127,13 @@ namespace DSVAlpin2
         // Restart DSVALpinServer (for having the lists on mobile devices)
         StartDSVAlpinServer();
 
-
         _mruList.AddFile(dbPath);
       }
-      /*
       catch (Exception ex)
       {
-        MessageBox.Show(ex.Message, "Datei kann nicht geöffnet werden", MessageBoxButton.OK, MessageBoxImage.Error);
-
-        // Close eveything again
-        CloseDatabase();
-      }*/
+        Logger.Error(ex, "during database loading");
+        throw;
+      }
     }
 
     /// <summary>

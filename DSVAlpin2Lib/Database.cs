@@ -18,6 +18,7 @@ namespace DSVAlpin2Lib
   public class Database
     : IAppDataModelDataBase
   {
+    private string _filename;
     private System.Data.OleDb.OleDbConnection _conn;
 
     private Dictionary<uint, Participant> _id2Participant;
@@ -26,6 +27,7 @@ namespace DSVAlpin2Lib
 
     public void Connect(string filename)
     {
+      _filename = filename;
       _conn = new OleDbConnection
       {
         ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename
@@ -62,6 +64,22 @@ namespace DSVAlpin2Lib
 
 
     #region IAppDataModelDataBase implementation
+
+    public string GetDBPath()
+    {
+      return _filename;
+    }
+
+    public string GetDBFileName()
+    {
+      return System.IO.Path.GetFileNameWithoutExtension(_filename);
+    }
+
+
+    public string GetDBPathDirectory()
+    {
+      return new System.IO.FileInfo(_filename).Directory.FullName;
+    }
 
 
     public ItemsChangeObservableCollection<Participant> GetParticipants()
