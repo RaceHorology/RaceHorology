@@ -182,6 +182,8 @@ namespace DSVAlpin2Lib
   /// 
   public class Race
   {
+    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
     public enum ERaceType { DownHill = 0, SuperG = 1, GiantSlalom = 2, Slalom = 3, KOSlalom = 4, ParallelSlalom = 5 };
     public class RaceProperties
     {
@@ -193,9 +195,12 @@ namespace DSVAlpin2Lib
       public DateTime DateResult;
     }
 
-
+    // Mainly race decription parameters
     RaceProperties _properties;
 
+    // Mainly ViewConfiguration (sorting, grouing, ...)
+    RaceConfiguration _raceConfiguration;
+    
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
@@ -204,6 +209,13 @@ namespace DSVAlpin2Lib
 
 
     public ERaceType RaceType { get { return _properties.RaceType;  } }
+
+
+    public RaceConfiguration RaceConfiguration
+    {
+      get { return _raceConfiguration; }
+      set { _raceConfiguration = value.Copy(); StoreRaceConfig(); }
+    }
 
 
     /// <summary>
@@ -218,6 +230,10 @@ namespace DSVAlpin2Lib
       _appDataModel = appDataModel;
       _properties = properties;
 
+      LoadRaceConfig();
+      // Ensure no inconsistencies
+      _raceConfiguration.Runs = (int)_properties.Runs;
+
       // Get initially from DB
       _participants = new ItemsChangeObservableCollection<RaceParticipant>();
       var particpants = _db.GetRaceParticipants(this);
@@ -229,6 +245,50 @@ namespace DSVAlpin2Lib
 
       // TODO: Assuming 2 runs for now
       CreateRaceRuns(2);
+
+      ViewConfigurator viewConfigurator = new ViewConfigurator(_appDataModel);
+      //viewConfigurator.ApplyNewConfig(cfg);
+      viewConfigurator.ConfigureRace(this);
+    }
+
+
+    protected void StoreRaceConfig()
+    {
+      string configFile = GetRaceConfigFilepath();
+      try
+      {
+        string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_raceConfiguration, Newtonsoft.Json.Formatting.Indented);
+
+        System.IO.File.WriteAllText(configFile, configJSON);
+      }
+      catch (Exception e)
+      {
+        logger.Info(e, "could not write race config {name}", configFile);
+      }
+    }
+
+    protected string GetRaceConfigFilepath()
+    {
+      string configFile = System.IO.Path.Combine(
+        _appDataModel.GetDB().GetDBPathDirectory(), 
+        _appDataModel.GetDB().GetDBFileName() + "_" + _properties.RaceType.ToString() + ".config");
+      return configFile;
+    }
+
+    protected void LoadRaceConfig()
+    {
+      string configFile = GetRaceConfigFilepath();
+      try
+      {
+        string configJSON = System.IO.File.ReadAllText(configFile);
+
+        _raceConfiguration = new RaceConfiguration();
+        Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, _raceConfiguration);
+      }
+      catch(Exception e)
+      {
+        logger.Info(e, "could not load race config {name}", configFile);
+      }
     }
 
     /// <summary>
@@ -249,37 +309,12 @@ namespace DSVAlpin2Lib
         // Fill the data from the DB initially (TODO: to be done better)
         rr.InsertResults(_db.GetRaceRun(this, i + 1));
 
-
-        StartListViewProvider slVP;
-        if (i == 0)
-        {
-          FirstRunStartListViewProvider frslVP = new FirstRunStartListViewProvider();
-          //frslVP = new DSVFirstRunStartListViewProvider(15);
-          frslVP.Init(this.GetParticipants());
-          slVP = frslVP;
-        }
-        else
-        {
-          //SecondRunStartListViewProvider srslVP = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
-          SecondRunStartListViewProvider srslVP = new BasedOnResultsFirstRunStartListViewProvider(15, true);
-          srslVP.Init(raceRunsArr[i - 1]);
-          slVP = srslVP;
-        }
-        rr.SetStartListProvider(slVP);
-
-        RaceRunResultViewProvider rVP = new RaceRunResultViewProvider();
-        rVP.Init(rr, _appDataModel);
-        rr.SetResultViewProvider(rVP);
-
         // Get notification if a result got modified and trigger storage in DB
         DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
         _runs.Add((rr, ddrr));
 
         raceRunsArr[i] = rr;
       }
-
-      _raceResultsProvider = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
-      _raceResultsProvider.Init(this, _appDataModel);
     }
 
     /// <summary>
@@ -346,9 +381,17 @@ namespace DSVAlpin2Lib
     {
       return _raceResultsProvider.GetView();
     }
+
+
     public RaceResultViewProvider GetResultViewProvider()
     {
       return _raceResultsProvider;
+    }
+
+
+    public void SetResultViewProvider(RaceResultViewProvider raceVP)
+    {
+      _raceResultsProvider = raceVP;
     }
 
   }
@@ -441,6 +484,12 @@ namespace DSVAlpin2Lib
     /// Returns the run number for this run (round, durchgang)
     /// </summary>
     public uint Run { get { return _run; } }
+
+    /// <summary>
+    /// Returns the Race this RaceRun belongs to.
+    /// </summary>
+    /// <returns>The Race this run belongs to.</returns>
+    public Race GetRace() { return _race; }
 
     /// <summary>
     /// Returns the start list

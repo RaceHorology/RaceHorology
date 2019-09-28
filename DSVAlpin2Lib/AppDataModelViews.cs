@@ -53,11 +53,15 @@ namespace DSVAlpin2Lib
     public void SetDefaultGrouping(string propertyName)
     {
       _defaultGrouping = propertyName;
+      ResetToDefaultGrouping();
     }
 
     public void ChangeGrouping(string propertyName)
     {
-      if (_activeGrouping != propertyName)
+      if (_activeGrouping == propertyName)
+        return;
+
+      if (!string.IsNullOrEmpty(_activeGrouping))
       {
         _view.GroupDescriptions.Clear();
         _view.LiveGroupingProperties.Clear();
@@ -87,6 +91,8 @@ namespace DSVAlpin2Lib
     {
       ChangeGrouping(_defaultGrouping);
     }
+
+    public string ActiveGrouping { get { return _activeGrouping;  } }
 
 
     public delegate T1 Creator<T1, T2>(T2 source);
@@ -425,13 +431,16 @@ namespace DSVAlpin2Lib
 
     private void UpdateStartList()
     {
+      // Not yet initialized
+      if (_resultsPreviousRun == null)
+        return;
+
       List<StartListEntry> newStartList = new List<StartListEntry>();
 
       // Create sorted results for all participants
       List<RunResult> srcResults = new List<RunResult>();
       srcResults.AddRange(_resultsPreviousRun);
       srcResults.Sort(_resultsComparer);
-
 
       // Process each group separately
       object curGroup = null;
@@ -521,14 +530,18 @@ namespace DSVAlpin2Lib
     {
       _srcStartListProvider.SetDefaultGrouping(propertyName);
       _defaultGrouping = propertyName;
+      ResetToDefaultGrouping();
     }
 
 
     public void ChangeGrouping(string propertyName)
     {
+      if (_activeGrouping == propertyName)
+        return;
+
       _srcStartListProvider.ChangeGrouping(propertyName);
 
-      if (_activeGrouping != propertyName)
+      if (!string.IsNullOrEmpty(_activeGrouping))
       {
         _view.GroupDescriptions.Clear();
         _view.LiveGroupingProperties.Clear();
@@ -553,6 +566,9 @@ namespace DSVAlpin2Lib
       _srcStartListProvider.ChangeGrouping(_defaultGrouping);
       ChangeGrouping(_defaultGrouping);
     }
+
+    public string ActiveGrouping { get { return _activeGrouping; } }
+
 
 
     // Input: StartListViewProvider or List<StartListEntry>
@@ -771,6 +787,10 @@ namespace DSVAlpin2Lib
     protected override void OnChangeGrouping(string propertyName)
     {
       _comparer.SetGrouping(propertyName);
+
+      if (_viewList == null)
+        return;
+
       _viewList.Sort(_comparer);
       UpdatePositions();
     }
@@ -1033,6 +1053,9 @@ namespace DSVAlpin2Lib
 
     void ResortResults()
     {
+      if (_viewList == null)
+        return;
+
       _viewList.Sort(_comparer);
 
       uint curPosition = 1;
@@ -1095,12 +1118,15 @@ namespace DSVAlpin2Lib
 
     TimeSpan? SumTime(Dictionary<uint, RunResult> results)
     {
-      TimeSpan sumTime = new TimeSpan(0);
+      TimeSpan? sumTime = null;
 
       foreach (var res in results)
       {
         if (res.Value != null && res.Value.Runtime != null)
         {
+          if (sumTime == null)
+            sumTime = new TimeSpan(0);
+
           sumTime += (TimeSpan)res.Value.Runtime;
         }
       }

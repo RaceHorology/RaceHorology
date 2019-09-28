@@ -30,10 +30,13 @@ namespace DSVAlpin2Lib
       _prototypes["RaceResult_BestOfTwo"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
       _prototypes["RaceResult_Sum"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
 
+      _prototypes["RaceRunResult"] = new RaceRunResultViewProvider();
+
+
     }
 
 
-    public ViewProvider Create(string viewKey)
+    public ViewProvider Create1(string viewKey)
     {
       ViewProvider prototype;
       if (_prototypes.TryGetValue(viewKey, out prototype))
@@ -43,6 +46,13 @@ namespace DSVAlpin2Lib
 
       return null;
     }
+
+    public T Create<T>(string viewKey) where T:ViewProvider
+    {
+      T instance = Create1(viewKey) as T;
+      return instance;
+    }
+
 
 
   }
@@ -68,7 +78,6 @@ namespace DSVAlpin2Lib
     public string Run2_StartistView;
     public string Run2_StartistViewGrouping;
     public Dictionary<string, object> Run2_StartistViewParams;
-
   }
 
 
@@ -91,24 +100,116 @@ namespace DSVAlpin2Lib
 
   public class ViewConfigurator
   {
-    public ViewProvider GetStartlistViewProvider(string context = null)
+    protected AppDataModel _dataModel;
+    protected RaceConfiguration _config;
+
+    public ViewConfigurator(AppDataModel dataModel)
     {
-      throw new NotImplementedException();
+      _dataModel = dataModel;
     }
 
-    public ViewProvider GetRaceRunResultViewProvider(string context = null)
+
+    public void ApplyNewConfig(RaceConfiguration config)
     {
-      throw new NotImplementedException();
+      _config = config.Copy();
     }
 
-    public ViewProvider GetRaceResultViewProvider(string context = null)
+
+    public StartListViewProvider GetStartlistViewProvider(RaceRun rr, string context = null)
     {
-      throw new NotImplementedException();
+      ViewFactory factory = Singleton<ViewFactory>.Instance;
+
+      StartListViewProvider slVP;
+
+      // First Run
+      if (1 == rr.Run)
+      {
+        FirstRunStartListViewProvider frslVP = factory.Create<FirstRunStartListViewProvider>(_config.Run1_StartistView);
+
+        // Backup if nothing has been created
+        if (frslVP == null)
+          frslVP = new FirstRunStartListViewProvider();
+
+        frslVP.SetDefaultGrouping(_config.Run1_StartistViewGrouping);
+
+        frslVP.Init(rr.GetRace().GetParticipants());
+        slVP = frslVP;
+      }
+      else
+      // Second or later run
+      {
+        // Figure out previous run
+        RaceRun rrPrevious = rr.GetRace().GetRuns().Where( r => r.Run == (rr.Run-  1U)).First();
+
+        SecondRunStartListViewProvider srslVP = factory.Create<SecondRunStartListViewProvider>(_config.Run2_StartistView);
+
+        if (srslVP == null)
+          srslVP = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending);
+
+        srslVP.SetDefaultGrouping(_config.Run2_StartistViewGrouping);
+
+        srslVP.Init(rrPrevious);
+        slVP = srslVP;
+      }
+
+      return slVP;
     }
 
-    public void ConfigureAppDataModel(AppDataModel model)
+
+    public RaceRunResultViewProvider GetRaceRunResultViewProvider(RaceRun rr, string context = null)
     {
-      throw new NotImplementedException();
+      ViewFactory factory = Singleton<ViewFactory>.Instance;
+
+      RaceRunResultViewProvider rVP;
+
+      rVP = factory.Create<RaceRunResultViewProvider>("RaceRunResult");
+
+      if (rVP == null)
+        rVP = new RaceRunResultViewProvider();
+
+      rVP.SetDefaultGrouping(_config.DefaultGrouping);
+
+      rVP.Init(rr, _dataModel);
+
+      return rVP;
+    }
+
+
+    public RaceResultViewProvider GetRaceResultViewProvider(Race race, string context = null)
+    {
+      ViewFactory factory = Singleton<ViewFactory>.Instance;
+
+      RaceResultViewProvider rVP;
+
+      rVP = factory.Create<RaceResultViewProvider>(_config.RaceResultView);
+
+      if (rVP == null)
+        rVP = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
+
+      rVP.SetDefaultGrouping(_config.DefaultGrouping);
+
+      rVP.Init(race, _dataModel);
+      return rVP;
+    }
+
+
+    public void ConfigureRace(Race race)
+    {
+      ApplyNewConfig(race.RaceConfiguration);
+
+      for(int i=0; i<race.GetMaxRun(); i++)
+      {
+        RaceRun rr = race.GetRun(i);
+
+        StartListViewProvider slVP = GetStartlistViewProvider(rr);
+        rr.SetStartListProvider(slVP);
+
+        RaceRunResultViewProvider rrVP = GetRaceRunResultViewProvider(rr);
+        rr.SetResultViewProvider(rrVP);
+      }
+
+      RaceResultViewProvider raceVP = GetRaceResultViewProvider(race);
+      race.SetResultViewProvider(raceVP);
     }
 
   }
