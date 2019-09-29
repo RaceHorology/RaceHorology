@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,8 +36,11 @@ namespace DSVAlpin2Lib
     }
 
 
-    public ViewProvider Create1(string viewKey)
+    public ViewProvider Create(string viewKey)
     {
+      if (viewKey == null)
+        return null;
+
       ViewProvider prototype;
       if (_prototypes.TryGetValue(viewKey, out prototype))
       {
@@ -49,7 +52,7 @@ namespace DSVAlpin2Lib
 
     public T Create<T>(string viewKey) where T:ViewProvider
     {
-      T instance = Create1(viewKey) as T;
+      T instance = Create(viewKey) as T;
       return instance;
     }
 

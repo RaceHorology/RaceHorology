@@ -1118,17 +1118,15 @@ namespace DSVAlpin2Lib
 
     TimeSpan? SumTime(Dictionary<uint, RunResult> results)
     {
-      TimeSpan? sumTime = null;
+      TimeSpan? sumTime = new TimeSpan(0);
 
       foreach (var res in results)
       {
-        if (res.Value != null && res.Value.Runtime != null)
-        {
-          if (sumTime == null)
-            sumTime = new TimeSpan(0);
-
+        if (res.Value?.Runtime != null)
           sumTime += (TimeSpan)res.Value.Runtime;
-        }
+        else
+          // no time ==> Invalid
+          sumTime = null;
       }
 
       return sumTime;

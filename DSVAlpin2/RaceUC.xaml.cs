@@ -133,12 +133,6 @@ namespace DSVAlpin2
       // Reset UI (TODO should adapt itself based on events)
       ConnectUiToRaceRun(_currentRaceRun);
       InitializeTotalResults();
-
-
-
-
-
-
     }
 
 
@@ -150,32 +144,32 @@ namespace DSVAlpin2
 
     private void InitializeTiming()
     {
-      FillCmbRaceRun();
+      FillCmbRaceRun(cmbRaceRun);
 
-      FillGrouping(cmbStartListGrouping);
-      FillGrouping(cmbResultGrouping);
+      FillGrouping(cmbStartListGrouping, _currentRaceRun.GetStartListProvider().ActiveGrouping);
+      FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
     }
 
 
-    private void FillCmbRaceRun()
+    private void FillCmbRaceRun(ComboBox cmb)
     {
+      cmb.Items.Clear();
+
       // Fill Runs
-      List<KeyValuePair<RaceRun, string>> races = new List<KeyValuePair<RaceRun, string>>();
       for (int i = 0; i < _thisRace.GetMaxRun(); i++)
       {
         string sz1 = String.Format("{0}. Durchgang", i + 1);
-        races.Add(new KeyValuePair<RaceRun, string>(_thisRace.GetRun(i), sz1));
+        cmb.Items.Add(new CBItem { Text = sz1, Value = _thisRace.GetRun(i) });
       }
-      cmbRaceRun.ItemsSource = races;
-      cmbRaceRun.DisplayMemberPath = "Value";
-      cmbRaceRun.SelectedValuePath = "Key";
-
-      cmbRaceRun.SelectedIndex = 0;
+      cmb.SelectedIndex = 0;
     }
 
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      _currentRaceRun = (sender as ComboBox).SelectedValue as RaceRun;
+      CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
+      RaceRun selectedRaceRun = selected?.Value as RaceRun;
+
+      _currentRaceRun = selectedRaceRun;
       if (_currentRaceRun != null)
         _dataModel.SetCurrentRaceRun(_currentRaceRun);
 
@@ -193,8 +187,6 @@ namespace DSVAlpin2
         _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
 
-        dgRemainingStartersSrc.ItemsSource = raceRun.GetStartListProvider().GetView();
-
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
@@ -206,7 +198,6 @@ namespace DSVAlpin2
       {
         dgStartList.ItemsSource = null;
         dgRemainingStarters.ItemsSource = null;
-        dgRemainingStartersSrc.ItemsSource = null;
         dgRunning.ItemsSource = null;
         dgResults.ItemsSource = null;
         dgResultsScrollBehavior = null;
@@ -319,18 +310,92 @@ namespace DSVAlpin2
     {
       RaceResultViewProvider vp = _thisRace.GetResultViewProvider();
 
-      // Race Results
       FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping);
-
-      dgTotalResults.ItemsSource = vp.GetView();
-      dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
+      FillCmbRaceRun(cmbTotalResult);
+      cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = null });
+      cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
     }
 
 
     private void CmbTotalResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      ViewProvider vp = null;
+      if (cmbTotalResult.SelectedValue is CBItem selected)
+      {
+        if (selected.Value is RaceRun selectedRaceRun)
+          vp = selectedRaceRun.GetResultViewProvider();
+        else
+          // Total Results
+          vp = _thisRace.GetResultViewProvider();
+      }
+
       if (cmbTotalResultGrouping.SelectedValue is CBItem grouping)
-        _thisRace.GetResultViewProvider().ChangeGrouping((string)grouping.Value);
+        vp?.ChangeGrouping((string)grouping.Value);
+    }
+
+    private void CmbTotalResult_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbTotalResult.SelectedValue is CBItem selected)
+      {
+        while (dgTotalResults.Columns.Count > 7)
+          dgTotalResults.Columns.RemoveAt(dgTotalResults.Columns.Count - 1);
+
+
+        ViewProvider vp;
+        if (selected.Value is RaceRun selectedRaceRun)
+        {
+          vp = selectedRaceRun.GetResultViewProvider();
+
+          DataGridTextColumn dgc = new DataGridTextColumn
+          {
+            Header = "Zeit"
+          };
+          Binding b = new Binding("Runtime")
+          {
+            Mode = BindingMode.OneWay,
+            StringFormat = @"{0:mm\:ss\,ff}"
+          };
+          dgc.Binding = b;
+          dgTotalResults.Columns.Add(dgc);
+        }
+        else
+        {
+          // Total Results
+          vp = _thisRace.GetResultViewProvider();
+
+          for(int i=0; i<2; i++)
+          {
+            DataGridTextColumn dgc2 = new DataGridTextColumn
+            {
+              Header = string.Format("Zeit {0}", i + 1)
+            };
+            Binding b2 = new Binding(string.Format("RunTimes[{0}]", i+1))
+            {
+              Mode = BindingMode.OneWay,
+              StringFormat = @"{0:mm\:ss\,ff}"
+            };
+            dgc2.Binding = b2;
+            dgTotalResults.Columns.Add(dgc2);
+          }
+
+          DataGridTextColumn dgc = new DataGridTextColumn
+          {
+            Header = "Total"
+          };
+          Binding b = new Binding("TotalTime")
+          {
+            Mode = BindingMode.OneWay,
+            StringFormat = @"{0:mm\:ss\,ff}"
+          };
+          dgc.Binding = b;
+          dgTotalResults.Columns.Add(dgc);
+        }
+
+
+        dgTotalResults.ItemsSource = vp.GetView();
+        dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
+        cmbTotalResultGrouping.SelectCBItem(vp.ActiveGrouping);
+      }
     }
 
     #endregion

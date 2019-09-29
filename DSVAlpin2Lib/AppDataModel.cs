@@ -277,12 +277,12 @@ namespace DSVAlpin2Lib
 
     protected void LoadRaceConfig()
     {
+      _raceConfiguration = new RaceConfiguration();
       string configFile = GetRaceConfigFilepath();
       try
       {
         string configJSON = System.IO.File.ReadAllText(configFile);
 
-        _raceConfiguration = new RaceConfiguration();
         Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, _raceConfiguration);
       }
       catch(Exception e)
