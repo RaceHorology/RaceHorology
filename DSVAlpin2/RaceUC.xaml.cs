@@ -146,8 +146,8 @@ namespace DSVAlpin2
     {
       FillCmbRaceRun(cmbRaceRun);
 
-      FillGrouping(cmbStartListGrouping);
-      FillGrouping(cmbResultGrouping);
+      FillGrouping(cmbStartListGrouping, _currentRaceRun.GetStartListProvider().ActiveGrouping);
+      FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
     }
 
 
