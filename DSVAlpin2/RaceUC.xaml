@@ -480,9 +480,11 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Label x:Name="lblTotalResult" Content="Rennergebnis" HorizontalAlignment="Left" Margin="0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
         <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
+        <ComboBox x:Name="cmbTotalResult" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResult_SelectionChanged"/>
       </Grid>
       <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
         <DataGrid.Columns>
@@ -496,8 +498,9 @@
 
           <DataGridTextColumn Header="Zeit 1" Binding="{Binding Path=RunTimes[1], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
           <DataGridTextColumn Header="Zeit 2" Binding="{Binding Path=RunTimes[2], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
-
           <DataGridTextColumn Header="Zeit" Binding="{Binding Path=TotalTime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+
+          <DataGridTextColumn Header="Zeit" Binding="{Binding Path=Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
 
           <DataGridTextColumn Header="Anmerkung" />
         </DataGrid.Columns>
