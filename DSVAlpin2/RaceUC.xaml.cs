@@ -1,4 +1,4 @@
-﻿using DSVAlpin2Lib;
+using DSVAlpin2Lib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -187,8 +187,6 @@ namespace DSVAlpin2
         _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
 
-        dgRemainingStartersSrc.ItemsSource = raceRun.GetStartListProvider().GetView();
-
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
@@ -200,7 +198,6 @@ namespace DSVAlpin2
       {
         dgStartList.ItemsSource = null;
         dgRemainingStarters.ItemsSource = null;
-        dgRemainingStartersSrc.ItemsSource = null;
         dgRunning.ItemsSource = null;
         dgResults.ItemsSource = null;
         dgResultsScrollBehavior = null;
