@@ -1,4 +1,4 @@
-using DSVAlpin2Lib;
+﻿using DSVAlpin2Lib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -310,9 +310,10 @@ namespace DSVAlpin2
     {
       RaceResultViewProvider vp = _thisRace.GetResultViewProvider();
 
-      FillGrouping(cmbTotalResultGrouping);
+      FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping);
       FillCmbRaceRun(cmbTotalResult);
       cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = null });
+      cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
     }
 
 
