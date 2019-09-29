@@ -339,12 +339,60 @@ namespace DSVAlpin2
     {
       if (cmbTotalResult.SelectedValue is CBItem selected)
       {
+        while (dgTotalResults.Columns.Count > 7)
+          dgTotalResults.Columns.RemoveAt(dgTotalResults.Columns.Count - 1);
+
+
         ViewProvider vp;
         if (selected.Value is RaceRun selectedRaceRun)
+        {
           vp = selectedRaceRun.GetResultViewProvider();
+
+          DataGridTextColumn dgc = new DataGridTextColumn
+          {
+            Header = "Zeit"
+          };
+          Binding b = new Binding("Runtime")
+          {
+            Mode = BindingMode.OneWay,
+            StringFormat = @"{0:mm\:ss\,ff}"
+          };
+          dgc.Binding = b;
+          dgTotalResults.Columns.Add(dgc);
+        }
         else
+        {
           // Total Results
           vp = _thisRace.GetResultViewProvider();
+
+          for(int i=0; i<2; i++)
+          {
+            DataGridTextColumn dgc2 = new DataGridTextColumn
+            {
+              Header = string.Format("Zeit {0}", i + 1)
+            };
+            Binding b2 = new Binding(string.Format("RunTimes[{0}]", i+1))
+            {
+              Mode = BindingMode.OneWay,
+              StringFormat = @"{0:mm\:ss\,ff}"
+            };
+            dgc2.Binding = b2;
+            dgTotalResults.Columns.Add(dgc2);
+          }
+
+          DataGridTextColumn dgc = new DataGridTextColumn
+          {
+            Header = "Total"
+          };
+          Binding b = new Binding("TotalTime")
+          {
+            Mode = BindingMode.OneWay,
+            StringFormat = @"{0:mm\:ss\,ff}"
+          };
+          dgc.Binding = b;
+          dgTotalResults.Columns.Add(dgc);
+        }
+
 
         dgTotalResults.ItemsSource = vp.GetView();
         dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
