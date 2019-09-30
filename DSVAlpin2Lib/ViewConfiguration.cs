@@ -8,7 +8,7 @@ namespace DSVAlpin2Lib
 {
 
 
-  class ViewFactory
+  public class ViewFactory
   {
     protected Dictionary<string, ViewProvider> _prototypes;
 
