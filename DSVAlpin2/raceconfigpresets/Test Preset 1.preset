@@ -1,7 +1,7 @@
 {
   "Runs": 2,
   "DefaultGrouping": "Participant.Class",
-  "RaceResultView": "RaceResult_Sum",
+  "RaceResultView": "RaceResult_BestOfTwo",
   "RaceResultViewParams": null,
   "Run1_StartistView": "Startlist_1stRun_StartnumberAscending",
   "Run1_StartistViewGrouping": "Participant.Class",

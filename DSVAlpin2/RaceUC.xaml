@@ -39,11 +39,6 @@
             <Label x:Name="lblTemplate" Margin="5" Content="Template:" Grid.Row="0" Grid.Column="0"/>
             <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
               <ComboBox x:Name="cmbTemplate" Margin="5" SelectionChanged="CmbTemplate_SelectionChanged"/>
-              <StackPanel Margin="0" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Margin="5" Content="New"/>
-                <Button Margin="5" Content="Delete"/>
-                <Button Margin="5" Content="Save"/>
-              </StackPanel>
             </StackPanel>
           </Grid>
 
