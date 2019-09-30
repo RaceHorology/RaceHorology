@@ -8,7 +8,7 @@ namespace DSVAlpin2Lib
 {
 
 
-  class ViewFactory
+  public class ViewFactory
   {
     protected Dictionary<string, ViewProvider> _prototypes;
 
@@ -85,21 +85,106 @@ namespace DSVAlpin2Lib
 
 
 
-  /*
-   * Wie bekommen die existierenden Views eine Änderung der Konfiguration mit?
-   * a) beim GetView ... einen Callback registrieren
-   * b) beim GetView ... in einen Container zurückgeben
-   * c) fire Event => WPF UI oder HTML5 UI baut sich neu auf
-   * 
-   * Wie wird eine Configänderung in das AppDataModel zurückgespielt?
-   * 
-   * Sollen die Views Teil des AppDataModels sein?
-   * Nein:
-   * - ViewConfigurator kennt Abhängigkeiten
-   * 
-   * Ja:
-   * - AppDataModel kann einfach Accesoren bereitstellen
-   */
+  public class RaceConfigurationPresets
+  {
+    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+    string _directory;
+    Dictionary<string, RaceConfiguration> _configurations;
+
+    public RaceConfigurationPresets(string directory)
+    {
+      _configurations = new Dictionary<string, RaceConfiguration>();
+
+      _directory = directory;
+
+      // Ensures the directory exists
+      System.IO.Directory.CreateDirectory(directory);
+
+      LoadAllConfiguration();
+    }
+
+
+    public Dictionary<string, RaceConfiguration> GetConfigurations()
+    {
+      return _configurations;
+    }
+
+
+    public void SetConfigurations(string name, RaceConfiguration raceConfiguration)
+    {
+      WriteConfiguration(name, raceConfiguration);
+      LoadAllConfiguration();
+    }
+
+
+    public void DeleteConfigurations(string name)
+    {
+      string filename = System.IO.Path.Combine(_directory, name + ".preset");
+      System.IO.File.Delete(filename);
+      LoadAllConfiguration();
+    }
+
+
+    void LoadAllConfiguration()
+    {
+      _configurations.Clear();
+
+      var presetFiles = System.IO.Directory.GetFiles(_directory, "*.preset", System.IO.SearchOption.TopDirectoryOnly);
+      foreach(var filename in presetFiles)
+      {
+        string name;
+        RaceConfiguration raceConfiguration;
+        if (LoadConfiguration(filename, out name, out raceConfiguration))
+        {
+          _configurations.Add(name, raceConfiguration);
+        }
+      }
+    }
+
+
+    void WriteConfiguration(string name, RaceConfiguration raceConfiguration)
+    {
+      string filename = System.IO.Path.Combine(_directory, name + ".preset");
+
+      try
+      {
+        string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(raceConfiguration, Newtonsoft.Json.Formatting.Indented);
+
+        System.IO.File.WriteAllText(filename, configJSON);
+      }
+      catch (Exception e)
+      {
+        logger.Info(e, "could not write race preset {name}", filename);
+      }
+    }
+
+
+    bool LoadConfiguration(string filename, out string name, out RaceConfiguration raceConfiguration)
+    {
+      try
+      {
+        name = System.IO.Path.GetFileNameWithoutExtension(filename);
+
+        string configJSON = System.IO.File.ReadAllText(filename);
+
+        raceConfiguration = new RaceConfiguration();
+        Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, raceConfiguration);
+      }
+      catch (Exception e)
+      {
+        logger.Info(e, "could not load race preset {name}", filename);
+        raceConfiguration = null;
+        name = null;
+        return false;
+      }
+
+
+      return true;
+    }
+
+  }
+
 
   public class ViewConfigurator
   {

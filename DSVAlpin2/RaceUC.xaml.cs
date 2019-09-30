@@ -58,9 +58,19 @@ namespace DSVAlpin2
     #region Configuration
 
     RaceConfiguration _raceConfiguration;
+    RaceConfigurationPresets _raceConfigurationPresets;
 
     private void InitializeConfiguration()
     {
+      // ApplicationFolder + raceconfigpresets
+      _raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
+      foreach(var config in _raceConfigurationPresets.GetConfigurations())
+      {
+        cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
+      }
+
+
+
       _raceConfiguration = _thisRace.RaceConfiguration.Copy();
       
       // Configuration Screen
@@ -90,6 +100,18 @@ namespace DSVAlpin2
 
       ResetConfigurationSelectionUI(_raceConfiguration);
     }
+
+
+    private void CmbTemplate_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbTemplate.SelectedValue is CBItem selected)
+      {
+        if (selected.Value is RaceConfiguration config)
+          ResetConfigurationSelectionUI(config);
+      }
+    }
+
+
 
     private void ResetConfigurationSelectionUI(RaceConfiguration cfg)
     {
