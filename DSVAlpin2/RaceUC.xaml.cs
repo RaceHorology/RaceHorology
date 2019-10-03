@@ -234,7 +234,8 @@ namespace DSVAlpin2
     {
       cmbRaceRun.IsEnabled = !isRunning;
 
-      System.Diagnostics.Debug.Assert(cmbRaceRun.SelectedValue == _currentRaceRun);
+      RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun ;
+      System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
     }
 
 
