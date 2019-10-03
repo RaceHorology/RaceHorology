@@ -583,10 +583,14 @@ namespace DSVAlpin2Lib
       _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
       foreach (StartListEntry entry in _viewList)
         UpdateStartListEntry(entry);
-      // Observe the results
-      _viewList.CollectionChanged += OnResultsChanged;
-      //_viewList.ItemChanged += OnResultItemChanged;
 
+      // Observe the results
+      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
+      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
+
+      // Observe StartList 
+      _viewList.CollectionChanged += OnStartListEntriesChanged;
+      //_viewList.ItemChanged += OnStartListEntryItemChanged;
 
       // Create View with filtered items
       ObservableCollection<StartListEntry> startList = _viewList;
@@ -627,6 +631,31 @@ namespace DSVAlpin2Lib
     {
       RunResult result = (RunResult)sender;
       UpdateStartListEntry(result);
+    }
+
+    private void OnStartListEntriesChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          StartListEntry sle = (StartListEntry)item;
+          UpdateStartListEntry(sle);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          // Remove from _results
+          StartListEntry sle = (StartListEntry)item;
+          UpdateStartListEntry(sle);
+        }
+    }
+
+    private void OnStartListEntryItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      StartListEntry sle = (StartListEntry)sender;
+      UpdateStartListEntry(sle);
     }
 
     private void UpdateStartListEntry(RunResult result)
