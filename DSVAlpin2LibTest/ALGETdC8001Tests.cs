@@ -159,6 +159,15 @@ namespace DSVAlpin2LibTest
         Assert.AreEqual(false, pd.BRunTime);
       }
 
+      {
+        var pd = ParseAndTransfer(" 0001 RTM 00:00:20.1    00");
+        Assert.AreEqual(1U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BRunTime);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 20, 100), pd.RunTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+      }
+
       { // Disqualified
         var pd = ParseAndTransfer("d0035 C0  21:46:36.3910 00");
         Assert.AreEqual(35U, pd.StartNumber);
@@ -176,20 +185,20 @@ namespace DSVAlpin2LibTest
         Assert.AreEqual(false, pd.BRunTime);
       }
 
-      // Ignored data
-      {
+      // Ignored data (first character)
+      { // Invalid startnumber
         var pd = ParseAndTransfer("?0034 C1M 21:46:48.3300 00");
         Assert.IsNull(pd);
       }
-      {
+      { // penalty time (parallelslalom)
         var pd = ParseAndTransfer("p0034 C1M 21:46:48.3300 00");
         Assert.IsNull(pd);
       }
-      {
+      { // time was blocked with block key)
         var pd = ParseAndTransfer("b0034 C1M 21:46:48.3300 00");
         Assert.IsNull(pd);
       }
-      {
+      { // memory time TODO: Check
         var pd = ParseAndTransfer("m0034 C1M 21:46:48.3300 00");
         Assert.IsNull(pd);
       }
