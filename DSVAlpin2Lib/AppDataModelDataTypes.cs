@@ -522,60 +522,39 @@ namespace DSVAlpin2Lib
 
     public void SetRunTime(TimeSpan? t)
     {
-      _startTime = null;
-      _finishTime = null;
       _runTime = t;
-
-      // Clear Start & Finish Time (might be inconsistent to the start & finish time)
-      MakeConsistencyCheck();
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public TimeSpan? GetRunTime() { return _runTime;  }
+    public TimeSpan? GetRunTime()
+    {
+      if (_runTime != null)
+        return _runTime;
+
+      if (_startTime != null && _finishTime != null)
+        return _finishTime - _startTime;
+
+      return null;
+    }
 
 
     public void SetStartTime(TimeSpan? startTime)
     {
-      _runTime = null;
       _startTime = startTime;
-
-      if (_startTime != null && _finishTime != null)
-        _runTime = _finishTime - _startTime;
-      else
-        MakeConsistencyCheck();
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
     public void SetFinishTime(TimeSpan? finishTime)
     {
-      _runTime = null;
       _finishTime = finishTime;
-
-      if (_startTime != null && _finishTime != null)
-        _runTime = _finishTime - _startTime;
-      else
-        MakeConsistencyCheck();
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
     public TimeSpan? GetStartTime() { return _startTime; }
     public TimeSpan? GetFinishTime() { return _finishTime; }
-
-
-    private void MakeConsistencyCheck()
-    {
-      // Consistency check
-      if (_runTime != null && _startTime != null && _finishTime != null)
-      {
-        TimeSpan calcRunTime = (TimeSpan )_runTime;
-        TimeSpan diff = calcRunTime - (TimeSpan)_runTime;
-
-        System.Diagnostics.Debug.Assert(Math.Abs(diff.TotalMilliseconds) < 1.0);
-      }
-    }
 
 
     public override string ToString()

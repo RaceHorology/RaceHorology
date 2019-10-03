@@ -208,7 +208,11 @@ namespace DSVAlpin2Lib
           data.BFinishTime = true;
           break;
 
-        case "RT":   // RunTime, calculated automatically
+        case "RT":   
+          data.RunTime = parsedDataTime;
+          data.BRunTime = true;
+          break;
+
         case "TT":   // TotalTime, calculated automatically
           return null;
       }
