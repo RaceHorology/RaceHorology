@@ -192,6 +192,12 @@ namespace DSVAlpin2Lib
       set { _firstname = value; NotifyPropertyChanged(); }
     }
 
+    public string Fullname
+    {
+      get { return _name + ", " + _firstname; }
+    }
+
+
     public string Sex
     {
       get => _sex;
@@ -297,6 +303,7 @@ namespace DSVAlpin2Lib
     public string Id { get => _participant.Id; }
     public string Name { get => _participant.Name; }
     public string Firstname { get => _participant.Firstname; }
+    public string Fullname { get => _participant.Fullname; }
     public string Sex { get => _participant.Sex; }
     public uint Year { get => _participant.Year; }
     public string Club { get => _participant.Club; }
