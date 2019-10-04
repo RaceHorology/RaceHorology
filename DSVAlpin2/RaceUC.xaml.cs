@@ -170,6 +170,12 @@ namespace DSVAlpin2
 
       FillGrouping(cmbStartListGrouping, _currentRaceRun.GetStartListProvider().ActiveGrouping);
       FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
+
+      cmbManualMode.Items.Add(new CBItem { Text = "Laufzeit", Value = "Absolut" });
+      cmbManualMode.Items.Add(new CBItem { Text = "Differenz", Value = "Difference" });
+      cmbManualMode.SelectedIndex = 0;
+
+      this.KeyDown += new KeyEventHandler(Timing_KeyDown);
     }
 
 
@@ -239,14 +245,107 @@ namespace DSVAlpin2
     }
 
 
+    private void CmbManualMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbManualMode.SelectedItem is CBItem item)
+      {
+        if (object.Equals(item.Value, "Absolut"))
+        {
+          txtStart.IsEnabled = false;
+          txtFinish.IsEnabled = false;
+          txtRun.IsEnabled = true;
+        }
+        else if (object.Equals(item.Value, "Difference"))
+        {
+          txtStart.IsEnabled = true;
+          txtFinish.IsEnabled = true;
+          txtRun.IsEnabled = true;
+        }
+      }
+    }
+
+
+
+    private void Timing_KeyDown(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.M && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+      {
+        txtStartNumber.Focus();
+        txtStartNumber.SelectAll();
+      }
+      else if (e.Key == Key.F2)
+        BtnManualTimeStore_Click(null, null);
+    }
+
+
+    private void TxtManualTime_GotFocus(object sender, RoutedEventArgs e)
+    {
+      if (sender is TextBox txtbox)
+      {
+        txtbox.SelectAll();
+      }
+    }
+
+    private void TxtManualTime_LostFocus(object sender, RoutedEventArgs e)
+    {
+      CheckTime(txtStart);
+      CheckTime(txtFinish);
+      UpdateRunTime();
+      CheckTime(txtRun);
+    }
+
+
+    private void CheckTime(TextBox txtbox)
+    {
+      TimeSpan? ts = TimeSpanExtensions.ParseTimeSpan(txtbox.Text);
+      if (ts == null && txtbox.IsEnabled)
+        txtbox.Background = Brushes.Orange;
+      else
+        txtbox.Background = Brushes.White;
+    }
+
+    private void UpdateRunTime()
+    {
+      try
+      {
+        TimeSpan? start = TimeSpanExtensions.ParseTimeSpan(txtStart.Text);
+        TimeSpan? finish = TimeSpanExtensions.ParseTimeSpan(txtFinish.Text);
+        TimeSpan? run = finish - start;
+        if (run!=null)
+          txtRun.Text = run?.ToString(@"mm\:ss\,ff");
+      }
+      catch (Exception)
+      { }
+    }
+
+
+    private void TxtStartNumber_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      uint startNumber = 0U;
+      try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+      RaceParticipant participant = _thisRace.GetParticipant(startNumber);
+      if (participant != null)
+      {
+        txtParticipant.Text = participant.Fullname;
+        RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
+        if (rr != null)
+        {
+          txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ff");
+          txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ff");
+          txtRun.Text = rr.GetRunTime()?.ToString(@"mm\:ss\,ff");
+        }
+      }
+      else
+        txtParticipant.Text = "";
+    }
+
 
     private void BtnManualTimeStore_Click(object sender, RoutedEventArgs e)
     {
       TimeSpan? start = null, finish = null, run = null;
-
-      try { start = TimeSpan.Parse(txtStart.Text); } catch (Exception) { }
-      try { finish = TimeSpan.Parse(txtFinish.Text); } catch (Exception) { }
-      try { run = TimeSpan.Parse(txtRun.Text); } catch (Exception) { }
+      start = TimeSpanExtensions.ParseTimeSpan(txtStart.Text);
+      finish = TimeSpanExtensions.ParseTimeSpan(txtFinish.Text);
+      run = TimeSpanExtensions.ParseTimeSpan(txtRun.Text);
 
       uint startNumber = 0U;
       try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
@@ -254,63 +353,26 @@ namespace DSVAlpin2
 
       if (participant != null)
       {
-        if (start != null || finish != null)
+        bool bDifference = object.Equals((cmbManualMode.SelectedItem as CBItem)?.Value, "Difference");
+        bool bDeletingTime = (bDifference && (start == null || finish == null)) || run == null;
+
+        if (bDeletingTime)
+        {
+          MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Manche Zeiten werden gelöscht\nFortfahren?", "Zeiten löschen?", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+          if (messageBoxResult == MessageBoxResult.No)
+            return;
+        }
+
+        if (bDifference)
           _currentRaceRun.SetStartFinishTime(participant, start, finish);
-        else if (run != null)
-          _currentRaceRun.SetRunTime(participant, run);
+
+        _currentRaceRun.SetRunTime(participant, run);
+
       }
+
+      txtStartNumber.Focus();
     }
 
-    private void BtnManualTimeFinish_Click(object sender, RoutedEventArgs e)
-    {
-      TimeSpan finish = DateTime.Now - DateTime.Today;
-      txtFinish.Text = finish.ToString();
-      UpdateRunTime();
-    }
-
-    private void BtnManualTimeStart_Click(object sender, RoutedEventArgs e)
-    {
-      TimeSpan start = DateTime.Now - DateTime.Today;
-      txtStart.Text = start.ToString();
-      UpdateRunTime();
-    }
-
-    private void UpdateRunTime()
-    {
-      try
-      {
-        TimeSpan start = TimeSpan.Parse(txtStart.Text);
-        TimeSpan finish = TimeSpan.Parse(txtFinish.Text);
-        TimeSpan run = finish - start;
-        txtRun.Text = run.ToString(@"mm\:ss\,ff");
-      }
-      catch (Exception)
-      { }
-
-    }
-
-    private void DgRemainingStarters_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      RaceParticipant participant = (dgRemainingStarters.SelectedItem as StartListEntry)?.Participant;
-
-      if (participant != null)
-      {
-        RunResult result = _currentRaceRun.GetResultList().SingleOrDefault(r => r._participant == participant);
-
-        if (result != null)
-        {
-          txtStart.Text = result.GetStartTime()?.ToString();
-          txtFinish.Text = result.GetFinishTime()?.ToString();
-          txtRun.Text = result.GetRunTime()?.ToString();
-        }
-        else
-        {
-          txtStart.Text = txtFinish.Text = txtRun.Text = "";
-        }
-
-        txtStartNumber.Text = participant.StartNumber.ToString();
-      }
-    }
 
     private void CmbStartListGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
