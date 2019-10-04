@@ -485,7 +485,7 @@ namespace DSVAlpin2Lib
     public string Nation { get { return _participant.Nation; } }
 
 
-    public TimeSpan? Runtime { get { return _runTime; } }
+    public TimeSpan? Runtime { get { return GetRunTime(); } }
     public EResultCode ResultCode { get { return _resultCode; } set { _resultCode = value; NotifyPropertyChanged(); } }
     public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
 
@@ -534,12 +534,12 @@ namespace DSVAlpin2Lib
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public TimeSpan? GetRunTime()
+    public TimeSpan? GetRunTime(bool calculateIfNotStored = true)
     {
       if (_runTime != null)
         return _runTime;
 
-      if (_startTime != null && _finishTime != null)
+      if (calculateIfNotStored && _startTime != null && _finishTime != null)
         return _finishTime - _startTime;
 
       return null;
