@@ -327,17 +327,44 @@ namespace DSVAlpin2Lib
 
 
   // Define other methods and classes here
-  public static class Extensions
+  public static class TimeSpanExtensions
   {
     public static DateTime AddMicroseconds(this DateTime datetime, Int32 value)
     {
-      return new DateTime(datetime.Ticks + value*10, datetime.Kind);
+      return new DateTime(datetime.Ticks + value * 10, datetime.Kind);
     }
 
 
     public static TimeSpan AddMicroseconds(this TimeSpan timespan, Int32 value)
     {
-      return new TimeSpan(timespan.Ticks + value*10);
+      return new TimeSpan(timespan.Ticks + value * 10);
+    }
+
+
+    public static TimeSpan? ParseTimeSpan(string text)
+    {
+      TimeSpan? time = null;
+      try
+      {
+        string[] formats = {
+            @"ss\.ffff", @"ss\.fff", @"ss\.ff", @"ss\.f",
+            @"mm\:ss\.ffff", @"mm\:ss\.fff", @"mm\:ss\.ff", @"mm\:ss\.f",
+            @"m\:ss\.ffff", @"m\:ss\.fff", @"m\:ss\.ff", @"m\:ss\.f",
+            @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff", @"hh\:mm\:ss\.f",
+            @"h\:mm\:ss\.ffff", @"h\:mm\:ss\.fff", @"h\:mm\:ss\.ff", @"h\:mm\:ss\.f",
+            @"ss\,ffff", @"ss\,fff", @"ss\,ff", @"ss\,f",
+            @"mm\:ss\,ffff", @"mm\:ss\,fff", @"mm\:ss\,ff", @"mm\:ss\,f",
+            @"m\:ss\,ffff", @"m\:ss\,fff", @"m\:ss\,ff", @"m\:ss\,f",
+            @"hh\:mm\:ss\,ffff", @"hh\:mm\:ss\,fff", @"hh\:mm\:ss\,ff", @"hh\:mm\:ss\,f",
+            @"h\:mm\:ss\,ffff", @"h\:mm\:ss\,fff", @"h\:mm\:ss\,ff", @"h\:mm\:ss\,f"
+          };
+        text = text.TrimEnd(' ');
+        time = TimeSpan.ParseExact(text, formats, System.Globalization.CultureInfo.InvariantCulture);
+      }
+      catch (FormatException)
+      { }
+
+      return time;
     }
   }
 
