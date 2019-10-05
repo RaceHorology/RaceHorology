@@ -103,6 +103,7 @@ var app = new Vue({
     return {
       startlist: null,
       runlist: null,
+      currentracerun: null,
       logs: [],
       status: "disconnected",
       lastUpdate: "",
@@ -128,6 +129,9 @@ var app = new Vue({
         } else if (parsedData["type"] == "racerunresult")
         {
           this.runlist = parsedData["data"];
+        } else if (parsedData["type"] == "currentracerun")
+        {
+          this.currentracerun = parsedData["data"];
         }
 
         this.lastUpdate = new Date().toLocaleString();

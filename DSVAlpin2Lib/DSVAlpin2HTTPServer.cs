@@ -184,7 +184,7 @@ namespace DSVAlpin2Lib
   }
 
 
-  public abstract class LiveDataProvider
+  public abstract class LiveDataProvider : IDisposable
   {
 
     public class NewDataEventArgs : EventArgs
@@ -201,6 +201,8 @@ namespace DSVAlpin2Lib
     }
 
     public abstract void SendInitial();
+
+    public abstract void Dispose();
   }
 
 
@@ -216,6 +218,7 @@ namespace DSVAlpin2Lib
 
       Add(new StartListDataProvider(_dm));
       Add(new RaceRunDataProvider(_dm));
+      Add(new RaceDataProvider(_dm));
     }
 
 
@@ -236,6 +239,7 @@ namespace DSVAlpin2Lib
     {
       provider.NewDataToSend -= OnSendNewData;
       _liveProvider.Remove(provider);
+      provider.Dispose();
     }
 
 
@@ -259,6 +263,7 @@ namespace DSVAlpin2Lib
   {
     AppDataModel _dm;
     ItemsChangedNotifier _notifier;
+    System.Timers.Timer _timer;
 
     public StartListDataProvider(AppDataModel dm)
     {
@@ -271,13 +276,10 @@ namespace DSVAlpin2Lib
       });
     }
 
-    protected void TearDown()
+    public override void Dispose()
     {
-      if (_dm != null)
-      {
-        _notifier.CollectionChanged -= StartListChanged;
-        _notifier.ItemChanged -= StartListItemChanged;
-      }
+      _notifier.CollectionChanged -= StartListChanged;
+      _notifier.ItemChanged -= StartListItemChanged;
     }
 
     public override void SendInitial()
@@ -296,6 +298,21 @@ namespace DSVAlpin2Lib
 
     void SendStartList()
     {
+      if (_timer != null)
+        _timer.Stop();
+      else
+      {
+        _timer = new System.Timers.Timer(200);
+        _timer.Elapsed += DoSendStartList;
+        _timer.AutoReset = false;
+        _timer.Enabled = true;
+      }
+
+      _timer.Start();
+    }
+
+    void DoSendStartList(object sender, System.Timers.ElapsedEventArgs e)
+    {
       string output=null;
       Application.Current.Dispatcher.Invoke(() =>
       {
@@ -311,27 +328,54 @@ namespace DSVAlpin2Lib
   public class RaceRunDataProvider : LiveDataProvider
   {
     AppDataModel _dm;
+    RaceRun _currentRace;
     ItemsChangedNotifier _notifier;
     System.Timers.Timer _timer;
 
     public RaceRunDataProvider(AppDataModel dm)
     {
       _dm = dm;
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
 
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        _notifier = new ItemsChangedNotifier(_dm.GetCurrentRace().GetRun(0).GetResultView());
-        _notifier.CollectionChanged += ResultListChanged;
-        _notifier.ItemChanged += ResultListItemChanged;
-      });
+      ListenToCurrentRaceRun();
     }
 
-    protected void TearDown()
+    public override void Dispose()
     {
-      if (_dm != null)
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+
+      _notifier.CollectionChanged -= ResultListChanged;
+      _notifier.ItemChanged -= ResultListItemChanged;
+      _notifier = null;
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      ListenToCurrentRaceRun();
+    }
+
+    private void ListenToCurrentRaceRun()
+    {
+      if (_currentRace != _dm.GetCurrentRaceRun())
       {
-        _notifier.CollectionChanged -= ResultListChanged;
-        _notifier.ItemChanged -= ResultListItemChanged;
+
+        if (_notifier != null)
+        {
+          _notifier.CollectionChanged -= ResultListChanged;
+          _notifier.ItemChanged -= ResultListItemChanged;
+          _notifier = null;
+        }
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          _notifier = new ItemsChangedNotifier(_dm.GetCurrentRaceRun().GetResultView());
+          _notifier.CollectionChanged += ResultListChanged;
+          _notifier.ItemChanged += ResultListItemChanged;
+        });
+
+        _currentRace = _dm.GetCurrentRaceRun();
+
+        SendResultList();
       }
     }
 
@@ -372,12 +416,58 @@ namespace DSVAlpin2Lib
       string output = null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConversion.ConvertRunResults(_dm.GetCurrentRace().GetRun(0).GetResultView());
+        output = JsonConversion.ConvertRunResults(_dm.GetCurrentRaceRun().GetResultView());
       });
 
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });
     }
+  }
 
+
+
+  public class RaceDataProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+
+    public RaceDataProvider(AppDataModel dm)
+    {
+      _dm = dm;
+
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
+    }
+
+    public override void Dispose()
+    {
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+    }
+
+    public override void SendInitial()
+    {
+      SendCurrentRaceData();
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      SendCurrentRaceData();
+    }
+
+    void SendCurrentRaceData()
+    {
+      Race r = _dm.GetCurrentRace();
+      RaceRun rr = _dm.GetCurrentRaceRun();
+
+      Dictionary<string, string> data = new Dictionary<string, string>();
+      data["type"] = r.RaceType.ToString();
+      data["run"] = rr.Run.ToString();
+
+      string output = null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConversion.ConvertCurrrentRaceRun(data);
+      });
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
   }
 
 

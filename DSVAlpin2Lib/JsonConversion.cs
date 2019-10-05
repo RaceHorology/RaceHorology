@@ -167,5 +167,40 @@ namespace DSVAlpin2Lib
       return sw.ToString();
     }
 
+    
+    public static string ConvertCurrrentRaceRun(IEnumerable data)
+    {
+      var wrappedData = new Dictionary<string, object>
+      {
+        {"type", "currentracerun" },
+        {"data",  data}
+      };
+
+      JsonSerializer serializer = new JsonSerializer();
+
+      StringWriter sw = new StringWriter();
+      using (JsonWriter writer = new JsonTextWriter(sw))
+      {
+        serializer.Serialize(writer, wrappedData);
+      }
+
+      return sw.ToString();
+    }
+
+
+    public static string ConvertWrappedData(IEnumerable wrappedData)
+    {
+      JsonSerializer serializer = new JsonSerializer();
+
+      StringWriter sw = new StringWriter();
+      using (JsonWriter writer = new JsonTextWriter(sw))
+      {
+        serializer.Serialize(writer, wrappedData);
+      }
+
+      return sw.ToString();
+    }
+
+
   }
 }

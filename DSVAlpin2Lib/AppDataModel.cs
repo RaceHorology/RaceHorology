@@ -33,8 +33,8 @@ namespace DSVAlpin2Lib
 
     public class CurrentRaceEventArgs :  EventArgs
     {
-      Race CurrentRace { get; set; }
-      RaceRun CurrentRaceRun { get; set; }
+      public Race CurrentRace { get; set; }
+      public RaceRun CurrentRaceRun { get; set; }
       public CurrentRaceEventArgs(Race currentRace, RaceRun currentRaceRun)
       {
         CurrentRace = currentRace;
