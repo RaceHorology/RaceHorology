@@ -731,8 +731,13 @@ namespace DSVAlpin2Lib
 
     public override int Compare(RunResult rrX, RunResult rrY)
     {
-      TimeSpan? tX = rrX.Runtime;
-      TimeSpan? tY = rrY.Runtime;
+      TimeSpan? tX = null, tY = null;
+      
+      if (rrX.ResultCode == RunResult.EResultCode.Normal)
+        tX = rrX.Runtime;
+
+      if (rrY.ResultCode == RunResult.EResultCode.Normal)
+        tY = rrY.Runtime;
 
       int groupCompare = CompareGroup(rrX, rrY);
       if (groupCompare != 0)
