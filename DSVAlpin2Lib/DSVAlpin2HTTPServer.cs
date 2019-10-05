@@ -219,6 +219,7 @@ namespace DSVAlpin2Lib
       Add(new StartListDataProvider(_dm));
       Add(new RaceRunDataProvider(_dm));
       Add(new RaceDataProvider(_dm));
+      Add(new RaceResultDataProvider(_dm));
     }
 
 
@@ -423,6 +424,70 @@ namespace DSVAlpin2Lib
     }
   }
 
+
+  public class RaceResultDataProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+    ItemsChangedNotifier _notifier;
+    System.Timers.Timer _timer;
+
+    public RaceResultDataProvider(AppDataModel dm)
+    {
+      _dm = dm;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        _notifier = new ItemsChangedNotifier(_dm.GetCurrentRace().GetResultViewProvider().GetView());
+        _notifier.CollectionChanged += DataListChanged;
+        _notifier.ItemChanged += DataListItemChanged;
+      });
+    }
+
+    public override void Dispose()
+    {
+      _notifier.CollectionChanged -= DataListChanged;
+      _notifier.ItemChanged -= DataListItemChanged;
+    }
+
+    public override void SendInitial()
+    {
+      SendResultList();
+    }
+
+    private void DataListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendResultList();
+    }
+    private void DataListItemChanged(object sender, PropertyChangedEventArgs args)
+    {
+      SendResultList();
+    }
+
+    void SendResultList()
+    {
+      if (_timer != null)
+        _timer.Stop();
+      else
+      {
+        _timer = new System.Timers.Timer(200);
+        _timer.Elapsed += DoSendResultList;
+        _timer.AutoReset = false;
+        _timer.Enabled = true;
+      }
+
+      _timer.Start();
+    }
+
+    void DoSendResultList(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      string output = null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConversion.ConvertRaceResults(_dm.GetCurrentRace().GetResultViewProvider().GetView());
+      });
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+  }
 
 
   public class RaceDataProvider : LiveDataProvider

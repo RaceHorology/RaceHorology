@@ -87,6 +87,56 @@ namespace DSVAlpin2Lib
   }
 
 
+  public class RaceResultConverter : JsonConverter<RaceResultItem>
+  {
+    public override void WriteJson(JsonWriter writer, RaceResultItem value, JsonSerializer serializer)
+    {
+      writer.WriteStartObject();
+      writer.WritePropertyName("Id");
+      writer.WriteValue(value.Participant.Id);
+      writer.WritePropertyName("Position");
+      writer.WriteValue(value.Position);
+      writer.WritePropertyName("StartNumber");
+      writer.WriteValue(value.Participant.StartNumber);
+      writer.WritePropertyName("Name");
+      writer.WriteValue(value.Participant.Name);
+      writer.WritePropertyName("Firstname");
+      writer.WriteValue(value.Participant.Firstname);
+      writer.WritePropertyName("Sex");
+      writer.WriteValue(value.Participant.Sex);
+      writer.WritePropertyName("Year");
+      writer.WriteValue(value.Participant.Year);
+      writer.WritePropertyName("Club");
+      writer.WriteValue(value.Participant.Club);
+      writer.WritePropertyName("Nation");
+      writer.WriteValue(value.Participant.Nation);
+      writer.WritePropertyName("Class");
+      writer.WriteValue(value.Participant.Class.ToString());
+      writer.WritePropertyName("Group");
+      writer.WriteValue(value.Participant.Class.Group.ToString());
+      writer.WritePropertyName("Totaltime");
+      writer.WriteValue(value.TotalTime?.ToString(@"mm\:ss\,ff"));
+
+      int i = 0;
+      foreach (var r in value.RunTimes)
+      {
+        i++;
+        writer.WritePropertyName(string.Format("Runtime{0}", r.Key));
+        writer.WriteValue(r.Value?.ToString(@"mm\:ss\,ff"));
+      }
+      writer.WritePropertyName("JustModified");
+      writer.WriteValue(value.JustModified);
+      writer.WriteEndObject();
+    }
+
+    public override RaceResultItem ReadJson(JsonReader reader, Type objectType, RaceResultItem existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
+
   public class StartListEntryConverter : JsonConverter<StartListEntry>
   {
     public override void WriteJson(JsonWriter writer, StartListEntry value, JsonSerializer serializer)
@@ -167,7 +217,28 @@ namespace DSVAlpin2Lib
       return sw.ToString();
     }
 
-    
+    public static string ConvertRaceResults(IEnumerable resultList)
+    {
+      var wrappedData = new Dictionary<string, object>
+      {
+        {"type", "raceresult" },
+        {"data",  resultList}
+      };
+
+      JsonSerializer serializer = new JsonSerializer();
+
+      serializer.Converters.Add(new RaceResultConverter());
+
+      StringWriter sw = new StringWriter();
+      using (JsonWriter writer = new JsonTextWriter(sw))
+      {
+        serializer.Serialize(writer, wrappedData);
+      }
+
+      return sw.ToString();
+    }
+
+
     public static string ConvertCurrrentRaceRun(IEnumerable data)
     {
       var wrappedData = new Dictionary<string, object>

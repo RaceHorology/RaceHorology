@@ -18,7 +18,6 @@ Vue.component('dsv-startlist', {
 
   template: `
   <div>
-    <h2>Startliste</h2>
     <table class="dsvalpin-lists" v-if="datalist">
       <thead>
         <tr>
@@ -56,7 +55,6 @@ Vue.component('dsv-runresultslist', {
 
   template: `
   <div>
-    <h2>Aktueller Lauf</h2>
     <table class="dsvalpin-lists" v-if="datalist">
       <thead>
         <tr>
@@ -94,6 +92,47 @@ Vue.component('dsv-runresultslist', {
 });
 
 
+Vue.component('dsv-raceresultslist', {
+  props: ['datalist'],
+
+  template: `
+  <div>
+    <table class="dsvalpin-lists" v-if="datalist">
+      <thead>
+        <tr>
+          <th class="cell-centered">Position</th>
+          <th class="cell-centered">StNr</th>
+          <th>Name</th>
+          <th>Vorname</th>
+          <th class="cell-centered">Geschlecht</th>
+          <th class="cell-centered">Jahrgang</th>
+          <th>Verein</th>
+          <th>Klasse</th>
+          <th>Gruppe</th>
+          <th class="cell-centered">Zeit</th>
+          <th>&nbsp;</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in datalist" v-bind:key="item.Id" v-bind:class="{ just_modified: item.JustModified }">
+          <td class="cell-centered">{{ item.Position ==0 ? "---" : item.Position }}</td>
+          <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+          <td>{{ item.Name }}</td>
+          <td>{{ item.Firstname }}</td>
+          <td class="cell-centered">{{ item.Sex }}</td>
+          <td class="cell-centered">{{ item.Year }}</td>
+          <td>{{ item.Club }}</td>
+          <td>{{ item.Class }}</td>
+          <td>{{ item.Group }}</td>
+          <td class="cell-centered">{{ item.Totaltime }}</td>
+          <td>{{ item.DisqualText }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`
+
+});
+
 
 
 var app = new Vue({
@@ -103,6 +142,7 @@ var app = new Vue({
     return {
       startlist: null,
       runlist: null,
+      raceresultlist: null,
       currentracerun: null,
       logs: [],
       status: "disconnected",
@@ -126,10 +166,16 @@ var app = new Vue({
         if (parsedData["type"] == "startlist")
         {
           this.startlist = parsedData["data"];
-        } else if (parsedData["type"] == "racerunresult")
+        } 
+        else if (parsedData["type"] == "racerunresult")
         {
           this.runlist = parsedData["data"];
-        } else if (parsedData["type"] == "currentracerun")
+        } 
+        else if (parsedData["type"] == "raceresult")
+        {
+          this.raceresultlist = parsedData["data"];
+        } 
+        else if (parsedData["type"] == "currentracerun")
         {
           this.currentracerun = parsedData["data"];
         }
