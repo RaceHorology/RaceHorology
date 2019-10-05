@@ -126,6 +126,12 @@ namespace DSVAlpin2Lib
   {
     public static string ConvertStartList(IEnumerable startList)
     {
+      var wrappedData = new Dictionary<string, object>
+      {
+        {"type", "startlist" },
+        {"data",  startList}
+      };
+
       JsonSerializer serializer = new JsonSerializer();
 
       serializer.Converters.Add(new RaceParticipantConverter());
@@ -134,7 +140,7 @@ namespace DSVAlpin2Lib
       StringWriter sw = new StringWriter();
       using (JsonWriter writer = new JsonTextWriter(sw))
       {
-        serializer.Serialize(writer, startList);
+        serializer.Serialize(writer, wrappedData);
       }
 
       return sw.ToString();
@@ -142,6 +148,12 @@ namespace DSVAlpin2Lib
 
     public static string ConvertRunResults(IEnumerable resultList)
     {
+      var wrappedData = new Dictionary<string, object>
+      {
+        {"type", "racerunresult" },
+        {"data",  resultList}
+      };
+
       JsonSerializer serializer = new JsonSerializer();
 
       serializer.Converters.Add(new RunResultConverter());
@@ -149,7 +161,7 @@ namespace DSVAlpin2Lib
       StringWriter sw = new StringWriter();
       using (JsonWriter writer = new JsonTextWriter(sw))
       {
-        serializer.Serialize(writer, resultList);
+        serializer.Serialize(writer, wrappedData);
       }
 
       return sw.ToString();

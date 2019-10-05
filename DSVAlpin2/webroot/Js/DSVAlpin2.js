@@ -1,53 +1,25 @@
 
 Vue.component('dsv-startlist', {
+  props: ['datalist'],
+
   data: function() {
     return {
-      startlist: null,
-      logs: [],
-      status: "disconnected",
-      lastUpdate: ""
     };
   },
 
   created: function()
   {
-    this.socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/StartList");
-    this.socket.onopen = () => 
-    {
-      this.status = "connected";
-      this.logs.push({ event: "Connected to", data: this.socket.location});
-
-      this.socket.onmessage = ({data}) => {
-        this.startlist = JSON.parse(event.data);
-        this.lastUpdate = new Date().toLocaleString();
-        this.logs.push({ event: "Recieved message", data: new Date().toLocaleString()});
-      };
-
-      this.sendMessage("init");
-    };
   },
 
   methods: 
   {
-    disconnect() 
-    {
-      this.socket.close();
-      this.status = "disconnected";
-      this.logs.push({ event: "Disconnected", data: new Date().toLocaleString()});
-    },
-    sendMessage(e) 
-    {
-      this.socket.send(this.message);
-      this.logs.push({ event: "Sent message", data: this.message });
-      this.message = "";
-    }
   },
 
 
   template: `
   <div>
     <h2>Startliste</h2>
-    <table class="dsvalpin-lists" v-if="startlist">
+    <table class="dsvalpin-lists" v-if="datalist">
       <thead>
         <tr>
           <th class="cell-centered">StNr</th>
@@ -61,7 +33,7 @@ Vue.component('dsv-startlist', {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in startlist" v-bind:class="{ just_modified: item.JustModified }">
+        <tr v-for="item in datalist" v-bind:class="{ just_modified: item.JustModified }">
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
           <td>{{ item.Firstname }}</td>
@@ -73,7 +45,6 @@ Vue.component('dsv-startlist', {
         </tr>
       </tbody>
     </table>
-    <p>Updated: {{ lastUpdate }}</p>
   </div>
 `
 
@@ -81,53 +52,12 @@ Vue.component('dsv-startlist', {
 
 
 Vue.component('dsv-runresultslist', {
-  data: function() {
-    return {
-      runresultslist: null,
-      logs: [],
-      status: "disconnected",
-      lastUpdate: ""
-    };
-  },
-
-  created: function()
-  {
-    this.socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/ResultList");
-    this.socket.onopen = () => 
-    {
-      this.status = "connected";
-      this.logs.push({ event: "Connected to", data: this.socket.location});
-
-      this.socket.onmessage = ({data}) => {
-        this.runresultslist = JSON.parse(event.data);
-        this.lastUpdate = new Date().toLocaleString();
-        this.logs.push({ event: "Recieved message", data: new Date().toLocaleString()});
-      };
-
-      this.sendMessage("init");
-    };
-  },
-
-  methods: 
-  {
-    disconnect() 
-    {
-      this.socket.close();
-      this.status = "disconnected";
-      this.logs.push({ event: "Disconnected", data: new Date().toLocaleString()});
-    },
-    sendMessage(e) 
-    {
-      this.socket.send(this.message);
-      this.logs.push({ event: "Sent message", data: this.message });
-      this.message = "";
-    }
-  },
+  props: ['datalist'],
 
   template: `
   <div>
     <h2>Aktueller Lauf</h2>
-    <table class="dsvalpin-lists" v-if="runresultslist">
+    <table class="dsvalpin-lists" v-if="datalist">
       <thead>
         <tr>
           <th class="cell-centered">Position</th>
@@ -144,7 +74,7 @@ Vue.component('dsv-runresultslist', {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in runresultslist" v-bind:key="item.Id" v-bind:class="{ just_modified: item.JustModified }">
+        <tr v-for="item in datalist" v-bind:key="item.Id" v-bind:class="{ just_modified: item.JustModified }">
           <td class="cell-centered">{{ item.Position ==0 ? "---" : item.Position }}</td>
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
@@ -159,7 +89,6 @@ Vue.component('dsv-runresultslist', {
         </tr>
       </tbody>
     </table>
-    <p>Updated: {{ lastUpdate }}</p>
   </div>`
 
 });
@@ -169,10 +98,64 @@ Vue.component('dsv-runresultslist', {
 
 var app = new Vue({
   el: "#app",
-  data: 
+  data: function()
   {
-    message: ""
-  }
+    return {
+      startlist: null,
+      runlist: null,
+      logs: [],
+      status: "disconnected",
+      lastUpdate: "",
+      message: ""
+    };
+  },
+
+  created: function()
+  {
+    this.socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/LiveData");
+    this.socket.onopen = () => 
+    {
+      this.status = "connected";
+      this.logs.push({ event: "Connected to", data: this.socket.location});
+
+      this.socket.onmessage = ({data}) => {
+        
+        parsedData = JSON.parse(event.data);
+
+        if (parsedData["type"] == "startlist")
+        {
+          this.startlist = parsedData["data"];
+        } else if (parsedData["type"] == "racerunresult")
+        {
+          this.runlist = parsedData["data"];
+        }
+
+        this.lastUpdate = new Date().toLocaleString();
+        this.logs.push({ event: "Recieved message", data: new Date().toLocaleString()});
+      };
+
+      this.sendMessage("init");
+    };
+  },
+
+  methods: 
+  {
+    disconnect() 
+    {
+      this.socket.close();
+      this.status = "disconnected";
+      this.logs.push({ event: "Disconnected", data: new Date().toLocaleString()});
+    },
+    sendMessage(e) 
+    {
+      this.socket.send(this.message);
+      this.logs.push({ event: "Sent message", data: this.message });
+      this.message = "";
+    }
+  },
+
+
+
 
 });
 
