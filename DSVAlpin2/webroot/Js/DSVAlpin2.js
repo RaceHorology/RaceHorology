@@ -133,6 +133,13 @@ Vue.component('dsv-raceresultslist', {
 
 });
 
+Vue.component('dsv-racedata', {
+  props: ['racedata'],
+
+  template: `<div>Rennen: {{ racedata["type"] }} Durchgang: {{ racedata["run"] }}</div>`
+
+});
+
 
 
 var app = new Vue({
@@ -143,7 +150,7 @@ var app = new Vue({
       startlist: null,
       runlist: null,
       raceresultlist: null,
-      currentracerun: null,
+      currentracerun: {"run": "", "type": ""},
       logs: [],
       status: "disconnected",
       lastUpdate: "",
