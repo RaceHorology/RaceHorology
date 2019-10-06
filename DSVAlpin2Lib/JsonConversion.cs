@@ -44,7 +44,7 @@ namespace DSVAlpin2Lib
     }
   }
 
-  public class RunResultConverter : JsonConverter<RunResultWithPosition>
+  public class RunResultWPConverter : JsonConverter<RunResultWithPosition>
   {
     public override void WriteJson(JsonWriter writer, RunResultWithPosition value, JsonSerializer serializer)
     {
@@ -81,6 +81,54 @@ namespace DSVAlpin2Lib
     }
 
     public override RunResultWithPosition ReadJson(JsonReader reader, Type objectType, RunResultWithPosition existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
+  public class RunResultConverter : JsonConverter<RunResult>
+  {
+    bool _precisionIn100seconds;
+
+    public RunResultConverter(bool precisionIn100seconds)
+    {
+      _precisionIn100seconds = precisionIn100seconds;
+    }
+    public override void WriteJson(JsonWriter writer, RunResult value, JsonSerializer serializer)
+    {
+      writer.WriteStartObject();
+      writer.WritePropertyName("Id");
+      writer.WriteValue(value.Id);
+      writer.WritePropertyName("StartNumber");
+      writer.WriteValue(value.StartNumber);
+      writer.WritePropertyName("Name");
+      writer.WriteValue(value.Name);
+      writer.WritePropertyName("Firstname");
+      writer.WriteValue(value.Firstname);
+      writer.WritePropertyName("Sex");
+      writer.WriteValue(value.Sex);
+      writer.WritePropertyName("Year");
+      writer.WriteValue(value.Year);
+      writer.WritePropertyName("Club");
+      writer.WriteValue(value.Club);
+      writer.WritePropertyName("Nation");
+      writer.WriteValue(value.Nation);
+      writer.WritePropertyName("Class");
+      writer.WriteValue(value.Class.ToString());
+      writer.WritePropertyName("Group");
+      writer.WriteValue(value.Class.Group.ToString());
+      writer.WritePropertyName("Runtime");
+      if (_precisionIn100seconds)
+        writer.WriteValue(value.Runtime?.ToString(@"mm\:ss\,ff"));
+      else
+        writer.WriteValue(value.Runtime?.ToString(@"mm\:ss"));
+      writer.WritePropertyName("DisqualText");
+      writer.WriteValue(value.DisqualText);
+      writer.WriteEndObject();
+    }
+
+    public override RunResult ReadJson(JsonReader reader, Type objectType, RunResult existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
       throw new NotImplementedException();
     }
@@ -196,6 +244,30 @@ namespace DSVAlpin2Lib
       return sw.ToString();
     }
 
+
+    public static string ConvertOnTrack(IEnumerable resultList)
+    {
+      var wrappedData = new Dictionary<string, object>
+      {
+        {"type", "ontrack" },
+        {"data",  resultList}
+      };
+
+      JsonSerializer serializer = new JsonSerializer();
+
+      serializer.Converters.Add(new RunResultConverter(false));
+
+      StringWriter sw = new StringWriter();
+      using (JsonWriter writer = new JsonTextWriter(sw))
+      {
+        serializer.Serialize(writer, wrappedData);
+      }
+
+      return sw.ToString();
+    }
+
+
+
     public static string ConvertRunResults(IEnumerable resultList)
     {
       var wrappedData = new Dictionary<string, object>
@@ -206,7 +278,7 @@ namespace DSVAlpin2Lib
 
       JsonSerializer serializer = new JsonSerializer();
 
-      serializer.Converters.Add(new RunResultConverter());
+      serializer.Converters.Add(new RunResultWPConverter());
 
       StringWriter sw = new StringWriter();
       using (JsonWriter writer = new JsonTextWriter(sw))

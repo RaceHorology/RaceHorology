@@ -110,6 +110,45 @@ Vue.component('dsv-startlist', {
 });
 
 
+Vue.component('dsv-ontracklist', {
+  props: ['datalist'],
+
+  template: `
+  <div>
+    <table class="dsvalpin-lists" v-if="datalist">
+      <thead>
+        <tr>
+          <th class="cell-centered">StNr</th>
+          <th>Name</th>
+          <th>Vorname</th>
+          <th class="cell-centered">Geschlecht</th>
+          <th class="cell-centered">Jahrgang</th>
+          <th>Verein</th>
+          <th>Klasse</th>
+          <th>Gruppe</th>
+          <th class="cell-centered">Zeit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in datalist">
+          <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+          <td>{{ item.Name }}</td>
+          <td>{{ item.Firstname }}</td>
+          <td class="cell-centered">{{ item.Sex }}</td>
+          <td class="cell-centered">{{ item.Year }}</td>
+          <td>{{ item.Club }}</td>
+          <td>{{ item.Class }}</td>
+          <td>{{ item.Group }}</td>
+          <td class="cell-centered">{{ item.Runtime }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`
+
+});
+
+
+
 Vue.component('dsv-runresultslist', {
   mixins: [dsvFilterAndGroupByMixin],
 
@@ -227,6 +266,7 @@ var app = new Vue({
     return {
       startlist: [],
       runlist: [],
+      ontracklist: [],
       raceresultlist: [],
       categories: [],
       currentracerun: {"run": "", "type": ""},
@@ -255,6 +295,10 @@ var app = new Vue({
         {
           this.startlist = parsedData["data"];
           this.extractCategoriesAndGroups();
+        } 
+        else if (parsedData["type"] == "ontrack")
+        {
+          this.ontracklist = parsedData["data"];
         } 
         else if (parsedData["type"] == "racerunresult")
         {

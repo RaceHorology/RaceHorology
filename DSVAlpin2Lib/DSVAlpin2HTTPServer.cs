@@ -220,6 +220,7 @@ namespace DSVAlpin2Lib
       Add(new RaceRunDataProvider(_dm));
       Add(new RaceDataProvider(_dm));
       Add(new RaceResultDataProvider(_dm));
+      Add(new OnTrackDataProvider(_dm));
     }
 
 
@@ -423,6 +424,103 @@ namespace DSVAlpin2Lib
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });
     }
   }
+
+
+  public class OnTrackDataProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+    RaceRun _currentRace;
+    ItemsChangedNotifier _notifier;
+    //System.Timers.Timer _timer;
+
+    public OnTrackDataProvider(AppDataModel dm)
+    {
+      _dm = dm;
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
+
+      ListenToCurrentRaceRun();
+    }
+
+    public override void Dispose()
+    {
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+
+      _notifier.CollectionChanged -= ResultListChanged;
+      _notifier.ItemChanged -= ResultListItemChanged;
+      _notifier = null;
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      ListenToCurrentRaceRun();
+    }
+
+    private void ListenToCurrentRaceRun()
+    {
+      if (_currentRace != _dm.GetCurrentRaceRun())
+      {
+
+        if (_notifier != null)
+        {
+          _notifier.CollectionChanged -= ResultListChanged;
+          _notifier.ItemChanged -= ResultListItemChanged;
+          _notifier = null;
+        }
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          _notifier = new ItemsChangedNotifier(_dm.GetCurrentRaceRun().GetOnTrackList());
+          _notifier.CollectionChanged += ResultListChanged;
+          _notifier.ItemChanged += ResultListItemChanged;
+        });
+
+        _currentRace = _dm.GetCurrentRaceRun();
+
+        SendResultList();
+      }
+    }
+
+    public override void SendInitial()
+    {
+      SendResultList();
+    }
+
+
+    private void ResultListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendResultList();
+    }
+
+    private void ResultListItemChanged(object sender, PropertyChangedEventArgs args)
+    {
+      SendResultList();
+    }
+
+
+    void SendResultList()
+    {
+      string output = null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConversion.ConvertOnTrack(_dm.GetCurrentRaceRun().GetOnTrackList());
+      });
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   public class RaceResultDataProvider : LiveDataProvider
