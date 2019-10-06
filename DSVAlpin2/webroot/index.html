@@ -20,63 +20,69 @@
           <b-tab title="Startliste">
             <h2>Startliste</h2>
 
-            <div>
-                <b-form-select v-model="groupby" class="mb-3">
-                  <option value="">---</option>
-                  <option value="Class">Klasse</option>
-                  <option value="Group">Gruppe</option>
-                  <option value="Sex">Geschlecht</option>
+            <div class="flex-container-centered">
+              <div>
+                  <b-form-select v-model="groupby" class="mb-3">
+                    <option value="">---</option>
+                    <option value="Class">Klasse</option>
+                    <option value="Group">Gruppe</option>
+                    <option value="Sex">Geschlecht</option>
+                  </b-form-select>
+              </div>
+              <div>
+                <b-form-select v-model="filterby" :options="categories" class="mb-3">
                 </b-form-select>
+              </div>
             </div>
-            <div>
-              <b-form-select v-model="filterby" :options="categories" class="mb-3">
-              </b-form-select>
-            </div>
-
             <div><dsv-racedata v-bind:racedata="currentracerun"/></div>
+
+
             <dsv-startlist v-bind:datalist="startlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
           </b-tab>
 
           <b-tab title="Live">
-            <dsv-ontracklist v-bind:datalist="ontracklist" />
+              <h2>Live</h2>
+              <dsv-ontracklist v-bind:datalist="ontracklist" />
           </b-tab>
 
           <b-tab title="Aktueller Lauf">
             <h2>Aktueller Lauf</h2>
             <div><dsv-racedata v-bind:racedata="currentracerun"/></div>
 
-            <div>
-                <b-form-select v-model="groupby" class="mb-3">
-                  <option value="">---</option>
-                  <option value="Class">Klasse</option>
-                  <option value="Group">Gruppe</option>
-                  <option value="Sex">Geschlecht</option>
+            <div class="flex-container-centered">
+                <div>
+                  <b-form-select v-model="groupby" class="mb-3">
+                    <option value="">---</option>
+                    <option value="Class">Klasse</option>
+                    <option value="Group">Gruppe</option>
+                    <option value="Sex">Geschlecht</option>
+                  </b-form-select>
+              </div>
+              <div>
+                <b-form-select v-model="filterby" :options="categories" class="mb-3">
                 </b-form-select>
-            </div>
-            <div>
-              <b-form-select v-model="filterby" :options="categories" class="mb-3">
-              </b-form-select>
-            </div>
-    
+              </div>
+            </div>    
             <dsv-runresultslist v-bind:datalist="runlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
           </b-tab>
 
           <b-tab title="Rennergebnis" enabled>
             <h2>Ergebnisliste</h2>
 
-            <div>
+            <div class="flex-container-centered">
+              <div>
                 <b-form-select v-model="groupby" class="mb-3">
                   <option value="">---</option>
                   <option value="Class">Klasse</option>
                   <option value="Group">Gruppe</option>
                   <option value="Sex">Geschlecht</option>
                 </b-form-select>
+              </div>
+              <div>
+                <b-form-select v-model="filterby" :options="categories" class="mb-3">
+                </b-form-select>
+              </div>
             </div>
-            <div>
-              <b-form-select v-model="filterby" :options="categories" class="mb-3">
-              </b-form-select>
-            </div>
-
             <dsv-raceresultslist v-bind:datalist="raceresultlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
           </b-tab>
 
