@@ -33,6 +33,12 @@ h1 {
   padding: 8px;
 }
 
+.cell-groupheader {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+}
+
 .cell-centered {
   text-align: center;
 }

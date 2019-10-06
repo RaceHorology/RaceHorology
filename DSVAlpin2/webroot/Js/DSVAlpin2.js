@@ -23,7 +23,10 @@ var dsvFilterAndGroupByMixin = {
           if (this.filterby && item["Class"] != this.filterby)
             continue;
 
-          const groupName = item[this.groupby];
+          groupName = "";
+          if (this.groupby)
+            groupName = item[this.groupby];
+
           grouped[groupName] = grouped[groupName] || [];
           grouped[groupName].push(item);
         }
@@ -34,15 +37,6 @@ var dsvFilterAndGroupByMixin = {
 
   methods: 
   {
-    groupBy(property, data) {
-      let grouped = {}
-      data.forEach((item) => {
-        const groupName = item[property]
-        grouped[groupName] = grouped[groupName] || [];
-        grouped[groupName].push(item)
-      })
-      return grouped;
-    }    
   }
 
 }
@@ -87,7 +81,7 @@ Vue.component('dsv-startlist', {
       <tbody>
       <template v-for="(items, group) in renderDataList">
         <tr v-if="group">
-          <td colspan="8">{{ group }}</td>
+          <td colspan="8" class="cell-groupheader">{{ group }}</td>
         </tr>
         <template v-for="item in items" >
           <tr v-bind:class="{ just_modified: item.JustModified }">
@@ -175,7 +169,7 @@ Vue.component('dsv-runresultslist', {
       <tbody>
         <template v-for="(items, group) in renderDataList">
           <tr v-if="group">
-            <td colspan="11">{{ group }}</td>
+            <td colspan="11" class="cell-groupheader">{{ group }}</td>
           </tr>
           <template v-for="item in items" >
             <tr v-bind:class="{ just_modified: item.JustModified }">
@@ -226,7 +220,7 @@ Vue.component('dsv-raceresultslist', {
       <tbody>
         <template v-for="(items, group) in renderDataList">
           <tr v-if="group">
-            <td colspan="11">{{ group }}</td>
+            <td colspan="11" class="cell-groupheader">{{ group }}</td>
           </tr>
           <template v-for="item in items" >
             <tr v-bind:class="{ just_modified: item.JustModified }">
@@ -338,6 +332,7 @@ var app = new Vue({
     extractCategoriesAndGroups()
     {
       var keys = [];
+      keys.push("");
       this.startlist.forEach( item => {
         if (keys.findIndex(x => x == item["Class"]) == -1) 
           keys.push(item["Class"]);
