@@ -1,6 +1,63 @@
 
+var dsvFilterAndGroupByMixin = {
+
+  props: {
+    groupby:{
+      type: String,
+      default: null
+    },
+    filterby:{
+      type: String,
+      default: null
+    }
+  },
+
+  computed: {
+    renderDataList(){
+      let grouped = {}
+      if (Array.isArray(this.datalist))
+      {
+        for( item of this.datalist)
+        {
+
+          if (this.filterby && item["Class"] != this.filterby)
+            continue;
+
+          const groupName = item[this.groupby];
+          grouped[groupName] = grouped[groupName] || [];
+          grouped[groupName].push(item);
+        }
+      }
+      return grouped;
+    }
+  },
+
+  methods: 
+  {
+    groupBy(property, data) {
+      let grouped = {}
+      data.forEach((item) => {
+        const groupName = item[property]
+        grouped[groupName] = grouped[groupName] || [];
+        grouped[groupName].push(item)
+      })
+      return grouped;
+    }    
+  }
+
+}
+
+
 Vue.component('dsv-startlist', {
-  props: ['datalist'],
+  mixins: [dsvFilterAndGroupByMixin],
+
+  props: {
+    datalist:{
+      type: Array, 
+      required: true
+    }
+  },
+
 
   data: function() {
     return {
@@ -11,14 +68,10 @@ Vue.component('dsv-startlist', {
   {
   },
 
-  methods: 
-  {
-  },
-
 
   template: `
   <div>
-    <table class="dsvalpin-lists" v-if="datalist">
+    <table class="dsvalpin-lists" v-if="renderDataList">
       <thead>
         <tr>
           <th class="cell-centered">StNr</th>
@@ -32,16 +85,23 @@ Vue.component('dsv-startlist', {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in datalist" v-bind:class="{ just_modified: item.JustModified }">
-          <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
-          <td>{{ item.Name }}</td>
-          <td>{{ item.Firstname }}</td>
-          <td class="cell-centered">{{ item.Sex }}</td>
-          <td class="cell-centered">{{ item.Year }}</td>
-          <td>{{ item.Club }}</td>
-          <td>{{ item.Class }}</td>
-          <td>{{ item.Group }}</td>
+      <template v-for="(items, group) in renderDataList">
+        <tr v-if="group">
+          <td colspan="8">{{ group }}</td>
         </tr>
+        <template v-for="item in items" >
+          <tr v-bind:class="{ just_modified: item.JustModified }">
+            <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+            <td>{{ item.Name }}</td>
+            <td>{{ item.Firstname }}</td>
+            <td class="cell-centered">{{ item.Sex }}</td>
+            <td class="cell-centered">{{ item.Year }}</td>
+            <td>{{ item.Club }}</td>
+            <td>{{ item.Class }}</td>
+            <td>{{ item.Group }}</td>
+          </tr>
+        </template>
+      </template>
       </tbody>
     </table>
   </div>
@@ -51,6 +111,8 @@ Vue.component('dsv-startlist', {
 
 
 Vue.component('dsv-runresultslist', {
+  mixins: [dsvFilterAndGroupByMixin],
+
   props: ['datalist'],
 
   template: `
@@ -72,19 +134,26 @@ Vue.component('dsv-runresultslist', {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in datalist" v-bind:key="item.Id" v-bind:class="{ just_modified: item.JustModified }">
-          <td class="cell-centered">{{ item.Position ==0 ? "---" : item.Position }}</td>
-          <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
-          <td>{{ item.Name }}</td>
-          <td>{{ item.Firstname }}</td>
-          <td class="cell-centered">{{ item.Sex }}</td>
-          <td class="cell-centered">{{ item.Year }}</td>
-          <td>{{ item.Club }}</td>
-          <td>{{ item.Class }}</td>
-          <td>{{ item.Group }}</td>
-          <td class="cell-centered">{{ item.Runtime }}</td>
-          <td>{{ item.DisqualText }}</td>
-        </tr>
+        <template v-for="(items, group) in renderDataList">
+          <tr v-if="group">
+            <td colspan="11">{{ group }}</td>
+          </tr>
+          <template v-for="item in items" >
+            <tr v-bind:class="{ just_modified: item.JustModified }">
+              <td class="cell-centered">{{ item.Position ==0 ? "---" : item.Position }}</td>
+              <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+              <td>{{ item.Name }}</td>
+              <td>{{ item.Firstname }}</td>
+              <td class="cell-centered">{{ item.Sex }}</td>
+              <td class="cell-centered">{{ item.Year }}</td>
+              <td>{{ item.Club }}</td>
+              <td>{{ item.Class }}</td>
+              <td>{{ item.Group }}</td>
+              <td class="cell-centered">{{ item.Runtime }}</td>
+              <td>{{ item.DisqualText }}</td>
+            </tr>
+          </template>
+        </template>
       </tbody>
     </table>
   </div>`
@@ -93,6 +162,8 @@ Vue.component('dsv-runresultslist', {
 
 
 Vue.component('dsv-raceresultslist', {
+  mixins: [dsvFilterAndGroupByMixin],
+
   props: ['datalist'],
 
   template: `
@@ -114,19 +185,26 @@ Vue.component('dsv-raceresultslist', {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in datalist" v-bind:key="item.Id" v-bind:class="{ just_modified: item.JustModified }">
-          <td class="cell-centered">{{ item.Position ==0 ? "---" : item.Position }}</td>
-          <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
-          <td>{{ item.Name }}</td>
-          <td>{{ item.Firstname }}</td>
-          <td class="cell-centered">{{ item.Sex }}</td>
-          <td class="cell-centered">{{ item.Year }}</td>
-          <td>{{ item.Club }}</td>
-          <td>{{ item.Class }}</td>
-          <td>{{ item.Group }}</td>
-          <td class="cell-centered">{{ item.Totaltime }}</td>
-          <td>{{ item.DisqualText }}</td>
-        </tr>
+        <template v-for="(items, group) in renderDataList">
+          <tr v-if="group">
+            <td colspan="11">{{ group }}</td>
+          </tr>
+          <template v-for="item in items" >
+            <tr v-bind:class="{ just_modified: item.JustModified }">
+              <td class="cell-centered">{{ item.Position ==0 ? "---" : item.Position }}</td>
+              <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+              <td>{{ item.Name }}</td>
+              <td>{{ item.Firstname }}</td>
+              <td class="cell-centered">{{ item.Sex }}</td>
+              <td class="cell-centered">{{ item.Year }}</td>
+              <td>{{ item.Club }}</td>
+              <td>{{ item.Class }}</td>
+              <td>{{ item.Group }}</td>
+              <td class="cell-centered">{{ item.Totaltime }}</td>
+              <td>{{ item.DisqualText }}</td>
+            </tr>
+          </template>
+        </template>
       </tbody>
     </table>
   </div>`
@@ -147,14 +225,17 @@ var app = new Vue({
   data: function()
   {
     return {
-      startlist: null,
-      runlist: null,
-      raceresultlist: null,
+      startlist: [],
+      runlist: [],
+      raceresultlist: [],
+      categories: [],
       currentracerun: {"run": "", "type": ""},
       logs: [],
       status: "disconnected",
       lastUpdate: "",
-      message: ""
+      message: "",
+      groupby: "",
+      filterby: ""
     };
   },
 
@@ -173,6 +254,7 @@ var app = new Vue({
         if (parsedData["type"] == "startlist")
         {
           this.startlist = parsedData["data"];
+          this.extractCategoriesAndGroups();
         } 
         else if (parsedData["type"] == "racerunresult")
         {
@@ -208,6 +290,15 @@ var app = new Vue({
       this.socket.send(this.message);
       this.logs.push({ event: "Sent message", data: this.message });
       this.message = "";
+    },
+    extractCategoriesAndGroups()
+    {
+      var keys = [];
+      this.startlist.forEach( item => {
+        if (keys.findIndex(x => x == item["Class"]) == -1) 
+          keys.push(item["Class"]);
+      });
+      this.categories = keys;
     }
   },
 
