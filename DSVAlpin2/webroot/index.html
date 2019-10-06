@@ -42,8 +42,15 @@
 
           <b-tab title="Live">
               <h2>Live</h2>
-              <dsv-ontracklist v-bind:datalist="ontracklist" />
-          </b-tab>
+              <div>
+                <h3>Auf der Strecke</h3>
+                <dsv-ontracklist v-bind:datalist="ontracklist" />
+              </div>
+              <div>
+                <h3>Vorläufiges Ergebnis</h3>
+                <dsv-runresultslist v-bind:datalist="runlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
+              </div>
+            </b-tab>
 
           <b-tab title="Aktueller Lauf">
             <h2>Aktueller Lauf</h2>
