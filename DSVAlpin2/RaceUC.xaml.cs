@@ -280,6 +280,14 @@ namespace DSVAlpin2
       }
       else if (e.Key == Key.F2)
         BtnManualTimeStore_Click(null, null);
+      else if (e.Key == Key.D1 && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+        TestingTime("start");
+      else if (e.Key == Key.D2 && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+        TestingTime("stop");
+      else if (e.Key == Key.D9 && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+        TestingTime("clear_start");
+      else if (e.Key == Key.D0 && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+        TestingTime("clear_stop");
     }
 
 
@@ -342,6 +350,28 @@ namespace DSVAlpin2
       }
       else
         txtParticipant.Text = "";
+    }
+
+
+    private void TestingTime(string command)
+    {
+      uint startNumber = 0U;
+      try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+      RaceParticipant participant = _thisRace.GetParticipant(startNumber);
+
+      TimeSpan time = DateTime.Now - DateTime.Today;
+
+      if (participant != null)
+      {
+        if (command == "start")
+          _currentRaceRun.SetStartTime(participant, time);
+        if (command == "stop")
+          _currentRaceRun.SetFinishTime(participant, time);
+        if (command == "clear_start")
+          _currentRaceRun.SetStartTime(participant, null);
+        if (command == "clear_stop")
+          _currentRaceRun.SetFinishTime(participant, null);
+      }
     }
 
 
