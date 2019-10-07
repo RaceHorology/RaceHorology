@@ -1,4 +1,4 @@
-﻿using DSVAlpin2Lib;
+using DSVAlpin2Lib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -517,6 +517,13 @@ namespace DSVAlpin2
         cmbTotalResultGrouping.SelectCBItem(vp.ActiveGrouping);
       }
     }
+
+    private void BtnPrint_Click(object sender, RoutedEventArgs e)
+    {
+      MessageBox.Show("Not implemented");
+
+    }
+
 
     #endregion
 
