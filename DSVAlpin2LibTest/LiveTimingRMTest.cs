@@ -2,7 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using LiveTimingRM;
+using DSVAlpin2Lib;
 
 namespace DSVAlpin2LibTest
 {
@@ -60,10 +60,18 @@ namespace DSVAlpin2LibTest
     #endregion
 
     [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    [DeploymentItem(@"3rdparty\DSVAlpinX.liz", "3rdparty")]
     public void TestMethod1()
     {
-      Class1 cl = new Class1();
-      cl.Login();
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+
+      LiveTimingRM cl = new LiveTimingRM(model, "01122", "livetiming", "livetiming");
+      cl.Init();
 
       //
       // TODO: Add test logic here
