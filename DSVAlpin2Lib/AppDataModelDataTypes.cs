@@ -34,6 +34,11 @@ namespace DSVAlpin2Lib
       //set { _name = value; NotifyPropertyChanged(); }
     }
 
+    public uint SortPos
+    {
+      get => _sortpos;
+    }
+
     public override string ToString()
     {
       return _name;
@@ -93,7 +98,7 @@ namespace DSVAlpin2Lib
       _sortpos = sortpos;
     }
 
-    private string Id
+    public string Id
     {
       get => _id;
     }
@@ -114,6 +119,11 @@ namespace DSVAlpin2Lib
     {
       get => _year;
       //set { _year = value; NotifyPropertyChanged(); }
+    }
+
+    public uint SortPos
+    {
+      get => _sortpos;
     }
 
     public ParticipantGroup Group
