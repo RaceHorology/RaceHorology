@@ -40,9 +40,14 @@
             <dsv-startlist v-bind:datalist="startlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
           </b-tab>
 
-          <b-tab title="Live">
+          <b-tab title="Live" active>
               <h2>Live</h2>
-    
+
+              <div>
+                <h3>Am Start</h3>
+                <dsv-startlist v-bind:datalist="onstartlist" v-bind:maxitems="5"/>
+              </div>
+
               <div>
                 <h3>Auf der Strecke</h3>
                 <dsv-ontracklist v-bind:datalist="ontracklist" />

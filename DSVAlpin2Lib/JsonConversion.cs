@@ -244,6 +244,28 @@ namespace DSVAlpin2Lib
       return sw.ToString();
     }
 
+    public static string ConvertOnStartList(IEnumerable startList)
+    {
+      var wrappedData = new Dictionary<string, object>
+      {
+        {"type", "onstart" },
+        {"data",  startList}
+      };
+
+      JsonSerializer serializer = new JsonSerializer();
+
+      serializer.Converters.Add(new RaceParticipantConverter());
+      serializer.Converters.Add(new StartListEntryConverter());
+
+      StringWriter sw = new StringWriter();
+      using (JsonWriter writer = new JsonTextWriter(sw))
+      {
+        serializer.Serialize(writer, wrappedData);
+      }
+
+      return sw.ToString();
+    }
+
 
     public static string ConvertOnTrack(IEnumerable resultList)
     {

@@ -9,19 +9,39 @@ var dsvFilterAndGroupByMixin = {
     filterby:{
       type: String,
       default: null
-    }
+    },
+    datalist:{
+      type: Array, 
+      required: true
+    },
+    datafields:{
+      type: Array, 
+      default: () => ["Club", "Sex", "Year"] 
+    },
+    maxitems:{
+      type: Number, 
+      required: false
+    },
+
   },
+
 
   computed: {
     renderDataList(){
       let grouped = {}
       if (Array.isArray(this.datalist))
       {
+        var counter = 0;
         for( item of this.datalist)
         {
 
           if (this.filterby && item["Class"] != this.filterby)
             continue;
+
+          counter++;
+
+          if (this.maxitems && counter > this.maxitems)
+            break;
 
           groupName = "";
           if (this.groupby)
@@ -44,19 +64,6 @@ var dsvFilterAndGroupByMixin = {
 
 Vue.component('dsv-startlist', {
   mixins: [dsvFilterAndGroupByMixin],
-
-  props: {
-    datalist:{
-      type: Array, 
-      required: true
-    },
-    datafields:{
-      type: Array, 
-      default: () => ["Club", "Sex", "Year"] 
-    }
-
-  },
-
 
   data: function() {
     return {
@@ -162,18 +169,6 @@ Vue.component('dsv-ontracklist', {
 Vue.component('dsv-runresultslist', {
   mixins: [dsvFilterAndGroupByMixin],
 
-  props: {
-    datalist:{
-      type: Array, 
-      required: true
-    },
-    datafields:{
-      type: Array, 
-      default: () => ["Club", "Sex", "Year"] 
-    }
-
-  },
-
   template: `
   <div>
     <table class="dsvalpin-lists" v-if="datalist">
@@ -222,19 +217,6 @@ Vue.component('dsv-runresultslist', {
 
 Vue.component('dsv-raceresultslist', {
   mixins: [dsvFilterAndGroupByMixin],
-
-  props: {
-    datalist:{
-      type: Array, 
-      required: true
-    },
-    datafields:{
-      type: Array, 
-      default: () => ["Club", "Sex", "Year"] 
-    }
-
-  },
-
 
   template: `
   <div>
@@ -297,6 +279,7 @@ var app = new Vue({
     return {
       startlist: [],
       runlist: [],
+      onstartlist: [],
       ontracklist: [],
       raceresultlist: [],
       categories: [],
@@ -326,6 +309,10 @@ var app = new Vue({
         {
           this.startlist = parsedData["data"];
           this.extractCategoriesAndGroups();
+        } 
+        else if (parsedData["type"] == "onstart")
+        {
+          this.onstartlist = parsedData["data"];
         } 
         else if (parsedData["type"] == "ontrack")
         {
