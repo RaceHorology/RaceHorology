@@ -10,6 +10,15 @@ h1 {
   color: black;
 }
 
+h2 {
+  color: black;
+}
+
+h3 {
+  color: black;
+  padding-top: 10px;
+}
+
 
 .dsvalpin-lists {
   border-collapse: collapse;
@@ -30,7 +39,15 @@ h1 {
 
 .dsvalpin-lists td, .dsvalpin-lists th {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 6px;
+}
+
+.dsvalpin-lists .cell-groupheader {
+  padding-top: 16px;
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+  /*background-color:  #ddd;*/
 }
 
 .cell-centered {
@@ -39,4 +56,9 @@ h1 {
 
 .just_modified {
   background-color: coral !important;
+}
+
+.flex-container-centered {
+  display: flex;
+  justify-content: center;
 }

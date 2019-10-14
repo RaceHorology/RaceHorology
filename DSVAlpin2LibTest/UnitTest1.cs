@@ -27,7 +27,6 @@ namespace DSVAlpin2LibTest
       p.Year = 1900;
 
       Assert.AreEqual(1900U, p.Year);
-
     }
 
 
@@ -43,6 +42,19 @@ namespace DSVAlpin2LibTest
       TimeSpan ts3 = new TimeSpan(0, 0, 1, 55, 130);
       string s3 = ts3.ToString(@"mm\:s\,ff");
     }
+
+    [TestMethod]
+    public void ParseTimeSpan()
+    {
+      Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("01.211"), new TimeSpan(0, 0, 0, 1, 211));
+      Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("01.11"), new TimeSpan(0, 0, 0, 1, 110));
+      Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("01.1"), new TimeSpan(0, 0, 0, 1, 100));
+      Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("02,21"), new TimeSpan(0, 0, 0, 2, 210));
+      Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("02,3"), new TimeSpan(0, 0, 0, 2, 300));
+      Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("1:01,111"), new TimeSpan(0, 0, 1, 1, 111));
+      //Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("99.111"), new TimeSpan(0, 0, 0, 1, 211));
+    }
+
 
 
 

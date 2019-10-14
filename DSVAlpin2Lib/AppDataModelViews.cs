@@ -583,10 +583,14 @@ namespace DSVAlpin2Lib
       _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
       foreach (StartListEntry entry in _viewList)
         UpdateStartListEntry(entry);
-      // Observe the results
-      _viewList.CollectionChanged += OnResultsChanged;
-      //_viewList.ItemChanged += OnResultItemChanged;
 
+      // Observe the results
+      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
+      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
+
+      // Observe StartList 
+      _viewList.CollectionChanged += OnStartListEntriesChanged;
+      //_viewList.ItemChanged += OnStartListEntryItemChanged;
 
       // Create View with filtered items
       ObservableCollection<StartListEntry> startList = _viewList;
@@ -627,6 +631,31 @@ namespace DSVAlpin2Lib
     {
       RunResult result = (RunResult)sender;
       UpdateStartListEntry(result);
+    }
+
+    private void OnStartListEntriesChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          StartListEntry sle = (StartListEntry)item;
+          UpdateStartListEntry(sle);
+        }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          // Remove from _results
+          StartListEntry sle = (StartListEntry)item;
+          UpdateStartListEntry(sle);
+        }
+    }
+
+    private void OnStartListEntryItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      StartListEntry sle = (StartListEntry)sender;
+      UpdateStartListEntry(sle);
     }
 
     private void UpdateStartListEntry(RunResult result)
@@ -702,8 +731,13 @@ namespace DSVAlpin2Lib
 
     public override int Compare(RunResult rrX, RunResult rrY)
     {
-      TimeSpan? tX = rrX.Runtime;
-      TimeSpan? tY = rrY.Runtime;
+      TimeSpan? tX = null, tY = null;
+      
+      if (rrX.ResultCode == RunResult.EResultCode.Normal)
+        tX = rrX.Runtime;
+
+      if (rrY.ResultCode == RunResult.EResultCode.Normal)
+        tY = rrY.Runtime;
 
       int groupCompare = CompareGroup(rrX, rrY);
       if (groupCompare != 0)
@@ -842,23 +876,22 @@ namespace DSVAlpin2Lib
 
     void UpdatePositions()
     {
-      uint curPosition = 1;
+      uint curPosition = 0;
       uint samePosition = 1;
       object curGroup = null;
       TimeSpan? lastTime = null;
       foreach (RunResultWithPosition item in _viewList)
       {
+        // New group
         if (!Equals(PropertyUtilities.GetGroupValue(item, _activeGrouping), curGroup))
         {
           curGroup = PropertyUtilities.GetGroupValue(item, _activeGrouping);
-          curPosition = 1;
+          curPosition = 0;
           lastTime = null;
         }
 
         if (item.Runtime != null)
         {
-          item.Position = curPosition;
-
           // Same position in case same time
           if (item.Runtime == lastTime)//< TimeSpan.FromMilliseconds(9))
             samePosition++;
@@ -867,6 +900,8 @@ namespace DSVAlpin2Lib
             curPosition += samePosition;
             samePosition = 1;
           }
+
+          item.Position = curPosition;
           lastTime = item.Runtime;
         }
         else
@@ -1058,7 +1093,7 @@ namespace DSVAlpin2Lib
 
       _viewList.Sort(_comparer);
 
-      uint curPosition = 1;
+      uint curPosition = 0;
       uint samePosition = 1;
 
       object curGroup = null;
@@ -1066,17 +1101,16 @@ namespace DSVAlpin2Lib
       TimeSpan? lastTime = null;
       foreach (var sortedItem in _viewList)
       {
+        // New group
         if (!Equals(PropertyUtilities.GetGroupValue(sortedItem, _activeGrouping), curGroup))
         {
           curGroup = PropertyUtilities.GetGroupValue(sortedItem, _activeGrouping);
-          curPosition = 1;
+          curPosition = 0;
           lastTime = null;
         }
 
         if (sortedItem.TotalTime != null)
         {
-          sortedItem.Position = curPosition;
-
           // Same position in case same time
           if (sortedItem.TotalTime == lastTime)//< TimeSpan.FromMilliseconds(9))
           {
@@ -1087,6 +1121,8 @@ namespace DSVAlpin2Lib
             curPosition += samePosition;
             samePosition = 1;
           }
+
+          sortedItem.Position = curPosition;
           lastTime = sortedItem.TotalTime;
         }
         else

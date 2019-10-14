@@ -192,6 +192,12 @@ namespace DSVAlpin2Lib
       set { _firstname = value; NotifyPropertyChanged(); }
     }
 
+    public string Fullname
+    {
+      get { return _name + ", " + _firstname; }
+    }
+
+
     public string Sex
     {
       get => _sex;
@@ -297,6 +303,7 @@ namespace DSVAlpin2Lib
     public string Id { get => _participant.Id; }
     public string Name { get => _participant.Name; }
     public string Firstname { get => _participant.Firstname; }
+    public string Fullname { get => _participant.Fullname; }
     public string Sex { get => _participant.Sex; }
     public uint Year { get => _participant.Year; }
     public string Club { get => _participant.Club; }
@@ -478,7 +485,7 @@ namespace DSVAlpin2Lib
     public string Nation { get { return _participant.Nation; } }
 
 
-    public TimeSpan? Runtime { get { return _runTime; } }
+    public TimeSpan? Runtime { get { return GetRunTime(); } }
     public EResultCode ResultCode { get { return _resultCode; } set { _resultCode = value; NotifyPropertyChanged(); } }
     public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
 
@@ -522,60 +529,39 @@ namespace DSVAlpin2Lib
 
     public void SetRunTime(TimeSpan? t)
     {
-      _startTime = null;
-      _finishTime = null;
       _runTime = t;
-
-      // Clear Start & Finish Time (might be inconsistent to the start & finish time)
-      MakeConsistencyCheck();
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public TimeSpan? GetRunTime() { return _runTime;  }
+    public TimeSpan? GetRunTime(bool calculateIfNotStored = true)
+    {
+      if (_runTime != null)
+        return _runTime;
+
+      if (calculateIfNotStored && _startTime != null && _finishTime != null)
+        return _finishTime - _startTime;
+
+      return null;
+    }
 
 
     public void SetStartTime(TimeSpan? startTime)
     {
-      _runTime = null;
       _startTime = startTime;
-
-      if (_startTime != null && _finishTime != null)
-        _runTime = _finishTime - _startTime;
-      else
-        MakeConsistencyCheck();
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
     public void SetFinishTime(TimeSpan? finishTime)
     {
-      _runTime = null;
       _finishTime = finishTime;
-
-      if (_startTime != null && _finishTime != null)
-        _runTime = _finishTime - _startTime;
-      else
-        MakeConsistencyCheck();
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
     public TimeSpan? GetStartTime() { return _startTime; }
     public TimeSpan? GetFinishTime() { return _finishTime; }
-
-
-    private void MakeConsistencyCheck()
-    {
-      // Consistency check
-      if (_runTime != null && _startTime != null && _finishTime != null)
-      {
-        TimeSpan calcRunTime = (TimeSpan )_runTime;
-        TimeSpan diff = calcRunTime - (TimeSpan)_runTime;
-
-        System.Diagnostics.Debug.Assert(Math.Abs(diff.TotalMilliseconds) < 1.0);
-      }
-    }
 
 
     public override string ToString()

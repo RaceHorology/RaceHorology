@@ -74,6 +74,7 @@
     <Compile Include="AppDataModelViewTests.cs" />
     <Compile Include="DSVAlpin2HTTPServerTest.cs" />
     <Compile Include="DSVAlpinDatabaseTests.cs" />
+    <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -87,6 +88,10 @@
     <ProjectReference Include="..\DSVAlpin2Lib\DSVAlpin2Lib.csproj">
       <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>
       <Name>DSVAlpin2Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LiveTimingRM\LiveTimingRM.csproj">
+      <Project>{1819CA78-97EB-4488-AC18-C65C9D2BAF0F}</Project>
+      <Name>LiveTimingRM</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
