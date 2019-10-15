@@ -63,10 +63,8 @@ namespace DSVAlpin2LibTest
     public void TestMethod1()
     {
 
-      PDFReport1.Test();
-      //
-      // TODO: Add test logic here
-      //
+      PDFReport p = new PDFReport();
+      p.Generate();
     }
   }
 }
