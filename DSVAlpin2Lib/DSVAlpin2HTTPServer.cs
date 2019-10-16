@@ -217,6 +217,7 @@ namespace DSVAlpin2Lib
       _liveProvider = new List<LiveDataProvider>();
 
       Add(new StartListDataProvider(_dm));
+      Add(new RemainingStartListDataProvider(_dm));
       Add(new RaceRunDataProvider(_dm));
       Add(new RaceDataProvider(_dm));
       Add(new RaceResultDataProvider(_dm));
@@ -324,6 +325,116 @@ namespace DSVAlpin2Lib
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });
     }
   }
+
+
+
+  public class RemainingStartListDataProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+    RaceRun _currentRace;
+    RemainingStartListViewProvider _rslVP;
+    ItemsChangedNotifier _notifier;
+    System.Timers.Timer _timer;
+
+    public RemainingStartListDataProvider(AppDataModel dm)
+    {
+      _dm = dm;
+
+      _dm = dm;
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
+
+      ListenToCurrentRaceRun();
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      ListenToCurrentRaceRun();
+    }
+
+    private void ListenToCurrentRaceRun()
+    {
+      if (_currentRace != _dm.GetCurrentRaceRun())
+      {
+        
+        if (_notifier != null)
+        {
+          _notifier.CollectionChanged -= StartListChanged;
+          _notifier.ItemChanged -= StartListItemChanged;
+          _notifier = null;
+        }
+        _rslVP = null;
+
+
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          RaceRun raceRun = _dm.GetCurrentRaceRun();
+          _rslVP = new RemainingStartListViewProvider();
+          _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
+
+          _notifier = new ItemsChangedNotifier(_rslVP.GetView());
+          _notifier.CollectionChanged += StartListChanged;
+          _notifier.ItemChanged += StartListItemChanged;
+        });
+
+        _currentRace = _dm.GetCurrentRaceRun();
+
+        SendStartList();
+      }
+    }
+
+    public override void Dispose()
+    {
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+
+      _notifier.CollectionChanged -= StartListChanged;
+      _notifier.ItemChanged -= StartListItemChanged;
+      _rslVP = null;
+      _notifier = null;
+    }
+
+    public override void SendInitial()
+    {
+      SendStartList();
+    }
+
+    private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendStartList();
+    }
+    private void StartListItemChanged(object sender, PropertyChangedEventArgs args)
+    {
+      SendStartList();
+    }
+
+    void SendStartList()
+    {
+      if (_timer != null)
+        _timer.Stop();
+      else
+      {
+        _timer = new System.Timers.Timer(200);
+        _timer.Elapsed += DoSendStartList;
+        _timer.AutoReset = false;
+        _timer.Enabled = true;
+      }
+
+      _timer.Start();
+    }
+
+    void DoSendStartList(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      string output = null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConversion.ConvertOnStartList(_rslVP.GetView());
+      });
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+  }
+
+
 
 
 

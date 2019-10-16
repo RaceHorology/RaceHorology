@@ -9,19 +9,39 @@ var dsvFilterAndGroupByMixin = {
     filterby:{
       type: String,
       default: null
-    }
+    },
+    datalist:{
+      type: Array, 
+      required: true
+    },
+    datafields:{
+      type: Array, 
+      default: () => ["Club", "Sex", "Year"] 
+    },
+    maxitems:{
+      type: Number, 
+      required: false
+    },
+
   },
+
 
   computed: {
     renderDataList(){
       let grouped = {}
       if (Array.isArray(this.datalist))
       {
+        var counter = 0;
         for( item of this.datalist)
         {
 
           if (this.filterby && item["Class"] != this.filterby)
             continue;
+
+          counter++;
+
+          if (this.maxitems && counter > this.maxitems)
+            break;
 
           groupName = "";
           if (this.groupby)
@@ -45,14 +65,6 @@ var dsvFilterAndGroupByMixin = {
 Vue.component('dsv-startlist', {
   mixins: [dsvFilterAndGroupByMixin],
 
-  props: {
-    datalist:{
-      type: Array, 
-      required: true
-    }
-  },
-
-
   data: function() {
     return {
     };
@@ -71,11 +83,11 @@ Vue.component('dsv-startlist', {
           <th class="cell-centered">StNr</th>
           <th>Name</th>
           <th>Vorname</th>
-          <th class="cell-centered">Geschlecht</th>
-          <th class="cell-centered">Jahrgang</th>
-          <th>Verein</th>
-          <th>Klasse</th>
-          <th>Gruppe</th>
+          <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+          <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
+          <th v-if="datafields.includes('Club')">Verein</th>
+          <th v-if="datafields.includes('Class')">Klasse</th>
+          <th v-if="datafields.includes('Group')">Gruppe</th>
         </tr>
       </thead>
       <tbody>
@@ -88,11 +100,11 @@ Vue.component('dsv-startlist', {
             <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
             <td>{{ item.Name }}</td>
             <td>{{ item.Firstname }}</td>
-            <td class="cell-centered">{{ item.Sex }}</td>
-            <td class="cell-centered">{{ item.Year }}</td>
-            <td>{{ item.Club }}</td>
-            <td>{{ item.Class }}</td>
-            <td>{{ item.Group }}</td>
+            <td v-if="datafields.includes('Sex')" class="cell-centered">{{ item.Sex }}</td>
+            <td v-if="datafields.includes('Year')" class="cell-centered">{{ item.Year }}</td>
+            <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
+            <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
+            <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
           </tr>
         </template>
       </template>
@@ -105,7 +117,18 @@ Vue.component('dsv-startlist', {
 
 
 Vue.component('dsv-ontracklist', {
-  props: ['datalist'],
+  props: {
+    datalist:{
+      type: Array, 
+      required: true
+    },
+    datafields:{
+      type: Array, 
+      default: () => ["Club", "Sex", "Year"] 
+    }
+
+  },
+
 
   template: `
   <div>
@@ -115,11 +138,11 @@ Vue.component('dsv-ontracklist', {
           <th class="cell-centered">StNr</th>
           <th>Name</th>
           <th>Vorname</th>
-          <th class="cell-centered">Geschlecht</th>
-          <th class="cell-centered">Jahrgang</th>
-          <th>Verein</th>
-          <th>Klasse</th>
-          <th>Gruppe</th>
+          <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+          <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
+          <th v-if="datafields.includes('Club')">Verein</th>
+          <th v-if="datafields.includes('Class')">Klasse</th>
+          <th v-if="datafields.includes('Group')">Gruppe</th>
           <th class="cell-centered">Zeit</th>
         </tr>
       </thead>
@@ -128,11 +151,11 @@ Vue.component('dsv-ontracklist', {
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
           <td>{{ item.Firstname }}</td>
-          <td class="cell-centered">{{ item.Sex }}</td>
-          <td class="cell-centered">{{ item.Year }}</td>
-          <td>{{ item.Club }}</td>
-          <td>{{ item.Class }}</td>
-          <td>{{ item.Group }}</td>
+          <td v-if="datafields.includes('Sex')" class="cell-centered">{{ item.Sex }}</td>
+          <td v-if="datafields.includes('Year')" class="cell-centered">{{ item.Year }}</td>
+          <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
+          <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
+          <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
           <td class="cell-centered">{{ item.Runtime }}</td>
         </tr>
       </tbody>
@@ -146,8 +169,6 @@ Vue.component('dsv-ontracklist', {
 Vue.component('dsv-runresultslist', {
   mixins: [dsvFilterAndGroupByMixin],
 
-  props: ['datalist'],
-
   template: `
   <div>
     <table class="dsvalpin-lists" v-if="datalist">
@@ -157,11 +178,11 @@ Vue.component('dsv-runresultslist', {
           <th class="cell-centered">StNr</th>
           <th>Name</th>
           <th>Vorname</th>
-          <th class="cell-centered">Geschlecht</th>
-          <th class="cell-centered">Jahrgang</th>
-          <th>Verein</th>
-          <th>Klasse</th>
-          <th>Gruppe</th>
+          <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+          <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
+          <th v-if="datafields.includes('Club')">Verein</th>
+          <th v-if="datafields.includes('Class')">Klasse</th>
+          <th v-if="datafields.includes('Group')">Gruppe</th>
           <th class="cell-centered">Zeit</th>
           <th>&nbsp;</th>
         </tr>
@@ -177,11 +198,11 @@ Vue.component('dsv-runresultslist', {
               <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
               <td>{{ item.Name }}</td>
               <td>{{ item.Firstname }}</td>
-              <td class="cell-centered">{{ item.Sex }}</td>
-              <td class="cell-centered">{{ item.Year }}</td>
-              <td>{{ item.Club }}</td>
-              <td>{{ item.Class }}</td>
-              <td>{{ item.Group }}</td>
+              <td v-if="datafields.includes('Sex')" class="cell-centered">{{ item.Sex }}</td>
+              <td v-if="datafields.includes('Year')" class="cell-centered">{{ item.Year }}</td>
+              <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
+              <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
+              <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
               <td class="cell-centered">{{ item.Runtime }}</td>
               <td>{{ item.DisqualText }}</td>
             </tr>
@@ -197,8 +218,6 @@ Vue.component('dsv-runresultslist', {
 Vue.component('dsv-raceresultslist', {
   mixins: [dsvFilterAndGroupByMixin],
 
-  props: ['datalist'],
-
   template: `
   <div>
     <table class="dsvalpin-lists" v-if="datalist">
@@ -208,11 +227,11 @@ Vue.component('dsv-raceresultslist', {
           <th class="cell-centered">StNr</th>
           <th>Name</th>
           <th>Vorname</th>
-          <th class="cell-centered">Geschlecht</th>
-          <th class="cell-centered">Jahrgang</th>
-          <th>Verein</th>
-          <th>Klasse</th>
-          <th>Gruppe</th>
+          <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+          <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
+          <th v-if="datafields.includes('Club')">Verein</th>
+          <th v-if="datafields.includes('Class')">Klasse</th>
+          <th v-if="datafields.includes('Group')">Gruppe</th>
           <th class="cell-centered">Zeit</th>
           <th>&nbsp;</th>
         </tr>
@@ -228,11 +247,11 @@ Vue.component('dsv-raceresultslist', {
               <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
               <td>{{ item.Name }}</td>
               <td>{{ item.Firstname }}</td>
-              <td class="cell-centered">{{ item.Sex }}</td>
-              <td class="cell-centered">{{ item.Year }}</td>
-              <td>{{ item.Club }}</td>
-              <td>{{ item.Class }}</td>
-              <td>{{ item.Group }}</td>
+              <td v-if="datafields.includes('Sex')" class="cell-centered">{{ item.Sex }}</td>
+              <td v-if="datafields.includes('Year')" class="cell-centered">{{ item.Year }}</td>
+              <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
+              <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
+              <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
               <td class="cell-centered">{{ item.Totaltime }}</td>
               <td>{{ item.DisqualText }}</td>
             </tr>
@@ -260,6 +279,7 @@ var app = new Vue({
     return {
       startlist: [],
       runlist: [],
+      onstartlist: [],
       ontracklist: [],
       raceresultlist: [],
       categories: [],
@@ -289,6 +309,10 @@ var app = new Vue({
         {
           this.startlist = parsedData["data"];
           this.extractCategoriesAndGroups();
+        } 
+        else if (parsedData["type"] == "onstart")
+        {
+          this.onstartlist = parsedData["data"];
         } 
         else if (parsedData["type"] == "ontrack")
         {
