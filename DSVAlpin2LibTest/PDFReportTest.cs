@@ -59,11 +59,20 @@ namespace DSVAlpin2LibTest
     //
     #endregion
 
-    [TestMethod]
-    public void TestMethod1()
-    {
 
-      PDFReport p = new PDFReport();
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
+    public void RaceReportTest()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(dbFilename);
+
+      var races = db.GetRaces();
+      AppDataModel model = new AppDataModel(db);
+
+      PDFReport p = new RaceResultReport(model.GetRaces()[0]);
       p.Generate();
     }
   }
