@@ -268,20 +268,24 @@ namespace DSVAlpin2Lib
 
 
 
-  public class PDFReport : IPDFReport
+  public abstract class PDFReport : IPDFReport
   {
-    AppDataModel _dm;
     Race _race;
+
+    AppDataModel _dm;
     PDFHelper _pdfHelper;
 
     public PDFReport(Race race)
     {
       _race = race;
-      _dm = race.GetDataModel();
 
+      _dm = race.GetDataModel();
       _pdfHelper = new PDFHelper(_dm);
     }
 
+    protected abstract string getTitle();
+
+    protected abstract Table getResultsTable();
 
 
     public void Generate()
@@ -290,27 +294,17 @@ namespace DSVAlpin2Lib
       var writer = new PdfWriter("test.pdf");
       var pdf = new PdfDocument(writer);
 
-      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, new EndPageHandler(_pdfHelper, _race, "OFFIZIELLE ERGEBNISLISTE"));
+      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, new EndPageHandler(_pdfHelper, _race, getTitle()));
 
 
       var document = new Document(pdf, PageSize.A4);
 
       document.SetMargins(110.0F + 24.0F + 8.0F, 24.0F, 24.0F + 100.0F, 24.0F);
 
-      document.Add(new Paragraph("Hello World!"));
+      //document.Add(new Paragraph("Hello World!"));
 
 
-      var table = new Table(new float[] { 2, 1, 3, 1 });
-      table.SetWidth(UnitValue.CreatePercentValue(100));
-      table.SetBorder(Border.NO_BORDER);
-
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph("Text")));
-
-      for (int i = 1; i < 999; i++)
-      {
-        table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph(string.Format("{0}", i))));
-
-      }
+      Table table = getResultsTable();
 
       document.Add(table);
 
@@ -336,6 +330,31 @@ namespace DSVAlpin2Lib
 
       var results = rr.GetResultViewProvider();
     }
+
+    protected override string getTitle()
+    {
+      return string.Format("ERGEBNISLISTE {0}. Durchgang", _raceRun.Run);
+    }
+
+
+    protected override Table getResultsTable()
+    {
+      var table = new Table(new float[] { 2, 1, 3, 1 });
+      table.SetWidth(UnitValue.CreatePercentValue(100));
+      table.SetBorder(Border.NO_BORDER);
+
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph("Text")));
+
+      for (int i = 1; i < 999; i++)
+      {
+        table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph(string.Format("{0}", i))));
+
+      }
+
+      return table;
+    }
+
+
   }
 
 
@@ -352,5 +371,28 @@ namespace DSVAlpin2Lib
 
       //var results = rr.GetResultViewProvider();
     }
+
+    protected override string getTitle()
+    {
+      return string.Format("OFFIZIELLE ERGEBNISLISTE");
+    }
+
+    protected override Table getResultsTable()
+    {
+      var table = new Table(new float[] { 2, 1, 3, 1 });
+      table.SetWidth(UnitValue.CreatePercentValue(100));
+      table.SetBorder(Border.NO_BORDER);
+
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph("Text")));
+
+      for (int i = 1; i < 999; i++)
+      {
+        table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph(string.Format("{0}", i))));
+
+      }
+
+      return table;
+    }
+
   }
 }
