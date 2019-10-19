@@ -520,8 +520,18 @@ namespace DSVAlpin2
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
     {
-      MessageBox.Show("Not implemented");
+      IPDFReport report = null;
 
+      if (cmbTotalResult.SelectedValue is CBItem selected)
+      {
+        if (selected.Value is RaceRun selectedRaceRun)
+          report = new RaceRunResultReport(selectedRaceRun);
+        else
+          // Total Results
+          report = new RaceResultReport(_thisRace);
+      }
+
+      report.Generate();
     }
 
 
