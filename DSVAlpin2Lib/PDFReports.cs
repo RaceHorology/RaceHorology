@@ -12,6 +12,7 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -270,10 +271,10 @@ namespace DSVAlpin2Lib
 
   public abstract class PDFReport : IPDFReport
   {
-    Race _race;
+    protected Race _race;
 
-    AppDataModel _dm;
-    PDFHelper _pdfHelper;
+    protected AppDataModel _dm;
+    protected PDFHelper _pdfHelper;
 
     public PDFReport(Race race)
     {
@@ -285,7 +286,11 @@ namespace DSVAlpin2Lib
 
     protected abstract string getTitle();
 
-    protected abstract Table getResultsTable();
+    protected abstract ICollectionView getView();
+    protected abstract float[] getTableColumnsWidths();
+    protected abstract void addHeaderToTable(Table table);
+    protected abstract void addLineToTable(Table table, string group);
+    protected abstract void addLineToTable(Table table, object data);
 
 
     public void Generate()
@@ -296,21 +301,42 @@ namespace DSVAlpin2Lib
 
       pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, new EndPageHandler(_pdfHelper, _race, getTitle()));
 
-
       var document = new Document(pdf, PageSize.A4);
 
       document.SetMargins(110.0F + 24.0F + 8.0F, 24.0F, 24.0F + 100.0F, 24.0F);
 
-      //document.Add(new Paragraph("Hello World!"));
-
-
       Table table = getResultsTable();
-
       document.Add(table);
 
       document.Close();
 
       System.Diagnostics.Process.Start("test.pdf");
+    }
+
+
+    protected virtual Table getResultsTable()
+    {
+      var table = new Table(getTableColumnsWidths());
+
+      table.SetWidth(UnitValue.CreatePercentValue(100));
+      table.SetBorder(Border.NO_BORDER);
+
+      addHeaderToTable(table);
+
+      var results = getView();
+      var lr = results as System.Windows.Data.ListCollectionView;
+      foreach (var group in results.Groups)
+      {
+        System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
+        addLineToTable(table, cvGroup.Name.ToString());
+
+        foreach (var result in cvGroup.Items)
+        {
+          addLineToTable(table, result);
+        }
+      }
+
+      return table;
     }
   }
 
@@ -328,7 +354,7 @@ namespace DSVAlpin2Lib
       //race.Description;
       //race.DateResult;
 
-      var results = rr.GetResultViewProvider();
+      
     }
 
     protected override string getTitle()
@@ -337,24 +363,80 @@ namespace DSVAlpin2Lib
     }
 
 
-    protected override Table getResultsTable()
+    protected override ICollectionView getView()
     {
-      var table = new Table(new float[] { 2, 1, 3, 1 });
-      table.SetWidth(UnitValue.CreatePercentValue(100));
-      table.SetBorder(Border.NO_BORDER);
+      return _raceRun.GetResultViewProvider().GetView();
+    }
 
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph("Text")));
+    protected override float[] getTableColumnsWidths()
+    {
+      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+    }
 
-      for (int i = 1; i < 999; i++)
+    protected override void addHeaderToTable(Table table)
+    {
+
+      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+      Paragraph createParagraph(string text)
       {
-        table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph(string.Format("{0}", i))));
-
+        return new Paragraph(text).SetFont(font).SetFontSize(10);
       }
 
-      return table;
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Rang")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Stnr")));
+      //table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Code")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Teilnehmer")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("JG")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("VB")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Verein")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Punkte")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Laufzeit")));
     }
 
 
+    protected override void addLineToTable(Table table, string group)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER));
+
+      table.AddCell(new Cell(1, 6)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(group)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
+    }
+
+
+    protected override void addLineToTable(Table table, object data)
+    {
+      RunResultWithPosition rrwp = data as RunResultWithPosition;
+      if (rrwp == null)
+        return;
+
+      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+      Paragraph createParagraph(string text)
+      {
+        return new Paragraph(text).SetFont(font).SetFontSize(9);
+      }
+
+      // Position
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}.", rrwp.Position))));
+      // Startnumber
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", rrwp.StartNumber))));
+      //// Code
+      //table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
+      // Name
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(rrwp.Participant.Participant.Fullname)));
+      // Year
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(string.Format("{0}", rrwp.Year))));
+      // VB
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(rrwp.Participant.Participant.Nation)));
+      // Club
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(rrwp.Club)));
+      // Points
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", -1.0 /*rrwp.Points*/))));
+      // Runtime
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", rrwp.Runtime?.ToString(@"mm\:ss\,ff")))));
+    }
   }
 
 
@@ -363,35 +445,89 @@ namespace DSVAlpin2Lib
 
     public RaceResultReport(Race race) : base(race)
     {
-      //var dm = race.GetDataModel();
-      //dm.Location;
-
-      //race.Description;
-      //race.DateResult;
-
-      //var results = rr.GetResultViewProvider();
     }
+
 
     protected override string getTitle()
     {
       return string.Format("OFFIZIELLE ERGEBNISLISTE");
     }
 
-    protected override Table getResultsTable()
+
+    protected override ICollectionView getView()
     {
-      var table = new Table(new float[] { 2, 1, 3, 1 });
-      table.SetWidth(UnitValue.CreatePercentValue(100));
-      table.SetBorder(Border.NO_BORDER);
+      return _race.GetResultViewProvider().GetView();
+    }
 
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph("Text")));
 
-      for (int i = 1; i < 999; i++)
+    protected override float[] getTableColumnsWidths()
+    {
+      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+    }
+
+    protected override void addHeaderToTable(Table table)
+    {
+
+      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+      Paragraph createParagraph(string text)
       {
-        table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(new Paragraph(string.Format("{0}", i))));
-
+        return new Paragraph(text).SetFont(font).SetFontSize(10);
       }
 
-      return table;
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Rang")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Stnr")));
+      //table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Code")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Teilnehmer")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("JG")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("VB")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Verein")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Punkte")));
+      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Laufzeit")));
+    }
+
+
+    protected override void addLineToTable(Table table, string group)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER));
+
+      table.AddCell(new Cell(1, 6)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(group)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
+    }
+
+
+    protected override void addLineToTable(Table table, object data)
+    {
+      RaceResultItem item = data as RaceResultItem;
+      if (item == null)
+        return;
+
+      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+      Paragraph createParagraph(string text)
+      {
+        return new Paragraph(text).SetFont(font).SetFontSize(9);
+      }
+
+      // Position
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}.", item.Position))));
+      // Startnumber
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", item.Participant.StartNumber))));
+      //// Code
+      //table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
+      // Name
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(item.Participant.Participant.Fullname)));
+      // Year
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(string.Format("{0}", item.Participant.Year))));
+      // VB
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(item.Participant.Participant.Nation)));
+      // Club
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(item.Participant.Club)));
+      // Points
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", -1.0 /*rrwp.Points*/))));
+      // Runtime
+      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", item.TotalTime?.ToString(@"mm\:ss\,ff")))));
     }
 
   }

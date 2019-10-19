@@ -72,7 +72,7 @@ namespace DSVAlpin2LibTest
       var races = db.GetRaces();
       AppDataModel model = new AppDataModel(db);
 
-      PDFReport p = new RaceResultReport(model.GetRaces()[0]);
+      PDFReport p = new RaceRunResultReport(model.GetRaces()[0].GetRun(0));
       p.Generate();
     }
   }
