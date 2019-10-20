@@ -430,15 +430,14 @@ namespace DSVAlpin2Lib
         return new Paragraph(text).SetFont(font).SetFontSize(10);
       }
 
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Rang")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Stnr")));
-      //table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Code")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Teilnehmer")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("JG")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("VB")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Verein")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Punkte")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Laufzeit")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Rang")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Stnr")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Teilnehmer")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("JG")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("VB")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Verein")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Punkte")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Laufzeit")));
     }
 
 
@@ -521,15 +520,14 @@ namespace DSVAlpin2Lib
         return new Paragraph(text).SetFont(font).SetFontSize(10);
       }
 
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Rang")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Stnr")));
-      //table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Code")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Teilnehmer")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("JG")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("VB")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Verein")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Punkte")));
-      table.AddHeaderCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph("Laufzeit")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Rang")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Stnr")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Teilnehmer")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("JG")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("VB")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Verein")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Punkte")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Laufzeit")));
     }
 
 
