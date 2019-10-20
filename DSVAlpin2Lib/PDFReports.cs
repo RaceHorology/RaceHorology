@@ -1,4 +1,4 @@
-using iText.IO.Font.Constants;
+﻿using iText.IO.Font.Constants;
 using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Events;
@@ -449,6 +449,7 @@ namespace DSVAlpin2Lib
       table.AddCell(new Cell(1, 6)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
+          .SetPaddingTop(6)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
     }
 
@@ -539,6 +540,7 @@ namespace DSVAlpin2Lib
       table.AddCell(new Cell(1, 6)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
+          .SetPaddingTop(6)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
     }
 
