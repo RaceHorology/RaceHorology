@@ -73,7 +73,7 @@ namespace DSVAlpin2LibTest
       AppDataModel model = new AppDataModel(db);
 
       PDFReport p = new RaceRunResultReport(model.GetRaces()[0].GetRun(0));
-      p.Generate();
+      p.Generate("test.pdf");
     }
   }
 }

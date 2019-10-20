@@ -25,7 +25,9 @@ namespace DSVAlpin2Lib
 
   public interface IPDFReport
   {
-    void Generate();
+    void Generate(string filePath);
+
+    string ProposeFilePath();
   }
 
 
@@ -65,6 +67,7 @@ namespace DSVAlpin2Lib
 
       resourcePaths = paths;
     }
+
 
     string findImage(string filenameWOExt)
     {
@@ -291,12 +294,24 @@ namespace DSVAlpin2Lib
     protected abstract void addHeaderToTable(Table table);
     protected abstract void addLineToTable(Table table, string group);
     protected abstract void addLineToTable(Table table, object data);
+    protected abstract string getReportName();
 
+    public virtual string ProposeFilePath()
+    {
+      string path;
 
-    public void Generate()
+      path = System.IO.Path.Combine(
+        _dm.GetDB().GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(_dm.GetDB().GetDBFileName()) + " - " + getReportName() + " - " + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".pdf"
+      );
+
+      return path;
+    }
+
+    public void Generate(string filePath)
     {
 
-      var writer = new PdfWriter("test.pdf");
+      var writer = new PdfWriter(filePath);
       var pdf = new PdfDocument(writer);
 
       pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, new EndPageHandler(_pdfHelper, _race, getTitle()));
@@ -309,8 +324,6 @@ namespace DSVAlpin2Lib
       document.Add(table);
 
       document.Close();
-
-      System.Diagnostics.Process.Start("test.pdf");
     }
 
 
@@ -356,6 +369,13 @@ namespace DSVAlpin2Lib
 
       
     }
+
+
+    protected override string getReportName()
+    {
+      return string.Format("Ergebnis {0}. Durchgang", _raceRun.Run);
+    }
+
 
     protected override string getTitle()
     {
@@ -447,6 +467,11 @@ namespace DSVAlpin2Lib
     {
     }
 
+
+    protected override string getReportName()
+    {
+      return string.Format("Ergebnis Gesamt");
+    }
 
     protected override string getTitle()
     {

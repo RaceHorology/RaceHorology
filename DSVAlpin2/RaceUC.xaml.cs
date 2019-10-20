@@ -531,9 +531,28 @@ namespace DSVAlpin2
           report = new RaceResultReport(_thisRace);
       }
 
-      report.Generate();
+      CreateAndOpenReport(report);
     }
 
+
+    public static void CreateAndOpenReport(IPDFReport report)
+    {
+      if (report == null)
+        return;
+
+      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
+      string filePath = report.ProposeFilePath();
+      openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
+      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
+      openFileDialog.DefaultExt = ".pdf";
+      openFileDialog.Filter = "PDF documents (.pdf)|*.pdf";
+      if (openFileDialog.ShowDialog() == true)
+      {
+        filePath = openFileDialog.FileName;
+        report.Generate(filePath);
+        System.Diagnostics.Process.Start(filePath);
+      }
+    }
 
     #endregion
 
