@@ -1,4 +1,4 @@
-﻿using iText.IO.Font.Constants;
+using iText.IO.Font.Constants;
 using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Events;
@@ -476,7 +476,7 @@ namespace DSVAlpin2Lib
       // Points
       table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", -1.0 /*rrwp.Points*/))));
       // Runtime
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Runtime?.ToString(@"mm\:ss\,ff")))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Runtime.ToRaceTimeString()))));
     }
   }
 
@@ -566,7 +566,7 @@ namespace DSVAlpin2Lib
       // Points
       table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", -1.0 /*rrwp.Points*/))));
       // Runtime
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime?.ToString(@"mm\:ss\,ff")))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
     }
 
   }

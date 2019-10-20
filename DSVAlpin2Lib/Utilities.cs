@@ -366,6 +366,18 @@ namespace DSVAlpin2Lib
 
       return time;
     }
+
+
+    public static string ToRaceTimeString(this TimeSpan? time)
+    {
+      if (time == null)
+        return "";
+
+      if (time < new TimeSpan(0,1,0))
+        return time?.ToString(@"ss\,ff");
+
+      return time?.ToString(@"m\:ss\,ff");
+    }
   }
 
 
