@@ -546,11 +546,22 @@ namespace DSVAlpin2
       openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
       openFileDialog.DefaultExt = ".pdf";
       openFileDialog.Filter = "PDF documents (.pdf)|*.pdf";
-      if (openFileDialog.ShowDialog() == true)
+      try
       {
-        filePath = openFileDialog.FileName;
-        report.Generate(filePath);
-        System.Diagnostics.Process.Start(filePath);
+        if (openFileDialog.ShowDialog() == true)
+        {
+          filePath = openFileDialog.FileName;
+          report.Generate(filePath);
+          System.Diagnostics.Process.Start(filePath);
+        }
+      }
+      catch (Exception ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message, 
+          "Fehler", 
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+
       }
     }
 
