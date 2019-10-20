@@ -351,6 +351,34 @@ namespace DSVAlpin2Lib
 
       return table;
     }
+
+
+    protected Paragraph createCellParagraphForTable(string text)
+    {
+      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+
+      return new Paragraph(text)
+        .SetFont(font)
+        .SetFontSize(9)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(0)
+        .SetPaddingRight(0);
+    }
+
+
+    protected Cell createCellForTable(TextAlignment? textAlignment = TextAlignment.LEFT)
+    {
+      return new Cell()
+        .SetBorder(Border.NO_BORDER)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(4)
+        .SetPaddingRight(4)
+        .SetTextAlignment(textAlignment);
+    }
+
+
   }
 
 
@@ -432,30 +460,24 @@ namespace DSVAlpin2Lib
       if (rrwp == null)
         return;
 
-      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-      Paragraph createParagraph(string text)
-      {
-        return new Paragraph(text).SetFont(font).SetFontSize(9);
-      }
-
       // Position
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}.", rrwp.Position))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}.", rrwp.Position))));
       // Startnumber
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", rrwp.StartNumber))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", rrwp.StartNumber))));
       //// Code
       //table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
       // Name
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(rrwp.Participant.Participant.Fullname)));
+      table.AddCell(createCellForTable().Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
       // Year
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(string.Format("{0}", rrwp.Year))));
+      table.AddCell(createCellForTable().Add(createCellParagraphForTable(string.Format("{0}", rrwp.Year))));
       // VB
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(rrwp.Participant.Participant.Nation)));
+      table.AddCell(createCellForTable().Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
       // Club
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(rrwp.Club)));
+      table.AddCell(createCellForTable().Add(createCellParagraphForTable(rrwp.Club)));
       // Points
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", -1.0 /*rrwp.Points*/))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", -1.0 /*rrwp.Points*/))));
       // Runtime
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", rrwp.Runtime?.ToString(@"mm\:ss\,ff")))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Runtime?.ToString(@"mm\:ss\,ff")))));
     }
   }
 
@@ -529,30 +551,24 @@ namespace DSVAlpin2Lib
       if (item == null)
         return;
 
-      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-      Paragraph createParagraph(string text)
-      {
-        return new Paragraph(text).SetFont(font).SetFontSize(9);
-      }
-
       // Position
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}.", item.Position))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}.", item.Position))));
       // Startnumber
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", item.Participant.StartNumber))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.StartNumber))));
       //// Code
       //table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
       // Name
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(item.Participant.Participant.Fullname)));
+      table.AddCell(createCellForTable().Add(createCellParagraphForTable(item.Participant.Participant.Fullname)));
       // Year
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(string.Format("{0}", item.Participant.Year))));
+      table.AddCell(createCellForTable().Add(createCellParagraphForTable(string.Format("{0}", item.Participant.Year))));
       // VB
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(item.Participant.Participant.Nation)));
+      table.AddCell(createCellForTable().Add(createCellParagraphForTable(item.Participant.Participant.Nation)));
       // Club
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).Add(createParagraph(item.Participant.Club)));
+      table.AddCell(createCellForTable().Add(createCellParagraphForTable(item.Participant.Club)));
       // Points
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", -1.0 /*rrwp.Points*/))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", -1.0 /*rrwp.Points*/))));
       // Runtime
-      table.AddCell(new Cell().SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT).Add(createParagraph(string.Format("{0}", item.TotalTime?.ToString(@"mm\:ss\,ff")))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime?.ToString(@"mm\:ss\,ff")))));
     }
 
   }
