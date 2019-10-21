@@ -6,6 +6,7 @@ using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas;
+using iText.Kernel.Pdf.Xobject;
 using iText.Layout;
 using iText.Layout.Borders;
 using iText.Layout.Element;
@@ -79,7 +80,7 @@ namespace DSVAlpin2Lib
           if (files.Length > 0)
             return files[0];
         }
-        catch(System.IO.DirectoryNotFoundException)
+        catch (System.IO.DirectoryNotFoundException)
         {
           continue;
         }
@@ -271,8 +272,51 @@ namespace DSVAlpin2Lib
 
 
 
+  class PageXofY : IEventHandler
+  {
+    protected PdfFormXObject placeholder;
+    protected float side = 20;
+    protected float x = 300;
+    protected float y = 25;
+    protected float space = 4.5f;
+    protected float descent = 3;
 
-  public abstract class PDFReport : IPDFReport
+    public PageXofY(PdfDocument pdf)
+    {
+      placeholder = new PdfFormXObject(new Rectangle(0, 0, side, side));
+    }
+
+    public void HandleEvent(Event @event)
+    {
+      PdfDocumentEvent docEvent = (PdfDocumentEvent)@event;
+      PdfDocument pdfDoc = docEvent.GetDocument();
+      PdfPage page = docEvent.GetPage();
+
+      int pageNumber = pdfDoc.GetPageNumber(page);
+      Rectangle pageSize = page.GetPageSize();
+      PdfCanvas pdfCanvas = new PdfCanvas(page.GetLastContentStream(), page.GetResources(), pdfDoc);
+      Canvas canvas = new Canvas(pdfCanvas, pdfDoc, pageSize);
+      Paragraph p = new Paragraph()
+          .Add(string.Format("{0}/", pageNumber));
+
+      canvas.ShowTextAligned(p, x, y, TextAlignment.RIGHT);
+      pdfCanvas.AddXObject(placeholder, x + space, y - descent);
+      pdfCanvas.Release();
+    }
+
+    public void WriteTotal(PdfDocument pdfDoc)
+    {
+      Canvas canvas = new Canvas(placeholder, pdfDoc);
+      canvas.ShowTextAligned(pdfDoc.GetNumberOfPages().ToString(), 0, descent, TextAlignment.LEFT);
+    }
+  }
+
+
+
+
+
+
+public abstract class PDFReport : IPDFReport
   {
     protected Race _race;
 
@@ -315,6 +359,8 @@ namespace DSVAlpin2Lib
       var pdf = new PdfDocument(writer);
 
       pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, new EndPageHandler(_pdfHelper, _race, getTitle()));
+      var pageXofY = new PageXofY(pdf);
+      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, pageXofY);
 
       var document = new Document(pdf, PageSize.A4);
 
@@ -323,6 +369,7 @@ namespace DSVAlpin2Lib
       Table table = getResultsTable();
       document.Add(table);
 
+      pageXofY.WriteTotal(pdf);
       document.Close();
     }
 
