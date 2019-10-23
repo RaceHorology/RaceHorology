@@ -567,11 +567,13 @@ namespace DSVAlpin2
 
       if (cmbTotalResult.SelectedValue is CBItem selected)
       {
-        if (selected.Value is RaceRun selectedRaceRun)
-          report = new RaceRunResultReport(selectedRaceRun);
-        else
-          // Total Results
+        CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
+        if (selObj == null)
           report = new RaceResultReport(_thisRace);
+        else if (selObj.Type == "results")
+          report = new RaceRunResultReport(selObj.RaceRun);
+        else if (selObj.Type == "startlist")
+          report = new StartListReport(selObj.RaceRun);
       }
 
       CreateAndOpenReport(report);
