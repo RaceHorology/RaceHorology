@@ -229,6 +229,12 @@ namespace DSVAlpin2Lib
       set { _code = value; NotifyPropertyChanged(); }
     }
 
+    public string CodeOrSvId
+    {
+      get { if (string.IsNullOrEmpty(_code)) return _svid; else return _code; }
+    }
+
+
     public string Nation
     {
       get => _nation;

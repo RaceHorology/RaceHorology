@@ -599,7 +599,7 @@ public abstract class PDFReport : IPDFReport
 
     protected override float[] getTableColumnsWidths()
     {
-      return new float[] { 1, 1, 1, 1, 1, 1, 1 };
+      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1 };
     }
 
     protected override void addHeaderToTable(Table table)
@@ -612,6 +612,7 @@ public abstract class PDFReport : IPDFReport
       }
 
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Stnr")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Code")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Teilnehmer")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("JG")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("VB")));
@@ -626,7 +627,7 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(new Cell(1, 1)
         .SetBorder(Border.NO_BORDER));
 
-      table.AddCell(new Cell(1, 6)
+      table.AddCell(new Cell(1, 7)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
@@ -647,8 +648,8 @@ public abstract class PDFReport : IPDFReport
 
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.StartNumber))));
-      //// Code
-      //table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
+      // Code
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
       // Name
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
       // Year
