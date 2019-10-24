@@ -173,6 +173,8 @@ namespace DSVAlpin2Lib
     private uint _year;
     private string _club;
     private string _nation;
+    private string _code;
+    private string _svid;
     private ParticipantClass _class;
 
     public string Id
@@ -213,6 +215,18 @@ namespace DSVAlpin2Lib
     {
       get => _club;
       set { _club = value; NotifyPropertyChanged(); }
+    }
+
+    public string SvId
+    {
+      get => _svid;
+      set { _svid = value; NotifyPropertyChanged(); }
+    }
+
+    public string Code
+    {
+      get => _code;
+      set { _code = value; NotifyPropertyChanged(); }
     }
 
     public string Nation
@@ -308,6 +322,8 @@ namespace DSVAlpin2Lib
     public uint Year { get => _participant.Year; }
     public string Club { get => _participant.Club; }
     public string Nation { get => _participant.Nation; }
+    public string SvId { get => _participant.SvId; }
+    public string Code { get => _participant.Code; }
 
     public ParticipantClass Class { get => _participant.Class; }
     public ParticipantGroup Group { get => _participant.Group; }
@@ -387,6 +403,8 @@ namespace DSVAlpin2Lib
     public ParticipantGroup Group { get => _participant.Group; }
     public string Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
+    public string SvId{ get { return _participant.SvId; } }
+    public string Code{ get { return _participant.Code; } }
 
     public bool Started
     {
@@ -483,6 +501,8 @@ namespace DSVAlpin2Lib
     public ParticipantGroup Group { get => _participant.Group; }
     public string Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
+    public string SvId { get { return _participant.SvId; } }
+    public string Code { get { return _participant.Code; } }
 
 
     public TimeSpan? Runtime { get { return GetRunTime(); } }
