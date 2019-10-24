@@ -245,6 +245,8 @@ namespace DSVAlpin2LibTest
         Sex = "M",
         Club = "Verein 6",
         Nation = "GER",
+        SvId = "123",
+        Code = "321",
         Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
         Year = 2009
       };
@@ -323,6 +325,15 @@ namespace DSVAlpin2LibTest
       OleDbCommand command = new OleDbCommand(sql, conn);
       command.Parameters.Add(new OleDbParameter("@id", id));
 
+      bool checkAgainstDB(string value, object vDB)
+      {
+        string sDB = vDB.ToString();
+        if (string.IsNullOrEmpty(value) && (vDB == DBNull.Value))
+          return true;
+
+        return value == sDB;
+      }
+
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())
       {
@@ -333,6 +344,8 @@ namespace DSVAlpin2LibTest
           bRes &= participant.Sex == reader["sex"].ToString();
           bRes &= participant.Club == reader["verein"].ToString();
           bRes &= participant.Nation == reader["nation"].ToString();
+          bRes &= checkAgainstDB(participant.SvId, reader["svid"]);
+          bRes &= checkAgainstDB(participant.Code, reader["code"]);
           //bRes &= participant.Class == GetClass(GetValueUInt(reader, "klasse"));
           bRes &= participant.Year == reader.GetInt16(reader.GetOrdinal("jahrgang"));
           //bRes &= participant.StartNumber == GetStartNumber(reader);

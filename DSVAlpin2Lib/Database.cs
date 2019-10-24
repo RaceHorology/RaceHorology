@@ -294,7 +294,7 @@ namespace DSVAlpin2Lib
       if (!bNew)
       {
         string sql = @"UPDATE tblTeilnehmer " +
-                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, klasse = @klasse, jahrgang = @jahrgang " +
+                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, svid = @svid, code = @code, klasse = @klasse, jahrgang = @jahrgang " +
                      @"WHERE id = @id";
         cmd = new OleDbCommand(sql, _conn);
       }
@@ -311,8 +311,8 @@ namespace DSVAlpin2Lib
           id++;
         }
                
-        string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, klasse, jahrgang, id) " +
-                     @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @klasse, @jahrgang, @id) ";
+        string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, svid, code, klasse, jahrgang, id) " +
+                     @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @svid, @code, @klasse, @jahrgang, @id) ";
         cmd = new OleDbCommand(sql, _conn);
       }
 
@@ -331,6 +331,19 @@ namespace DSVAlpin2Lib
         cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
+      if (string.IsNullOrEmpty(participant.SvId))
+        cmd.Parameters.Add(new OleDbParameter("@svid", DBNull.Value));
+      else
+      {
+        long svid = 0;
+        if (long.TryParse(participant.SvId, out svid))
+          cmd.Parameters.Add(new OleDbParameter("@svid", svid));
+      }
+      if (string.IsNullOrEmpty(participant.Code))
+        cmd.Parameters.Add(new OleDbParameter("@code", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@code", participant.Code));
+
 
       cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
       cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
@@ -438,6 +451,8 @@ namespace DSVAlpin2Lib
           Sex = reader["sex"].ToString(),
           Club = reader["verein"].ToString(),
           Nation = reader["nation"].ToString(),
+          SvId = reader["svid"].ToString(),
+          Code = reader["code"].ToString(),
           Class = GetParticipantClass(GetValueUInt(reader, "klasse")),
           Year = GetValueUInt(reader, "jahrgang"),
         };
