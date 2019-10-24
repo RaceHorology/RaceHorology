@@ -497,7 +497,7 @@ namespace DSVAlpin2Lib
 
     // Some public properties to get displayed in the list
     public RaceParticipant Participant { get { return _participant; } }
-    public string StartNumber { get { return _participant.StartNumber.ToString(); } }
+    public uint StartNumber { get { return _participant.StartNumber; } }
     public string Id { get { return _participant.Id; } }
     public string Name { get { return _participant.Name; } }
     public string Firstname { get { return _participant.Firstname; } }
