@@ -326,9 +326,51 @@ namespace DSVAlpin2Lib
   }
 
 
+
+  public struct RoundedTimeSpan
+  {
+
+    private const int TIMESPAN_SIZE = 7; // it always has seven digits
+
+    private TimeSpan roundedTimeSpan;
+    private int precision;
+
+    public RoundedTimeSpan(TimeSpan time, int precision)
+    {
+      long ticks = time.Ticks;
+
+      if (precision < 0) { throw new ArgumentException("precision must be non-negative"); }
+      this.precision = precision;
+      int factor = (int)System.Math.Pow(10, (TIMESPAN_SIZE - precision));
+
+      // This is only valid for rounding milliseconds-will *not* work on secs/mins/hrs!
+      roundedTimeSpan = new TimeSpan(((long)System.Math.Round((1.0 * ticks / factor)) * factor));
+    }
+
+    public TimeSpan TimeSpan { get { return roundedTimeSpan; } }
+
+    public override string ToString()
+    {
+      return ToString(precision);
+    }
+
+    public string ToString(int length)
+    { // this method revised 2010.01.31
+      int digitsToStrip = TIMESPAN_SIZE - length;
+      string s = roundedTimeSpan.ToString();
+      if (!s.Contains(".") && length == 0) { return s; }
+      if (!s.Contains(".")) { s += "." + new string('0', TIMESPAN_SIZE); }
+      int subLength = s.Length - digitsToStrip;
+      return subLength < 0 ? "" : subLength > s.Length ? s : s.Substring(0, subLength);
+    }
+  }
+
+
+
   // Define other methods and classes here
   public static class TimeSpanExtensions
   {
+
     public static DateTime AddMicroseconds(this DateTime datetime, Int32 value)
     {
       return new DateTime(datetime.Ticks + value * 10, datetime.Kind);
@@ -365,6 +407,20 @@ namespace DSVAlpin2Lib
       { }
 
       return time;
+    }
+
+
+    public static string ToRaceTimeString(this TimeSpan? time)
+    {
+      if (time == null)
+        return "";
+
+      RoundedTimeSpan roundedTimeSpan = new RoundedTimeSpan((TimeSpan)time, 2);
+
+      if (roundedTimeSpan.TimeSpan < new TimeSpan(0,1,0))
+        return roundedTimeSpan.TimeSpan.ToString(@"s\,ff");
+
+      return roundedTimeSpan.TimeSpan.ToString(@"m\:ss\,ff");
     }
   }
 

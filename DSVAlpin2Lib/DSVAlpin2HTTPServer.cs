@@ -51,13 +51,20 @@ namespace DSVAlpin2Lib
     public string GetUrl()
     {
       string localIP;
-      using (System.Net.Sockets.Socket socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, 0))
+      try
       {
-        socket.Connect("8.8.8.8", 65530);
-        System.Net.IPEndPoint endPoint = socket.LocalEndPoint as System.Net.IPEndPoint;
-        localIP = endPoint.Address.ToString();
+        using (System.Net.Sockets.Socket socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, 0))
+        {
+          socket.Connect("8.8.8.8", 65530);
+          System.Net.IPEndPoint endPoint = socket.LocalEndPoint as System.Net.IPEndPoint;
+          localIP = endPoint.Address.ToString();
+        }
+        return "http://" + localIP + ":" + _httpServer.Port + "/";
       }
-      return "http://" + localIP + ":" + _httpServer.Port + "/";
+      catch(System.Net.Sockets.SocketException)
+      {
+        return null;
+      }
     }
 
     /// <summary>

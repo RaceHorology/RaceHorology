@@ -209,7 +209,10 @@ namespace DSVAlpin2Lib
 
 
     public ERaceType RaceType { get { return _properties.RaceType;  } }
-
+    public string RaceNumber {  get { return _properties.RaceNumber; } }
+    public string Description { get { return _properties.Description; } }
+    public DateTime DateStart { get { return _properties.DateStart; } }
+    public DateTime DateResult { get { return _properties.DateResult; } }
 
     public RaceConfiguration RaceConfiguration
     {
@@ -392,6 +395,12 @@ namespace DSVAlpin2Lib
     public void SetResultViewProvider(RaceResultViewProvider raceVP)
     {
       _raceResultsProvider = raceVP;
+    }
+
+
+    public AppDataModel GetDataModel()
+    {
+      return _appDataModel;
     }
 
   }

@@ -244,24 +244,27 @@ namespace DSVAlpin2
       {
         string url = _alpinServer.GetUrl();
 
-        QRCodeGenerator qrGenerator = new QRCodeGenerator();
-        QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
-        QRCode qrCode = new QRCode(qrCodeData);
-        System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
-
-        BitmapImage bitmapimage = new BitmapImage();
-        using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+        if (!string.IsNullOrEmpty(url))
         {
-          bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-          memory.Position = 0;
-          bitmapimage.BeginInit();
-          bitmapimage.StreamSource = memory;
-          bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-          bitmapimage.EndInit();
-        }
+          QRCodeGenerator qrGenerator = new QRCodeGenerator();
+          QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+          QRCode qrCode = new QRCode(qrCodeData);
+          System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
 
-        imgQRCode.Source = bitmapimage;
-        lblURL.Content = url;
+          BitmapImage bitmapimage = new BitmapImage();
+          using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+          {
+            bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+            memory.Position = 0;
+            bitmapimage.BeginInit();
+            bitmapimage.StreamSource = memory;
+            bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapimage.EndInit();
+          }
+
+          imgQRCode.Source = bitmapimage;
+          lblURL.Content = url;
+        }
       }
     }
 
