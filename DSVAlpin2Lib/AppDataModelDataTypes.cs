@@ -620,6 +620,7 @@ namespace DSVAlpin2Lib
   {
     private uint _position;
     private bool _justModified;
+    private TimeSpan? _diffToFirst;
 
     public RunResultWithPosition(RunResult result) : base(result)
     {
@@ -632,6 +633,12 @@ namespace DSVAlpin2Lib
     {
       get { return _position; }
       set { _position = value; NotifyPropertyChanged(); }
+    }
+
+    public TimeSpan? DiffToFirst
+    {
+      get { return _diffToFirst; }
+      set { _diffToFirst = value; NotifyPropertyChanged(); }
     }
 
     public bool JustModified
@@ -659,6 +666,7 @@ namespace DSVAlpin2Lib
     Dictionary<uint, TimeSpan?> _runTimes;
     TimeSpan? _totalTime;
     private uint _position;
+    private TimeSpan? _diffToFirst;
     private bool _justModified;
 
 
@@ -697,6 +705,14 @@ namespace DSVAlpin2Lib
       get { return _position; }
       set { _position = value; NotifyPropertyChanged(); }
     }
+
+    public TimeSpan? DiffToFirst
+    {
+      get { return _diffToFirst; }
+      set { _diffToFirst = value; NotifyPropertyChanged(); }
+    }
+
+
 
     public bool JustModified
     {

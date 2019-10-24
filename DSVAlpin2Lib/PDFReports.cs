@@ -721,7 +721,7 @@ public abstract class PDFReport : IPDFReport
 
     protected override float[] getTableColumnsWidths()
     {
-      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
     }
 
     protected override void addHeaderToTable(Table table)
@@ -741,6 +741,7 @@ public abstract class PDFReport : IPDFReport
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Verein")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Laufzeit")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Diff")));
     }
 
 
@@ -749,7 +750,7 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(new Cell(1, 2)
         .SetBorder(Border.NO_BORDER));
 
-      table.AddCell(new Cell(1, 6)
+      table.AddCell(new Cell(1, 7)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
@@ -786,6 +787,8 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: rrwp.Points*/))));
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Runtime.ToRaceTimeString()))));
+      // Diff
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.DiffToFirst.ToRaceTimeString()))));
     }
   }
 
@@ -817,7 +820,7 @@ public abstract class PDFReport : IPDFReport
 
     protected override float[] getTableColumnsWidths()
     {
-      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
     }
 
     protected override void addHeaderToTable(Table table)
@@ -837,6 +840,7 @@ public abstract class PDFReport : IPDFReport
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Verein")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Laufzeit")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Diff")));
     }
 
 
@@ -845,7 +849,7 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(new Cell(1, 2)
         .SetBorder(Border.NO_BORDER));
 
-      table.AddCell(new Cell(1, 6)
+      table.AddCell(new Cell(1, 7)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
@@ -881,6 +885,8 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: item.Points*/))));
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
+      // Diff
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
     }
 
   }
