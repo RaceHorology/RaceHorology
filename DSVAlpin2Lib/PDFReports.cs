@@ -795,9 +795,11 @@ public abstract class PDFReport : IPDFReport
 
   public class RaceResultReport : PDFReport
   {
+    
 
     public RaceResultReport(Race race) : base(race)
     {
+    
     }
 
 
@@ -820,7 +822,13 @@ public abstract class PDFReport : IPDFReport
 
     protected override float[] getTableColumnsWidths()
     {
-      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+      float[] columns = new float[9 + _race.GetMaxRun()];
+
+      for (int i = 0; i < columns.Length; i++)
+        columns[i] = 1F;
+
+      return columns;
     }
 
     protected override void addHeaderToTable(Table table)
@@ -838,6 +846,10 @@ public abstract class PDFReport : IPDFReport
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("JG")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("VB")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Verein")));
+
+      for (int i = 1; i <= _race.GetMaxRun(); i++)
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph(string.Format("Zeit-{0}", i))));
+
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Laufzeit")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Diff")));
@@ -849,7 +861,7 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(new Cell(1, 2)
         .SetBorder(Border.NO_BORDER));
 
-      table.AddCell(new Cell(1, 7)
+      table.AddCell(new Cell(1, 7+ _race.GetMaxRun())
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
@@ -881,6 +893,15 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Nation)));
       // Club
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Club)));
+
+      for (uint j = 1; j <= _race.GetMaxRun(); j++)
+      {
+        if (item.RunTimes.ContainsKey(j))
+          table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.RunTimes[j].ToRaceTimeString()))));
+        else
+          table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor));
+      }
+
       // Points
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: item.Points*/))));
       // Runtime
