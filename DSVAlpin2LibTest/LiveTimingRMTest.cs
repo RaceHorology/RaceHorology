@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -86,7 +86,7 @@ namespace DSVAlpin2LibTest
       Assert.AreEqual(categories, "Kategorie|M|M|1\nKategorie|W|W|2");
 
       string participants = cl.getParticipantsData();
-      Assert.AreEqual(participants, "W|5|1|1||Nachname 1, Vorname 1|2009|Nation 1|Verein 1|9999,99\nM|2|2|2||Nachname 2, Vorname 2|2013|Nation 2|Verein 2|9999,99\nM|4|3|3||Nachname 3, Vorname 3|2011|Nation 3|Verein 3|9999,99\nW|9|4|4||Nachname 4, Vorname 4|2014|Nation 4|Verein 4|9999,99\nM|4|5|5||Nachname 5, Vorname 5|2012|Nation 5|Verein 5|9999,99");
+      Assert.AreEqual(participants, "W|5|10|1|1||Nachname 1, Vorname 1|2009|Nation 1|Verein 1|9999,99\nM|2|17|2|2||Nachname 2, Vorname 2|2013|Nation 2|Verein 2|9999,99\nM|4|8|3|3||Nachname 3, Vorname 3|2011|Nation 3|Verein 3|9999,99\nW|9|20|4|4||Nachname 4, Vorname 4|2014|Nation 4|Verein 4|9999,99\nM|4|7|5|5||Nachname 5, Vorname 5|2012|Nation 5|Verein 5|9999,99");
 
       string startList = cl.getStartListData(model.GetCurrentRaceRun());
       Assert.AreEqual(startList, "  1\n  2\n  3\n  4\n  5");
