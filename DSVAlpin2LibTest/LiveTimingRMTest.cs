@@ -62,7 +62,7 @@ namespace DSVAlpin2LibTest
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming.mdb")]
     [DeploymentItem(@"3rdparty\DSVAlpinX.liz", "3rdparty")]
-    public void TestMethod1()
+    public void TestSerialization()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_LiveTiming.mdb");
       DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
