@@ -111,6 +111,9 @@
     <Content Include="TestDataBases\TestDB_LessParticipants.mdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestDataBases\TestDB_LessParticipants_LiveTiming.mdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
