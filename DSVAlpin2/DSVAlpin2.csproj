@@ -198,6 +198,10 @@
       <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>
       <Name>DSVAlpin2Lib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LiveTimingRM\LiveTimingRM.csproj">
+      <Project>{1819ca78-97eb-4488-ac18-c65c9d2baf0f}</Project>
+      <Name>LiveTimingRM</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\icons8-play-52.png" />

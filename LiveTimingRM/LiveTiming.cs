@@ -11,6 +11,10 @@ public class LiveTimingRM
   private string _login;
   private string _password;
 
+  private bool _isOnline;
+
+  string _statusText;
+
   rmlt.LiveTiming _lv;
   rmlt.LiveTiming.rmltStruct _currentLvStruct;
 
@@ -20,6 +24,8 @@ public class LiveTimingRM
     _bewerbnr = bewerbnr;
     _login = login;
     _password = password;
+
+    _isOnline = false;
   }
 
 
@@ -28,10 +34,29 @@ public class LiveTimingRM
     _lv = new rmlt.LiveTiming();
 
     login();
+    updateStatus();
     sendClassesAndGroups();
     sendParticipants();
+  }
 
-    updateStatus("Test 2");
+
+  public void UpdateStatus(string statusText)
+  {
+    _statusText = statusText;
+
+    updateStatus();
+  }
+
+
+  public List<string> GetEvents()
+  {
+    return _currentLvStruct.Veranstaltungen;
+  }
+
+
+  public void SetEvent(int no)
+  {
+    _currentLvStruct.VeranstNr = (no + 1).ToString();
   }
 
 
@@ -45,13 +70,25 @@ public class LiveTimingRM
   }
 
 
+  protected bool isOnline()
+  {
+    return _isOnline;
+  }
 
   protected void login()
   {
+    if (isOnline())
+      return;
+
     string licensePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
     licensePath = Path.Combine(licensePath, "3rdparty");
 
     _currentLvStruct = _lv.LoginLiveTiming(_bewerbnr, _login, _password, licensePath);
+
+    if (_currentLvStruct.Fehlermeldung != "ok")
+      throw new Exception("Login error: " + _currentLvStruct.Fehlermeldung);
+
+    _isOnline = true;
 
     _lv.StartLiveTiming(ref _currentLvStruct);
   }
@@ -59,9 +96,6 @@ public class LiveTimingRM
 
   internal void startLiveTiming(Race race)
   {
-    _currentLvStruct.VeranstNr = "1";
-
-
     _currentLvStruct.Durchgaenge = string.Format("{0}", race.GetMaxRun());
 
     // "add", "diff"
@@ -84,10 +118,12 @@ public class LiveTimingRM
   }
 
 
-  protected void updateStatus(string status)
+  protected void updateStatus()
   {
-    _currentLvStruct.InfoText = status;
+    if (!isOnline() || _currentLvStruct.InfoText == _statusText)
+      return;
 
+    _currentLvStruct.InfoText = _statusText;
     _lv.StartLiveTiming(ref _currentLvStruct);
   }
 

@@ -166,6 +166,47 @@ namespace DSVAlpin2
     #endregion
 
 
+    #region Live Timing
+
+    LiveTimingRM _liveTimingRM;
+
+    private void BtnLTLogin_Click(object sender, RoutedEventArgs e)
+    {
+      _liveTimingRM = new LiveTimingRM(_dataModel, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Text);
+
+      try
+      {
+        _liveTimingRM.Init();
+
+        var events = _liveTimingRM.GetEvents();
+        cmbLTEvent.ItemsSource = events;
+      }
+      catch(Exception error)
+      {
+        MessageBox.Show(error.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+        _liveTimingRM = null;
+      }
+    }
+
+    private void TxtLTStatus_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      if (_liveTimingRM != null)
+      {
+        _liveTimingRM.UpdateStatus(txtLTStatus.Text);
+      }
+    }
+
+    private void CmbLTEvent_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbLTEvent.SelectedIndex >= 0)
+      {
+        _liveTimingRM.SetEvent(cmbLTEvent.SelectedIndex);
+      }
+    }
+
+    #endregion
+
+
     #region Timing
 
 
