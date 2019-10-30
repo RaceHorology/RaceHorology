@@ -45,6 +45,34 @@ public class LiveTimingRM
     _lv.StartLiveTiming(ref _currentLvStruct);
   }
 
+
+  internal void startLiveTiming(Race race)
+  {
+    _currentLvStruct.VeranstNr = "1";
+
+
+    _currentLvStruct.Durchgaenge = string.Format("{0}", race.GetMaxRun());
+
+    // "add", "diff"
+    _currentLvStruct.TypZeiten = "add";
+    if (!string.IsNullOrEmpty(race.RaceConfiguration.RaceResultView))
+      if (race.RaceConfiguration.RaceResultView.Contains("BestOfTwo"))
+        _currentLvStruct.TypZeiten = "diff"; 
+
+    // "Klasse", "Gruppe", "Kategorie"
+    _currentLvStruct.Gruppierung = "Klasse";
+    if (!string.IsNullOrEmpty(race.RaceConfiguration.DefaultGrouping))
+      if (race.RaceConfiguration.DefaultGrouping.Contains("Class"))
+        _currentLvStruct.Gruppierung = "Klasse";
+      else if (race.RaceConfiguration.DefaultGrouping.Contains("Group"))
+        _currentLvStruct.Gruppierung = "Gruppe";
+      else if (race.RaceConfiguration.DefaultGrouping.Contains("Sex"))
+        _currentLvStruct.Gruppierung = "Kategorie";
+
+    _lv.StartLiveTiming(ref _currentLvStruct);
+  }
+
+
   protected void updateStatus(string status)
   {
     _currentLvStruct.InfoText = status;
