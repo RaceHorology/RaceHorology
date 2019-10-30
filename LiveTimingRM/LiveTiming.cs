@@ -1,4 +1,4 @@
-using DSVAlpin2Lib;
+﻿using DSVAlpin2Lib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,6 +33,17 @@ public class LiveTimingRM
 
     updateStatus("Test 2");
   }
+
+
+  public void Test1()
+  {
+    sendStartList(_dm.GetCurrentRaceRun());
+  }
+  public void Test2()
+  {
+    sendTiming(_dm.GetCurrentRaceRun());
+  }
+
 
 
   protected void login()

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -93,6 +93,31 @@ namespace DSVAlpin2LibTest
 
       string timingData = cl.getTimingData(model.GetCurrentRaceRun());
       Assert.AreEqual(timingData, "  10000010,23\n  29000000,01\n  31999999,99\n  42999999,99\n  53999999,99");
+    }
+
+    [TestMethod]
+    //[Ignore]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming.mdb")]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming_GiantSlalom.config")]
+    [DeploymentItem(@"3rdparty\DSVAlpinX.liz", "3rdparty")]
+    public void TestOnline()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_LiveTiming.mdb");
+      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      LiveTimingRM cl = new LiveTimingRM(model, "01122", "livetiming", "livetiming");
+      cl.Init();
+
+      model.SetCurrentRace(model.GetRaces()[0]);
+      model.SetCurrentRaceRun(model.GetCurrentRace().GetRun(0));
+
+      cl.startLiveTiming(model.GetCurrentRace());
+
+      cl.Test1();
+      cl.Test2();
+
     }
   }
 }
