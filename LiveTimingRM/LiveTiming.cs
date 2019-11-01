@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class LiveTimingRM
 {
@@ -44,7 +45,7 @@ public class LiveTimingRM
   {
     _statusText = statusText;
 
-    updateStatus();
+    Task taskA = Task.Run(updateStatus);
   }
 
 

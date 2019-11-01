@@ -226,10 +226,12 @@ namespace DSVAlpin2
 
     private void TxtLTStatus_TextChanged(object sender, TextChangedEventArgs e)
     {
+    }
+
+    private void TxtLTStatus_LostFocus(object sender, RoutedEventArgs e)
+    {
       if (_liveTimingRM != null)
-      {
         _liveTimingRM.UpdateStatus(txtLTStatus.Text);
-      }
     }
 
     private void CmbLTEvent_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -704,6 +706,7 @@ namespace DSVAlpin2
       else
         comboBox.SelectCBItem(selected);
     }
+
 
   }
 

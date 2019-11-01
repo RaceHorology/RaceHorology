@@ -185,7 +185,7 @@
             <ComboBox x:Name="cmbLTEvent" Grid.Row="5" Grid.Column="1"  Margin="5" SelectionChanged="CmbLTEvent_SelectionChanged"/>
 
             <Label x:Name="lblLTStatus" Content="Status:" Grid.Row="6" Grid.Column="0" Margin="5"/>
-            <TextBox x:Name="txtLTStatus" Grid.Row="6" Grid.Column="1"  Margin="5" MinLines="2" TextChanged="TxtLTStatus_TextChanged"/>
+            <TextBox x:Name="txtLTStatus" Grid.Row="6" Grid.Column="1"  Margin="5" MinLines="2" TextChanged="TxtLTStatus_TextChanged" LostFocus="TxtLTStatus_LostFocus"/>
 
 
 
