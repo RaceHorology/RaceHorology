@@ -86,6 +86,8 @@ namespace DSVAlpin2Lib
     public string Run2_StartistView;
     public string Run2_StartistViewGrouping;
     public Dictionary<string, object> Run2_StartistViewParams;
+
+    public Dictionary<string, string> LivetimingParams;
   }
 
 

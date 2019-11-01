@@ -46,6 +46,8 @@ namespace DSVAlpin2
 
       InitializeConfiguration();
 
+      InitializeLiveTiming();
+
       InitializeTiming();
 
       InitializeTotalResults();
@@ -170,9 +172,43 @@ namespace DSVAlpin2
 
     LiveTimingRM _liveTimingRM;
 
+
+    private void InitializeLiveTiming()
+    {
+      ResetLiveTimningUI(_thisRace.RaceConfiguration);
+    }
+
+    private void ResetLiveTimningUI(RaceConfiguration cfg)
+    {
+      if (cfg.LivetimingParams == null)
+        return;
+
+      try
+      {
+        txtLTBewerb.Text = cfg.LivetimingParams["Bewerb"];
+        txtLTLogin.Text = cfg.LivetimingParams["Login"];
+        txtLTPassword.Password = cfg.LivetimingParams["Password"];
+      }
+      catch (KeyNotFoundException) {}
+    }
+
+
+    private void StoreLiveTiming(ref RaceConfiguration cfg)
+    {
+      cfg.LivetimingParams = new Dictionary<string, string>();
+      cfg.LivetimingParams["Bewerb"] = txtLTBewerb.Text;
+      cfg.LivetimingParams["Login"] = txtLTLogin.Text;
+      cfg.LivetimingParams["Password"] = txtLTPassword.Password;
+    }
+
+
     private void BtnLTLogin_Click(object sender, RoutedEventArgs e)
     {
-      _liveTimingRM = new LiveTimingRM(_dataModel, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Text);
+      RaceConfiguration cfg = _thisRace.RaceConfiguration;
+      StoreLiveTiming(ref cfg);
+      _thisRace.RaceConfiguration = cfg;
+      
+      _liveTimingRM = new LiveTimingRM(_dataModel, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
 
       try
       {

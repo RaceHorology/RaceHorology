@@ -177,7 +177,7 @@
             <TextBox x:Name="txtLTLogin" Grid.Row="1" Grid.Column="1"  Margin="5"/>
 
             <Label x:Name="lblLTPassword" Content="Passwort:" Grid.Row="2" Grid.Column="0" Margin="5"/>
-            <TextBox x:Name="txtLTPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
+            <PasswordBox x:Name="txtLTPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
 
             <Button x:Name="btnLTLogin" Content="Login" Width="100" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="1"  Margin="5" Click="BtnLTLogin_Click" />
 
