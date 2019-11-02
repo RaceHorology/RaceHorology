@@ -53,7 +53,7 @@ public class LiveTimingDelegator
   private void ObserveRaceRun(RaceRun raceRun)
   {
     ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
-    startListNotifier.CollectionChanged += (o, e) =>
+    startListNotifier.ItemChanged += (o, e) =>
     {
       _liveTiming.UpdateStartList(raceRun);
     };
@@ -61,7 +61,7 @@ public class LiveTimingDelegator
     _notifier.Add(startListNotifier);
 
     ItemsChangedNotifier resultsNotifier = new ItemsChangedNotifier(raceRun.GetResultList());
-    resultsNotifier.CollectionChanged += (o, e) =>
+    resultsNotifier.ItemChanged += (o, e) =>
     {
       _liveTiming.UpdateResults(raceRun);
     };
