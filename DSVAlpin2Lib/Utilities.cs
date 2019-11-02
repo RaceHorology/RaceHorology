@@ -65,6 +65,9 @@ namespace DSVAlpin2Lib
         {
           _observedItems.Add(item);
           item.PropertyChanged += ItemPropertyChanged;
+
+          ItemChangedEventHandler handler2 = ItemChanged;
+          handler2?.Invoke(item, null);
         }
       NotifyCollectionChangedEventHandler handler = CollectionChanged;
       handler?.Invoke(sender, e);
