@@ -184,8 +184,10 @@
             <Label x:Name="lblLTEvent" Content="Veranstaltung:" Grid.Row="5" Grid.Column="0" Margin="5"/>
             <ComboBox x:Name="cmbLTEvent" Grid.Row="5" Grid.Column="1"  Margin="5" SelectionChanged="CmbLTEvent_SelectionChanged"/>
 
-            <Label x:Name="lblLTStatus" Content="Status:" Grid.Row="6" Grid.Column="0" Margin="5"/>
-            <TextBox x:Name="txtLTStatus" Grid.Row="6" Grid.Column="1"  Margin="5" MinLines="2" TextChanged="TxtLTStatus_TextChanged" LostFocus="TxtLTStatus_LostFocus"/>
+            <Button x:Name="btnLTStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="1"  Margin="5" Click="BtnLTStart_Click" />
+
+            <Label x:Name="lblLTStatus" Content="Status:" Grid.Row="7" Grid.Column="0" Margin="5"/>
+            <TextBox x:Name="txtLTStatus" Grid.Row="7" Grid.Column="1"  Margin="5" MinLines="2" TextChanged="TxtLTStatus_TextChanged" LostFocus="TxtLTStatus_LostFocus"/>
 
 
 

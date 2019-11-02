@@ -208,11 +208,11 @@ namespace DSVAlpin2
       StoreLiveTiming(ref cfg);
       _thisRace.RaceConfiguration = cfg;
       
-      _liveTimingRM = new LiveTimingRM(_dataModel, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
+      _liveTimingRM = new LiveTimingRM(_thisRace, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
 
       try
       {
-        _liveTimingRM.Init();
+        _liveTimingRM.Login();
 
         var events = _liveTimingRM.GetEvents();
         cmbLTEvent.ItemsSource = events;
@@ -241,6 +241,22 @@ namespace DSVAlpin2
         _liveTimingRM.SetEvent(cmbLTEvent.SelectedIndex);
       }
     }
+
+
+    private void BtnLTStart_Click(object sender, RoutedEventArgs e)
+    {
+      if (_liveTimingRM.Started)
+        return;
+
+      if (cmbLTEvent.SelectedIndex < 0)
+      {
+        MessageBox.Show("Bitte Veranstalltung auswählen", "Live Timing", MessageBoxButton.OK, MessageBoxImage.Error);
+        return;
+      }
+
+      _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
+    }
+
 
     #endregion
 
@@ -706,7 +722,6 @@ namespace DSVAlpin2
       else
         comboBox.SelectCBItem(selected);
     }
-
 
   }
 

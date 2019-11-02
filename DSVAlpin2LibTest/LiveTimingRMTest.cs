@@ -69,12 +69,11 @@ namespace DSVAlpin2LibTest
       db.Connect(dbFilename);
       AppDataModel model = new AppDataModel(db);
 
-
-      LiveTimingRM cl = new LiveTimingRM(model, "01122", "livetiming", "livetiming");
-      //cl.Init();
-
       model.SetCurrentRace(model.GetRaces()[0]);
       model.SetCurrentRaceRun(model.GetCurrentRace().GetRun(0));
+
+      LiveTimingRM cl = new LiveTimingRM(model.GetCurrentRace(), "01122", "livetiming", "livetiming");
+      //cl.Init();
 
       string classes = cl.getClasses();
       Assert.AreEqual(classes, "Klasse|5|Mädchen 2012|5\nKlasse|6|Mädchen 2011|7\nKlasse|7|Buben 2012|6\nKlasse|8|Buben 2011|8\nKlasse|9|Mädchen 2010|9\nKlasse|10|Mädchen 2009|11\nKlasse|11|Buben 2010|10\nKlasse|12|Buben 2009|12\nKlasse|17|Buben 2013|4\nKlasse|18|Buben 2014|2\nKlasse|19|Mädchen 2013|3\nKlasse|20|Mädchen 2014|1");
@@ -107,16 +106,16 @@ namespace DSVAlpin2LibTest
       db.Connect(dbFilename);
       AppDataModel model = new AppDataModel(db);
 
-      LiveTimingRM cl = new LiveTimingRM(model, "01122", "livetiming", "livetiming");
-      cl.Init();
-
       model.SetCurrentRace(model.GetRaces()[0]);
       model.SetCurrentRaceRun(model.GetCurrentRace().GetRun(0));
 
-      cl.startLiveTiming(model.GetCurrentRace());
+      LiveTimingRM cl = new LiveTimingRM(model.GetCurrentRace(), "01122", "livetiming", "livetiming");
+      cl.Login();
 
-      cl.Test1();
-      cl.Test2();
+      cl.startLiveTiming();
+
+      //cl.Test1();
+      //cl.Test2();
 
     }
   }

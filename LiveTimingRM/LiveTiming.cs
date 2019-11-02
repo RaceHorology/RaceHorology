@@ -5,47 +5,132 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class LiveTimingRM
+
+public interface ILiveTiming
 {
-  private AppDataModel _dm;
+  void UpdateParticipants();
+
+  void UpdateStartList(RaceRun raceRun);
+
+  void UpdateResults(RaceRun raceRun);
+
+}
+
+public class LiveTimingDelegator
+{
+  Race _race;
+  ILiveTiming _liveTiming;
+
+  List<ItemsChangedNotifier> _notifier;
+
+  public LiveTimingDelegator(Race race, ILiveTiming liveTiming)
+  {
+    _race = race;
+    _liveTiming = liveTiming;
+
+    _notifier = new List<ItemsChangedNotifier>();
+    
+    ObserveRace();
+  }
+
+
+  private void ObserveRace()
+  {
+    ItemsChangedNotifier notifier = new ItemsChangedNotifier(_race.GetParticipants());
+    notifier.CollectionChanged += (o, e) =>
+    {
+      _liveTiming.UpdateParticipants();
+    };
+    _liveTiming.UpdateParticipants();
+
+    _notifier.Add(notifier);
+
+    foreach (var r in _race.GetRuns())
+      ObserveRaceRun(r);
+  }
+
+
+  private void ObserveRaceRun(RaceRun raceRun)
+  {
+    ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
+    startListNotifier.CollectionChanged += (o, e) =>
+    {
+      _liveTiming.UpdateStartList(raceRun);
+    };
+    _liveTiming.UpdateStartList(raceRun);
+    _notifier.Add(startListNotifier);
+
+    ItemsChangedNotifier resultsNotifier = new ItemsChangedNotifier(raceRun.GetResultList());
+    resultsNotifier.CollectionChanged += (o, e) =>
+    {
+      _liveTiming.UpdateResults(raceRun);
+    };
+    _liveTiming.UpdateResults(raceRun);
+    _notifier.Add(resultsNotifier);
+  }
+}
+
+
+
+
+public class LiveTimingRM : ILiveTiming
+{
+  private Race _race;
   private string _bewerbnr;
   private string _login;
   private string _password;
 
   private bool _isOnline;
+  private bool _started;
+  LiveTimingDelegator _delegator;
 
   string _statusText;
 
   rmlt.LiveTiming _lv;
   rmlt.LiveTiming.rmltStruct _currentLvStruct;
 
-  public LiveTimingRM(AppDataModel dm, string bewerbnr, string login, string password)
+  public LiveTimingRM(Race race, string bewerbnr, string login, string password)
   {
-    _dm = dm;
+    _race = race;
     _bewerbnr = bewerbnr;
     _login = login;
     _password = password;
 
     _isOnline = false;
+    _started = false;
   }
 
 
-  public void Init()
+  public void Login()
   {
     _lv = new rmlt.LiveTiming();
 
     login();
-    updateStatus();
-    sendClassesAndGroups();
-    sendParticipants();
   }
 
 
-  public void UpdateStatus(string statusText)
-  {
-    _statusText = statusText;
 
-    Task taskA = Task.Run(updateStatus);
+  public void Start(int noEvent)
+  {
+    if (_started)
+      return;
+
+    _started = true;
+
+    SetEvent(noEvent);
+
+    Task.Run(() => {
+      startLiveTiming();
+      sendClassesAndGroups();
+    });
+
+    // Observes for changes and triggers UpdateMethods, also sends data initially
+    _delegator = new LiveTimingDelegator(_race, this);
+  }
+
+  public bool Started
+  {
+    get { return _started; }
   }
 
 
@@ -61,13 +146,29 @@ public class LiveTimingRM
   }
 
 
-  public void Test1()
+
+  public void UpdateParticipants()
   {
-    sendStartList(_dm.GetCurrentRaceRun());
+    sendParticipants();
   }
-  public void Test2()
+
+  public void UpdateStartList(RaceRun raceRun)
   {
-    sendTiming(_dm.GetCurrentRaceRun());
+    sendStartList(raceRun);
+  }
+
+  public void UpdateResults(RaceRun raceRun)
+  {
+    sendTiming(raceRun);
+  }
+
+
+
+  public void UpdateStatus(string statusText)
+  {
+    _statusText = statusText;
+
+    Task taskA = Task.Run(updateStatus);
   }
 
 
@@ -75,6 +176,7 @@ public class LiveTimingRM
   {
     return _isOnline;
   }
+
 
   protected void login()
   {
@@ -95,24 +197,24 @@ public class LiveTimingRM
   }
 
 
-  internal void startLiveTiming(Race race)
+  internal void startLiveTiming()
   {
-    _currentLvStruct.Durchgaenge = string.Format("{0}", race.GetMaxRun());
+    _currentLvStruct.Durchgaenge = string.Format("{0}", _race.GetMaxRun());
 
     // "add", "diff"
     _currentLvStruct.TypZeiten = "add";
-    if (!string.IsNullOrEmpty(race.RaceConfiguration.RaceResultView))
-      if (race.RaceConfiguration.RaceResultView.Contains("BestOfTwo"))
+    if (!string.IsNullOrEmpty(_race.RaceConfiguration.RaceResultView))
+      if (_race.RaceConfiguration.RaceResultView.Contains("BestOfTwo"))
         _currentLvStruct.TypZeiten = "diff"; 
 
     // "Klasse", "Gruppe", "Kategorie"
     _currentLvStruct.Gruppierung = "Klasse";
-    if (!string.IsNullOrEmpty(race.RaceConfiguration.DefaultGrouping))
-      if (race.RaceConfiguration.DefaultGrouping.Contains("Class"))
+    if (!string.IsNullOrEmpty(_race.RaceConfiguration.DefaultGrouping))
+      if (_race.RaceConfiguration.DefaultGrouping.Contains("Class"))
         _currentLvStruct.Gruppierung = "Klasse";
-      else if (race.RaceConfiguration.DefaultGrouping.Contains("Group"))
+      else if (_race.RaceConfiguration.DefaultGrouping.Contains("Group"))
         _currentLvStruct.Gruppierung = "Gruppe";
-      else if (race.RaceConfiguration.DefaultGrouping.Contains("Sex"))
+      else if (_race.RaceConfiguration.DefaultGrouping.Contains("Sex"))
         _currentLvStruct.Gruppierung = "Kategorie";
 
     _lv.StartLiveTiming(ref _currentLvStruct);
@@ -150,8 +252,8 @@ public class LiveTimingRM
   internal string getClasses()
   {
     string result = "";
-
-    foreach (var c in _dm.GetParticipantClasses())
+    
+    foreach (var c in _race.GetDataModel().GetParticipantClasses())
     {
       string item;
       item = string.Format("Klasse|{0}|{1}|{2}", c.Id, c.Name, c.SortPos);
@@ -170,7 +272,7 @@ public class LiveTimingRM
   {
     string result = "";
 
-    foreach (var c in _dm.GetParticipantGroups())
+    foreach (var c in _race.GetDataModel().GetParticipantGroups())
     {
       string item;
       item = string.Format("Gruppe|{0}|{1}|{2}", c.Id, c.Name, c.SortPos);
@@ -220,7 +322,7 @@ public class LiveTimingRM
   {
     string result = "";
 
-    var participants = _dm.GetCurrentRace().GetParticipants();
+    var participants = _race.GetParticipants();
     foreach(var participant in participants)
     {
       string item;
@@ -391,5 +493,5 @@ public class LiveTimingRM
 
     return result;
   }
- 
+
 }
