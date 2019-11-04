@@ -167,8 +167,7 @@ public class LiveTimingRM : ILiveTiming
   public void UpdateStatus(string statusText)
   {
     _statusText = statusText;
-
-    Task taskA = Task.Run(updateStatus);
+    updateStatus();
   }
 
 
@@ -226,8 +225,7 @@ public class LiveTimingRM : ILiveTiming
     if (!isOnline() || _currentLvStruct.InfoText == _statusText)
       return;
 
-    _currentLvStruct.InfoText = _statusText;
-    _lv.StartLiveTiming(ref _currentLvStruct);
+    scheduleTransfer(new LTTransferStatus(_lv, _currentLvStruct, _statusText));
   }
 
 
@@ -244,8 +242,11 @@ public class LiveTimingRM : ILiveTiming
     string data = "";
 
     data += getClasses() + "\n" + getGroups() + "\n" + getCategories();
-    
-    _lv.SendKlassen(ref _currentLvStruct, data);
+
+    Task task = Task.Run(() =>
+    {
+      _lv.SendKlassen(ref _currentLvStruct, data);
+    });
   }
 
 
@@ -313,8 +314,7 @@ public class LiveTimingRM : ILiveTiming
 
     data = getParticipantsData();
 
-
-    _lv.SendTeilnehmer(ref _currentLvStruct, data);
+    scheduleTransfer(new LTTransferParticpants(_lv, _currentLvStruct, data));
   }
 
 
@@ -383,7 +383,7 @@ public class LiveTimingRM : ILiveTiming
 
     string dg = string.Format("{0}", raceRun.Run);
 
-    _lv.SendStartliste(ref _currentLvStruct, dg, data);
+    scheduleTransfer(new LTTransferStartList(_lv, _currentLvStruct, dg, data));
   }
 
 
@@ -428,7 +428,8 @@ public class LiveTimingRM : ILiveTiming
 
     string dg = string.Format("{0}", raceRun.Run);
 
-    _lv.SendZeiten(ref _currentLvStruct, dg, data);
+
+    scheduleTransfer(new LTTransferTiming(_lv, _currentLvStruct, dg, data));
   }
 
 
@@ -494,4 +495,182 @@ public class LiveTimingRM : ILiveTiming
     return result;
   }
 
+
+  List<LTTransfer> _transfers = new List<LTTransfer>();
+  object _transferLock = new object();
+    
+  private void scheduleTransfer(LTTransfer transfer)
+  {
+    // Remove all outdated transfers
+    lock (_transferLock)
+    {
+      _transfers.RemoveAll(x => x.IsSameType(transfer));
+      _transfers.Add(transfer);
+    }
+    processNextTransfer(); 
+  }
+
+
+  private void processNextTransfer()
+  {
+    LTTransfer nextItem = null;
+    lock (_transferLock)
+    {
+      if (_transfers.Count() > 0)
+      {
+        nextItem = _transfers[0];
+        _transfers.RemoveAt(0);
+      }
+    }
+
+    if (nextItem != null)
+    {
+      // Trigger execution of transfers
+      Task.Run(nextItem.performTask).ContinueWith(delegate { processNextTransfer(); });
+    }
+  }
 }
+
+
+public abstract class LTTransfer
+{
+  protected rmlt.LiveTiming _lv;
+  protected rmlt.LiveTiming.rmltStruct _currentLvStruct;
+
+  string _type;
+
+  protected LTTransfer(rmlt.LiveTiming lv, rmlt.LiveTiming.rmltStruct currentLvStruct, string type)
+  {
+    _lv = lv;
+    _currentLvStruct = currentLvStruct;
+    _type = type;
+  }
+
+  public abstract bool IsEqual(LTTransfer other);
+
+  public bool IsSameType(LTTransfer other)
+  {
+    return _type == other._type;
+  }
+
+  public abstract void performTask();
+
+}
+
+
+public class LTTransferStatus : LTTransfer
+{
+  string _data;
+
+  public LTTransferStatus(rmlt.LiveTiming lv, rmlt.LiveTiming.rmltStruct lvStruct, string status)
+    : base(lv, lvStruct, "status")
+  {
+    _data = status;
+  }
+
+  public override bool IsEqual(LTTransfer other)
+  {
+    if (IsSameType(other) && other is LTTransferStatus otherStatus)
+    {
+      return _data == otherStatus._data;
+    }
+
+    return false;
+  }
+
+  public override void performTask()
+  {
+    _currentLvStruct.InfoText = _data;
+    _lv.StartLiveTiming(ref _currentLvStruct);
+  }
+
+}
+
+public class LTTransferParticpants : LTTransfer
+{
+  string _data;
+
+  public LTTransferParticpants(rmlt.LiveTiming lv, rmlt.LiveTiming.rmltStruct lvStruct, string data)
+    : base(lv, lvStruct, "particpants")
+  {
+    _data = data;
+  }
+
+  public override bool IsEqual(LTTransfer other)
+  {
+    if (IsSameType(other) && other is LTTransferParticpants otherStatus)
+    {
+      return _data == otherStatus._data;
+    }
+
+    return false;
+  }
+
+  public override void performTask()
+  {
+    _lv.SendTeilnehmer(ref _currentLvStruct, _data);
+  }
+
+}
+
+
+public class LTTransferStartList : LTTransfer
+{
+  string _dg;
+  string _data;
+
+  public LTTransferStartList(rmlt.LiveTiming lv, rmlt.LiveTiming.rmltStruct lvStruct, string dg, string data)
+    : base(lv, lvStruct, "startlist")
+  {
+    _dg = dg;
+    _data = data;
+  }
+
+  public override bool IsEqual(LTTransfer other)
+  {
+    if (IsSameType(other) && other is LTTransferStartList otherStatus)
+    {
+      return _dg == otherStatus._dg && _data == otherStatus._data;
+    }
+
+    return false;
+  }
+
+  public override void performTask()
+  {
+    _lv.SendStartliste(ref _currentLvStruct, _dg, _data);
+  }
+
+}
+
+
+public class LTTransferTiming : LTTransfer
+{
+  string _dg;
+  string _data;
+
+  public LTTransferTiming(rmlt.LiveTiming lv, rmlt.LiveTiming.rmltStruct lvStruct, string dg, string data)
+    : base(lv, lvStruct, "timing")
+  {
+    _dg = dg;
+    _data = data;
+  }
+
+  public override bool IsEqual(LTTransfer other)
+  {
+    if (IsSameType(other) && other is LTTransferTiming otherStatus)
+    {
+      return _dg == otherStatus._dg && _data == otherStatus._data;
+    }
+
+    return false;
+  }
+
+  public override void performTask()
+  {
+    _lv.SendZeiten(ref _currentLvStruct, _dg, _data);
+  }
+
+}
+
+
