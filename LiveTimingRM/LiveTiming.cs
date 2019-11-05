@@ -498,16 +498,22 @@ public class LiveTimingRM : ILiveTiming
 
   List<LTTransfer> _transfers = new List<LTTransfer>();
   object _transferLock = new object();
+  bool _transferInProgress = false;
     
   private void scheduleTransfer(LTTransfer transfer)
   {
-    // Remove all outdated transfers
     lock (_transferLock)
     {
+      // Remove all outdated transfers
       _transfers.RemoveAll(x => x.IsSameType(transfer));
       _transfers.Add(transfer);
     }
-    processNextTransfer(); 
+
+    if (!_transferInProgress)
+    {
+      _transferInProgress = true;
+      processNextTransfer();
+    }
   }
 
 
@@ -528,6 +534,8 @@ public class LiveTimingRM : ILiveTiming
       // Trigger execution of transfers
       Task.Run(nextItem.performTask).ContinueWith(delegate { processNextTransfer(); });
     }
+    else
+      _transferInProgress = false;
   }
 }
 
