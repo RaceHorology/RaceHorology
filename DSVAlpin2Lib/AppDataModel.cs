@@ -674,7 +674,7 @@ namespace DSVAlpin2Lib
     // Helper definition for a participant is on track
     public bool IsOrWasOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null || r.GetRunTime() != null;
+      return r.GetStartTime() != null || r.GetRunTime() != null || r.ResultCode != RunResult.EResultCode.Normal;
     }
 
     /// <summary>
