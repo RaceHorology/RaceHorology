@@ -104,7 +104,7 @@ namespace DSVAlpin2Lib
 
     public List<ParticipantGroup> GetParticipantGroups()
     {
-      ReadParticipantClasses();
+      ReadParticipantGroups();
 
       List<ParticipantGroup> groups = new List<ParticipantGroup>();
       foreach (var p in _id2ParticipantGroups)

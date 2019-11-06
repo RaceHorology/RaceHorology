@@ -46,6 +46,8 @@ namespace DSVAlpin2
 
       InitializeConfiguration();
 
+      InitializeLiveTiming();
+
       InitializeTiming();
 
       InitializeTotalResults();
@@ -160,6 +162,99 @@ namespace DSVAlpin2
       // Reset UI (TODO should adapt itself based on events)
       ConnectUiToRaceRun(_currentRaceRun);
       InitializeTotalResults();
+    }
+
+
+    #endregion
+
+
+    #region Live Timing
+
+    LiveTimingRM _liveTimingRM;
+
+
+    private void InitializeLiveTiming()
+    {
+      ResetLiveTimningUI(_thisRace.RaceConfiguration);
+    }
+
+    private void ResetLiveTimningUI(RaceConfiguration cfg)
+    {
+      if (cfg.LivetimingParams == null)
+        return;
+
+      try
+      {
+        txtLTBewerb.Text = cfg.LivetimingParams["Bewerb"];
+        txtLTLogin.Text = cfg.LivetimingParams["Login"];
+        txtLTPassword.Password = cfg.LivetimingParams["Password"];
+      }
+      catch (KeyNotFoundException) {}
+    }
+
+
+    private void StoreLiveTiming(ref RaceConfiguration cfg)
+    {
+      cfg.LivetimingParams = new Dictionary<string, string>();
+      cfg.LivetimingParams["Bewerb"] = txtLTBewerb.Text;
+      cfg.LivetimingParams["Login"] = txtLTLogin.Text;
+      cfg.LivetimingParams["Password"] = txtLTPassword.Password;
+    }
+
+
+    private void BtnLTLogin_Click(object sender, RoutedEventArgs e)
+    {
+      RaceConfiguration cfg = _thisRace.RaceConfiguration;
+      StoreLiveTiming(ref cfg);
+      _thisRace.RaceConfiguration = cfg;
+      
+      _liveTimingRM = new LiveTimingRM(_thisRace, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
+
+      try
+      {
+        _liveTimingRM.Login();
+
+        var events = _liveTimingRM.GetEvents();
+        cmbLTEvent.ItemsSource = events;
+      }
+      catch(Exception error)
+      {
+        MessageBox.Show(error.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+        _liveTimingRM = null;
+      }
+    }
+
+    private void TxtLTStatus_TextChanged(object sender, TextChangedEventArgs e)
+    {
+    }
+
+    private void TxtLTStatus_LostFocus(object sender, RoutedEventArgs e)
+    {
+      if (_liveTimingRM != null)
+        _liveTimingRM.UpdateStatus(txtLTStatus.Text);
+    }
+
+    private void CmbLTEvent_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbLTEvent.SelectedIndex >= 0)
+      {
+        _liveTimingRM.SetEvent(cmbLTEvent.SelectedIndex);
+      }
+    }
+
+
+    private void BtnLTStart_Click(object sender, RoutedEventArgs e)
+    {
+      if (_liveTimingRM.Started)
+        return;
+
+      if (cmbLTEvent.SelectedIndex < 0)
+      {
+        MessageBox.Show("Bitte Veranstalltung auswählen", "Live Timing", MessageBoxButton.OK, MessageBoxImage.Error);
+        return;
+      }
+
+      _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
     }
 
 

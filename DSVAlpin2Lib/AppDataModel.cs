@@ -106,6 +106,17 @@ namespace DSVAlpin2Lib
       return _participants;
     }
 
+
+    public List<ParticipantGroup> GetParticipantGroups()
+    {
+      return _db.GetParticipantGroups();
+    }
+
+    public List<ParticipantClass> GetParticipantClasses()
+    {
+      return _db.GetParticipantClasses();
+    }
+
     public List<Race> GetRaces()
     {
       return _races;
@@ -700,6 +711,10 @@ namespace DSVAlpin2Lib
 
 
     ItemsChangeObservableCollection<Participant> GetParticipants();
+
+    List<ParticipantGroup> GetParticipantGroups();
+    List<ParticipantClass> GetParticipantClasses();
+    
     List<Race.RaceProperties> GetRaces();
     List<RaceParticipant> GetRaceParticipants(Race race);
 

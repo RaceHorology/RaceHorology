@@ -11,14 +11,17 @@ using System.Threading.Tasks;
 namespace DSVAlpin2Lib
 {
 
-  public class ItemsChangedNotifier : INotifyCollectionChanged
+  public class ItemsChangedNotifier : INotifyCollectionChanged, IDisposable
   {
     INotifyCollectionChanged _source;
+    List<INotifyPropertyChanged> _observedItems;
 
     public bool CollectionResetIfItemChanged { get; set; } = false;
 
     public ItemsChangedNotifier(INotifyCollectionChanged source)
     {
+      _observedItems = new List<INotifyPropertyChanged>();
+
       _source = source;
 
       _source.CollectionChanged += OnCollectionChanged;
@@ -29,7 +32,7 @@ namespace DSVAlpin2Lib
 
     ~ItemsChangedNotifier()
     {
-      _source.CollectionChanged -= OnCollectionChanged;
+      Dispose(false);
     }
 
 
@@ -53,12 +56,19 @@ namespace DSVAlpin2Lib
     {
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          _observedItems.Remove(item);
           item.PropertyChanged -= ItemPropertyChanged;
-
+        }
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          _observedItems.Add(item);
           item.PropertyChanged += ItemPropertyChanged;
 
+          ItemChangedEventHandler handler2 = ItemChanged;
+          handler2?.Invoke(item, null);//e = {System.ComponentModel.PropertyChangedEventArgs}
+        }
       NotifyCollectionChangedEventHandler handler = CollectionChanged;
       handler?.Invoke(sender, e);
     }
@@ -66,9 +76,13 @@ namespace DSVAlpin2Lib
     private void Initialize()
     {
       System.Collections.IEnumerable items = _source as System.Collections.IEnumerable;
-      if (items!=null)
+      if (items != null)
         foreach (var item in items)
-          ((INotifyPropertyChanged)item).PropertyChanged += ItemPropertyChanged;
+        {
+          INotifyPropertyChanged item2 = (INotifyPropertyChanged)item;
+          _observedItems.Add(item2);
+          item2.PropertyChanged += ItemPropertyChanged;
+        }
     }
 
 
@@ -80,9 +94,43 @@ namespace DSVAlpin2Lib
       if (CollectionResetIfItemChanged)
       {
         NotifyCollectionChangedEventHandler handlerCC = CollectionChanged;
-        handlerCC?.Invoke(sender, new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+        handlerCC?.Invoke(
+          sender, 
+          new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
       }
     }
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _source.CollectionChanged -= OnCollectionChanged;
+          _source = null;
+
+          foreach (var it in _observedItems)
+            it.PropertyChanged -= ItemPropertyChanged;
+
+        }
+
+        disposedValue = true;
+      }
+    }
+
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+      Dispose(true);
+      // TODO: uncomment the following line if the finalizer is overridden above.
+      // GC.SuppressFinalize(this);
+    }
+    #endregion
 
   }
 

@@ -84,6 +84,9 @@
   <ItemGroup>
     <None Include="DSVAlpin2LibTest.runsettings" />
     <None Include="packages.config" />
+    <None Include="TestDataBases\TestDB_LessParticipants_LiveTiming_GiantSlalom.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DSVAlpin2Lib\DSVAlpin2Lib.csproj">
@@ -109,6 +112,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants.mdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\TestDB_LessParticipants_LiveTiming.mdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb">
