@@ -193,12 +193,19 @@ namespace DSVAlpin2
     }
 
 
+    private void SelectLiveTimingEvent(string eventName)
+    {
+      cmbLTEvent.SelectedItem = eventName;
+    }
+
+
     private void StoreLiveTiming(ref RaceConfiguration cfg)
     {
       cfg.LivetimingParams = new Dictionary<string, string>();
       cfg.LivetimingParams["Bewerb"] = txtLTBewerb.Text;
       cfg.LivetimingParams["Login"] = txtLTLogin.Text;
       cfg.LivetimingParams["Password"] = txtLTPassword.Password;
+      cfg.LivetimingParams["EventName"] = cmbLTEvent.SelectedItem?.ToString();
     }
 
 
@@ -216,12 +223,24 @@ namespace DSVAlpin2
 
         var events = _liveTimingRM.GetEvents();
         cmbLTEvent.ItemsSource = events;
+
+        try
+        {
+          SelectLiveTimingEvent(cfg.LivetimingParams["EventName"]);
+        }
+        catch (KeyNotFoundException)
+        {
+          cmbLTEvent.SelectedIndex = 0;
+        }
+
       }
       catch(Exception error)
       {
         MessageBox.Show(error.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
         _liveTimingRM = null;
       }
+
+      UpdateLiveTimingUI();
     }
 
     private void TxtLTStatus_TextChanged(object sender, TextChangedEventArgs e)
@@ -245,16 +264,53 @@ namespace DSVAlpin2
 
     private void BtnLTStart_Click(object sender, RoutedEventArgs e)
     {
-      if (_liveTimingRM.Started)
+      if (_liveTimingRM == null)
         return;
 
-      if (cmbLTEvent.SelectedIndex < 0)
+
+      if (_liveTimingRM.Started)
       {
-        MessageBox.Show("Bitte Veranstalltung auswählen", "Live Timing", MessageBoxButton.OK, MessageBoxImage.Error);
-        return;
+        _liveTimingRM.Stop();
+      }
+      else
+      {
+        // Start
+        if (cmbLTEvent.SelectedIndex < 0)
+        {
+          MessageBox.Show("Bitte Veranstalltung auswählen", "Live Timing", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        else
+        {
+          RaceConfiguration cfg = _thisRace.RaceConfiguration;
+          StoreLiveTiming(ref cfg);
+          _thisRace.RaceConfiguration = cfg;
+
+          _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
+        }
       }
 
-      _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
+      UpdateLiveTimingUI();
+    }
+
+    private void UpdateLiveTimingUI()
+    {
+      if (_liveTimingRM != null && _liveTimingRM.LoggedOn)
+      {
+        btnLTLogin.IsEnabled = false;
+        btnLTStart.IsEnabled = true;
+        cmbLTEvent.IsEnabled = true;
+      }
+      else
+      {
+        btnLTLogin.IsEnabled = true;
+        btnLTStart.IsEnabled = false;
+        cmbLTEvent.IsEnabled = false;
+      }
+
+      if (_liveTimingRM != null && _liveTimingRM.Started)
+        btnLTStart.Content = "Stop";
+      else
+        btnLTStart.Content = "Start";
     }
 
 
