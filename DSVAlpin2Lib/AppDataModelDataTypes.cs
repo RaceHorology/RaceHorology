@@ -572,11 +572,14 @@ namespace DSVAlpin2Lib
 
     public TimeSpan? GetRunTime(bool calculateIfNotStored = true)
     {
-      if (_runTime != null)
-        return _runTime;
+      if (_resultCode == EResultCode.Normal)
+      {
+        if (_runTime != null)
+          return _runTime;
 
-      if (calculateIfNotStored && _startTime != null && _finishTime != null)
-        return _finishTime - _startTime;
+        if (calculateIfNotStored && _startTime != null && _finishTime != null)
+          return _finishTime - _startTime;
+      }
 
       return null;
     }
