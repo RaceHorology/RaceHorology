@@ -649,23 +649,55 @@ namespace DSVAlpin2
 
     private void adaptTotalResultsView()
     {
+
+      DataGridTextColumn createColumnAnmerkung()
+      {
+        DataGridTextColumn dgc = new DataGridTextColumn
+        {
+          Header = "Anmerkung"
+        };
+        MultiBinding b = new MultiBinding();
+        b.Mode = BindingMode.OneWay;
+
+        Binding b1 = new Binding("ResultCode")
+        {
+          Mode = BindingMode.OneWay,
+        };
+        Binding b2 = new Binding("DisqualText")
+        {
+          Mode = BindingMode.OneWay,
+        };
+
+        b.Bindings.Add(b1);
+        b.Bindings.Add(b2);
+
+        b.Converter = new ResultCodeWithCommentConverter();
+        dgc.Binding = b;
+      
+        return dgc;
+      }
+
       while (dgTotalResults.Columns.Count > 7)
         dgTotalResults.Columns.RemoveAt(dgTotalResults.Columns.Count - 1);
 
       // Race Run Results
       if (_totalResultsVP is RaceRunResultViewProvider)
       {
-        DataGridTextColumn dgc = new DataGridTextColumn
         {
-          Header = "Zeit"
-        };
-        Binding b = new Binding("Runtime")
-        {
-          Mode = BindingMode.OneWay,
-          StringFormat = @"{0:mm\:ss\,ff}"
-        };
-        dgc.Binding = b;
-        dgTotalResults.Columns.Add(dgc);
+          DataGridTextColumn dgc = new DataGridTextColumn
+          {
+            Header = "Zeit"
+          };
+          Binding b = new Binding("Runtime")
+          {
+            Mode = BindingMode.OneWay,
+            StringFormat = @"{0:mm\:ss\,ff}"
+          };
+          dgc.Binding = b;
+          dgTotalResults.Columns.Add(dgc);
+        }
+
+        dgTotalResults.Columns.Add(createColumnAnmerkung());
       }
 
       // Total Results
@@ -697,6 +729,8 @@ namespace DSVAlpin2
         };
         dgc.Binding = b;
         dgTotalResults.Columns.Add(dgc);
+
+        dgTotalResults.Columns.Add(createColumnAnmerkung());
       }
       // Start List
       else if (_totalResultsVP is StartListViewProvider )
