@@ -16,7 +16,7 @@ public interface ILiveTiming
 
 }
 
-public class LiveTimingDelegator
+public class LiveTimingDelegator : IDisposable
 {
   Race _race;
   ILiveTiming _liveTiming;
@@ -32,6 +32,34 @@ public class LiveTimingDelegator
     
     ObserveRace();
   }
+
+
+  #region IDisposable Support
+  private bool disposedValue = false; // To detect redundant calls
+
+  protected virtual void Dispose(bool disposing)
+  {
+    if (!disposedValue)
+    {
+      if (disposing)
+      {
+        foreach (var n in _notifier)
+          n.Dispose();
+      }
+
+      disposedValue = true;
+    }
+  }
+
+  // This code added to correctly implement the disposable pattern.
+  public void Dispose()
+  {
+    // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+    Dispose(true);
+    // TODO: uncomment the following line if the finalizer is overridden above.
+    // GC.SuppressFinalize(this);
+  }
+  #endregion
 
 
   private void ObserveRace()
@@ -68,6 +96,7 @@ public class LiveTimingDelegator
     _liveTiming.UpdateResults(raceRun);
     _notifier.Add(resultsNotifier);
   }
+
 }
 
 
@@ -89,6 +118,10 @@ public class LiveTimingRM : ILiveTiming
   rmlt.LiveTiming _lv;
   rmlt.LiveTiming.rmltStruct _currentLvStruct;
 
+
+  private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+
   public LiveTimingRM(Race race, string bewerbnr, string login, string password)
   {
     _race = race;
@@ -106,6 +139,11 @@ public class LiveTimingRM : ILiveTiming
     _lv = new rmlt.LiveTiming();
 
     login();
+  }
+
+  public bool LoggedOn
+  {
+    get { return _isOnline; }
   }
 
 
@@ -128,10 +166,22 @@ public class LiveTimingRM : ILiveTiming
     _delegator = new LiveTimingDelegator(_race, this);
   }
 
+  public void Stop()
+  {
+    if (!_started)
+      return;
+
+    _started = false;
+
+    _delegator.Dispose();
+  }
+
   public bool Started
   {
     get { return _started; }
   }
+
+
 
 
   public List<string> GetEvents()
@@ -185,10 +235,15 @@ public class LiveTimingRM : ILiveTiming
     string licensePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
     licensePath = Path.Combine(licensePath, "3rdparty");
 
+    Logger.Info("login");
+
     _currentLvStruct = _lv.LoginLiveTiming(_bewerbnr, _login, _password, licensePath);
 
     if (_currentLvStruct.Fehlermeldung != "ok")
-      throw new Exception("Login error: " + _currentLvStruct.Fehlermeldung);
+    {
+      Exception e = new Exception("Login error: " + _currentLvStruct.Fehlermeldung);
+      Logger.Info(e);
+    }
 
     _isOnline = true;
 
@@ -216,6 +271,7 @@ public class LiveTimingRM : ILiveTiming
       else if (_race.RaceConfiguration.DefaultGrouping.Contains("Sex"))
         _currentLvStruct.Gruppierung = "Kategorie";
 
+    Logger.Info("startLiveTiming: " + _currentLvStruct.ToString());
     _lv.StartLiveTiming(ref _currentLvStruct);
   }
 
@@ -245,6 +301,7 @@ public class LiveTimingRM : ILiveTiming
 
     Task task = Task.Run(() =>
     {
+      Logger.Info("sendClassesAndGroups: " + data);
       _lv.SendKlassen(ref _currentLvStruct, data);
     });
   }
@@ -532,7 +589,12 @@ public class LiveTimingRM : ILiveTiming
     if (nextItem != null)
     {
       // Trigger execution of transfers
-      Task.Run(nextItem.performTask).ContinueWith(delegate { processNextTransfer(); });
+      Task.Run( () => 
+        {
+          Logger.Debug("process transfer: " + nextItem.ToString());
+          nextItem.performTask();
+        })
+        .ContinueWith(delegate { processNextTransfer(); });
     }
     else
       _transferInProgress = false;
@@ -545,7 +607,7 @@ public abstract class LTTransfer
   protected rmlt.LiveTiming _lv;
   protected rmlt.LiveTiming.rmltStruct _currentLvStruct;
 
-  string _type;
+  protected string _type;
 
   protected LTTransfer(rmlt.LiveTiming lv, rmlt.LiveTiming.rmltStruct currentLvStruct, string type)
   {
@@ -553,6 +615,12 @@ public abstract class LTTransfer
     _currentLvStruct = currentLvStruct;
     _type = type;
   }
+
+  public override string ToString()
+  {
+    return "LTTransfer(" + _type + ")";
+  }
+
 
   public abstract bool IsEqual(LTTransfer other);
 
@@ -576,6 +644,11 @@ public class LTTransferStatus : LTTransfer
     _data = status;
   }
 
+  public override string ToString()
+  {
+    return "LTTransfer(" + _type + "," + _data + ")";
+  }
+   
   public override bool IsEqual(LTTransfer other)
   {
     if (IsSameType(other) && other is LTTransferStatus otherStatus)
@@ -602,6 +675,11 @@ public class LTTransferParticpants : LTTransfer
     : base(lv, lvStruct, "particpants")
   {
     _data = data;
+  }
+
+  public override string ToString()
+  {
+    return "LTTransfer(" + _type + "," + _data + ")";
   }
 
   public override bool IsEqual(LTTransfer other)
@@ -634,6 +712,11 @@ public class LTTransferStartList : LTTransfer
     _data = data;
   }
 
+  public override string ToString()
+  {
+    return "LTTransfer(" + _type + "," + _dg + "," + _data + ")";
+  }
+
   public override bool IsEqual(LTTransfer other)
   {
     if (IsSameType(other) && other is LTTransferStartList otherStatus)
@@ -662,6 +745,11 @@ public class LTTransferTiming : LTTransfer
   {
     _dg = dg;
     _data = data;
+  }
+
+  public override string ToString()
+  {
+    return "LTTransfer(" + _type + "," + _dg + "," + _data + ")";
   }
 
   public override bool IsEqual(LTTransfer other)
