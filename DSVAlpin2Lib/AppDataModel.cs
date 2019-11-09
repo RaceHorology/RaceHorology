@@ -280,8 +280,8 @@ namespace DSVAlpin2Lib
 
     public AdditionalRaceProperties AdditionalProperties
     {
-      get { return _addProperties.Copy(); }
-      set { _addProperties = value.Copy(); _db.StoreRaceProperties(this, _addProperties); }
+      get { return _addProperties; }
+      set { _addProperties = value; _db.StoreRaceProperties(this, _addProperties); }
     }
 
     /// <summary>

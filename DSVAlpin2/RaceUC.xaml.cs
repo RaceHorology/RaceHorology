@@ -191,7 +191,7 @@ namespace DSVAlpin2
     AdditionalRaceProperties _addRaceProps;
     void InitializeRaceProperties()
     {
-      _addRaceProps = _thisRace.AdditionalProperties;
+      _addRaceProps = _thisRace.AdditionalProperties.Copy();
       RaceProperties.DataContext = _addRaceProps;
     }
 
@@ -202,7 +202,7 @@ namespace DSVAlpin2
 
     private void BtnAddPropApply_Click(object sender, RoutedEventArgs e)
     {
-      _thisRace.AdditionalProperties = _addRaceProps;
+      _thisRace.AdditionalProperties = _addRaceProps.Copy();
     }
 
 
