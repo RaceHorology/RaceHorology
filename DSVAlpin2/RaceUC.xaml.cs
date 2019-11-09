@@ -46,6 +46,8 @@ namespace DSVAlpin2
 
       InitializeConfiguration();
 
+      InitializeRaceProperties();
+
       InitializeLiveTiming();
 
       InitializeTiming();
@@ -179,6 +181,16 @@ namespace DSVAlpin2
       // Reset UI (TODO should adapt itself based on events)
       ConnectUiToRaceRun(_currentRaceRun);
       InitializeTotalResults();
+    }
+
+
+    #endregion
+
+    #region Race Properties
+
+    void InitializeRaceProperties()
+    {
+      RaceProperties.DataContext = _thisRace.AdditionalProperties;
     }
 
 
