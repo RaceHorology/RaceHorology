@@ -131,8 +131,19 @@ namespace DSVAlpin2
       cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
     }
 
-    private void StoreConfigurationSelectionUI(ref RaceConfiguration cfg)
+    private bool StoreConfigurationSelectionUI(ref RaceConfiguration cfg)
     {
+
+      if (cmbRuns.SelectedIndex < 0
+        || cmbConfigErgebnisGrouping.SelectedIndex < 0
+        || cmbConfigErgebnis.SelectedIndex < 0
+        || cmbConfigStartlist1.SelectedIndex < 0
+        || cmbConfigStartlist1Grouping.SelectedIndex < 0
+        || cmbConfigStartlist2.SelectedIndex < 0
+        || cmbConfigStartlist2Grouping.SelectedIndex < 0
+        )
+        return false;
+
       cfg.Runs = (int)((CBItem)cmbRuns.SelectedValue).Value;
       cfg.DefaultGrouping = (string)((CBItem)cmbConfigErgebnisGrouping.SelectedValue).Value;
       cfg.RaceResultView = (string)((CBItem)cmbConfigErgebnis.SelectedValue).Value;
@@ -140,6 +151,8 @@ namespace DSVAlpin2
       cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
       cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
       cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;
+
+      return true;
     }
 
     private void BtnReset_Click(object sender, RoutedEventArgs e)
@@ -150,7 +163,11 @@ namespace DSVAlpin2
     private void BtnApply_Click(object sender, RoutedEventArgs e)
     {
       RaceConfiguration cfg = new RaceConfiguration();
-      StoreConfigurationSelectionUI(ref cfg);
+      if (!StoreConfigurationSelectionUI(ref cfg))
+      { 
+        MessageBox.Show("Alle Optionen müssen korrekt ausgefüllt sein.", "Optionen fehlerhaft", MessageBoxButton.OK, MessageBoxImage.Error);
+        return;
+      }
 
       _raceConfiguration = cfg.Copy();
 
