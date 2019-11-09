@@ -68,6 +68,8 @@ namespace DSVAlpin2
     {
 
       OpenFileDialog openFileDialog = new OpenFileDialog();
+      openFileDialog.DefaultExt = ".mdb";
+      openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
