@@ -186,6 +186,51 @@ namespace DSVAlpin2Lib
   }
 
 
+
+  public class AdditionalRaceProperties
+  {
+    public class Person
+    {
+      public string Name { get; set; }
+      public string Club { get; set; }
+    }
+
+    public class RaceRunProperties
+    {
+      public Person CoarseSetter { get; set; } = new Person();
+      public Person Forerunner1 { get; set; } = new Person();
+      public Person Forerunner2 { get; set; } = new Person();
+      public Person Forerunner3 { get; set; } = new Person();
+
+      public int Gates { get; set; }
+      public int Turns { get; set; }
+      public string StartTime { get; set; }
+    }
+
+
+    public string Analyzer { get; set; }
+    public string Organizer { get; set; }
+    public Person RaceDirector { get; set; } = new Person(); // Schiedsrichter
+    public Person RaceManager { get; set; } = new Person(); // Rennleiter
+    public Person TrainerRepresentative { get; set; } = new Person(); // Trainer Vertreter
+
+    public string CoarseName { get; set; }
+    public int CoarseLength { get; set; } // m
+    public string CoarseHomologNo { get; set; }
+
+    public int StartHeight { get; set; } // m
+    public int FinishHeight { get; set; } // m
+
+    public RaceRunProperties RaceRun1 { get; set; } = new RaceRunProperties();
+    public RaceRunProperties RaceRun2 { get; set; } = new RaceRunProperties();
+
+    public string Weather { get; set; }
+    public string Snow { get; set; }
+    public string TempStart { get; set; }
+    public string TempFinish { get; set; }
+  }
+
+
   /// <summary>
   /// Represents a race / contest.
   /// A race typically consists out of 1 or 2 runs.
@@ -208,6 +253,7 @@ namespace DSVAlpin2Lib
 
     // Mainly race decription parameters
     RaceProperties _properties;
+    AdditionalRaceProperties _addProperties;
 
     // Mainly ViewConfiguration (sorting, grouing, ...)
     RaceConfiguration _raceConfiguration;
@@ -232,6 +278,12 @@ namespace DSVAlpin2Lib
     }
 
 
+    public AdditionalRaceProperties AdditionalProperties
+    {
+      get { return _addProperties; }
+      set { _addProperties = value; }
+    }
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -243,6 +295,8 @@ namespace DSVAlpin2Lib
       _db = db;
       _appDataModel = appDataModel;
       _properties = properties;
+
+      _addProperties = _db.GetRaceProperties(this);
 
       LoadRaceConfig();
       // Ensure no inconsistencies
@@ -719,6 +773,8 @@ namespace DSVAlpin2Lib
     List<RaceParticipant> GetRaceParticipants(Race race);
 
     List<RunResult> GetRaceRun(Race race, uint run);
+
+    AdditionalRaceProperties GetRaceProperties(Race race);
 
     void CreateOrUpdateParticipant(Participant participant);
     void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);

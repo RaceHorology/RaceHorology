@@ -430,6 +430,90 @@ namespace DSVAlpin2Lib
       Debug.Assert(temp == 1, "Database could not be updated");
     }
 
+
+    public AdditionalRaceProperties GetRaceProperties(Race race)
+    {
+      AdditionalRaceProperties props = new AdditionalRaceProperties();
+
+      string sql = @"SELECT * FROM tblListenkopf WHERE disziplin = @disziplin";
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          uint id = GetValueUInt(reader, "id");
+          string value = reader["value"].ToString();
+
+          try
+          {
+            switch (id)
+            {
+              case 0: props.Analyzer = value; break;
+              case 1: break; // skip, was: timing device
+              case 2: props.Organizer = value; break;
+              case 3: props.RaceDirector.Name = value; break;
+              case 4: props.RaceDirector.Club = value; break;
+              case 5: props.RaceManager.Name = value; break;
+              case 6: props.RaceManager.Club = value; break;
+              case 7: props.TrainerRepresentative.Name = value; break;
+              case 8: props.TrainerRepresentative.Club = value; break;
+
+              case 15: props.CoarseName = value; break;
+              case 16: props.StartHeight = int.Parse(value); break;
+              case 17: props.FinishHeight = int.Parse(value); break;
+              case 18: break; // skip, was: HeightDifference, can be calculated
+              case 19: props.CoarseLength = int.Parse(value); break;
+              case 20: props.CoarseHomologNo = value; break;
+
+              // Run 1
+              case 21: props.RaceRun1.CoarseSetter.Name = value; break;
+              case 22: props.RaceRun1.CoarseSetter.Club = value; break;
+              case 23: props.RaceRun1.Forerunner1.Name = value; break;
+              case 24: props.RaceRun1.Forerunner1.Club = value; break;
+              case 25: props.RaceRun1.Forerunner2.Name = value; break;
+              case 26: props.RaceRun1.Forerunner2.Club = value; break;
+              case 27: props.RaceRun1.Forerunner3.Name = value; break;
+              case 28: props.RaceRun1.Forerunner3.Club = value; break;
+              case 29: props.RaceRun1.Gates = int.Parse(value); break;
+              case 30: props.RaceRun1.Turns = int.Parse(value); break;
+              case 31: props.RaceRun1.StartTime = value; break;
+
+              // Run 2
+              case 32: props.RaceRun2.CoarseSetter.Name = value; break;
+              case 33: props.RaceRun2.CoarseSetter.Club = value; break;
+              case 34: props.RaceRun2.Forerunner1.Name = value; break;
+              case 35: props.RaceRun2.Forerunner1.Club = value; break;
+              case 36: props.RaceRun2.Forerunner2.Name = value; break;
+              case 37: props.RaceRun2.Forerunner2.Club = value; break;
+              case 38: props.RaceRun2.Forerunner3.Name = value; break;
+              case 39: props.RaceRun2.Forerunner3.Club = value; break;
+              case 40: props.RaceRun2.Gates = int.Parse(value); break;
+              case 41: props.RaceRun2.Turns = int.Parse(value); break;
+              case 42: props.RaceRun2.StartTime = value; break;
+
+              case 43: props.Weather = value; break;
+              case 44: props.Snow = value; break;
+              case 45: props.TempStart = value; break;
+              case 46: props.TempFinish = value; break;
+
+              default:
+                break;
+            }
+          }
+          catch (InvalidCastException){} 
+        }
+      }
+
+
+
+          return props;
+    }
+
+
+
     #endregion
 
     #region Internal Implementation
