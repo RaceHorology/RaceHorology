@@ -677,6 +677,7 @@ namespace DSVAlpin2Lib
 
     RaceParticipant _participant;
     Dictionary<uint, TimeSpan?> _runTimes;
+    Dictionary<uint, RunResult.EResultCode> _runResultCodes;
     TimeSpan? _totalTime;
     private uint _position;
     private TimeSpan? _diffToFirst;
@@ -693,6 +694,7 @@ namespace DSVAlpin2Lib
     {
       _participant = participant;
       _runTimes = new Dictionary<uint, TimeSpan?>();
+      _runResultCodes = new Dictionary<uint, RunResult.EResultCode>();
     }
 
     /// <summary>
@@ -740,6 +742,10 @@ namespace DSVAlpin2Lib
     /// </summary>
     public Dictionary<uint, TimeSpan?> RunTimes { get { return _runTimes; } }
 
+    /// <summary>
+    /// Returns the separate run results per run
+    /// </summary>
+    public Dictionary<uint, RunResult.EResultCode> RunResultCodes { get { return _runResultCodes; } }
 
     /// <summary>
     /// Sets the results for one specific run
@@ -748,7 +754,16 @@ namespace DSVAlpin2Lib
     /// <param name="result">The corresponding results</param>
     public void SetRunResult(uint run, RunResult result)
     {
-      _runTimes[run] = result?.Runtime;
+      if (result != null)
+      {
+        _runTimes[run] = result.Runtime;
+        _runResultCodes[run] = result.ResultCode;
+      }
+      else
+      {
+        _runTimes.Remove(run);
+        _runResultCodes.Remove(run);
+      }
 
       NotifyPropertyChanged(nameof(RunTimes));
     }

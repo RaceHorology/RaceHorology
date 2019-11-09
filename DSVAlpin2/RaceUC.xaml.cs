@@ -709,12 +709,20 @@ namespace DSVAlpin2
           {
             Header = string.Format("Zeit {0}", i + 1)
           };
-          Binding b2 = new Binding(string.Format("RunTimes[{0}]", i+1))
+
+          MultiBinding mb = new MultiBinding();
+          Binding b1 = new Binding(string.Format("RunTimes[{0}]", i + 1))
           {
             Mode = BindingMode.OneWay,
-            StringFormat = @"{0:mm\:ss\,ff}"
           };
-          dgc2.Binding = b2;
+          Binding b2 = new Binding(string.Format("RunResultCodes[{0}]", i + 1))
+          {
+            Mode = BindingMode.OneWay,
+          };
+          mb.Bindings.Add(b1);
+          mb.Bindings.Add(b2);
+          mb.Converter = new ResultTimeAndCodeConverter();
+          dgc2.Binding = mb;
           dgTotalResults.Columns.Add(dgc2);
         }
 
