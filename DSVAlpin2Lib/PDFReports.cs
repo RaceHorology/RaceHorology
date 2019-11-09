@@ -451,6 +451,8 @@ public abstract class PDFReport : IPDFReport
     protected AppDataModel _dm;
     protected PDFHelper _pdfHelper;
 
+    protected PositionConverter _positionConverter = new PositionConverter();
+
     public PDFReport(Race race)
     {
       _race = race;
@@ -689,6 +691,8 @@ public abstract class PDFReport : IPDFReport
   {
     RaceRun _raceRun;
 
+    ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+
     public RaceRunResultReport(RaceRun rr) : base(rr.GetRace())
     {
       _raceRun = rr;
@@ -770,7 +774,7 @@ public abstract class PDFReport : IPDFReport
 
 
       // Position
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}.", rrwp.Position))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(rrwp.Position, typeof(string), null, null))));
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber))));
       //// Code
@@ -785,8 +789,10 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
       // Points
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: rrwp.Points*/))));
+
       // Runtime
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Runtime.ToRaceTimeString()))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor)
+        .Add(createCellParagraphForTable((string)_timeConverter.Convert(new object[] { rrwp.Runtime, rrwp.ResultCode }, typeof(string), null, null))));
       // Diff
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.DiffToFirst.ToRaceTimeString()))));
     }
@@ -795,7 +801,9 @@ public abstract class PDFReport : IPDFReport
 
   public class RaceResultReport : PDFReport
   {
-    
+
+    ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+
 
     public RaceResultReport(Race race) : base(race)
     {
@@ -880,7 +888,7 @@ public abstract class PDFReport : IPDFReport
         bgColor = new DeviceRgb(0.98f, 0.98f, 0.98f);
 
       // Position
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}.", item.Position))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(item.Position, typeof(string), null, null))));
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.StartNumber))));
       //// Code
@@ -897,7 +905,10 @@ public abstract class PDFReport : IPDFReport
       for (uint j = 1; j <= _race.GetMaxRun(); j++)
       {
         if (item.RunTimes.ContainsKey(j))
-          table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.RunTimes[j].ToRaceTimeString()))));
+        {
+          string str = (string)_timeConverter.Convert(new object[] { item.RunTimes[j], item.RunResultCodes[j] }, typeof(string), null, null);
+          table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(str)));
+        }
         else
           table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor));
       }
