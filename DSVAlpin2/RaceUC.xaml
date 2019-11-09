@@ -4,14 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DSVAlpin2"
+             xmlns:dsvalpin2lib="clr-namespace:DSVAlpin2Lib;assembly=DSVAlpin2Lib"
              mc:Ignorable="d"
              MinHeight="400">
 
   <UserControl.Resources>
-    <local:PositionConverter x:Key="PositionConverter" />
+    <dsvalpin2lib:PositionConverter x:Key="PositionConverter" />
     <local:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
-    <local:ResultCodeConverter x:Key="ResultCodeConverter" />
-    <local:ResultCodeWithCommentConverter x:Key="ResultCodeWithCommentConverter" />
+    <dsvalpin2lib:ResultCodeConverter x:Key="ResultCodeConverter" />
+    <dsvalpin2lib:ResultCodeWithCommentConverter x:Key="ResultCodeWithCommentConverter" />
   </UserControl.Resources>
 
   <Grid>
@@ -469,7 +470,7 @@
                         <Binding Path="ResultCode" />
                         <Binding Path="DisqualText" />
                         <MultiBinding.Converter>
-                          <local:ResultCodeWithCommentConverter/>
+                          <dsvalpin2lib:ResultCodeWithCommentConverter/>
                         </MultiBinding.Converter>
                       </MultiBinding>
                     </DataGridTextColumn.Binding>
@@ -553,7 +554,7 @@
                 <Binding Path="ResultCode" />
                 <Binding Path="DisqualText" />
                 <MultiBinding.Converter>
-                  <local:ResultCodeWithCommentConverter/>
+                  <dsvalpin2lib:ResultCodeWithCommentConverter/>
                 </MultiBinding.Converter>
               </MultiBinding>
             </DataGridTextColumn.Binding>
