@@ -143,7 +143,7 @@
               <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
               <Button x:Name="btnReset" Content="Reset" Margin="5" Padding="5" Click="BtnReset_Click"/>
               <Button x:Name="btnApply" Content="Apply" Margin="5" Padding="5" Click="BtnApply_Click"/>
             </StackPanel>
@@ -204,6 +204,7 @@
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.IsSharedSizeScope="True">
           <Grid>
             <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
@@ -293,7 +294,7 @@
               <TextBox Margin="5"  Grid.Row="0" Grid.Column="5" Text="{Binding Path=CoarseLength}" MinWidth="60"/>
 
               <Label Margin="0,0,5,0" Content="Homolog Nr." Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Path=StartHeight}"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Path=CoarseHomologNo}"/>
 
             </Grid>
 
@@ -417,10 +418,11 @@
               <TextBox Margin="5"  Grid.Row="1" Grid.Column="3" Text="{Binding Path=TempFinish}"/>
             </Grid>
 
-
-
-
-
+            <StackPanel Orientation="Horizontal" Grid.Row="27" Grid.Column="2" HorizontalAlignment="Right" Margin="0,15,0,0">
+              <Button x:Name="btnAddPropReset" Content="Reset" Margin="5" Padding="5" Click="BtnAddPropReset_Click"/>
+              <Button x:Name="btnAddPropApply" Content="Apply" Margin="5" Padding="5" Click="BtnAddPropApply_Click"/>
+            </StackPanel>
+            
           </Grid>
         </ScrollViewer>
       </TabItem>

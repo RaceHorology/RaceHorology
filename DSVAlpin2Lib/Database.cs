@@ -507,19 +507,96 @@ namespace DSVAlpin2Lib
         }
       }
 
-
-
-          return props;
+      return props;
     }
 
 
+    public void StoreRaceProperties(Race race, AdditionalRaceProperties props)
+    {
+      storeRacePropertyInternal(race,  0, props.Analyzer);
+      storeRacePropertyInternal(race,  2, props.Organizer);
+      storeRacePropertyInternal(race,  3, props.RaceDirector.Name );
+      storeRacePropertyInternal(race,  4, props.RaceDirector.Club );
+      storeRacePropertyInternal(race,  5, props.RaceManager.Name );
+      storeRacePropertyInternal(race,  6, props.RaceManager.Club );
+      storeRacePropertyInternal(race,  7, props.TrainerRepresentative.Name );
+      storeRacePropertyInternal(race,  8, props.TrainerRepresentative.Club );
 
-    #endregion
+      // Coarse
+      storeRacePropertyInternal(race, 15, props.CoarseName );
+      storeRacePropertyInternal(race, 16, props.StartHeight.ToString() );
+      storeRacePropertyInternal(race, 17, props.FinishHeight.ToString() );
+      storeRacePropertyInternal(race, 18, (props.StartHeight - props.FinishHeight).ToString());
+      storeRacePropertyInternal(race, 19, props.CoarseLength.ToString() );
+      storeRacePropertyInternal(race, 20, props.CoarseHomologNo );
 
-    #region Internal Implementation
+      // Run 1
+      storeRacePropertyInternal(race, 21, props.RaceRun1.CoarseSetter.Name );
+      storeRacePropertyInternal(race, 22, props.RaceRun1.CoarseSetter.Club );
+      storeRacePropertyInternal(race, 23, props.RaceRun1.Forerunner1.Name );
+      storeRacePropertyInternal(race, 24, props.RaceRun1.Forerunner1.Club );
+      storeRacePropertyInternal(race, 25, props.RaceRun1.Forerunner2.Name );
+      storeRacePropertyInternal(race, 26, props.RaceRun1.Forerunner2.Club );
+      storeRacePropertyInternal(race, 27, props.RaceRun1.Forerunner3.Name );
+      storeRacePropertyInternal(race, 28, props.RaceRun1.Forerunner3.Club );
+      storeRacePropertyInternal(race, 29, props.RaceRun1.Gates.ToString() );
+      storeRacePropertyInternal(race, 30, props.RaceRun1.Turns.ToString() );
+      storeRacePropertyInternal(race, 31, props.RaceRun1.StartTime );
 
-    /* ************************ Participant ********************* */
-    private Participant CreateParticipantFromDB(OleDbDataReader reader)
+      // Run 2
+      storeRacePropertyInternal(race, 32, props.RaceRun2.CoarseSetter.Name );
+      storeRacePropertyInternal(race, 33, props.RaceRun2.CoarseSetter.Club );
+      storeRacePropertyInternal(race, 34, props.RaceRun2.Forerunner1.Name );
+      storeRacePropertyInternal(race, 35, props.RaceRun2.Forerunner1.Club );
+      storeRacePropertyInternal(race, 36, props.RaceRun2.Forerunner2.Name );
+      storeRacePropertyInternal(race, 37, props.RaceRun2.Forerunner2.Club );
+      storeRacePropertyInternal(race, 38, props.RaceRun2.Forerunner3.Name );
+      storeRacePropertyInternal(race, 39, props.RaceRun2.Forerunner3.Club );
+      storeRacePropertyInternal(race, 40, props.RaceRun2.Gates.ToString() );
+      storeRacePropertyInternal(race, 41, props.RaceRun2.Turns.ToString() );
+      storeRacePropertyInternal(race, 42, props.RaceRun2.StartTime );
+
+      // Weather
+      storeRacePropertyInternal(race, 43, props.Weather );
+      storeRacePropertyInternal(race, 44, props.Snow );
+      storeRacePropertyInternal(race, 45, props.TempStart );
+      storeRacePropertyInternal(race, 46, props.TempFinish );
+    }
+
+
+    private void storeRacePropertyInternal(Race race, uint id, string value)
+    {
+      // Delete and Insert
+      try
+      {
+        string sqlDelete = @"DELETE from tblListenkopf WHERE id = @id AND disziplin = @disziplin";
+        OleDbCommand cmdDelete = new OleDbCommand(sqlDelete, _conn);
+        cmdDelete.Parameters.Add(new OleDbParameter("@id", (long)id));
+        cmdDelete.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+        cmdDelete.CommandType = CommandType.Text;
+        int temp1 = cmdDelete.ExecuteNonQuery();
+
+        string sqlInsert = @"INSERT INTO tblListenkopf (id, disziplin, [value]) VALUES (@id, @disziplin, @value)";
+        OleDbCommand cmdInsert = new OleDbCommand(sqlInsert, _conn);
+        cmdInsert.Parameters.Add(new OleDbParameter("@id", (long)id));
+        cmdInsert.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+        cmdInsert.Parameters.Add(new OleDbParameter("@value", value));
+        cmdInsert.CommandType = CommandType.Text;
+        int temp2 = cmdInsert.ExecuteNonQuery();
+      }
+      catch (Exception e)
+      {
+        Debug.Print(e.Message);
+      }
+    }
+
+
+#endregion
+
+#region Internal Implementation
+
+/* ************************ Participant ********************* */
+private Participant CreateParticipantFromDB(OleDbDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
 

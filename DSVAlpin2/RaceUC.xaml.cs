@@ -68,7 +68,7 @@ namespace DSVAlpin2
     {
       // ApplicationFolder + raceconfigpresets
       _raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
-      foreach(var config in _raceConfigurationPresets.GetConfigurations())
+      foreach (var config in _raceConfigurationPresets.GetConfigurations())
       {
         cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
       }
@@ -76,14 +76,14 @@ namespace DSVAlpin2
 
 
       _raceConfiguration = _thisRace.RaceConfiguration.Copy();
-      
+
       // Configuration Screen
       cmbRuns.Items.Add(new CBItem { Text = "1", Value = 1 });
       cmbRuns.Items.Add(new CBItem { Text = "2", Value = 2 });
 
       // Result
       FillGrouping(cmbConfigErgebnisGrouping);
-      
+
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
 
@@ -166,7 +166,7 @@ namespace DSVAlpin2
     {
       RaceConfiguration cfg = new RaceConfiguration();
       if (!StoreConfigurationSelectionUI(ref cfg))
-      { 
+      {
         MessageBox.Show("Alle Optionen müssen korrekt ausgefüllt sein.", "Optionen fehlerhaft", MessageBoxButton.OK, MessageBoxImage.Error);
         return;
       }
@@ -188,9 +188,21 @@ namespace DSVAlpin2
 
     #region Race Properties
 
+    AdditionalRaceProperties _addRaceProps;
     void InitializeRaceProperties()
     {
-      RaceProperties.DataContext = _thisRace.AdditionalProperties;
+      _addRaceProps = _thisRace.AdditionalProperties;
+      RaceProperties.DataContext = _addRaceProps;
+    }
+
+    private void BtnAddPropReset_Click(object sender, RoutedEventArgs e)
+    {
+      InitializeRaceProperties();
+    }
+
+    private void BtnAddPropApply_Click(object sender, RoutedEventArgs e)
+    {
+      _thisRace.AdditionalProperties = _addRaceProps;
     }
 
 
@@ -218,7 +230,7 @@ namespace DSVAlpin2
         txtLTLogin.Text = cfg.LivetimingParams["Login"];
         txtLTPassword.Password = cfg.LivetimingParams["Password"];
       }
-      catch (KeyNotFoundException) {}
+      catch (KeyNotFoundException) { }
     }
 
 
@@ -243,7 +255,7 @@ namespace DSVAlpin2
       RaceConfiguration cfg = _thisRace.RaceConfiguration;
       StoreLiveTiming(ref cfg);
       _thisRace.RaceConfiguration = cfg;
-      
+
       _liveTimingRM = new LiveTimingRM(_thisRace, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
 
       try
@@ -263,7 +275,7 @@ namespace DSVAlpin2
         }
 
       }
-      catch(Exception error)
+      catch (Exception error)
       {
         MessageBox.Show(error.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
         _liveTimingRM = null;
@@ -425,7 +437,7 @@ namespace DSVAlpin2
     {
       cmbRaceRun.IsEnabled = !isRunning;
 
-      RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun ;
+      RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
       System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
     }
 
@@ -504,7 +516,7 @@ namespace DSVAlpin2
         TimeSpan? start = TimeSpanExtensions.ParseTimeSpan(txtStart.Text);
         TimeSpan? finish = TimeSpanExtensions.ParseTimeSpan(txtFinish.Text);
         TimeSpan? run = finish - start;
-        if (run!=null)
+        if (run != null)
           txtRun.Text = run?.ToString(@"mm\:ss\,ff");
       }
       catch (Exception)
@@ -639,7 +651,8 @@ namespace DSVAlpin2
           Value = new CBObjectTotalResults { Type = "startlist", RaceRun = _thisRace.GetRun(i) }
         });
 
-        cmb.Items.Add(new CBItem {
+        cmb.Items.Add(new CBItem
+        {
           Text = String.Format("Ergebnis {0}. Durchgang", i + 1),
           Value = new CBObjectTotalResults { Type = "results", RaceRun = _thisRace.GetRun(i) }
         });
@@ -662,7 +675,7 @@ namespace DSVAlpin2
       if (cmbTotalResult.SelectedValue is CBItem selected)
       {
         CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
-        if (selObj==null)
+        if (selObj == null)
           vp = _thisRace.GetResultViewProvider();
         else if (selObj.Type == "results")
           vp = selObj.RaceRun.GetResultViewProvider();
@@ -702,7 +715,7 @@ namespace DSVAlpin2
 
         b.Converter = new ResultCodeWithCommentConverter();
         dgc.Binding = b;
-      
+
         return dgc;
       }
 
@@ -732,7 +745,7 @@ namespace DSVAlpin2
       // Total Results
       else if (_totalResultsVP is RaceResultViewProvider)
       {
-        for(int i=0; i<2; i++)
+        for (int i = 0; i < 2; i++)
         {
           DataGridTextColumn dgc2 = new DataGridTextColumn
           {
@@ -770,7 +783,7 @@ namespace DSVAlpin2
         dgTotalResults.Columns.Add(createColumnAnmerkung());
       }
       // Start List
-      else if (_totalResultsVP is StartListViewProvider )
+      else if (_totalResultsVP is StartListViewProvider)
       {
 
       }
@@ -825,8 +838,8 @@ namespace DSVAlpin2
       catch (Exception ex)
       {
         System.Windows.MessageBox.Show(
-          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message, 
-          "Fehler", 
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
+          "Fehler",
           System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
 
       }
@@ -851,8 +864,6 @@ namespace DSVAlpin2
     }
 
   }
-
-
 
   #region Utilities
 

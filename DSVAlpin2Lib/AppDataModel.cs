@@ -280,8 +280,8 @@ namespace DSVAlpin2Lib
 
     public AdditionalRaceProperties AdditionalProperties
     {
-      get { return _addProperties; }
-      set { _addProperties = value; }
+      get { return _addProperties.Copy(); }
+      set { _addProperties = value.Copy(); _db.StoreRaceProperties(this, _addProperties); }
     }
 
     /// <summary>
@@ -775,6 +775,7 @@ namespace DSVAlpin2Lib
     List<RunResult> GetRaceRun(Race race, uint run);
 
     AdditionalRaceProperties GetRaceProperties(Race race);
+    void StoreRaceProperties(Race race, AdditionalRaceProperties props);
 
     void CreateOrUpdateParticipant(Participant participant);
     void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
