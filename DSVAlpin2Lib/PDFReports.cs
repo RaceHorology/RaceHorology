@@ -386,7 +386,7 @@ namespace DSVAlpin2Lib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Auswertung: {0}", "TODO: Verein"))));
+        .Add(new Paragraph(string.Format("Auswertung: {0}", _race.AdditionalProperties.Analyzer))));
 
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
@@ -502,11 +502,227 @@ public abstract class PDFReport : IPDFReport
 
       document.SetMargins(header.Height + pageMargins.Top, pageMargins.Right, pageMargins.Bottom + footer.Height, pageMargins.Left);
 
+      Table raceProperties = getRacePropertyTable();
+      if (raceProperties!=null)
+        document.Add(raceProperties);
+
       Table table = getResultsTable();
       document.Add(table);
 
       //pageXofY.WriteTotal(pdf);
       document.Close();
+    }
+
+
+    protected Table getRacePropertyTable()
+    {
+      var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+      var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+      Cell createCell(int rs=1, int cs=1)
+      {
+        return new Cell(rs, cs)
+          .SetPaddingTop(0)
+          .SetPaddingBottom(0)
+          .SetPaddingLeft(4)
+          .SetPaddingRight(4)
+          .SetVerticalAlignment(VerticalAlignment.BOTTOM)
+          .SetBorder(Border.NO_BORDER);
+      }
+
+      string stringOrEmpty(string s)
+      {
+        if (string.IsNullOrEmpty(s))
+          return "";
+        return s;
+      }
+
+      var table = new Table(new float[] { 1, 1, 1, 1, 1 })
+        .SetFontSize(10)
+        .SetFont(fontNormal);
+
+      table.SetWidth(UnitValue.CreatePercentValue(100));
+      table.SetBorder(Border.NO_BORDER);
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Organisator:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+
+      table.AddCell(createCell(1,4)
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Organizer))
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+
+      table.AddCell(createCell(1,3)
+        .Add(new Paragraph("KAMPGERICHT")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+
+      table.AddCell(createCell(1,2)
+        //.SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph("TECHNISCHE DATEN")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Schiedrichter:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceDirector.Name))
+          .SetPaddingTop(6)));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceDirector.Club))
+          .SetPaddingTop(6)));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Streckenname:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .SetTextAlignment(TextAlignment.RIGHT)
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.CoarseName))
+          .SetPaddingTop(6)));
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Rennleiter:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceManager.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceManager.Club))));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Start:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .SetTextAlignment(TextAlignment.RIGHT)
+        .Add(new Paragraph(_race.AdditionalProperties.StartHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight):"")));
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Trainervertreter:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.TrainerRepresentative.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.TrainerRepresentative.Club))));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Ziel:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .SetTextAlignment(TextAlignment.RIGHT)
+        .Add(new Paragraph(_race.AdditionalProperties.FinishHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.FinishHeight):"")));
+
+      table.AddCell(createCell(1,3));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Höhendifferenz:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .SetTextAlignment(TextAlignment.RIGHT)
+        .Add(new Paragraph((_race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) : "")));
+
+      table.AddCell(createCell(1, 3));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Streckenlänge:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .SetTextAlignment(TextAlignment.RIGHT)
+        .Add(new Paragraph(_race.AdditionalProperties.CoarseLength > 0 ? string.Format("{0} m", _race.AdditionalProperties.CoarseLength) : "")));
+
+      table.AddCell(createCell(1, 3));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Homolog Nr.:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .SetTextAlignment(TextAlignment.RIGHT)
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.CoarseHomologNo))));
+
+      table.AddCell(createCell(1, 1));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph("1. Durchgang")
+          .SetPaddingTop(12)
+          .SetFont(fontBold)));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph("2. Durchgang")
+          .SetPaddingTop(12)
+          .SetFont(fontBold)));
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Kurssetzer:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.CoarseSetter.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.CoarseSetter.Club))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.CoarseSetter.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.CoarseSetter.Club))));
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Tore / R.-Änder.:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(
+          _race.AdditionalProperties.RaceRun1.Gates > 0 && _race.AdditionalProperties.RaceRun1.Turns > 0
+          ? string.Format("{0} / {1}", _race.AdditionalProperties.RaceRun1.Gates, _race.AdditionalProperties.RaceRun1.Turns)
+          : "")));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(
+          _race.AdditionalProperties.RaceRun2.Gates > 0 && _race.AdditionalProperties.RaceRun2.Turns > 0
+          ? string.Format("{0} / {1}", _race.AdditionalProperties.RaceRun2.Gates, _race.AdditionalProperties.RaceRun2.Turns)
+          : "")));
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Vorläufer:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.Forerunner1.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.Forerunner1.Club))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.Forerunner1.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.Forerunner1.Club))));
+
+      table.AddCell(createCell());
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.Forerunner2.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.Forerunner2.Club))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.Forerunner2.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.Forerunner2.Club))));
+
+      table.AddCell(createCell());
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.Forerunner3.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.Forerunner3.Club))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.Forerunner3.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.Forerunner3.Club))));
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Startzeit:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.StartTime))));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.StartTime))));
+
+      table.AddCell(createCell(1, 5)
+        .SetPaddingTop(12)
+        .SetBorderBottom(new DoubleBorder(1F)));
+      table.AddCell(createCell(1, 5)
+        .SetPaddingTop(12));
+
+      return table;
     }
 
 
@@ -521,13 +737,22 @@ public abstract class PDFReport : IPDFReport
 
       var results = getView();
       var lr = results as System.Windows.Data.ListCollectionView;
-      foreach (var group in results.Groups)
+      if (results.Groups != null)
       {
-        System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
-        addLineToTable(table, cvGroup.Name.ToString());
+        foreach (var group in results.Groups)
+        {
+          System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
+          addLineToTable(table, cvGroup.Name.ToString());
 
+          int i = 0;
+          foreach (var result in cvGroup.Items)
+            addLineToTable(table, result, i++);
+        }
+      }
+      else
+      {
         int i = 0;
-        foreach (var result in cvGroup.Items)
+        foreach (var result in results.SourceCollection)
           addLineToTable(table, result, i++);
       }
 
