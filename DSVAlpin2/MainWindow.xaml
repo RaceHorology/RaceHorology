@@ -17,10 +17,6 @@
     <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
     <KeyBinding Key="C" Modifiers="Control" Command="Close"/>
   </Window.InputBindings>
-  <Window.Resources>
-    <local:PositionConverter x:Key="PositionConverter" />
-    <local:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
-  </Window.Resources>
 
   <Grid>
     <Grid.RowDefinitions>
