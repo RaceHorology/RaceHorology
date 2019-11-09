@@ -353,7 +353,7 @@ namespace DSVAlpin2Lib
 
   public static class PropertyUtilities
   {
-    public static object GetGroupValue(object obj, string propertyName)
+    public static object GetPropertyValue(object obj, string propertyName)
     {
       if (propertyName == null || obj == null)
         return null;

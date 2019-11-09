@@ -447,8 +447,8 @@ namespace DSVAlpin2Lib
       List<RunResult> resultsCurGroup = new List<RunResult>();
       foreach (var curSortedItem in srcResults)
       {
-        object itemGroup = PropertyUtilities.GetGroupValue(curSortedItem, _activeGrouping);
-        if (!Equals(PropertyUtilities.GetGroupValue(curSortedItem, _activeGrouping), curGroup))
+        object itemGroup = PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping);
+        if (!Equals(PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping), curGroup))
         {
           ProcessGroup(resultsCurGroup, newStartList);
           curGroup = itemGroup;
@@ -884,9 +884,9 @@ namespace DSVAlpin2Lib
       foreach (RunResultWithPosition item in _viewList)
       {
         // New group
-        if (!Equals(PropertyUtilities.GetGroupValue(item, _activeGrouping), curGroup))
+        if (!Equals(PropertyUtilities.GetPropertyValue(item, _activeGrouping), curGroup))
         {
-          curGroup = PropertyUtilities.GetGroupValue(item, _activeGrouping);
+          curGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
           curPosition = 0;
           firstTime = lastTime = null;
         }
@@ -1113,9 +1113,9 @@ namespace DSVAlpin2Lib
       foreach (var sortedItem in _viewList)
       {
         // New group
-        if (!Equals(PropertyUtilities.GetGroupValue(sortedItem, _activeGrouping), curGroup))
+        if (!Equals(PropertyUtilities.GetPropertyValue(sortedItem, _activeGrouping), curGroup))
         {
-          curGroup = PropertyUtilities.GetGroupValue(sortedItem, _activeGrouping);
+          curGroup = PropertyUtilities.GetPropertyValue(sortedItem, _activeGrouping);
           curPosition = 0;
           firstTime = lastTime = null;
         }
