@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSVAlpin2Lib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,4 +37,34 @@ namespace DSVAlpin2
   }
 
 
+  public static class UiUtilities
+  {
+
+    public static void FillCmbRaceRun(ComboBox cmb, Race race)
+    {
+      cmb.Items.Clear();
+
+      // Fill Runs
+      for (int i = 0; i < race.GetMaxRun(); i++)
+      {
+        string sz1 = String.Format("{0}. Durchgang", i + 1);
+        cmb.Items.Add(new CBItem { Text = sz1, Value = race.GetRun(i) });
+      }
+      cmb.SelectedIndex = 0;
+    }
+
+    public static void FillGrouping(ComboBox comboBox, string selected = null)
+    {
+      comboBox.Items.Clear();
+      comboBox.Items.Add(new CBItem { Text = "---", Value = null });
+      comboBox.Items.Add(new CBItem { Text = "Klasse", Value = "Participant.Class" });
+      comboBox.Items.Add(new CBItem { Text = "Gruppe", Value = "Participant.Group" });
+      comboBox.Items.Add(new CBItem { Text = "Kategorie", Value = "Participant.Sex" });
+
+      if (string.IsNullOrEmpty(selected))
+        comboBox.SelectedIndex = 0;
+      else
+        comboBox.SelectCBItem(selected);
+    }
+  }
 }

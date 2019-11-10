@@ -82,20 +82,20 @@ namespace DSVAlpin2
       cmbRuns.Items.Add(new CBItem { Text = "2", Value = 2 });
 
       // Result
-      FillGrouping(cmbConfigErgebnisGrouping);
+      UiUtilities.FillGrouping(cmbConfigErgebnisGrouping);
 
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
 
       // Run 1
-      FillGrouping(cmbConfigStartlist1Grouping);
+      UiUtilities.FillGrouping(cmbConfigStartlist1Grouping);
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_1stRun_StartnumberAscending" });
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (nicht gelost)", Value = "Startlist_1stRun_Points_0" });
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 15 gelost)", Value = "Startlist_1stRun_Points_15" });
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 30 gelost)", Value = "Startlist_1stRun_Points_30" });
 
       // Run 2
-      FillGrouping(cmbConfigStartlist2Grouping);
+      UiUtilities.FillGrouping(cmbConfigStartlist2Grouping);
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_2nd_StartnumberAscending" });
       //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberAscending" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (absteigend)", Value = "Startlist_2nd_StartnumberDescending" });
@@ -363,10 +363,10 @@ namespace DSVAlpin2
 
     private void InitializeTiming()
     {
-      FillCmbRaceRun(cmbRaceRun);
+      UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
 
-      FillGrouping(cmbStartListGrouping, _currentRaceRun.GetStartListProvider().ActiveGrouping);
-      FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
+      UiUtilities.FillGrouping(cmbStartListGrouping, _currentRaceRun.GetStartListProvider().ActiveGrouping);
+      UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
 
       cmbManualMode.Items.Add(new CBItem { Text = "Laufzeit", Value = "Absolut" });
       cmbManualMode.Items.Add(new CBItem { Text = "Differenz", Value = "Difference" });
@@ -375,19 +375,6 @@ namespace DSVAlpin2
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
     }
 
-
-    private void FillCmbRaceRun(ComboBox cmb)
-    {
-      cmb.Items.Clear();
-
-      // Fill Runs
-      for (int i = 0; i < _thisRace.GetMaxRun(); i++)
-      {
-        string sz1 = String.Format("{0}. Durchgang", i + 1);
-        cmb.Items.Add(new CBItem { Text = sz1, Value = _thisRace.GetRun(i) });
-      }
-      cmb.SelectedIndex = 0;
-    }
 
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -622,7 +609,7 @@ namespace DSVAlpin2
     {
       RaceResultViewProvider vp = _thisRace.GetResultViewProvider();
 
-      FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping);
+      UiUtilities.FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping);
       FillCmbTotalsResults(cmbTotalResult);
       cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = null });
       cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
@@ -849,19 +836,6 @@ namespace DSVAlpin2
 
 
 
-    public static void FillGrouping(ComboBox comboBox, string selected = null)
-    {
-      comboBox.Items.Clear();
-      comboBox.Items.Add(new CBItem { Text = "---", Value = null });
-      comboBox.Items.Add(new CBItem { Text = "Klasse", Value = "Participant.Class" });
-      comboBox.Items.Add(new CBItem { Text = "Gruppe", Value = "Participant.Group" });
-      comboBox.Items.Add(new CBItem { Text = "Kategorie", Value = "Participant.Sex" });
-
-      if (string.IsNullOrEmpty(selected))
-        comboBox.SelectedIndex = 0;
-      else
-        comboBox.SelectCBItem(selected);
-    }
 
   }
 
