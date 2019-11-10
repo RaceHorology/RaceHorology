@@ -522,6 +522,7 @@ namespace DSVAlpin2Lib
 
 
     public TimeSpan? Runtime { get { return GetRunTime(); } }
+    public TimeSpan? RuntimeOrig { get { return GetRunTime(true, false); } }
     public EResultCode ResultCode { get { return _resultCode; } set { _resultCode = value; NotifyPropertyChanged(); } }
     public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
 
@@ -570,9 +571,9 @@ namespace DSVAlpin2Lib
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public TimeSpan? GetRunTime(bool calculateIfNotStored = true)
+    public TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
     {
-      if (_resultCode == EResultCode.Normal)
+      if (!considerResultCode || _resultCode == EResultCode.Normal)
       {
         if (_runTime != null)
           return _runTime;
