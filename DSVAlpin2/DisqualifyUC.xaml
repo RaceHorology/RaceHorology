@@ -87,7 +87,7 @@
           <TextBox x:Name="txtParticipant" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,5,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False"/>
 
           <ComboBox x:Name="cmbDisqualify" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" Margin="5,0,5,0" />
-          <TextBox x:Name="txtDisqualify" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="5,0,5,0" VerticalAlignment="Center" TextAlignment="Right" GotFocus="Txt_GotFocus_SelectAll" />
+          <TextBox x:Name="txtDisqualify" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="5,0,5,0" VerticalAlignment="Center" GotFocus="Txt_GotFocus_SelectAll" />
           
           <Button x:Name="btnStore" Grid.Row="2" Grid.Column="7" Content="Speichern &lt;F2&gt;" Margin="5,0,5,0"  VerticalAlignment="Center" Click="BtnStore_Click"/>
         </Grid>
