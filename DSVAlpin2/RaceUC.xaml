@@ -627,6 +627,9 @@
 
       </TabItem>
       <TabItem Header="Disqualifikation" FontSize="12">
+        <local:DisqualifyUC x:Name="ucDisqualify">
+          
+        </local:DisqualifyUC>
       </TabItem>
     </TabControl>
 

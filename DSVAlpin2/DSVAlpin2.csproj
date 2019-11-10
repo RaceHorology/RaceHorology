@@ -100,6 +100,9 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DisqualifyUC.xaml.cs">
+      <DependentUpon>DisqualifyUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RaceUC.xaml.cs">
       <DependentUpon>RaceUC.xaml</DependentUpon>
     </Compile>
@@ -110,6 +113,10 @@
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DisqualifyUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

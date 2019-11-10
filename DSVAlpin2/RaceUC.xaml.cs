@@ -44,6 +44,8 @@ namespace DSVAlpin2
 
       InitializeComponent();
 
+      ucDisqualify.Init(_dataModel, _thisRace);
+      
       InitializeConfiguration();
 
       InitializeRaceProperties();
