@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static DSVAlpin2Lib.RunResult;
 
 namespace DSVAlpin2
 {
@@ -24,6 +25,11 @@ namespace DSVAlpin2
     private AppDataModel _dm;
     private Race _race;
     private RaceRun _currentRaceRun;
+
+    CollectionViewSource _viewDisqualifications;
+    FilterEventHandler _viewDisqualificationsFilterHandler;
+
+    public List<EResultCode> ListOfResultCodes { get; } = new List<EResultCode> { EResultCode.Normal, EResultCode.DIS, EResultCode.NaS, EResultCode.NiZ, EResultCode.NQ};
 
     public DisqualifyUC()
     {
@@ -37,7 +43,35 @@ namespace DSVAlpin2
 
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
       UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
+
+      cmbFilter.Items.Clear();
+      cmbFilter.Items.Add(new CBItem { Text = "alle", Value = "all" });
+      cmbFilter.Items.Add(new CBItem { Text = "ohne Zeit", Value = "no_time"});
+      cmbFilter.Items.Add(new CBItem { Text = "ausgeschieden", Value = "out" });
+      cmbFilter.SelectedIndex = 1;
     }
+
+
+    private void CmbFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (_viewDisqualificationsFilterHandler != null)
+        _viewDisqualifications.Filter -= _viewDisqualificationsFilterHandler;
+
+      if (cmbFilter.SelectedItem is CBItem selected)
+      {
+        _viewDisqualificationsFilterHandler = null;
+        if (string.Equals(selected.Value, "no_time"))
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).RuntimeOrig == null; });
+        else if (string.Equals(selected.Value, "out"))
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).ResultCode != RunResult.EResultCode.Normal; });
+      }
+
+      if (_viewDisqualificationsFilterHandler != null)
+        _viewDisqualifications.Filter += _viewDisqualificationsFilterHandler;
+
+      _viewDisqualifications.View.Refresh();
+    }
+
 
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -54,7 +88,14 @@ namespace DSVAlpin2
     {
       if (raceRun != null)
       {
-        dgDisqualifications.ItemsSource = raceRun.GetResultList();
+        _viewDisqualifications = new CollectionViewSource();
+        _viewDisqualifications.Source = raceRun.GetResultList();
+        _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
+        _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
+        _viewDisqualifications.IsLiveFilteringRequested = true;
+
+
+        dgDisqualifications.ItemsSource = _viewDisqualifications.View;
 
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
         cmbResultGrouping.SelectCBItem(raceRun.GetResultViewProvider().ActiveGrouping);
@@ -109,5 +150,6 @@ namespace DSVAlpin2
       if (cmbResultGrouping.SelectedValue is CBItem grouping)
         _currentRaceRun.GetResultViewProvider().ChangeGrouping((string)grouping.Value);
     }
+
   }
 }
