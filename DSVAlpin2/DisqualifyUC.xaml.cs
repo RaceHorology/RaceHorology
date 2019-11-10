@@ -49,6 +49,10 @@ namespace DSVAlpin2
       cmbFilter.Items.Add(new CBItem { Text = "ohne Zeit", Value = "no_time"});
       cmbFilter.Items.Add(new CBItem { Text = "ausgeschieden", Value = "out" });
       cmbFilter.SelectedIndex = 1;
+
+      cmbDisqualify.ItemsSource = ListOfResultCodes;
+
+      this.KeyDown += new KeyEventHandler(Timing_KeyDown);
     }
 
 
@@ -106,6 +110,17 @@ namespace DSVAlpin2
       }
     }
 
+    private void Timing_KeyDown(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.M && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+      {
+        txtStartNumber.Focus();
+        txtStartNumber.SelectAll();
+      }
+      else if (e.Key == Key.F2)
+        BtnStore_Click(null, null);
+    }
+
 
     private void TxtStartNumber_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -118,6 +133,13 @@ namespace DSVAlpin2
         RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
         if (rr != null)
         {
+          txtDisqualify.Text = rr.DisqualText;
+          cmbDisqualify.SelectedValue = rr.ResultCode;
+        }
+        else
+        {
+          txtDisqualify.Text = "";
+          cmbDisqualify.SelectedValue = null;
         }
       }
       else
@@ -140,6 +162,12 @@ namespace DSVAlpin2
 
       if (participant != null)
       {
+        RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
+        if (rr != null)
+        {
+          rr.DisqualText = txtDisqualify.Text;
+          rr.ResultCode = (EResultCode)cmbDisqualify.SelectedValue;
+        }
       }
 
       txtStartNumber.Focus();
@@ -151,5 +179,12 @@ namespace DSVAlpin2
         _currentRaceRun.GetResultViewProvider().ChangeGrouping((string)grouping.Value);
     }
 
+    private void DgDisqualifications_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (dgDisqualifications.SelectedItem is RunResult rr)
+      {
+        txtStartNumber.Text = rr.StartNumber.ToString();
+      }
+    }
   }
 }
