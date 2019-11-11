@@ -625,16 +625,13 @@ namespace DSVAlpin2Lib
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
     public void SetStartTime(RaceParticipant participant, TimeSpan? startTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = findOrCreateRunResult(participant);
 
       _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
-      if (result == null)
-        result = new RunResult(participant);
-
       result.SetStartTime(startTime);
 
-      InsertResult(result);
+      _UpdateInternals();
     }
 
     /// <summary>
@@ -645,16 +642,13 @@ namespace DSVAlpin2Lib
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
     public void SetFinishTime(RaceParticipant participant, TimeSpan? finishTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = findOrCreateRunResult(participant);
 
       _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
-      if (result == null)
-        result = new RunResult(participant);
-
       result.SetFinishTime(finishTime);
 
-      InsertResult(result);
+      _UpdateInternals();
     }
 
     /// <summary>
@@ -666,17 +660,14 @@ namespace DSVAlpin2Lib
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
     public void SetStartFinishTime(RaceParticipant participant, TimeSpan? startTime, TimeSpan? finishTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = findOrCreateRunResult(participant);
 
       _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
-
-      if (result == null)
-        result = new RunResult(participant);
 
       result.SetStartTime(startTime);
       result.SetFinishTime(finishTime);
 
-      InsertResult(result);
+      _UpdateInternals();
     }
 
 
@@ -688,28 +679,38 @@ namespace DSVAlpin2Lib
     /// <remarks>Can be null. In that case it is stored as not available. Start and end time are set to null.</remarks>
     public void SetRunTime(RaceParticipant participant, TimeSpan? runTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = findOrCreateRunResult(participant);
 
       _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
-      if (result == null)
-        result = new RunResult(participant);
-
       result.SetRunTime(runTime);
-
-      InsertResult(result);
-    }
-
-
-
-    protected void InsertResult(RunResult r)
-    {
-      // Check if already inserted
-      if (_results.SingleOrDefault(x => x == r) == null)
-        _results.Add(r);
 
       _UpdateInternals();
     }
+
+
+    public void SetResultCode(RaceParticipant participant, RunResult.EResultCode rc)
+    {
+      RunResult result = findOrCreateRunResult(participant);
+
+      result.ResultCode = rc;
+
+      _UpdateInternals();
+    }
+
+
+    private RunResult findOrCreateRunResult(RaceParticipant participant)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      if (result == null)
+      {
+        result = new RunResult(participant);
+        _results.Add(result);
+      }
+
+      return result;
+    }
+
 
     public void InsertResults(List<RunResult> r)
     {
@@ -722,7 +723,7 @@ namespace DSVAlpin2Lib
     // Helper definition for a participant is on track
     public bool IsOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null && r.GetRunTime() == null && _appDataModel.TodayMeasured(r.Participant.Participant);
+      return r.GetStartTime() != null && r.GetRunTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
     }
 
     // Helper definition for a participant is on track

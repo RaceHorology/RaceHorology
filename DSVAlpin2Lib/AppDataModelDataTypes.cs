@@ -523,8 +523,8 @@ namespace DSVAlpin2Lib
 
     public TimeSpan? Runtime { get { return GetRunTime(); } }
     public TimeSpan? RuntimeOrig { get { return GetRunTime(true, false); } }
-    public EResultCode ResultCode { get { return _resultCode; } set { _resultCode = value; NotifyPropertyChanged(); } }
-    public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
+    public EResultCode ResultCode { get { return _resultCode; } set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } }
+    public string DisqualText { get { return _disqualText; } set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } }
 
 
     public RunResult(RaceParticipant particpant)
@@ -590,12 +590,20 @@ namespace DSVAlpin2Lib
     {
       _startTime = startTime;
 
+      // Reset result code if it was related to the start time
+      if (ResultCode == EResultCode.NaS)
+        ResultCode = EResultCode.Normal;
+
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
     public void SetFinishTime(TimeSpan? finishTime)
     {
       _finishTime = finishTime;
+
+      // Reset result code if it was related to the finish time
+      if (ResultCode == EResultCode.NiZ)
+        ResultCode = EResultCode.Normal;
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -165,6 +166,83 @@ namespace DSVAlpin2Lib
         return;
 
       _dm.SetCurrentDayTime(e.CurrentDayTime);
+    }
+    #endregion
+
+  }
+
+
+  public class LiveTimingAutoNiZ : IDisposable
+  {
+    RaceRun _raceRun;
+    int _secondsTillAutoNiZ;
+
+    System.Timers.Timer _timer;
+
+    public LiveTimingAutoNiZ(int secondsTillAutoNiZ, RaceRun raceRun)
+    {
+      _secondsTillAutoNiZ = secondsTillAutoNiZ;
+      _raceRun = raceRun;
+
+      startObservation();
+    }
+
+    private void startObservation()
+    {
+      _timer = new System.Timers.Timer(1000);
+      _timer.Elapsed += OnTimedEvent;
+      _timer.AutoReset = true;
+      _timer.Enabled = true;
+    }
+
+    private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      var onTrack = _raceRun.GetOnTrackList().ToArray();
+
+      foreach ( var lr in onTrack)
+      {
+        if (lr.GetStartTime() != null)
+        {
+          TimeSpan startTime = (TimeSpan)lr.GetStartTime();
+          TimeSpan curTime = _raceRun.GetRace().GetDataModel().GetCurrentDayTime();
+          TimeSpan timeSinceStart = curTime - startTime;
+
+          if (timeSinceStart.TotalSeconds > _secondsTillAutoNiZ)
+            setToNiZ(lr.Participant);
+        }
+      }
+    }
+
+    private void setToNiZ(RaceParticipant participant)
+    {
+      System.Windows.Application.Current.Dispatcher.Invoke(() =>
+      {
+        _raceRun.SetResultCode(participant, RunResult.EResultCode.NiZ);
+      });
+    }
+
+
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _timer.Dispose();
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      Dispose(true);
     }
     #endregion
 

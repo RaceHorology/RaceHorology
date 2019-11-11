@@ -214,6 +214,7 @@ namespace DSVAlpin2
     #region Live Timing
 
     LiveTimingRM _liveTimingRM;
+    LiveTimingAutoNiZ _liveTimingAutoNiZ;
 
 
     private void InitializeLiveTiming()
@@ -383,11 +384,25 @@ namespace DSVAlpin2
       CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
       RaceRun selectedRaceRun = selected?.Value as RaceRun;
 
-      _currentRaceRun = selectedRaceRun;
-      if (_currentRaceRun != null)
-        _dataModel.SetCurrentRaceRun(_currentRaceRun);
 
-      ConnectUiToRaceRun(_currentRaceRun);
+      if (_currentRaceRun != selectedRaceRun)
+      {
+        // Stop any helper
+        if (_liveTimingAutoNiZ!=null)
+          _liveTimingAutoNiZ.Dispose();
+        _liveTimingAutoNiZ = null;
+
+        // Remember new race run
+        _currentRaceRun = selectedRaceRun;
+
+        if (_currentRaceRun != null)
+          _dataModel.SetCurrentRaceRun(_currentRaceRun);
+
+        ConnectUiToRaceRun(_currentRaceRun);
+
+        // Start any helper
+        _liveTimingAutoNiZ = new LiveTimingAutoNiZ(20 /* TODO: Setting */, _currentRaceRun);
+      }
     }
 
 
