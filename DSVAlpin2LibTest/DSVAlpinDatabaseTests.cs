@@ -400,6 +400,16 @@ namespace DSVAlpin2LibTest
       rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
+      rr1r1.SetStartTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetFinishTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetRunTime(new TimeSpan(0, 0, 1, 1, 110)); //int days, int hours, int minutes, int seconds, int milliseconds
+      db.CreateOrUpdateRunResult(race, rr1, rr1r1);
+      DBCacheWorkaround();
+      rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+
+
+
       rr1r1.ResultCode = RunResult.EResultCode.DIS;
       rr1r1.DisqualText = "TF Tor 9";
       db.CreateOrUpdateRunResult(race, rr1, rr1r1);
