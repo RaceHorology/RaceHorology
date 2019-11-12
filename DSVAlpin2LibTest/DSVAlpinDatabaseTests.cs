@@ -108,7 +108,7 @@ namespace DSVAlpin2LibTest
         var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
         Assert.AreEqual(2U, race.Runs);
         Assert.AreEqual("20190120_C", race.RaceNumber);
-        Assert.AreEqual("Glonner Zwergerlrennen\r\nWSV Glonn", race.Description);
+        Assert.AreEqual("Riesenslalom Bezeichnung 1\r\nRiesenslalom Bezeichnung 2", race.Description);
         Assert.AreEqual(new DateTime(), race.DateStart);
         Assert.AreEqual(new DateTime(2019, 1, 20), race.DateResult);
       }
@@ -454,7 +454,7 @@ namespace DSVAlpin2LibTest
 
           bRes &= runResult.GetStartTime() == startTime;
           bRes &= runResult.GetFinishTime() == finishTime;
-          bRes &= runResult.GetRunTime() == runTime;
+          bRes &= runResult.GetRunTime(false, false) == runTime;
 
           if (reader.IsDBNull(reader.GetOrdinal("disqualtext")))
             bRes &= runResult.DisqualText == null || runResult.DisqualText == "";

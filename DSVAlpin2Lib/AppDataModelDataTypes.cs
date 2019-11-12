@@ -522,7 +522,8 @@ namespace DSVAlpin2Lib
 
 
     public TimeSpan? Runtime { get { return GetRunTime(); } }
-    public TimeSpan? RuntimeOrig { get { return GetRunTime(true, false); } }
+    public TimeSpan? RuntimeWOResultCode { get { return GetRunTime(true, false); } }
+    public TimeSpan? RuntimeIntern { get { return GetRunTime(false, false); } }
     public EResultCode ResultCode { get { return _resultCode; } set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } }
     public string DisqualText { get { return _disqualText; } set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } }
 

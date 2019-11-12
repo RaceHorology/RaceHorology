@@ -65,7 +65,7 @@ namespace DSVAlpin2
       {
         _viewDisqualificationsFilterHandler = null;
         if (string.Equals(selected.Value, "no_time"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).RuntimeOrig == null; });
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).RuntimeWOResultCode == null; });
         else if (string.Equals(selected.Value, "out"))
           _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).ResultCode != RunResult.EResultCode.Normal; });
       }
