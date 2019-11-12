@@ -11,7 +11,7 @@
       <RowDefinition Height="380*"/>
       <RowDefinition Height="41*"/>
     </Grid.RowDefinitions>
-    <TabControl x:Name="tabControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+    <TabControl x:Name="tabControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
       <TabItem Header="Zeitmessgerät">
         <Grid Background="#FFE5E5E5">
           <Grid.RowDefinitions>
@@ -29,12 +29,26 @@
           <ComboBox x:Name="cbTimingDevicePort" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
         </Grid>
       </TabItem>
+      <TabItem Header="Zeitnahme">
+        <Grid Background="#FFE5E5E5">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Label Content="Zeit bis Läufer automatisch als NiZ gewertet wird [s]:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
+          <TextBox x:Name="txtAutomaticNiZTimeout" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Right" MinWidth="50" />
+        </Grid>
+      </TabItem>
     </TabControl>
     <!--
     <Grid Grid.Row="1">
     </Grid>
     -->
-    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
       <Button x:Name="btnOk" Content="Ok" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,10,0" Click="BtnOk_Click"/>
       <Button x:Name="btnCancel" Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="BtnCancel_Click"/>
     </StackPanel>

@@ -27,7 +27,8 @@ namespace DSVAlpin2
       FillCOMPorts(cbTimingDevicePort);
 
       cbTimingDevice.Items.Add("ALGE TdC8000/8001");
-      cbTimingDevice.SelectedValue = ConfigurationManager.AppSettings.Get("TimingDevice.Type");
+      cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
+      txtAutomaticNiZTimeout.Text = Properties.Settings.Default.AutomaticNiZTimeout.ToString();
     }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
@@ -37,14 +38,11 @@ namespace DSVAlpin2
 
     private void BtnOk_Click(object sender, RoutedEventArgs e)
     {
-      var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-      var settings = configFile.AppSettings.Settings;
+      Properties.Settings.Default.TimingDevice_Type = (string)cbTimingDevice.SelectedValue;
+      Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
+      try { Properties.Settings.Default.AutomaticNiZTimeout = int.Parse(txtAutomaticNiZTimeout.Text); } catch (Exception) { }
 
-      StoreSetting(settings, "TimingDevice.Type", (string)cbTimingDevice.SelectedValue);
-      StoreSetting(settings, "TimingDevice.Port", (string)cbTimingDevicePort.SelectedValue);
-
-      configFile.Save(ConfigurationSaveMode.Modified);
-      ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
+      Properties.Settings.Default.Save();
 
       DialogResult = true;
     }
@@ -60,22 +58,8 @@ namespace DSVAlpin2
         combo.Items.Add(port);
       }
 
-      string cfgPort = ConfigurationManager.AppSettings.Get("TimingDevice.Port");
+      string cfgPort = Properties.Settings.Default.TimingDevice_Port;
       combo.SelectedValue = cfgPort;
     }
-
-
-    static public void StoreSetting(KeyValueConfigurationCollection settings, string key, string value)
-    {
-      if (settings[key] == null)
-      {
-        settings.Add(key, value);
-      }
-      else
-      {
-        settings[key].Value = value;
-      }
-    }
-
   }
 }

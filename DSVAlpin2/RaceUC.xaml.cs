@@ -401,7 +401,8 @@ namespace DSVAlpin2
         ConnectUiToRaceRun(_currentRaceRun);
 
         // Start any helper
-        _liveTimingAutoNiZ = new LiveTimingAutoNiZ(20 /* TODO: Setting */, _currentRaceRun);
+        int timeOut = Properties.Settings.Default.AutomaticNiZTimeout;
+        _liveTimingAutoNiZ = new LiveTimingAutoNiZ(timeOut, _currentRaceRun);
       }
     }
 
