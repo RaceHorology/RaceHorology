@@ -58,5 +58,17 @@ namespace DSVAlpin2.Properties {
                 this["TimingDevice_Port"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int AutomaticNaSStarters {
+            get {
+                return ((int)(this["AutomaticNaSStarters"]));
+            }
+            set {
+                this["AutomaticNaSStarters"] = value;
+            }
+        }
     }
 }
