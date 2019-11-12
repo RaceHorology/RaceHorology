@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="AutomaticNiZTimeout" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">120</Value>
     </Setting>
     <Setting Name="TimingDevice_Type" Type="System.String" Scope="User">
       <Value Profile="(Default)" />

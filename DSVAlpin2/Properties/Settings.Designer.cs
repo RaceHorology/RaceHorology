@@ -25,7 +25,7 @@ namespace DSVAlpin2.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        [global::System.Configuration.DefaultSettingValueAttribute("120")]
         public int AutomaticNiZTimeout {
             get {
                 return ((int)(this["AutomaticNiZTimeout"]));
