@@ -294,7 +294,7 @@ namespace DSVAlpin2
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel);
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
-      _alge = new ALGETdC8001TimeMeasurement(ConfigurationManager.AppSettings.Get("TimingDevice.Port"));
+      _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port);
       _alge.RawMessageReceived += Alge_OnMessageReceived;
 
       _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
