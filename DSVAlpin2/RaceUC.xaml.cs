@@ -215,6 +215,7 @@ namespace DSVAlpin2
 
     LiveTimingRM _liveTimingRM;
     LiveTimingAutoNiZ _liveTimingAutoNiZ;
+    LiveTimingAutoNaS _liveTimingAutoNaS;
 
 
     private void InitializeLiveTiming()
@@ -392,6 +393,10 @@ namespace DSVAlpin2
           _liveTimingAutoNiZ.Dispose();
         _liveTimingAutoNiZ = null;
 
+        if (_liveTimingAutoNaS != null)
+          _liveTimingAutoNaS.Dispose();
+        _liveTimingAutoNaS = null;
+
         // Remember new race run
         _currentRaceRun = selectedRaceRun;
 
@@ -401,8 +406,11 @@ namespace DSVAlpin2
         ConnectUiToRaceRun(_currentRaceRun);
 
         // Start any helper
-        int timeOut = Properties.Settings.Default.AutomaticNiZTimeout;
-        _liveTimingAutoNiZ = new LiveTimingAutoNiZ(timeOut, _currentRaceRun);
+        if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
+          _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
+
+        if (Properties.Settings.Default.AutomaticNaSStarters > 0)
+          _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
       }
     }
 

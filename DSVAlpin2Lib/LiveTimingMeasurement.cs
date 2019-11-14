@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -245,6 +246,74 @@ namespace DSVAlpin2Lib
       Dispose(true);
     }
     #endregion
-
   }
+
+
+  public class LiveTimingAutoNaS : IDisposable
+  {
+    RaceRun _raceRun;
+    int _startersTillAutoNaS;
+
+    public LiveTimingAutoNaS(int startersTillAutoNaS, RaceRun raceRun)
+    {
+      _raceRun = raceRun;
+      _startersTillAutoNaS = startersTillAutoNaS;
+
+      _raceRun.OnTrackChanged += OnSomethingChanged;
+    }
+
+
+    private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack)
+    {
+      // Copy starters (copy to avoid any side effects)
+      StartListEntry[] starters = _raceRun.GetStartListProvider().GetViewList().ToArray();
+
+      // Participant enters track
+      if (participantEnteredTrack != null)
+      {
+        // Loop over StartList until the starter has been found, remember all not started participants
+        List<StartListEntry> notStarted = new List<StartListEntry>();
+        foreach (StartListEntry se in starters)
+        {
+          if (se.Participant == participantEnteredTrack)
+            break;
+
+          if (!_raceRun.IsOrWasOnTrack(se.Participant))
+            notStarted.Add(se);
+        }
+
+        // Loop 
+        for (int i = 0; i < notStarted.Count() - Math.Abs(_startersTillAutoNaS); i++)
+        {
+          _raceRun.SetResultCode(notStarted[i].Participant, RunResult.EResultCode.NaS);
+        }
+      }
+    }
+
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          // TODO: dispose managed state (managed objects).
+          _raceRun.OnTrackChanged -= OnSomethingChanged;
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      Dispose(true);
+    }
+    #endregion
+  }
+
 }

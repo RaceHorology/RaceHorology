@@ -732,6 +732,21 @@ namespace DSVAlpin2Lib
       return r.GetStartTime() != null || r.GetRunTime() != null || r.ResultCode != RunResult.EResultCode.Normal;
     }
 
+    public bool IsOrWasOnTrack(RaceParticipant rp)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == rp);
+      if (result != null)
+        return IsOrWasOnTrack(result);
+
+      return false;
+    }
+
+
+
+    public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack);
+    public event OnTrackChangedHandler OnTrackChanged;
+
+
     /// <summary>
     /// Updates internal strucutures based on _results
     /// </summary>
@@ -740,13 +755,23 @@ namespace DSVAlpin2Lib
       // Remove from onTrack list if a result is available (= not on track anymore)
       var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
+      {
         _onTrack.Remove(itemToRemove);
+
+        OnTrackChangedHandler handler = OnTrackChanged;
+        handler?.Invoke(this, null, itemToRemove.Participant);
+      }
 
       // Add to onTrack list if run result is not yet available (= is on track)
       foreach (var r in _results)
         if (IsOnTrack(r))
           if (!_onTrack.Contains(r))
+          {
             _onTrack.Add(new LiveResult(r, _appDataModel));
+
+            OnTrackChangedHandler handler = OnTrackChanged;
+            handler?.Invoke(this, r.Participant, null);
+          }
     }
 
   }
