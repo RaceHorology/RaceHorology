@@ -26,9 +26,9 @@ namespace DSVAlpin2.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("120")]
-        public int AutomaticNiZTimeout {
+        public uint AutomaticNiZTimeout {
             get {
-                return ((int)(this["AutomaticNiZTimeout"]));
+                return ((uint)(this["AutomaticNiZTimeout"]));
             }
             set {
                 this["AutomaticNiZTimeout"] = value;
@@ -62,12 +62,24 @@ namespace DSVAlpin2.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public int AutomaticNaSStarters {
+        public uint AutomaticNaSStarters {
             get {
-                return ((int)(this["AutomaticNaSStarters"]));
+                return ((uint)(this["AutomaticNaSStarters"]));
             }
             set {
                 this["AutomaticNaSStarters"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        public uint StartTimeIntervall {
+            get {
+                return ((uint)(this["StartTimeIntervall"]));
+            }
+            set {
+                this["StartTimeIntervall"] = value;
             }
         }
     }

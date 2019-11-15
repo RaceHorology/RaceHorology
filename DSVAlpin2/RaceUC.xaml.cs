@@ -2,6 +2,7 @@ using DSVAlpin2Lib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -216,6 +217,7 @@ namespace DSVAlpin2
     LiveTimingRM _liveTimingRM;
     LiveTimingAutoNiZ _liveTimingAutoNiZ;
     LiveTimingAutoNaS _liveTimingAutoNaS;
+    LiveTimingStartCountDown _liveTimingStartCountDown;
 
 
     private void InitializeLiveTiming()
@@ -364,6 +366,78 @@ namespace DSVAlpin2
 
     #region Timing
 
+    public class LiveTimingStartCountDown : IDisposable
+    {
+      RaceRun _raceRun;
+      uint _startIntervall;
+      Label _lblStart;
+
+      TimerPlus _timer;
+
+      public LiveTimingStartCountDown(uint startIntervall, RaceRun raceRun, Label lblStart)
+      {
+        _raceRun = raceRun;
+        _startIntervall = startIntervall;
+        _lblStart = lblStart;
+
+        _raceRun.OnTrackChanged += OnSomethingChanged;
+
+        _timer = new TimerPlus(OnTimeout, OnUpdate, (int)_startIntervall, true);
+
+        displayStartFree();
+      }
+
+
+      private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack)
+      {
+        if (participantEnteredTrack != null)
+          startCountDown();
+      }
+
+
+      private void startCountDown()
+      {
+        _timer.Reset();
+        _timer.Start();
+      }
+
+
+      private void OnTimeout()
+      {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          displayStartFree();
+          SystemSounds.Beep.Play();
+        });
+      }
+
+      void displayStartFree()
+      {
+        _lblStart.Content = "Start Frei!";
+        _lblStart.Background = Brushes.LightGreen;
+      }
+
+      private void OnUpdate()
+      {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          _lblStart.Background = Brushes.Red;
+          _lblStart.Content = string.Format("Start frei in {0}s", _timer.RemainingSeconds);
+        });
+      }
+
+
+      public void Dispose()
+      {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          _timer.Dispose();
+          _raceRun.OnTrackChanged -= OnSomethingChanged;
+        });
+      }
+    }
+
+
 
     private void InitializeTiming()
     {
@@ -409,8 +483,15 @@ namespace DSVAlpin2
         if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
           _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
 
-        if (Properties.Settings.Default.AutomaticNaSStarters > 0)
-          _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+        _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+
+        if (Properties.Settings.Default.StartTimeIntervall > 0)
+        {
+          lblStartCountDown.Visibility = Visibility.Visible;
+          _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
+        }
+        else
+          lblStartCountDown.Visibility = Visibility.Hidden;
       }
     }
 

@@ -176,11 +176,11 @@ namespace DSVAlpin2Lib
   public class LiveTimingAutoNiZ : IDisposable
   {
     RaceRun _raceRun;
-    int _secondsTillAutoNiZ;
+    uint _secondsTillAutoNiZ;
 
     System.Timers.Timer _timer;
 
-    public LiveTimingAutoNiZ(int secondsTillAutoNiZ, RaceRun raceRun)
+    public LiveTimingAutoNiZ(uint secondsTillAutoNiZ, RaceRun raceRun)
     {
       _secondsTillAutoNiZ = secondsTillAutoNiZ;
       _raceRun = raceRun;
@@ -252,9 +252,9 @@ namespace DSVAlpin2Lib
   public class LiveTimingAutoNaS : IDisposable
   {
     RaceRun _raceRun;
-    int _startersTillAutoNaS;
+    uint _startersTillAutoNaS;
 
-    public LiveTimingAutoNaS(int startersTillAutoNaS, RaceRun raceRun)
+    public LiveTimingAutoNaS(uint startersTillAutoNaS, RaceRun raceRun)
     {
       _raceRun = raceRun;
       _startersTillAutoNaS = startersTillAutoNaS;

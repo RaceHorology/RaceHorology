@@ -107,9 +107,11 @@
       <DependentUpon>RaceUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="RegistryTools.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TimerPlus.cs" />
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="About.xaml">

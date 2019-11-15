@@ -30,6 +30,7 @@ namespace DSVAlpin2
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
       txtAutomaticNiZTimeout.Text = Properties.Settings.Default.AutomaticNiZTimeout.ToString();
       txtAutomaticNaSStarters.Text = Properties.Settings.Default.AutomaticNaSStarters.ToString();
+      txtStartTimeIntervall.Text = Properties.Settings.Default.StartTimeIntervall.ToString();
     }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
@@ -41,8 +42,9 @@ namespace DSVAlpin2
     {
       Properties.Settings.Default.TimingDevice_Type = (string)cbTimingDevice.SelectedValue;
       Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
-      try { Properties.Settings.Default.AutomaticNiZTimeout = int.Parse(txtAutomaticNiZTimeout.Text); } catch (Exception) { }
-      try { Properties.Settings.Default.AutomaticNaSStarters = int.Parse(txtAutomaticNaSStarters.Text); } catch (Exception) { }
+      try { Properties.Settings.Default.AutomaticNiZTimeout = uint.Parse(txtAutomaticNiZTimeout.Text); } catch (Exception) { }
+      try { Properties.Settings.Default.AutomaticNaSStarters = uint.Parse(txtAutomaticNaSStarters.Text); } catch (Exception) { }
+      try { Properties.Settings.Default.StartTimeIntervall = uint.Parse(txtStartTimeIntervall.Text); } catch (Exception) { }
 
       Properties.Settings.Default.Save();
 

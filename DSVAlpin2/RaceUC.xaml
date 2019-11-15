@@ -467,8 +467,10 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
+                <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="5,5,5,5" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
                 <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
+                <Label x:Name="lblStartCountDown" Content="Start frei!" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="40,5,40,5" Grid.Column="1" VerticalAlignment="Top" FontSize="16"
+                       Background="LightGreen"/>
                 <ComboBox x:Name="cmbStartListGrouping" FontSize="16" Margin="5,5,15,5" Grid.Column="2" SelectionChanged="CmbStartListGrouping_SelectionChanged"/>
                 <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged"/>
               </Grid>

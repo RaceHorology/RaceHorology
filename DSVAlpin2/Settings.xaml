@@ -34,6 +34,11 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -45,6 +50,8 @@
           <Label Content="Anzahl Starter bis ein nichtgestarter Läufer als NaS gewertet wird:" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
           <TextBox x:Name="txtAutomaticNaSStarters" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Right" MinWidth="50" />
 
+          <Label Content="Startintervall (Sekunden bis &#34;Start Frei&#34; in der Zeitnahme erscheint) [s]:" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
+          <TextBox x:Name="txtStartTimeIntervall" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Right" MinWidth="50" />
         </Grid>
       </TabItem>
     </TabControl>
