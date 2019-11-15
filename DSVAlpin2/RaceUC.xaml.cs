@@ -720,6 +720,8 @@ namespace DSVAlpin2
       FillCmbTotalsResults(cmbTotalResult);
       cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = null });
       cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
+
+      chartResults.Init(_dataModel, _thisRace);
     }
 
 
@@ -776,6 +778,9 @@ namespace DSVAlpin2
         else if (selObj.Type == "startlist")
           vp = selObj.RaceRun.GetStartListProvider();
       }
+
+      chartResults.Display(_thisRace.GetResultViewProvider());
+
 
       _totalResultsVP = vp;
 

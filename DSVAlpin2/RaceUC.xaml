@@ -640,6 +640,8 @@
     <Grid Grid.Column="2" >
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
+        <RowDefinition Height="2*"/>
+        <RowDefinition Height="5"/>
         <RowDefinition Height="1*"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
@@ -709,7 +711,12 @@
         </DataGrid.RowStyle>
 
       </DataGrid>
-      <Grid Width="Auto" Grid.Row="2">
+
+      <GridSplitter x:Name="gridSplitterResult" HorizontalAlignment="Stretch" Height="5" Grid.Row="2" />
+
+      <local:ChartTestsUC x:Name="chartResults" Grid.Row="3"/>
+      
+      <Grid Width="Auto" Grid.Row="4">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
