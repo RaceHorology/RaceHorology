@@ -1,5 +1,6 @@
 ﻿using DSVAlpin2Lib;
 using LiveCharts;
+using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using System;
 using System.Collections.Generic;
@@ -52,18 +53,18 @@ namespace DSVAlpin2
       var lr = results.GetView() as System.Windows.Data.ListCollectionView;
       if (lr.Groups != null)
       {
+        ScatterSeries series = new ScatterSeries();
+        series.PointGeometry = DefaultGeometries.Circle;
+        seriesCollection.Add(series);
+        var values = new ChartValues<ObservablePoint>();
+        series.Values = values;
+        //series.Values.Add(values);
+
+        int x = 1;
         foreach (var group in lr.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
           //addLineToTable(table, cvGroup.Name.ToString());
-
-
-          StackedColumnSeries series = new StackedColumnSeries
-          {
-            Values = new ChartValues<double> { },
-            StackMode = StackMode.Values, // this is not necessary, values is the default stack mode
-            DataLabels = true
-          };
 
           int i = 0;
           foreach (var result in cvGroup.Items)
@@ -76,11 +77,11 @@ namespace DSVAlpin2
             if (item.TotalTime != null)
               timeValue = ((TimeSpan)item.TotalTime).TotalMilliseconds / 1000.0;
 
-            series.Values.Add(timeValue);
-            //addLineToTable(table, result, i++);
+            if (timeValue>30.0)
+              values.Add(new ObservablePoint(x, timeValue));
           }
 
-          seriesCollection.Add(series);
+          x++;
         }
       }
       else
