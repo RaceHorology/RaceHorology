@@ -49,22 +49,23 @@ namespace DSVAlpin2
     {
       SeriesCollection seriesCollection = new SeriesCollection();
 
-
+      List<string> labels = new List<string>();
       var lr = results.GetView() as System.Windows.Data.ListCollectionView;
       if (lr.Groups != null)
       {
-        ScatterSeries series = new ScatterSeries();
-        series.PointGeometry = DefaultGeometries.Circle;
-        seriesCollection.Add(series);
-        var values = new ChartValues<ObservablePoint>();
-        series.Values = values;
-        //series.Values.Add(values);
-
         int x = 1;
         foreach (var group in lr.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
-          //addLineToTable(table, cvGroup.Name.ToString());
+
+          ScatterSeries series = new ScatterSeries();
+          //series.DataLabels = true;
+          series.Title = cvGroup.Name.ToString();
+          //labels.Add(cvGroup.Name.ToString());
+          series.PointGeometry = DefaultGeometries.Circle;
+
+          var values = new ChartValues<ObservablePoint>();
+          series.Values = values;
 
           int i = 0;
           foreach (var result in cvGroup.Items)
@@ -77,8 +78,13 @@ namespace DSVAlpin2
             if (item.TotalTime != null)
               timeValue = ((TimeSpan)item.TotalTime).TotalMilliseconds / 1000.0;
 
-            if (timeValue>30.0)
-              values.Add(new ObservablePoint(x, timeValue));
+            if (timeValue > 30.0)
+            {
+              var p = new ObservablePoint(x, timeValue);
+              values.Add(p);
+            }
+
+            seriesCollection.Add(series);
           }
 
           x++;
@@ -93,10 +99,11 @@ namespace DSVAlpin2
         }
       }
 
-
       SeriesCollection = seriesCollection;
-
+      Labels = labels.ToArray();
       DataContext = this;
+
+      lvChart.Update(true, true);
     }
 
 
