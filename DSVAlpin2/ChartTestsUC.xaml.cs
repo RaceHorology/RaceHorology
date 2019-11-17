@@ -76,7 +76,7 @@ namespace DSVAlpin2
         area.AxisY.Minimum = Double.NaN;
         area.AxisY.Maximum = Double.NaN;
         area.AxisY.IsMarginVisible = false;
-        area.AxisY.IsStartedFromZero = true;
+        area.AxisY.IsStartedFromZero = false;
         area.AxisY.Title = "Zeit";
 
 
@@ -100,7 +100,7 @@ namespace DSVAlpin2
 
         // If all data points are significantly far from zero, 
         // the Chart will calculate the scale minimum value
-        //area.AxisY.ScaleBreakStyle.IsStartedFromZero = AutoBool.Auto;
+        area.AxisY.ScaleBreakStyle.StartFromZero = StartFromZero.Yes;
 
         msChart.GetChart().ChartAreas.Add(area);
 
