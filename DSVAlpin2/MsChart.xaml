@@ -6,7 +6,7 @@
              xmlns:mschart="clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid x:Name="grid1" Margin="10">
+    <Grid x:Name="grid1" Margin="0">
         <WindowsFormsHost Background="{x:Null}">
             <mschart:Chart x:Name="myChart"/>
         </WindowsFormsHost>
