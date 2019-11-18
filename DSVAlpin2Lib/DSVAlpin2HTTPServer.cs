@@ -151,6 +151,11 @@ namespace DSVAlpin2Lib
         res.ContentType = "text/css";
         res.ContentEncoding = Encoding.UTF8;
       }
+      else if (path.EndsWith(".svg"))
+      {
+        res.ContentType = "image/svg+xml";
+        res.ContentEncoding = Encoding.UTF8;
+      }
 
       res.WriteContent(contents);
     }

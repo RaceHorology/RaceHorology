@@ -1,39 +1,72 @@
+
+/*
+@colorBG1: #f8faf7;
+@colorBG2: #eff5f0;
+@colorBG3: #eaf1ea;
+@colorBG4: #e6eee5;
+
+@colorFG1: #3f434b;
+@colorFG2: #667583;
+@colorFG3: #8b9faf;
+@colorFG4: #b8c9d6;
+*/
+
 body {
   background-color: white;
 }
 
 * {
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  color: #3f434b;
 }
 
 h1 {
-  color: black;
+  color: #3f434b;
 }
 
 h2 {
-  color: black;
+  color: #3f434b;
 }
 
 h3 {
-  color: black;
+  color: #3f434b;
   padding-top: 10px;
 }
 
 
+.svg-logo {
+  height: 25px;
+}
+
+.svg-logo-big {
+  height: 50px;
+  margin: 5px;
+}
+
 .dsvalpin-lists {
   border-collapse: collapse;
   width: 100%;
+  background-color: #f8faf7;
 }
 
-.dsvalpin-lists tr:nth-child(even){background-color: #f2f2f2;}
+.nav-tabs {
+  background-color: #f8faf7;
+} 
 
-.dsvalpin-lists tr:hover {background-color: #ddd;}
+/* .nav-link.active  {
+  background-color: #eff5f0 !important;
+} */
+
+.dsvalpin-lists tr:nth-child(even){background-color: #eff5f0;}
+
+
+.dsvalpin-lists tr:hover {background-color: #b8c9d6;}
 
 .dsvalpin-lists th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
-  background-color: #4CAF50;
+  background-color: #3f434b;
   color: white;
 }
 
