@@ -484,7 +484,6 @@ public abstract class PDFReport : IPDFReport
 
     public void Generate(string filePath)
     {
-
       var writer = new PdfWriter(filePath);
       var pdf = new PdfDocument(writer);
 
@@ -502,15 +501,20 @@ public abstract class PDFReport : IPDFReport
 
       document.SetMargins(header.Height + pageMargins.Top, pageMargins.Right, pageMargins.Bottom + footer.Height, pageMargins.Left);
 
+      addContent(pdf, document);
+
+      //pageXofY.WriteTotal(pdf);
+      document.Close();
+    }
+
+    protected virtual void addContent(PdfDocument pdf, Document document)
+    {
       Table raceProperties = getRacePropertyTable();
-      if (raceProperties!=null)
+      if (raceProperties != null)
         document.Add(raceProperties);
 
       Table table = getResultsTable();
       document.Add(table);
-
-      //pageXofY.WriteTotal(pdf);
-      document.Close();
     }
 
 
@@ -1146,5 +1150,31 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
     }
 
+
+    protected override void addContent(PdfDocument pdf, Document document)
+    {
+      base.addContent(pdf, document);
+
+      addResultsChart(pdf, document);
+    }
+
+
+    protected void addResultsChart(PdfDocument pdf, Document document)
+    {
+      var page = pdf.AddNewPage();
+      
+      PdfCanvas canvas = new PdfCanvas(page);
+
+      for (float x = 0; x < page.GetPageSize().GetWidth();)
+      {
+        for (float y = 0; y < page.GetPageSize().GetHeight();)
+        {
+          canvas.Circle(x, y, 1f);
+          y += 72f;
+        }
+        x += 72f;
+      }
+      canvas.Fill();
+    }
   }
 }

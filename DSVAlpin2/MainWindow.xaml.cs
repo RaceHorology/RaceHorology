@@ -103,7 +103,7 @@ namespace DSVAlpin2
     /// <param name="dbPath">Path to the database (Access File)</param>
     private void OpenDatabase(string dbPath)
     {
-      try
+      //try
       {
         Logger.Info("Open DSVAlpin database: {dbpath}", dbPath);
 
@@ -131,11 +131,11 @@ namespace DSVAlpin2
 
         _mruList.AddFile(dbPath);
       }
-      catch (Exception ex)
-      {
-        Logger.Error(ex, "during database loading");
-        throw;
-      }
+      //catch (Exception ex)
+      //{
+      //  Logger.Error(ex, "during database loading");
+      //  throw;
+      //}
     }
 
     /// <summary>
