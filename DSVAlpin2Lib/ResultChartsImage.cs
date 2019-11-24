@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms.DataVisualization.Charting;
+using System.Web.UI.DataVisualization.Charting;
 
 namespace DSVAlpin2Lib
 {
-  public class ResultCharts
+  public class ResultChartsImage
   {
 
 
@@ -116,7 +116,7 @@ namespace DSVAlpin2Lib
     }
 
 
-    public void addResult(System.Windows.Forms.DataVisualization.Charting.Series ds, object result, int x)
+    public void addResult(Series ds, object result, int x)
     {
       if (!(result is RaceResultItem item))
         return;
@@ -149,7 +149,7 @@ namespace DSVAlpin2Lib
     }
 
 
-    protected void fillDataSeries(System.Windows.Forms.DataVisualization.Charting.Series ds, RaceResultViewProvider results)
+    protected void fillDataSeries(Series ds, RaceResultViewProvider results)
     {
       // Populate series data with random data
       var lr = results.GetView() as System.Windows.Data.ListCollectionView;
@@ -170,7 +170,7 @@ namespace DSVAlpin2Lib
     }
 
 
-    protected void formatDataSeries(System.Windows.Forms.DataVisualization.Charting.Series ds, RaceResultViewProvider results)
+    protected void formatDataSeries(Series ds, RaceResultViewProvider results)
     {
       // Set point chart type
       ds.ChartType = SeriesChartType.Point;
@@ -200,7 +200,7 @@ namespace DSVAlpin2Lib
 
       // Setup Data Series
       chart.Series.Clear();
-      var ds = new System.Windows.Forms.DataVisualization.Charting.Series();
+      var ds = new Series();
       fillDataSeries(ds, results);
       formatDataSeries(ds, results);
       chart.Series.Add(ds);
@@ -211,32 +211,32 @@ namespace DSVAlpin2Lib
 
 
 
-  //public class OfflineChart
-  //{
-  //  Chart _chart;
+  public class OfflineChart : ResultChartsImage
+  {
+    Chart _chart;
 
-  //  public OfflineChart()
-  //  {
-  //    _chart = new Chart
-  //    {
-  //      Width = 300,
-  //      Height = 450,
-  //      RenderType = RenderType.ImageTag,
-  //      AntiAliasing = AntiAliasingStyles.All,
-  //      TextAntiAliasingQuality = TextAntiAliasingQuality.High
-  //    };
-
-  //    _chart.
-
-
-  //  }
+    public OfflineChart(int width, int height)
+    {
+      ;
+      _chart = new Chart
+      {
+        Width = width * 300/72,
+        Height = height * 300 / 72,
+        RenderType = RenderType.ImageTag,
+        AntiAliasing = AntiAliasingStyles.All,
+        TextAntiAliasingQuality = TextAntiAliasingQuality.High
+      };
+    }
 
 
-  //  public void RenderToFile(string path)
-  //  {
+    public void RenderToFile(string path, RaceResultViewProvider results)
+    {
 
-  //  }
+      SetupChart(_chart, results);
+
+      _chart.SaveImage(path, ChartImageFormat.Png);
+    }
 
 
-  //}
+  }
 }

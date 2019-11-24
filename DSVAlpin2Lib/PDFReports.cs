@@ -1161,20 +1161,22 @@ public abstract class PDFReport : IPDFReport
 
     protected void addResultsChart(PdfDocument pdf, Document document)
     {
-      var page = pdf.AddNewPage();
-      
-      PdfCanvas canvas = new PdfCanvas(page);
+      var page = pdf.AddNewPage(PageSize.A4.Rotate());
 
-      for (float x = 0; x < page.GetPageSize().GetWidth();)
-      {
-        for (float y = 0; y < page.GetPageSize().GetHeight();)
-        {
-          canvas.Circle(x, y, 1f);
-          y += 72f;
-        }
-        x += 72f;
-      }
-      canvas.Fill();
+      Rectangle areaChart = new Rectangle(page.GetPageSize().GetWidth(), page.GetPageSize().GetHeight());
+
+      OfflineChart fileHelper = new OfflineChart((int)areaChart.GetWidth(), (int)areaChart.GetHeight());
+      fileHelper.RenderToFile("test.png", _race.GetResultViewProvider());
+
+      Image imgChart = new Image(ImageDataFactory.Create("test.png"));
+
+      PdfCanvas pdfCanvas = new PdfCanvas(page);
+
+
+      Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)
+        .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+        .Add(imgChart);
+
     }
   }
 }
