@@ -144,6 +144,7 @@ namespace DSVAlpin2Lib
       PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
 
       Image logo1 = _pdfHelper.GetImage("Logo1");
+      //Image logo1 = _pdfHelper.GetImage("LogoRH");
       if (logo1 != null)
       {
         Rectangle area1 = new Rectangle(_pageMargins.Left, pageSize.GetTop() - _height - _pageMargins.Top, _height/*quadratic: width = height*/, _height);
