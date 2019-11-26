@@ -6,6 +6,7 @@ using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas;
+using iText.Kernel.Pdf.Canvas.Wmf;
 using iText.Kernel.Pdf.Xobject;
 using iText.Layout;
 using iText.Layout.Borders;
@@ -1167,11 +1168,17 @@ public abstract class PDFReport : IPDFReport
       Rectangle areaChart = new Rectangle(page.GetPageSize().GetWidth(), page.GetPageSize().GetHeight());
 
       OfflineChart fileHelper = new OfflineChart((int)areaChart.GetWidth(), (int)areaChart.GetHeight());
-      fileHelper.RenderToFile("test.png", _race.GetResultViewProvider());
+      fileHelper.RenderToFile("test.wmf", _race.GetResultViewProvider());
 
-      Image imgChart = new Image(ImageDataFactory.Create("test.png"));
+      //Image imgChart = new Image(ImageDataFactory.Create("test.wmf"));
+
+      WmfImageData imgData = new WmfImageData("test.wmf");
+
+      var pdfFormxObj = new PdfFormXObject(imgData, pdf);
+      Image imgChart = new Image(pdfFormxObj);
 
       PdfCanvas pdfCanvas = new PdfCanvas(page);
+      //pdfCanvas.AddXObject(pdfFormxObj, areaChart);
 
 
       Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)

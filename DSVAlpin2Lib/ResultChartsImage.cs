@@ -220,8 +220,8 @@ namespace DSVAlpin2Lib
       ;
       _chart = new Chart
       {
-        Width = width * 300/72,
-        Height = height * 300 / 72,
+        Width = width * 300/72/2,
+        Height = height * 300 / 72/2,
         RenderType = RenderType.ImageTag,
         AntiAliasing = AntiAliasingStyles.All,
         TextAntiAliasingQuality = TextAntiAliasingQuality.High
@@ -234,8 +234,37 @@ namespace DSVAlpin2Lib
 
       SetupChart(_chart, results);
 
-      _chart.SaveImage(path, ChartImageFormat.Png);
+      //_chart.SaveImage(path, ChartImageFormat.Png);
+
+      _chart.SaveImage(path + ".emf", ChartImageFormat.Emf);
+
+      ConvertToWMF(path + ".emf", path);
     }
+
+    private enum EmfToWmfBitsFlags
+    {
+      EmfToWmfBitsFlagsDefault = 0x00000000,
+      EmfToWmfBitsFlagsEmbedEmf = 0x00000001,
+      EmfToWmfBitsFlagsIncludePlaceable = 0x00000002,
+      EmfToWmfBitsFlagsNoXORClip = 0x00000004
+    }
+
+    [System.Runtime.InteropServices.DllImport("gdiplus.dll", SetLastError = true)]
+    static extern int GdipEmfToWmfBits(int hEmf, int uBufferSize, byte[] bBuffer, int iMappingMode, EmfToWmfBitsFlags flags);
+    void ConvertToWMF(string emfPath, string wmfPath)
+    {
+      const int MM_ANISOTROPIC = 8;
+      System.Drawing.Imaging.Metafile mf = new System.Drawing.Imaging.Metafile(emfPath);
+      int handle = mf.GetHenhmetafile().ToInt32();
+      int bufferSize = GdipEmfToWmfBits(handle, 0, null, MM_ANISOTROPIC, EmfToWmfBitsFlags.EmfToWmfBitsFlagsIncludePlaceable);
+
+      byte[] buf = new byte[bufferSize];
+      GdipEmfToWmfBits(handle, bufferSize, buf, MM_ANISOTROPIC, EmfToWmfBitsFlags.EmfToWmfBitsFlagsIncludePlaceable);
+      System.IO.FileStream fs = new System.IO.FileStream(wmfPath, System.IO.FileMode.Create);
+      fs.Write(buf, 0, bufferSize);
+      fs.Close();
+    }
+
 
 
   }
