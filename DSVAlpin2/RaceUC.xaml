@@ -427,7 +427,7 @@
         </ScrollViewer>
       </TabItem>
       <TabItem Header="Teilnehmer &amp; Startnummern" FontSize="12">
-        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
+        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
           <DataGrid.Columns>
             <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
             <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
@@ -478,7 +478,7 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="0" Grid.Column="0"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+                <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="0" Grid.Column="0"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
                   <DataGrid.Columns>
                     <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
                     <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
@@ -544,7 +544,7 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
                   <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
@@ -572,7 +572,7 @@
                 <Label x:Name="lblResults" Content="Ergebnis (Aktueller Lauf)" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
                 <ComboBox x:Name="cmbResultGrouping" FontSize="16" Margin="5" Grid.Column="1" SelectionChanged="CmbResultGrouping_SelectionChanged"/>
               </Grid>
-              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
                   <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
@@ -597,7 +597,7 @@
 
                 <DataGrid.Style>
                   <Style TargetType="DataGrid">
-                    <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
+                    <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
                   </Style>
                 </DataGrid.Style>
 
@@ -655,7 +655,7 @@
         <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
         <ComboBox x:Name="cmbTotalResult" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResult_SelectionChanged"/>
       </Grid>
-      <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+      <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
         <DataGrid.Columns>
           <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
           <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
@@ -686,7 +686,7 @@
 
         <DataGrid.Style>
           <Style TargetType="DataGrid">
-            <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
+            <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
           </Style>
         </DataGrid.Style>
 
