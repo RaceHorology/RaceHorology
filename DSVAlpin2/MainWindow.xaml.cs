@@ -395,5 +395,10 @@ namespace DSVAlpin2
     }
 
     #endregion
+
+    private void LogoRH_png_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      System.Diagnostics.Process.Start("http://www.race-horology.com");
+    }
   }
 }

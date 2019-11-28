@@ -24,7 +24,7 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-    <Menu x:Name="menu" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top">
+    <Menu x:Name="menu" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
       <MenuItem Header="File">
         <MenuItem Name="mnuOpen" Header="_Open" Command="Open" InputGestureText="Ctrl+O"/>
         <MenuItem Name="mnuRecentFiles" Header="Recent Files" />
@@ -33,7 +33,7 @@
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties" />
       <MenuItem Name="mnuHelp" Header="Help" Command="Help"/>
     </Menu>
-    <Grid Grid.Row="1">
+    <Grid Grid.Row="1" Background="#ffe6eee5">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
@@ -53,7 +53,7 @@
         </TabItem>
       </TabControl>
     </Grid>
-    <StatusBar Height="Auto" Margin="0" Grid.Row="2" VerticalAlignment="Top" Width="Auto">
+    <StatusBar Height="Auto" Margin="0" Grid.Row="2" VerticalAlignment="Top" Width="Auto" Background="#ffe6eee5">
       <StatusBar.ItemsPanel>
         <ItemsPanelTemplate>
           <Grid>
@@ -111,6 +111,7 @@
           <Label x:Name="lblURL" Grid.Row="1" Content="not running" Margin="0,0,0,0" VerticalAlignment="Bottom" Width="Auto" HorizontalContentAlignment="Left" FontSize="10" PreviewMouseDown="LblURL_PreviewMouseDown"/>
         </Grid>
       </StatusBarItem>
+      <Image x:Name="LogoRH_png" Height="80" Source="LogoRH.png" Stretch="Uniform" Margin="10,20,10,20" PreviewMouseDown="LogoRH_png_PreviewMouseDown"/>
     </StatusBar>
   </Grid>
 </Window>
