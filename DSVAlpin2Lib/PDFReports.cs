@@ -58,6 +58,10 @@ namespace DSVAlpin2Lib
     static public Color ColorRHBG3 { get; } = new DeviceRgb(0xea, 0xf1, 0xea);
     static public Color ColorRHBG4 { get; } = new DeviceRgb(0xe6, 0xee, 0xe5);
 
+    static public float SolidBorderThick { get; } = 0.5F;
+    static public float SolidBorderThin { get; } = 0.1F;
+
+
     public Image GetImage(string filenameWOExt)
     {
       Image img = null;
@@ -236,8 +240,6 @@ namespace DSVAlpin2Lib
         //.SetPaddingBottom(0)
         //.SetMarginBottom(0);
 
-      float solidBorderThick = 0.5F;
-      float solidBorderThin = 0.1F;
       float padding = 1F;
       float maxHeightCol1 = 56.0F;
       float maxHeightCol2 = 30.0F;
@@ -254,8 +256,8 @@ namespace DSVAlpin2Lib
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
           .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(solidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThin))
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(fontBold)
           .Add(_logo1.SetAutoScale(true)));
@@ -263,8 +265,8 @@ namespace DSVAlpin2Lib
         tableHeader.AddCell(new Cell()
           .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(solidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThin)));
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
 
 
       if (!string.IsNullOrEmpty(_race.Description))
@@ -274,8 +276,8 @@ namespace DSVAlpin2Lib
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
           .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(solidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThin))
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(fontTitle)
           .SetFontSize(fontSizeTitle)
@@ -284,8 +286,8 @@ namespace DSVAlpin2Lib
         tableHeader.AddCell(new Cell()
           .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(solidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThin)));
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
 
       if (_logoRH != null)
         tableHeader.AddCell(new Cell()
@@ -294,8 +296,8 @@ namespace DSVAlpin2Lib
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
           .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(solidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThin))
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(fontBold)
           .Add(_logoRH.SetAutoScale(true)));
@@ -303,8 +305,8 @@ namespace DSVAlpin2Lib
         tableHeader.AddCell(new Cell()
           .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(solidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThin)));
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
 
 
       // Second row
@@ -314,7 +316,7 @@ namespace DSVAlpin2Lib
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
           .SetMaxHeight(maxHeightCol2)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderBottom(new SolidBorder(solidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetPadding(padding)
           .SetFont(fontBold)
           .Add(_logo2.SetAutoScale(true)));
@@ -322,7 +324,7 @@ namespace DSVAlpin2Lib
         tableHeader.AddCell(new Cell()
           .SetMaxHeight(maxHeightCol2)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderBottom(new SolidBorder(solidBorderThick)));
+          .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick)));
 
       // List Name
       tableHeader.AddCell(new Cell()
@@ -330,7 +332,7 @@ namespace DSVAlpin2Lib
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
         .SetMaxHeight(maxHeightCol2)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(solidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontTitle)
         .SetFontSize(fontSizeTitle)
@@ -342,7 +344,7 @@ namespace DSVAlpin2Lib
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
         .SetMaxHeight(maxHeightCol2)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(solidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
@@ -426,7 +428,7 @@ namespace DSVAlpin2Lib
 
         _footerVersion = productVersion;
         _footerWebsite = "www.race-horology.com";
-        _footerCopyright = string.Format("{0} by {1}", copyrightYear, companyName);
+        _footerCopyright = string.Format("{1} by {2}\nVersion {0}", productVersion, copyrightYear, companyName);
       }
       else
         _footerVersion = _footerWebsite = _footerCopyright = "";
@@ -492,8 +494,6 @@ namespace DSVAlpin2Lib
         .SetPaddingBottom(0)
         .SetMarginBottom(0);
 
-      float solidBorderThick = 0.2F;
-      float solidBorderThin = 0.1F;
       float padding = 1F;
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
 
@@ -501,36 +501,38 @@ namespace DSVAlpin2Lib
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.LEFT)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
         .Add(new Paragraph(DateTime.Now.ToString(@"dd.MM.yyyy"))));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
         .Add(parPage));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
         .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", "12345"))));
 
 
-      float middleHeight = 18.0F;
+      float middleHeight = 35.0F;
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.LEFT)
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
         .SetMaxHeight(middleHeight)
         .SetBackgroundColor(PDFHelper.ColorRHBG1)
+        .SetMarginTop(5)
+        .SetMarginBottom(5)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
-        .Add(_logoRH.SetAutoScale(true)));
+        .Add(_logoRH.SetMaxHeight(16.0F)));
         //.Add(new Paragraph(_footerVersion)));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
@@ -538,7 +540,7 @@ namespace DSVAlpin2Lib
         .SetMaxHeight(middleHeight)
         .SetBackgroundColor(PDFHelper.ColorRHBG1)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .Add(new Paragraph(_footerWebsite)));
       tableFooter.AddCell(new Cell()
@@ -546,10 +548,12 @@ namespace DSVAlpin2Lib
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
         .SetMaxHeight(middleHeight)
         .SetBackgroundColor(PDFHelper.ColorRHBG1)
+        .SetMarginTop(0)
+        .SetMarginBottom(0)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, solidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
-        .Add(new Paragraph(_footerCopyright)));
+        .Add(new Paragraph(_footerCopyright).SetFontSize(6.0F)));
 
 
       tableFooter.AddCell(new Cell()
@@ -900,7 +904,7 @@ public abstract class PDFReport : IPDFReport
 
       table.AddCell(createCell(1, 5)
         .SetPaddingTop(12)
-        .SetBorderBottom(new DoubleBorder(1F)));
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick)));
       table.AddCell(createCell(1, 5)
         .SetPaddingTop(12));
 
