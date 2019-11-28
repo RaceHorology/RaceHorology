@@ -236,6 +236,7 @@
     <Resource Include="Icons\icons8-play-52.png" />
     <Resource Include="Icons\icons8-stop-52.png" />
     <SplashScreen Include="SplashScreen.png" />
+    <Resource Include="LogoRH.png" />
     <Content Include="webroot\index.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -50,6 +50,19 @@ namespace DSVAlpin2Lib
     }
 
 
+    static public Color ColorRHFG1 { get; } = new DeviceRgb(0x3f, 0x43, 0x4b);
+    static public Color ColorRHFG2 { get; } = new DeviceRgb(0x66, 0x75, 0x83);
+    static public Color ColorRHFG3 { get; } = new DeviceRgb(0x8b, 0x9f, 0xaf);
+    static public Color ColorRHFG4 { get; } = new DeviceRgb(0xb8, 0xc9, 0xd6);
+    static public Color ColorRHBG1 { get; } = new DeviceRgb(0xf8, 0xfa, 0xf7);
+    static public Color ColorRHBG2 { get; } = new DeviceRgb(0xef, 0xf5, 0xf0);
+    static public Color ColorRHBG3 { get; } = new DeviceRgb(0xea, 0xf1, 0xea);
+    static public Color ColorRHBG4 { get; } = new DeviceRgb(0xe6, 0xee, 0xe5);
+
+    static public float SolidBorderThick { get; } = 0.5F;
+    static public float SolidBorderThin { get; } = 0.1F;
+
+
     public Image GetImage(string filenameWOExt)
     {
       Image img = null;
@@ -57,7 +70,7 @@ namespace DSVAlpin2Lib
       string imgPath = findImage(filenameWOExt);
       if (!string.IsNullOrEmpty(imgPath))
         img = new Image(ImageDataFactory.Create(imgPath));
-
+      //iText.Svg.Converter.SvgConverter.
       return img;
     }
 
@@ -78,7 +91,7 @@ namespace DSVAlpin2Lib
       {
         try
         {
-          var files = Directory.GetFiles(resDir, string.Format("{0}*", filenameWOExt));
+          var files = Directory.GetFiles(resDir, string.Format("{0}.*", filenameWOExt));
           if (files.Length > 0)
             return files[0];
         }
@@ -106,6 +119,8 @@ namespace DSVAlpin2Lib
 
   class ReportHeader : IEventHandler
   {
+    PdfDocument _pdfDoc;
+    Document _doc;
     PDFHelper _pdfHelper;
     Race _race;
     string _listName;
@@ -114,20 +129,57 @@ namespace DSVAlpin2Lib
     string _header1;
     bool _debugAreas = false;
     float _height = 110;
+    Image _banner;
+    float _bannerHeight = 0F;
+
+    Image _logo1;
+    Image _logo2;
+    Image _logoRH;
 
 
-    public ReportHeader(PDFHelper pdfHelper, Race race, string listName, Margins pageMargins)
+    public ReportHeader(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins)
     {
+      _pdfDoc = pdfDoc;
+      _doc = doc;
       _pdfHelper = pdfHelper;
       _race = race;
       _listName = listName;
       _pageMargins = pageMargins;
 
+      var pageSize = PageSize.A4; // Assumption
+
+      _banner = _pdfHelper.GetImage("Banner1");
+      if (_banner != null)
+        _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _banner.GetImageHeight() / _banner.GetImageWidth();
+
+      _logo1 = _pdfHelper.GetImage("Logo1");
+      //if (_logo1 != null)
+      //  _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _logo1.GetImageHeight() / _logo1.GetImageWidth();
+      _logo2 = _pdfHelper.GetImage("Logo2");
+      //if (_logo2 != null)
+      //  _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _logo2.GetImageHeight() / _logo2.GetImageWidth();
+      _logoRH = _pdfHelper.GetImage("LogoRHShort");
+
       calculateHeader();
+      calculateHeight();
     }
 
 
     public float Height { get { return _height + 2 + 2; } }
+
+
+    private void calculateHeight()
+    {
+
+      Table tableHeader = createHeaderTable();
+
+      var pageSize = PageSize.A4; // Assumption
+      float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
+      var result = tableHeader.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
+      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+
+      _height = _bannerHeight + tableHeight + 7;
+    }
 
 
     private void calculateHeader()
@@ -144,64 +196,162 @@ namespace DSVAlpin2Lib
       Rectangle pageSize = page.GetPageSize();
       PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
 
-      Image logo1 = _pdfHelper.GetImage("Logo1");
-      //Image logo1 = _pdfHelper.GetImage("LogoRH");
-      if (logo1 != null)
+      // Header
+      if (_banner != null)
       {
-        Rectangle area1 = new Rectangle(_pageMargins.Left, pageSize.GetTop() - _height - _pageMargins.Top, _height/*quadratic: width = height*/, _height);
-        Canvas canvas = new Canvas(pdfCanvas, pdfDoc, area1)
-          .SetHorizontalAlignment(HorizontalAlignment.CENTER)
-          .Add(logo1);
+        Rectangle areaBanner = new Rectangle(
+          pageSize.GetLeft() + _pageMargins.Left, pageSize.GetTop() - _pageMargins.Top - _bannerHeight,
+          pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right, _bannerHeight);
+        Canvas canvas = new Canvas(pdfCanvas, pdfDoc, areaBanner).Add(_banner);
 
         if (_debugAreas)
           pdfCanvas.SetStrokeColor(ColorConstants.RED)
                    .SetLineWidth(0.5f)
-                   .Rectangle(area1)
+                   .Rectangle(areaBanner)
                    .Stroke();
       }
 
-      Image logo2 = _pdfHelper.GetImage("Logo2");
-      if (logo2 != null)
-      {
-        Rectangle area2 = new Rectangle(pageSize.GetRight() - _pageMargins.Right - _height/*quadratic: width = height*/, pageSize.GetTop() - _height - _pageMargins.Top, _height/*quadratic: width = height*/, _height);
-        Canvas canvas = new Canvas(pdfCanvas, pdfDoc, area2).Add(logo2);
 
-        if (_debugAreas)
-          pdfCanvas.SetStrokeColor(ColorConstants.RED)
-                   .SetLineWidth(0.5f)
-                   .Rectangle(area2)
-                   .Stroke();
-      }
+      Table tableHeader = createHeaderTable();
 
-      Rectangle rectHead1 = new Rectangle(
-        _pageMargins.Left + _height/*quadratic: width = height*/, 
-        pageSize.GetTop() - _height - _pageMargins.Top, 
-        pageSize.GetRight() - _pageMargins.Right - _height/*quadratic: width = height*/ - (_pageMargins.Left + _height/*quadratic: width = height*/), 
-        _height);
-      Paragraph pHead1 = new Paragraph(_header1);
-      new Canvas(pdfCanvas, pdfDoc, rectHead1)
-              .Add(pHead1
+      float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
+      var result = tableHeader.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
+      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+
+      Rectangle rectTable = new Rectangle(
+        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetTop() - _pageMargins.Top - _bannerHeight - tableHeight,
+        tableWidth, tableHeight);
+
+      new Canvas(pdfCanvas, pdfDoc, rectTable)
+              .Add(tableHeader
                 .SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(16)
+                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA)).SetFontSize(10)
                 );
 
-      if (_debugAreas)
-        pdfCanvas.SetStrokeColor(ColorConstants.RED)
-                 .SetLineWidth(0.5f)
-                 .Rectangle(rectHead1)
-                 .Stroke();
-
-      // Double Lines
-      pdfCanvas.SetStrokeColor(ColorConstants.BLACK)
-               .SetLineWidth(0.3F)
-               .MoveTo(_pageMargins.Left, pageSize.GetTop() - _height - _pageMargins.Top - 2.0)
-               .LineTo(pageSize.GetRight() - _pageMargins.Right, pageSize.GetTop() - _height - _pageMargins.Top - 2.0)
-               .MoveTo(_pageMargins.Left, pageSize.GetTop() - _height - _pageMargins.Top - 3.0)
-               .LineTo(pageSize.GetRight() - _pageMargins.Right, pageSize.GetTop() - _height - _pageMargins.Top - 3.0)
-               .ClosePathStroke();
-
       pdfCanvas.Release();
+      return;
+    }
+
+    Table createHeaderTable()
+    {
+      float[] cols = { 15.0F, 70.0F, 15.0F };
+      Table tableHeader = new Table(UnitValue.CreatePercentArray(cols));
+      tableHeader.SetWidth(UnitValue.CreatePercentValue(100));
+        //.SetPaddingBottom(0)
+        //.SetMarginBottom(0);
+
+      float padding = 1F;
+      float maxHeightCol1 = 56.0F;
+      float maxHeightCol2 = 30.0F;
+      var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+      var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+      var fontTitle = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+      int fontSizeTitle = 16;
+      int fontSizeNormal = 10;
+
+
+      if (_logo1 != null)
+        tableHeader.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.LEFT)
+          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+          .SetMaxHeight(maxHeightCol1)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          .SetPadding(padding)
+          .SetFont(fontBold)
+          .Add(_logo1.SetAutoScale(true)));
+      else
+        tableHeader.AddCell(new Cell()
+          .SetMaxHeight(maxHeightCol1)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
+
+
+      if (!string.IsNullOrEmpty(_race.Description))
+        // Race Titles
+        tableHeader.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.CENTER)
+          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+          .SetMaxHeight(maxHeightCol1)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          .SetPadding(padding)
+          .SetFont(fontTitle)
+          .SetFontSize(fontSizeTitle)
+          .Add(new Paragraph(_race.Description)));
+      else
+        tableHeader.AddCell(new Cell()
+          .SetMaxHeight(maxHeightCol1)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
+
+      if (_logoRH != null)
+        tableHeader.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.RIGHT)
+          .SetHorizontalAlignment(HorizontalAlignment.RIGHT)
+          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+          .SetMaxHeight(maxHeightCol1)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          .SetPadding(padding)
+          .SetFont(fontBold)
+          .Add(_logoRH.SetAutoScale(true)));
+      else
+        tableHeader.AddCell(new Cell()
+          .SetMaxHeight(maxHeightCol1)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
+
+
+      // Second row
+      if (_logo2 != null)
+        tableHeader.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.LEFT)
+          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+          .SetMaxHeight(maxHeightCol2)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetPadding(padding)
+          .SetFont(fontBold)
+          .Add(_logo2.SetAutoScale(true)));
+      else
+        tableHeader.AddCell(new Cell()
+          .SetMaxHeight(maxHeightCol2)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick)));
+
+      // List Name
+      tableHeader.AddCell(new Cell()
+        .SetTextAlignment(TextAlignment.CENTER)
+        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetMaxHeight(maxHeightCol2)
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
+        .SetPadding(padding)
+        .SetFont(fontTitle)
+        .SetFontSize(fontSizeTitle)
+        .Add(new Paragraph(_listName)));
+
+      // Race Date & Time
+      tableHeader.AddCell(new Cell()
+        .SetTextAlignment(TextAlignment.RIGHT)
+        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetMaxHeight(maxHeightCol2)
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
+        .SetPadding(padding)
+        .SetFont(fontNormal)
+        .SetFontSize(fontSizeNormal)
+        .Add(new Paragraph(_race.DateStart.ToString())));
+
+      return tableHeader;
     }
   }
 
@@ -217,11 +367,14 @@ namespace DSVAlpin2Lib
     Margins _pageMargins;
 
 
-    string _footer2;
+    string _footerVersion;
+    string _footerWebsite;
+    string _footerCopyright;
     bool _debugAreas = false;
     float _height = 110;
-    Image _logo3;
-    float _logoHeight = 0F;
+    Image _banner;
+    float _bannerHeight = 0F;
+    Image _logoRH;
 
     public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins)
     {
@@ -234,9 +387,10 @@ namespace DSVAlpin2Lib
 
       var pageSize = PageSize.A4; // Assumption
 
-      _logo3 = _pdfHelper.GetImage("Logo3");
-      if (_logo3!=null)
-        _logoHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _logo3.GetImageHeight() / _logo3.GetImageWidth();
+      _banner = _pdfHelper.GetImage("Banner2");
+      if (_banner!=null)
+        _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _banner.GetImageHeight() / _banner.GetImageWidth();
+      _logoRH = _pdfHelper.GetImage("LogoRH");
 
       calculateFooter();
       calculateHeight();
@@ -255,7 +409,7 @@ namespace DSVAlpin2Lib
       var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
 
-      _height = _logoHeight + tableHeight + 7;
+      _height = _bannerHeight + tableHeight + 7;
     }
 
 
@@ -272,12 +426,13 @@ namespace DSVAlpin2Lib
         var productName = fvi.ProductName;
         var copyrightYear = fvi.LegalCopyright;
         var productVersion = fvi.ProductVersion;
-        var webAddress = "www.race-horology.com";
 
-        _footer2 = string.Format("{0} V{1}, {2} by {3}, {4}", productName, productVersion, copyrightYear, companyName, webAddress);
+        _footerVersion = productVersion;
+        _footerWebsite = "www.race-horology.com";
+        _footerCopyright = string.Format("{1} by {2}\nVersion {0}", productVersion, copyrightYear, companyName);
       }
       else
-        _footer2 = "";
+        _footerVersion = _footerWebsite = _footerCopyright = "";
 
     }
 
@@ -293,12 +448,12 @@ namespace DSVAlpin2Lib
       PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
 
       // Footer
-      if (_logo3 != null)
+      if (_banner != null)
       {
         Rectangle area3 = new Rectangle(
           pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom, 
-          pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right, _logoHeight);
-        Canvas canvas = new Canvas(pdfCanvas, pdfDoc, area3).Add(_logo3);
+          pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right, _bannerHeight);
+        Canvas canvas = new Canvas(pdfCanvas, pdfDoc, area3).Add(_banner);
 
         if (_debugAreas)
           pdfCanvas.SetStrokeColor(ColorConstants.RED)
@@ -315,7 +470,7 @@ namespace DSVAlpin2Lib
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
 
       Rectangle rectTable = new Rectangle(
-        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _logoHeight,
+        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _bannerHeight,
         tableWidth, tableHeight);
 
       new Canvas(pdfCanvas, pdfDoc, rectTable)
@@ -335,12 +490,11 @@ namespace DSVAlpin2Lib
 
     Table createFooterTable(int pageNumber)
     {
-      Table tableFooter = new Table(3);
+      Table tableFooter = new Table(UnitValue.CreatePercentArray(new float[]{2.0F, 3.0F, 2.0F}));
       tableFooter.SetWidth(UnitValue.CreatePercentValue(100))
         .SetPaddingBottom(0)
         .SetMarginBottom(0);
 
-      float borderWidth = 1F;
       float padding = 1F;
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
 
@@ -348,32 +502,59 @@ namespace DSVAlpin2Lib
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.LEFT)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new DoubleBorder(borderWidth))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
         .Add(new Paragraph(DateTime.Now.ToString(@"dd.MM.yyyy"))));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new DoubleBorder(borderWidth))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
         .Add(parPage));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new DoubleBorder(borderWidth))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
         .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", "12345"))));
 
 
-      tableFooter.AddCell(new Cell(1, 3)
-        .SetTextAlignment(TextAlignment.CENTER)
+      float middleHeight = 35.0F;
+      tableFooter.AddCell(new Cell()
+        .SetTextAlignment(TextAlignment.LEFT)
+        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetMaxHeight(middleHeight)
+        .SetBackgroundColor(PDFHelper.ColorRHBG1)
+        .SetMarginTop(5)
+        .SetMarginBottom(5)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new DoubleBorder(borderWidth))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
-        .Add(new Paragraph(_footer2)));
+        .Add(_logoRH.SetMaxHeight(16.0F)));
+        //.Add(new Paragraph(_footerVersion)));
+      tableFooter.AddCell(new Cell()
+        .SetTextAlignment(TextAlignment.CENTER)
+        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetMaxHeight(middleHeight)
+        .SetBackgroundColor(PDFHelper.ColorRHBG1)
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        .SetPadding(padding)
+        .Add(new Paragraph(_footerWebsite)));
+      tableFooter.AddCell(new Cell()
+        .SetTextAlignment(TextAlignment.RIGHT)
+        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetMaxHeight(middleHeight)
+        .SetBackgroundColor(PDFHelper.ColorRHBG1)
+        .SetMarginTop(0)
+        .SetMarginBottom(0)
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        .SetPadding(padding)
+        .Add(new Paragraph(_footerCopyright).SetFontSize(6.0F)));
 
 
       tableFooter.AddCell(new Cell()
@@ -493,7 +674,7 @@ public abstract class PDFReport : IPDFReport
 
       var document = new Document(pdf, PageSize.A4);
 
-      var header = new ReportHeader(_pdfHelper, _race, getTitle(), pageMargins);
+      var header = new ReportHeader(pdf, document, _pdfHelper, _race, getTitle(), pageMargins);
       var footer = new ReportFooter(pdf, document, _pdfHelper, _race, getTitle(), pageMargins);
 
       pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, header);
@@ -724,7 +905,7 @@ public abstract class PDFReport : IPDFReport
 
       table.AddCell(createCell(1, 5)
         .SetPaddingTop(12)
-        .SetBorderBottom(new DoubleBorder(1F)));
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick)));
       table.AddCell(createCell(1, 5)
         .SetPaddingTop(12));
 
@@ -894,7 +1075,7 @@ public abstract class PDFReport : IPDFReport
 
       Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
       if (i % 2 == 1)
-        bgColor = new DeviceRgb(0.98f, 0.98f, 0.98f);
+        bgColor = PDFHelper.ColorRHBG1;
 
 
       // Startnumber
@@ -1001,7 +1182,7 @@ public abstract class PDFReport : IPDFReport
 
       Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
       if (i % 2 == 1)
-        bgColor = new DeviceRgb(0.98f, 0.98f, 0.98f);
+        bgColor = PDFHelper.ColorRHBG1;
 
 
       // Position
@@ -1116,7 +1297,7 @@ public abstract class PDFReport : IPDFReport
 
       Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
       if (i % 2 == 1)
-        bgColor = new DeviceRgb(0.98f, 0.98f, 0.98f);
+        bgColor = PDFHelper.ColorRHBG1;
 
       // Position
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(item.Position, typeof(string), null, null))));
