@@ -104,7 +104,20 @@ namespace DSVAlpin2Lib
 
   }
 
+  public static class PDFHelperExt
+  {
+    public static Cell ConfigureHeaderCell(this Cell cell)
+    {
+      cell
+        .SetBackgroundColor(PDFHelper.ColorRHFG1)
+        .SetFontColor(ColorConstants.WHITE)
+        .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
+        ;
+      return cell;
+    }
 
+  }
 
   public struct Margins
   {
@@ -1042,24 +1055,47 @@ public abstract class PDFReport : IPDFReport
         return new Paragraph(text).SetFont(font).SetFontSize(10);
       }
 
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Code")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Teilnehmer")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("JG")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("VB")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Verein")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Punkte")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Laufzeit")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Stnr")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Code")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Teilnehmer")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("JG")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("VB")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Verein")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Punkte")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Laufzeit")));
     }
 
 
     protected override void addLineToTable(Table table, string group)
     {
       table.AddCell(new Cell(1, 1)
-        .SetBorder(Border.NO_BORDER));
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        );
 
       table.AddCell(new Cell(1, 7)
         .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
@@ -1148,25 +1184,50 @@ public abstract class PDFReport : IPDFReport
         return new Paragraph(text).SetFont(font).SetFontSize(10);
       }
 
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Rang")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Teilnehmer")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("JG")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("VB")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Verein")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Punkte")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Laufzeit")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Diff")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Rang")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Stnr")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Teilnehmer")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("JG")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("VB")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Verein")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Punkte")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Laufzeit")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Diff")));
     }
 
 
     protected override void addLineToTable(Table table, string group)
     {
       table.AddCell(new Cell(1, 2)
-        .SetBorder(Border.NO_BORDER));
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        );
 
       table.AddCell(new Cell(1, 7)
         .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
@@ -1259,29 +1320,56 @@ public abstract class PDFReport : IPDFReport
         return new Paragraph(text).SetFont(font).SetFontSize(10);
       }
 
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Rang")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Teilnehmer")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("JG")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("VB")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph("Verein")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Rang")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Stnr")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Teilnehmer")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("JG")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("VB")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Verein")));
 
       for (int i = 1; i <= _race.GetMaxRun(); i++)
-        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT).Add(createParagraph(string.Format("Zeit-{0}", i))));
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph(string.Format("Zeit-{0}", i))));
 
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Punkte")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Laufzeit")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT).Add(createParagraph("Diff")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Punkte")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Laufzeit")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Diff")));
     }
 
 
     protected override void addLineToTable(Table table, string group)
     {
       table.AddCell(new Cell(1, 2)
-        .SetBorder(Border.NO_BORDER));
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        );
 
       table.AddCell(new Cell(1, 7+ _race.GetMaxRun())
         .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
