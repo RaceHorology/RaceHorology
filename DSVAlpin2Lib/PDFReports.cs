@@ -355,14 +355,14 @@ namespace DSVAlpin2Lib
       // Race Date & Time
       tableHeader.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
-        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetVerticalAlignment(VerticalAlignment.TOP)
         .SetMaxHeight(maxHeightCol2)
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateStart.ToString())));
+        .Add(new Paragraph(_race.DateStart.ToShortDateString())));
 
       return tableHeader;
     }
