@@ -762,6 +762,8 @@ namespace DSVAlpin2
     {
       if (cmbTotalResultGrouping.SelectedValue is CBItem grouping)
         _totalResultsVP?.ChangeGrouping((string)grouping.Value);
+
+      chartResults.Display(_thisRace.GetResultViewProvider());
     }
 
 
@@ -779,10 +781,9 @@ namespace DSVAlpin2
           vp = selObj.RaceRun.GetStartListProvider();
       }
 
-      chartResults.Display(_thisRace.GetResultViewProvider());
-
-
       _totalResultsVP = vp;
+
+      chartResults.Display(_thisRace.GetResultViewProvider());
 
       adaptTotalResultsView();
     }

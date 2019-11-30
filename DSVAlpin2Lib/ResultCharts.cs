@@ -211,7 +211,7 @@ namespace DSVAlpin2Lib
         //DataPoint p = new DataPoint(timeValue, x);
         //p.Label = item.Participant.Fullname;
         //p.Label = string.Format("{0} {1}.", item.Participant.Name, item.Participant.Firstname.Substring(0, 1));
-        p.Label = string.Format("{0} ({1}{2})", item.Participant.StartNumber, item.Participant.Name.Substring(0, 1), item.Participant.Firstname.Substring(0, 1));
+        p.Label = string.Format("{0} ({1}{2})", item.Participant.StartNumber, item.Participant.Name.Substring(0, 2), item.Participant.Firstname.Substring(0, 1));
 
         if (item.Participant.Sex == "M")
         {
