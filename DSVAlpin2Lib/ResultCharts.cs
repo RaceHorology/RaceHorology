@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace DSVAlpin2Lib
@@ -318,32 +319,59 @@ namespace DSVAlpin2Lib
 
 
 
-  //public class OfflineChart
-  //{
-  //  Chart _chart;
+  public class OfflineChart : ResultCharts
+  {
+    Chart _chart;
 
-  //  public OfflineChart()
-  //  {
-  //    _chart = new Chart
-  //    {
-  //      Width = 300,
-  //      Height = 450,
-  //      RenderType = RenderType.ImageTag,
-  //      AntiAliasing = AntiAliasingStyles.All,
-  //      TextAntiAliasingQuality = TextAntiAliasingQuality.High
-  //    };
-
-  //    _chart.
+    public OfflineChart(int width, int height)
+    {
+      _chart = new Chart()
+      {
+        Width = width * 300 / 72 / 2,
+        Height = height * 300 / 72 / 2,
+        AntiAliasing = AntiAliasingStyles.All,
+        TextAntiAliasingQuality = TextAntiAliasingQuality.High
+      };
+    }
 
 
-  //  }
+    public void RenderToFile(string path, RaceResultViewProvider results)
+    {
+
+      SetupChart(_chart, results);
+
+      //_chart.SaveImage(path, ChartImageFormat.Png);
+
+      _chart.SaveImage(path + ".emf", ChartImageFormat.Emf);
+
+      ConvertToWMF(path + ".emf", path);
+    }
+
+    private enum EmfToWmfBitsFlags
+    {
+      EmfToWmfBitsFlagsDefault = 0x00000000,
+      EmfToWmfBitsFlagsEmbedEmf = 0x00000001,
+      EmfToWmfBitsFlagsIncludePlaceable = 0x00000002,
+      EmfToWmfBitsFlagsNoXORClip = 0x00000004
+    }
+
+    [System.Runtime.InteropServices.DllImport("gdiplus.dll", SetLastError = true)]
+    static extern int GdipEmfToWmfBits(int hEmf, int uBufferSize, byte[] bBuffer, int iMappingMode, EmfToWmfBitsFlags flags);
+    void ConvertToWMF(string emfPath, string wmfPath)
+    {
+      const int MM_ANISOTROPIC = 8;
+      System.Drawing.Imaging.Metafile mf = new System.Drawing.Imaging.Metafile(emfPath);
+      int handle = mf.GetHenhmetafile().ToInt32();
+      int bufferSize = GdipEmfToWmfBits(handle, 0, null, MM_ANISOTROPIC, EmfToWmfBitsFlags.EmfToWmfBitsFlagsIncludePlaceable);
+
+      byte[] buf = new byte[bufferSize];
+      GdipEmfToWmfBits(handle, bufferSize, buf, MM_ANISOTROPIC, EmfToWmfBitsFlags.EmfToWmfBitsFlagsIncludePlaceable);
+      System.IO.FileStream fs = new System.IO.FileStream(wmfPath, System.IO.FileMode.Create);
+      fs.Write(buf, 0, bufferSize);
+      fs.Close();
+    }
 
 
-  //  public void RenderToFile(string path)
-  //  {
 
-  //  }
-
-
-  //}
+  }
 }

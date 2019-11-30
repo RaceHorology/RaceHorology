@@ -1432,9 +1432,11 @@ public abstract class PDFReport : IPDFReport
 
     protected void addResultsChart(PdfDocument pdf, Document document)
     {
-      var page = pdf.AddNewPage(PageSize.A4.Rotate());
+      var page = pdf.AddNewPage();// PageSize.A4.Rotate());
 
-      Rectangle areaChart = new Rectangle(page.GetPageSize().GetWidth(), page.GetPageSize().GetHeight());
+      Rectangle areaChart = new Rectangle(document.GetLeftMargin(), document.GetBottomMargin(),
+        page.GetPageSize().GetWidth() - document.GetLeftMargin() - document.GetRightMargin(), 
+        page.GetPageSize().GetHeight() - document.GetBottomMargin() - document.GetTopMargin());
 
       OfflineChart fileHelper = new OfflineChart((int)areaChart.GetWidth(), (int)areaChart.GetHeight());
       fileHelper.RenderToFile("test.wmf", _race.GetResultViewProvider());
@@ -1452,7 +1454,7 @@ public abstract class PDFReport : IPDFReport
 
       Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)
         .SetHorizontalAlignment(HorizontalAlignment.CENTER)
-        .Add(imgChart);
+        .Add(imgChart.SetAutoScale(true));
 
     }
   }
