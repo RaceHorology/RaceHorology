@@ -77,11 +77,10 @@ namespace DSVAlpin2Lib
     }
 
 
-    public void configureAxis(ChartArea area, RaceResultViewProvider results)
+    public void configureAxisX(Axis axis, RaceResultViewProvider results)
     {
-      area.AxisX.Minimum = 0.5; // Double.NaN;
-
-      area.AxisX.CustomLabels.Clear();
+      axis.Minimum = 0.5; // Double.NaN;
+      axis.CustomLabels.Clear();
       var lr = results.GetView() as System.Windows.Data.ListCollectionView;
       if (lr.Groups != null)
       {
@@ -93,7 +92,7 @@ namespace DSVAlpin2Lib
         {
           if (group is System.Windows.Data.CollectionViewGroup cvGroup)
           {
-            var lblGroup = area.AxisX.CustomLabels.Add(x1 - 0.5, x1 + 0.5, cvGroup.Name.ToString());
+            var lblGroup = axis.CustomLabels.Add(x1 - 0.5, x1 + 0.5, cvGroup.Name.ToString());
             lblGroup.GridTicks = GridTickTypes.None;
 
             // Second Level if possible
@@ -105,7 +104,7 @@ namespace DSVAlpin2Lib
 
               if (!string.Equals(name2, name2Last))
               {
-                var lblName2 = area.AxisX.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, name2Last, 1, LabelMarkStyle.LineSideMark);
+                var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, name2Last, 1, LabelMarkStyle.LineSideMark);
                 name2Last = name2;
                 x2Last = x2;
               }
@@ -119,16 +118,25 @@ namespace DSVAlpin2Lib
         // Final 2nd group
         if (name2 != null && name2Last != null)
         {
-          var lblName2 = area.AxisX.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, name2Last, 1, LabelMarkStyle.LineSideMark);
+          var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, name2Last, 1, LabelMarkStyle.LineSideMark);
         }
 
-        area.AxisX.Maximum = x2 - 0.5;
+        axis.Maximum = x2 - 0.5;
       }
 
+      // Enable X axis labels automatic fitting
+      axis.IsLabelAutoFit = true;
+      axis.LabelAutoFitStyle = LabelAutoFitStyles.DecreaseFont | LabelAutoFitStyles.IncreaseFont | LabelAutoFitStyles.WordWrap;
+      axis.MajorGrid.Enabled = false;
+      axis.MinorGrid.Enabled = false;
+    }
 
+
+    public void configureAxisY(Axis axis, RaceResultViewProvider results)
+    {
       double timeMax = double.NaN;
       double timeMin = double.NaN;
-      foreach ( var v in results.GetView())
+      foreach (var v in results.GetView())
       {
         if (v is RaceResultItem result)
         {
@@ -145,54 +153,47 @@ namespace DSVAlpin2Lib
         }
       }
 
-      // Enable X axis labels automatic fitting
-      area.AxisX.IsLabelAutoFit = true;
-      area.AxisX.LabelAutoFitStyle = LabelAutoFitStyles.DecreaseFont | LabelAutoFitStyles.IncreaseFont | LabelAutoFitStyles.WordWrap;
-      area.AxisX.MajorGrid.Enabled = false;
-      area.AxisX.MinorGrid.Enabled = false;
-
-
       double yInt, yMinInt;
       yInt = yMinInt = 0;
       getNiceRoundNumbers(ref timeMin, ref timeMax, ref yInt, ref yMinInt);
 
 
-      area.AxisY.Minimum = timeMin;
-      area.AxisY.Maximum = timeMax;
-      area.AxisY.Interval = yInt;
-      area.AxisY.MinorTickMark.Interval = yMinInt;
-      area.AxisY.MinorTickMark.TickMarkStyle = TickMarkStyle.OutsideArea;
-      area.AxisY.MinorTickMark.Enabled = true;
-      area.AxisY.MinorTickMark.Size = area.AxisY.MajorTickMark.Size / 2;
-      
-      area.AxisY.IsMarginVisible = false;
-      area.AxisY.IsStartedFromZero = false;
-      area.AxisY.Title = "Zeit [s]";
-      area.AxisY.TitleFont = new System.Drawing.Font("Helvetica", 10);
-      area.AxisY.LabelAutoFitStyle = LabelAutoFitStyles.None;
-      //area.AxisY.LabelStyle.Format = "#.##";
-      //area.AxisY.RoundAxisValues();
-      //area.AxisY.IntervalType = DateTimeIntervalType.= IntervalAutoMode.
+      axis.Minimum = timeMin;
+      axis.Maximum = timeMax;
+      axis.Interval = yInt;
+      axis.MinorTickMark.Interval = yMinInt;
+      axis.MinorTickMark.TickMarkStyle = TickMarkStyle.OutsideArea;
+      axis.MinorTickMark.Enabled = true;
+      axis.MinorTickMark.Size = axis.MajorTickMark.Size / 2;
 
-      area.AxisY.MajorGrid.LineDashStyle = ChartDashStyle.Solid;
-      area.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
-      //area.AxisY.MajorGrid.Interval = 2.0;
+      axis.IsMarginVisible = false;
+      axis.IsStartedFromZero = false;
+      axis.Title = "Zeit [s]";
+      axis.TitleFont = new System.Drawing.Font("Helvetica", 10);
+      axis.LabelAutoFitStyle = LabelAutoFitStyles.None;
+      //axis.LabelStyle.Format = "#.##";
+      //axis.RoundAxisValues();
+      //axis.IntervalType = DateTimeIntervalType.= IntervalAutoMode.
 
-      area.AxisY.MinorGrid.Enabled = true;
-      area.AxisY.MinorGrid.LineDashStyle = ChartDashStyle.Dot;
-      area.AxisY.MinorGrid.LineColor = System.Drawing.Color.LightGray;
-      //area.AxisY.MinorGrid.Interval = 0.5;
+      axis.MajorGrid.LineDashStyle = ChartDashStyle.Solid;
+      axis.MajorGrid.LineColor = System.Drawing.Color.Gray;
+      //axis.MajorGrid.Interval = 2.0;
+
+      axis.MinorGrid.Enabled = true;
+      axis.MinorGrid.LineDashStyle = ChartDashStyle.Dot;
+      axis.MinorGrid.LineColor = System.Drawing.Color.LightGray;
+      //axis.MinorGrid.Interval = 0.5;
 
 
       // Enable scale breaks
-      area.AxisY.ScaleBreakStyle.Enabled = false;
-      //area.AxisY.ScaleBreakStyle.BreakLineStyle = BreakLineStyle.Wave;
-      //area.AxisY.ScaleBreakStyle.Spacing = 2;
-      //area.AxisY.ScaleBreakStyle.LineWidth = 2;
-      //area.AxisY.ScaleBreakStyle.LineColor = System.Drawing.Color.Red;
-      //area.AxisY.ScaleBreakStyle.CollapsibleSpaceThreshold = 10;
+      axis.ScaleBreakStyle.Enabled = false;
+      //axis.ScaleBreakStyle.BreakLineStyle = BreakLineStyle.Wave;
+      //axis.ScaleBreakStyle.Spacing = 2;
+      //axis.ScaleBreakStyle.LineWidth = 2;
+      //axis.ScaleBreakStyle.LineColor = System.Drawing.Color.Red;
+      //axis.ScaleBreakStyle.CollapsibleSpaceThreshold = 10;
       //// If all data points are significantly far from zero, the Chart will calculate the scale minimum value
-      //area.AxisY.ScaleBreakStyle.StartFromZero = StartFromZero.Yes;
+      //axis.ScaleBreakStyle.StartFromZero = StartFromZero.Yes;
     }
 
 
@@ -235,13 +236,34 @@ namespace DSVAlpin2Lib
       {
         ChartArea area = new ChartArea();
         chart.ChartAreas.Add(area);
-
         area.BorderColor = Color.FromArgb(0x3f, 0x43, 0x4b);
         area.BorderDashStyle = ChartDashStyle.Solid;
         area.BorderWidth = 1;
+        //area.AlignmentOrientation = AreaAlignmentOrientations.Horizontal;
+        //area.Position.X = 5;
+        //area.Position.Y = 5;
+        //area.Position.Width = 80;
+        //area.Position.Height = 90;
+
+        //ChartArea areaBB = new ChartArea();
+        //chart.ChartAreas.Add(areaBB);
+        //areaBB.BorderColor = Color.FromArgb(0x3f, 0x43, 0x4b);
+        //areaBB.BorderDashStyle = ChartDashStyle.Solid;
+        //areaBB.BorderWidth = 1;
+        //areaBB.AlignmentOrientation = AreaAlignmentOrientations.Horizontal;
+        //areaBB.AlignmentStyle = AreaAlignmentStyles.AxesView;
+        //areaBB.Position.X = 85;
+        //areaBB.Position.Y = 5;
+        //areaBB.Position.Width = 20;
+        //areaBB.Position.Height = 90;
+        //areaBB.AxisY.LabelStyle.Enabled = false;
+
+        chart.Customize += Chart_Customize;
       }
 
-      configureAxis(chart.ChartAreas[0], results);
+      configureAxisX(chart.ChartAreas[0].AxisX, results);
+      configureAxisY(chart.ChartAreas[0].AxisY, results);
+      //configureAxisY(chart.ChartAreas[1].AxisY, results);
     }
 
 
@@ -265,11 +287,46 @@ namespace DSVAlpin2Lib
             }
             x++;
 
+            ds.ChartArea = chart.ChartAreas[0].Name;
             chart.Series.Add(ds);
+            ds.Enabled = true;
+
+            //Series dsBB = new Series("BoxPlot" + cvGroup.Name.ToString());
+            //dsBB.ChartType = SeriesChartType.BoxPlot;
+            //dsBB["BoxPlotSeries"] = ds.Name;
+            //dsBB["BoxPlotWhiskerPercentile"] = "5";
+            //dsBB["BoxPlotPercentile"] = "30";
+            //dsBB["BoxPlotShowAverage"] = "true";
+            //dsBB["BoxPlotShowMedian"] = "true";
+            //dsBB["BoxPlotShowUnusualValues"] = "true";
+            ////dsBB["MaxPixelPointWidth"] = "15";
+            //chart.Series.Add(dsBB);
           }
         }
       }
+    }
 
+    private void Chart_Customize(object sender, EventArgs e)
+    {
+      if (sender is Chart chart)
+      {
+        int x = 1;
+        foreach( var s in chart.Series )
+        {
+          if (s.Name.Contains("BoxPlot"))
+          {
+            foreach (var p in s.Points)
+            {
+              p.XValue = x;
+            }
+            x++;
+          }
+        }
+      }
+    }
+
+    void addBoxPLots(Chart chart)
+    {
 
     }
 
@@ -299,7 +356,7 @@ namespace DSVAlpin2Lib
       ds.SmartLabelStyle.CalloutStyle = LabelCalloutStyle.Underlined;
 
       // Set marker size
-      ds.MarkerSize = 15;
+      ds.MarkerSize = 10;
 
       // Set marker shape
       ds.MarkerStyle = MarkerStyle.Circle;

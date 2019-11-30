@@ -171,7 +171,7 @@ namespace DSVAlpin2Lib
       _logo2 = _pdfHelper.GetImage("Logo2");
       //if (_logo2 != null)
       //  _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _logo2.GetImageHeight() / _logo2.GetImageWidth();
-      _logoRH = _pdfHelper.GetImage("LogoRHShort");
+      _logoRH = _pdfHelper.GetImage("LogoRHShortM");
 
       calculateHeader();
       calculateHeight();
@@ -355,14 +355,14 @@ namespace DSVAlpin2Lib
       // Race Date & Time
       tableHeader.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
-        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetVerticalAlignment(VerticalAlignment.TOP)
         .SetMaxHeight(maxHeightCol2)
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateStart.ToString())));
+        .Add(new Paragraph(_race.DateStart.ToShortDateString())));
 
       return tableHeader;
     }
