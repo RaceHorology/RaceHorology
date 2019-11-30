@@ -1432,30 +1432,28 @@ public abstract class PDFReport : IPDFReport
 
     protected void addResultsChart(PdfDocument pdf, Document document)
     {
-      var page = pdf.AddNewPage();// PageSize.A4.Rotate());
+      var page = pdf.AddNewPage();
 
+      // Determine the position of the chart
       Rectangle areaChart = new Rectangle(document.GetLeftMargin(), document.GetBottomMargin(),
         page.GetPageSize().GetWidth() - document.GetLeftMargin() - document.GetRightMargin(), 
         page.GetPageSize().GetHeight() - document.GetBottomMargin() - document.GetTopMargin());
 
+      // Render the chart (vector format WMF)
       OfflineChart fileHelper = new OfflineChart((int)areaChart.GetWidth(), (int)areaChart.GetHeight());
-      fileHelper.RenderToFile("test.wmf", _race.GetResultViewProvider());
+      MemoryStream chartStreamWMF = new MemoryStream();
+      fileHelper.RenderToFile(chartStreamWMF, _race.GetResultViewProvider());
 
-      //Image imgChart = new Image(ImageDataFactory.Create("test.wmf"));
-
-      WmfImageData imgData = new WmfImageData("test.wmf");
-
+      // Create an iText Image 
+      WmfImageData imgData = new WmfImageData(chartStreamWMF.ToArray());
       var pdfFormxObj = new PdfFormXObject(imgData, pdf);
       Image imgChart = new Image(pdfFormxObj);
 
+      // Render the image
       PdfCanvas pdfCanvas = new PdfCanvas(page);
-      //pdfCanvas.AddXObject(pdfFormxObj, areaChart);
-
-
       Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)
         .SetHorizontalAlignment(HorizontalAlignment.CENTER)
         .Add(imgChart.SetAutoScale(true));
-
     }
   }
 }
