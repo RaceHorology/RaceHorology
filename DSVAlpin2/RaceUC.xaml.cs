@@ -134,6 +134,13 @@ namespace DSVAlpin2
       cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
       cmbConfigStartlist2.SelectCBItem(cfg.Run2_StartistView);
       cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
+
+      chkConfigFieldsYear.IsChecked = cfg.ActiveFields.Contains("Year");
+      chkConfigFieldsClub.IsChecked = cfg.ActiveFields.Contains("Club");
+      chkConfigFieldsNation.IsChecked = cfg.ActiveFields.Contains("Nation");
+      chkConfigFieldsCode.IsChecked = cfg.ActiveFields.Contains("Code");
+      chkConfigFieldsPoints.IsChecked = cfg.ActiveFields.Contains("Points");
+
     }
 
     private bool StoreConfigurationSelectionUI(ref RaceConfiguration cfg)
@@ -156,6 +163,27 @@ namespace DSVAlpin2
       cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
       cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
       cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;
+
+
+      void enableField(List<string> fieldList, string field, bool? enabled)
+      {
+        if (enabled != null && (bool)enabled)
+        {
+          if (!fieldList.Contains(field))
+            fieldList.Add(field);
+        }
+        else
+        {
+          if (fieldList.Contains(field))
+            fieldList.Remove(field);
+        }
+      }
+
+      enableField(cfg.ActiveFields, "Year", chkConfigFieldsYear.IsChecked);
+      enableField(cfg.ActiveFields, "Club", chkConfigFieldsClub.IsChecked);
+      enableField(cfg.ActiveFields, "Nation", chkConfigFieldsNation.IsChecked);
+      enableField(cfg.ActiveFields, "Code", chkConfigFieldsCode.IsChecked);
+      enableField(cfg.ActiveFields, "Points", chkConfigFieldsPoints.IsChecked);
 
       return true;
     }
