@@ -68,6 +68,8 @@ namespace DSVAlpin2
     {
 
       OpenFileDialog openFileDialog = new OpenFileDialog();
+      openFileDialog.DefaultExt = ".mdb";
+      openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
@@ -101,7 +103,7 @@ namespace DSVAlpin2
     /// <param name="dbPath">Path to the database (Access File)</param>
     private void OpenDatabase(string dbPath)
     {
-      try
+      //try
       {
         Logger.Info("Open DSVAlpin database: {dbpath}", dbPath);
 
@@ -129,11 +131,11 @@ namespace DSVAlpin2
 
         _mruList.AddFile(dbPath);
       }
-      catch (Exception ex)
-      {
-        Logger.Error(ex, "during database loading");
-        throw;
-      }
+      //catch (Exception ex)
+      //{
+      //  Logger.Error(ex, "during database loading");
+      //  throw;
+      //}
     }
 
     /// <summary>
@@ -244,24 +246,27 @@ namespace DSVAlpin2
       {
         string url = _alpinServer.GetUrl();
 
-        QRCodeGenerator qrGenerator = new QRCodeGenerator();
-        QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
-        QRCode qrCode = new QRCode(qrCodeData);
-        System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
-
-        BitmapImage bitmapimage = new BitmapImage();
-        using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+        if (!string.IsNullOrEmpty(url))
         {
-          bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-          memory.Position = 0;
-          bitmapimage.BeginInit();
-          bitmapimage.StreamSource = memory;
-          bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-          bitmapimage.EndInit();
-        }
+          QRCodeGenerator qrGenerator = new QRCodeGenerator();
+          QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+          QRCode qrCode = new QRCode(qrCodeData);
+          System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
 
-        imgQRCode.Source = bitmapimage;
-        lblURL.Content = url;
+          BitmapImage bitmapimage = new BitmapImage();
+          using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+          {
+            bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+            memory.Position = 0;
+            bitmapimage.BeginInit();
+            bitmapimage.StreamSource = memory;
+            bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapimage.EndInit();
+          }
+
+          imgQRCode.Source = bitmapimage;
+          lblURL.Content = url;
+        }
       }
     }
 
@@ -289,7 +294,7 @@ namespace DSVAlpin2
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel);
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
-      _alge = new ALGETdC8001TimeMeasurement(ConfigurationManager.AppSettings.Get("TimingDevice.Port"));
+      _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port);
       _alge.RawMessageReceived += Alge_OnMessageReceived;
 
       _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
@@ -390,5 +395,10 @@ namespace DSVAlpin2
     }
 
     #endregion
+
+    private void LogoRH_png_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      System.Diagnostics.Process.Start("http://www.race-horology.com");
+    }
   }
 }

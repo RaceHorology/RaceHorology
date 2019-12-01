@@ -104,7 +104,7 @@ namespace DSVAlpin2Lib
 
     public List<ParticipantGroup> GetParticipantGroups()
     {
-      ReadParticipantClasses();
+      ReadParticipantGroups();
 
       List<ParticipantGroup> groups = new List<ParticipantGroup>();
       foreach (var p in _id2ParticipantGroups)
@@ -294,7 +294,7 @@ namespace DSVAlpin2Lib
       if (!bNew)
       {
         string sql = @"UPDATE tblTeilnehmer " +
-                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, klasse = @klasse, jahrgang = @jahrgang " +
+                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, svid = @svid, code = @code, klasse = @klasse, jahrgang = @jahrgang " +
                      @"WHERE id = @id";
         cmd = new OleDbCommand(sql, _conn);
       }
@@ -311,8 +311,8 @@ namespace DSVAlpin2Lib
           id++;
         }
                
-        string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, klasse, jahrgang, id) " +
-                     @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @klasse, @jahrgang, @id) ";
+        string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, svid, code, klasse, jahrgang, id) " +
+                     @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @svid, @code, @klasse, @jahrgang, @id) ";
         cmd = new OleDbCommand(sql, _conn);
       }
 
@@ -331,6 +331,19 @@ namespace DSVAlpin2Lib
         cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
+      if (string.IsNullOrEmpty(participant.SvId))
+        cmd.Parameters.Add(new OleDbParameter("@svid", DBNull.Value));
+      else
+      {
+        long svid = 0;
+        if (long.TryParse(participant.SvId, out svid))
+          cmd.Parameters.Add(new OleDbParameter("@svid", svid));
+      }
+      if (string.IsNullOrEmpty(participant.Code))
+        cmd.Parameters.Add(new OleDbParameter("@code", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@code", participant.Code));
+
 
       cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
       cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
@@ -399,10 +412,10 @@ namespace DSVAlpin2Lib
         cmd.Parameters.Add(new OleDbParameter("@ziel", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@ziel", FractionForTimeSpan((TimeSpan)result.GetFinishTime())));
-      if (result.GetRunTime(false) == null)
+      if (result.GetRunTime(false,false) == null)
         cmd.Parameters.Add(new OleDbParameter("@netto", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime(false))));
+        cmd.Parameters.Add(new OleDbParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime(false, false))));
       if (result.DisqualText == null || result.DisqualText == "")
         cmd.Parameters.Add(new OleDbParameter("@disqualtext", DBNull.Value));
       else
@@ -417,12 +430,173 @@ namespace DSVAlpin2Lib
       Debug.Assert(temp == 1, "Database could not be updated");
     }
 
-    #endregion
 
-    #region Internal Implementation
+    public AdditionalRaceProperties GetRaceProperties(Race race)
+    {
+      AdditionalRaceProperties props = new AdditionalRaceProperties();
 
-    /* ************************ Participant ********************* */
-    private Participant CreateParticipantFromDB(OleDbDataReader reader)
+      string sql = @"SELECT * FROM tblListenkopf WHERE disziplin = @disziplin";
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          uint id = GetValueUInt(reader, "id");
+          string value = reader["value"].ToString();
+
+          try
+          {
+            switch (id)
+            {
+              case 0: props.Analyzer = value; break;
+              case 1: break; // skip, was: timing device
+              case 2: props.Organizer = value; break;
+              case 3: props.RaceDirector.Name = value; break;
+              case 4: props.RaceDirector.Club = value; break;
+              case 5: props.RaceManager.Name = value; break;
+              case 6: props.RaceManager.Club = value; break;
+              case 7: props.TrainerRepresentative.Name = value; break;
+              case 8: props.TrainerRepresentative.Club = value; break;
+
+              case 15: props.CoarseName = value; break;
+              case 16: props.StartHeight = int.Parse(value); break;
+              case 17: props.FinishHeight = int.Parse(value); break;
+              case 18: break; // skip, was: HeightDifference, can be calculated
+              case 19: props.CoarseLength = int.Parse(value); break;
+              case 20: props.CoarseHomologNo = value; break;
+
+              // Run 1
+              case 21: props.RaceRun1.CoarseSetter.Name = value; break;
+              case 22: props.RaceRun1.CoarseSetter.Club = value; break;
+              case 23: props.RaceRun1.Forerunner1.Name = value; break;
+              case 24: props.RaceRun1.Forerunner1.Club = value; break;
+              case 25: props.RaceRun1.Forerunner2.Name = value; break;
+              case 26: props.RaceRun1.Forerunner2.Club = value; break;
+              case 27: props.RaceRun1.Forerunner3.Name = value; break;
+              case 28: props.RaceRun1.Forerunner3.Club = value; break;
+              case 29: props.RaceRun1.Gates = int.Parse(value); break;
+              case 30: props.RaceRun1.Turns = int.Parse(value); break;
+              case 31: props.RaceRun1.StartTime = value; break;
+
+              // Run 2
+              case 32: props.RaceRun2.CoarseSetter.Name = value; break;
+              case 33: props.RaceRun2.CoarseSetter.Club = value; break;
+              case 34: props.RaceRun2.Forerunner1.Name = value; break;
+              case 35: props.RaceRun2.Forerunner1.Club = value; break;
+              case 36: props.RaceRun2.Forerunner2.Name = value; break;
+              case 37: props.RaceRun2.Forerunner2.Club = value; break;
+              case 38: props.RaceRun2.Forerunner3.Name = value; break;
+              case 39: props.RaceRun2.Forerunner3.Club = value; break;
+              case 40: props.RaceRun2.Gates = int.Parse(value); break;
+              case 41: props.RaceRun2.Turns = int.Parse(value); break;
+              case 42: props.RaceRun2.StartTime = value; break;
+
+              case 43: props.Weather = value; break;
+              case 44: props.Snow = value; break;
+              case 45: props.TempStart = value; break;
+              case 46: props.TempFinish = value; break;
+
+              default:
+                break;
+            }
+          }
+          catch (InvalidCastException){} 
+        }
+      }
+
+      return props;
+    }
+
+
+    public void StoreRaceProperties(Race race, AdditionalRaceProperties props)
+    {
+      storeRacePropertyInternal(race,  0, props.Analyzer);
+      storeRacePropertyInternal(race,  2, props.Organizer);
+      storeRacePropertyInternal(race,  3, props.RaceDirector.Name );
+      storeRacePropertyInternal(race,  4, props.RaceDirector.Club );
+      storeRacePropertyInternal(race,  5, props.RaceManager.Name );
+      storeRacePropertyInternal(race,  6, props.RaceManager.Club );
+      storeRacePropertyInternal(race,  7, props.TrainerRepresentative.Name );
+      storeRacePropertyInternal(race,  8, props.TrainerRepresentative.Club );
+
+      // Coarse
+      storeRacePropertyInternal(race, 15, props.CoarseName );
+      storeRacePropertyInternal(race, 16, props.StartHeight.ToString() );
+      storeRacePropertyInternal(race, 17, props.FinishHeight.ToString() );
+      storeRacePropertyInternal(race, 18, (props.StartHeight - props.FinishHeight).ToString());
+      storeRacePropertyInternal(race, 19, props.CoarseLength.ToString() );
+      storeRacePropertyInternal(race, 20, props.CoarseHomologNo );
+
+      // Run 1
+      storeRacePropertyInternal(race, 21, props.RaceRun1.CoarseSetter.Name );
+      storeRacePropertyInternal(race, 22, props.RaceRun1.CoarseSetter.Club );
+      storeRacePropertyInternal(race, 23, props.RaceRun1.Forerunner1.Name );
+      storeRacePropertyInternal(race, 24, props.RaceRun1.Forerunner1.Club );
+      storeRacePropertyInternal(race, 25, props.RaceRun1.Forerunner2.Name );
+      storeRacePropertyInternal(race, 26, props.RaceRun1.Forerunner2.Club );
+      storeRacePropertyInternal(race, 27, props.RaceRun1.Forerunner3.Name );
+      storeRacePropertyInternal(race, 28, props.RaceRun1.Forerunner3.Club );
+      storeRacePropertyInternal(race, 29, props.RaceRun1.Gates.ToString() );
+      storeRacePropertyInternal(race, 30, props.RaceRun1.Turns.ToString() );
+      storeRacePropertyInternal(race, 31, props.RaceRun1.StartTime );
+
+      // Run 2
+      storeRacePropertyInternal(race, 32, props.RaceRun2.CoarseSetter.Name );
+      storeRacePropertyInternal(race, 33, props.RaceRun2.CoarseSetter.Club );
+      storeRacePropertyInternal(race, 34, props.RaceRun2.Forerunner1.Name );
+      storeRacePropertyInternal(race, 35, props.RaceRun2.Forerunner1.Club );
+      storeRacePropertyInternal(race, 36, props.RaceRun2.Forerunner2.Name );
+      storeRacePropertyInternal(race, 37, props.RaceRun2.Forerunner2.Club );
+      storeRacePropertyInternal(race, 38, props.RaceRun2.Forerunner3.Name );
+      storeRacePropertyInternal(race, 39, props.RaceRun2.Forerunner3.Club );
+      storeRacePropertyInternal(race, 40, props.RaceRun2.Gates.ToString() );
+      storeRacePropertyInternal(race, 41, props.RaceRun2.Turns.ToString() );
+      storeRacePropertyInternal(race, 42, props.RaceRun2.StartTime );
+
+      // Weather
+      storeRacePropertyInternal(race, 43, props.Weather );
+      storeRacePropertyInternal(race, 44, props.Snow );
+      storeRacePropertyInternal(race, 45, props.TempStart );
+      storeRacePropertyInternal(race, 46, props.TempFinish );
+    }
+
+
+    private void storeRacePropertyInternal(Race race, uint id, string value)
+    {
+      // Delete and Insert
+      try
+      {
+        string sqlDelete = @"DELETE from tblListenkopf WHERE id = @id AND disziplin = @disziplin";
+        OleDbCommand cmdDelete = new OleDbCommand(sqlDelete, _conn);
+        cmdDelete.Parameters.Add(new OleDbParameter("@id", (long)id));
+        cmdDelete.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+        cmdDelete.CommandType = CommandType.Text;
+        int temp1 = cmdDelete.ExecuteNonQuery();
+
+        string sqlInsert = @"INSERT INTO tblListenkopf (id, disziplin, [value]) VALUES (@id, @disziplin, @value)";
+        OleDbCommand cmdInsert = new OleDbCommand(sqlInsert, _conn);
+        cmdInsert.Parameters.Add(new OleDbParameter("@id", (long)id));
+        cmdInsert.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+        cmdInsert.Parameters.Add(new OleDbParameter("@value", value));
+        cmdInsert.CommandType = CommandType.Text;
+        int temp2 = cmdInsert.ExecuteNonQuery();
+      }
+      catch (Exception e)
+      {
+        Debug.Print(e.Message);
+      }
+    }
+
+
+#endregion
+
+#region Internal Implementation
+
+/* ************************ Participant ********************* */
+private Participant CreateParticipantFromDB(OleDbDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
 
@@ -438,6 +612,8 @@ namespace DSVAlpin2Lib
           Sex = reader["sex"].ToString(),
           Club = reader["verein"].ToString(),
           Nation = reader["nation"].ToString(),
+          SvId = reader["svid"].ToString(),
+          Code = reader["code"].ToString(),
           Class = GetParticipantClass(GetValueUInt(reader, "klasse")),
           Year = GetValueUInt(reader, "jahrgang"),
         };

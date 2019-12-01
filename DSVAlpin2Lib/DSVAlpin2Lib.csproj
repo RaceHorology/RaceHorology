@@ -52,6 +52,10 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.DataVisualization" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -71,23 +75,58 @@
     <Compile Include="JsonConversion.cs" />
     <Compile Include="LiveTimingMeasurement.cs" />
     <Compile Include="ObjectExtensions.cs" />
+    <Compile Include="PDFReports.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResultCharts.cs" />
     <Compile Include="Utilities.cs" />
+    <Compile Include="ValueConverters.cs" />
     <Compile Include="ViewConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="itext7">
+      <Version>7.1.8</Version>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.2</Version>
+      <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="NLog">
-      <Version>4.6.7</Version>
+      <Version>4.6.8</Version>
+    </PackageReference>
+    <PackageReference Include="PdfSharp">
+      <Version>1.50.5147</Version>
     </PackageReference>
     <PackageReference Include="WebSocketSharp-netstandard">
       <Version>1.0.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\pdf\Logo2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\pdf\Logo1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\pdf\Banner2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\pdf\LogoRH.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\pdf\LogoRHShort.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\pdf\LogoRHShort.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\pdf\LogoRHShortM.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\pdf\LogoRHShortM.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -76,6 +76,8 @@ namespace DSVAlpin2Lib
 
     public string DefaultGrouping;
 
+    public List<string> ActiveFields;
+
     public string RaceResultView;
     public Dictionary<string, object> RaceResultViewParams;
 
@@ -86,6 +88,14 @@ namespace DSVAlpin2Lib
     public string Run2_StartistView;
     public string Run2_StartistViewGrouping;
     public Dictionary<string, object> Run2_StartistViewParams;
+
+    public Dictionary<string, string> LivetimingParams;
+
+
+    public RaceConfiguration()
+    {
+      ActiveFields = new List<string>();
+    }
   }
 
 

@@ -19,6 +19,16 @@ namespace DSVAlpin2LibTest
       string dstPath = Path.Combine(dstDirectory, srcFilename);
       File.Copy(srcPath, dstPath);
 
+      var additionalFiles = Directory.GetFiles(srcDirectory, Path.GetFileNameWithoutExtension(srcFilename) + "*");
+      foreach(var f in additionalFiles)
+      {
+        if (f == srcPath)
+          continue;
+
+        string dstF = Path.Combine(dstDirectory, Path.GetFileName(f));
+        File.Copy(f, dstF);
+      }
+
       return dstPath;
     }
   }

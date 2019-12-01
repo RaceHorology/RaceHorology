@@ -34,6 +34,11 @@ namespace DSVAlpin2Lib
       //set { _name = value; NotifyPropertyChanged(); }
     }
 
+    public uint SortPos
+    {
+      get => _sortpos;
+    }
+
     public override string ToString()
     {
       return _name;
@@ -93,7 +98,7 @@ namespace DSVAlpin2Lib
       _sortpos = sortpos;
     }
 
-    private string Id
+    public string Id
     {
       get => _id;
     }
@@ -114,6 +119,11 @@ namespace DSVAlpin2Lib
     {
       get => _year;
       //set { _year = value; NotifyPropertyChanged(); }
+    }
+
+    public uint SortPos
+    {
+      get => _sortpos;
     }
 
     public ParticipantGroup Group
@@ -173,6 +183,8 @@ namespace DSVAlpin2Lib
     private uint _year;
     private string _club;
     private string _nation;
+    private string _code;
+    private string _svid;
     private ParticipantClass _class;
 
     public string Id
@@ -214,6 +226,24 @@ namespace DSVAlpin2Lib
       get => _club;
       set { _club = value; NotifyPropertyChanged(); }
     }
+
+    public string SvId
+    {
+      get => _svid;
+      set { _svid = value; NotifyPropertyChanged(); }
+    }
+
+    public string Code
+    {
+      get => _code;
+      set { _code = value; NotifyPropertyChanged(); }
+    }
+
+    public string CodeOrSvId
+    {
+      get { if (string.IsNullOrEmpty(_code)) return _svid; else return _code; }
+    }
+
 
     public string Nation
     {
@@ -308,6 +338,8 @@ namespace DSVAlpin2Lib
     public uint Year { get => _participant.Year; }
     public string Club { get => _participant.Club; }
     public string Nation { get => _participant.Nation; }
+    public string SvId { get => _participant.SvId; }
+    public string Code { get => _participant.Code; }
 
     public ParticipantClass Class { get => _participant.Class; }
     public ParticipantGroup Group { get => _participant.Group; }
@@ -387,6 +419,8 @@ namespace DSVAlpin2Lib
     public ParticipantGroup Group { get => _participant.Group; }
     public string Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
+    public string SvId{ get { return _participant.SvId; } }
+    public string Code{ get { return _participant.Code; } }
 
     public bool Started
     {
@@ -473,7 +507,7 @@ namespace DSVAlpin2Lib
 
     // Some public properties to get displayed in the list
     public RaceParticipant Participant { get { return _participant; } }
-    public string StartNumber { get { return _participant.StartNumber.ToString(); } }
+    public uint StartNumber { get { return _participant.StartNumber; } }
     public string Id { get { return _participant.Id; } }
     public string Name { get { return _participant.Name; } }
     public string Firstname { get { return _participant.Firstname; } }
@@ -483,11 +517,15 @@ namespace DSVAlpin2Lib
     public ParticipantGroup Group { get => _participant.Group; }
     public string Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
+    public string SvId { get { return _participant.SvId; } }
+    public string Code { get { return _participant.Code; } }
 
 
     public TimeSpan? Runtime { get { return GetRunTime(); } }
-    public EResultCode ResultCode { get { return _resultCode; } set { _resultCode = value; NotifyPropertyChanged(); } }
-    public string DisqualText { get { return _disqualText; } set { _disqualText = value; NotifyPropertyChanged(); } }
+    public TimeSpan? RuntimeWOResultCode { get { return GetRunTime(true, false); } }
+    public TimeSpan? RuntimeIntern { get { return GetRunTime(false, false); } }
+    public EResultCode ResultCode { get { return _resultCode; } set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } }
+    public string DisqualText { get { return _disqualText; } set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } }
 
 
     public RunResult(RaceParticipant particpant)
@@ -534,13 +572,16 @@ namespace DSVAlpin2Lib
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public TimeSpan? GetRunTime(bool calculateIfNotStored = true)
+    public TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
     {
-      if (_runTime != null)
-        return _runTime;
+      if (!considerResultCode || _resultCode == EResultCode.Normal)
+      {
+        if (_runTime != null)
+          return _runTime;
 
-      if (calculateIfNotStored && _startTime != null && _finishTime != null)
-        return _finishTime - _startTime;
+        if (calculateIfNotStored && _startTime != null && _finishTime != null)
+          return _finishTime - _startTime;
+      }
 
       return null;
     }
@@ -550,12 +591,20 @@ namespace DSVAlpin2Lib
     {
       _startTime = startTime;
 
+      // Reset result code if it was related to the start time
+      if (ResultCode == EResultCode.NaS)
+        ResultCode = EResultCode.Normal;
+
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
     public void SetFinishTime(TimeSpan? finishTime)
     {
       _finishTime = finishTime;
+
+      // Reset result code if it was related to the finish time
+      if (ResultCode == EResultCode.NiZ)
+        ResultCode = EResultCode.Normal;
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
@@ -594,6 +643,7 @@ namespace DSVAlpin2Lib
   {
     private uint _position;
     private bool _justModified;
+    private TimeSpan? _diffToFirst;
 
     public RunResultWithPosition(RunResult result) : base(result)
     {
@@ -606,6 +656,12 @@ namespace DSVAlpin2Lib
     {
       get { return _position; }
       set { _position = value; NotifyPropertyChanged(); }
+    }
+
+    public TimeSpan? DiffToFirst
+    {
+      get { return _diffToFirst; }
+      set { _diffToFirst = value; NotifyPropertyChanged(); }
     }
 
     public bool JustModified
@@ -631,8 +687,10 @@ namespace DSVAlpin2Lib
 
     RaceParticipant _participant;
     Dictionary<uint, TimeSpan?> _runTimes;
+    Dictionary<uint, RunResult.EResultCode> _runResultCodes;
     TimeSpan? _totalTime;
     private uint _position;
+    private TimeSpan? _diffToFirst;
     private bool _justModified;
 
 
@@ -646,6 +704,7 @@ namespace DSVAlpin2Lib
     {
       _participant = participant;
       _runTimes = new Dictionary<uint, TimeSpan?>();
+      _runResultCodes = new Dictionary<uint, RunResult.EResultCode>();
     }
 
     /// <summary>
@@ -672,6 +731,14 @@ namespace DSVAlpin2Lib
       set { _position = value; NotifyPropertyChanged(); }
     }
 
+    public TimeSpan? DiffToFirst
+    {
+      get { return _diffToFirst; }
+      set { _diffToFirst = value; NotifyPropertyChanged(); }
+    }
+
+
+
     public bool JustModified
     {
       get { return _justModified; }
@@ -685,6 +752,10 @@ namespace DSVAlpin2Lib
     /// </summary>
     public Dictionary<uint, TimeSpan?> RunTimes { get { return _runTimes; } }
 
+    /// <summary>
+    /// Returns the separate run results per run
+    /// </summary>
+    public Dictionary<uint, RunResult.EResultCode> RunResultCodes { get { return _runResultCodes; } }
 
     /// <summary>
     /// Sets the results for one specific run
@@ -693,7 +764,16 @@ namespace DSVAlpin2Lib
     /// <param name="result">The corresponding results</param>
     public void SetRunResult(uint run, RunResult result)
     {
-      _runTimes[run] = result?.Runtime;
+      if (result != null)
+      {
+        _runTimes[run] = result.Runtime;
+        _runResultCodes[run] = result.ResultCode;
+      }
+      else
+      {
+        _runTimes.Remove(run);
+        _runResultCodes.Remove(run);
+      }
 
       NotifyPropertyChanged(nameof(RunTimes));
     }

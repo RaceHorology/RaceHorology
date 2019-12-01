@@ -447,8 +447,8 @@ namespace DSVAlpin2Lib
       List<RunResult> resultsCurGroup = new List<RunResult>();
       foreach (var curSortedItem in srcResults)
       {
-        object itemGroup = PropertyUtilities.GetGroupValue(curSortedItem, _activeGrouping);
-        if (!Equals(PropertyUtilities.GetGroupValue(curSortedItem, _activeGrouping), curGroup))
+        object itemGroup = PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping);
+        if (!Equals(PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping), curGroup))
         {
           ProcessGroup(resultsCurGroup, newStartList);
           curGroup = itemGroup;
@@ -880,14 +880,15 @@ namespace DSVAlpin2Lib
       uint samePosition = 1;
       object curGroup = null;
       TimeSpan? lastTime = null;
+      TimeSpan? firstTime = null;
       foreach (RunResultWithPosition item in _viewList)
       {
         // New group
-        if (!Equals(PropertyUtilities.GetGroupValue(item, _activeGrouping), curGroup))
+        if (!Equals(PropertyUtilities.GetPropertyValue(item, _activeGrouping), curGroup))
         {
-          curGroup = PropertyUtilities.GetGroupValue(item, _activeGrouping);
+          curGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
           curPosition = 0;
-          lastTime = null;
+          firstTime = lastTime = null;
         }
 
         if (item.Runtime != null)
@@ -900,6 +901,15 @@ namespace DSVAlpin2Lib
             curPosition += samePosition;
             samePosition = 1;
           }
+
+
+          if (firstTime == null)
+          {
+            System.Diagnostics.Debug.Assert(curPosition == 1);
+            firstTime = item.Runtime;
+          }
+          else
+            item.DiffToFirst = item.Runtime - firstTime;
 
           item.Position = curPosition;
           lastTime = item.Runtime;
@@ -1099,14 +1109,15 @@ namespace DSVAlpin2Lib
       object curGroup = null;
 
       TimeSpan? lastTime = null;
+      TimeSpan? firstTime = null;
       foreach (var sortedItem in _viewList)
       {
         // New group
-        if (!Equals(PropertyUtilities.GetGroupValue(sortedItem, _activeGrouping), curGroup))
+        if (!Equals(PropertyUtilities.GetPropertyValue(sortedItem, _activeGrouping), curGroup))
         {
-          curGroup = PropertyUtilities.GetGroupValue(sortedItem, _activeGrouping);
+          curGroup = PropertyUtilities.GetPropertyValue(sortedItem, _activeGrouping);
           curPosition = 0;
-          lastTime = null;
+          firstTime = lastTime = null;
         }
 
         if (sortedItem.TotalTime != null)
@@ -1121,6 +1132,14 @@ namespace DSVAlpin2Lib
             curPosition += samePosition;
             samePosition = 1;
           }
+
+          if (firstTime == null)
+          {
+            System.Diagnostics.Debug.Assert(curPosition == 1);
+            firstTime = sortedItem.TotalTime;
+          }
+          else
+            sortedItem.DiffToFirst = sortedItem.TotalTime - firstTime;
 
           sortedItem.Position = curPosition;
           lastTime = sortedItem.TotalTime;

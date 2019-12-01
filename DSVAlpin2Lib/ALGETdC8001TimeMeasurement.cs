@@ -52,7 +52,7 @@ namespace DSVAlpin2Lib
 
     public void Start()
     {
-      if (_serialPortName == "")
+      if (string.IsNullOrEmpty(_serialPortName))
         return;
 
       _statusText = "Starting";

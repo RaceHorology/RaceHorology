@@ -106,6 +106,17 @@ namespace DSVAlpin2Lib
       return _participants;
     }
 
+
+    public List<ParticipantGroup> GetParticipantGroups()
+    {
+      return _db.GetParticipantGroups();
+    }
+
+    public List<ParticipantClass> GetParticipantClasses()
+    {
+      return _db.GetParticipantClasses();
+    }
+
     public List<Race> GetRaces()
     {
       return _races;
@@ -175,6 +186,51 @@ namespace DSVAlpin2Lib
   }
 
 
+
+  public class AdditionalRaceProperties
+  {
+    public class Person
+    {
+      public string Name { get; set; }
+      public string Club { get; set; }
+    }
+
+    public class RaceRunProperties
+    {
+      public Person CoarseSetter { get; set; } = new Person();
+      public Person Forerunner1 { get; set; } = new Person();
+      public Person Forerunner2 { get; set; } = new Person();
+      public Person Forerunner3 { get; set; } = new Person();
+
+      public int Gates { get; set; }
+      public int Turns { get; set; }
+      public string StartTime { get; set; }
+    }
+
+
+    public string Analyzer { get; set; }
+    public string Organizer { get; set; }
+    public Person RaceDirector { get; set; } = new Person(); // Schiedsrichter
+    public Person RaceManager { get; set; } = new Person(); // Rennleiter
+    public Person TrainerRepresentative { get; set; } = new Person(); // Trainer Vertreter
+
+    public string CoarseName { get; set; }
+    public int CoarseLength { get; set; } // m
+    public string CoarseHomologNo { get; set; }
+
+    public int StartHeight { get; set; } // m
+    public int FinishHeight { get; set; } // m
+
+    public RaceRunProperties RaceRun1 { get; set; } = new RaceRunProperties();
+    public RaceRunProperties RaceRun2 { get; set; } = new RaceRunProperties();
+
+    public string Weather { get; set; }
+    public string Snow { get; set; }
+    public string TempStart { get; set; }
+    public string TempFinish { get; set; }
+  }
+
+
   /// <summary>
   /// Represents a race / contest.
   /// A race typically consists out of 1 or 2 runs.
@@ -197,6 +253,7 @@ namespace DSVAlpin2Lib
 
     // Mainly race decription parameters
     RaceProperties _properties;
+    AdditionalRaceProperties _addProperties;
 
     // Mainly ViewConfiguration (sorting, grouing, ...)
     RaceConfiguration _raceConfiguration;
@@ -209,7 +266,10 @@ namespace DSVAlpin2Lib
 
 
     public ERaceType RaceType { get { return _properties.RaceType;  } }
-
+    public string RaceNumber {  get { return _properties.RaceNumber; } }
+    public string Description { get { return _properties.Description; } }
+    public DateTime DateStart { get { return _properties.DateStart; } }
+    public DateTime DateResult { get { return _properties.DateResult; } }
 
     public RaceConfiguration RaceConfiguration
     {
@@ -217,6 +277,12 @@ namespace DSVAlpin2Lib
       set { _raceConfiguration = value.Copy(); StoreRaceConfig(); }
     }
 
+
+    public AdditionalRaceProperties AdditionalProperties
+    {
+      get { return _addProperties; }
+      set { _addProperties = value; _db.StoreRaceProperties(this, _addProperties); }
+    }
 
     /// <summary>
     /// Constructor
@@ -229,6 +295,8 @@ namespace DSVAlpin2Lib
       _db = db;
       _appDataModel = appDataModel;
       _properties = properties;
+
+      _addProperties = _db.GetRaceProperties(this);
 
       LoadRaceConfig();
       // Ensure no inconsistencies
@@ -251,6 +319,8 @@ namespace DSVAlpin2Lib
       viewConfigurator.ConfigureRace(this);
     }
 
+
+    #region Configuration
 
     protected void StoreRaceConfig()
     {
@@ -290,6 +360,14 @@ namespace DSVAlpin2Lib
         logger.Info(e, "could not load race config {name}", configFile);
       }
     }
+
+    public bool IsFieldActive(string field)
+    {
+      return _raceConfiguration.ActiveFields.Contains(field);
+    }
+
+    #endregion
+
 
     /// <summary>
     /// Creates the RaceRun structures. After this call, the Races can be accessed and worked with via GetRun().
@@ -392,6 +470,12 @@ namespace DSVAlpin2Lib
     public void SetResultViewProvider(RaceResultViewProvider raceVP)
     {
       _raceResultsProvider = raceVP;
+    }
+
+
+    public AppDataModel GetDataModel()
+    {
+      return _appDataModel;
     }
 
   }
@@ -551,16 +635,13 @@ namespace DSVAlpin2Lib
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
     public void SetStartTime(RaceParticipant participant, TimeSpan? startTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = findOrCreateRunResult(participant);
 
       _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
-      if (result == null)
-        result = new RunResult(participant);
-
       result.SetStartTime(startTime);
 
-      InsertResult(result);
+      _UpdateInternals();
     }
 
     /// <summary>
@@ -571,16 +652,13 @@ namespace DSVAlpin2Lib
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
     public void SetFinishTime(RaceParticipant participant, TimeSpan? finishTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = findOrCreateRunResult(participant);
 
       _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
-      if (result == null)
-        result = new RunResult(participant);
-
       result.SetFinishTime(finishTime);
 
-      InsertResult(result);
+      _UpdateInternals();
     }
 
     /// <summary>
@@ -592,17 +670,14 @@ namespace DSVAlpin2Lib
     /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
     public void SetStartFinishTime(RaceParticipant participant, TimeSpan? startTime, TimeSpan? finishTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = findOrCreateRunResult(participant);
 
       _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
-
-      if (result == null)
-        result = new RunResult(participant);
 
       result.SetStartTime(startTime);
       result.SetFinishTime(finishTime);
 
-      InsertResult(result);
+      _UpdateInternals();
     }
 
 
@@ -614,28 +689,38 @@ namespace DSVAlpin2Lib
     /// <remarks>Can be null. In that case it is stored as not available. Start and end time are set to null.</remarks>
     public void SetRunTime(RaceParticipant participant, TimeSpan? runTime)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = findOrCreateRunResult(participant);
 
       _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
-      if (result == null)
-        result = new RunResult(participant);
-
       result.SetRunTime(runTime);
-
-      InsertResult(result);
-    }
-
-
-
-    protected void InsertResult(RunResult r)
-    {
-      // Check if already inserted
-      if (_results.SingleOrDefault(x => x == r) == null)
-        _results.Add(r);
 
       _UpdateInternals();
     }
+
+
+    public void SetResultCode(RaceParticipant participant, RunResult.EResultCode rc)
+    {
+      RunResult result = findOrCreateRunResult(participant);
+
+      result.ResultCode = rc;
+
+      _UpdateInternals();
+    }
+
+
+    private RunResult findOrCreateRunResult(RaceParticipant participant)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      if (result == null)
+      {
+        result = new RunResult(participant);
+        _results.Add(result);
+      }
+
+      return result;
+    }
+
 
     public void InsertResults(List<RunResult> r)
     {
@@ -648,14 +733,29 @@ namespace DSVAlpin2Lib
     // Helper definition for a participant is on track
     public bool IsOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null && r.GetRunTime() == null && _appDataModel.TodayMeasured(r.Participant.Participant);
+      return r.GetStartTime() != null && r.GetRunTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
     }
 
     // Helper definition for a participant is on track
     public bool IsOrWasOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null || r.GetRunTime() != null;
+      return r.GetStartTime() != null || r.GetRunTime() != null || r.ResultCode != RunResult.EResultCode.Normal;
     }
+
+    public bool IsOrWasOnTrack(RaceParticipant rp)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == rp);
+      if (result != null)
+        return IsOrWasOnTrack(result);
+
+      return false;
+    }
+
+
+
+    public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack);
+    public event OnTrackChangedHandler OnTrackChanged;
+
 
     /// <summary>
     /// Updates internal strucutures based on _results
@@ -665,13 +765,23 @@ namespace DSVAlpin2Lib
       // Remove from onTrack list if a result is available (= not on track anymore)
       var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
+      {
         _onTrack.Remove(itemToRemove);
+
+        OnTrackChangedHandler handler = OnTrackChanged;
+        handler?.Invoke(this, null, itemToRemove.Participant);
+      }
 
       // Add to onTrack list if run result is not yet available (= is on track)
       foreach (var r in _results)
         if (IsOnTrack(r))
           if (!_onTrack.Contains(r))
+          {
             _onTrack.Add(new LiveResult(r, _appDataModel));
+
+            OnTrackChangedHandler handler = OnTrackChanged;
+            handler?.Invoke(this, r.Participant, null);
+          }
     }
 
   }
@@ -691,10 +801,17 @@ namespace DSVAlpin2Lib
 
 
     ItemsChangeObservableCollection<Participant> GetParticipants();
+
+    List<ParticipantGroup> GetParticipantGroups();
+    List<ParticipantClass> GetParticipantClasses();
+    
     List<Race.RaceProperties> GetRaces();
     List<RaceParticipant> GetRaceParticipants(Race race);
 
     List<RunResult> GetRaceRun(Race race, uint run);
+
+    AdditionalRaceProperties GetRaceProperties(Race race);
+    void StoreRaceProperties(Race race, AdditionalRaceProperties props);
 
     void CreateOrUpdateParticipant(Participant participant);
     void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);

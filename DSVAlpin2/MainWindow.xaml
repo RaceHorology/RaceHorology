@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DSVAlpin2"
         mc:Ignorable="d"
-        Title="DSVAlpin2" Height="1024" Width="1400">
+        Title="Race Horology" Height="1024" Width="1400">
 
   <Window.CommandBindings>
     <CommandBinding Command="Open"  Executed="OpenCommandBinding_Executed" />
@@ -17,10 +17,6 @@
     <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
     <KeyBinding Key="C" Modifiers="Control" Command="Close"/>
   </Window.InputBindings>
-  <Window.Resources>
-    <local:PositionConverter x:Key="PositionConverter" />
-    <local:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
-  </Window.Resources>
 
   <Grid>
     <Grid.RowDefinitions>
@@ -28,7 +24,7 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-    <Menu x:Name="menu" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top">
+    <Menu x:Name="menu" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
       <MenuItem Header="File">
         <MenuItem Name="mnuOpen" Header="_Open" Command="Open" InputGestureText="Ctrl+O"/>
         <MenuItem Name="mnuRecentFiles" Header="Recent Files" />
@@ -37,12 +33,12 @@
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties" />
       <MenuItem Name="mnuHelp" Header="Help" Command="Help"/>
     </Menu>
-    <Grid Grid.Row="1">
+    <Grid Grid.Row="1" Background="#ffeff5f0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
+      <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
         <TabItem Header="Teilnehmer" FontSize="16">
           <Grid Grid.Column="0" Background="#FFE5E5E5">
             <Grid.RowDefinitions>
@@ -50,14 +46,14 @@
               <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-            <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  FontSize="12"/>
+            <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  AlternatingRowBackground="#FFf8faf7" FontSize="12"/>
           </Grid>
         </TabItem>
         <TabItem Header="Neues Rennen" FontSize="16" IsEnabled="False">
         </TabItem>
       </TabControl>
     </Grid>
-    <StatusBar Height="Auto" Margin="0" Grid.Row="2" VerticalAlignment="Top" Width="Auto">
+    <StatusBar Height="Auto" Margin="0" Grid.Row="2" VerticalAlignment="Top" Width="Auto" Background="#ffe6eee5">
       <StatusBar.ItemsPanel>
         <ItemsPanelTemplate>
           <Grid>
@@ -99,7 +95,7 @@
               </ToggleButton>
             </StackPanel>
           </Grid>
-          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="85" VerticalScrollBarVisibility="Auto"/>
+          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="auto" VerticalScrollBarVisibility="Auto"/>
         </Grid>
       </StatusBarItem>
 
@@ -115,6 +111,7 @@
           <Label x:Name="lblURL" Grid.Row="1" Content="not running" Margin="0,0,0,0" VerticalAlignment="Bottom" Width="Auto" HorizontalContentAlignment="Left" FontSize="10" PreviewMouseDown="LblURL_PreviewMouseDown"/>
         </Grid>
       </StatusBarItem>
+      <Image x:Name="LogoRH_png" Height="80" Source="LogoRH.png" Stretch="Uniform" Margin="10,20,10,20" PreviewMouseDown="LogoRH_png_PreviewMouseDown"/>
     </StatusBar>
   </Grid>
 </Window>

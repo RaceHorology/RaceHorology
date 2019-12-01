@@ -11,14 +11,17 @@ using System.Threading.Tasks;
 namespace DSVAlpin2Lib
 {
 
-  public class ItemsChangedNotifier : INotifyCollectionChanged
+  public class ItemsChangedNotifier : INotifyCollectionChanged, IDisposable
   {
     INotifyCollectionChanged _source;
+    List<INotifyPropertyChanged> _observedItems;
 
     public bool CollectionResetIfItemChanged { get; set; } = false;
 
     public ItemsChangedNotifier(INotifyCollectionChanged source)
     {
+      _observedItems = new List<INotifyPropertyChanged>();
+
       _source = source;
 
       _source.CollectionChanged += OnCollectionChanged;
@@ -29,7 +32,7 @@ namespace DSVAlpin2Lib
 
     ~ItemsChangedNotifier()
     {
-      _source.CollectionChanged -= OnCollectionChanged;
+      Dispose(false);
     }
 
 
@@ -53,12 +56,19 @@ namespace DSVAlpin2Lib
     {
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          _observedItems.Remove(item);
           item.PropertyChanged -= ItemPropertyChanged;
-
+        }
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          _observedItems.Add(item);
           item.PropertyChanged += ItemPropertyChanged;
 
+          ItemChangedEventHandler handler2 = ItemChanged;
+          handler2?.Invoke(item, null);//e = {System.ComponentModel.PropertyChangedEventArgs}
+        }
       NotifyCollectionChangedEventHandler handler = CollectionChanged;
       handler?.Invoke(sender, e);
     }
@@ -66,9 +76,13 @@ namespace DSVAlpin2Lib
     private void Initialize()
     {
       System.Collections.IEnumerable items = _source as System.Collections.IEnumerable;
-      if (items!=null)
+      if (items != null)
         foreach (var item in items)
-          ((INotifyPropertyChanged)item).PropertyChanged += ItemPropertyChanged;
+        {
+          INotifyPropertyChanged item2 = (INotifyPropertyChanged)item;
+          _observedItems.Add(item2);
+          item2.PropertyChanged += ItemPropertyChanged;
+        }
     }
 
 
@@ -80,9 +94,43 @@ namespace DSVAlpin2Lib
       if (CollectionResetIfItemChanged)
       {
         NotifyCollectionChangedEventHandler handlerCC = CollectionChanged;
-        handlerCC?.Invoke(sender, new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+        handlerCC?.Invoke(
+          sender, 
+          new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
       }
     }
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _source.CollectionChanged -= OnCollectionChanged;
+          _source = null;
+
+          foreach (var it in _observedItems)
+            it.PropertyChanged -= ItemPropertyChanged;
+
+        }
+
+        disposedValue = true;
+      }
+    }
+
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+      Dispose(true);
+      // TODO: uncomment the following line if the finalizer is overridden above.
+      // GC.SuppressFinalize(this);
+    }
+    #endregion
 
   }
 
@@ -305,7 +353,7 @@ namespace DSVAlpin2Lib
 
   public static class PropertyUtilities
   {
-    public static object GetGroupValue(object obj, string propertyName)
+    public static object GetPropertyValue(object obj, string propertyName)
     {
       if (propertyName == null || obj == null)
         return null;
@@ -326,9 +374,51 @@ namespace DSVAlpin2Lib
   }
 
 
+
+  public struct RoundedTimeSpan
+  {
+
+    private const int TIMESPAN_SIZE = 7; // it always has seven digits
+
+    private TimeSpan roundedTimeSpan;
+    private int precision;
+
+    public RoundedTimeSpan(TimeSpan time, int precision)
+    {
+      long ticks = time.Ticks;
+
+      if (precision < 0) { throw new ArgumentException("precision must be non-negative"); }
+      this.precision = precision;
+      int factor = (int)System.Math.Pow(10, (TIMESPAN_SIZE - precision));
+
+      // This is only valid for rounding milliseconds-will *not* work on secs/mins/hrs!
+      roundedTimeSpan = new TimeSpan(((long)System.Math.Round((1.0 * ticks / factor)) * factor));
+    }
+
+    public TimeSpan TimeSpan { get { return roundedTimeSpan; } }
+
+    public override string ToString()
+    {
+      return ToString(precision);
+    }
+
+    public string ToString(int length)
+    { // this method revised 2010.01.31
+      int digitsToStrip = TIMESPAN_SIZE - length;
+      string s = roundedTimeSpan.ToString();
+      if (!s.Contains(".") && length == 0) { return s; }
+      if (!s.Contains(".")) { s += "." + new string('0', TIMESPAN_SIZE); }
+      int subLength = s.Length - digitsToStrip;
+      return subLength < 0 ? "" : subLength > s.Length ? s : s.Substring(0, subLength);
+    }
+  }
+
+
+
   // Define other methods and classes here
   public static class TimeSpanExtensions
   {
+
     public static DateTime AddMicroseconds(this DateTime datetime, Int32 value)
     {
       return new DateTime(datetime.Ticks + value * 10, datetime.Kind);
@@ -365,6 +455,20 @@ namespace DSVAlpin2Lib
       { }
 
       return time;
+    }
+
+
+    public static string ToRaceTimeString(this TimeSpan? time)
+    {
+      if (time == null)
+        return "";
+
+      RoundedTimeSpan roundedTimeSpan = new RoundedTimeSpan((TimeSpan)time, 2);
+
+      if (roundedTimeSpan.TimeSpan < new TimeSpan(0,1,0))
+        return roundedTimeSpan.TimeSpan.ToString(@"s\,ff");
+
+      return roundedTimeSpan.TimeSpan.ToString(@"m\:ss\,ff");
     }
   }
 

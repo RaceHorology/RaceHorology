@@ -4,12 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DSVAlpin2"
+             xmlns:dsvalpin2lib="clr-namespace:DSVAlpin2Lib;assembly=DSVAlpin2Lib"
              mc:Ignorable="d"
              MinHeight="400">
 
   <UserControl.Resources>
-    <local:PositionConverter x:Key="PositionConverter" />
+    <dsvalpin2lib:PositionConverter x:Key="PositionConverter" />
     <local:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
+    <dsvalpin2lib:ResultCodeConverter x:Key="ResultCodeConverter" />
+    <dsvalpin2lib:ResultCodeWithCommentConverter x:Key="ResultCodeWithCommentConverter" />
   </UserControl.Resources>
 
   <Grid>
@@ -76,6 +79,20 @@
             <Label x:Name="lblConfigErgebnisGrouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
             <ComboBox x:Name="cmbConfigErgebnisGrouping" Margin="5" Grid.Column="1" />
           </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblConfigFields" Margin="5" Content="Eingabefelder:" Grid.Column="0"/>
+            <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+              <CheckBox x:Name="chkConfigFieldsYear" Content="Jahrgang" Margin="5"/>
+              <CheckBox x:Name="chkConfigFieldsClub" Content="Verein" Margin="5"/>
+              <CheckBox x:Name="chkConfigFieldsNation" Content="Nation/Verband" Margin="5"/>
+              <CheckBox x:Name="chkConfigFieldsCode" Content="Code/SV-Id" Margin="5"/>
+              <CheckBox x:Name="chkConfigFieldsPoints" Content="Punkte" Margin="5"/>
+            </WrapPanel>
+          </Grid>
 
           <Grid Margin="0,15,0,0">
             <Grid.ColumnDefinitions>
@@ -140,7 +157,7 @@
               <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
               <Button x:Name="btnReset" Content="Reset" Margin="5" Padding="5" Click="BtnReset_Click"/>
               <Button x:Name="btnApply" Content="Apply" Margin="5" Padding="5" Click="BtnApply_Click"/>
             </StackPanel>
@@ -149,10 +166,65 @@
         </StackPanel>
 
       </TabItem>
-      <TabItem Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-          <Grid >
+      <TabItem Header="Live Timing" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
             <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="20"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label x:Name="lblLTBewerb" Content="Bewerbsnummer:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+            <TextBox x:Name="txtLTBewerb" Grid.Row="0" Grid.Column="1"  Margin="5"/>
+
+            <Label x:Name="lblLTLogin" Content="Login:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+            <TextBox x:Name="txtLTLogin" Grid.Row="1" Grid.Column="1"  Margin="5"/>
+
+            <Label x:Name="lblLTPassword" Content="Passwort:" Grid.Row="2" Grid.Column="0" Margin="5"/>
+            <PasswordBox x:Name="txtLTPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
+
+            <Button x:Name="btnLTLogin" Content="Login" Width="100" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="1"  Margin="5" Click="BtnLTLogin_Click" />
+
+            <Label x:Name="lblLTEvent" Content="Veranstaltung:" Grid.Row="5" Grid.Column="0" Margin="5"/>
+            <ComboBox x:Name="cmbLTEvent" Grid.Row="5" Grid.Column="1"  Margin="5" SelectionChanged="CmbLTEvent_SelectionChanged"/>
+
+            <Button x:Name="btnLTStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="1"  Margin="5" Click="BtnLTStart_Click" />
+
+            <Label x:Name="lblLTStatus" Content="Status:" Grid.Row="7" Grid.Column="0" Margin="5"/>
+            <TextBox x:Name="txtLTStatus" Grid.Row="7" Grid.Column="1"  Margin="5" MinLines="2" TextChanged="TxtLTStatus_TextChanged" LostFocus="TxtLTStatus_LostFocus"/>
+
+
+
+          </Grid>
+
+
+        </StackPanel>
+
+      </TabItem>
+      <TabItem x:Name="RaceProperties" Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.IsSharedSizeScope="True">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
@@ -176,99 +248,208 @@
               <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Label x:Name="lblName" Margin="5" Content="Name:" Grid.Row="0" Grid.Column="0"/>
+            <Label x:Name="lblName" Margin="5,0,0,0" Content="Name:" Grid.Row="0" Grid.Column="0"/>
             <TextBox x:Name="txtName" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
 
-            <Label x:Name="lblRaceNo" Margin="5" Content="Bewerbsnummer:" Grid.Row="1" Grid.Column="0"/>
+            <Label x:Name="lblRaceNo" Margin="5,0,0,0" Content="Bewerbsnummer:" Grid.Row="1" Grid.Column="0"/>
             <TextBox x:Name="txtRaceNo" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
 
-            <Label x:Name="lblDescription" Margin="5" Content="Beschreibung:" Grid.Row="2" Grid.Column="0"/>
+            <Label x:Name="lblDescription" Margin="5,0,0,0" Content="Beschreibung:" Grid.Row="2" Grid.Column="0"/>
             <TextBox x:Name="txtDescription" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" AcceptsReturn="True" Height="50"/>
 
-            <Label x:Name="lblOrganisator" Margin="5" Content="Organisator:" Grid.Row="4" Grid.Column="0"/>
-            <TextBox x:Name="txtOrganisator" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <Label x:Name="lblOrganisator" Margin="5,0,0,0" Content="Organisator:" Grid.Row="4" Grid.Column="0"/>
+            <TextBox x:Name="txtOrganisator" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Organizer}"/>
 
-            <Label x:Name="lblArbitrator" Margin="5" Content="Schiedrichter:" Grid.Row="5" Grid.Column="0"/>
-            <TextBox x:Name="txtArbitrator" Margin="5" HorizontalAlignment="Stretch" Grid.Row="5" Grid.Column="1" />
-            <TextBox x:Name="txtArbitratorClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="5" Grid.Column="2" />
+            <Label x:Name="lblAnalyzer" Margin="5,0,0,0" Content="Auswertung / Zeitnahme:" Grid.Row="5" Grid.Column="0"/>
+            <TextBox x:Name="txtAnalyzer" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Analyzer}"/>
 
-            <Label x:Name="lblRaceControl" Margin="5" Content="Rennleiter:" Grid.Row="6" Grid.Column="0"/>
-            <TextBox x:Name="txtRaceControl" Margin="5" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="1" />
-            <TextBox x:Name="txtRaceControlClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="2" />
+            <Label x:Name="lblRaceDirector" Margin="5,0,0,0" Content="Schiedrichter:" Grid.Row="6" Grid.Column="0" />
+            <TextBox x:Name="txtRaceDirector" Margin="5" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="1" Text="{Binding Path=RaceDirector.Name}"/>
+            <TextBox x:Name="txtRaceDirectorClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="2"  Text="{Binding Path=RaceDirector.Club}"/>
 
-            <Label x:Name="lblTrainerRepresentative" Margin="5" Content="Trainervertreter:" Grid.Row="7" Grid.Column="0"/>
-            <TextBox x:Name="txtTrainerRepresentative" Margin="5" HorizontalAlignment="Stretch" Grid.Row="7" Grid.Column="1" />
-            <TextBox x:Name="txtTrainerRepresentativeClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="7" Grid.Column="2" />
+            <Label x:Name="lblRaceManager" Margin="5,0,0,0" Content="Rennleiter:" Grid.Row="7" Grid.Column="0"/>
+            <TextBox x:Name="txtRaceManager" Margin="5" HorizontalAlignment="Stretch" Grid.Row="7" Grid.Column="1" Text="{Binding Path=RaceManager.Name}"/>
+            <TextBox x:Name="txtRaceManagerClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="7" Grid.Column="2" Text="{Binding Path=RaceManager.Club}"/>
 
-            <DockPanel Height="25" Grid.Row="8" Grid.ColumnSpan="3">
+            <Label x:Name="lblTrainerRepresentative" Margin="5,0,0,0" Content="Trainervertreter:" Grid.Row="8" Grid.Column="0"/>
+            <TextBox x:Name="txtTrainerRepresentative" Margin="5" HorizontalAlignment="Stretch" Grid.Row="8" Grid.Column="1" Text="{Binding Path=TrainerRepresentative.Name}"/>
+            <TextBox x:Name="txtTrainerRepresentativeClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="8" Grid.Column="2" Text="{Binding Path=TrainerRepresentative.Club}"/>
+
+            <DockPanel Height="25" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,15,0,0">
+              <Label DockPanel.Dock="Left" Content="Streckendaten"/>
+              <Separator/>
+            </DockPanel>
+            <Grid Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Label Margin="0,0,5,0" Content="Starthöhe (m):" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60"/>
+
+              <Label Content="Zielhöhe (m):" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60"/>
+
+              <Label Content="Länge:" Grid.Row="0" Grid.Column="4" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="5" Text="{Binding Path=CoarseLength}" MinWidth="60"/>
+
+              <Label Margin="0,0,5,0" Content="Homolog Nr." Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Path=CoarseHomologNo}"/>
+
+            </Grid>
+
+            <DockPanel Height="25" Grid.Row="13" Grid.ColumnSpan="3" Margin="0,15,0,0">
               <Label DockPanel.Dock="Left" Content="Durchgang 1"/>
               <Separator/>
             </DockPanel>
 
-            <Label x:Name="lblCourseSetter1" Margin="5" Content="Kurssetzer:" Grid.Row="9" Grid.Column="0"/>
-            <TextBox x:Name="txtCourseSetter1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="9" Grid.Column="1" />
-            <TextBox x:Name="txtCourseSetterClub1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="9" Grid.Column="2" />
+            <Label x:Name="lblCourseSetter1" Margin="5,0,0,0" Content="Kurssetzer:" Grid.Row="14" Grid.Column="0"/>
+            <TextBox x:Name="txtCourseSetter1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="14" Grid.Column="1" Text="{Binding Path=RaceRun1.CoarseSetter.Name}"/>
+            <TextBox x:Name="txtCourseSetterClub1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="14" Grid.Column="2" Text="{Binding Path=RaceRun1.CoarseSetter.Club}"/>
 
-            <Label x:Name="lblForeRunner1_1" Margin="5" Content="Vorläufer 1:" Grid.Row="10" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner1_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="10" Grid.Column="1" />
-            <TextBox x:Name="txtForeRunnerClub1_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="10" Grid.Column="2" />
+            <Label x:Name="lblForeRunner1_1" Margin="5,0,0,0" Content="Vorläufer 1:" Grid.Row="15" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner1_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="15" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner1.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub1_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="15" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner1.Club}"/>
 
-            <Label x:Name="lblForeRunner1_2" Margin="5" Content="Vorläufer 2:" Grid.Row="11" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner1_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="11" Grid.Column="1" />
-            <TextBox x:Name="txtForeRunnerClub1_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="11" Grid.Column="2" />
+            <Label x:Name="lblForeRunner1_2" Margin="5,0,0,0" Content="Vorläufer 2:" Grid.Row="16" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner1_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="16" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner2.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub1_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="16" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner2.Club}"/>
 
-            <Label x:Name="lblForeRunner1_3" Margin="5" Content="Vorläufer 3:" Grid.Row="12" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner1_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="12" Grid.Column="1" />
-            <TextBox x:Name="txtForeRunnerClub1_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="12" Grid.Column="2" />
+            <Label x:Name="lblForeRunner1_3" Margin="5,0,0,0" Content="Vorläufer 3:" Grid.Row="17" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner1_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="17" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner3.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub1_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="17" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner3.Club}"/>
 
-            <Label x:Name="lblForeRunner1_4" Margin="5" Content="Vorläufer 4:" Grid.Row="13" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner1_4" Margin="5" HorizontalAlignment="Stretch" Grid.Row="13" Grid.Column="1" />
-            <TextBox x:Name="txtForeRunnerClub1_4" Margin="5" HorizontalAlignment="Stretch" Grid.Row="13" Grid.Column="2" />
+            <Grid Grid.Row="18" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
 
-            <DockPanel Height="25" Grid.Row="15" Grid.ColumnSpan="3">
+              <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun1.Gates}" Width="30"/>
+
+              <Label Content="/" Grid.Row="0" Grid.Column="2"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun1.Turns}" Width="30"/>
+
+              <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun1.StartTime}" Width="60"/>
+            </Grid>
+
+
+            <DockPanel Height="25" Grid.Row="19" Grid.ColumnSpan="3" Margin="0,15,0,0">
               <Label DockPanel.Dock="Left" Content="Durchgang 2"/>
               <Separator/>
             </DockPanel>
 
-            <Label x:Name="lblCourseSetter2" Margin="5" Content="Kurssetzer:" Grid.Row="16" Grid.Column="0"/>
-            <TextBox x:Name="txtCourseSetter2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="16" Grid.Column="1" />
-            <TextBox x:Name="txtCourseSetterClub2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="16" Grid.Column="2" />
+            <Label x:Name="lblCourseSetter2" Margin="5,0,0,0" Content="Kurssetzer:" Grid.Row="20" Grid.Column="0"/>
+            <TextBox x:Name="txtCourseSetter2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="20" Grid.Column="1" Text="{Binding Path=RaceRun2.CoarseSetter.Name}"/>
+            <TextBox x:Name="txtCourseSetterClub2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="20" Grid.Column="2" Text="{Binding Path=RaceRun2.CoarseSetter.Club}"/>
 
-            <Label x:Name="lblForeRunner2_1" Margin="5" Content="Vorläufer 1:" Grid.Row="17" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner2_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="17" Grid.Column="1" />
-            <TextBox x:Name="txtForeRunnerClub2_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="17" Grid.Column="2" />
+            <Label x:Name="lblForeRunner2_1" Margin="5,0,0,0" Content="Vorläufer 1:" Grid.Row="21" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner2_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="21" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner1.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub2_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="21" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner1.Club}"/>
 
-            <Label x:Name="lblForeRunner2_2" Margin="5" Content="Vorläufer 2:" Grid.Row="18" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner2_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="18" Grid.Column="1" />
-            <TextBox x:Name="txtForeRunnerClub2_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="18" Grid.Column="2" />
+            <Label x:Name="lblForeRunner2_2" Margin="5,0,0,0" Content="Vorläufer 2:" Grid.Row="22" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner2_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="22" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner2.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub2_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="22" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner2.Club}"/>
 
-            <Label x:Name="lblForeRunner2_3" Margin="5" Content="Vorläufer 3:" Grid.Row="19" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner2_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="19" Grid.Column="1" />
-            <TextBox x:Name="txtForeRunnerClub2_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="19" Grid.Column="2" />
+            <Label x:Name="lblForeRunner2_3" Margin="5,0,0,0" Content="Vorläufer 3:" Grid.Row="23" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner2_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="23" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner3.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub2_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="23" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner3.Club}"/>
 
-            <Label x:Name="lblForeRunner2_4" Margin="5" Content="Vorläufer 4:" Grid.Row="20" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner2_4" Margin="5" HorizontalAlignment="Stretch" Grid.Row="20" Grid.Column="1" />
-            <TextBox x:Name="txtForeRunnerClub2_4" Margin="5" HorizontalAlignment="Stretch" Grid.Row="20" Grid.Column="2" />
+            <Grid Grid.Row="24" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
 
+              <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun2.Gates}" Width="30"/>
 
+              <Label Content="/" Grid.Row="0" Grid.Column="2"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun2.Turns}" Width="30"/>
+
+              <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun2.StartTime}" Width="60"/>
+            </Grid>
+
+            <DockPanel Height="25" Grid.Row="25" Grid.ColumnSpan="3" Margin="0,15,0,0">
+              <Label DockPanel.Dock="Left" Content="Wetterdaten"/>
+              <Separator/>
+            </DockPanel>
+            <Grid Grid.Row="26" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Label Margin="0,0,5,0" Content="Wetter:" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=Weather}"/>
+
+              <Label Content="Schnee:" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=Snow}"/>
+
+              <Label Margin="0,0,5,0" Content="Temperatur Start (°C):" Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Text="{Binding Path=TempStart}"/>
+
+              <Label Content="Temperatur Ziel (°C):" Grid.Row="1" Grid.Column="2" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="1" Grid.Column="3" Text="{Binding Path=TempFinish}"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="27" Grid.Column="2" HorizontalAlignment="Right" Margin="0,15,0,0">
+              <Button x:Name="btnAddPropReset" Content="Reset" Margin="5" Padding="5" Click="BtnAddPropReset_Click"/>
+              <Button x:Name="btnAddPropApply" Content="Apply" Margin="5" Padding="5" Click="BtnAddPropApply_Click"/>
+            </StackPanel>
+            
           </Grid>
         </ScrollViewer>
       </TabItem>
       <TabItem Header="Teilnehmer &amp; Startnummern" FontSize="12">
-        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
+        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
           <DataGrid.Columns>
-            <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
-            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
-            <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-            <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
-            <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-            <DataGridTextColumn x:Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-            <DataGridTextColumn x:Name="Punkte" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
+            <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
+            <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+            <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+            <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+            <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+            <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+            <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
           </DataGrid.Columns>
         </DataGrid>
       </TabItem>
@@ -300,8 +481,10 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
+                <Label x:Name="lblStartList" Content="Startliste" HorizontalAlignment="Left" Margin="5,5,5,5" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
                 <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
+                <Label x:Name="lblStartCountDown" Content="Start frei!" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="40,5,40,5" Grid.Column="1" VerticalAlignment="Top" FontSize="16"
+                       Background="LightGreen"/>
                 <ComboBox x:Name="cmbStartListGrouping" FontSize="16" Margin="5,5,15,5" Grid.Column="2" SelectionChanged="CmbStartListGrouping_SelectionChanged"/>
                 <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged"/>
               </Grid>
@@ -309,16 +492,16 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="0" Grid.Column="0"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+                <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="0" Grid.Column="0"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
                   <DataGrid.Columns>
-                    <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Zeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}" />
                   </DataGrid.Columns>
                   <DataGrid.GroupStyle>
                     <GroupStyle>
@@ -375,15 +558,15 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
+              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
                 <DataGrid.Columns>
-                  <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Aktuelle Zeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\}}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Aktuelle Zeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\}}" />
                 </DataGrid.Columns>
               </DataGrid>
             </Grid>
@@ -403,22 +586,32 @@
                 <Label x:Name="lblResults" Content="Ergebnis (Aktueller Lauf)" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
                 <ComboBox x:Name="cmbResultGrouping" FontSize="16" Margin="5" Grid.Column="1" SelectionChanged="CmbResultGrouping_SelectionChanged"/>
               </Grid>
-              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+              <DataGrid x:Name="dgResults" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.Columns>
-                  <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
-                  <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
-                  <DataGridTextColumn Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
-                  <DataGridTextColumn Header="Anmerkung" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Position" Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+                  <DataGridTextColumn local:DataGridUtil.Name="Description" Header="Anmerkung">
+                    <DataGridTextColumn.Binding>
+                      <MultiBinding>
+                        <Binding Path="ResultCode" />
+                        <Binding Path="DisqualText" />
+                        <MultiBinding.Converter>
+                          <dsvalpin2lib:ResultCodeWithCommentConverter/>
+                        </MultiBinding.Converter>
+                      </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                  </DataGridTextColumn>
                 </DataGrid.Columns>
 
                 <DataGrid.Style>
                   <Style TargetType="DataGrid">
-                    <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
+                    <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
                   </Style>
                 </DataGrid.Style>
 
@@ -450,6 +643,9 @@
 
       </TabItem>
       <TabItem Header="Disqualifikation" FontSize="12">
+        <local:DisqualifyUC x:Name="ucDisqualify">
+          
+        </local:DisqualifyUC>
       </TabItem>
     </TabControl>
 
@@ -458,6 +654,8 @@
     <Grid Grid.Column="2" >
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
+        <RowDefinition Height="2*"/>
+        <RowDefinition Height="5"/>
         <RowDefinition Height="1*"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
@@ -471,28 +669,38 @@
         <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
         <ComboBox x:Name="cmbTotalResult" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResult_SelectionChanged"/>
       </Grid>
-      <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFEDEDED" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+      <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
         <DataGrid.Columns>
-          <DataGridTextColumn Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
-          <DataGridTextColumn Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
-          <DataGridTextColumn Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
-          <DataGridTextColumn Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
-          <DataGridTextColumn Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
-          <DataGridTextColumn Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
-          <DataGridTextColumn Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Position" Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
+          <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
 
-          <DataGridTextColumn Header="Zeit 1" Binding="{Binding Path=RunTimes[1], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
-          <DataGridTextColumn Header="Zeit 2" Binding="{Binding Path=RunTimes[2], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
-          <DataGridTextColumn Header="Zeit" Binding="{Binding Path=TotalTime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+          <DataGridTextColumn local:DataGridUtil.Name="Time1" Header="Zeit 1" Binding="{Binding Path=RunTimes[1], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+          <DataGridTextColumn local:DataGridUtil.Name="Time2" Header="Zeit 2" Binding="{Binding Path=RunTimes[2], Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+          <DataGridTextColumn local:DataGridUtil.Name="TotaleTime" Header="Zeit" Binding="{Binding Path=TotalTime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
 
-          <DataGridTextColumn Header="Zeit" Binding="{Binding Path=Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
+          <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Zeit" Binding="{Binding Path=Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
 
-          <DataGridTextColumn Header="Anmerkung" />
+          <DataGridTextColumn local:DataGridUtil.Name="Description" Header="Anmerkung">
+            <DataGridTextColumn.Binding>
+              <MultiBinding>
+                <Binding Path="ResultCode" />
+                <Binding Path="DisqualText" />
+                <MultiBinding.Converter>
+                  <dsvalpin2lib:ResultCodeWithCommentConverter/>
+                </MultiBinding.Converter>
+              </MultiBinding>
+            </DataGridTextColumn.Binding>
+          </DataGridTextColumn>
         </DataGrid.Columns>
 
         <DataGrid.Style>
           <Style TargetType="DataGrid">
-            <Setter Property="AlternatingRowBackground" Value="#FFEDEDED"/>
+            <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
           </Style>
         </DataGrid.Style>
 
@@ -517,7 +725,12 @@
         </DataGrid.RowStyle>
 
       </DataGrid>
-      <Grid Width="Auto" Grid.Row="2">
+
+      <GridSplitter x:Name="gridSplitterResult" HorizontalAlignment="Stretch" Height="5" Grid.Row="2" />
+
+      <local:ChartTestsUC x:Name="chartResults" Grid.Row="3"/>
+      
+      <Grid Width="Auto" Grid.Row="4">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>

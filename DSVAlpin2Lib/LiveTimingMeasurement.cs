@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -169,4 +171,149 @@ namespace DSVAlpin2Lib
     #endregion
 
   }
+
+
+  public class LiveTimingAutoNiZ : IDisposable
+  {
+    RaceRun _raceRun;
+    uint _secondsTillAutoNiZ;
+
+    System.Timers.Timer _timer;
+
+    public LiveTimingAutoNiZ(uint secondsTillAutoNiZ, RaceRun raceRun)
+    {
+      _secondsTillAutoNiZ = secondsTillAutoNiZ;
+      _raceRun = raceRun;
+
+      startObservation();
+    }
+
+    private void startObservation()
+    {
+      _timer = new System.Timers.Timer(1000);
+      _timer.Elapsed += OnTimedEvent;
+      _timer.AutoReset = true;
+      _timer.Enabled = true;
+    }
+
+    private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      var onTrack = _raceRun.GetOnTrackList().ToArray();
+
+      foreach ( var lr in onTrack)
+      {
+        if (lr.GetStartTime() != null)
+        {
+          TimeSpan startTime = (TimeSpan)lr.GetStartTime();
+          TimeSpan curTime = _raceRun.GetRace().GetDataModel().GetCurrentDayTime();
+          TimeSpan timeSinceStart = curTime - startTime;
+
+          if (timeSinceStart.TotalSeconds > _secondsTillAutoNiZ)
+            setToNiZ(lr.Participant);
+        }
+      }
+    }
+
+    private void setToNiZ(RaceParticipant participant)
+    {
+      System.Windows.Application.Current.Dispatcher.Invoke(() =>
+      {
+        _raceRun.SetResultCode(participant, RunResult.EResultCode.NiZ);
+      });
+    }
+
+
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _timer.Dispose();
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      Dispose(true);
+    }
+    #endregion
+  }
+
+
+  public class LiveTimingAutoNaS : IDisposable
+  {
+    RaceRun _raceRun;
+    uint _startersTillAutoNaS;
+
+    public LiveTimingAutoNaS(uint startersTillAutoNaS, RaceRun raceRun)
+    {
+      _raceRun = raceRun;
+      _startersTillAutoNaS = startersTillAutoNaS;
+
+      _raceRun.OnTrackChanged += OnSomethingChanged;
+    }
+
+
+    private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack)
+    {
+      // Copy starters (copy to avoid any side effects)
+      StartListEntry[] starters = _raceRun.GetStartListProvider().GetViewList().ToArray();
+
+      // Participant enters track
+      if (participantEnteredTrack != null)
+      {
+        // Loop over StartList until the starter has been found, remember all not started participants
+        List<StartListEntry> notStarted = new List<StartListEntry>();
+        foreach (StartListEntry se in starters)
+        {
+          if (se.Participant == participantEnteredTrack)
+            break;
+
+          if (!_raceRun.IsOrWasOnTrack(se.Participant))
+            notStarted.Add(se);
+        }
+
+        // Loop 
+        for (int i = 0; i < notStarted.Count() - Math.Abs(_startersTillAutoNaS); i++)
+        {
+          _raceRun.SetResultCode(notStarted[i].Participant, RunResult.EResultCode.NaS);
+        }
+      }
+    }
+
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          // TODO: dispose managed state (managed objects).
+          _raceRun.OnTrackChanged -= OnSomethingChanged;
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      Dispose(true);
+    }
+    #endregion
+  }
+
 }

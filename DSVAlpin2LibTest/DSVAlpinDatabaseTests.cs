@@ -108,7 +108,7 @@ namespace DSVAlpin2LibTest
         var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
         Assert.AreEqual(2U, race.Runs);
         Assert.AreEqual("20190120_C", race.RaceNumber);
-        Assert.AreEqual("Glonner Zwergerlrennen\r\nWSV Glonn", race.Description);
+        Assert.AreEqual("Riesenslalom Bezeichnung 1\r\nRiesenslalom Bezeichnung 2", race.Description);
         Assert.AreEqual(new DateTime(), race.DateStart);
         Assert.AreEqual(new DateTime(2019, 1, 20), race.DateResult);
       }
@@ -245,6 +245,8 @@ namespace DSVAlpin2LibTest
         Sex = "M",
         Club = "Verein 6",
         Nation = "GER",
+        SvId = "123",
+        Code = "321",
         Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
         Year = 2009
       };
@@ -323,6 +325,15 @@ namespace DSVAlpin2LibTest
       OleDbCommand command = new OleDbCommand(sql, conn);
       command.Parameters.Add(new OleDbParameter("@id", id));
 
+      bool checkAgainstDB(string value, object vDB)
+      {
+        string sDB = vDB.ToString();
+        if (string.IsNullOrEmpty(value) && (vDB == DBNull.Value))
+          return true;
+
+        return value == sDB;
+      }
+
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())
       {
@@ -333,6 +344,8 @@ namespace DSVAlpin2LibTest
           bRes &= participant.Sex == reader["sex"].ToString();
           bRes &= participant.Club == reader["verein"].ToString();
           bRes &= participant.Nation == reader["nation"].ToString();
+          bRes &= checkAgainstDB(participant.SvId, reader["svid"]);
+          bRes &= checkAgainstDB(participant.Code, reader["code"]);
           //bRes &= participant.Class == GetClass(GetValueUInt(reader, "klasse"));
           bRes &= participant.Year == reader.GetInt16(reader.GetOrdinal("jahrgang"));
           //bRes &= participant.StartNumber == GetStartNumber(reader);
@@ -386,6 +399,16 @@ namespace DSVAlpin2LibTest
       DBCacheWorkaround();
       rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+
+      rr1r1.SetStartTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetFinishTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
+      rr1r1.SetRunTime(new TimeSpan(0, 0, 1, 1, 110)); //int days, int hours, int minutes, int seconds, int milliseconds
+      db.CreateOrUpdateRunResult(race, rr1, rr1r1);
+      DBCacheWorkaround();
+      rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+
+
 
       rr1r1.ResultCode = RunResult.EResultCode.DIS;
       rr1r1.DisqualText = "TF Tor 9";
@@ -441,7 +464,7 @@ namespace DSVAlpin2LibTest
 
           bRes &= runResult.GetStartTime() == startTime;
           bRes &= runResult.GetFinishTime() == finishTime;
-          bRes &= runResult.GetRunTime() == runTime;
+          bRes &= runResult.GetRunTime(false, false) == runTime;
 
           if (reader.IsDBNull(reader.GetOrdinal("disqualtext")))
             bRes &= runResult.DisqualText == null || runResult.DisqualText == "";

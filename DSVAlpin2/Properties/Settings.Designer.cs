@@ -8,23 +8,79 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DSVAlpin2.Properties
-{
-
-
-  [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-  [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
-  internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
-  {
-
-    private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-
-    public static Settings Default
-    {
-      get
-      {
-        return defaultInstance;
-      }
+namespace DSVAlpin2.Properties {
+    
+    
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.2.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
+        private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
+        
+        public static Settings Default {
+            get {
+                return defaultInstance;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("120")]
+        public uint AutomaticNiZTimeout {
+            get {
+                return ((uint)(this["AutomaticNiZTimeout"]));
+            }
+            set {
+                this["AutomaticNiZTimeout"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TimingDevice_Type {
+            get {
+                return ((string)(this["TimingDevice_Type"]));
+            }
+            set {
+                this["TimingDevice_Type"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TimingDevice_Port {
+            get {
+                return ((string)(this["TimingDevice_Port"]));
+            }
+            set {
+                this["TimingDevice_Port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public uint AutomaticNaSStarters {
+            get {
+                return ((uint)(this["AutomaticNaSStarters"]));
+            }
+            set {
+                this["AutomaticNaSStarters"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        public uint StartTimeIntervall {
+            get {
+                return ((uint)(this["StartTimeIntervall"]));
+            }
+            set {
+                this["StartTimeIntervall"] = value;
+            }
+        }
     }
-  }
 }
