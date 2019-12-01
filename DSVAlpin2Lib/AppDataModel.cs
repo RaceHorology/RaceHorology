@@ -121,6 +121,13 @@ namespace DSVAlpin2Lib
     {
       return _races;
     }
+    public Race GetRace(int idx)
+    {
+      if (0 <= idx && idx < _races.Count)
+        return _races[idx];
+
+      return null;
+    }
 
     public void SetCurrentRace(Race race)
     {
@@ -409,7 +416,10 @@ namespace DSVAlpin2Lib
     /// <param name="run">Run number. Counting starts at 0.</param>
     public RaceRun GetRun(int run)
     {
-      return _runs.ElementAt(run).Item1;
+      if (0 <= run && run < GetMaxRun())
+        return _runs.ElementAt(run).Item1;
+      
+      return null;
     }
 
     public RaceRun[] GetRuns()

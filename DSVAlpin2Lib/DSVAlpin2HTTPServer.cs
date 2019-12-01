@@ -178,15 +178,87 @@ namespace DSVAlpin2Lib
       var req = e.Request;
       var res = e.Response;
 
+      string apiVersion = null, listName = null;
+      int raceNo = -1, runNo = -1;
+      parseUrlPath(req.RawUrl, out apiVersion, out listName, out raceNo, out runNo);
+
+
+      Race race = null;
+      if (raceNo == -1)
+        race = _dataModel.GetCurrentRace();
+      else
+        race = _dataModel.GetRace(raceNo);
+
+      RaceRun raceRun = null;
+      if (runNo == -1)
+        raceRun = _dataModel.GetCurrentRaceRun();
+      else
+        raceRun = race?.GetRun(runNo);
+
       string output = "";
-      Application.Current.Dispatcher.Invoke(() =>
+      if (listName == "startlist")
       {
-        output = JsonConversion.ConvertStartList(_dataModel.GetCurrentRace().GetRun(0).GetStartList());
-      });
+        if (raceRun != null)
+          Application.Current.Dispatcher.Invoke(() =>
+          {
+            output = JsonConversion.ConvertStartList(raceRun.GetStartList());
+          });
+      }
+      else if (listName == "nextstarters")
+      {
+      }
+      else if (listName == "resultlist")
+      {
+        if (raceRun != null)
+          Application.Current.Dispatcher.Invoke(() =>
+          {
+            output = JsonConversion.ConvertRunResults(raceRun.GetResultView());
+          });
+        else if (race != null)
+          Application.Current.Dispatcher.Invoke(() =>
+          {
+            output = JsonConversion.ConvertRaceResults(race.GetResultViewProvider().GetView());
+          });
+      }
 
       res.ContentType = "application/vnd.api+json";
       res.ContentEncoding = Encoding.UTF8;
       res.WriteContent(Encoding.UTF8.GetBytes(output));
+    }
+
+
+    void parseUrlPath(string urlPath, out string apiVersion, out string listName, out int raceNo, out int runNo)
+    {
+      var urlParts = urlPath.Split('/');
+      apiVersion = null;
+      listName = null;
+      raceNo = runNo = int.MinValue;
+
+      int i = 0;
+      while (i < urlParts.Length)
+      {
+        if (string.Equals(urlParts[i], "api", StringComparison.OrdinalIgnoreCase))
+        {
+          i++;
+          apiVersion = urlParts[i];
+        }
+        else if (string.Equals(urlParts[i], "races", StringComparison.OrdinalIgnoreCase))
+        {
+          i++;
+          try { raceNo = int.Parse(urlParts[i]); } catch (Exception) { raceNo = -1; }
+        }
+        else if (string.Equals(urlParts[i], "runs", StringComparison.OrdinalIgnoreCase))
+        {
+          i++;
+          try { runNo = int.Parse(urlParts[i]); } catch (Exception) { runNo = -1; }
+        }
+        else 
+        {
+          listName = urlParts[i];
+        }
+
+        i++;
+      }
     }
   }
 
