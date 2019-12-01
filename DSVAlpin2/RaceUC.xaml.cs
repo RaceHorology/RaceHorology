@@ -529,13 +529,17 @@ namespace DSVAlpin2
       if (raceRun != null)
       {
         dgStartList.ItemsSource = _thisRace.GetParticipants();
+        enableOrDisableColumns(_thisRace, dgStartList);
 
         _rslVP = new RemainingStartListViewProvider();
         _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
+        enableOrDisableColumns(_thisRace, dgRemainingStarters);
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
+        enableOrDisableColumns(_thisRace, dgRunning);
+        enableOrDisableColumns(_thisRace, dgResults);
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
 
         cmbStartListGrouping.SelectCBItem(_rslVP.ActiveGrouping);
@@ -922,6 +926,8 @@ namespace DSVAlpin2
         dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _dataModel);
         cmbTotalResultGrouping.SelectCBItem(_totalResultsVP.ActiveGrouping);
       }
+
+      enableOrDisableColumns(_thisRace, dgTotalResults);
     }
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
@@ -976,6 +982,29 @@ namespace DSVAlpin2
     #endregion
 
 
+    #region Common
+    protected static void enableOrDisableColumns(Race race, DataGrid dg)
+    {
+      enableOrDisableColumn(race, dg, "Year");
+      enableOrDisableColumn(race, dg, "Club");
+      enableOrDisableColumn(race, dg, "Nation");
+      enableOrDisableColumn(race, dg, "Code");
+      enableOrDisableColumn(race, dg, "Points");
+    }
+
+
+    protected static void enableOrDisableColumn(Race race, DataGrid dg, string columnName)
+    {
+      DataGridColumn col = dg.ColumnByName(columnName);
+      if (col != null)
+      {
+        if (race.IsFieldActive(columnName))
+          col.Visibility = Visibility.Visible;
+        else
+          col.Visibility = Visibility.Collapsed;
+      }
+    }
+    #endregion
 
 
   }

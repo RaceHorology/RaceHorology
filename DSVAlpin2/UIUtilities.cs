@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace DSVAlpin2
@@ -66,5 +67,34 @@ namespace DSVAlpin2
       else
         comboBox.SelectCBItem(selected);
     }
+  }
+
+
+  public static class DataGridUtil
+  {
+
+    public static string GetName(DependencyObject obj)
+    {
+      return (string)obj.GetValue(NameProperty);
+    }
+
+    public static void SetName(DependencyObject obj, string value)
+    {
+      obj.SetValue(NameProperty, value);
+    }
+
+
+    public static DataGridColumn ColumnByName(this DataGrid dg, string columnName)
+    {
+      foreach (var col in dg.Columns)
+        if (string.Equals(GetName(col), columnName))
+          return col;
+
+      return null;
+    }
+
+    public static readonly DependencyProperty NameProperty =
+        DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridUtil), new UIPropertyMetadata(""));
+
   }
 }
