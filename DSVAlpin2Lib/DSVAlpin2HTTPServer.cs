@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -232,6 +232,18 @@ namespace DSVAlpin2Lib
             output = JsonConversion.ConvertRaceResults(race.GetResultViewProvider().GetView());
           });
       }
+      else if (listName == "metadata")
+      {
+        if (race != null)
+        {
+          var classes = _dataModel.GetParticipantClasses().ToArray();
+          var groups = _dataModel.GetParticipantGroups().ToArray();
+          var grouping = new string[] { "Class", "Group", "Sex" };
+
+          output = JsonConversion.ConvertMetaData(classes, groups, grouping);
+        }
+      }
+
 
       res.ContentType = "application/vnd.api+json";
       res.ContentEncoding = Encoding.UTF8;
