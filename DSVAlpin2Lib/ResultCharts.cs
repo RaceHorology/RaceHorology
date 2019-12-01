@@ -153,6 +153,11 @@ namespace DSVAlpin2Lib
         }
       }
 
+      if (double.IsNaN(timeMin))
+        timeMin = 0;
+      if (double.IsNaN(timeMax))
+        timeMax = 0;
+
       double yInt, yMinInt;
       yInt = yMinInt = 0;
       getNiceRoundNumbers(ref timeMin, ref timeMax, ref yInt, ref yMinInt);
