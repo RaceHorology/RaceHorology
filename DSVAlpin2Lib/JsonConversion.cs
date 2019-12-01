@@ -366,7 +366,7 @@ namespace DSVAlpin2Lib
       return sw.ToString();
     }
 
-    public static string ConvertMetaData(ParticipantClass[] classes, ParticipantGroup[] groups, string[] grouping)
+    public static string ConvertMetaData(ParticipantClass[] classes, ParticipantGroup[] groups, string[] sex, string[] grouping)
     {
       var wrappedData = new Dictionary<string, object>
       {
@@ -375,6 +375,7 @@ namespace DSVAlpin2Lib
           {
             {"classes", classes },
             {"groups", groups},
+            {"sex", sex},
             {"groupings", grouping}
           }
         }

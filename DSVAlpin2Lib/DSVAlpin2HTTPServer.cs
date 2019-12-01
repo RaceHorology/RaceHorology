@@ -238,9 +238,10 @@ namespace DSVAlpin2Lib
         {
           var classes = _dataModel.GetParticipantClasses().ToArray();
           var groups = _dataModel.GetParticipantGroups().ToArray();
+          var sex = new string[] { "M", "W" };
           var grouping = new string[] { "Class", "Group", "Sex" };
 
-          output = JsonConversion.ConvertMetaData(classes, groups, grouping);
+          output = JsonConversion.ConvertMetaData(classes, groups, sex, grouping);
         }
       }
 

@@ -35,7 +35,7 @@ var dsvFilterAndGroupByMixin = {
         for( item of this.datalist)
         {
 
-          if (this.filterby && item["Class"] != this.filterby)
+          if (this.filterby && item[this.groupby] != this.filterby)
             continue;
 
           counter++;
@@ -285,6 +285,7 @@ var app = new Vue({
       categories: [],
       classes: [],
       groups: [],
+      sex: [],
       groupings: [],
       currentracerun: {"run": "", "type": ""},
       logs: [],
@@ -295,6 +296,24 @@ var app = new Vue({
       filterby: ""
     };
   },
+
+
+  computed: {
+    itemsForGrouping(){
+      if (this.groupby == "Class")
+      {
+        return this.classes;
+      }
+      if (this.groupby == "Group")
+      {
+        return this.groups;
+      }
+      if (this.groupby == "Sex")
+      {
+        return this.sex;
+      }
+    }
+  },  
 
   created: function()
   {
@@ -376,6 +395,18 @@ var app = new Vue({
           that.groups.push({
             value:a.Name, 
             text:a.Name
+          });
+        });        
+
+        that.sex = [];
+        that.sex.push({
+          value:"", 
+          text:"Alle"
+        });
+        data["data"]["sex"].forEach(function (a) {
+          that.sex.push({
+            value:a, 
+            text:a
           });
         });        
 
