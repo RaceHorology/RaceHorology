@@ -243,10 +243,6 @@ namespace DSVAlpin2
     #region Live Timing
 
     LiveTimingRM _liveTimingRM;
-    LiveTimingAutoNiZ _liveTimingAutoNiZ;
-    LiveTimingAutoNaS _liveTimingAutoNaS;
-    LiveTimingStartCountDown _liveTimingStartCountDown;
-
 
     private void InitializeLiveTiming()
     {
@@ -393,6 +389,10 @@ namespace DSVAlpin2
 
 
     #region Timing
+
+    LiveTimingAutoNiZ _liveTimingAutoNiZ;
+    LiveTimingAutoNaS _liveTimingAutoNaS;
+    LiveTimingStartCountDown _liveTimingStartCountDown;
 
     public class LiveTimingStartCountDown : IDisposable
     {
