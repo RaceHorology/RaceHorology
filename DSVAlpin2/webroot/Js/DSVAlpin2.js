@@ -283,6 +283,9 @@ var app = new Vue({
       ontracklist: [],
       raceresultlist: [],
       categories: [],
+      classes: [],
+      groups: [],
+      groupings: [],
       currentracerun: {"run": "", "type": ""},
       logs: [],
       status: "disconnected",
@@ -305,12 +308,12 @@ var app = new Vue({
         
         parsedData = JSON.parse(event.data);
 
-        if (parsedData["type"] == "startlist")
+        /*if (parsedData["type"] == "startlist")
         {
           this.startlist = parsedData["data"];
           this.extractCategoriesAndGroups();
         } 
-        else if (parsedData["type"] == "onstart")
+        else*/ if (parsedData["type"] == "onstart")
         {
           this.onstartlist = parsedData["data"];
         } 
@@ -318,7 +321,7 @@ var app = new Vue({
         {
           this.ontracklist = parsedData["data"];
         } 
-        else if (parsedData["type"] == "racerunresult")
+        else /*if (parsedData["type"] == "racerunresult")
         {
           this.runlist = parsedData["data"];
         } 
@@ -326,7 +329,7 @@ var app = new Vue({
         {
           this.raceresultlist = parsedData["data"];
         } 
-        else if (parsedData["type"] == "currentracerun")
+        else */if (parsedData["type"] == "currentracerun")
         {
           this.currentracerun = parsedData["data"];
         }
@@ -337,10 +340,86 @@ var app = new Vue({
 
       this.sendMessage("init");
     };
+
+    this.fetchMetaData();
+    this.fetchStartList();
+    this.fetchRunResultList();
+    this.fetchRaceResultList();
   },
 
   methods: 
   {
+
+    fetchMetaData()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//metadata";
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.classes = [];
+        data["data"]["classes"].forEach(function (a) {
+          that.classes.push({
+            value:a.Name, 
+            text:a.Name
+          });
+        });        
+
+        that.groups = [];
+        data["data"]["groups"].forEach(function (a) {
+          that.groups.push({
+            value:a.Name, 
+            text:a.Name
+          });
+        });        
+
+        that.groupings = [];
+        that.groupings.push({
+          value:"", 
+          text:"..."
+        });
+        data["data"]["groupings"].forEach(function (a) {
+          that.groupings.push({
+            value:a, 
+            text:a
+          });
+        });        
+
+      });
+    },
+
+    fetchStartList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//startlist";
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.startlist = data["data"];
+        that.extractCategoriesAndGroups();
+      });
+    },
+
+    fetchRunResultList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//resultlist";
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.runlist = data["data"];
+        that.extractCategoriesAndGroups();
+      });
+    },
+
+    fetchRaceResultList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//resultlist";
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.raceresultlist = data["data"];
+        that.extractCategoriesAndGroups();
+      });
+    },
+
     disconnect() 
     {
       this.socket.close();

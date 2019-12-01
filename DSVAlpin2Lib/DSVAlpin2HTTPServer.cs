@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -375,11 +375,11 @@ namespace DSVAlpin2Lib
 
       if (dm != null)
       {
-        Add(new StartListDataProvider(dm));
+        //Add(new StartListDataProvider(dm));
         Add(new RemainingStartListDataProvider(dm));
-        Add(new RaceRunDataProvider(dm));
+        //Add(new RaceRunDataProvider(dm));
         Add(new RaceDataProvider(dm));
-        Add(new RaceResultDataProvider(dm));
+        //Add(new RaceResultDataProvider(dm));
         Add(new OnTrackDataProvider(dm));
       }
     }
