@@ -311,7 +311,6 @@ var app = new Vue({
         /*if (parsedData["type"] == "startlist")
         {
           this.startlist = parsedData["data"];
-          this.extractCategoriesAndGroups();
         } 
         else*/ if (parsedData["type"] == "onstart")
         {
@@ -357,6 +356,10 @@ var app = new Vue({
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
         that.classes = [];
+        that.classes.push({
+          value:"", 
+          text:"Alle"
+        });
         data["data"]["classes"].forEach(function (a) {
           that.classes.push({
             value:a.Name, 
@@ -365,6 +368,10 @@ var app = new Vue({
         });        
 
         that.groups = [];
+        that.groups.push({
+          value:"", 
+          text:"Alle"
+        });
         data["data"]["groups"].forEach(function (a) {
           that.groups.push({
             value:a.Name, 
@@ -394,7 +401,6 @@ var app = new Vue({
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
         that.startlist = data["data"];
-        that.extractCategoriesAndGroups();
       });
     },
 
@@ -405,7 +411,6 @@ var app = new Vue({
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
         that.runlist = data["data"];
-        that.extractCategoriesAndGroups();
       });
     },
 
@@ -416,7 +421,6 @@ var app = new Vue({
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
         that.raceresultlist = data["data"];
-        that.extractCategoriesAndGroups();
       });
     },
 
@@ -432,16 +436,6 @@ var app = new Vue({
       this.logs.push({ event: "Sent message", data: this.message });
       this.message = "";
     },
-    extractCategoriesAndGroups()
-    {
-      var keys = [];
-      keys.push("");
-      this.startlist.forEach( item => {
-        if (keys.findIndex(x => x == item["Class"]) == -1) 
-          keys.push(item["Class"]);
-      });
-      this.categories = keys;
-    }
   },
 
 
