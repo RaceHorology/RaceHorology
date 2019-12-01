@@ -649,12 +649,16 @@ public abstract class PDFReport : IPDFReport
 
     protected PositionConverter _positionConverter = new PositionConverter();
 
+    protected int _nOptFields;
+
     public PDFReport(Race race)
     {
       _race = race;
 
       _dm = race.GetDataModel();
       _pdfHelper = new PDFHelper(_dm);
+
+      _nOptFields = 0;
     }
 
     protected abstract string getTitle();
@@ -702,6 +706,7 @@ public abstract class PDFReport : IPDFReport
       //pageXofY.WriteTotal(pdf);
       document.Close();
     }
+
 
     protected virtual void addContent(PdfDocument pdf, Document document)
     {
@@ -926,8 +931,25 @@ public abstract class PDFReport : IPDFReport
     }
 
 
+    protected virtual void calcNumOptFields()
+    {
+      _nOptFields = 0;
+
+      if (_race.IsFieldActive("Code"))
+        _nOptFields++;
+      if (_race.IsFieldActive("Year"))
+        _nOptFields++;
+      if (_race.IsFieldActive("Nation"))
+        _nOptFields++;
+      if (_race.IsFieldActive("Club"))
+        _nOptFields++;
+      if (_race.IsFieldActive("Points"))
+        _nOptFields++;
+    }
+
     protected virtual Table getResultsTable()
     {
+      calcNumOptFields(); // Ensures the member _nOptFields is correct (used by getTableColumnsWidths())
       var table = new Table(getTableColumnsWidths());
 
       table.SetWidth(UnitValue.CreatePercentValue(100));
@@ -1015,13 +1037,6 @@ public abstract class PDFReport : IPDFReport
     public StartListReport(RaceRun rr) : base(rr.GetRace())
     {
       _raceRun = rr;
-
-      //dm.Location;
-
-      //race.Description;
-      //race.DateResult;
-
-
     }
 
 
@@ -1042,9 +1057,14 @@ public abstract class PDFReport : IPDFReport
       return _raceRun.GetStartListProvider().GetView();
     }
 
+
     protected override float[] getTableColumnsWidths()
     {
-      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+      float[] columns = new float[3 + _nOptFields];
+      for (int i = 0; i < columns.Length; i++)
+        columns[i] = 1;
+
+      return columns;
     }
 
     protected override void addHeaderToTable(Table table)
@@ -1059,24 +1079,29 @@ public abstract class PDFReport : IPDFReport
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("Code")));
+      if (_race.IsFieldActive("Code"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Code")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Teilnehmer")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("JG")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("VB")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("Verein")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("Punkte")));
+      if (_race.IsFieldActive("Year"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("JG")));
+      if (_race.IsFieldActive("Nation"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("VB")));
+      if (_race.IsFieldActive("Club"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Verein")));
+      if (_race.IsFieldActive("Points"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Laufzeit")));
@@ -1092,7 +1117,7 @@ public abstract class PDFReport : IPDFReport
         //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         );
 
-      table.AddCell(new Cell(1, 7)
+      table.AddCell(new Cell(1, 2 + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
@@ -1117,17 +1142,22 @@ public abstract class PDFReport : IPDFReport
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber))));
       // Code
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
+      if (_race.IsFieldActive("Code"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
       // Name
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
       // Year
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Year))));
+      if (_race.IsFieldActive("Year"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Year))));
       // VB
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
+      if (_race.IsFieldActive("Nation"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
       // Club
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
+      if (_race.IsFieldActive("Club"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
       // Points
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(rrwp.Points))));
+      if (_race.IsFieldActive("Points"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(rrwp.Points))));
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).SetBorderBottom(new DottedBorder(1F)));
     }
@@ -1144,13 +1174,6 @@ public abstract class PDFReport : IPDFReport
     public RaceRunResultReport(RaceRun rr) : base(rr.GetRace())
     {
       _raceRun = rr;
-
-      //dm.Location;
-
-      //race.Description;
-      //race.DateResult;
-
-      
     }
 
 
@@ -1173,7 +1196,11 @@ public abstract class PDFReport : IPDFReport
 
     protected override float[] getTableColumnsWidths()
     {
-      return new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+      float[] columns = new float[5 + _nOptFields];
+      for (int i = 0; i < columns.Length; i++)
+        columns[i] = 1;
+
+      return columns;
     }
 
     protected override void addHeaderToTable(Table table)
@@ -1191,21 +1218,29 @@ public abstract class PDFReport : IPDFReport
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Stnr")));
+      if (_race.IsFieldActive("Code"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Code")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Teilnehmer")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("JG")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("VB")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("Verein")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("Punkte")));
+      if (_race.IsFieldActive("Year"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("JG")));
+      if (_race.IsFieldActive("Nation"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("VB")));
+      if (_race.IsFieldActive("Club"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Verein")));
+      if (_race.IsFieldActive("Points"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Laufzeit")));
@@ -1221,14 +1256,12 @@ public abstract class PDFReport : IPDFReport
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
-        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         );
 
-      table.AddCell(new Cell(1, 7)
+      table.AddCell(new Cell(1, 3 + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
-        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
@@ -1250,18 +1283,23 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(rrwp.Position, typeof(string), null, null))));
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber))));
-      //// Code
-      //table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
+      // Code
+      if (_race.IsFieldActive("Code"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
       // Name
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
       // Year
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Year))));
+      if (_race.IsFieldActive("Year"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Year))));
       // VB
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
+      if (_race.IsFieldActive("Nation"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
       // Club
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
+      if (_race.IsFieldActive("Club"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
       // Points
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: rrwp.Points*/))));
+      if (_race.IsFieldActive("Points"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: rrwp.Points*/))));
 
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor)
@@ -1303,9 +1341,7 @@ public abstract class PDFReport : IPDFReport
 
     protected override float[] getTableColumnsWidths()
     {
-
-      float[] columns = new float[9 + _race.GetMaxRun()];
-
+      float[] columns = new float[5 + _nOptFields + _race.GetMaxRun()];
       for (int i = 0; i < columns.Length; i++)
         columns[i] = 1F;
 
@@ -1327,27 +1363,35 @@ public abstract class PDFReport : IPDFReport
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Stnr")));
+      if (_race.IsFieldActive("Code"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Code")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Teilnehmer")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("JG")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("VB")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("Verein")));
+      if (_race.IsFieldActive("Year"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("JG")));
+      if (_race.IsFieldActive("Nation"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("VB")));
+      if (_race.IsFieldActive("Club"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Verein")));
 
       for (int i = 1; i <= _race.GetMaxRun(); i++)
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
           .Add(createParagraph(string.Format("Zeit-{0}", i))));
 
-      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
-        .ConfigureHeaderCell()
-        .Add(createParagraph("Punkte")));
+      if (_race.IsFieldActive("Points"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Laufzeit")));
@@ -1366,7 +1410,7 @@ public abstract class PDFReport : IPDFReport
         //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         );
 
-      table.AddCell(new Cell(1, 7+ _race.GetMaxRun())
+      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
@@ -1383,7 +1427,7 @@ public abstract class PDFReport : IPDFReport
       if (item == null)
         return;
 
-      Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
+      Color bgColor = ColorConstants.WHITE;
       if (i % 2 == 1)
         bgColor = PDFHelper.ColorRHBG1;
 
@@ -1391,16 +1435,20 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(item.Position, typeof(string), null, null))));
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.StartNumber))));
-      //// Code
-      //table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
+      // Code
+      if (_race.IsFieldActive("Code"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.CodeOrSvId)));
       // Name
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Fullname)));
       // Year
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.Year))));
+      if (_race.IsFieldActive("Year"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.Year))));
       // VB
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Nation)));
+      if (_race.IsFieldActive("Nation"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Nation)));
       // Club
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Club)));
+      if (_race.IsFieldActive("Club"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Club)));
 
       for (uint j = 1; j <= _race.GetMaxRun(); j++)
       {
@@ -1414,7 +1462,8 @@ public abstract class PDFReport : IPDFReport
       }
 
       // Points
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: item.Points*/))));
+      if (_race.IsFieldActive("Points"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: item.Points*/))));
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
       // Diff

@@ -320,6 +320,8 @@ namespace DSVAlpin2Lib
     }
 
 
+    #region Configuration
+
     protected void StoreRaceConfig()
     {
       string configFile = GetRaceConfigFilepath();
@@ -358,6 +360,14 @@ namespace DSVAlpin2Lib
         logger.Info(e, "could not load race config {name}", configFile);
       }
     }
+
+    public bool IsFieldActive(string field)
+    {
+      return _raceConfiguration.ActiveFields.Contains(field);
+    }
+
+    #endregion
+
 
     /// <summary>
     /// Creates the RaceRun structures. After this call, the Races can be accessed and worked with via GetRun().
