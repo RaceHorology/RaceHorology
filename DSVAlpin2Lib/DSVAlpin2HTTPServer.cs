@@ -122,6 +122,19 @@ namespace DSVAlpin2Lib
     /// </summary>
     private void OnGetHandler(object sender, HttpRequestEventArgs e)
     {
+      if (e.Request.RawUrl.StartsWith("/api/"))
+      {
+        HandleAPIRequest(e);
+      }
+      else
+      {
+        HandleStaticContentRequest(e);
+      }
+    }
+
+
+    protected void HandleStaticContentRequest(HttpRequestEventArgs e)
+    {
       var req = e.Request;
       var res = e.Response;
 
@@ -158,6 +171,22 @@ namespace DSVAlpin2Lib
       }
 
       res.WriteContent(contents);
+    }
+
+    protected void HandleAPIRequest(HttpRequestEventArgs e)
+    {
+      var req = e.Request;
+      var res = e.Response;
+
+      string output = "";
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConversion.ConvertStartList(_dataModel.GetCurrentRace().GetRun(0).GetStartList());
+      });
+
+      res.ContentType = "application/vnd.api+json";
+      res.ContentEncoding = Encoding.UTF8;
+      res.WriteContent(Encoding.UTF8.GetBytes(output));
     }
   }
 
