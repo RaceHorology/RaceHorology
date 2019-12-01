@@ -54,11 +54,15 @@ namespace DSVAlpin2
       // Last recently used files in menu
       _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
+
+      StartDSVAlpinServer();
     }
+
 
     protected override void OnClosed(EventArgs e)
     {
       CloseDatabase();
+      StopDSVAlpinServer();
     }
 
     /// <summary>
@@ -127,7 +131,7 @@ namespace DSVAlpin2
         ConnectGUIToDataModel();
 
         // Restart DSVALpinServer (for having the lists on mobile devices)
-        StartDSVAlpinServer();
+        _alpinServer.UseDataModel(_dataModel);
 
         _mruList.AddFile(dbPath);
       }
@@ -143,7 +147,7 @@ namespace DSVAlpin2
     /// </summary>
     private void CloseDatabase()
     {
-      StopDSVAlpinServer();
+      _alpinServer.UseDataModel(null);
 
       DisconnectGUIFromDataModel();
 
@@ -208,7 +212,7 @@ namespace DSVAlpin2
         _alpinServer = null;
       }
 
-      _alpinServer = new DSVAlpin2HTTPServer(8081, _dataModel);
+      _alpinServer = new DSVAlpin2HTTPServer(8081);
       _alpinServer.Start();
 
       DisplayURL();

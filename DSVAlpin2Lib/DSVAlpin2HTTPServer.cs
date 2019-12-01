@@ -72,10 +72,8 @@ namespace DSVAlpin2Lib
     /// </summary>
     /// <param name="port">The port number the web service shall be available</param>
     /// <param name="dm">The DataModel to use</param>
-    public DSVAlpin2HTTPServer(UInt16 port, AppDataModel dm)
+    public DSVAlpin2HTTPServer(UInt16 port)
     {
-      _dataModel = dm;
-
       // AppFolder + /webroot
       _baseFolder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"webroot");
 
@@ -99,12 +97,26 @@ namespace DSVAlpin2Lib
       _httpServer.OnGet += OnGetHandler;
     }
 
+
+    public delegate void DataModelChangedHandler(AppDataModel dm);
+    public event DataModelChangedHandler DataModelChanged;
+    public void UseDataModel(AppDataModel dm)
+    {
+      _dataModel = dm;
+
+      var handler = DataModelChanged;
+      handler?.Invoke(dm);
+    }
+
+    public AppDataModel DataModel { get { return _dataModel; } }
+
+
     /// <summary>
     /// Actually starts the server
     /// </summary>
     public void Start()
     {
-      _httpServer.AddWebSocketService<LiveDataBehavior>("/LiveData", (connection) => { connection.SetupThis(_dataModel); });
+      _httpServer.AddWebSocketService<LiveDataBehavior>("/LiveData", (connection) => { connection.SetupThis(this); });
 
       _httpServer.Start();
     }
@@ -185,13 +197,13 @@ namespace DSVAlpin2Lib
 
       Race race = null;
       if (raceNo == -1)
-        race = _dataModel.GetCurrentRace();
+        race = _dataModel?.GetCurrentRace();
       else
-        race = _dataModel.GetRace(raceNo);
+        race = _dataModel?.GetRace(raceNo);
 
       RaceRun raceRun = null;
       if (runNo == -1)
-        raceRun = _dataModel.GetCurrentRaceRun();
+        raceRun = _dataModel?.GetCurrentRaceRun();
       else
         raceRun = race?.GetRun(runNo);
 
@@ -263,24 +275,31 @@ namespace DSVAlpin2Lib
   }
 
 
-  public class DSVAlpinBaseBehavior : WebSocketBehavior
+  public abstract class DSVAlpinBaseBehavior : WebSocketBehavior
   {
-    protected AppDataModel _dm;
+    protected DSVAlpin2HTTPServer _server;
 
     ~DSVAlpinBaseBehavior()
     {
       TearDown();
     }
 
-    public virtual void SetupThis(AppDataModel dm)
+    public virtual void SetupThis(DSVAlpin2HTTPServer server)
     {
-      _dm = dm;
+      _server = server;
+      _server.DataModelChanged += OnDataModelChanged;
+
+      // Populate initially
+      OnDataModelChanged(_server.DataModel);
     }
 
     protected virtual void TearDown()
     {
-      _dm = null;
+      _server.DataModelChanged -= OnDataModelChanged;
+      _server = null;
     }
+
+    protected abstract void OnDataModelChanged(AppDataModel dm);
 
 
     protected override void OnClose(CloseEventArgs e)
@@ -323,26 +342,36 @@ namespace DSVAlpin2Lib
   {
     List<LiveDataProvider> _liveProvider;
 
-    public override void SetupThis(AppDataModel dm)
+    public LiveDataBehavior()
     {
-      base.SetupThis(dm);
-
       _liveProvider = new List<LiveDataProvider>();
-
-      Add(new StartListDataProvider(_dm));
-      Add(new RemainingStartListDataProvider(_dm));
-      Add(new RaceRunDataProvider(_dm));
-      Add(new RaceDataProvider(_dm));
-      Add(new RaceResultDataProvider(_dm));
-      Add(new OnTrackDataProvider(_dm));
     }
-
 
     protected override void TearDown()
     {
       while (_liveProvider.Count() > 0)
         Remove(_liveProvider[_liveProvider.Count() - 1]);
     }
+
+
+    protected override void OnDataModelChanged(AppDataModel dm)
+    {
+
+      if (_liveProvider != null)
+        while (_liveProvider.Count() > 0)
+          Remove(_liveProvider[_liveProvider.Count() - 1]);
+
+      if (dm != null)
+      {
+        Add(new StartListDataProvider(dm));
+        Add(new RemainingStartListDataProvider(dm));
+        Add(new RaceRunDataProvider(dm));
+        Add(new RaceDataProvider(dm));
+        Add(new RaceResultDataProvider(dm));
+        Add(new OnTrackDataProvider(dm));
+      }
+    }
+
 
 
     public void Add(LiveDataProvider provider)
