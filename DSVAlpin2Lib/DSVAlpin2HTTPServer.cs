@@ -218,7 +218,8 @@ namespace DSVAlpin2Lib
       }
       else if (listName == "nextstarters")
       {
-        output = getRemainingStartersList(raceRun, getGrouping(req.QueryString), getLimit(req.QueryString));
+        if (raceRun != null)
+          output = getRemainingStartersList(raceRun, getGrouping(req.QueryString), getLimit(req.QueryString));
       }
       else if (listName == "resultlist")
       {
@@ -336,13 +337,12 @@ namespace DSVAlpin2Lib
     {
       try
       {
-        int limit = int.Parse(queryString.Get("limit"));
-        return limit;
+        if (queryString.Get("limit")!=null)
+          return int.Parse(queryString.Get("limit"));
       }
       catch(Exception)
-      {
-        return -1;
-      }
+      {}
+      return -1;
     }
 
 
@@ -359,7 +359,12 @@ namespace DSVAlpin2Lib
 
     string getRemainingStartersList(RaceRun raceRun, string grouping, int limit)
     {
-      throw new NotImplementedException();
+      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+      var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun);
+      if (grouping != null)
+        vp.ChangeGrouping(grouping);
+
+      return JsonConversion.ConvertStartList(vp.GetView());
     }
 
 

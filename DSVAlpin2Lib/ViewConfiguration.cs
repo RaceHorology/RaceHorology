@@ -256,6 +256,20 @@ namespace DSVAlpin2Lib
     }
 
 
+    public RemainingStartListViewProvider GetRemainingStartersViewProvider(RaceRun rr, string context = null)
+    {
+      var slVP = GetStartlistViewProvider(rr, context);
+
+      if (slVP == null)
+        return null;
+
+      var rslVP = new RemainingStartListViewProvider();
+      rslVP.Init(slVP, rr);
+
+      return rslVP;
+    }
+
+
     public RaceRunResultViewProvider GetRaceRunResultViewProvider(RaceRun rr, string context = null)
     {
       ViewFactory factory = Singleton<ViewFactory>.Instance;
