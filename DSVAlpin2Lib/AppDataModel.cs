@@ -321,8 +321,7 @@ namespace DSVAlpin2Lib
       // TODO: Assuming 2 runs for now
       CreateRaceRuns(2);
 
-      ViewConfigurator viewConfigurator = new ViewConfigurator(_appDataModel);
-      //viewConfigurator.ApplyNewConfig(cfg);
+      ViewConfigurator viewConfigurator = new ViewConfigurator(this);
       viewConfigurator.ConfigureRace(this);
     }
 

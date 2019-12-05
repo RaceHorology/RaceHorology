@@ -205,8 +205,8 @@ namespace DSVAlpin2
       _raceConfiguration = cfg.Copy();
 
       _thisRace.RaceConfiguration = cfg;
-      ViewConfigurator viewConfigurator = new ViewConfigurator(_dataModel);
-      //viewConfigurator.ApplyNewConfig(cfg);
+
+      ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       viewConfigurator.ConfigureRace(_thisRace);
 
       // Reset UI (TODO should adapt itself based on events)
