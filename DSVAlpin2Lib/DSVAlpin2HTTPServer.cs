@@ -292,12 +292,15 @@ namespace DSVAlpin2Lib
       switch (groupby)
       {
         case "class":
+        case "Class":
           grouping = "Participant.Class";
           break;
         case "group":
+        case "Group":
           grouping = "Participant.Group";
           break;
         case "sex":
+        case "Sex":
           grouping = "Participant.Sex";
           break;
         default:

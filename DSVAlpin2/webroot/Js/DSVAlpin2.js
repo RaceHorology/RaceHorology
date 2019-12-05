@@ -315,6 +315,15 @@ var app = new Vue({
     }
   },  
 
+
+  watch: {
+    groupby: function (newGroupBy, oldGroupBy){
+      this.fetchStartList();
+      this.fetchRunResultList();      
+      this.fetchRaceResultList();
+    }
+  },
+
   created: function()
   {
     this.socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/LiveData");
@@ -428,6 +437,8 @@ var app = new Vue({
     fetchStartList()
     {
       var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//startlist";
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
 
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
@@ -438,6 +449,8 @@ var app = new Vue({
     fetchRunResultList()
     {
       var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//resultlist";
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
 
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
@@ -448,6 +461,8 @@ var app = new Vue({
     fetchRaceResultList()
     {
       var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//resultlist";
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
 
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
