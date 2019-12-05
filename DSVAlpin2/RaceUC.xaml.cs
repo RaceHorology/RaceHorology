@@ -531,8 +531,7 @@ namespace DSVAlpin2
         dgStartList.ItemsSource = _thisRace.GetParticipants();
         enableOrDisableColumns(_thisRace, dgStartList);
 
-        _rslVP = new RemainingStartListViewProvider();
-        _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
+        _rslVP  = (new ViewConfigurator(_thisRace)).GetRemainingStartersViewProvider(raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
         enableOrDisableColumns(_thisRace, dgRemainingStarters);
 
