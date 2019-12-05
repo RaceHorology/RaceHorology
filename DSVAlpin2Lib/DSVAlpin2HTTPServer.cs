@@ -194,6 +194,9 @@ namespace DSVAlpin2Lib
       int raceNo = -1, runNo = -1;
       parseUrlPath(req.RawUrl, out apiVersion, out listName, out raceNo, out runNo);
 
+      
+      var r = req.QueryString;
+
 
       Race race = null;
       if (raceNo == -1)
@@ -211,26 +214,18 @@ namespace DSVAlpin2Lib
       if (listName == "startlist")
       {
         if (raceRun != null)
-          Application.Current.Dispatcher.Invoke(() =>
-          {
-            output = JsonConversion.ConvertStartList(raceRun.GetStartList());
-          });
+          output = getStartList(raceRun, getGrouping(req.QueryString));
       }
       else if (listName == "nextstarters")
       {
+        output = getRemainingStartersList(raceRun, getGrouping(req.QueryString), getLimit(req.QueryString));
       }
       else if (listName == "resultlist")
       {
         if (raceRun != null)
-          Application.Current.Dispatcher.Invoke(() =>
-          {
-            output = JsonConversion.ConvertRunResults(raceRun.GetResultView());
-          });
+          output = getResultList(raceRun, getGrouping(req.QueryString));
         else if (race != null)
-          Application.Current.Dispatcher.Invoke(() =>
-          {
-            output = JsonConversion.ConvertRaceResults(race.GetResultViewProvider().GetView());
-          });
+          output = getResultList(race, getGrouping(req.QueryString));
       }
       else if (listName == "metadata")
       {
@@ -252,38 +247,141 @@ namespace DSVAlpin2Lib
     }
 
 
-    void parseUrlPath(string urlPath, out string apiVersion, out string listName, out int raceNo, out int runNo)
+    void parseUrlPath(string url, out string apiVersion, out string listName, out int raceNo, out int runNo)
     {
-      var urlParts = urlPath.Split('/');
+      var urlParts = url.Split('?');
+
+      var urlPathParts = urlParts[0].Split('/');
       apiVersion = null;
       listName = null;
       raceNo = runNo = int.MinValue;
 
       int i = 0;
-      while (i < urlParts.Length)
+      while (i < urlPathParts.Length)
       {
-        if (string.Equals(urlParts[i], "api", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(urlPathParts[i], "api", StringComparison.OrdinalIgnoreCase))
         {
           i++;
-          apiVersion = urlParts[i];
+          apiVersion = urlPathParts[i];
         }
-        else if (string.Equals(urlParts[i], "races", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(urlPathParts[i], "races", StringComparison.OrdinalIgnoreCase))
         {
           i++;
-          try { raceNo = int.Parse(urlParts[i]); } catch (Exception) { raceNo = -1; }
+          try { raceNo = int.Parse(urlPathParts[i]); } catch (Exception) { raceNo = -1; }
         }
-        else if (string.Equals(urlParts[i], "runs", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(urlPathParts[i], "runs", StringComparison.OrdinalIgnoreCase))
         {
           i++;
-          try { runNo = int.Parse(urlParts[i]); } catch (Exception) { runNo = -1; }
+          try { runNo = int.Parse(urlPathParts[i]); } catch (Exception) { runNo = -1; }
         }
         else 
         {
-          listName = urlParts[i];
+          listName = urlPathParts[i];
         }
 
         i++;
       }
+    }
+
+    string getGrouping(NameValueCollection queryString)
+    {
+      string grouping;
+      string groupby = queryString.Get("groupby");
+
+      switch (groupby)
+      {
+        case "class":
+          grouping = "Participant.Class";
+          break;
+        case "group":
+          grouping = "Participant.Group";
+          break;
+        case "sex":
+          grouping = "Participant.Sex";
+          break;
+        default:
+          grouping = null;
+          break;
+      }
+
+      return grouping;
+    }
+
+    string getSorting(NameValueCollection queryString)
+    {
+      string sorting;
+      string sortby = queryString.Get("sortby");
+
+      switch (sortby)
+      {
+        case "class":
+          sorting = "Participant.Class";
+          break;
+        case "group":
+          sorting = "Participant.Group";
+          break;
+        case "sex":
+          sorting = "Participant.Sex";
+          break;
+        default:
+          sorting = null;
+          break;
+      }
+
+      return sorting;
+    }
+
+
+    int getLimit(NameValueCollection queryString)
+    {
+      try
+      {
+        int limit = int.Parse(queryString.Get("limit"));
+        return limit;
+      }
+      catch(Exception)
+      {
+        return -1;
+      }
+    }
+
+
+    string getStartList(RaceRun raceRun, string grouping)
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+      StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun);
+      if (grouping != null)
+        vp.ChangeGrouping(grouping);
+
+      return JsonConversion.ConvertStartList(vp.GetView());
+    }
+
+
+    string getRemainingStartersList(RaceRun raceRun, string grouping, int limit)
+    {
+      throw new NotImplementedException();
+    }
+
+
+    string getResultList(RaceRun raceRun, string grouping)
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+      RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun);
+      if (grouping != null)
+        vp.ChangeGrouping(grouping);
+
+      return JsonConversion.ConvertRunResults(vp.GetView());
+    }
+
+
+    string getResultList(Race race, string grouping)
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(race);
+      RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race);
+      if (grouping != null)
+        vp.ChangeGrouping(grouping);
+
+      return JsonConversion.ConvertRunResults(vp.GetView());
     }
   }
 
