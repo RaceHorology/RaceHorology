@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -116,7 +116,7 @@ namespace DSVAlpin2Lib
     /// </summary>
     public void Start()
     {
-      _httpServer.AddWebSocketService<LiveDataBehavior>("/LiveData", (connection) => { connection.SetupThis(this); });
+      _httpServer.AddWebSocketService<LiveDataBehavior>("/api/LiveData", (connection) => { connection.SetupThis(this); });
 
       _httpServer.Start();
     }

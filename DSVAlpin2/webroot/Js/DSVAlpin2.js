@@ -326,7 +326,7 @@ var app = new Vue({
 
   created: function()
   {
-    this.socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/LiveData");
+    this.socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/api/LiveData");
     this.socket.onopen = () => 
     {
       this.status = "connected";
