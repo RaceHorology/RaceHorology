@@ -389,7 +389,7 @@ namespace DSVAlpin2Lib
       if (grouping != null)
         vp.ChangeGrouping(grouping);
 
-      return JsonConversion.ConvertRunResults(vp.GetView());
+      return JsonConversion.ConvertRaceResults(vp.GetView());
     }
   }
 
