@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -367,7 +367,18 @@ namespace DSVAlpin2Lib
       if (grouping != null)
         vp.ChangeGrouping(grouping);
 
-      return JsonConversion.ConvertStartList(vp.GetView());
+      List<object> remaingStarters = new List<object>();
+      int c = 0;
+      foreach(var item in vp.GetView())
+      {
+        if (limit >= 0 && c >= limit)
+          break;
+
+        remaingStarters.Add(item);
+        c++;
+      }
+
+      return JsonConversion.ConvertStartList(remaingStarters);
     }
 
 
