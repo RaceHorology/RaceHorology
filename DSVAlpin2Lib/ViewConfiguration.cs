@@ -203,18 +203,15 @@ namespace DSVAlpin2Lib
 
   public class ViewConfigurator
   {
+    protected Race _race;
     protected AppDataModel _dataModel;
     protected RaceConfiguration _config;
 
-    public ViewConfigurator(AppDataModel dataModel)
+    public ViewConfigurator(Race race)
     {
-      _dataModel = dataModel;
-    }
-
-
-    public void ApplyNewConfig(RaceConfiguration config)
-    {
-      _config = config.Copy();
+      _race = race;
+      _dataModel = race.GetDataModel();
+      _config = race.RaceConfiguration.Copy();
     }
 
 
@@ -259,6 +256,20 @@ namespace DSVAlpin2Lib
     }
 
 
+    public RemainingStartListViewProvider GetRemainingStartersViewProvider(RaceRun rr, string context = null)
+    {
+      var slVP = GetStartlistViewProvider(rr, context);
+
+      if (slVP == null)
+        return null;
+
+      var rslVP = new RemainingStartListViewProvider();
+      rslVP.Init(slVP, rr);
+
+      return rslVP;
+    }
+
+
     public RaceRunResultViewProvider GetRaceRunResultViewProvider(RaceRun rr, string context = null)
     {
       ViewFactory factory = Singleton<ViewFactory>.Instance;
@@ -298,8 +309,6 @@ namespace DSVAlpin2Lib
 
     public void ConfigureRace(Race race)
     {
-      ApplyNewConfig(race.RaceConfiguration);
-
       for(int i=0; i<race.GetMaxRun(); i++)
       {
         RaceRun rr = race.GetRun(i);

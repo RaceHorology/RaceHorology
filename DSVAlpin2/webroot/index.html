@@ -7,7 +7,7 @@
   <link type="text/css" rel="stylesheet" href="css/bootstrap-vue.min.css" />
   <link type="text/css" rel="stylesheet" href="css/styles.css">
 
-  <script type="text/javascript" src="Js/jquery-3.3.1.slim.min.js"></script>
+  <script type="text/javascript" src="Js/jquery-3.4.1.min.js"></script>
   <script type="text/javascript" src="Js/popper.min.js"></script>
   <script type="text/javascript" src="Js/bootstrap.min.js"></script>
   <script type="text/javascript" src="Js/Vue.js"></script>
@@ -30,15 +30,11 @@
 
             <div class="flex-container-centered">
               <div>
-                  <b-form-select v-model="groupby" class="mb-3">
-                    <option value="">---</option>
-                    <option value="Class">Klasse</option>
-                    <option value="Group">Gruppe</option>
-                    <option value="Sex">Geschlecht</option>
+                  <b-form-select v-model="groupby" :options="groupings" class="mb-3">
                   </b-form-select>
               </div>
               <div>
-                <b-form-select v-model="filterby" :options="categories" class="mb-3">
+                <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                 </b-form-select>
               </div>
             </div>
@@ -65,15 +61,11 @@
 
                 <div class="flex-container-centered">
                     <div>
-                        <b-form-select v-model="groupby" class="mb-3">
-                          <option value="">---</option>
-                          <option value="Class">Klasse</option>
-                          <option value="Group">Gruppe</option>
-                          <option value="Sex">Geschlecht</option>
+                        <b-form-select v-model="groupby" :options="groupings" class="mb-3">
                         </b-form-select>
                     </div>
                     <div>
-                      <b-form-select v-model="filterby" :options="categories" class="mb-3">
+                      <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                       </b-form-select>
                     </div>
                   </div>
@@ -87,15 +79,11 @@
 
             <div class="flex-container-centered">
                 <div>
-                  <b-form-select v-model="groupby" class="mb-3">
-                    <option value="">---</option>
-                    <option value="Class">Klasse</option>
-                    <option value="Group">Gruppe</option>
-                    <option value="Sex">Geschlecht</option>
+                  <b-form-select v-model="groupby" :options="groupings" class="mb-3">
                   </b-form-select>
               </div>
               <div>
-                <b-form-select v-model="filterby" :options="categories" class="mb-3">
+                <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                 </b-form-select>
               </div>
             </div>    
@@ -107,15 +95,11 @@
 
             <div class="flex-container-centered">
               <div>
-                <b-form-select v-model="groupby" class="mb-3">
-                  <option value="">---</option>
-                  <option value="Class">Klasse</option>
-                  <option value="Group">Gruppe</option>
-                  <option value="Sex">Geschlecht</option>
+                <b-form-select v-model="groupby" :options="groupings" class="mb-3">
                 </b-form-select>
               </div>
               <div>
-                <b-form-select v-model="filterby" :options="categories" class="mb-3">
+                <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                 </b-form-select>
               </div>
             </div>

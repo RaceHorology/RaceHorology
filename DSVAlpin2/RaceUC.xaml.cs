@@ -205,8 +205,8 @@ namespace DSVAlpin2
       _raceConfiguration = cfg.Copy();
 
       _thisRace.RaceConfiguration = cfg;
-      ViewConfigurator viewConfigurator = new ViewConfigurator(_dataModel);
-      //viewConfigurator.ApplyNewConfig(cfg);
+
+      ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       viewConfigurator.ConfigureRace(_thisRace);
 
       // Reset UI (TODO should adapt itself based on events)
@@ -531,8 +531,7 @@ namespace DSVAlpin2
         dgStartList.ItemsSource = _thisRace.GetParticipants();
         enableOrDisableColumns(_thisRace, dgStartList);
 
-        _rslVP = new RemainingStartListViewProvider();
-        _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
+        _rslVP  = (new ViewConfigurator(_thisRace)).GetRemainingStartersViewProvider(raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
         enableOrDisableColumns(_thisRace, dgRemainingStarters);
 

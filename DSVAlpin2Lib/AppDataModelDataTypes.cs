@@ -577,10 +577,10 @@ namespace DSVAlpin2Lib
       if (!considerResultCode || _resultCode == EResultCode.Normal)
       {
         if (_runTime != null)
-          return _runTime;
+          return (new RoundedTimeSpan((TimeSpan)_runTime, 2, RoundedTimeSpan.ERoundType.Floor)).TimeSpan;
 
         if (calculateIfNotStored && _startTime != null && _finishTime != null)
-          return _finishTime - _startTime;
+          return (new RoundedTimeSpan((TimeSpan)(_finishTime - _startTime), 2, RoundedTimeSpan.ERoundType.Floor)).TimeSpan;
       }
 
       return null;

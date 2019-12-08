@@ -72,10 +72,8 @@ namespace DSVAlpin2Lib
     /// </summary>
     /// <param name="port">The port number the web service shall be available</param>
     /// <param name="dm">The DataModel to use</param>
-    public DSVAlpin2HTTPServer(UInt16 port, AppDataModel dm)
+    public DSVAlpin2HTTPServer(UInt16 port)
     {
-      _dataModel = dm;
-
       // AppFolder + /webroot
       _baseFolder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"webroot");
 
@@ -99,12 +97,26 @@ namespace DSVAlpin2Lib
       _httpServer.OnGet += OnGetHandler;
     }
 
+
+    public delegate void DataModelChangedHandler(AppDataModel dm);
+    public event DataModelChangedHandler DataModelChanged;
+    public void UseDataModel(AppDataModel dm)
+    {
+      _dataModel = dm;
+
+      var handler = DataModelChanged;
+      handler?.Invoke(dm);
+    }
+
+    public AppDataModel DataModel { get { return _dataModel; } }
+
+
     /// <summary>
     /// Actually starts the server
     /// </summary>
     public void Start()
     {
-      _httpServer.AddWebSocketService<LiveDataBehavior>("/LiveData", (connection) => { connection.SetupThis(_dataModel); });
+      _httpServer.AddWebSocketService<LiveDataBehavior>("/LiveData", (connection) => { connection.SetupThis(this); });
 
       _httpServer.Start();
     }
@@ -121,6 +133,19 @@ namespace DSVAlpin2Lib
     /// Get-Handler - Simple method to provide the web pages (e.g. html,javascript, ...)
     /// </summary>
     private void OnGetHandler(object sender, HttpRequestEventArgs e)
+    {
+      if (e.Request.RawUrl.StartsWith("/api/"))
+      {
+        HandleAPIRequest(e);
+      }
+      else
+      {
+        HandleStaticContentRequest(e);
+      }
+    }
+
+
+    protected void HandleStaticContentRequest(HttpRequestEventArgs e)
     {
       var req = e.Request;
       var res = e.Response;
@@ -159,27 +184,241 @@ namespace DSVAlpin2Lib
 
       res.WriteContent(contents);
     }
+
+    protected void HandleAPIRequest(HttpRequestEventArgs e)
+    {
+      var req = e.Request;
+      var res = e.Response;
+
+      string apiVersion = null, listName = null;
+      int raceNo = -1, runNo = -1;
+      parseUrlPath(req.RawUrl, out apiVersion, out listName, out raceNo, out runNo);
+
+      
+      var r = req.QueryString;
+
+
+      Race race = null;
+      if (raceNo == -1)
+        race = _dataModel?.GetCurrentRace();
+      else
+        race = _dataModel?.GetRace(raceNo);
+
+      RaceRun raceRun = null;
+      if (runNo == -1)
+        raceRun = _dataModel?.GetCurrentRaceRun();
+      else
+        raceRun = race?.GetRun(runNo);
+
+      string output = "";
+      if (listName == "startlist")
+      {
+        if (raceRun != null)
+          output = getStartList(raceRun, getGrouping(req.QueryString));
+      }
+      else if (listName == "nextstarters")
+      {
+        if (raceRun != null)
+          output = getRemainingStartersList(raceRun, getGrouping(req.QueryString), getLimit(req.QueryString));
+      }
+      else if (listName == "resultlist")
+      {
+        if (raceRun != null)
+          output = getResultList(raceRun, getGrouping(req.QueryString));
+        else if (race != null)
+          output = getResultList(race, getGrouping(req.QueryString));
+      }
+      else if (listName == "metadata")
+      {
+        if (race != null)
+        {
+          var classes = _dataModel.GetParticipantClasses().ToArray();
+          var groups = _dataModel.GetParticipantGroups().ToArray();
+          var sex = new string[] { "M", "W" };
+          var grouping = new string[] { "Class", "Group", "Sex" };
+
+          output = JsonConversion.ConvertMetaData(classes, groups, sex, grouping);
+        }
+      }
+
+
+      res.ContentType = "application/vnd.api+json";
+      res.ContentEncoding = Encoding.UTF8;
+      res.WriteContent(Encoding.UTF8.GetBytes(output));
+    }
+
+
+    void parseUrlPath(string url, out string apiVersion, out string listName, out int raceNo, out int runNo)
+    {
+      var urlParts = url.Split('?');
+
+      var urlPathParts = urlParts[0].Split('/');
+      apiVersion = null;
+      listName = null;
+      raceNo = runNo = int.MinValue;
+
+      int i = 0;
+      while (i < urlPathParts.Length)
+      {
+        if (string.Equals(urlPathParts[i], "api", StringComparison.OrdinalIgnoreCase))
+        {
+          i++;
+          apiVersion = urlPathParts[i];
+        }
+        else if (string.Equals(urlPathParts[i], "races", StringComparison.OrdinalIgnoreCase))
+        {
+          i++;
+          try { raceNo = int.Parse(urlPathParts[i]); } catch (Exception) { raceNo = -1; }
+        }
+        else if (string.Equals(urlPathParts[i], "runs", StringComparison.OrdinalIgnoreCase))
+        {
+          i++;
+          try { runNo = int.Parse(urlPathParts[i]); } catch (Exception) { runNo = -1; }
+        }
+        else 
+        {
+          listName = urlPathParts[i];
+        }
+
+        i++;
+      }
+    }
+
+    string getGrouping(NameValueCollection queryString)
+    {
+      string grouping;
+      string groupby = queryString.Get("groupby");
+
+      switch (groupby)
+      {
+        case "class":
+        case "Class":
+          grouping = "Participant.Class";
+          break;
+        case "group":
+        case "Group":
+          grouping = "Participant.Group";
+          break;
+        case "sex":
+        case "Sex":
+          grouping = "Participant.Sex";
+          break;
+        default:
+          grouping = null;
+          break;
+      }
+
+      return grouping;
+    }
+
+    string getSorting(NameValueCollection queryString)
+    {
+      string sorting;
+      string sortby = queryString.Get("sortby");
+
+      switch (sortby)
+      {
+        case "class":
+          sorting = "Participant.Class";
+          break;
+        case "group":
+          sorting = "Participant.Group";
+          break;
+        case "sex":
+          sorting = "Participant.Sex";
+          break;
+        default:
+          sorting = null;
+          break;
+      }
+
+      return sorting;
+    }
+
+
+    int getLimit(NameValueCollection queryString)
+    {
+      try
+      {
+        if (queryString.Get("limit")!=null)
+          return int.Parse(queryString.Get("limit"));
+      }
+      catch(Exception)
+      {}
+      return -1;
+    }
+
+
+    string getStartList(RaceRun raceRun, string grouping)
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+      StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun);
+      if (grouping != null)
+        vp.ChangeGrouping(grouping);
+
+      return JsonConversion.ConvertStartList(vp.GetView());
+    }
+
+
+    string getRemainingStartersList(RaceRun raceRun, string grouping, int limit)
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+      var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun);
+      if (grouping != null)
+        vp.ChangeGrouping(grouping);
+
+      return JsonConversion.ConvertStartList(vp.GetView());
+    }
+
+
+    string getResultList(RaceRun raceRun, string grouping)
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+      RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun);
+      if (grouping != null)
+        vp.ChangeGrouping(grouping);
+
+      return JsonConversion.ConvertRunResults(vp.GetView());
+    }
+
+
+    string getResultList(Race race, string grouping)
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(race);
+      RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race);
+      if (grouping != null)
+        vp.ChangeGrouping(grouping);
+
+      return JsonConversion.ConvertRaceResults(vp.GetView());
+    }
   }
 
 
-  public class DSVAlpinBaseBehavior : WebSocketBehavior
+  public abstract class DSVAlpinBaseBehavior : WebSocketBehavior
   {
-    protected AppDataModel _dm;
+    protected DSVAlpin2HTTPServer _server;
 
     ~DSVAlpinBaseBehavior()
     {
       TearDown();
     }
 
-    public virtual void SetupThis(AppDataModel dm)
+    public virtual void SetupThis(DSVAlpin2HTTPServer server)
     {
-      _dm = dm;
+      _server = server;
+      _server.DataModelChanged += OnDataModelChanged;
+
+      // Populate initially
+      OnDataModelChanged(_server.DataModel);
     }
 
     protected virtual void TearDown()
     {
-      _dm = null;
+      _server.DataModelChanged -= OnDataModelChanged;
+      _server = null;
     }
+
+    protected abstract void OnDataModelChanged(AppDataModel dm);
 
 
     protected override void OnClose(CloseEventArgs e)
@@ -222,26 +461,36 @@ namespace DSVAlpin2Lib
   {
     List<LiveDataProvider> _liveProvider;
 
-    public override void SetupThis(AppDataModel dm)
+    public LiveDataBehavior()
     {
-      base.SetupThis(dm);
-
       _liveProvider = new List<LiveDataProvider>();
-
-      Add(new StartListDataProvider(_dm));
-      Add(new RemainingStartListDataProvider(_dm));
-      Add(new RaceRunDataProvider(_dm));
-      Add(new RaceDataProvider(_dm));
-      Add(new RaceResultDataProvider(_dm));
-      Add(new OnTrackDataProvider(_dm));
     }
-
 
     protected override void TearDown()
     {
       while (_liveProvider.Count() > 0)
         Remove(_liveProvider[_liveProvider.Count() - 1]);
     }
+
+
+    protected override void OnDataModelChanged(AppDataModel dm)
+    {
+
+      if (_liveProvider != null)
+        while (_liveProvider.Count() > 0)
+          Remove(_liveProvider[_liveProvider.Count() - 1]);
+
+      if (dm != null)
+      {
+        //Add(new StartListDataProvider(dm));
+        Add(new RemainingStartListDataProvider(dm));
+        //Add(new RaceRunDataProvider(dm));
+        Add(new RaceDataProvider(dm));
+        //Add(new RaceResultDataProvider(dm));
+        Add(new OnTrackDataProvider(dm));
+      }
+    }
+
 
 
     public void Add(LiveDataProvider provider)

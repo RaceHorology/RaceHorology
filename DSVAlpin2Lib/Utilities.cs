@@ -377,22 +377,29 @@ namespace DSVAlpin2Lib
 
   public struct RoundedTimeSpan
   {
+    public enum ERoundType { Round, Floor };
 
     private const int TIMESPAN_SIZE = 7; // it always has seven digits
 
     private TimeSpan roundedTimeSpan;
     private int precision;
+    private ERoundType roundType;
 
-    public RoundedTimeSpan(TimeSpan time, int precision)
+    public RoundedTimeSpan(TimeSpan time, int precision, ERoundType roundType)
     {
       long ticks = time.Ticks;
 
       if (precision < 0) { throw new ArgumentException("precision must be non-negative"); }
       this.precision = precision;
+      this.roundType = roundType;
       int factor = (int)System.Math.Pow(10, (TIMESPAN_SIZE - precision));
 
       // This is only valid for rounding milliseconds-will *not* work on secs/mins/hrs!
-      roundedTimeSpan = new TimeSpan(((long)System.Math.Round((1.0 * ticks / factor)) * factor));
+      // Note: FIS TimeSpan is cut-off not rounded
+      if (this.roundType == ERoundType.Floor)
+        roundedTimeSpan = new TimeSpan(((long)System.Math.Floor((1.0 * ticks / factor)) * factor));
+      else
+        roundedTimeSpan = new TimeSpan(((long)System.Math.Round((1.0 * ticks / factor)) * factor));
     }
 
     public TimeSpan TimeSpan { get { return roundedTimeSpan; } }
@@ -458,12 +465,12 @@ namespace DSVAlpin2Lib
     }
 
 
-    public static string ToRaceTimeString(this TimeSpan? time)
+    public static string ToRaceTimeString(this TimeSpan? time, RoundedTimeSpan.ERoundType roundType = RoundedTimeSpan.ERoundType.Floor)
     {
       if (time == null)
         return "";
 
-      RoundedTimeSpan roundedTimeSpan = new RoundedTimeSpan((TimeSpan)time, 2);
+      RoundedTimeSpan roundedTimeSpan = new RoundedTimeSpan((TimeSpan)time, 2, roundType);
 
       if (roundedTimeSpan.TimeSpan < new TimeSpan(0,1,0))
         return roundedTimeSpan.TimeSpan.ToString(@"s\,ff");

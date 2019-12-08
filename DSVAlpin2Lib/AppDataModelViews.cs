@@ -129,7 +129,7 @@ namespace DSVAlpin2Lib
     }
   }
 
-  interface IStartListViewProvider
+  public interface IStartListViewProvider
   {
     ICollectionView GetView();
   }

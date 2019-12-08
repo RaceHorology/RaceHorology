@@ -366,6 +366,33 @@ namespace DSVAlpin2Lib
       return sw.ToString();
     }
 
+    public static string ConvertMetaData(ParticipantClass[] classes, ParticipantGroup[] groups, string[] sex, string[] grouping)
+    {
+      var wrappedData = new Dictionary<string, object>
+      {
+        {"type", "metadata" },
+        {"data",  new Dictionary<string, object>
+          {
+            {"classes", classes },
+            {"groups", groups},
+            {"sex", sex},
+            {"groupings", grouping}
+          }
+        }
+      };
+
+      JsonSerializer serializer = new JsonSerializer();
+
+      StringWriter sw = new StringWriter();
+      using (JsonWriter writer = new JsonTextWriter(sw))
+      {
+        serializer.Serialize(writer, wrappedData);
+      }
+
+      return sw.ToString();
+    }
+
+
 
   }
 }

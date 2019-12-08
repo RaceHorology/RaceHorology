@@ -35,7 +35,7 @@ var dsvFilterAndGroupByMixin = {
         for( item of this.datalist)
         {
 
-          if (this.filterby && item["Class"] != this.filterby)
+          if (this.filterby && item[this.groupby] != this.filterby)
             continue;
 
           counter++;
@@ -283,6 +283,10 @@ var app = new Vue({
       ontracklist: [],
       raceresultlist: [],
       categories: [],
+      classes: [],
+      groups: [],
+      sex: [],
+      groupings: [],
       currentracerun: {"run": "", "type": ""},
       logs: [],
       status: "disconnected",
@@ -291,6 +295,33 @@ var app = new Vue({
       groupby: "",
       filterby: ""
     };
+  },
+
+
+  computed: {
+    itemsForGrouping(){
+      if (this.groupby == "Class")
+      {
+        return this.classes;
+      }
+      if (this.groupby == "Group")
+      {
+        return this.groups;
+      }
+      if (this.groupby == "Sex")
+      {
+        return this.sex;
+      }
+    }
+  },  
+
+
+  watch: {
+    groupby: function (newGroupBy, oldGroupBy){
+      this.fetchStartList();
+      this.fetchRunResultList();      
+      this.fetchRaceResultList();
+    }
   },
 
   created: function()
@@ -305,12 +336,11 @@ var app = new Vue({
         
         parsedData = JSON.parse(event.data);
 
-        if (parsedData["type"] == "startlist")
+        /*if (parsedData["type"] == "startlist")
         {
           this.startlist = parsedData["data"];
-          this.extractCategoriesAndGroups();
         } 
-        else if (parsedData["type"] == "onstart")
+        else*/ if (parsedData["type"] == "onstart")
         {
           this.onstartlist = parsedData["data"];
         } 
@@ -318,7 +348,7 @@ var app = new Vue({
         {
           this.ontracklist = parsedData["data"];
         } 
-        else if (parsedData["type"] == "racerunresult")
+        else /*if (parsedData["type"] == "racerunresult")
         {
           this.runlist = parsedData["data"];
         } 
@@ -326,7 +356,7 @@ var app = new Vue({
         {
           this.raceresultlist = parsedData["data"];
         } 
-        else if (parsedData["type"] == "currentracerun")
+        else */if (parsedData["type"] == "currentracerun")
         {
           this.currentracerun = parsedData["data"];
         }
@@ -337,10 +367,109 @@ var app = new Vue({
 
       this.sendMessage("init");
     };
+
+    this.fetchMetaData();
+    this.fetchStartList();
+    this.fetchRunResultList();
+    this.fetchRaceResultList();
   },
 
   methods: 
   {
+
+    fetchMetaData()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//metadata";
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.classes = [];
+        that.classes.push({
+          value:"", 
+          text:"Alle"
+        });
+        data["data"]["classes"].forEach(function (a) {
+          that.classes.push({
+            value:a.Name, 
+            text:a.Name
+          });
+        });        
+
+        that.groups = [];
+        that.groups.push({
+          value:"", 
+          text:"Alle"
+        });
+        data["data"]["groups"].forEach(function (a) {
+          that.groups.push({
+            value:a.Name, 
+            text:a.Name
+          });
+        });        
+
+        that.sex = [];
+        that.sex.push({
+          value:"", 
+          text:"Alle"
+        });
+        data["data"]["sex"].forEach(function (a) {
+          that.sex.push({
+            value:a, 
+            text:a
+          });
+        });        
+
+        that.groupings = [];
+        that.groupings.push({
+          value:"", 
+          text:"..."
+        });
+        data["data"]["groupings"].forEach(function (a) {
+          that.groupings.push({
+            value:a, 
+            text:a
+          });
+        });        
+
+      });
+    },
+
+    fetchStartList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//startlist";
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.startlist = data["data"];
+      });
+    },
+
+    fetchRunResultList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//resultlist";
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.runlist = data["data"];
+      });
+    },
+
+    fetchRaceResultList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//resultlist";
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.raceresultlist = data["data"];
+      });
+    },
+
     disconnect() 
     {
       this.socket.close();
@@ -353,16 +482,6 @@ var app = new Vue({
       this.logs.push({ event: "Sent message", data: this.message });
       this.message = "";
     },
-    extractCategoriesAndGroups()
-    {
-      var keys = [];
-      keys.push("");
-      this.startlist.forEach( item => {
-        if (keys.findIndex(x => x == item["Class"]) == -1) 
-          keys.push(item["Class"]);
-      });
-      this.categories = keys;
-    }
   },
 
 
