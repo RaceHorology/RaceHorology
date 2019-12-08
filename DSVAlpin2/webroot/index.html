@@ -26,8 +26,6 @@
           </b-tab>
         -->
           <b-tab title="Startliste">
-            <h2>Startliste</h2>
-
             <div class="flex-container-centered">
               <div>
                   <b-form-select v-model="groupby" :options="groupings" class="mb-3">
@@ -45,8 +43,6 @@
           </b-tab>
 
           <b-tab title="Live" active>
-              <h2>Live</h2>
-
               <div>
                 <h3>Am Start</h3>
                 <dsv-startlist v-bind:datalist="onstartlist" v-bind:maxitems="5"/>
@@ -74,7 +70,6 @@
             </b-tab>
 
           <b-tab title="Aktueller Lauf">
-            <h2>Aktueller Lauf</h2>
             <div><dsv-racedata v-bind:racedata="currentracerun"/></div>
 
             <div class="flex-container-centered">
@@ -91,8 +86,6 @@
           </b-tab>
 
           <b-tab title="Rennergebnis" enabled>
-            <h2>Ergebnisliste</h2>
-
             <div class="flex-container-centered">
               <div>
                 <b-form-select v-model="groupby" :options="groupings" class="mb-3">
