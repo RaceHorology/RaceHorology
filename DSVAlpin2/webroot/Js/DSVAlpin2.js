@@ -80,11 +80,21 @@ Vue.component('dsv-livedata', {
 
   },
 
+  computed: {
+    nextStartersListReverse(){
+      if (Array.isArray(this.nextstarterslist))
+      {
+        return this.nextstarterslist.reverse();
+      }
+    }
+  },
+
+
   template: `
   <div>
     <table class="dsvalpin-lists">
       <tr>
-        <th v-bind:rowspan="nextstarterslist.length + 1">Am Start</th>
+        <th v-bind:rowspan="nextStartersListReverse.length + 1">Am Start</th>
 
         <th class="cell-centered">StNr</th>
         <th>Name</th>
@@ -97,7 +107,7 @@ Vue.component('dsv-livedata', {
         <th >Zeit</th>
       </tr>
 
-      <template v-for="item in nextstarterslist" >
+      <template v-for="item in nextStartersListReverse" >
         <tr>
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
