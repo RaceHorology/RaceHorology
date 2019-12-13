@@ -351,56 +351,84 @@ namespace DSVAlpin2Lib
 
     string getStartList(RaceRun raceRun, string grouping)
     {
-      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-      StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun);
-      if (grouping != null)
-        vp.ChangeGrouping(grouping);
+      string output = "";
 
-      return JsonConversion.ConvertStartList(vp.GetView());
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+        StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun);
+        if (grouping != null)
+          vp.ChangeGrouping(grouping);
+
+        output = JsonConversion.ConvertStartList(vp.GetView());
+      });
+
+      return output;
     }
 
 
     string getRemainingStartersList(RaceRun raceRun, string grouping, int limit)
     {
-      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-      var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun);
-      if (grouping != null)
-        vp.ChangeGrouping(grouping);
+      string output = "";
 
-      List<object> remaingStarters = new List<object>();
-      int c = 0;
-      foreach(var item in vp.GetView())
+      Application.Current.Dispatcher.Invoke(() =>
       {
-        if (limit >= 0 && c >= limit)
-          break;
+        ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+        var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun);
+        if (grouping != null)
+          vp.ChangeGrouping(grouping);
 
-        remaingStarters.Add(item);
-        c++;
-      }
+        List<object> remaingStarters = new List<object>();
+        int c = 0;
+        foreach (var item in vp.GetView())
+        {
+          if (limit >= 0 && c >= limit)
+            break;
 
-      return JsonConversion.ConvertStartList(remaingStarters);
+          remaingStarters.Add(item);
+          c++;
+        }
+
+        output = JsonConversion.ConvertStartList(remaingStarters);
+      });
+
+      return output;
     }
 
 
     string getResultList(RaceRun raceRun, string grouping)
     {
-      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-      RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun);
-      if (grouping != null)
-        vp.ChangeGrouping(grouping);
+      string output = "";
 
-      return JsonConversion.ConvertRunResults(vp.GetView());
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+        RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun);
+        if (grouping != null)
+          vp.ChangeGrouping(grouping);
+
+        output = JsonConversion.ConvertRunResults(vp.GetView());
+      });
+
+      return output;
     }
 
 
     string getResultList(Race race, string grouping)
     {
-      ViewConfigurator viewConfigurator = new ViewConfigurator(race);
-      RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race);
-      if (grouping != null)
-        vp.ChangeGrouping(grouping);
+        string output = "";
 
-      return JsonConversion.ConvertRaceResults(vp.GetView());
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          ViewConfigurator viewConfigurator = new ViewConfigurator(race);
+          RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race);
+          if (grouping != null)
+            vp.ChangeGrouping(grouping);
+
+          output = JsonConversion.ConvertRaceResults(vp.GetView());
+        });
+
+      return output;
     }
   }
 
@@ -613,21 +641,6 @@ namespace DSVAlpin2Lib
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
