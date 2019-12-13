@@ -43,18 +43,12 @@
           </b-tab>
 
           <b-tab title="Live" active>
-              <div>
-                <h3>Am Start</h3>
-                <dsv-startlist v-bind:datalist="onstartlist" v-bind:maxitems="5"/>
-              </div>
+
+            <div>
+              <dsv-livedata v-bind:nextstarterslist="nextstarterslist" v-bind:ontracklist="ontracklist" />
+            </div>
 
               <div>
-                <h3>Auf der Strecke</h3>
-                <dsv-ontracklist v-bind:datalist="ontracklist" />
-              </div>
-              <div>
-                <h3>Vorläufiges Ergebnis</h3>
-
                 <div class="flex-container-centered">
                     <div>
                         <b-form-select v-model="groupby" :options="groupings" class="mb-3">

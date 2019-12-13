@@ -62,6 +62,94 @@ var dsvFilterAndGroupByMixin = {
 }
 
 
+Vue.component('dsv-livedata', {
+
+  props: {
+    datafields:{
+      type: Array, 
+      default: () => ["Club", "Sex", "Year"] 
+    },
+    nextstarterslist:{
+      type: Array, 
+      required: true
+    },
+    ontracklist:{
+      type: Array, 
+      required: true
+    },
+
+  },
+
+  template: `
+  <div>
+    <table class="dsvalpin-lists">
+      <tr>
+        <th v-bind:rowspan="nextstarterslist.length + 1">Am Start</th>
+
+        <th class="cell-centered">StNr</th>
+        <th>Name</th>
+        <th>Vorname</th>
+        <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+        <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
+        <th v-if="datafields.includes('Club')">Verein</th>
+        <th v-if="datafields.includes('Class')">Klasse</th>
+        <th v-if="datafields.includes('Group')">Gruppe</th>
+        <th >Zeit</th>
+      </tr>
+
+      <template v-for="item in nextstarterslist" >
+        <tr>
+          <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+          <td>{{ item.Name }}</td>
+          <td>{{ item.Firstname }}</td>
+          <td v-if="datafields.includes('Sex')" class="cell-centered">{{ item.Sex }}</td>
+          <td v-if="datafields.includes('Year')" class="cell-centered">{{ item.Year }}</td>
+          <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
+          <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
+          <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
+          <td >&nbsp;</td>
+          </tr>
+      </template>
+<!--
+      <tr>
+        <th v-bind:rowspan="ontracklist.length + 1">Im Lauf</th>
+
+        <th class="cell-centered">StNr</th>
+        <th>Name</th>
+        <th>Vorname</th>
+        <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+        <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
+        <th v-if="datafields.includes('Club')">Verein</th>
+        <th v-if="datafields.includes('Class')">Klasse</th>
+        <th v-if="datafields.includes('Group')">Gruppe</th>
+      </tr>
+-->
+
+      <tr>
+        <th v-bind:rowspan="ontracklist.length + 1">Im Lauf</th>
+
+        <th class="cell-centered" colspan="9"></th>
+      </tr>
+      <template v-for="item in ontracklist" >
+        <tr>
+          <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+          <td>{{ item.Name }}</td>
+          <td>{{ item.Firstname }}</td>
+          <td v-if="datafields.includes('Sex')" class="cell-centered">{{ item.Sex }}</td>
+          <td v-if="datafields.includes('Year')" class="cell-centered">{{ item.Year }}</td>
+          <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
+          <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
+          <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
+          <td >{{ item.Runtime }}</td>
+        </tr>
+      </template>
+
+    </table>
+  </div>
+  `
+});
+
+
 Vue.component('dsv-startlist', {
   mixins: [dsvFilterAndGroupByMixin],
 
@@ -279,7 +367,7 @@ var app = new Vue({
     return {
       startlist: [],
       runlist: [],
-      onstartlist: [],
+      nextstarterslist: [],
       ontracklist: [],
       raceresultlist: [],
       categories: [],
@@ -319,6 +407,7 @@ var app = new Vue({
   watch: {
     groupby: function (newGroupBy, oldGroupBy){
       this.fetchStartList();
+      this.fetchNextStartersList();
       this.fetchRunResultList();      
       this.fetchRaceResultList();
     }
@@ -340,11 +429,11 @@ var app = new Vue({
         {
           this.startlist = parsedData["data"];
         } 
-        else*/ if (parsedData["type"] == "onstart")
+        else if (parsedData["type"] == "onstart")
         {
           this.onstartlist = parsedData["data"];
         } 
-        else if (parsedData["type"] == "ontrack")
+        else */if (parsedData["type"] == "ontrack")
         {
           this.ontracklist = parsedData["data"];
         } 
@@ -370,6 +459,7 @@ var app = new Vue({
 
     this.fetchMetaData();
     this.fetchStartList();
+    this.fetchNextStartersList();
     this.fetchRunResultList();
     this.fetchRaceResultList();
   },
@@ -443,6 +533,16 @@ var app = new Vue({
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
         that.startlist = data["data"];
+      });
+    },
+
+    fetchNextStartersList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//nextstarters?limit=5";
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.nextstarterslist = data["data"];
       });
     },
 
