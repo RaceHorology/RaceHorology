@@ -95,7 +95,7 @@
               </ToggleButton>
             </StackPanel>
           </Grid>
-          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="auto" VerticalScrollBarVisibility="Auto"/>
+          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="100" VerticalScrollBarVisibility="Auto"/>
         </Grid>
       </StatusBarItem>
 
