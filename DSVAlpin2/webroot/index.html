@@ -1,104 +1,90 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>DSVAlpin 2</title>
+  <head>
+    <title>DSVAlpin 2</title>
 
-  <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
-  <link type="text/css" rel="stylesheet" href="css/bootstrap-vue.min.css" />
-  <link type="text/css" rel="stylesheet" href="css/styles.css">
+    <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="css/bootstrap-vue.min.css" />
+    <link type="text/css" rel="stylesheet" href="css/styles.css">
 
-  <script type="text/javascript" src="Js/jquery-3.4.1.min.js"></script>
-  <script type="text/javascript" src="Js/popper.min.js"></script>
-  <script type="text/javascript" src="Js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="Js/Vue.js"></script>
-  <script type="text/javascript" src="Js/bootstrap-vue.min.js"></script>
-</head>
+    <script type="text/javascript" src="Js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="Js/popper.min.js"></script>
+    <script type="text/javascript" src="Js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="Js/Vue.js"></script>
+    <script type="text/javascript" src="Js/bootstrap-vue.min.js"></script>
+  </head>
   <body>
     <div id="app">
       <div>
-          <img alt="RH Logo" src="img/RH-LOGO.svg" class="svg-logo-big"/>
-          <b-tabs content-class="mt-3">
-          <!--
-            <b-tab disabled>
-              <template v-slot:title>
-              <img alt="RH Logo" src="img/RH-LOGO.svg" class="svg-logo"/>
-              </template>
-          </b-tab>
-        -->
-          <b-tab title="Startliste">
-            <div class="flex-container-centered">
-              <div>
-                  <b-form-select v-model="groupby" :options="groupings" class="mb-3">
-                  </b-form-select>
-              </div>
-              <div>
-                <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
-                </b-form-select>
-              </div>
-            </div>
-            <div><dsv-racedata v-bind:racedata="currentracerun"/></div>
-
-
-            <dsv-startlist v-bind:datalist="startlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
-          </b-tab>
-
-          <b-tab title="Live" active>
-
-            <div>
-              <dsv-livedata v-bind:nextstarterslist="onstartlist" v-bind:ontracklist="ontracklist" />
-            </div>
-
-              <div>
-                <div class="flex-container-centered">
-                    <div>
-                        <b-form-select v-model="groupby" :options="groupings" class="mb-3">
+        <img alt="RH Logo" src="img/RH-LOGO.svg" class="svg-logo-big"/>
+        <b-tabs content-class="mt-3">
+            <b-tab title="Startliste">
+              <dsv-startapp 
+                :groupings="groupings" :categories="categories" :classes="classes" :groups="groups" :sex="sex" 
+                inline-template>
+                <div>
+                    <div class="flex-container-centered">
+                        <div>
+                          <b-form-select v-model="groupby" :options="groupings" class="mb-3">
+                          </b-form-select>
+                      </div>
+                      <div>
+                        <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                         </b-form-select>
+                      </div>
                     </div>
-                    <div>
-                      <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
-                      </b-form-select>
-                    </div>
-                  </div>
-                  <dsv-runresultslist v-bind:datalist="runlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
-              </div>
+                    <dsv-startlist v-bind:datalist="startlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
+        
+                </div>
+              </dsv-startapp>
             </b-tab>
 
-          <b-tab title="Aktueller Lauf">
-            <div><dsv-racedata v-bind:racedata="currentracerun"/></div>
-
-            <div class="flex-container-centered">
+            <b-tab title="Live" active>
+              <dsv-liveapp inline-template>
                 <div>
-                  <b-form-select v-model="groupby" :options="groupings" class="mb-3">
-                  </b-form-select>
-              </div>
-              <div>
-                <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
-                </b-form-select>
-              </div>
-            </div>    
-            <dsv-runresultslist v-bind:datalist="runlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
-          </b-tab>
+                  <div>
+                    <dsv-livedatalists v-bind:nextstarterslist="onstartlist" v-bind:ontracklist="ontracklist" />
+                  </div>
 
+                  <div>
+                    <div class="flex-container-centered">
+                        <div>
+                            <b-form-select v-model="groupby" :options="groupings" class="mb-3">
+                            </b-form-select>
+                        </div>
+                        <div>
+                          <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
+                          </b-form-select>
+                        </div>
+                      </div>
+                      <dsv-runresultslist v-bind:datalist="racerunresults" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
+                  </div>
+                </div>
+              </dsv-liveapp>
+            </b-tab>
           <b-tab title="Rennergebnis" enabled>
-            <div class="flex-container-centered">
+            <dsv-raceresultapp 
+              :groupings="groupings" :categories="categories" :classes="classes" :groups="groups" :sex="sex" 
+              inline-template>
               <div>
-                <b-form-select v-model="groupby" :options="groupings" class="mb-3">
-                </b-form-select>
+                <div class="flex-container-centered">
+                  <div>
+                    <b-form-select v-model="groupby" :options="groupings" class="mb-3">
+                    </b-form-select>
+                  </div>
+                  <div>
+                    <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
+                    </b-form-select>
+                  </div>
+                </div>
+                <dsv-raceresultslist v-bind:datalist="raceresultlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
               </div>
-              <div>
-                <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
-                </b-form-select>
-              </div>
-            </div>
-            <dsv-raceresultslist v-bind:datalist="raceresultlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
+            </dsv-raceresultapp>
           </b-tab>
-
   
         </b-tabs>
       </div>
     
-      <p>{{ message }}</p>
-
     </div>
 
     <script type="text/javascript" src="./Js/DSVAlpin2.js"></script>

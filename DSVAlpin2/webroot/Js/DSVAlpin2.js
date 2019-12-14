@@ -1,4 +1,6 @@
 
+/** Used for grouping and filter the lists
+ */
 var dsvFilterAndGroupByMixin = {
 
   props: {
@@ -61,8 +63,60 @@ var dsvFilterAndGroupByMixin = {
 
 }
 
+/** Used for providing the group and filter comboboxes with data
+ */
+var dsvFilterAndGroupByDataMixin = {
+  data: function()
+  {
+    return {
+      groupby: "",
+    };
+  },
+  
+  props: {
+    groupings:{
+      type: Array, 
+      required: true
+    },
+    categories:{
+      type: Array, 
+      required: true
+    },
+    classes:{
+      type: Array, 
+      required: true
+    },
+    groups:{
+      type: Array, 
+      required: true
+    },
+    sex:{
+      type: Array, 
+      required: true
+    }
+  },
 
-Vue.component('dsv-livedata', {
+  computed: {
+    itemsForGrouping(){
+      if (this.groupby == "Class")
+      {
+        return this.classes;
+      }
+      if (this.groupby == "Group")
+      {
+        return this.groups;
+      }
+      if (this.groupby == "Sex")
+      {
+        return this.sex;
+      }
+    }
+  },  
+
+}
+
+
+Vue.component('dsv-livedatalists', {
 
   props: {
     datafields:{
@@ -370,24 +424,22 @@ Vue.component('dsv-racedata', {
 
 
 
-var app = new Vue({
-  el: "#app",
+Vue.component('dsv-liveapp', {
   data: function()
   {
     return {
-      startlist: [],
-      runlist: [],
-      nextstarterslist: [],
       onstartlist: [],
       ontracklist: [],
-      raceresultlist: [],
+      racerunresults: [],
+      raceresults: [],
+      currentracerun: {"run": "", "type": ""},
+
       categories: [],
       classes: [],
       groups: [],
       sex: [],
       groupings: [],
-      currentracerun: {"run": "", "type": ""},
-      logs: [],
+
       status: "disconnected",
       lastUpdate: "",
       message: "",
@@ -416,12 +468,6 @@ var app = new Vue({
 
 
   watch: {
-    groupby: function (newGroupBy, oldGroupBy){
-      this.fetchStartList();
-      //this.fetchNextStartersList();
-      this.fetchRunResultList();      
-      this.fetchRaceResultList();
-    }
   },
 
   created: function()
@@ -430,17 +476,12 @@ var app = new Vue({
     this.socket.onopen = () => 
     {
       this.status = "connected";
-      this.logs.push({ event: "Connected to", data: this.socket.location});
 
       this.socket.onmessage = ({data}) => {
         
         parsedData = JSON.parse(event.data);
 
-        /*if (parsedData["type"] == "startlist")
-        {
-          this.startlist = parsedData["data"];
-        } 
-        else*/ if (parsedData["type"] == "onstart")
+        if (parsedData["type"] == "onstart")
         {
           this.onstartlist = parsedData["data"];
         } 
@@ -448,31 +489,153 @@ var app = new Vue({
         {
           this.ontracklist = parsedData["data"];
         } 
-        else /*if (parsedData["type"] == "racerunresult")
+        else if (parsedData["type"] == "racerunresult")
         {
-          this.runlist = parsedData["data"];
+          this.racerunresults = parsedData["data"];
         } 
         else if (parsedData["type"] == "raceresult")
         {
           this.raceresultlist = parsedData["data"];
         } 
-        else */if (parsedData["type"] == "currentracerun")
+        else if (parsedData["type"] == "currentracerun")
         {
           this.currentracerun = parsedData["data"];
         }
 
         this.lastUpdate = new Date().toLocaleString();
-        this.logs.push({ event: "Recieved message", data: new Date().toLocaleString()});
       };
 
       this.sendMessage("init");
     };
 
-    this.fetchMetaData();
+  },
+
+  methods: 
+  {
+    disconnect() 
+    {
+      this.socket.close();
+      this.status = "disconnected";
+    },
+
+    sendMessage(e) 
+    {
+      this.socket.send(this.message);
+      this.message = "";
+    },
+  },
+
+
+
+
+});
+
+
+Vue.component('dsv-startapp', {
+  mixins: [dsvFilterAndGroupByDataMixin],
+
+  data: function()
+  {
+    return {
+      startlist: [],
+      filterby: ""
+    };
+  },
+
+  watch: {
+    groupby: function (newGroupBy, oldGroupBy){
+      this.fetchStartList();
+    }
+  },
+
+
+  created: function()
+  {
     this.fetchStartList();
-    //this.fetchNextStartersList();
-    this.fetchRunResultList();
+  },
+
+  methods: 
+  {
+    fetchStartList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//startlist";
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.startlist = data["data"];
+      });
+    }
+  }
+});
+
+
+Vue.component('dsv-raceresultapp', {
+  mixins: [dsvFilterAndGroupByDataMixin],
+
+  data: function()
+  {
+    return {
+      raceresultlist: [],
+      filterby: ""
+    };
+  },
+
+  watch: {
+    groupby: function (newGroupBy, oldGroupBy){
+      this.fetchRaceResults();
+    }
+  },
+
+
+  created: function()
+  {
     this.fetchRaceResultList();
+  },
+
+  methods: 
+  {
+    fetchRaceResultList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//resultlist";
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.raceresultlist = data["data"];
+      });
+    }
+  }
+});
+
+
+
+var app = new Vue({
+  el: "#app",
+  data: function()
+  {
+    return {
+      categories: [],
+      classes: [],
+      groups: [],
+      sex: [],
+      groupings: [],
+    };
+  },
+
+
+  computed: {
+  }, 
+  
+
+  watch: {
+  },
+
+  created: function()
+  {
+    this.fetchMetaData();
   },
 
   methods: 
@@ -534,71 +697,9 @@ var app = new Vue({
 
       });
     },
-
-    fetchStartList()
-    {
-      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//startlist";
-      if (this.groupby)
-        url += "?groupby="+this.groupby;
-
-      var that = this; // To preserve the Vue context within the jQuery callback
-      $.getJSON(url, function (data) {
-        that.startlist = data["data"];
-      });
-    },
-
-    fetchNextStartersList()
-    {
-      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//nextstarters?limit=5";
-
-      var that = this; // To preserve the Vue context within the jQuery callback
-      $.getJSON(url, function (data) {
-        that.nextstarterslist = data["data"];
-      });
-    },
-
-    fetchRunResultList()
-    {
-      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//resultlist";
-      if (this.groupby)
-        url += "?groupby="+this.groupby;
-
-      var that = this; // To preserve the Vue context within the jQuery callback
-      $.getJSON(url, function (data) {
-        that.runlist = data["data"];
-      });
-    },
-
-    fetchRaceResultList()
-    {
-      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//resultlist";
-      if (this.groupby)
-        url += "?groupby="+this.groupby;
-
-      var that = this; // To preserve the Vue context within the jQuery callback
-      $.getJSON(url, function (data) {
-        that.raceresultlist = data["data"];
-      });
-    },
-
-    disconnect() 
-    {
-      this.socket.close();
-      this.status = "disconnected";
-      this.logs.push({ event: "Disconnected", data: new Date().toLocaleString()});
-    },
-    sendMessage(e) 
-    {
-      this.socket.send(this.message);
-      this.logs.push({ event: "Sent message", data: this.message });
-      this.message = "";
-    },
   },
-
-
-
-
 });
+
 
 
 
