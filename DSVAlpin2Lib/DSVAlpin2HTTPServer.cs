@@ -521,8 +521,12 @@ namespace DSVAlpin2Lib
 
       if (dm != null)
       {
+        //Add(new StartListDataProvider(dm));
         Add(new RaceDataProvider(dm));
+        Add(new RemainingStartListDataProvider(dm, 5));
         Add(new OnTrackDataProvider(dm));
+        Add(new RaceRunDataProvider(dm));
+        Add(new RaceResultDataProvider(dm));
       }
     }
 
@@ -557,6 +561,292 @@ namespace DSVAlpin2Lib
     }
   }
 
+
+  public class StartListDataProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+    ItemsChangedNotifier _notifier;
+    System.Timers.Timer _timer;
+
+    public StartListDataProvider(AppDataModel dm)
+    {
+      _dm = dm;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        _notifier = new ItemsChangedNotifier(_dm.GetCurrentRace().GetRun(0).GetStartList());
+        _notifier.CollectionChanged += StartListChanged;
+        _notifier.ItemChanged += StartListItemChanged;
+      });
+    }
+
+    public override void Dispose()
+    {
+      _notifier.CollectionChanged -= StartListChanged;
+      _notifier.ItemChanged -= StartListItemChanged;
+    }
+
+    public override void SendInitial()
+    {
+      SendStartList();
+    }
+
+    private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendStartList();
+    }
+    private void StartListItemChanged(object sender, PropertyChangedEventArgs args)
+    {
+      SendStartList();
+    }
+
+    void SendStartList()
+    {
+      if (_timer != null)
+        _timer.Stop();
+      else
+      {
+        _timer = new System.Timers.Timer(200);
+        _timer.Elapsed += DoSendStartList;
+        _timer.AutoReset = false;
+        _timer.Enabled = true;
+      }
+
+      _timer.Start();
+    }
+
+    void DoSendStartList(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      string output=null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConversion.ConvertStartList(_dm.GetCurrentRace().GetRun(0).GetStartList());
+      });
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+  }
+
+
+
+  public class RemainingStartListDataProvider : LiveDataProvider
+  {
+    int _limit;
+    AppDataModel _dm;
+    RaceRun _currentRace;
+    RemainingStartListViewProvider _rslVP;
+    ItemsChangedNotifier _notifier;
+    System.Timers.Timer _timer;
+
+
+    public RemainingStartListDataProvider(AppDataModel dm, int limit)
+    {
+      _limit = limit;
+      _dm = dm;
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
+
+      ListenToCurrentRaceRun();
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      ListenToCurrentRaceRun();
+    }
+
+    private void ListenToCurrentRaceRun()
+    {
+      if (_currentRace != _dm.GetCurrentRaceRun())
+      {
+        
+        if (_notifier != null)
+        {
+          _notifier.CollectionChanged -= StartListChanged;
+          _notifier.ItemChanged -= StartListItemChanged;
+          _notifier = null;
+        }
+        _rslVP = null;
+
+
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          RaceRun raceRun = _dm.GetCurrentRaceRun();
+          _rslVP = new RemainingStartListViewProvider();
+          _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
+
+          _notifier = new ItemsChangedNotifier(_rslVP.GetView());
+          _notifier.CollectionChanged += StartListChanged;
+          _notifier.ItemChanged += StartListItemChanged;
+        });
+
+        _currentRace = _dm.GetCurrentRaceRun();
+
+        SendStartList();
+      }
+    }
+
+    public override void Dispose()
+    {
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+
+      _notifier.CollectionChanged -= StartListChanged;
+      _notifier.ItemChanged -= StartListItemChanged;
+      _rslVP = null;
+      _notifier = null;
+    }
+
+    public override void SendInitial()
+    {
+      SendStartList();
+    }
+
+    private void StartListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendStartList();
+    }
+    private void StartListItemChanged(object sender, PropertyChangedEventArgs args)
+    {
+      SendStartList();
+    }
+
+    void SendStartList()
+    {
+      if (_timer != null)
+        _timer.Stop();
+      else
+      {
+        _timer = new System.Timers.Timer(200);
+        _timer.Elapsed += DoSendStartList;
+        _timer.AutoReset = false;
+        _timer.Enabled = true;
+      }
+
+      _timer.Start();
+    }
+
+    void DoSendStartList(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      string output = null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        List<object> remaingStarters = new List<object>();
+        int c = 0;
+        foreach (var item in _rslVP.GetView())
+        {
+          if (_limit >= 0 && c >= _limit)
+            break;
+
+          remaingStarters.Add(item);
+          c++;
+        }
+               
+        output = JsonConversion.ConvertOnStartList(remaingStarters);
+      });
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+  }
+
+
+
+
+
+  public class RaceRunDataProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+    RaceRun _currentRace;
+    ItemsChangedNotifier _notifier;
+    System.Timers.Timer _timer;
+
+    public RaceRunDataProvider(AppDataModel dm)
+    {
+      _dm = dm;
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
+
+      ListenToCurrentRaceRun();
+    }
+
+    public override void Dispose()
+    {
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+
+      _notifier.CollectionChanged -= ResultListChanged;
+      _notifier.ItemChanged -= ResultListItemChanged;
+      _notifier = null;
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      ListenToCurrentRaceRun();
+    }
+
+    private void ListenToCurrentRaceRun()
+    {
+      if (_currentRace != _dm.GetCurrentRaceRun())
+      {
+
+        if (_notifier != null)
+        {
+          _notifier.CollectionChanged -= ResultListChanged;
+          _notifier.ItemChanged -= ResultListItemChanged;
+          _notifier = null;
+        }
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          _notifier = new ItemsChangedNotifier(_dm.GetCurrentRaceRun().GetResultView());
+          _notifier.CollectionChanged += ResultListChanged;
+          _notifier.ItemChanged += ResultListItemChanged;
+        });
+
+        _currentRace = _dm.GetCurrentRaceRun();
+
+        SendResultList();
+      }
+    }
+
+    public override void SendInitial()
+    {
+      SendResultList();
+    }
+
+
+    private void ResultListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendResultList();
+    }
+
+    private void ResultListItemChanged(object sender, PropertyChangedEventArgs args)
+    {
+      SendResultList();
+    }
+
+
+    void SendResultList()
+    {
+      if (_timer != null)
+        _timer.Stop();
+      else
+      {
+        _timer = new System.Timers.Timer(200);
+        _timer.Elapsed += DoSendResultList;
+        _timer.AutoReset = false;
+        _timer.Enabled = true;
+      }
+
+      _timer.Start();
+    }
+
+    void DoSendResultList(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      string output = null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConversion.ConvertRunResults(_dm.GetCurrentRaceRun().GetResultView());
+      });
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+  }
 
 
   public class OnTrackDataProvider : LiveDataProvider
@@ -642,6 +932,71 @@ namespace DSVAlpin2Lib
     }
   }
 
+
+
+  public class RaceResultDataProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+    ItemsChangedNotifier _notifier;
+    System.Timers.Timer _timer;
+
+    public RaceResultDataProvider(AppDataModel dm)
+    {
+      _dm = dm;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        _notifier = new ItemsChangedNotifier(_dm.GetCurrentRace().GetResultViewProvider().GetView());
+        _notifier.CollectionChanged += DataListChanged;
+        _notifier.ItemChanged += DataListItemChanged;
+      });
+    }
+
+    public override void Dispose()
+    {
+      _notifier.CollectionChanged -= DataListChanged;
+      _notifier.ItemChanged -= DataListItemChanged;
+    }
+
+    public override void SendInitial()
+    {
+      SendResultList();
+    }
+
+    private void DataListChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+      SendResultList();
+    }
+    private void DataListItemChanged(object sender, PropertyChangedEventArgs args)
+    {
+      SendResultList();
+    }
+
+    void SendResultList()
+    {
+      if (_timer != null)
+        _timer.Stop();
+      else
+      {
+        _timer = new System.Timers.Timer(200);
+        _timer.Elapsed += DoSendResultList;
+        _timer.AutoReset = false;
+        _timer.Enabled = true;
+      }
+
+      _timer.Start();
+    }
+
+    void DoSendResultList(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      string output = null;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        output = JsonConversion.ConvertRaceResults(_dm.GetCurrentRace().GetResultViewProvider().GetView());
+      });
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+  }
 
 
   public class RaceDataProvider : LiveDataProvider

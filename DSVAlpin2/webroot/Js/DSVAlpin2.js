@@ -378,6 +378,7 @@ var app = new Vue({
       startlist: [],
       runlist: [],
       nextstarterslist: [],
+      onstartlist: [],
       ontracklist: [],
       raceresultlist: [],
       categories: [],
@@ -417,7 +418,7 @@ var app = new Vue({
   watch: {
     groupby: function (newGroupBy, oldGroupBy){
       this.fetchStartList();
-      this.fetchNextStartersList();
+      //this.fetchNextStartersList();
       this.fetchRunResultList();      
       this.fetchRaceResultList();
     }
@@ -439,11 +440,11 @@ var app = new Vue({
         {
           this.startlist = parsedData["data"];
         } 
-        else if (parsedData["type"] == "onstart")
+        else*/ if (parsedData["type"] == "onstart")
         {
           this.onstartlist = parsedData["data"];
         } 
-        else */if (parsedData["type"] == "ontrack")
+        else if (parsedData["type"] == "ontrack")
         {
           this.ontracklist = parsedData["data"];
         } 
@@ -469,7 +470,7 @@ var app = new Vue({
 
     this.fetchMetaData();
     this.fetchStartList();
-    this.fetchNextStartersList();
+    //this.fetchNextStartersList();
     this.fetchRunResultList();
     this.fetchRaceResultList();
   },
