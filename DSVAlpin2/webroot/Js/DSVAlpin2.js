@@ -135,11 +135,35 @@ Vue.component('dsv-livedatalists', {
   },
 
   computed: {
-    nextStartersListReverse(){
+    nextStartersListUI(){
+      var retList = [];
       if (Array.isArray(this.nextstarterslist))
       {
-        return this.nextstarterslist.reverse();
+        retList = this.nextstarterslist.reverse();
       }
+
+      // Ensure at least one empty item is there
+      if (retList.length < 1)
+      {
+        retList.push({});
+      }
+
+      return retList;
+    },
+    onTrackListUI(){
+      var retList = [];
+      if (Array.isArray(this.ontracklist))
+      {
+        retList = this.ontracklist.reverse();
+      }
+
+      // Ensure at least one empty item is there
+      if (retList.length < 1)
+      {
+        retList.push({});
+      }
+
+      return retList;
     }
   },
 
@@ -148,7 +172,7 @@ Vue.component('dsv-livedatalists', {
   <div>
     <table class="dsvalpin-lists">
       <tr>
-        <th v-bind:rowspan="nextStartersListReverse.length + 1">Am Start</th>
+        <th v-bind:rowspan="nextStartersListUI.length + 1">Am Start</th>
 
         <th class="cell-centered">StNr</th>
         <th>Name</th>
@@ -161,7 +185,7 @@ Vue.component('dsv-livedatalists', {
         <th >Zeit</th>
       </tr>
 
-      <template v-for="item in nextStartersListReverse" >
+      <template v-for="item in nextStartersListUI" >
         <tr>
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
@@ -176,7 +200,7 @@ Vue.component('dsv-livedatalists', {
       </template>
 <!--
       <tr>
-        <th v-bind:rowspan="ontracklist.length + 1">Im Lauf</th>
+        <th v-bind:rowspan="onTrackListUI.length + 1">Im Lauf</th>
 
         <th class="cell-centered">StNr</th>
         <th>Name</th>
@@ -190,12 +214,12 @@ Vue.component('dsv-livedatalists', {
 -->
 
       <tr>
-        <th v-bind:rowspan="ontracklist.length + 1">Im Lauf</th>
-
-        <th class="cell-centered" colspan="9"></th>
+        <th class="cell-centered" colspan="10"></th>
       </tr>
-      <template v-for="item in ontracklist" >
+
+      <template v-for="(item, key) in onTrackListUI" >
         <tr>
+          <th v-if="key == 0" v-bind:rowspan="onTrackListUI.length + 1">Im Lauf</th>
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
           <td>{{ item.Firstname }}</td>
@@ -207,6 +231,19 @@ Vue.component('dsv-livedatalists', {
           <td >{{ item.Runtime }}</td>
         </tr>
       </template>
+
+      <tr>
+        <th class="cell-centered">StNr</th>
+        <th>Name</th>
+        <th>Vorname</th>
+        <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+        <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
+        <th v-if="datafields.includes('Club')">Verein</th>
+        <th v-if="datafields.includes('Class')">Klasse</th>
+        <th v-if="datafields.includes('Group')">Gruppe</th>
+        <th >Zeit</th>
+      </tr>
+
 
     </table>
   </div>
