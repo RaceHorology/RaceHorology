@@ -1018,7 +1018,7 @@ public abstract class PDFReport : IPDFReport
     protected string formatPoints(double points)
     {
       if (points < 0.0)
-        return "---";
+        return "";
 
       return string.Format("{0:0.00}", points);
     }
