@@ -507,6 +507,17 @@ namespace DSVAlpin2Lib
         }
       }
 
+      string sql2 = @"SELECT * FROM tblBewerb";
+      OleDbCommand command2 = new OleDbCommand(sql2, _conn);
+      using (OleDbDataReader reader = command2.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          //props.Name = reader["bname"].ToString();
+          props.Location = reader["ort"].ToString();
+        }
+      }
+
       return props;
     }
 

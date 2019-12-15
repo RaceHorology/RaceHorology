@@ -215,6 +215,12 @@ namespace DSVAlpin2Lib
     }
 
 
+    public string Name { get; set; }
+    public string Location { get; set; }
+    public string RaceNumber { get; set; }
+    public string Description { get; set; }
+
+
     public string Analyzer { get; set; }
     public string Organizer { get; set; }
     public Person RaceDirector { get; set; } = new Person(); // Schiedsrichter
