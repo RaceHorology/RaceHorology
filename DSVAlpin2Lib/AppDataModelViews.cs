@@ -1142,6 +1142,11 @@ namespace DSVAlpin2Lib
             sortedItem.DiffToFirst = sortedItem.TotalTime - firstTime;
 
           sortedItem.Position = curPosition;
+
+          double valueF = 1010.0;
+          double valueA = 0.0;
+          sortedItem.Points = Math.Round(valueF * ((TimeSpan)sortedItem.TotalTime).TotalSeconds / ((TimeSpan)firstTime).TotalSeconds - valueF + valueA, 2);
+
           lastTime = sortedItem.TotalTime;
         }
         else

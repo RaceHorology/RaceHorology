@@ -1237,16 +1237,16 @@ public abstract class PDFReport : IPDFReport
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
           .Add(createParagraph("Verein")));
-      if (_race.IsFieldActive("Points"))
-        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
-          .ConfigureHeaderCell()
-          .Add(createParagraph("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Laufzeit")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Diff")));
+      if (_race.IsFieldActive("Points"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Punkte")));
     }
 
 
@@ -1297,15 +1297,16 @@ public abstract class PDFReport : IPDFReport
       // Club
       if (_race.IsFieldActive("Club"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
-      // Points
-      if (_race.IsFieldActive("Points"))
-        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: rrwp.Points*/))));
 
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor)
         .Add(createCellParagraphForTable((string)_timeConverter.Convert(new object[] { rrwp.Runtime, rrwp.ResultCode }, typeof(string), null, null))));
       // Diff
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.DiffToFirst.ToRaceTimeString()))));
+
+      // Points
+      if (_race.IsFieldActive("Points"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: rrwp.Points*/))));
     }
   }
 
@@ -1388,16 +1389,16 @@ public abstract class PDFReport : IPDFReport
           .ConfigureHeaderCell()
           .Add(createParagraph(string.Format("Zeit-{0}", i))));
 
-      if (_race.IsFieldActive("Points"))
-        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
-          .ConfigureHeaderCell()
-          .Add(createParagraph("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Laufzeit")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createParagraph("Diff")));
+      if (_race.IsFieldActive("Points"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Punkte")));
     }
 
 
@@ -1461,13 +1462,14 @@ public abstract class PDFReport : IPDFReport
           table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor));
       }
 
-      // Points
-      if (_race.IsFieldActive("Points"))
-        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: item.Points*/))));
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
       // Diff
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
+
+      // Points
+      if (_race.IsFieldActive("Points"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(item.Points))));
     }
 
 

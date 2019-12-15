@@ -691,6 +691,7 @@ namespace DSVAlpin2Lib
     TimeSpan? _totalTime;
     private uint _position;
     private TimeSpan? _diffToFirst;
+    private double _points;
     private bool _justModified;
 
 
@@ -705,6 +706,12 @@ namespace DSVAlpin2Lib
       _participant = participant;
       _runTimes = new Dictionary<uint, TimeSpan?>();
       _runResultCodes = new Dictionary<uint, RunResult.EResultCode>();
+
+      _totalTime = null;
+      _position = 0;
+      _diffToFirst = null;
+      _points = -1.0;
+      _justModified = false;
     }
 
     /// <summary>
@@ -738,6 +745,14 @@ namespace DSVAlpin2Lib
     }
 
 
+    /// <summary>
+    /// The position within the classement
+    /// </summary>
+    public double Points
+    {
+      get { return _points; }
+      set { _points = value; NotifyPropertyChanged(); }
+    }
 
     public bool JustModified
     {
