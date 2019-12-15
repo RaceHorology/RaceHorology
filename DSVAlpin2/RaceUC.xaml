@@ -254,13 +254,16 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="lblName" Margin="5,0,0,0" Content="Name:" Grid.Row="0" Grid.Column="0"/>
-            <TextBox x:Name="txtName" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <TextBox x:Name="txtName" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name}"/>
 
             <Label x:Name="lblRaceNo" Margin="5,0,0,0" Content="Bewerbsnummer:" Grid.Row="1" Grid.Column="0"/>
-            <TextBox x:Name="txtRaceNo" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <TextBox x:Name="txtRaceNo" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding RaceNumber}"/>
 
-            <Label x:Name="lblDescription" Margin="5,0,0,0" Content="Beschreibung:" Grid.Row="2" Grid.Column="0"/>
-            <TextBox x:Name="txtDescription" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" AcceptsReturn="True" Height="50"/>
+            <Label x:Name="lblLocation" Margin="5,0,0,0" Content="Ort:" Grid.Row="2" Grid.Column="0"/>
+            <TextBox x:Name="txtLocation" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Location}"/>
+
+            <Label x:Name="lblDescription" Margin="5,0,0,0" Content="Beschreibung:" Grid.Row="3" Grid.Column="0"/>
+            <TextBox x:Name="txtDescription" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" AcceptsReturn="True" Height="50" Text="{Binding Description}"/>
 
             <Label x:Name="lblOrganisator" Margin="5,0,0,0" Content="Organisator:" Grid.Row="4" Grid.Column="0"/>
             <TextBox x:Name="txtOrganisator" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Organizer}"/>

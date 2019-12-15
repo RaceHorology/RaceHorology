@@ -116,7 +116,7 @@ namespace DSVAlpin2Lib
     /// </summary>
     public void Start()
     {
-      _httpServer.AddWebSocketService<LiveDataBehavior>("/LiveData", (connection) => { connection.SetupThis(this); });
+      _httpServer.AddWebSocketService<LiveDataBehavior>("/api/LiveData", (connection) => { connection.SetupThis(this); });
 
       _httpServer.Start();
     }
@@ -351,45 +351,84 @@ namespace DSVAlpin2Lib
 
     string getStartList(RaceRun raceRun, string grouping)
     {
-      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-      StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun);
-      if (grouping != null)
-        vp.ChangeGrouping(grouping);
+      string output = "";
 
-      return JsonConversion.ConvertStartList(vp.GetView());
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+        StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun);
+        if (grouping != null)
+          vp.ChangeGrouping(grouping);
+
+        output = JsonConversion.ConvertStartList(vp.GetView());
+      });
+
+      return output;
     }
 
 
     string getRemainingStartersList(RaceRun raceRun, string grouping, int limit)
     {
-      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-      var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun);
-      if (grouping != null)
-        vp.ChangeGrouping(grouping);
+      string output = "";
 
-      return JsonConversion.ConvertStartList(vp.GetView());
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+        var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun);
+        if (grouping != null)
+          vp.ChangeGrouping(grouping);
+
+        List<object> remaingStarters = new List<object>();
+        int c = 0;
+        foreach (var item in vp.GetView())
+        {
+          if (limit >= 0 && c >= limit)
+            break;
+
+          remaingStarters.Add(item);
+          c++;
+        }
+
+        output = JsonConversion.ConvertStartList(remaingStarters);
+      });
+
+      return output;
     }
 
 
     string getResultList(RaceRun raceRun, string grouping)
     {
-      ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-      RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun);
-      if (grouping != null)
-        vp.ChangeGrouping(grouping);
+      string output = "";
 
-      return JsonConversion.ConvertRunResults(vp.GetView());
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
+        RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun);
+        if (grouping != null)
+          vp.ChangeGrouping(grouping);
+
+        output = JsonConversion.ConvertRunResults(vp.GetView());
+      });
+
+      return output;
     }
 
 
     string getResultList(Race race, string grouping)
     {
-      ViewConfigurator viewConfigurator = new ViewConfigurator(race);
-      RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race);
-      if (grouping != null)
-        vp.ChangeGrouping(grouping);
+        string output = "";
 
-      return JsonConversion.ConvertRaceResults(vp.GetView());
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          ViewConfigurator viewConfigurator = new ViewConfigurator(race);
+          RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race);
+          if (grouping != null)
+            vp.ChangeGrouping(grouping);
+
+          output = JsonConversion.ConvertRaceResults(vp.GetView());
+        });
+
+      return output;
     }
   }
 
@@ -483,11 +522,11 @@ namespace DSVAlpin2Lib
       if (dm != null)
       {
         //Add(new StartListDataProvider(dm));
-        Add(new RemainingStartListDataProvider(dm));
-        //Add(new RaceRunDataProvider(dm));
         Add(new RaceDataProvider(dm));
-        //Add(new RaceResultDataProvider(dm));
+        Add(new RemainingStartListDataProvider(dm, 5));
         Add(new OnTrackDataProvider(dm));
+        Add(new RaceRunDataProvider(dm));
+        Add(new RaceResultDataProvider(dm));
       }
     }
 
@@ -591,16 +630,17 @@ namespace DSVAlpin2Lib
 
   public class RemainingStartListDataProvider : LiveDataProvider
   {
+    int _limit;
     AppDataModel _dm;
     RaceRun _currentRace;
     RemainingStartListViewProvider _rslVP;
     ItemsChangedNotifier _notifier;
     System.Timers.Timer _timer;
 
-    public RemainingStartListDataProvider(AppDataModel dm)
-    {
-      _dm = dm;
 
+    public RemainingStartListDataProvider(AppDataModel dm, int limit)
+    {
+      _limit = limit;
       _dm = dm;
       _dm.CurrentRaceChanged += OnCurrentRaceChanged;
 
@@ -688,7 +728,18 @@ namespace DSVAlpin2Lib
       string output = null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConversion.ConvertOnStartList(_rslVP.GetView());
+        List<object> remaingStarters = new List<object>();
+        int c = 0;
+        foreach (var item in _rslVP.GetView())
+        {
+          if (_limit >= 0 && c >= _limit)
+            break;
+
+          remaingStarters.Add(item);
+          c++;
+        }
+               
+        output = JsonConversion.ConvertOnStartList(remaingStarters);
       });
 
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });
@@ -880,18 +931,6 @@ namespace DSVAlpin2Lib
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

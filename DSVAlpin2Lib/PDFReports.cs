@@ -511,6 +511,12 @@ namespace DSVAlpin2Lib
       float padding = 1F;
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
 
+      string dateAndLocation;
+      if (string.IsNullOrEmpty(_race.AdditionalProperties.Location))
+        dateAndLocation = _race.DateResult.ToString(@"dd.MM.yyyy");
+      else
+        dateAndLocation = string.Format("{0} / {1}", _race.DateResult.ToString(@"dd.MM.yyyy"), _race.AdditionalProperties.Location);
+
       Paragraph parPage = new Paragraph(string.Format("Seite {0}", pageNumber));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.LEFT)
@@ -518,7 +524,7 @@ namespace DSVAlpin2Lib
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(DateTime.Now.ToString(@"dd.MM.yyyy"))));
+        .Add(new Paragraph(dateAndLocation)));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetBorder(Border.NO_BORDER)
@@ -532,7 +538,8 @@ namespace DSVAlpin2Lib
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", "12345"))));
+        .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", _race.RaceNumber))));
+     
 
 
       float middleHeight = 35.0F;
