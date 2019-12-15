@@ -182,12 +182,12 @@ namespace DSVAlpin2Lib
 
       axis.MajorGrid.LineDashStyle = ChartDashStyle.Solid;
       axis.MajorGrid.LineColor = System.Drawing.Color.Gray;
-      //axis.MajorGrid.Interval = 2.0;
+      axis.MajorGrid.Interval = yInt;
 
       axis.MinorGrid.Enabled = true;
       axis.MinorGrid.LineDashStyle = ChartDashStyle.Dot;
       axis.MinorGrid.LineColor = System.Drawing.Color.LightGray;
-      //axis.MinorGrid.Interval = 0.5;
+      axis.MinorGrid.Interval = yMinInt;
 
 
       // Enable scale breaks
