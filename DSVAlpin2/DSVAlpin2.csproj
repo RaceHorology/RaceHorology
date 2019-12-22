@@ -186,6 +186,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="..\Documents\Race Horology - Anleitung.docx">
+      <Link>Manual\Race Horology - Anleitung.docx</Link>
+    </None>
+    <None Include="..\Documents\Race Horology - Anleitung.pdf">
+      <Link>Manual\Race Horology - Anleitung.pdf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
