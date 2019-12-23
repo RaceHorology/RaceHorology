@@ -788,7 +788,8 @@ namespace DSVAlpin2Lib
       }
 
       // Add to onTrack list if run result is not yet available (= is on track)
-      foreach (var r in _results)
+      var results = _results.ToArray();
+      foreach (var r in results)
         if (IsOnTrack(r))
           if (!_onTrack.Contains(r))
           {
