@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,11 +26,31 @@ namespace RaceHorology
     public AboutDlg()
     {
       InitializeComponent();
+
+      Assembly assembly = Assembly.GetEntryAssembly();
+      if (assembly == null)
+        assembly = Assembly.GetExecutingAssembly();
+
+      if (assembly != null)
+      {
+        FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+
+        var companyName = fvi.CompanyName;
+        var productName = fvi.ProductName;
+        var copyrightYear = fvi.LegalCopyright;
+
+        var productVersion = fvi.ProductVersion;
+
+        lblVersion.Content = productVersion;
+        lblCopyright.Content = string.Format("{0} by {1}", copyrightYear, companyName);
+      }
     }
 
     private void BtnOk_Click(object sender, RoutedEventArgs e)
     {
       DialogResult = true;
     }
+
+
   }
 }
