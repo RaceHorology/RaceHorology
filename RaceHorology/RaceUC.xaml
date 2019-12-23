@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DSVAlpin2"
-             xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=DSVAlpin2Lib"
+             xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib"
              mc:Ignorable="d"
              MinHeight="400">
 

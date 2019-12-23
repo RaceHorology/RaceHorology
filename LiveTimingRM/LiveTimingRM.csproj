@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DSVAlpin2Lib\RaceHorologyLib.csproj" />
+    <ProjectReference Include="..\RaceHorologyLib\RaceHorologyLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

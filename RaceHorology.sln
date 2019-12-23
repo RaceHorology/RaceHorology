@@ -3,14 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaceHorology", "DSVAlpin2\RaceHorology.csproj", "{C0432278-8C62-4202-8B96-EA8429BFE435}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaceHorology", "RaceHorology\RaceHorology.csproj", "{C0432278-8C62-4202-8B96-EA8429BFE435}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1819CA78-97EB-4488-AC18-C65C9D2BAF0F} = {1819CA78-97EB-4488-AC18-C65C9D2BAF0F}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaceHorologyLib", "DSVAlpin2Lib\RaceHorologyLib.csproj", "{CA9C930B-BAEA-480D-AB69-2DF107B9CCB5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaceHorologyLib", "RaceHorologyLib\RaceHorologyLib.csproj", "{CA9C930B-BAEA-480D-AB69-2DF107B9CCB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSVAlpin2LibTest", "DSVAlpin2LibTest\DSVAlpin2LibTest.csproj", "{F0EE26D3-F122-42DC-87CC-3B69A8E67C1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSVAlpin2LibTest", "RaceHorologyLibTest\DSVAlpin2LibTest.csproj", "{F0EE26D3-F122-42DC-87CC-3B69A8E67C1A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LiveTimingRM", "LiveTimingRM\LiveTimingRM.csproj", "{1819CA78-97EB-4488-AC18-C65C9D2BAF0F}"
 	ProjectSection(ProjectDependencies) = postProject
