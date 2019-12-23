@@ -21,7 +21,7 @@ using System.ComponentModel;
 using QRCoder;
 using System.Configuration;
 
-namespace DSVAlpin2
+namespace RaceHorology
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
@@ -52,7 +52,7 @@ namespace DSVAlpin2
       _appTitle = this.Title;
 
       // Last recently used files in menu
-      _mruList = new MruList("DSVAlpin2", mnuRecentFiles, 10);
+      _mruList = new MruList("RaceHorology", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
 
       StartDSVAlpinServer();

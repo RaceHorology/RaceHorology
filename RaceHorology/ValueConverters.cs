@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace DSVAlpin2
+namespace RaceHorology
 {
 
   public class BooleanToBrushConverter : IValueConverter

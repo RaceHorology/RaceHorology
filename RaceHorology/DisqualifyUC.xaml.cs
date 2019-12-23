@@ -15,7 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using static RaceHorologyLib.RunResult;
 
-namespace DSVAlpin2
+namespace RaceHorology
 {
   /// <summary>
   /// Interaction logic for DisqualifyUC.xaml

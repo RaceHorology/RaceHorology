@@ -1,4 +1,4 @@
-﻿namespace DSVAlpin2.Properties {
+﻿namespace RaceHorology.Properties {
     
     
     // This class allows you to handle specific events on the settings class:

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace DSVAlpin2
+namespace RaceHorology
 {
   /// <summary>
   /// Interaction logic for App.xaml

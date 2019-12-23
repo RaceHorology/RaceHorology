@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Timers;
 
-namespace DSVAlpin2
+namespace RaceHorology
 {
   public class TimerPlus : IDisposable
   {

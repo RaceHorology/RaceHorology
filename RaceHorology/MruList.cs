@@ -6,7 +6,7 @@ using System.Windows.Controls;
 
 using System.IO;
 
-namespace DSVAlpin2
+namespace RaceHorology
 {
 
   /// <summary>

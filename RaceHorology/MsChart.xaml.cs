@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Collections.Specialized;
 
-namespace DSVAlpin2
+namespace RaceHorology
 {
   /// <summary>
   /// Interaction logic for MsChart.xaml

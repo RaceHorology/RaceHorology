@@ -5,7 +5,7 @@ using System.Text;
 
 using Microsoft.Win32;
 
-namespace DSVAlpin2
+namespace RaceHorology
 {
   public class RegistryTools
   {
