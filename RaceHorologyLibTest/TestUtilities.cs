@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DSVAlpin2LibTest
+namespace RaceHorologyLibTest
 {
   static class TestUtilities
   {

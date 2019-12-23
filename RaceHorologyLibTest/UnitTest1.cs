@@ -5,7 +5,7 @@ using System.IO;
 using RaceHorologyLib;
 using System;
 
-namespace DSVAlpin2LibTest
+namespace RaceHorologyLibTest
 {
 
 

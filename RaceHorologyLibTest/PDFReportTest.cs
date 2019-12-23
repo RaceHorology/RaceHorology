@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 
-namespace DSVAlpin2LibTest
+namespace RaceHorologyLibTest
 {
   /// <summary>
   /// Summary description for PDFReportTest

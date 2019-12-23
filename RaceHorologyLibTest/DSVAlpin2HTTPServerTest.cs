@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using RaceHorologyLib;
 
-namespace DSVAlpin2LibTest
+namespace RaceHorologyLibTest
 {
   /// <summary>
   /// Summary description for DSVAlpin2HTTPServerTest

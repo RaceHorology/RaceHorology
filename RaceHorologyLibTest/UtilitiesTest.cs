@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.ObjectModel;
 using RaceHorologyLib;
 
-namespace DSVAlpin2LibTest
+namespace RaceHorologyLibTest
 {
   /// <summary>
   /// Summary description for UtilitiesTest

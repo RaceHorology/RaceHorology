@@ -7,7 +7,7 @@ using System.IO;
 using System.Data.OleDb;
 using System.Linq;
 
-namespace DSVAlpin2LibTest
+namespace RaceHorologyLibTest
 {
   /// <summary>
   /// Summary description for DSVAlpinDatabaseTests

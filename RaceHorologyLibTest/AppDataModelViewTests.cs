@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System.Collections.ObjectModel;
 
-namespace DSVAlpin2LibTest
+namespace RaceHorologyLibTest
 {
   /// <summary>
   /// Summary description for AppDataModelViewTests

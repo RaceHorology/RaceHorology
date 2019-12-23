@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using RaceHorologyLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DSVAlpin2LibTest
+namespace RaceHorologyLibTest
 {
   [TestClass]
   public class ALGETdC8001Tests
