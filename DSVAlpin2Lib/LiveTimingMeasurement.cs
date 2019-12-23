@@ -272,20 +272,21 @@ namespace DSVAlpin2Lib
       if (participantEnteredTrack != null)
       {
         // Loop over StartList until the starter has been found, remember all not started participants
-        List<StartListEntry> notStarted = new List<StartListEntry>();
+        List<StartListEntry> toPurge = new List<StartListEntry>();
         foreach (StartListEntry se in starters)
         {
           if (se.Participant == participantEnteredTrack)
             break;
 
-          if (!_raceRun.IsOrWasOnTrack(se.Participant))
-            notStarted.Add(se);
+          toPurge.Add(se);
         }
 
         // Loop 
-        for (int i = 0; i < notStarted.Count() - Math.Abs(_startersTillAutoNaS); i++)
+        for (int i = 0; i < toPurge.Count() - Math.Abs(_startersTillAutoNaS); i++)
         {
-          _raceRun.SetResultCode(notStarted[i].Participant, RunResult.EResultCode.NaS);
+          RaceParticipant rp = toPurge[i].Participant;
+          if (!_raceRun.IsOrWasOnTrack(rp))
+            _raceRun.SetResultCode(rp, RunResult.EResultCode.NaS);
         }
       }
     }
