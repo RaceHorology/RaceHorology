@@ -72,8 +72,8 @@ namespace RaceHorologyLibTest
       var races = db.GetRaces();
       AppDataModel model = new AppDataModel(db);
 
-      PDFReport p = new RaceRunResultReport(model.GetRaces()[0].GetRun(0));
-      p.Generate("test.pdf");
+      //PDFReport p = new RaceRunResultReport(model.GetRaces()[0].GetRun(0));
+      //p.Generate("test.pdf");
     }
   }
 }
