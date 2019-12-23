@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 
 using Microsoft.Win32;
 
-using DSVAlpin2Lib;
+using RaceHorologyLib;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using QRCoder;

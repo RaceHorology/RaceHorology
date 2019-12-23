@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DSVAlpin2Lib
+namespace RaceHorologyLib
 {
 
   public class ItemsChangedNotifier : INotifyCollectionChanged, IDisposable

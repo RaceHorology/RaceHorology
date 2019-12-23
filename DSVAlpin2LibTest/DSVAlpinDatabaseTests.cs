@@ -2,7 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DSVAlpin2Lib;
+using RaceHorologyLib;
 using System.IO;
 using System.Data.OleDb;
 using System.Linq;
@@ -66,7 +66,7 @@ namespace DSVAlpin2LibTest
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
 
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       var participants = db.GetParticipants();
@@ -83,7 +83,7 @@ namespace DSVAlpin2LibTest
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
 
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       var races = db.GetRaces();
@@ -131,7 +131,7 @@ namespace DSVAlpin2LibTest
     public void DatabaseRaceParticipants()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       var races = db.GetRaces();
@@ -181,7 +181,7 @@ namespace DSVAlpin2LibTest
     public void DatabaseRaceRuns()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       db.GetParticipants();
@@ -215,7 +215,7 @@ namespace DSVAlpin2LibTest
     public void InitializeApplicationModel()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"Kirchberg U8 U10 10.02.19 RS Neu.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       AppDataModel model = new AppDataModel(db);
@@ -226,7 +226,7 @@ namespace DSVAlpin2LibTest
     public void CreateAndUpdateParticipants()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       var participants = db.GetParticipants();
@@ -365,7 +365,7 @@ namespace DSVAlpin2LibTest
     public void CreateAndUpdateRunResults()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       AppDataModel dataModel = new AppDataModel(db);
@@ -486,7 +486,7 @@ namespace DSVAlpin2LibTest
     public void AppDataModelTest_TimingScenario1()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       void DBCacheWorkaround()
@@ -575,7 +575,7 @@ namespace DSVAlpin2LibTest
     public void AppDataModelTest_EditParticipants()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
       void DBCacheWorkaround()

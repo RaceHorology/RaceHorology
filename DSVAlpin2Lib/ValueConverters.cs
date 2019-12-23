@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace DSVAlpin2Lib
+namespace RaceHorologyLib
 {
   /// <summary>
   /// Converts a position number into a string. Position 0 is transferred into "./."

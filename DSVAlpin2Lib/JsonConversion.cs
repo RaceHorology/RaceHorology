@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DSVAlpin2Lib
+namespace RaceHorologyLib
 {
 
   public class RaceParticipantConverter : JsonConverter<RaceParticipant>

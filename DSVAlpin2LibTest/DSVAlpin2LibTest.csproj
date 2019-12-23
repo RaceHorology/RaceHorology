@@ -89,9 +89,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DSVAlpin2Lib\DSVAlpin2Lib.csproj">
+    <ProjectReference Include="..\DSVAlpin2Lib\RaceHorologyLib.csproj">
       <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>
-      <Name>DSVAlpin2Lib</Name>
+      <Name>RaceHorologyLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\LiveTimingRM\LiveTimingRM.csproj">
       <Project>{1819CA78-97EB-4488-AC18-C65C9D2BAF0F}</Project>

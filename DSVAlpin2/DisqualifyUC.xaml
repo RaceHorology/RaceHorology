@@ -4,15 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DSVAlpin2"
-             xmlns:dsvalpin2lib="clr-namespace:DSVAlpin2Lib;assembly=DSVAlpin2Lib"
+             xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=DSVAlpin2Lib"
              mc:Ignorable="d" 
              d:DesignHeight="857.333" d:DesignWidth="800">
 
   <UserControl.Resources>
-    <dsvalpin2lib:PositionConverter x:Key="PositionConverter" />
+    <racehorologylib:PositionConverter x:Key="PositionConverter" />
     <local:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
-    <dsvalpin2lib:ResultCodeConverter x:Key="ResultCodeConverter" />
-    <dsvalpin2lib:ResultCodeWithCommentConverter x:Key="ResultCodeWithCommentConverter" />
+    <racehorologylib:ResultCodeConverter x:Key="ResultCodeConverter" />
+    <racehorologylib:ResultCodeWithCommentConverter x:Key="ResultCodeWithCommentConverter" />
   </UserControl.Resources>
 
   <Grid>
@@ -127,7 +127,7 @@
                   <Binding Path="ResultCode" />
                   <Binding Path="DisqualText" />
                   <MultiBinding.Converter>
-                    <dsvalpin2lib:ResultCodeWithCommentConverter/>
+                    <racehorologylib:ResultCodeWithCommentConverter/>
                   </MultiBinding.Converter>
                 </MultiBinding>
               </DataGridTextColumn.Binding>

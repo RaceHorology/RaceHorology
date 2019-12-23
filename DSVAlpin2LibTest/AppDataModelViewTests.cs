@@ -2,7 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DSVAlpin2Lib;
+using RaceHorologyLib;
 using System.Collections.ObjectModel;
 
 namespace DSVAlpin2LibTest

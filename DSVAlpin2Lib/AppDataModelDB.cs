@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DSVAlpin2Lib
+namespace RaceHorologyLib
 {
   /// <summary>
   /// Observes the run results and triggers a database store in case time / run results changed

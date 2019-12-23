@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace DSVAlpin2Lib
+namespace RaceHorologyLib
 {
   /* Just fro Debugging 
   class DebugSort : System.Collections.IComparer

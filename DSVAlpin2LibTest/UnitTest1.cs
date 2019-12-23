@@ -2,7 +2,7 @@
 
 using System.IO;
 
-using DSVAlpin2Lib;
+using RaceHorologyLib;
 using System;
 
 namespace DSVAlpin2LibTest
@@ -34,9 +34,9 @@ namespace DSVAlpin2LibTest
     public void TimeSpanAndFractions()
     {
       const double f1 = 0.000638078703703704;
-      TimeSpan ts1 = DSVAlpin2Lib.Database.CreateTimeSpan(f1);
+      TimeSpan ts1 = RaceHorologyLib.Database.CreateTimeSpan(f1);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 130), ts1);
-      TimeSpan ts2 = DSVAlpin2Lib.Database.CreateTimeSpan(DSVAlpin2Lib.Database.FractionForTimeSpan(ts1));
+      TimeSpan ts2 = RaceHorologyLib.Database.CreateTimeSpan(RaceHorologyLib.Database.FractionForTimeSpan(ts1));
       Assert.AreEqual(ts1, ts2);
 
       TimeSpan ts3 = new TimeSpan(0, 0, 1, 55, 130);

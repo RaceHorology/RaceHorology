@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DSVAlpin2Lib
+namespace RaceHorologyLib
 {
   public class ALGETdC8001TimeMeasurement : ILiveTimeMeasurement, ILiveDateTimeProvider
   {

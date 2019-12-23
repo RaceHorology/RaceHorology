@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
 
-namespace DSVAlpin2Lib
+namespace RaceHorologyLib
 {
 
   /// <summary>

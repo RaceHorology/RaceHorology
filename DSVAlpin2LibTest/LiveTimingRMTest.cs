@@ -2,7 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DSVAlpin2Lib;
+using RaceHorologyLib;
 
 namespace DSVAlpin2LibTest
 {
@@ -65,7 +65,7 @@ namespace DSVAlpin2LibTest
     public void TestSerialization()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_LiveTiming.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
       AppDataModel model = new AppDataModel(db);
 
@@ -102,7 +102,7 @@ namespace DSVAlpin2LibTest
     public void TestOnline()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_LiveTiming.mdb");
-      DSVAlpin2Lib.Database db = new DSVAlpin2Lib.Database();
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
       AppDataModel model = new AppDataModel(db);
 

@@ -8,13 +8,13 @@ using WebSocketSharp;
 using WebSocketSharp.Net;
 using WebSocketSharp.Server;
 
-using DSVAlpin2Lib;
+using RaceHorologyLib;
 using System.Collections.Specialized;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Windows;
 
-namespace DSVAlpin2Lib
+namespace RaceHorologyLib
 {
   /// <summary>
   /// Provides the web server backend for the mobile clients
