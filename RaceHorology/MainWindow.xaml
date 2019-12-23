@@ -1,0 +1,117 @@
+<Window x:Class="RaceHorology.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RaceHorology"
+        mc:Ignorable="d"
+        Title="Race Horology" Height="1024" Width="1400">
+
+  <Window.CommandBindings>
+    <CommandBinding Command="Open"  Executed="OpenCommandBinding_Executed" />
+    <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
+    <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
+    <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
+  </Window.CommandBindings>
+  <Window.InputBindings>
+    <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
+    <KeyBinding Key="C" Modifiers="Control" Command="Close"/>
+  </Window.InputBindings>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="18"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Menu x:Name="menu" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
+      <MenuItem Header="File">
+        <MenuItem Name="mnuOpen" Header="_Open" Command="Open" InputGestureText="Ctrl+O"/>
+        <MenuItem Name="mnuRecentFiles" Header="Recent Files" />
+        <MenuItem Name="mnuClose" Header="_Close" Command="Close" InputGestureText="Ctrl+C"/>
+      </MenuItem>
+      <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties" />
+      <MenuItem Name="mnuHelp" Header="Help" Command="Help"/>
+    </Menu>
+    <Grid Grid.Row="1" Background="#ffeff5f0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
+        <TabItem Header="Teilnehmer" FontSize="16">
+          <Grid Grid.Column="0" Background="#FFE5E5E5">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+            <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  AlternatingRowBackground="#FFf8faf7" FontSize="12"/>
+          </Grid>
+        </TabItem>
+        <TabItem Header="Neues Rennen" FontSize="16" IsEnabled="False">
+        </TabItem>
+      </TabControl>
+    </Grid>
+    <StatusBar Height="Auto" Margin="0" Grid.Row="2" VerticalAlignment="Top" Width="Auto" Background="#ffe6eee5">
+      <StatusBar.ItemsPanel>
+        <ItemsPanelTemplate>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="500" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="100" />
+            </Grid.ColumnDefinitions>
+          </Grid>
+        </ItemsPanelTemplate>
+      </StatusBar.ItemsPanel>
+
+      <Separator Grid.Column="1" />
+
+      <StatusBarItem Grid.Column="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <Grid >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+          </Grid.RowDefinitions>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+              <Label x:Name="lblTimingDeviceLBL" Content="Zeitnahmeger&#228;t: " Margin="0" VerticalAlignment="Top" FontSize="12" />
+              <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+              <ToggleButton x:Name="btnLiveTimingStart" Margin="5,0,0,0" Click="LiveTimingStart_Click">
+                <Image Source="{StaticResource IconPlay}" Height="20"/>
+              </ToggleButton>
+              <ToggleButton x:Name="btnLiveTimingStop" Margin="5,0,0,0" Click="LiveTimingStop_Click">
+                <Image Source="{StaticResource IconStop}" Height="20"/>
+              </ToggleButton>
+            </StackPanel>
+          </Grid>
+          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="100" VerticalScrollBarVisibility="Auto"/>
+        </Grid>
+      </StatusBarItem>
+
+      <Separator Grid.Column="3" />
+
+      <StatusBarItem Grid.Column="4"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Image x:Name="imgQRCode" Grid.Row="0" HorizontalAlignment="Center" Height="100" Margin="0,0,0,0" VerticalAlignment="Top" Width="100" PreviewMouseDown="LblURL_PreviewMouseDown"/>
+          <Label x:Name="lblURL" Grid.Row="1" Content="not running" Margin="0,0,0,0" VerticalAlignment="Bottom" Width="Auto" HorizontalContentAlignment="Left" FontSize="10" PreviewMouseDown="LblURL_PreviewMouseDown"/>
+        </Grid>
+      </StatusBarItem>
+      <Image x:Name="LogoRH_png" Height="80" Source="LogoRH.png" Stretch="Uniform" Margin="10,20,10,20" PreviewMouseDown="LogoRH_png_PreviewMouseDown"/>
+    </StatusBar>
+  </Grid>
+</Window>
