@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -96,5 +97,79 @@ namespace RaceHorology
     public static readonly DependencyProperty NameProperty =
         DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridUtil), new UIPropertyMetadata(""));
 
+  }
+
+
+
+  /// <summary>
+  /// Die Klasse ermöglicht es, dass ein Event erst mit Verzögerung ausgelöst wird.
+  /// Tritt das selbe Event in der angegeben Zeitspanne erneut auf, wird das vorherige Event gestoppt.
+  /// </summary>
+  public class DelayedEventHandler
+  {
+    private Timer timer;
+
+    /// <summary>
+    /// Ruft das Delay ab oder legt es fest.
+    /// </summary>
+    public double Delay
+    {
+      get { return this.timer.Interval; }
+      set { this.timer.Interval = value; }
+    }
+
+    /// <summary>
+    /// EventHandler, der an Events von Steuerelementen gebunden werden kann.
+    /// </summary>
+    public TextChangedEventHandler Delayed { get; private set; }
+
+    private TextChangedEventHandler handler;
+    private object forwardSender;
+    private TextChangedEventArgs forwardArgs;
+
+    /// <summary>
+    /// Erzeugt einen DelayedEventHandler mit der angegebenen Zeitspanne.
+    /// </summary>
+    /// <param name="delay">Das Delay, mit dem...</param>
+    /// <param name="handler">...der gewünscht Handler aufgerufen wird.</param>
+    public DelayedEventHandler(TimeSpan delay, TextChangedEventHandler handler)
+      : this((int)delay.TotalMilliseconds, handler)
+    {
+
+    }
+
+    /// <summary>
+    /// Erzeugt einen DelayedEventHandler mit der angegebenen Zeitspanne in Millisekunden.
+    /// </summary>
+    /// <param name="delayInMilliseconds">Das Delay in Millisekunden, mit dem...</param>
+    /// <param name="handler">...der gewünscht Handler aufgerufen wird.</param>
+    public DelayedEventHandler(int delayInMilliseconds, TextChangedEventHandler handler)
+    {
+      timer = new Timer
+      {
+        Enabled = false,
+        Interval = delayInMilliseconds
+      };
+      timer.Elapsed += new ElapsedEventHandler((s, e) =>
+      {
+        timer.Stop();
+
+        if (handler != null)
+        {
+          handler(this.forwardSender, this.forwardArgs);
+        }
+      });
+
+      this.handler = handler;
+
+      Delayed = new TextChangedEventHandler((sender, e) =>
+      {
+        this.forwardSender = sender;
+        this.forwardArgs = e;
+
+        timer.Stop();
+        timer.Start();
+      });
+    }
   }
 }

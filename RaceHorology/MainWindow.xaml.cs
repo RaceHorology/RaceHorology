@@ -58,7 +58,6 @@ namespace RaceHorology
       StartDSVAlpinServer();
     }
 
-
     protected override void OnClosed(EventArgs e)
     {
       CloseDatabase();
@@ -169,9 +168,6 @@ namespace RaceHorology
       ObservableCollection<Participant> participants = _dataModel.GetParticipants();
       dgParticipants.ItemsSource = participants;
 
-      // TODO: Hide not needed columns
-      //dgStartList.Columns[5].Visibility = Visibility.Collapsed;
-
       foreach (var r in _dataModel.GetRaces())
       {
         TabItem tabRace = new TabItem { Header = r.RaceType.ToString(), Name = r.RaceType.ToString() };
@@ -179,7 +175,7 @@ namespace RaceHorology
 
         tabRace.FontSize = 16;
 
-        RaceUC raceUC = new RaceUC(_dataModel, r, _liveTimingMeasurement);
+        RaceUC raceUC = new RaceUC(_dataModel, r, _liveTimingMeasurement, txtLiveTimingStatus);
         tabRace.Content = raceUC;
       }
     }

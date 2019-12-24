@@ -26,6 +26,7 @@ namespace RaceHorology
     AppDataModel _dataModel;
     readonly Race _thisRace;
     LiveTimingMeasurement _liveTimingMeasurement;
+    TextBox _txtLiveTimingStatus;
 
     // Working Data
     RaceRun _currentRaceRun;
@@ -36,12 +37,19 @@ namespace RaceHorology
     ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
 
 
-    public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement)
+    public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
       _dataModel = dm;
       _thisRace = race;
       _liveTimingMeasurement = liveTimingMeasurement;
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
+
+      _txtLiveTimingStatus = txtLiveTimingStatus;
+      _txtLiveTimingStatus.TextChanged += new DelayedEventHandler(
+          TimeSpan.FromMilliseconds(400),
+          TxtLiveTimingStatus_TextChanged
+      ).Delayed;
+
 
       InitializeComponent();
 
@@ -280,6 +288,21 @@ namespace RaceHorology
     }
 
 
+    protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      if (_liveTimingRM != null)
+      {
+        string text = "";
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          text = _txtLiveTimingStatus.Text;
+        });
+
+        _liveTimingRM.UpdateStatus(text);
+      }
+    }
+
+
     private void BtnLTLogin_Click(object sender, RoutedEventArgs e)
     {
       RaceConfiguration cfg = _thisRace.RaceConfiguration;
@@ -314,15 +337,6 @@ namespace RaceHorology
       UpdateLiveTimingUI();
     }
 
-    private void TxtLTStatus_TextChanged(object sender, TextChangedEventArgs e)
-    {
-    }
-
-    private void TxtLTStatus_LostFocus(object sender, RoutedEventArgs e)
-    {
-      if (_liveTimingRM != null)
-        _liveTimingRM.UpdateStatus(txtLTStatus.Text);
-    }
 
     private void CmbLTEvent_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -357,6 +371,8 @@ namespace RaceHorology
           _thisRace.RaceConfiguration = cfg;
 
           _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
+
+          _liveTimingRM.UpdateStatus(_txtLiveTimingStatus.Text);
         }
       }
 
