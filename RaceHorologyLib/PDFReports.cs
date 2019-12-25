@@ -928,6 +928,31 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.StartTime))));
 
+      string formatWeather()
+      {
+        if (string.IsNullOrEmpty(_race.AdditionalProperties.Weather) && string.IsNullOrEmpty(_race.AdditionalProperties.Snow))
+          return "";
+        if (string.IsNullOrEmpty(_race.AdditionalProperties.Weather))
+          return _race.AdditionalProperties.Snow;
+        if (string.IsNullOrEmpty(_race.AdditionalProperties.Snow))
+          return _race.AdditionalProperties.Weather;
+
+        return string.Format("{0} / {1}", _race.AdditionalProperties.Weather, _race.AdditionalProperties.Snow);
+      }
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Wetter / Schnee:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(formatWeather())));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Temperatur (Start/Ziel):")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .Add(new Paragraph(string.Format("{0} °C / {1} °C", _race.AdditionalProperties.TempStart, _race.AdditionalProperties.TempFinish))));
+
       table.AddCell(createCell(1, 5)
         .SetPaddingTop(12)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick)));
