@@ -362,7 +362,7 @@ namespace RaceHorologyLib
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateStart.ToShortDateString())));
+        .Add(new Paragraph(_race.DateResult.ToShortDateString() + "\n" + (_race.AdditionalProperties.Location ?? ""))));
 
       return tableHeader;
     }
@@ -511,12 +511,6 @@ namespace RaceHorologyLib
       float padding = 1F;
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
 
-      string dateAndLocation;
-      if (string.IsNullOrEmpty(_race.AdditionalProperties.Location))
-        dateAndLocation = _race.DateResult.ToString(@"dd.MM.yyyy");
-      else
-        dateAndLocation = string.Format("{0} / {1}", _race.DateResult.ToString(@"dd.MM.yyyy"), _race.AdditionalProperties.Location);
-
       Paragraph parPage = new Paragraph(string.Format("Seite {0}", pageNumber));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.LEFT)
@@ -524,21 +518,21 @@ namespace RaceHorologyLib
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(dateAndLocation)));
+        .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", _race.RaceNumber))));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(parPage));
+        .Add(new Paragraph("")));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", _race.RaceNumber))));
+        .Add(parPage));
      
 
 
