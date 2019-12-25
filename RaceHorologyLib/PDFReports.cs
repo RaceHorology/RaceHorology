@@ -589,7 +589,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Auswertung: {0}", _race.AdditionalProperties.Analyzer))));
+        .Add(new Paragraph("")));
 
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
@@ -824,7 +824,11 @@ public abstract class PDFReport : IPDFReport
         .SetTextAlignment(TextAlignment.RIGHT)
         .Add(new Paragraph(_race.AdditionalProperties.FinishHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.FinishHeight):"")));
 
-      table.AddCell(createCell(1,3));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Auswertung / Zeitnahme:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Analyzer))));
       table.AddCell(createCell()
         .Add(new Paragraph("Höhendifferenz:")
           .SetFont(fontBold)));
