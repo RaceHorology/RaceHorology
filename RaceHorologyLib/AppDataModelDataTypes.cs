@@ -685,14 +685,16 @@ namespace RaceHorologyLib
   {
     #region private
 
-    RaceParticipant _participant;
-    Dictionary<uint, TimeSpan?> _runTimes;
-    Dictionary<uint, RunResult.EResultCode> _runResultCodes;
-    TimeSpan? _totalTime;
-    private uint _position;
-    private TimeSpan? _diffToFirst;
-    private double _points;
-    private bool _justModified;
+    protected RaceParticipant _participant;
+    protected Dictionary<uint, TimeSpan?> _runTimes;
+    protected Dictionary<uint, RunResult.EResultCode> _runResultCodes;
+    protected TimeSpan? _totalTime;
+    protected RunResult.EResultCode _resultCode;
+    protected string _disqualText;
+    protected uint _position;
+    protected TimeSpan? _diffToFirst;
+    protected double _points;
+    protected bool _justModified;
 
 
     #endregion
@@ -708,6 +710,8 @@ namespace RaceHorologyLib
       _runResultCodes = new Dictionary<uint, RunResult.EResultCode>();
 
       _totalTime = null;
+      _resultCode = RunResult.EResultCode.Normal;
+      _disqualText = null;
       _position = 0;
       _diffToFirst = null;
       _points = -1.0;
@@ -726,6 +730,18 @@ namespace RaceHorologyLib
     {
       get { return _totalTime; }
       set { _totalTime = value; NotifyPropertyChanged(); }
+    }
+
+    public RunResult.EResultCode ResultCode 
+    { 
+      get { return _resultCode; } 
+      set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } 
+    }
+
+    public string DisqualText 
+    { 
+      get { return _disqualText; } 
+      set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } 
     }
 
 

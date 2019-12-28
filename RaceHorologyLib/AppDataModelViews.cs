@@ -959,7 +959,7 @@ namespace RaceHorologyLib
 
   public class RaceResultViewProvider : ResultViewProvider
   {
-    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResult> results);
+    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResult> results, out RunResult.EResultCode code, out string disqualText);
 
     TimeCombination _timeCombination;
     // Input Data
@@ -1092,7 +1092,11 @@ namespace RaceHorologyLib
       // Combine and update the race result
       foreach (var res in results)
         rri.SetRunResult(res.Key, res.Value);
-      rri.TotalTime = _combineTime(results);
+      RunResult.EResultCode code;
+      string disqualText;
+      rri.TotalTime = _combineTime(results, out code, out disqualText);
+      rri.ResultCode = code;
+      rri.DisqualText = disqualText;
     }
 
 
@@ -1160,33 +1164,66 @@ namespace RaceHorologyLib
     }
 
 
-    TimeSpan? MinimumTime(Dictionary<uint, RunResult> results)
+    TimeSpan? MinimumTime(Dictionary<uint, RunResult> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? minTime = null;
+      RunResult.EResultCode bestCode = RunResult.EResultCode.NQ;
+      resCode = RunResult.EResultCode.Normal;
+      disqualText = "";
 
       foreach (var res in results)
       {
-        if (res.Value != null && res.Value.Runtime != null)
+        if (res.Value == null)
+          continue;
+
+        if (res.Value.Runtime != null)
         {
           if (minTime == null || TimeSpan.Compare((TimeSpan)res.Value.Runtime, (TimeSpan)minTime) < 0)
+          {
             minTime = res.Value.Runtime;
+            bestCode = res.Value.ResultCode;
+          }
         }
+        if (res.Value.ResultCode != RunResult.EResultCode.Normal)
+        {
+          resCode = res.Value.ResultCode;
+          disqualText += res.Value.DisqualText;
+        }
+      }
+
+      // Clear if a result is available
+      if ( bestCode == RunResult.EResultCode.Normal)
+      {
+        resCode = RunResult.EResultCode.Normal;
+        disqualText = "";
       }
 
       return minTime;
     }
 
-    TimeSpan? SumTime(Dictionary<uint, RunResult> results)
+    TimeSpan? SumTime(Dictionary<uint, RunResult> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? sumTime = new TimeSpan(0);
+      resCode = RunResult.EResultCode.Normal;
+      disqualText = "";
 
       foreach (var res in results)
       {
+        if (res.Value == null)
+          continue;
+
         if (res.Value?.Runtime != null)
           sumTime += (TimeSpan)res.Value.Runtime;
         else
           // no time ==> Invalid
           sumTime = null;
+
+        if (res.Value.ResultCode != RunResult.EResultCode.Normal)
+        {
+          resCode = res.Value.ResultCode;
+          disqualText = res.Value.DisqualText;
+        }
+
       }
 
       return sumTime;
