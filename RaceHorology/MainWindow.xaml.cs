@@ -91,11 +91,13 @@ namespace RaceHorology
     private void OptionsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       SettingsDlg dlg = new SettingsDlg();
+      dlg.Owner = this;
       dlg.ShowDialog();
     }
     private void HelpCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       AboutDlg dlg = new AboutDlg();
+      dlg.Owner = this;
       dlg.ShowDialog();
     }
 

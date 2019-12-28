@@ -1,4 +1,4 @@
-﻿<Window x:Class="RaceHorology.AboutDlg"
+<Window x:Class="RaceHorology.AboutDlg"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:RaceHorology"
         mc:Ignorable="d"
         Background="#e6eee5"
-        Title="About" Height="450" Width="800">
+        Title="About" 
+        WindowStartupLocation="CenterOwner"
+        Height="450" Width="800">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
