@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -345,9 +345,27 @@ namespace RaceHorologyLib
 
     public static string ConvertRaceResults(ICollectionView results)
     {
+
+      var fields = new Dictionary<string, object> 
+      { { "Id", "Id" },
+        { "Position", "Platz" },
+        { "StartNumber", "Startnummer" },
+        { "Name", "Nachname" },
+        { "Firstname", "Vorname" },
+        { "Sex", "Geschlecht" },
+        { "Year", "Jahr" },
+        { "Club", "Verein" },
+        { "Nation", "Nation" },
+        { "Class", "Klasse" },
+        { "Group", "Gruppe" },
+        { "Totaltime", "Zeit" },
+        { "Runtimes", new Dictionary<string,string> { { "Runtime1", "Zeit 1" }, { "Runtime2", "Zeit 2" } } }
+      };
+
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "raceresult" },
+        {"fields", fields },
         {"data",  GroupData(results)}
       };
 

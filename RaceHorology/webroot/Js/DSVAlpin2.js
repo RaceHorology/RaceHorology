@@ -393,6 +393,13 @@ Vue.component('dsv-runresultslist', {
 Vue.component('dsv-raceresultslist', {
   mixins: [dsvFilterAndGroupByMixin],
 
+  props: {
+    datakeys:{
+      type: Object, 
+      default: () => {} 
+    }
+  },
+
   template: `
   <div>
     <table class="dsvalpin-lists" v-if="datalist">
@@ -407,6 +414,9 @@ Vue.component('dsv-raceresultslist', {
           <th v-if="datafields.includes('Club')">Verein</th>
           <th v-if="datafields.includes('Class')">Klasse</th>
           <th v-if="datafields.includes('Group')">Gruppe</th>
+          <template v-for="rt in datakeys.Runtimes" >
+            <th>{{ rt }}</th>
+          </template>
           <th class="cell-centered">Zeit</th>
           <th>&nbsp;</th>
         </tr>
@@ -427,6 +437,9 @@ Vue.component('dsv-raceresultslist', {
               <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
               <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
               <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
+              <template v-for="rt in item.Runtimes" >
+                <td>{{ rt }}</td>
+              </template>
               <td class="cell-centered">{{ item.Totaltime }}</td>
               <td>{{ item.DisqualText }}</td>
             </tr>
@@ -601,6 +614,7 @@ Vue.component('dsv-raceresultapp', {
   {
     return {
       raceresultlist: {},
+      datakeys: {},
       filterby: ""
     };
   },
@@ -627,7 +641,9 @@ Vue.component('dsv-raceresultapp', {
 
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
-        that.raceresultlist = data["data"];
+        let realData = data["data"]
+        that.raceresultlist = realData;
+        that.datakeys = data["fields"];
       });
     }
   }
