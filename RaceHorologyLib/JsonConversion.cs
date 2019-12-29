@@ -166,13 +166,12 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Totaltime");
       writer.WriteValue(value.TotalTime?.ToString(@"mm\:ss\,ff"));
 
-      int i = 0;
+      writer.WritePropertyName("Runtimes");
+      writer.WriteStartArray();
       foreach (var r in value.RunTimes)
-      {
-        i++;
-        writer.WritePropertyName(string.Format("Runtime{0}", r.Key));
         writer.WriteValue(r.Value?.ToString(@"mm\:ss\,ff"));
-      }
+      writer.WriteEndArray();
+      
       writer.WritePropertyName("JustModified");
       writer.WriteValue(value.JustModified);
       writer.WriteEndObject();
