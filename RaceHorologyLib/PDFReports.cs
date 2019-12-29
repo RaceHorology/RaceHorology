@@ -1593,7 +1593,7 @@ public abstract class PDFReport : IPDFReport
           .Add(createParagraph("Verein")));
 
       for (int i = 1; i <= _race.GetMaxRun(); i++)
-        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
           .Add(createParagraph(string.Format("Zeit-{0}", i))));
 
