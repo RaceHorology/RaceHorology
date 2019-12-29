@@ -156,8 +156,8 @@ Vue.component('dsv-livedatalists', {
 
   template: `
   <div class="centered">
-    <table class="dsvalpin-lists">
-      <tr>
+    <table class="dsvalpin-lists dsvalpin-livetable">
+      <tr class="dsvalpin-livetable-heading">
         <th class="first-col" v-bind:rowspan="nextStartersListUI.length + 1"><em class="vertical">Am Start</em></th>
 
         <th class="cell-centered">StNr</th>
@@ -169,6 +169,7 @@ Vue.component('dsv-livedatalists', {
         <th v-if="datafields.includes('Class')">Klasse</th>
         <th v-if="datafields.includes('Group')">Gruppe</th>
         <th >Zeit</th>
+        <th class="first-col" v-bind:rowspan="nextStartersListUI.length + 1"><em class="vertical">Am Start</em></th>
       </tr>
 
       <template v-for="item in nextStartersListUI" >
@@ -182,25 +183,11 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
           <td >&nbsp;</td>
-          </tr>
+        </tr>
       </template>
-<!--
-      <tr>
-        <th v-bind:rowspan="onTrackListUI.length + 1">Im Lauf</th>
-
-        <th class="cell-centered">StNr</th>
-        <th>Name</th>
-        <th>Vorname</th>
-        <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
-        <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
-        <th v-if="datafields.includes('Club')">Verein</th>
-        <th v-if="datafields.includes('Class')">Klasse</th>
-        <th v-if="datafields.includes('Group')">Gruppe</th>
-      </tr>
--->
 
       <tr>
-        <th class="cell-centered" colspan="10"></th>
+        <th class="cell-centered dsvalpin-livetable-divider" colspan="11"></th>
       </tr>
 
       <template v-for="(item, key) in onTrackListUI" >
@@ -214,11 +201,12 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
           <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
-          <td >{{ item.Runtime }}</td>
+          <td class="cell-right">{{ item.Runtime }}</td>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="onTrackListUI.length + 1"><em class="vertical">Im Lauf</em></th>
         </tr>
       </template>
 
-      <tr>
+      <tr class="dsvalpin-livetable-heading">
         <th class="cell-centered">StNr</th>
         <th>Name</th>
         <th>Vorname</th>
@@ -307,7 +295,7 @@ Vue.component('dsv-ontracklist', {
 
   template: `
   <div>
-    <table class="dsvalpin-lists" v-if="datalist">
+    <table class="dsvalpin-lists dsvalpin-livetable" v-if="datalist">
       <thead>
         <tr>
           <th class="cell-centered">StNr</th>
@@ -331,7 +319,7 @@ Vue.component('dsv-ontracklist', {
           <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
           <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
-          <td class="cell-centered">{{ item.Runtime }}</td>
+          <td class="cell-right">{{ item.Runtime }}</td>
         </tr>
       </tbody>
     </table>
@@ -378,7 +366,7 @@ Vue.component('dsv-runresultslist', {
               <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
               <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
               <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
-              <td class="cell-centered">{{ item.Runtime }}</td>
+              <td class="cell-right">{{ item.Runtime }}</td>
               <td>{{ item.DisqualText }}</td>
             </tr>
           </template>
@@ -438,9 +426,9 @@ Vue.component('dsv-raceresultslist', {
               <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
               <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
               <template v-for="rt in item.Runtimes" >
-                <td>{{ rt }}</td>
+                <td class="cell-right">{{ rt }}</td>
               </template>
-              <td class="cell-centered">{{ item.Totaltime }}</td>
+              <td class="cell-right">{{ item.Totaltime }}</td>
               <td>{{ item.DisqualText }}</td>
             </tr>
           </template>

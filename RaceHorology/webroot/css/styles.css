@@ -52,22 +52,31 @@ h3 {
 
 .dsvalpin-lists {
   border-collapse: collapse;
-  /* width: 100%; */
+  width: 100%;
   background-color: #f8faf7;
+}
+
+.dsvalpin-livetable-divider
+{
+  height: 1px;
+}
+
+.dsvalpin-livetable-heading  {
+  height: fit-content;
 }
 
 .nav-tabs {
   background-color: #f8faf7;
 } 
 
-/* .nav-link.active  {
-  background-color: #eff5f0 !important;
-} */
 
-.dsvalpin-lists tr:nth-child(even){background-color: #eff5f0;}
+.dsvalpin-lists tr:nth-child(even){
+  background-color: #eff5f0;
+}
 
-
-.dsvalpin-lists tr:hover {background-color: #b8c9d6;}
+.dsvalpin-lists tr:hover {
+  background-color: #b8c9d6;
+}
 
 .dsvalpin-lists th, .dsvalpin-lists th em {
   padding-top: 12px;
@@ -76,6 +85,8 @@ h3 {
   background-color: #3f434b;
   color: white;
 }
+
+
 
 .dsvalpin-lists td, .dsvalpin-lists th {
   border: 1px solid #ddd;
@@ -92,6 +103,10 @@ h3 {
 
 .cell-centered {
   text-align: center;
+}
+
+.cell-right {
+  text-align: right;
 }
 
 .vertical {
