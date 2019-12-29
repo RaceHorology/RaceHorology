@@ -155,10 +155,10 @@ Vue.component('dsv-livedatalists', {
 
 
   template: `
-  <div>
+  <div class="centered">
     <table class="dsvalpin-lists">
       <tr>
-        <th v-bind:rowspan="nextStartersListUI.length + 1">Am Start</th>
+        <th class="first-col" v-bind:rowspan="nextStartersListUI.length + 1"><em class="vertical">Am Start</em></th>
 
         <th class="cell-centered">StNr</th>
         <th>Name</th>
@@ -205,7 +205,7 @@ Vue.component('dsv-livedatalists', {
 
       <template v-for="(item, key) in onTrackListUI" >
         <tr>
-          <th v-if="key == 0" v-bind:rowspan="onTrackListUI.length + 1">Im Lauf</th>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="onTrackListUI.length + 1"><em class="vertical">Im Lauf</em></th>
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
           <td>{{ item.Firstname }}</td>

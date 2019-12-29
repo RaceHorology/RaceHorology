@@ -18,6 +18,7 @@ body {
 * {
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   color: #3f434b;
+  line-height: normal;
 }
 
 h1 {
@@ -43,9 +44,15 @@ h3 {
   margin: 5px;
 }
 
+.centered {
+  text-align: center;
+  margin-left: auto; 
+  margin-right: auto;
+}
+
 .dsvalpin-lists {
   border-collapse: collapse;
-  width: 100%;
+  /* width: 100%; */
   background-color: #f8faf7;
 }
 
@@ -62,7 +69,7 @@ h3 {
 
 .dsvalpin-lists tr:hover {background-color: #b8c9d6;}
 
-.dsvalpin-lists th {
+.dsvalpin-lists th, .dsvalpin-lists th em {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
@@ -85,6 +92,18 @@ h3 {
 
 .cell-centered {
   text-align: center;
+}
+
+.vertical {
+  writing-mode: vertical-rl;
+  /* text-orientation: sideways; */
+  /* -ms-writing-mode: tb-rl;  */
+  /* writing-mode: vertical-rl;  */
+  transform:rotate(180deg);
+}
+
+.first-col {
+  width: 1px;
 }
 
 .just_modified {
