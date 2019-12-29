@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -73,7 +73,7 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Group");
       writer.WriteValue(value.Class.Group.ToString());
       writer.WritePropertyName("Runtime");
-      writer.WriteValue(value.Runtime?.ToString(@"mm\:ss\,ff"));
+      writer.WriteValue(value.Runtime.ToRaceTimeString());
       writer.WritePropertyName("DisqualText");
       writer.WriteValue(value.DisqualText);
       writer.WritePropertyName("JustModified");
@@ -121,7 +121,7 @@ namespace RaceHorologyLib
       writer.WriteValue(value.Class.Group.ToString());
       writer.WritePropertyName("Runtime");
       if (_precisionIn100seconds)
-        writer.WriteValue(value.Runtime?.ToString(@"mm\:ss\,ff"));
+        writer.WriteValue(value.Runtime.ToRaceTimeString());
       else
         writer.WriteValue(value.Runtime?.ToString(@"mm\:ss"));
       writer.WritePropertyName("DisqualText");
@@ -138,6 +138,8 @@ namespace RaceHorologyLib
 
   public class RaceResultConverter : JsonConverter<RaceResultItem>
   {
+    ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+
     public override void WriteJson(JsonWriter writer, RaceResultItem value, JsonSerializer serializer)
     {
       writer.WriteStartObject();
@@ -164,12 +166,15 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Group");
       writer.WriteValue(value.Participant.Class.Group.ToString());
       writer.WritePropertyName("Totaltime");
-      writer.WriteValue(value.TotalTime?.ToString(@"mm\:ss\,ff"));
+      writer.WriteValue(value.TotalTime.ToRaceTimeString());
 
       writer.WritePropertyName("Runtimes");
       writer.WriteStartArray();
       foreach (var r in value.RunTimes)
-        writer.WriteValue(r.Value?.ToString(@"mm\:ss\,ff"));
+      {
+        string str = (string)_timeConverter.Convert(new object[] { r.Value, value.RunResultCodes[r.Key] }, typeof(string), null, null);
+        writer.WriteValue(str);
+      }
       writer.WriteEndArray();
       
       writer.WritePropertyName("JustModified");
