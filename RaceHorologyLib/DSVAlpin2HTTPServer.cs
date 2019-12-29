@@ -389,7 +389,7 @@ namespace RaceHorologyLib
           c++;
         }
 
-        output = JsonConversion.ConvertStartList(remaingStarters);
+        output = JsonConversion.ConvertOnStartList(remaingStarters);
       });
 
       return output;

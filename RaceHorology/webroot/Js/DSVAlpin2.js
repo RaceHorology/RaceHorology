@@ -13,7 +13,7 @@ var dsvFilterAndGroupByMixin = {
       default: null
     },
     datalist:{
-      type: Array, 
+      type: Object, 
       required: true
     },
     datafields:{
@@ -31,28 +31,14 @@ var dsvFilterAndGroupByMixin = {
   computed: {
     renderDataList(){
       let grouped = {}
-      if (Array.isArray(this.datalist))
-      {
-        var counter = 0;
-        for( item of this.datalist)
-        {
 
-          if (this.filterby && item[this.groupby] != this.filterby)
-            continue;
+      for (let [key, value] of Object.entries(this.datalist)) {
+        if (this.filterby && key != this.filterby)
+          continue;
 
-          counter++;
-
-          if (this.maxitems && counter > this.maxitems)
-            break;
-
-          groupName = "";
-          if (this.groupby)
-            groupName = item[this.groupby];
-
-          grouped[groupName] = grouped[groupName] || [];
-          grouped[groupName].push(item);
-        }
+        grouped[key] = value;
       }
+
       return grouped;
     }
   },
@@ -467,8 +453,8 @@ Vue.component('dsv-liveapp', {
     return {
       onstartlist: [],
       ontracklist: [],
-      racerunresults: [],
-      raceresults: [],
+      racerunresults: {},
+      raceresults: {},
       currentracerun: {"run": "", "type": ""},
 
       categories: [],
@@ -574,7 +560,7 @@ Vue.component('dsv-startapp', {
   data: function()
   {
     return {
-      startlist: [],
+      startlist: {},
       filterby: ""
     };
   },
@@ -614,14 +600,14 @@ Vue.component('dsv-raceresultapp', {
   data: function()
   {
     return {
-      raceresultlist: [],
+      raceresultlist: {},
       filterby: ""
     };
   },
 
   watch: {
     groupby: function (newGroupBy, oldGroupBy){
-      this.fetchRaceResults();
+      this.fetchRaceResultList();
     }
   },
 

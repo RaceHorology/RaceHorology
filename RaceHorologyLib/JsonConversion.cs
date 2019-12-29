@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -222,12 +223,44 @@ namespace RaceHorologyLib
 
   public static class JsonConversion
   {
-    public static string ConvertStartList(IEnumerable startList)
+
+    public static Dictionary<object, object> GroupData(ICollectionView cv)
+    {
+      Dictionary<object, object> groupedData = new Dictionary<object, object>();
+
+      var lr = cv as System.Windows.Data.ListCollectionView;
+      if (lr.Groups != null)
+      {
+        foreach (var group in lr.Groups)
+        {
+          System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
+
+          List<object> dstItems = new List<object>();
+          groupedData.Add(cvGroup.Name, dstItems);
+
+          foreach (var item in cvGroup.Items)
+            dstItems.Add(item);
+        }
+      }
+      else
+      {
+        List<object> dstItems = new List<object>();
+        groupedData.Add(null, dstItems);
+
+        foreach (var item in cv.SourceCollection)
+          dstItems.Add(item);
+      }
+
+      return groupedData;
+    }
+    
+
+    public static string ConvertStartList(ICollectionView startList)
     {
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "startlist" },
-        {"data",  startList}
+        {"data",  GroupData(startList)}
       };
 
       JsonSerializer serializer = new JsonSerializer();
@@ -290,12 +323,12 @@ namespace RaceHorologyLib
 
 
 
-    public static string ConvertRunResults(IEnumerable resultList)
+    public static string ConvertRunResults(ICollectionView results)
     {
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "racerunresult" },
-        {"data",  resultList}
+        {"data",  GroupData(results)}
       };
 
       JsonSerializer serializer = new JsonSerializer();
@@ -311,12 +344,12 @@ namespace RaceHorologyLib
       return sw.ToString();
     }
 
-    public static string ConvertRaceResults(IEnumerable resultList)
+    public static string ConvertRaceResults(ICollectionView results)
     {
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "raceresult" },
-        {"data",  resultList}
+        {"data",  GroupData(results)}
       };
 
       JsonSerializer serializer = new JsonSerializer();
