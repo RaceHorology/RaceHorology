@@ -133,12 +133,6 @@ Vue.component('dsv-livedatalists', {
         retList.reverse();
       }
 
-      // Ensure at least one empty item is there
-      if (retList.length < 1)
-      {
-        retList.push({});
-      }
-
       return retList;
     },
 
@@ -150,12 +144,6 @@ Vue.component('dsv-livedatalists', {
         retList.reverse();
       }
 
-      // Ensure at least one empty item is there
-      if (retList.length < 1)
-      {
-        retList.push({});
-      }
-
       return retList;
     },
 
@@ -164,12 +152,6 @@ Vue.component('dsv-livedatalists', {
       if (Array.isArray(this.finishedlist))
       {
         retList = [...this.finishedlist]; //.reverse();
-      }
-
-      // Ensure at least one empty item is there
-      if (retList.length < 1)
-      {
-        retList.push({});
       }
 
       return retList;
@@ -212,6 +194,15 @@ Vue.component('dsv-livedatalists', {
         </tr>
       </template>
 
+      <template v-if="nextStartersListUI.length == 0" >
+        <tr>
+          <th class="first-col"><em class="vertical">Am Start</em></th>
+          <td class="cell-centered" colspan="7"><em>keine weiteren Starter</em></td>
+          <th class="first-col"><em class="vertical">Am Start</em></th>
+        </tr>
+      </template>
+
+
       <tr>
         <th class="cell-centered dsvalpin-livetable-divider" colspan="11"></th>
       </tr>
@@ -232,6 +223,15 @@ Vue.component('dsv-livedatalists', {
         </tr>
       </template>
 
+      <template v-if="onTrackListUI.length == 0" >
+        <tr>
+          <th class="first-col"><em class="vertical">Im Lauf</em></th>
+          <td class="cell-centered" colspan="7"><em>keine Läufer gestartet</em></td>
+          <th class="first-col"><em class="vertical">Im Lauf</em></th>
+        </tr>
+      </template>
+
+
       <tr>
         <th class="cell-centered dsvalpin-livetable-divider" colspan="11"></th>
       </tr>
@@ -249,6 +249,14 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
           <td class="cell-right">{{ item.Runtime }} {{ (item.Position ? "(" + item.Position + ")" : "" ) }}</td>
           <th class="first-col" v-if="key == 0" v-bind:rowspan="justFinishedListUI.length"><em class="vertical">Im Ziel</em></th>
+        </tr>
+      </template>
+
+      <template v-if="justFinishedListUI.length == 0" >
+        <tr>
+          <th class="first-col"><em class="vertical">Im Ziel</em></th>
+          <td class="cell-centered" colspan="7"><em>noch kein Läufer im Ziel</em></td>
+          <th class="first-col"><em class="vertical">Im Ziel</em></th>
         </tr>
       </template>
 
@@ -601,6 +609,7 @@ Vue.component('dsv-liveapp', {
         else if (parsedData["type"] == "currentracerun")
         {
           this.currentracerun = parsedData["data"];
+          this.finishedListWOResult = [];
         }
         else if (parsedData["type"] == "event_participant")
         {
