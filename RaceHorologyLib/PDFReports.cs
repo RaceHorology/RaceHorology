@@ -1771,7 +1771,7 @@ public abstract class PDFReport : IPDFReport
       var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
       var fontTitle = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-      int fontSizeTitle = 16;
+      //int fontSizeTitle = 16;
       int fontSizeNormal = 10;
 
       document.Add(

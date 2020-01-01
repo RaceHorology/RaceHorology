@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -172,7 +172,9 @@ namespace RaceHorologyLib
 
   }
 
-
+  /// <summary>
+  /// Regularly, checks the particpants on track and sets them to NiZ if runtime is greater than secondsTillAutoNiZ
+  /// </summary>
   public class LiveTimingAutoNiZ : IDisposable
   {
     RaceRun _raceRun;
@@ -248,7 +250,9 @@ namespace RaceHorologyLib
     #endregion
   }
 
-
+  /// <summary>
+  /// Observes started particpants and sets not started participants to NaS if participant is not started detected by successor started participants.
+  /// </summary>
   public class LiveTimingAutoNaS : IDisposable
   {
     RaceRun _raceRun;
