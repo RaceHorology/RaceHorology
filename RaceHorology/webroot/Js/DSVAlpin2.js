@@ -633,8 +633,11 @@ Vue.component('dsv-liveapp', {
 
       if (eventType == "Finished")
       {
-        this.finishedListWOResult.unshift(particpant);
-        this.finishedListWOResult.splice(3);
+        if (!this.finishedListWOResult.find( x => x.StartNumber == particpant.StartNumber))
+        {
+          this.finishedListWOResult.unshift(particpant);
+          this.finishedListWOResult.splice(3);
+        }
       }
     }
   },
