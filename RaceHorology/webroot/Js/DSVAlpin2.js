@@ -117,6 +117,10 @@ Vue.component('dsv-livedatalists', {
       type: Array, 
       required: true
     },
+    finishedlist:{
+      type: Array, 
+      required: true
+    },
 
   },
 
@@ -125,7 +129,8 @@ Vue.component('dsv-livedatalists', {
       var retList = [];
       if (Array.isArray(this.nextstarterslist))
       {
-        retList = this.nextstarterslist.reverse();
+        retList = [...this.nextstarterslist];
+        retList.reverse();
       }
 
       // Ensure at least one empty item is there
@@ -136,11 +141,29 @@ Vue.component('dsv-livedatalists', {
 
       return retList;
     },
+
     onTrackListUI(){
       var retList = [];
       if (Array.isArray(this.ontracklist))
       {
-        retList = this.ontracklist.reverse();
+        retList = [...this.ontracklist];
+        retList.reverse();
+      }
+
+      // Ensure at least one empty item is there
+      if (retList.length < 1)
+      {
+        retList.push({});
+      }
+
+      return retList;
+    },
+
+    justFinishedListUI(){
+      var retList = [];
+      if (Array.isArray(this.finishedlist))
+      {
+        retList = [...this.finishedlist]; //.reverse();
       }
 
       // Ensure at least one empty item is there
@@ -192,7 +215,7 @@ Vue.component('dsv-livedatalists', {
 
       <template v-for="(item, key) in onTrackListUI" >
         <tr>
-          <th class="first-col" v-if="key == 0" v-bind:rowspan="onTrackListUI.length + 1"><em class="vertical">Im Lauf</em></th>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="onTrackListUI.length"><em class="vertical">Im Lauf</em></th>
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
           <td>{{ item.Firstname }}</td>
@@ -202,7 +225,27 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
           <td class="cell-right">{{ item.Runtime }}</td>
-          <th class="first-col" v-if="key == 0" v-bind:rowspan="onTrackListUI.length + 1"><em class="vertical">Im Lauf</em></th>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="onTrackListUI.length"><em class="vertical">Im Lauf</em></th>
+        </tr>
+      </template>
+
+      <tr>
+        <th class="cell-centered dsvalpin-livetable-divider" colspan="11"></th>
+      </tr>
+
+      <template v-for="(item, key) in justFinishedListUI" >
+        <tr>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="justFinishedListUI.length + 1"><em class="vertical">Im Ziel</em></th>
+          <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
+          <td>{{ item.Name }}</td>
+          <td>{{ item.Firstname }}</td>
+          <td v-if="datafields.includes('Sex')" class="cell-centered">{{ item.Sex }}</td>
+          <td v-if="datafields.includes('Year')" class="cell-centered">{{ item.Year }}</td>
+          <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
+          <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
+          <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
+          <td class="cell-right">{{ item.Runtime }} {{ (item.Position ? "(" + item.Position + ")" : "" ) }}</td>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="justFinishedListUI.length + 1"><em class="vertical">Im Ziel</em></th>
         </tr>
       </template>
 
@@ -454,6 +497,8 @@ Vue.component('dsv-liveapp', {
     return {
       onstartlist: [],
       ontracklist: [],
+      finishedListWOResult: [],
+      
       racerunresults: {},
       raceresults: {},
       currentracerun: {"run": "", "type": ""},
@@ -487,6 +532,33 @@ Vue.component('dsv-liveapp', {
       {
         return this.sex;
       }
+    },
+
+    finishedlist()
+    {
+      var finished = [];
+
+      this.finishedListWOResult.forEach(element => {
+        var item = {...element};
+
+
+        var itemsResults = null;
+        for (let [key, value] of Object.entries(this.racerunresults)) 
+        {
+          itemsResults = value.find( x => x.StartNumber == item.StartNumber);
+          if (itemsResults)
+            break;
+        }
+
+        if (itemsResults)
+        {
+          item["Runtime"] = itemsResults["Runtime"];
+          item["Position"] = itemsResults["Position"];
+        }
+        finished.push(item);
+      });
+
+      return finished;
     }
   },  
 
@@ -525,6 +597,12 @@ Vue.component('dsv-liveapp', {
         {
           this.currentracerun = parsedData["data"];
         }
+        else if (parsedData["type"] == "event_participant")
+        {
+          this.updateFinishedList(parsedData["data"]);
+        }
+
+        
 
         this.lastUpdate = new Date().toLocaleString();
       };
@@ -547,6 +625,18 @@ Vue.component('dsv-liveapp', {
       this.socket.send(this.message);
       this.message = "";
     },
+
+    updateFinishedList(eventData)
+    {
+      var eventType = eventData["EventType"];
+      var particpant = eventData["Participant"];
+
+      if (eventType == "Finished")
+      {
+        this.finishedListWOResult.unshift(particpant);
+        this.finishedListWOResult.splice(3);
+      }
+    }
   },
 
 
