@@ -562,8 +562,6 @@ namespace RaceHorologyLib
     {
       foreach (var p in _liveProvider)
         p.SendInitial();
-      //var name = Context.QueryString["name"];
-      //Send(!name.IsNullOrEmpty() ? String.Format("\"{0}\" to {1}", e.Data, name) : e.Data);
     }
   }
 
