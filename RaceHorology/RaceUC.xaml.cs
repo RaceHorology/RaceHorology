@@ -674,10 +674,22 @@ namespace RaceHorology
           txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtRun.Text = rr.GetRunTime()?.ToString(@"mm\:ss\,ff");
+          return;
+        }
+        else
+        {
+          txtStart.Text = "";
+          txtFinish.Text = "";
+          txtRun.Text = "";
         }
       }
       else
+      {
         txtParticipant.Text = "";
+        txtStart.Text = "";
+        txtFinish.Text = "";
+        txtRun.Text = "";
+      }
     }
 
 
