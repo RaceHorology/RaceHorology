@@ -181,6 +181,9 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Totaltime");
       writer.WriteValue(value.TotalTime.ToRaceTimeString());
 
+      writer.WritePropertyName("DisqualText");
+      writer.WriteValue(value.DisqualText);
+
       writer.WritePropertyName("Runtimes");
       writer.WriteStartArray();
       for(uint i=1; i<=_runs; i++)
