@@ -425,7 +425,7 @@ namespace RaceHorologyLib
           if (grouping != null)
             vp.ChangeGrouping(grouping);
 
-          output = JsonConversion.ConvertRaceResults(vp.GetView());
+          output = JsonConversion.ConvertRaceResults(vp.GetView(), (uint)race.GetMaxRun());
         });
 
       return output;
@@ -1068,7 +1068,7 @@ namespace RaceHorologyLib
       string output = null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConversion.ConvertRaceResults(_dm.GetCurrentRace().GetResultViewProvider().GetView());
+        output = JsonConversion.ConvertRaceResults(_dm.GetCurrentRace().GetResultViewProvider().GetView(), (uint)_dm.GetCurrentRace().GetMaxRun());
       });
 
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });

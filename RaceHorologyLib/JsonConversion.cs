@@ -147,6 +147,12 @@ namespace RaceHorologyLib
   {
     ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
 
+    private uint _runs;
+    public RaceResultConverter(uint runs)
+    {
+      _runs = runs;
+    }
+
     public override void WriteJson(JsonWriter writer, RaceResultItem value, JsonSerializer serializer)
     {
       writer.WriteStartObject();
@@ -177,10 +183,15 @@ namespace RaceHorologyLib
 
       writer.WritePropertyName("Runtimes");
       writer.WriteStartArray();
-      foreach (var r in value.RunTimes)
+      for(uint i=1; i<=_runs; i++)
       {
-        string str = (string)_timeConverter.Convert(new object[] { r.Value, value.RunResultCodes[r.Key] }, typeof(string), null, null);
-        writer.WriteValue(str);
+        if (value.RunTimes.ContainsKey(i) && value.RunResultCodes.ContainsKey(i))
+        {
+          string str = (string)_timeConverter.Convert(new object[] { value.RunTimes[i], value.RunResultCodes[i] }, typeof(string), null, null);
+          writer.WriteValue(str);
+        }
+        else
+          writer.WriteValue(string.Empty);
       }
       writer.WriteEndArray();
       
@@ -355,7 +366,7 @@ namespace RaceHorologyLib
       return sw.ToString();
     }
 
-    public static string ConvertRaceResults(ICollectionView results)
+    public static string ConvertRaceResults(ICollectionView results, uint runs)
     {
 
       var fields = new Dictionary<string, object> 
@@ -383,7 +394,7 @@ namespace RaceHorologyLib
 
       JsonSerializer serializer = new JsonSerializer();
 
-      serializer.Converters.Add(new RaceResultConverter());
+      serializer.Converters.Add(new RaceResultConverter(runs));
 
       StringWriter sw = new StringWriter();
       using (JsonWriter writer = new JsonTextWriter(sw))
