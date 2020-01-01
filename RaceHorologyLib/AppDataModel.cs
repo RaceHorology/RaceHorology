@@ -505,12 +505,20 @@ namespace RaceHorologyLib
     System.Timers.Timer _timer;
     ILiveDateTimeProvider _timeProvider;
 
+    protected TimeSpan? _liveRunTime;
+
+    RunResult _original;
+
+    public RunResult OriginalResult { get { return _original; } }
+
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="original"></param>
     public LiveResult(RunResult original, ILiveDateTimeProvider timeProvider) : base(original)
     {
+      _original = original;
+
       _timeProvider = timeProvider;
 
       _timer = new System.Timers.Timer(1000);
@@ -536,10 +544,20 @@ namespace RaceHorologyLib
     {
       if (_startTime != null)
       {
-        _runTime = _timeProvider.GetCurrentDayTime() - _startTime;
+        _liveRunTime = _timeProvider.GetCurrentDayTime() - _startTime;
         NotifyPropertyChanged(propertyName: nameof(Runtime));
       }
     }
+
+
+    public override TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
+    {
+      if (calculateIfNotStored)
+        return _liveRunTime;
+
+      return base.GetRunTime(calculateIfNotStored, considerResultCode);
+    }
+
 
   }
 
@@ -748,7 +766,7 @@ namespace RaceHorologyLib
     // Helper definition for a participant is on track
     public bool IsOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null && r.GetRunTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
+      return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
     }
 
     // Helper definition for a participant is on track
@@ -777,8 +795,10 @@ namespace RaceHorologyLib
     /// </summary>
     private void _UpdateInternals()
     {
+      var results = _results.ToArray();
+
       // Remove from onTrack list if a result is available (= not on track anymore)
-      var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r)).ToList();
+      var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r.OriginalResult)).ToList();
       foreach (var itemToRemove in itemsToRemove)
       {
         _onTrack.Remove(itemToRemove);
@@ -788,16 +808,16 @@ namespace RaceHorologyLib
       }
 
       // Add to onTrack list if run result is not yet available (= is on track)
-      var results = _results.ToArray();
-      foreach (var r in results)
-        if (IsOnTrack(r))
-          if (!_onTrack.Contains(r))
-          {
-            _onTrack.Add(new LiveResult(r, _appDataModel));
+      var shallBeOnTrack = results.Where(r => IsOnTrack(r)).ToList();
 
-            OnTrackChangedHandler handler = OnTrackChanged;
-            handler?.Invoke(this, r.Participant, null, r);
-          }
+      foreach (var r in shallBeOnTrack)
+        if (_onTrack.SingleOrDefault(o => o.Participant == r.Participant) == null)
+        {
+          _onTrack.Add(new LiveResult(r, _appDataModel));
+
+          OnTrackChangedHandler handler = OnTrackChanged;
+          handler?.Invoke(this, r.Participant, null, r);
+        }
     }
 
   }

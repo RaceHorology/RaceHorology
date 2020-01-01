@@ -572,7 +572,7 @@ namespace RaceHorologyLib
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
+    public virtual TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
     {
       if (!considerResultCode || _resultCode == EResultCode.Normal)
       {
