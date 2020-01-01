@@ -549,7 +549,12 @@ namespace RaceHorologyLib
 
     protected void OnSendNewData(object source, LiveDataProvider.NewDataEventArgs eventData)
     {
-      Send(eventData.Data);
+      try
+      {
+        Send(eventData.Data);
+      }
+      catch (Exception)
+      { }
     }
 
 
@@ -584,6 +589,8 @@ namespace RaceHorologyLib
     {
       _notifier.CollectionChanged -= StartListChanged;
       _notifier.ItemChanged -= StartListItemChanged;
+      _notifier = null;
+      _timer = null;
     }
 
     public override void SendInitial()
@@ -693,6 +700,7 @@ namespace RaceHorologyLib
       _notifier.ItemChanged -= StartListItemChanged;
       _rslVP = null;
       _notifier = null;
+      _timer = null;
     }
 
     public override void SendInitial()
@@ -773,6 +781,7 @@ namespace RaceHorologyLib
       _notifier.CollectionChanged -= ResultListChanged;
       _notifier.ItemChanged -= ResultListItemChanged;
       _notifier = null;
+      _timer = null;
     }
 
     private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
@@ -855,7 +864,6 @@ namespace RaceHorologyLib
     AppDataModel _dm;
     RaceRun _currentRace;
     ItemsChangedNotifier _notifier;
-    //System.Timers.Timer _timer;
 
     public OnTrackDataProvider(AppDataModel dm)
     {
@@ -941,8 +949,6 @@ namespace RaceHorologyLib
   {
     AppDataModel _dm;
     RaceRun _currentRace;
-    //ItemsChangedNotifier _notifier;
-    //System.Timers.Timer _timer;
 
     public OnTrackEventsProvider(AppDataModel dm)
     {
@@ -955,7 +961,6 @@ namespace RaceHorologyLib
     public override void Dispose()
     {
       _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
-
       _currentRace.OnTrackChanged -= OnSomethingChanged;
     }
 
@@ -1032,6 +1037,8 @@ namespace RaceHorologyLib
     {
       _notifier.CollectionChanged -= DataListChanged;
       _notifier.ItemChanged -= DataListItemChanged;
+      _notifier = null;
+      _timer = null;
     }
 
     public override void SendInitial()
