@@ -91,34 +91,40 @@ namespace RaceHorologyLib
   public class RunResultConverter : JsonConverter<RunResult>
   {
     bool _precisionIn100seconds;
+    bool _onlyTimeData;
 
-    public RunResultConverter(bool precisionIn100seconds)
+    public RunResultConverter(bool precisionIn100seconds, bool onlyTimeData)
     {
       _precisionIn100seconds = precisionIn100seconds;
+      _onlyTimeData = onlyTimeData;
     }
     public override void WriteJson(JsonWriter writer, RunResult value, JsonSerializer serializer)
     {
       writer.WriteStartObject();
-      writer.WritePropertyName("Id");
-      writer.WriteValue(value.Id);
-      writer.WritePropertyName("StartNumber");
-      writer.WriteValue(value.StartNumber);
-      writer.WritePropertyName("Name");
-      writer.WriteValue(value.Name);
-      writer.WritePropertyName("Firstname");
-      writer.WriteValue(value.Firstname);
-      writer.WritePropertyName("Sex");
-      writer.WriteValue(value.Sex);
-      writer.WritePropertyName("Year");
-      writer.WriteValue(value.Year);
-      writer.WritePropertyName("Club");
-      writer.WriteValue(value.Club);
-      writer.WritePropertyName("Nation");
-      writer.WriteValue(value.Nation);
-      writer.WritePropertyName("Class");
-      writer.WriteValue(value.Class.ToString());
-      writer.WritePropertyName("Group");
-      writer.WriteValue(value.Class.Group.ToString());
+
+      if (!_onlyTimeData)
+      {
+        writer.WritePropertyName("Id");
+        writer.WriteValue(value.Id);
+        writer.WritePropertyName("StartNumber");
+        writer.WriteValue(value.StartNumber);
+        writer.WritePropertyName("Name");
+        writer.WriteValue(value.Name);
+        writer.WritePropertyName("Firstname");
+        writer.WriteValue(value.Firstname);
+        writer.WritePropertyName("Sex");
+        writer.WriteValue(value.Sex);
+        writer.WritePropertyName("Year");
+        writer.WriteValue(value.Year);
+        writer.WritePropertyName("Club");
+        writer.WriteValue(value.Club);
+        writer.WritePropertyName("Nation");
+        writer.WriteValue(value.Nation);
+        writer.WritePropertyName("Class");
+        writer.WriteValue(value.Class.ToString());
+        writer.WritePropertyName("Group");
+        writer.WriteValue(value.Class.Group.ToString());
+      }
       writer.WritePropertyName("Runtime");
       if (_precisionIn100seconds)
         writer.WriteValue(value.Runtime.ToRaceTimeString());
@@ -126,6 +132,7 @@ namespace RaceHorologyLib
         writer.WriteValue(value.Runtime?.ToString(@"mm\:ss"));
       writer.WritePropertyName("DisqualText");
       writer.WriteValue(value.DisqualText);
+
       writer.WriteEndObject();
     }
 
@@ -314,7 +321,7 @@ namespace RaceHorologyLib
 
       JsonSerializer serializer = new JsonSerializer();
 
-      serializer.Converters.Add(new RunResultConverter(false));
+      serializer.Converters.Add(new RunResultConverter(false, false));
 
       StringWriter sw = new StringWriter();
       using (JsonWriter writer = new JsonTextWriter(sw))
@@ -406,6 +413,39 @@ namespace RaceHorologyLib
 
       return sw.ToString();
     }
+
+
+    public static string ConvertEvent(RaceParticipant particpant, string eventType, RunResult runResult)
+    {
+
+      var data = new Dictionary<string, object>
+      {
+        { "EventType", eventType },
+        { "Participant", particpant },
+        { "RunResult", runResult }
+      };
+
+      var wrappedData = new Dictionary<string, object>
+      {
+        {"type", "event_participant" },
+        {"data",  data}
+      };
+
+      JsonSerializer serializer = new JsonSerializer();
+
+      serializer.Converters.Add(new RaceParticipantConverter());
+      serializer.Converters.Add(new RunResultConverter(true, true));
+
+
+      StringWriter sw = new StringWriter();
+      using (JsonWriter writer = new JsonTextWriter(sw))
+      {
+        serializer.Serialize(writer, wrappedData);
+      }
+
+      return sw.ToString();
+    }
+
 
 
     public static string ConvertWrappedData(IEnumerable wrappedData)

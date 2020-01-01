@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -267,7 +267,7 @@ namespace RaceHorologyLib
     }
 
 
-    private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack)
+    private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
     {
       // Copy starters (copy to avoid any side effects)
       StartListEntry[] starters = _raceRun.GetStartListProvider().GetViewList().ToArray();

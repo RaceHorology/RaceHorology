@@ -523,8 +523,9 @@ namespace RaceHorologyLib
       {
         //Add(new StartListDataProvider(dm));
         Add(new RaceDataProvider(dm));
-        Add(new RemainingStartListDataProvider(dm, 5));
+        Add(new RemainingStartListDataProvider(dm, 3));
         Add(new OnTrackDataProvider(dm));
+        Add(new OnTrackEventsProvider(dm));
         Add(new RaceRunDataProvider(dm));
         Add(new RaceResultDataProvider(dm));
       }
@@ -931,6 +932,82 @@ namespace RaceHorologyLib
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });
     }
   }
+
+
+
+
+
+  public class OnTrackEventsProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+    RaceRun _currentRace;
+    //ItemsChangedNotifier _notifier;
+    //System.Timers.Timer _timer;
+
+    public OnTrackEventsProvider(AppDataModel dm)
+    {
+      _dm = dm;
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
+
+      ListenToCurrentRaceRun();
+    }
+
+    public override void Dispose()
+    {
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+
+      _currentRace.OnTrackChanged -= OnSomethingChanged;
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      ListenToCurrentRaceRun();
+    }
+
+    private void ListenToCurrentRaceRun()
+    {
+      if (_currentRace != _dm.GetCurrentRaceRun())
+      {
+
+        if (_currentRace != null)
+          _currentRace.OnTrackChanged -= OnSomethingChanged;
+
+        _currentRace = _dm.GetCurrentRaceRun();
+
+        if (_currentRace != null)
+          _currentRace.OnTrackChanged += OnSomethingChanged;
+      }
+    }
+
+    public override void SendInitial()
+    {
+    }
+
+
+    private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    {
+      RaceParticipant particpant = null;
+
+      string eventType = null;
+      if (participantEnteredTrack != null)
+      {
+        eventType = "Started";
+        particpant = participantEnteredTrack;
+      }
+      if (participantLeftTrack != null)
+      {
+        eventType = "Finished";
+        particpant = participantLeftTrack;
+      }
+
+      string output = JsonConversion.ConvertEvent(particpant, eventType, currentRunResult);
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+
+  }
+
+
 
 
 

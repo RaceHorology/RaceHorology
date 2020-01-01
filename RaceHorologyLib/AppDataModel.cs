@@ -768,7 +768,7 @@ namespace RaceHorologyLib
 
 
 
-    public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack);
+    public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult);
     public event OnTrackChangedHandler OnTrackChanged;
 
 
@@ -784,7 +784,7 @@ namespace RaceHorologyLib
         _onTrack.Remove(itemToRemove);
 
         OnTrackChangedHandler handler = OnTrackChanged;
-        handler?.Invoke(this, null, itemToRemove.Participant);
+        handler?.Invoke(this, null, itemToRemove.Participant, itemToRemove);
       }
 
       // Add to onTrack list if run result is not yet available (= is on track)
@@ -796,7 +796,7 @@ namespace RaceHorologyLib
             _onTrack.Add(new LiveResult(r, _appDataModel));
 
             OnTrackChangedHandler handler = OnTrackChanged;
-            handler?.Invoke(this, r.Participant, null);
+            handler?.Invoke(this, r.Participant, null, r);
           }
     }
 

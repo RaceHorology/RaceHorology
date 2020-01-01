@@ -427,7 +427,7 @@ namespace RaceHorology
       }
 
 
-      private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack)
+      private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
       {
         if (participantEnteredTrack != null)
           startCountDown();
