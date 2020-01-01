@@ -56,11 +56,6 @@ h3 {
   background-color: #f8faf7;
 }
 
-.dsvalpin-livetable-divider
-{
-  height: 1px;
-}
-
 .dsvalpin-livetable-heading  {
   height: fit-content;
 }
@@ -82,11 +77,14 @@ h3 {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
-  background-color: #3f434b;
+  background-color: #667583;
   color: white;
 }
 
-
+table tr th.dsvalpin-livetable-divider
+{
+  padding: 1px;
+}
 
 .dsvalpin-lists td, .dsvalpin-lists th {
   border: 1px solid #ddd;

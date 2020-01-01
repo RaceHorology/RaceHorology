@@ -181,8 +181,7 @@ Vue.component('dsv-livedatalists', {
   <div class="centered">
     <table class="dsvalpin-lists dsvalpin-livetable">
       <tr class="dsvalpin-livetable-heading">
-        <th class="first-col" v-bind:rowspan="nextStartersListUI.length + 1"><em class="vertical">Am Start</em></th>
-
+        <th></th>
         <th class="cell-centered">StNr</th>
         <th>Name</th>
         <th>Vorname</th>
@@ -191,12 +190,14 @@ Vue.component('dsv-livedatalists', {
         <th v-if="datafields.includes('Club')">Verein</th>
         <th v-if="datafields.includes('Class')">Klasse</th>
         <th v-if="datafields.includes('Group')">Gruppe</th>
-        <th >Zeit</th>
-        <th class="first-col" v-bind:rowspan="nextStartersListUI.length + 1"><em class="vertical">Am Start</em></th>
+        <th>Zeit</th>
+        <th></th>
       </tr>
 
-      <template v-for="item in nextStartersListUI" >
+      <template v-for="(item,key) in nextStartersListUI" >
         <tr>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="nextStartersListUI.length"><em class="vertical">Am Start</em></th>
+
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
           <td>{{ item.Firstname }}</td>
@@ -205,7 +206,9 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Club')">{{ item.Club }}</td>
           <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
-          <td >&nbsp;</td>
+          <td></td>
+
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="nextStartersListUI.length"><em class="vertical">Am Start</em></th>
         </tr>
       </template>
 
@@ -235,7 +238,7 @@ Vue.component('dsv-livedatalists', {
 
       <template v-for="(item, key) in justFinishedListUI" >
         <tr>
-          <th class="first-col" v-if="key == 0" v-bind:rowspan="justFinishedListUI.length + 1"><em class="vertical">Im Ziel</em></th>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="justFinishedListUI.length"><em class="vertical">Im Ziel</em></th>
           <td class="cell-centered">{{ item.StartNumber == 0? "---" : item.StartNumber }}</td>
           <td>{{ item.Name }}</td>
           <td>{{ item.Firstname }}</td>
@@ -245,11 +248,12 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
           <td class="cell-right">{{ item.Runtime }} {{ (item.Position ? "(" + item.Position + ")" : "" ) }}</td>
-          <th class="first-col" v-if="key == 0" v-bind:rowspan="justFinishedListUI.length + 1"><em class="vertical">Im Ziel</em></th>
+          <th class="first-col" v-if="key == 0" v-bind:rowspan="justFinishedListUI.length"><em class="vertical">Im Ziel</em></th>
         </tr>
       </template>
 
       <tr class="dsvalpin-livetable-heading">
+        <th></th>
         <th class="cell-centered">StNr</th>
         <th>Name</th>
         <th>Vorname</th>
@@ -259,6 +263,7 @@ Vue.component('dsv-livedatalists', {
         <th v-if="datafields.includes('Class')">Klasse</th>
         <th v-if="datafields.includes('Group')">Gruppe</th>
         <th >Zeit</th>
+        <th></th>
       </tr>
 
 
