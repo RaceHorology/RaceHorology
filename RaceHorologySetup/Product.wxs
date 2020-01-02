@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="RaceHorologySetup" Language="1033" Version="0.1.0" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab='yes'/>
+
+		<Feature Id="ProductFeature" Title="RaceHorologySetup" Level="1">
+			<ComponentGroupRef Id="RaceHorologyComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="RaceHorology" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="RaceHorologyComponents" Directory="INSTALLFOLDER">
+			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
+			<Component Id="RaceHorologyComponent">
+				<!-- TODO: Insert files, registry keys, and other resources here. -->
+				<File Source="$(var.RaceHorology.TargetPath)" />
+			</Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>
