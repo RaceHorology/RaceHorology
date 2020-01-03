@@ -1210,7 +1210,10 @@ namespace RaceHorologyLib
       foreach (var res in results)
       {
         if (res.Value == null)
+        {
+          sumTime = null;
           continue;
+        }
 
         if (res.Value?.Runtime != null)
           sumTime += (TimeSpan)res.Value.Runtime;
