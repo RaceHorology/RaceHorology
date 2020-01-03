@@ -640,7 +640,7 @@
         </Grid>
 
       </TabItem>
-      <TabItem Header="Disqualifikation" FontSize="12">
+      <TabItem Header="Ausscheidungen" FontSize="12">
         <local:DisqualifyUC x:Name="ucDisqualify">
           
         </local:DisqualifyUC>
