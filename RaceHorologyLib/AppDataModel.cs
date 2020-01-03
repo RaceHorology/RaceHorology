@@ -742,6 +742,17 @@ namespace RaceHorologyLib
     }
 
 
+    public void SetResultCode(RaceParticipant participant, RunResult.EResultCode rc, string disqualText)
+    {
+      RunResult result = findOrCreateRunResult(participant);
+
+      result.ResultCode = rc;
+      result.DisqualText = disqualText;
+
+      _UpdateInternals();
+    }
+
+
     private RunResult findOrCreateRunResult(RaceParticipant participant)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);

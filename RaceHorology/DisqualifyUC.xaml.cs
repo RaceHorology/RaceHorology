@@ -154,14 +154,7 @@ namespace RaceHorology
       RaceParticipant participant = _race.GetParticipant(startNumber);
 
       if (participant != null)
-      {
-        RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
-        if (rr != null)
-        {
-          rr.DisqualText = txtDisqualify.Text;
-          rr.ResultCode = (EResultCode)cmbDisqualify.SelectedValue;
-        }
-      }
+        _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
 
       txtStartNumber.Focus();
     }
