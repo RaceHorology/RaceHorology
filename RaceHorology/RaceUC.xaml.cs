@@ -543,8 +543,13 @@ namespace RaceHorology
       if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
         _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
       else if (_liveTimingAutoNiZ != null)
+      {
+        _liveTimingAutoNiZ.Dispose();
         _liveTimingAutoNiZ = null;
+      }
 
+      if (_liveTimingAutoNaS != null)
+        _liveTimingAutoNaS.Dispose();
       _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
 
       if (Properties.Settings.Default.StartTimeIntervall > 0)
@@ -555,6 +560,7 @@ namespace RaceHorology
       else
       {
         lblStartCountDown.Visibility = Visibility.Hidden;
+        _liveTimingStartCountDown.Dispose();
         _liveTimingStartCountDown = null;
       }
     }
