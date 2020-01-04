@@ -102,20 +102,23 @@ namespace RaceHorology
     {
       if (raceRun != null)
       {
-        _viewDisqualifications = new CollectionViewSource();
+        if (_viewDisqualifications == null)
+        {
+          _viewDisqualifications = new CollectionViewSource();
+          _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
+          _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
+          _viewDisqualifications.IsLiveFilteringRequested = true;
+        }
         _viewDisqualifications.Source = raceRun.GetResultList();
-        _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
-        _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
-        _viewDisqualifications.IsLiveFilteringRequested = true;
-
 
         dgDisqualifications.ItemsSource = _viewDisqualifications.View;
-
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
+
         cmbResultGrouping.SelectCBItem(raceRun.GetResultViewProvider().ActiveGrouping);
       }
       else
       {
+        dgDisqualifications.ItemsSource = null;
         dgResults.ItemsSource = null;
       }
     }
