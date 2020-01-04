@@ -490,8 +490,9 @@ namespace RaceHorology
       cmbManualMode.SelectedIndex = 0;
 
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
-    }
 
+      Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
+    }
 
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -518,19 +519,43 @@ namespace RaceHorology
 
         ConnectUiToRaceRun(_currentRaceRun);
 
-        // Start any helper
-        if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
-          _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
+        ConfigureTimingHelper();
+      }
+    }
 
-        _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+    private void SettingChangingHandler(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+      switch (e.PropertyName)
+      {
+        case "AutomaticNiZTimeout":
+        case "AutomaticNaSStarters":
+        case "StartTimeIntervall":
+          ConfigureTimingHelper();
+          break;
+        default:
+          break;
+      }
+    }
 
-        if (Properties.Settings.Default.StartTimeIntervall > 0)
-        {
-          lblStartCountDown.Visibility = Visibility.Visible;
-          _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
-        }
-        else
-          lblStartCountDown.Visibility = Visibility.Hidden;
+    private void ConfigureTimingHelper()
+    {
+      // Start any helper
+      if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
+        _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
+      else if (_liveTimingAutoNiZ != null)
+        _liveTimingAutoNiZ = null;
+
+      _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+
+      if (Properties.Settings.Default.StartTimeIntervall > 0)
+      {
+        lblStartCountDown.Visibility = Visibility.Visible;
+        _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
+      }
+      else
+      {
+        lblStartCountDown.Visibility = Visibility.Hidden;
+        _liveTimingStartCountDown = null;
       }
     }
 

@@ -40,11 +40,31 @@ namespace RaceHorology
 
     private void BtnOk_Click(object sender, RoutedEventArgs e)
     {
-      Properties.Settings.Default.TimingDevice_Type = (string)cbTimingDevice.SelectedValue;
-      Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
-      try { Properties.Settings.Default.AutomaticNiZTimeout = uint.Parse(txtAutomaticNiZTimeout.Text); } catch (Exception) { }
-      try { Properties.Settings.Default.AutomaticNaSStarters = uint.Parse(txtAutomaticNaSStarters.Text); } catch (Exception) { }
-      try { Properties.Settings.Default.StartTimeIntervall = uint.Parse(txtStartTimeIntervall.Text); } catch (Exception) { }
+      if (Properties.Settings.Default.TimingDevice_Type != (string)cbTimingDevice.SelectedValue)
+        Properties.Settings.Default.TimingDevice_Type = (string)cbTimingDevice.SelectedValue;
+
+      if (Properties.Settings.Default.TimingDevice_Port != (string)cbTimingDevicePort.SelectedValue)
+        Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
+
+      try {
+        if (Properties.Settings.Default.AutomaticNiZTimeout != uint.Parse(txtAutomaticNiZTimeout.Text))
+          Properties.Settings.Default.AutomaticNiZTimeout = uint.Parse(txtAutomaticNiZTimeout.Text);
+      }
+      catch (Exception) { }
+
+      try
+      { 
+        if (Properties.Settings.Default.AutomaticNaSStarters != uint.Parse(txtAutomaticNaSStarters.Text))
+          Properties.Settings.Default.AutomaticNaSStarters = uint.Parse(txtAutomaticNaSStarters.Text); 
+      }
+      catch (Exception) { }
+      
+      try 
+      { 
+        if (Properties.Settings.Default.StartTimeIntervall != uint.Parse(txtStartTimeIntervall.Text))
+          Properties.Settings.Default.StartTimeIntervall = uint.Parse(txtStartTimeIntervall.Text); 
+      }
+      catch (Exception) { }
 
       Properties.Settings.Default.Save();
 
