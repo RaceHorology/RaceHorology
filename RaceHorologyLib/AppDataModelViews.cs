@@ -915,7 +915,10 @@ namespace RaceHorologyLib
           lastTime = item.Runtime;
         }
         else
+        {
           item.Position = 0;
+          item.DiffToFirst = null;
+        }
 
         // Set the JustModified flag to highlight new results
         item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
@@ -1156,6 +1159,7 @@ namespace RaceHorologyLib
         else
         {
           sortedItem.Position = 0;
+          sortedItem.DiffToFirst = null;
         }
 
         // Set the JustModified flag to highlight new results
