@@ -152,6 +152,9 @@ namespace RaceHorologyLib
     {
       if (_currentRaceRun != raceRun)
       {
+        if (_currentRaceRun != null && _currentRaceRun.GetRace() != _currentRace)
+          throw (new Exception("The RaceRun that shall be set as current race run does not match to the current Race."));
+
         _currentRaceRun = raceRun;
 
         CurrentRaceChangedHandler handler = CurrentRaceChanged;
