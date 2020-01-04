@@ -27,6 +27,16 @@ namespace RaceHorology
     public DisqualifyUC()
     {
       InitializeComponent();
+
+      IsVisibleChanged += DisqualifyUC_IsVisibleChanged;
+    }
+
+    private void DisqualifyUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+      if (!(bool)e.OldValue && (bool)e.NewValue)
+      {
+        setRaceRun(_dm.GetCurrentRaceRun());
+      }
     }
 
     public void Init(AppDataModel dm, Race race)
@@ -75,13 +85,20 @@ namespace RaceHorology
       CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
       RaceRun selectedRaceRun = selected?.Value as RaceRun;
 
-      _currentRaceRun = selectedRaceRun;
-
-      ConnectUiToRaceRun(_currentRaceRun);
+      setRaceRun(selectedRaceRun);
     }
 
 
-    private void ConnectUiToRaceRun(RaceRun raceRun)
+    private void setRaceRun(RaceRun rr)
+    {
+      _currentRaceRun = rr;
+      connectUiToRaceRun(_currentRaceRun);
+
+      cmbRaceRun.SelectCBItem(rr);
+    }
+
+
+    private void connectUiToRaceRun(RaceRun raceRun)
     {
       if (raceRun != null)
       {
