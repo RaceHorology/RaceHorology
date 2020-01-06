@@ -389,7 +389,7 @@ namespace RaceHorologyLib
           c++;
         }
 
-        output = JsonConversion.ConvertStartList(remaingStarters);
+        output = JsonConversion.ConvertOnStartList(remaingStarters);
       });
 
       return output;
@@ -425,7 +425,7 @@ namespace RaceHorologyLib
           if (grouping != null)
             vp.ChangeGrouping(grouping);
 
-          output = JsonConversion.ConvertRaceResults(vp.GetView());
+          output = JsonConversion.ConvertRaceResults(vp.GetView(), (uint)race.GetMaxRun());
         });
 
       return output;
@@ -523,8 +523,9 @@ namespace RaceHorologyLib
       {
         //Add(new StartListDataProvider(dm));
         Add(new RaceDataProvider(dm));
-        Add(new RemainingStartListDataProvider(dm, 5));
+        Add(new RemainingStartListDataProvider(dm, 3));
         Add(new OnTrackDataProvider(dm));
+        Add(new OnTrackEventsProvider(dm));
         Add(new RaceRunDataProvider(dm));
         Add(new RaceResultDataProvider(dm));
       }
@@ -548,7 +549,12 @@ namespace RaceHorologyLib
 
     protected void OnSendNewData(object source, LiveDataProvider.NewDataEventArgs eventData)
     {
-      Send(eventData.Data);
+      try
+      {
+        Send(eventData.Data);
+      }
+      catch (Exception)
+      { }
     }
 
 
@@ -556,8 +562,6 @@ namespace RaceHorologyLib
     {
       foreach (var p in _liveProvider)
         p.SendInitial();
-      //var name = Context.QueryString["name"];
-      //Send(!name.IsNullOrEmpty() ? String.Format("\"{0}\" to {1}", e.Data, name) : e.Data);
     }
   }
 
@@ -583,6 +587,8 @@ namespace RaceHorologyLib
     {
       _notifier.CollectionChanged -= StartListChanged;
       _notifier.ItemChanged -= StartListItemChanged;
+      _notifier = null;
+      _timer = null;
     }
 
     public override void SendInitial()
@@ -692,6 +698,7 @@ namespace RaceHorologyLib
       _notifier.ItemChanged -= StartListItemChanged;
       _rslVP = null;
       _notifier = null;
+      _timer = null;
     }
 
     public override void SendInitial()
@@ -772,6 +779,7 @@ namespace RaceHorologyLib
       _notifier.CollectionChanged -= ResultListChanged;
       _notifier.ItemChanged -= ResultListItemChanged;
       _notifier = null;
+      _timer = null;
     }
 
     private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
@@ -854,7 +862,6 @@ namespace RaceHorologyLib
     AppDataModel _dm;
     RaceRun _currentRace;
     ItemsChangedNotifier _notifier;
-    //System.Timers.Timer _timer;
 
     public OnTrackDataProvider(AppDataModel dm)
     {
@@ -934,6 +941,79 @@ namespace RaceHorologyLib
 
 
 
+
+
+  public class OnTrackEventsProvider : LiveDataProvider
+  {
+    AppDataModel _dm;
+    RaceRun _currentRace;
+
+    public OnTrackEventsProvider(AppDataModel dm)
+    {
+      _dm = dm;
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
+
+      ListenToCurrentRaceRun();
+    }
+
+    public override void Dispose()
+    {
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+      _currentRace.OnTrackChanged -= OnSomethingChanged;
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      ListenToCurrentRaceRun();
+    }
+
+    private void ListenToCurrentRaceRun()
+    {
+      if (_currentRace != _dm.GetCurrentRaceRun())
+      {
+
+        if (_currentRace != null)
+          _currentRace.OnTrackChanged -= OnSomethingChanged;
+
+        _currentRace = _dm.GetCurrentRaceRun();
+
+        if (_currentRace != null)
+          _currentRace.OnTrackChanged += OnSomethingChanged;
+      }
+    }
+
+    public override void SendInitial()
+    {
+    }
+
+
+    private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    {
+      RaceParticipant particpant = null;
+
+      string eventType = null;
+      if (participantEnteredTrack != null)
+      {
+        eventType = "Started";
+        particpant = participantEnteredTrack;
+      }
+      if (participantLeftTrack != null)
+      {
+        eventType = "Finished";
+        particpant = participantLeftTrack;
+      }
+
+      string output = JsonConversion.ConvertEvent(particpant, eventType, currentRunResult);
+
+      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+    }
+
+  }
+
+
+
+
+
   public class RaceResultDataProvider : LiveDataProvider
   {
     AppDataModel _dm;
@@ -955,6 +1035,8 @@ namespace RaceHorologyLib
     {
       _notifier.CollectionChanged -= DataListChanged;
       _notifier.ItemChanged -= DataListItemChanged;
+      _notifier = null;
+      _timer = null;
     }
 
     public override void SendInitial()
@@ -991,7 +1073,7 @@ namespace RaceHorologyLib
       string output = null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConversion.ConvertRaceResults(_dm.GetCurrentRace().GetResultViewProvider().GetView());
+        output = JsonConversion.ConvertRaceResults(_dm.GetCurrentRace().GetResultViewProvider().GetView(), (uint)_dm.GetCurrentRace().GetMaxRun());
       });
 
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });

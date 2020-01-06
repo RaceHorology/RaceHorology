@@ -362,7 +362,7 @@ namespace RaceHorologyLib
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateStart.ToShortDateString())));
+        .Add(new Paragraph(_race.DateResult.ToShortDateString() + "\n" + (_race.AdditionalProperties.Location ?? ""))));
 
       return tableHeader;
     }
@@ -511,12 +511,6 @@ namespace RaceHorologyLib
       float padding = 1F;
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
 
-      string dateAndLocation;
-      if (string.IsNullOrEmpty(_race.AdditionalProperties.Location))
-        dateAndLocation = _race.DateResult.ToString(@"dd.MM.yyyy");
-      else
-        dateAndLocation = string.Format("{0} / {1}", _race.DateResult.ToString(@"dd.MM.yyyy"), _race.AdditionalProperties.Location);
-
       Paragraph parPage = new Paragraph(string.Format("Seite {0}", pageNumber));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.LEFT)
@@ -524,21 +518,21 @@ namespace RaceHorologyLib
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(dateAndLocation)));
+        .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", _race.RaceNumber))));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(parPage));
+        .Add(new Paragraph("")));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", _race.RaceNumber))));
+        .Add(parPage));
      
 
 
@@ -589,7 +583,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Auswertung: {0}", _race.AdditionalProperties.Analyzer))));
+        .Add(new Paragraph("")));
 
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
@@ -674,7 +668,7 @@ public abstract class PDFReport : IPDFReport
     protected abstract float[] getTableColumnsWidths();
     protected abstract void addHeaderToTable(Table table);
     protected abstract void addLineToTable(Table table, string group);
-    protected abstract void addLineToTable(Table table, object data, int i=0);
+    protected abstract void addLineToTable(Table table, object data, int i = 0);
     protected abstract string getReportName();
 
     public virtual string ProposeFilePath()
@@ -824,7 +818,11 @@ public abstract class PDFReport : IPDFReport
         .SetTextAlignment(TextAlignment.RIGHT)
         .Add(new Paragraph(_race.AdditionalProperties.FinishHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.FinishHeight):"")));
 
-      table.AddCell(createCell(1,3));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Auswertung / Zeitnahme:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Analyzer))));
       table.AddCell(createCell()
         .Add(new Paragraph("Höhendifferenz:")
           .SetFont(fontBold)));
@@ -928,6 +926,31 @@ public abstract class PDFReport : IPDFReport
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.StartTime))));
 
+      string formatWeather()
+      {
+        if (string.IsNullOrEmpty(_race.AdditionalProperties.Weather) && string.IsNullOrEmpty(_race.AdditionalProperties.Snow))
+          return "";
+        if (string.IsNullOrEmpty(_race.AdditionalProperties.Weather))
+          return _race.AdditionalProperties.Snow;
+        if (string.IsNullOrEmpty(_race.AdditionalProperties.Snow))
+          return _race.AdditionalProperties.Weather;
+
+        return string.Format("{0} / {1}", _race.AdditionalProperties.Weather, _race.AdditionalProperties.Snow);
+      }
+
+      table.AddCell(createCell()
+        .Add(new Paragraph("Wetter / Schnee:")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(formatWeather())));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Temperatur (Start/Ziel):")
+          .SetPaddingTop(6)
+          .SetFont(fontBold)));
+      table.AddCell(createCell()
+        .Add(new Paragraph(string.Format("{0} °C / {1} °C", _race.AdditionalProperties.TempStart, _race.AdditionalProperties.TempFinish))));
+
       table.AddCell(createCell(1, 5)
         .SetPaddingTop(12)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick)));
@@ -1006,6 +1029,17 @@ public abstract class PDFReport : IPDFReport
     protected Cell createCellForTable(TextAlignment? textAlignment = TextAlignment.LEFT)
     {
       return new Cell()
+        .SetBorder(Border.NO_BORDER)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(4)
+        .SetPaddingRight(4)
+        .SetTextAlignment(textAlignment);
+    }
+
+    protected Cell createCellForTable(int colspan, TextAlignment? textAlignment = TextAlignment.LEFT)
+    {
+      return new Cell(1, colspan)
         .SetBorder(Border.NO_BORDER)
         .SetPaddingTop(0)
         .SetPaddingBottom(0)
@@ -1172,7 +1206,114 @@ public abstract class PDFReport : IPDFReport
 
 
 
-  public class RaceRunResultReport : PDFReport
+
+  public abstract class ResultReport : PDFReport
+  {
+
+    protected ResultReport(Race race) : base(race)
+    { }
+
+
+    protected abstract void addLineToTable(Table table, RunResultWithPosition data, string notes, int i = 0);
+    protected abstract void addSubHeaderToTable(Table table, string group);
+
+
+
+    protected virtual Table addNotFinishedPart(Table table, RaceRun rr)
+    {
+      List<RunResultWithPosition> itemsToPrint = new List<RunResultWithPosition>();
+      foreach (var obj in rr.GetResultViewProvider().GetView())
+      {
+        if (!(obj is RunResultWithPosition item))
+          continue;
+
+        if (item.ResultCode != RunResult.EResultCode.NiZ)
+          continue;
+
+        itemsToPrint.Add(item);
+      }
+
+      if (itemsToPrint.Count == 0)
+        return table;
+
+
+      addSubHeaderToTable(table, string.Format("Nicht im Ziel {0}. Durchgang", rr.Run));
+
+      int i = 0;
+      foreach (var item in itemsToPrint)
+      {
+        addLineToTable(table, item, "", i);
+        //i++;
+      }
+
+      return table;
+    }
+
+
+    protected virtual Table addDisqualifiedTable(Table table, RaceRun rr)
+    {
+      List<RunResultWithPosition> itemsToPrint = new List<RunResultWithPosition>();
+      foreach (var obj in rr.GetResultViewProvider().GetView())
+      {
+        if (!(obj is RunResultWithPosition item))
+          continue;
+
+        if (item.ResultCode != RunResult.EResultCode.DIS)
+          continue;
+
+        itemsToPrint.Add(item);
+      }
+
+      if (itemsToPrint.Count == 0)
+        return table;
+
+      addSubHeaderToTable(table, string.Format("Disqualifiziert im {0}. Durchgang", rr.Run));
+
+      int i = 0;
+      foreach (var item in itemsToPrint)
+      {
+        addLineToTable(table, item, item.DisqualText, i);
+        //i++;
+      }
+
+      return table;
+    }
+
+
+    protected virtual Table addNotStartedTable(Table table, RaceRun rr)
+    {
+      List<RunResultWithPosition> itemsToPrint = new List<RunResultWithPosition>();
+      foreach (var obj in rr.GetResultViewProvider().GetView())
+      {
+        if (!(obj is RunResultWithPosition item))
+          continue;
+
+        if (item.ResultCode != RunResult.EResultCode.NaS)
+          continue;
+
+        itemsToPrint.Add(item);
+      }
+
+      if (itemsToPrint.Count == 0)
+        return table;
+
+      addSubHeaderToTable(table, string.Format("Nicht am Start {0}. Durchgang", rr.Run));
+
+      int i = 0;
+      foreach (var item in itemsToPrint)
+      {
+        addLineToTable(table, item, "", i);
+        //i++;
+      }
+
+      return table;
+    }
+  }
+
+
+
+
+  public class RaceRunResultReport : ResultReport
   {
     RaceRun _raceRun;
 
@@ -1274,6 +1415,19 @@ public abstract class PDFReport : IPDFReport
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
     }
 
+    protected override void addSubHeaderToTable(Table table, string group)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 3 + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(group)
+          .SetPaddingTop(12)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
+    }
+
 
     protected override void addLineToTable(Table table, object data, int i=0)
     {
@@ -1315,10 +1469,57 @@ public abstract class PDFReport : IPDFReport
       if (_race.IsFieldActive("Points"))
         table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: rrwp.Points*/))));
     }
+
+
+    protected override void addLineToTable(Table table, RunResultWithPosition rrwp, string notes, int i = 0)
+    {
+      Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
+      if (i % 2 == 1)
+        bgColor = PDFHelper.ColorRHBG1;
+
+      // Position
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable("")));
+      // Startnumber
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber))));
+      // Code
+      if (_race.IsFieldActive("Code"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
+      // Name
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
+      // Year
+      if (_race.IsFieldActive("Year"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Year))));
+      // VB
+      if (_race.IsFieldActive("Nation"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
+      // Club
+      if (_race.IsFieldActive("Club"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
+
+      int colSpan = 2;
+      if (_race.IsFieldActive("Points"))
+        colSpan++;
+
+      // Notes
+      table.AddCell(createCellForTable(colSpan, TextAlignment.LEFT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(notes)));
+    }
+
+
+    protected override Table getResultsTable()
+    {
+      Table table = base.getResultsTable();
+
+      addNotFinishedPart(table, _raceRun);
+      addDisqualifiedTable(table, _raceRun);
+      addNotStartedTable(table, _raceRun);
+
+      return table;
+    }
+
   }
 
 
-  public class RaceResultReport : PDFReport
+  public class RaceResultReport : ResultReport
   {
 
     ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
@@ -1392,7 +1593,7 @@ public abstract class PDFReport : IPDFReport
           .Add(createParagraph("Verein")));
 
       for (int i = 1; i <= _race.GetMaxRun(); i++)
-        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
           .Add(createParagraph(string.Format("Zeit-{0}", i))));
 
@@ -1425,6 +1626,19 @@ public abstract class PDFReport : IPDFReport
         //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
+    }
+
+    protected override void addSubHeaderToTable(Table table, string group)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(group)
+          .SetPaddingTop(12)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
     }
 
@@ -1480,13 +1694,108 @@ public abstract class PDFReport : IPDFReport
     }
 
 
+    protected override void addLineToTable(Table table, RunResultWithPosition rrwp, string notes, int i = 0)
+    {
+      Color bgColor = ColorConstants.WHITE;
+      if (i % 2 == 1)
+        bgColor = PDFHelper.ColorRHBG1;
+
+      // Position
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable("")));
+      // Startnumber
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Participant.StartNumber))));
+      // Code
+      if (_race.IsFieldActive("Code"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
+      // Name
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
+      // Year
+      if (_race.IsFieldActive("Year"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Participant.Year))));
+      // VB
+      if (_race.IsFieldActive("Nation"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
+      // Club
+      if (_race.IsFieldActive("Club"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Club)));
+
+      int colSpan = 2 + _race.GetMaxRun();
+      if (_race.IsFieldActive("Points"))
+        colSpan++;
+
+      // Runtime
+      table.AddCell(createCellForTable(colSpan, TextAlignment.LEFT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(notes)));
+    }
+
+
+    protected override Table getResultsTable()
+    {
+      Table table = base.getResultsTable();
+
+      for (int i = 0; i < _race.GetMaxRun(); i++)
+      {
+        addNotFinishedPart(table, _race.GetRun(i));
+        addDisqualifiedTable(table, _race.GetRun(i));
+        addNotStartedTable(table, _race.GetRun(i));
+      }
+
+      return table;
+    }
+
+
     protected override void addContent(PdfDocument pdf, Document document)
     {
       base.addContent(pdf, document);
 
+      addStatistic(pdf, document);
+
       addResultsChart(pdf, document);
     }
 
+
+    protected void addStatistic(PdfDocument pdf, Document document)
+    {
+      int participants = _race.GetParticipants().Count();
+      int particpantsClassified = 0;
+
+      var endresult = _race.GetResultViewProvider().GetView();
+      foreach(var o in endresult)
+      {
+        if (o is RaceResultItem res)
+        {
+          if (res.Position > 0)
+            particpantsClassified++;
+        }
+      }
+
+      var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+      var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+      var fontTitle = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+      //int fontSizeTitle = 16;
+      int fontSizeNormal = 10;
+
+      document.Add(
+        new Paragraph("Bewerbsstatistik")
+        .SetFont(fontBold)
+        .SetFontSize(fontSizeNormal)
+        .SetPaddingTop(12)
+      );
+
+      string statistic = string.Format(
+        "Gemeldete Teilnehmer: \t{0}\n" +
+        "Gewertete Teilnehmer: \t{1}\n" +
+        "Ausgeschiedene Teilnehmer: \t{2}\n"
+        , participants, particpantsClassified, participants - particpantsClassified
+      );
+
+      document.Add(
+        new Paragraph(statistic)
+        .SetFont(fontNormal)
+        .SetFontSize(fontSizeNormal)
+      );
+
+
+    }
 
     protected void addResultsChart(PdfDocument pdf, Document document)
     {

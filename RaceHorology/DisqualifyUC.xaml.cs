@@ -2,17 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using static RaceHorologyLib.RunResult;
 
 namespace RaceHorology
@@ -34,6 +27,16 @@ namespace RaceHorology
     public DisqualifyUC()
     {
       InitializeComponent();
+
+      IsVisibleChanged += DisqualifyUC_IsVisibleChanged;
+    }
+
+    private void DisqualifyUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+      if (!(bool)e.OldValue && (bool)e.NewValue)
+      {
+        setRaceRun(_dm.GetCurrentRaceRun());
+      }
     }
 
     public void Init(AppDataModel dm, Race race)
@@ -82,30 +85,40 @@ namespace RaceHorology
       CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
       RaceRun selectedRaceRun = selected?.Value as RaceRun;
 
-      _currentRaceRun = selectedRaceRun;
-
-      ConnectUiToRaceRun(_currentRaceRun);
+      setRaceRun(selectedRaceRun);
     }
 
 
-    private void ConnectUiToRaceRun(RaceRun raceRun)
+    private void setRaceRun(RaceRun rr)
+    {
+      _currentRaceRun = rr;
+      connectUiToRaceRun(_currentRaceRun);
+
+      cmbRaceRun.SelectCBItem(rr);
+    }
+
+
+    private void connectUiToRaceRun(RaceRun raceRun)
     {
       if (raceRun != null)
       {
-        _viewDisqualifications = new CollectionViewSource();
+        if (_viewDisqualifications == null)
+        {
+          _viewDisqualifications = new CollectionViewSource();
+          _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
+          _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
+          _viewDisqualifications.IsLiveFilteringRequested = true;
+        }
         _viewDisqualifications.Source = raceRun.GetResultList();
-        _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
-        _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
-        _viewDisqualifications.IsLiveFilteringRequested = true;
-
 
         dgDisqualifications.ItemsSource = _viewDisqualifications.View;
-
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
+
         cmbResultGrouping.SelectCBItem(raceRun.GetResultViewProvider().ActiveGrouping);
       }
       else
       {
+        dgDisqualifications.ItemsSource = null;
         dgResults.ItemsSource = null;
       }
     }
@@ -161,14 +174,7 @@ namespace RaceHorology
       RaceParticipant participant = _race.GetParticipant(startNumber);
 
       if (participant != null)
-      {
-        RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
-        if (rr != null)
-        {
-          rr.DisqualText = txtDisqualify.Text;
-          rr.ResultCode = (EResultCode)cmbDisqualify.SelectedValue;
-        }
-      }
+        _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
 
       txtStartNumber.Focus();
     }

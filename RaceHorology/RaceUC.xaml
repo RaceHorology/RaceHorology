@@ -203,11 +203,6 @@
 
             <Button x:Name="btnLTStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="1"  Margin="5" Click="BtnLTStart_Click" />
 
-            <Label x:Name="lblLTStatus" Content="Status:" Grid.Row="7" Grid.Column="0" Margin="5"/>
-            <TextBox x:Name="txtLTStatus" Grid.Row="7" Grid.Column="1"  Margin="5" MinLines="2" TextChanged="TxtLTStatus_TextChanged" LostFocus="TxtLTStatus_LostFocus"/>
-
-
-
           </Grid>
 
 
@@ -645,7 +640,7 @@
         </Grid>
 
       </TabItem>
-      <TabItem Header="Disqualifikation" FontSize="12">
+      <TabItem Header="Ausscheidungen" FontSize="12">
         <local:DisqualifyUC x:Name="ucDisqualify">
           
         </local:DisqualifyUC>

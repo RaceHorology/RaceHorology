@@ -5,15 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RaceHorology"
         mc:Ignorable="d"
-        Title="About" Height="450" Width="800">
+        Background="#e6eee5"
+        Title="About" 
+        WindowStartupLocation="CenterOwner"
+        Height="450" Width="800">
   <Grid>
-      <Grid.RowDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-      <Button x:Name="btnOk" Content="Ok" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,10,10" Click="BtnOk_Click"/>
+    <Image x:Name="LogoRH_png" Height="80" Source="LogoRH.png" Stretch="Uniform" Margin="10,20,10,20" />
+    <Label x:Name="lblVersion" Grid.Row="1" Content="Version x.y" HorizontalContentAlignment="Center" FontFamily="Ubuntu" Foreground="#FF3F434B" />
+    <Label x:Name="lblCopyright" Grid.Row="2" Content="(c) 2019-2020 by Sven Flossmann" HorizontalContentAlignment="Center" FontFamily="Ubuntu" Foreground="#FF3F434B" />
+    <TextBox Text="Credits and Licenses will be here"  Grid.Row="3" VerticalScrollBarVisibility="Visible" Margin="10" Background="#f8faf7"/>
+
+    <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+      <Button x:Name="btnOk" Content="Ok" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,10,10" IsDefault="True" IsCancel="True" Click="BtnOk_Click"/>
     </StackPanel>
   </Grid>
 </Window>

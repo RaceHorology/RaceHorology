@@ -4,16 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Media;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace RaceHorology
 {
@@ -26,6 +21,7 @@ namespace RaceHorology
     AppDataModel _dataModel;
     readonly Race _thisRace;
     LiveTimingMeasurement _liveTimingMeasurement;
+    TextBox _txtLiveTimingStatus;
 
     // Working Data
     RaceRun _currentRaceRun;
@@ -36,12 +32,19 @@ namespace RaceHorology
     ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
 
 
-    public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement)
+    public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
       _dataModel = dm;
       _thisRace = race;
       _liveTimingMeasurement = liveTimingMeasurement;
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
+
+      _txtLiveTimingStatus = txtLiveTimingStatus;
+      _txtLiveTimingStatus.TextChanged += new DelayedEventHandler(
+          TimeSpan.FromMilliseconds(400),
+          TxtLiveTimingStatus_TextChanged
+      ).Delayed;
+
 
       InitializeComponent();
 
@@ -280,6 +283,21 @@ namespace RaceHorology
     }
 
 
+    protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      if (_liveTimingRM != null)
+      {
+        string text = "";
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          text = _txtLiveTimingStatus.Text;
+        });
+
+        _liveTimingRM.UpdateStatus(text);
+      }
+    }
+
+
     private void BtnLTLogin_Click(object sender, RoutedEventArgs e)
     {
       RaceConfiguration cfg = _thisRace.RaceConfiguration;
@@ -314,15 +332,6 @@ namespace RaceHorology
       UpdateLiveTimingUI();
     }
 
-    private void TxtLTStatus_TextChanged(object sender, TextChangedEventArgs e)
-    {
-    }
-
-    private void TxtLTStatus_LostFocus(object sender, RoutedEventArgs e)
-    {
-      if (_liveTimingRM != null)
-        _liveTimingRM.UpdateStatus(txtLTStatus.Text);
-    }
 
     private void CmbLTEvent_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -357,6 +366,8 @@ namespace RaceHorology
           _thisRace.RaceConfiguration = cfg;
 
           _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
+
+          _liveTimingRM.UpdateStatus(_txtLiveTimingStatus.Text);
         }
       }
 
@@ -416,7 +427,7 @@ namespace RaceHorology
       }
 
 
-      private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack)
+      private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
       {
         if (participantEnteredTrack != null)
           startCountDown();
@@ -479,8 +490,9 @@ namespace RaceHorology
       cmbManualMode.SelectedIndex = 0;
 
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
-    }
 
+      Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
+    }
 
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -507,19 +519,49 @@ namespace RaceHorology
 
         ConnectUiToRaceRun(_currentRaceRun);
 
-        // Start any helper
-        if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
-          _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
+        ConfigureTimingHelper();
+      }
+    }
 
-        _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+    private void SettingChangingHandler(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+      switch (e.PropertyName)
+      {
+        case "AutomaticNiZTimeout":
+        case "AutomaticNaSStarters":
+        case "StartTimeIntervall":
+          ConfigureTimingHelper();
+          break;
+        default:
+          break;
+      }
+    }
 
-        if (Properties.Settings.Default.StartTimeIntervall > 0)
-        {
-          lblStartCountDown.Visibility = Visibility.Visible;
-          _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
-        }
-        else
-          lblStartCountDown.Visibility = Visibility.Hidden;
+    private void ConfigureTimingHelper()
+    {
+      // Start any helper
+      if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
+        _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
+      else if (_liveTimingAutoNiZ != null)
+      {
+        _liveTimingAutoNiZ.Dispose();
+        _liveTimingAutoNiZ = null;
+      }
+
+      if (_liveTimingAutoNaS != null)
+        _liveTimingAutoNaS.Dispose();
+      _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+
+      if (Properties.Settings.Default.StartTimeIntervall > 0)
+      {
+        lblStartCountDown.Visibility = Visibility.Visible;
+        _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
+      }
+      else
+      {
+        lblStartCountDown.Visibility = Visibility.Hidden;
+        _liveTimingStartCountDown.Dispose();
+        _liveTimingStartCountDown = null;
       }
     }
 
@@ -663,10 +705,22 @@ namespace RaceHorology
           txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtRun.Text = rr.GetRunTime()?.ToString(@"mm\:ss\,ff");
+          return;
+        }
+        else
+        {
+          txtStart.Text = "";
+          txtFinish.Text = "";
+          txtRun.Text = "";
         }
       }
       else
+      {
         txtParticipant.Text = "";
+        txtStart.Text = "";
+        txtFinish.Text = "";
+        txtRun.Text = "";
+      }
     }
 
 

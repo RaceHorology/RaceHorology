@@ -1,25 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 using Microsoft.Win32;
 
 using RaceHorologyLib;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using QRCoder;
-using System.Configuration;
 
 namespace RaceHorology
 {
@@ -58,7 +47,6 @@ namespace RaceHorology
       StartDSVAlpinServer();
     }
 
-
     protected override void OnClosed(EventArgs e)
     {
       CloseDatabase();
@@ -92,11 +80,13 @@ namespace RaceHorology
     private void OptionsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       SettingsDlg dlg = new SettingsDlg();
+      dlg.Owner = this;
       dlg.ShowDialog();
     }
     private void HelpCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       AboutDlg dlg = new AboutDlg();
+      dlg.Owner = this;
       dlg.ShowDialog();
     }
 
@@ -169,9 +159,6 @@ namespace RaceHorology
       ObservableCollection<Participant> participants = _dataModel.GetParticipants();
       dgParticipants.ItemsSource = participants;
 
-      // TODO: Hide not needed columns
-      //dgStartList.Columns[5].Visibility = Visibility.Collapsed;
-
       foreach (var r in _dataModel.GetRaces())
       {
         TabItem tabRace = new TabItem { Header = r.RaceType.ToString(), Name = r.RaceType.ToString() };
@@ -179,7 +166,7 @@ namespace RaceHorology
 
         tabRace.FontSize = 16;
 
-        RaceUC raceUC = new RaceUC(_dataModel, r, _liveTimingMeasurement);
+        RaceUC raceUC = new RaceUC(_dataModel, r, _liveTimingMeasurement, txtLiveTimingStatus);
         tabRace.Content = raceUC;
       }
     }

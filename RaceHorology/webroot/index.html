@@ -43,7 +43,10 @@
               <dsv-liveapp inline-template>
                 <div>
                   <div>
-                    <dsv-livedatalists v-bind:nextstarterslist="onstartlist" v-bind:ontracklist="ontracklist" />
+                    <dsv-livedatalists 
+                      v-bind:nextstarterslist="onStartList" 
+                      v-bind:ontracklist="onTrackList" 
+                      v-bind:finishedlist="finishedList" />
                   </div>
 
                   <div>
@@ -77,7 +80,7 @@
                     </b-form-select>
                   </div>
                 </div>
-                <dsv-raceresultslist v-bind:datalist="raceresultlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
+                <dsv-raceresultslist v-bind:datalist="raceresultlist" v-bind:datakeys="datakeys" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
               </div>
             </dsv-raceresultapp>
           </b-tab>

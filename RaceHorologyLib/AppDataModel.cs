@@ -152,6 +152,9 @@ namespace RaceHorologyLib
     {
       if (_currentRaceRun != raceRun)
       {
+        if (_currentRaceRun != null && _currentRaceRun.GetRace() != _currentRace)
+          throw (new Exception("The RaceRun that shall be set as current race run does not match to the current Race."));
+
         _currentRaceRun = raceRun;
 
         CurrentRaceChangedHandler handler = CurrentRaceChanged;
@@ -505,12 +508,20 @@ namespace RaceHorologyLib
     System.Timers.Timer _timer;
     ILiveDateTimeProvider _timeProvider;
 
+    protected TimeSpan? _liveRunTime;
+
+    RunResult _original;
+
+    public RunResult OriginalResult { get { return _original; } }
+
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="original"></param>
     public LiveResult(RunResult original, ILiveDateTimeProvider timeProvider) : base(original)
     {
+      _original = original;
+
       _timeProvider = timeProvider;
 
       _timer = new System.Timers.Timer(1000);
@@ -536,10 +547,20 @@ namespace RaceHorologyLib
     {
       if (_startTime != null)
       {
-        _runTime = _timeProvider.GetCurrentDayTime() - _startTime;
+        _liveRunTime = _timeProvider.GetCurrentDayTime() - _startTime;
         NotifyPropertyChanged(propertyName: nameof(Runtime));
       }
     }
+
+
+    public override TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
+    {
+      if (calculateIfNotStored)
+        return _liveRunTime;
+
+      return base.GetRunTime(calculateIfNotStored, considerResultCode);
+    }
+
 
   }
 
@@ -724,6 +745,17 @@ namespace RaceHorologyLib
     }
 
 
+    public void SetResultCode(RaceParticipant participant, RunResult.EResultCode rc, string disqualText)
+    {
+      RunResult result = findOrCreateRunResult(participant);
+
+      result.ResultCode = rc;
+      result.DisqualText = disqualText;
+
+      _UpdateInternals();
+    }
+
+
     private RunResult findOrCreateRunResult(RaceParticipant participant)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
@@ -748,7 +780,7 @@ namespace RaceHorologyLib
     // Helper definition for a participant is on track
     public bool IsOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null && r.GetRunTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
+      return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
     }
 
     // Helper definition for a participant is on track
@@ -768,7 +800,7 @@ namespace RaceHorologyLib
 
 
 
-    public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack);
+    public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult);
     public event OnTrackChangedHandler OnTrackChanged;
 
 
@@ -777,27 +809,29 @@ namespace RaceHorologyLib
     /// </summary>
     private void _UpdateInternals()
     {
+      var results = _results.ToArray();
+
       // Remove from onTrack list if a result is available (= not on track anymore)
-      var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r)).ToList();
+      var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r.OriginalResult)).ToList();
       foreach (var itemToRemove in itemsToRemove)
       {
         _onTrack.Remove(itemToRemove);
 
         OnTrackChangedHandler handler = OnTrackChanged;
-        handler?.Invoke(this, null, itemToRemove.Participant);
+        handler?.Invoke(this, null, itemToRemove.Participant, itemToRemove);
       }
 
       // Add to onTrack list if run result is not yet available (= is on track)
-      var results = _results.ToArray();
-      foreach (var r in results)
-        if (IsOnTrack(r))
-          if (!_onTrack.Contains(r))
-          {
-            _onTrack.Add(new LiveResult(r, _appDataModel));
+      var shallBeOnTrack = results.Where(r => IsOnTrack(r)).ToList();
 
-            OnTrackChangedHandler handler = OnTrackChanged;
-            handler?.Invoke(this, r.Participant, null);
-          }
+      foreach (var r in shallBeOnTrack)
+        if (_onTrack.SingleOrDefault(o => o.Participant == r.Participant) == null)
+        {
+          _onTrack.Add(new LiveResult(r, _appDataModel));
+
+          OnTrackChangedHandler handler = OnTrackChanged;
+          handler?.Invoke(this, r.Participant, null, r);
+        }
     }
 
   }

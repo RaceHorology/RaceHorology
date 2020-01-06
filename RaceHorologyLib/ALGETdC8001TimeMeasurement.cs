@@ -112,7 +112,7 @@ namespace RaceHorologyLib
           {
             parsedData = parser.Parse(dataLine);
           }
-          catch (FormatException)
+          catch (Exception)
           { continue; }
 
           try

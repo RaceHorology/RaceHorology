@@ -58,9 +58,11 @@
         <ItemsPanelTemplate>
           <Grid>
             <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="500" />
+              <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />
               <ColumnDefinition Width="100" />
             </Grid.ColumnDefinitions>
@@ -83,7 +85,29 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-              <Label x:Name="lblTimingDeviceLBL" Content="Zeitnahmeger&#228;t: " Margin="0" VerticalAlignment="Top" FontSize="12" />
+              <Label x:Name="lblLiveTimingStatus" Content="Live Timing - Status: " Margin="0" VerticalAlignment="Top" FontSize="12" />
+            </StackPanel>
+          </Grid>
+          <TextBox x:Name="txtLiveTimingStatus" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" Height="100" VerticalScrollBarVisibility="Auto"/>
+        </Grid>
+      </StatusBarItem>
+
+      <Separator Grid.Column="3" />
+
+      <StatusBarItem Grid.Column="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <Grid >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+          </Grid.RowDefinitions>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+              <Label x:Name="lblTimingDeviceLBL" Content="Live Zeitnahme: " Margin="0" VerticalAlignment="Top" FontSize="12" />
               <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" />
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal">
@@ -97,11 +121,10 @@
           </Grid>
           <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="100" VerticalScrollBarVisibility="Auto"/>
         </Grid>
-      </StatusBarItem>
+      </StatusBarItem>      
+      <Separator Grid.Column="5" />
 
-      <Separator Grid.Column="3" />
-
-      <StatusBarItem Grid.Column="4"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+      <StatusBarItem Grid.Column="6"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
         <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

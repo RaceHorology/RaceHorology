@@ -18,6 +18,7 @@ body {
 * {
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   color: #3f434b;
+  line-height: normal;
 }
 
 h1 {
@@ -43,39 +44,66 @@ h3 {
   margin: 5px;
 }
 
+.centered {
+  text-align: center;
+  margin-left: auto; 
+  margin-right: auto;
+}
+
 .dsvalpin-lists {
   border-collapse: collapse;
   width: 100%;
   background-color: #f8faf7;
 }
 
+.dsvalpin-livetable-heading  {
+  height: fit-content;
+}
+
 .nav-tabs {
   background-color: #f8faf7;
 } 
 
-/* .nav-link.active  {
-  background-color: #eff5f0 !important;
-} */
 
-.dsvalpin-lists tr:nth-child(even){background-color: #eff5f0;}
+.dsvalpin-lists tr:nth-child(even){
+  background-color: #eff5f0;
+}
 
+.dsvalpin-lists tr:hover {
+  background-color: #b8c9d6;
+}
 
-.dsvalpin-lists tr:hover {background-color: #b8c9d6;}
-
-.dsvalpin-lists th {
+.dsvalpin-lists th, .dsvalpin-lists th em {
   padding-top: 12px;
   padding-bottom: 12px;
-  text-align: left;
-  background-color: #3f434b;
+  text-align: center;
+  background-color: #667583;
   color: white;
 }
 
-.dsvalpin-lists td, .dsvalpin-lists th {
+table tr td.dsvalpin-cell-timeBeneathPosition, table tr th.dsvalpin-cell-timeBeneathPosition {
+  border-right: none;
+  text-align: right;
+}
+
+table tr td.dsvalpin-cell-positionBeneathTime, table tr th.dsvalpin-cell-positionBeneathTime  {
+  border-left: none;
+  width: 1px;
+  text-align: right;
+}
+
+
+table tr th.dsvalpin-livetable-divider
+{
+  padding: 1px;
+}
+
+table.dsvalpin-lists td, table.dsvalpin-lists th {
   border: 1px solid #ddd;
   padding: 6px;
 }
 
-.dsvalpin-lists .cell-groupheader {
+table.dsvalpin-lists .cell-groupheader {
   padding-top: 16px;
   text-align: center;
   font-weight: bold;
@@ -85,6 +113,22 @@ h3 {
 
 .cell-centered {
   text-align: center;
+}
+
+.cell-right {
+  text-align: right;
+}
+
+.vertical {
+  writing-mode: vertical-rl;
+  /* text-orientation: sideways; */
+  /* -ms-writing-mode: tb-rl;  */
+  /* writing-mode: vertical-rl;  */
+  transform:rotate(180deg);
+}
+
+.first-col {
+  width: 1px;
 }
 
 .just_modified {
