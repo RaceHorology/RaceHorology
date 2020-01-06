@@ -191,6 +191,7 @@ namespace RaceHorologyLib
         if (value.RunTimes.ContainsKey(i) && value.RunResultCodes.ContainsKey(i))
         {
           string str = (string)_timeConverter.Convert(new object[] { value.RunTimes[i], value.RunResultCodes[i] }, typeof(string), null, null);
+          str = str + " (" + value.SubResults[i].Position + ")";
           writer.WriteValue(str);
         }
         else

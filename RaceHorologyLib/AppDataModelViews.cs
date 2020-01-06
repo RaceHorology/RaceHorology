@@ -962,7 +962,7 @@ namespace RaceHorologyLib
 
   public class RaceResultViewProvider : ResultViewProvider
   {
-    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResult> results, out RunResult.EResultCode code, out string disqualText);
+    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode code, out string disqualText);
 
     TimeCombination _timeCombination;
     // Input Data
@@ -1010,8 +1010,9 @@ namespace RaceHorologyLib
 
       foreach (RaceRun r in _raceRuns)
       {
-        r.GetResultList().CollectionChanged += OnResultListCollectionChanged;
-        OnResultListCollectionChanged(r.GetResultList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, r.GetResultList().ToList()));
+        RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
+        rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
+        OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
 
       UpdateAll();
@@ -1033,7 +1034,7 @@ namespace RaceHorologyLib
 
     private void OnRunResultItemChanged(object sender, PropertyChangedEventArgs e)
     {
-      RunResult rr = sender as RunResult;
+      RunResultWithPosition rr = sender as RunResultWithPosition;
 
       if (rr != null)
       {
@@ -1049,7 +1050,7 @@ namespace RaceHorologyLib
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
           item.PropertyChanged -= OnRunResultItemChanged;
-          RunResult rr = item as RunResult;
+          RunResultWithPosition rr = item as RunResultWithPosition;
           UpdateResultsFor(rr?.Participant);
         }
         ResortResults();
@@ -1060,7 +1061,7 @@ namespace RaceHorologyLib
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
           item.PropertyChanged += OnRunResultItemChanged;
-          RunResult rr = item as RunResult;
+          RunResultWithPosition rr = item as RunResultWithPosition;
           UpdateResultsFor(rr?.Participant);
         }
         ResortResults();
@@ -1085,10 +1086,11 @@ namespace RaceHorologyLib
       }
 
       // Look for the sub-result
-      Dictionary<uint, RunResult> results = new Dictionary<uint, RunResult>();
+      Dictionary<uint, RunResultWithPosition> results = new Dictionary<uint, RunResultWithPosition>();
       foreach (RaceRun run in _raceRuns)
       {
-        RunResult result = run.GetResultList().SingleOrDefault(x => x.Participant == participant);
+        RaceRunResultViewProvider rrVP = (run.GetResultViewProvider() as RaceRunResultViewProvider);
+        RunResultWithPosition result = rrVP.GetViewList().SingleOrDefault(x => x.Participant == participant);
         results.Add(run.Run, result);
       }
 
@@ -1168,7 +1170,7 @@ namespace RaceHorologyLib
     }
 
 
-    TimeSpan? MinimumTime(Dictionary<uint, RunResult> results, out RunResult.EResultCode resCode, out string disqualText)
+    TimeSpan? MinimumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? minTime = null;
       RunResult.EResultCode bestCode = RunResult.EResultCode.NQ;
@@ -1205,7 +1207,7 @@ namespace RaceHorologyLib
       return minTime;
     }
 
-    TimeSpan? SumTime(Dictionary<uint, RunResult> results, out RunResult.EResultCode resCode, out string disqualText)
+    TimeSpan? SumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? sumTime = new TimeSpan(0);
       resCode = RunResult.EResultCode.Normal;
