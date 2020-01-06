@@ -683,9 +683,24 @@ namespace RaceHorologyLib
   /// </summary>
   public class RaceResultItem : INotifyPropertyChanged
   {
+    public class SubResult
+    {
+      public SubResult(RunResultWithPosition rr)
+      {
+        Runtime = rr.Runtime;
+        RunResultCode = rr.ResultCode;
+        Position = rr.Position;
+      }
+
+      public TimeSpan? Runtime;
+      public RunResult.EResultCode RunResultCode;
+      public uint Position;
+    }
+
     #region private
 
     protected RaceParticipant _participant;
+    protected Dictionary<uint, SubResult> _subResults;
     protected Dictionary<uint, TimeSpan?> _runTimes;
     protected Dictionary<uint, RunResult.EResultCode> _runResultCodes;
     protected TimeSpan? _totalTime;
@@ -706,6 +721,7 @@ namespace RaceHorologyLib
     public RaceResultItem(RaceParticipant participant)
     {
       _participant = participant;
+      _subResults = new Dictionary<uint, SubResult>();
       _runTimes = new Dictionary<uint, TimeSpan?>();
       _runResultCodes = new Dictionary<uint, RunResult.EResultCode>();
 
@@ -778,6 +794,8 @@ namespace RaceHorologyLib
 
 
 
+    public Dictionary<uint, SubResult> SubResults { get { return _subResults; } }
+
     /// <summary>
     /// Returns the separate run results per run
     /// </summary>
@@ -793,15 +811,17 @@ namespace RaceHorologyLib
     /// </summary>
     /// <param name="run">Run number, typically either 1 or 2</param>
     /// <param name="result">The corresponding results</param>
-    public void SetRunResult(uint run, RunResult result)
+    public void SetRunResult(uint run, RunResultWithPosition result)
     {
       if (result != null)
       {
+        _subResults[run] = new SubResult(result);
         _runTimes[run] = result.Runtime;
         _runResultCodes[run] = result.ResultCode;
       }
       else
       {
+        _subResults.Remove(run);
         _runTimes.Remove(run);
         _runResultCodes.Remove(run);
       }
