@@ -268,16 +268,15 @@ namespace RaceHorologyLib
         tableHeader.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.LEFT)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          .SetMaxHeight(maxHeightCol1)
+          //.SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(fontBold)
-          .Add(_logo1.SetAutoScale(true)));
+          .Add(_logo1.SetMaxHeight(maxHeightCol1)));
       else
         tableHeader.AddCell(new Cell()
-          .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
@@ -288,7 +287,6 @@ namespace RaceHorologyLib
         tableHeader.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.CENTER)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
@@ -298,7 +296,6 @@ namespace RaceHorologyLib
           .Add(new Paragraph(_race.Description)));
       else
         tableHeader.AddCell(new Cell()
-          .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
@@ -308,16 +305,14 @@ namespace RaceHorologyLib
           .SetTextAlignment(TextAlignment.RIGHT)
           .SetHorizontalAlignment(HorizontalAlignment.RIGHT)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(fontBold)
-          .Add(_logoRH.SetAutoScale(true)));
+          .Add(_logoRH.SetMaxHeight(maxHeightCol1*0.8F)));
       else
         tableHeader.AddCell(new Cell()
-          .SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
@@ -325,18 +320,19 @@ namespace RaceHorologyLib
 
       // Second row
       if (_logo2 != null)
+      {
         tableHeader.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.LEFT)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          .SetMaxHeight(maxHeightCol2)
+          
           .SetBorder(Border.NO_BORDER)
           .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetPadding(padding)
           .SetFont(fontBold)
-          .Add(_logo2.SetAutoScale(true)));
+          .Add(_logo2.SetMaxHeight(maxHeightCol2)));
+      }
       else
         tableHeader.AddCell(new Cell()
-          .SetMaxHeight(maxHeightCol2)
           .SetBorder(Border.NO_BORDER)
           .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick)));
 
@@ -344,7 +340,6 @@ namespace RaceHorologyLib
       tableHeader.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-        .SetMaxHeight(maxHeightCol2)
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
@@ -356,7 +351,6 @@ namespace RaceHorologyLib
       tableHeader.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .SetVerticalAlignment(VerticalAlignment.TOP)
-        .SetMaxHeight(maxHeightCol2)
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
