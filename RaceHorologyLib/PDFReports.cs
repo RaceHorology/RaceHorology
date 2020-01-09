@@ -662,7 +662,7 @@ public abstract class PDFReport : IPDFReport
     protected abstract float[] getTableColumnsWidths();
     protected abstract void addHeaderToTable(Table table);
     protected abstract void addLineToTable(Table table, string group);
-    protected abstract void addLineToTable(Table table, object data, int i = 0);
+    protected abstract bool addLineToTable(Table table, object data, int i = 0);
     protected abstract string getReportName();
 
     public virtual string ProposeFilePath()
@@ -992,14 +992,16 @@ public abstract class PDFReport : IPDFReport
 
           int i = 0;
           foreach (var result in cvGroup.Items)
-            addLineToTable(table, result, i++);
+            if (addLineToTable(table, result, i))
+              i++;
         }
       }
       else
       {
         int i = 0;
         foreach (var result in results.SourceCollection)
-          addLineToTable(table, result, i++);
+          if (addLineToTable(table, result, i))
+            i++;
       }
 
       return table;
@@ -1163,16 +1165,15 @@ public abstract class PDFReport : IPDFReport
     }
 
 
-    protected override void addLineToTable(Table table, object data, int i = 0)
+    protected override bool addLineToTable(Table table, object data, int i = 0)
     {
       StartListEntry rrwp = data as StartListEntry;
       if (rrwp == null)
-        return;
+        return false;
 
       Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
       if (i % 2 == 1)
         bgColor = PDFHelper.ColorRHBG1;
-
 
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber))));
@@ -1195,6 +1196,8 @@ public abstract class PDFReport : IPDFReport
         table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(rrwp.Points))));
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).SetBorderBottom(new DottedBorder(1F)));
+
+      return true;
     }
   }
 
@@ -1423,16 +1426,18 @@ public abstract class PDFReport : IPDFReport
     }
 
 
-    protected override void addLineToTable(Table table, object data, int i=0)
+    protected override bool addLineToTable(Table table, object data, int i=0)
     {
       RunResultWithPosition rrwp = data as RunResultWithPosition;
       if (rrwp == null)
-        return;
+        return false;
+
+      if (rrwp.ResultCode == RunResult.EResultCode.NotSet)
+        return false;
 
       Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
       if (i % 2 == 1)
         bgColor = PDFHelper.ColorRHBG1;
-
 
       // Position
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(rrwp.Position, typeof(string), null, null))));
@@ -1462,6 +1467,8 @@ public abstract class PDFReport : IPDFReport
       // Points
       if (_race.IsFieldActive("Points"))
         table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(-1.0/*TODO: rrwp.Points*/))));
+
+      return true;
     }
 
 
@@ -1637,11 +1644,14 @@ public abstract class PDFReport : IPDFReport
     }
 
 
-    protected override void addLineToTable(Table table, object data, int i=0)
+    protected override bool addLineToTable(Table table, object data, int i=0)
     {
       RaceResultItem item = data as RaceResultItem;
       if (item == null)
-        return;
+        return false;
+
+      if (item.ResultCode == RunResult.EResultCode.NotSet)
+        return false;
 
       Color bgColor = ColorConstants.WHITE;
       if (i % 2 == 1)
@@ -1685,6 +1695,8 @@ public abstract class PDFReport : IPDFReport
       // Points
       if (_race.IsFieldActive("Points"))
         table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(item.Points))));
+
+      return true;
     }
 
 
