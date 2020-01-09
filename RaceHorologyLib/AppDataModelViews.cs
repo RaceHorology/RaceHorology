@@ -907,6 +907,7 @@ namespace RaceHorologyLib
           {
             System.Diagnostics.Debug.Assert(curPosition == 1);
             firstTime = item.Runtime;
+            item.DiffToFirst = null;
           }
           else
             item.DiffToFirst = item.Runtime - firstTime;
@@ -1146,6 +1147,7 @@ namespace RaceHorologyLib
           {
             System.Diagnostics.Debug.Assert(curPosition == 1);
             firstTime = sortedItem.TotalTime;
+            sortedItem.DiffToFirst = null;
           }
           else
             sortedItem.DiffToFirst = sortedItem.TotalTime - firstTime;
