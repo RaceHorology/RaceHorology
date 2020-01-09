@@ -22,7 +22,7 @@ namespace RaceHorology
     CollectionViewSource _viewDisqualifications;
     FilterEventHandler _viewDisqualificationsFilterHandler;
 
-    public List<EResultCode> ListOfResultCodes { get; } = new List<EResultCode> { EResultCode.Normal, EResultCode.DIS, EResultCode.NaS, EResultCode.NiZ, EResultCode.NQ};
+    public List<EResultCode> ListOfResultCodes { get; } = new List<EResultCode> { EResultCode.Normal, EResultCode.DIS, EResultCode.NaS, EResultCode.NiZ, EResultCode.NQ, EResultCode.NotSet};
 
     public DisqualifyUC()
     {

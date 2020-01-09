@@ -33,7 +33,12 @@ namespace RaceHorologyLib
     private void OnItemChanged(object sender, PropertyChangedEventArgs e)
     {
       RunResult result = (RunResult)sender;
-      _db.CreateOrUpdateRunResult(_race, _rr, result);
+
+      if (result.IsEmpty())
+        _db.DeleteRunResult(_race, _rr, result);
+      else
+        _db.CreateOrUpdateRunResult(_race, _rr, result);
+
     }
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -42,7 +47,12 @@ namespace RaceHorologyLib
       {
         case NotifyCollectionChangedAction.Add:
           foreach (RunResult v in e.NewItems)
-            _db.CreateOrUpdateRunResult(_race, _rr, v);
+          {
+            if (v.IsEmpty())
+              _db.DeleteRunResult(_race, _rr, v);
+            else
+              _db.CreateOrUpdateRunResult(_race, _rr, v);
+          }
           break;
 
         case NotifyCollectionChangedAction.Move:

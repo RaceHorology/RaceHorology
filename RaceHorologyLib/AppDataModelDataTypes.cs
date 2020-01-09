@@ -491,7 +491,7 @@ namespace RaceHorologyLib
   /// <remarks>not yet final</remarks>
   public class RunResult : INotifyPropertyChanged
   {
-    public enum EResultCode { Normal = 0, NaS = 1, NiZ = 2, DIS = 3, NQ = 4 }; // 0;"Normal";1;"Nicht am Start";2;"Nicht im Ziel";3;"Disqualifiziert";4;"Nicht qualifiziert"
+    public enum EResultCode { Normal = 0, NaS = 1, NiZ = 2, DIS = 3, NQ = 4, NotSet = -1 }; // 0;"Normal";1;"Nicht am Start";2;"Nicht im Ziel";3;"Disqualifiziert";4;"Nicht qualifiziert"
 
     #region internal members
 
@@ -535,7 +535,7 @@ namespace RaceHorologyLib
       _runTime = null;
       _startTime = null;
       _finishTime = null;
-      _resultCode = EResultCode.Normal;
+      _resultCode = EResultCode.NotSet;
       _disqualText = null;
     }
 
@@ -564,11 +564,19 @@ namespace RaceHorologyLib
       NotifyPropertyChanged(propertyName: nameof(DisqualText));
     }
 
+    public bool IsEmpty()
+    {
+      return _startTime == null && _finishTime == null && _runTime == null && string.IsNullOrEmpty(_disqualText) && _resultCode == EResultCode.NotSet;
+    }
+
 
     public void SetRunTime(TimeSpan? t)
     {
       _runTime = t;
 
+      if (_resultCode == EResultCode.NotSet)
+        _resultCode = EResultCode.Normal;
+      
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
@@ -595,6 +603,9 @@ namespace RaceHorologyLib
       if (ResultCode == EResultCode.NaS)
         ResultCode = EResultCode.Normal;
 
+      if (_resultCode == EResultCode.NotSet)
+        _resultCode = EResultCode.Normal;
+
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
@@ -605,6 +616,9 @@ namespace RaceHorologyLib
       // Reset result code if it was related to the finish time
       if (ResultCode == EResultCode.NiZ)
         ResultCode = EResultCode.Normal;
+
+      if (_resultCode == EResultCode.NotSet)
+        _resultCode = EResultCode.Normal;
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }

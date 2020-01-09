@@ -597,6 +597,10 @@ namespace RaceHorologyLib
 
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
+
+      // Ensure the results always are in sync with participants
+      _race.GetParticipants().CollectionChanged += onParticipantsChanged;
+      findOrCreateRunResults(_race.GetParticipants());
     }
 
 
@@ -769,13 +773,52 @@ namespace RaceHorologyLib
     }
 
 
+    private void findOrCreateRunResults(IEnumerable<RaceParticipant> participants)
+    {
+      foreach (RaceParticipant rp in participants)
+        findOrCreateRunResult(rp);
+    }
+
+
+    private RunResult deleteRunResult(RaceParticipant participant)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      if (result != null)
+      {
+        _results.Remove(result);
+      }
+
+      return result;
+    }
+
+
+    protected void onParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      foreach (RaceParticipant rp in e.NewItems)
+      {
+        findOrCreateRunResult(rp);
+      }
+
+      foreach (RaceParticipant rp in e.OldItems)
+      {
+        deleteRunResult(rp);
+      }
+    }
+
+
+
     public void InsertResults(List<RunResult> r)
     {
-      foreach (var v in r)
-        _results.Add(v);
+      foreach (var source in r)
+      {
+        var target = findOrCreateRunResult(source.Participant);
+        target.UpdateRunResult(source);
+
+      }
 
       _UpdateInternals();
     }
+
 
     // Helper definition for a participant is on track
     public bool IsOnTrack(RunResult r)
@@ -786,7 +829,7 @@ namespace RaceHorologyLib
     // Helper definition for a participant is on track
     public bool IsOrWasOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null || r.GetRunTime() != null || r.ResultCode != RunResult.EResultCode.Normal;
+      return r.GetStartTime() != null || r.GetRunTime() != null || r.ResultCode != RunResult.EResultCode.NotSet;
     }
 
     public bool IsOrWasOnTrack(RaceParticipant rp)
@@ -825,6 +868,7 @@ namespace RaceHorologyLib
       var shallBeOnTrack = results.Where(r => IsOnTrack(r)).ToList();
 
       foreach (var r in shallBeOnTrack)
+      {
         if (_onTrack.SingleOrDefault(o => o.Participant == r.Participant) == null)
         {
           _onTrack.Add(new LiveResult(r, _appDataModel));
@@ -832,6 +876,7 @@ namespace RaceHorologyLib
           OnTrackChangedHandler handler = OnTrackChanged;
           handler?.Invoke(this, r.Participant, null, r);
         }
+      }
     }
 
   }
@@ -865,6 +910,7 @@ namespace RaceHorologyLib
 
     void CreateOrUpdateParticipant(Participant participant);
     void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
+    void DeleteRunResult(Race race, RaceRun raceRun, RunResult result);
 
   };
 

@@ -430,6 +430,29 @@ namespace RaceHorologyLib
       Debug.Assert(temp == 1, "Database could not be updated");
     }
 
+    /// <summary>
+    /// Stores the RunResult
+    /// </summary>
+    /// <param name="raceRun">The correlated RaceRun the reuslt is associated with.</param>
+    /// <param name="result">The RunResult to store.</param>
+    public void DeleteRunResult(Race race, RaceRun raceRun, RunResult result)
+    {
+      uint idParticipant = GetParticipantId(result.Participant.Participant);
+
+      if (idParticipant == 0 || raceRun.Run == 0)
+        throw new Exception("DeleteRunResult is wrong");
+
+      string sql = @"DELETE FROM tblZeit " +
+                   @"WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+
+      cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+      cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+
+      cmd.CommandType = CommandType.Text;
+      cmd.ExecuteNonQuery();
+    }
 
     public AdditionalRaceProperties GetRaceProperties(Race race)
     {
