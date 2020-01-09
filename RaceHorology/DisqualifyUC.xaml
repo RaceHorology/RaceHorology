@@ -48,7 +48,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <DataGrid x:Name="dgDisqualifications" Margin="5" Grid.Row="0" Grid.Column="0"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" SelectionChanged="DgDisqualifications_SelectionChanged">
+          <DataGrid x:Name="dgDisqualifications" Margin="5" Grid.Row="0" Grid.Column="0"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" SelectionChanged="DgDisqualifications_SelectionChanged">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
               <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
