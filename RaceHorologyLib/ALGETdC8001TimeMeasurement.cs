@@ -160,6 +160,10 @@ namespace RaceHorologyLib
         {
           return false;
         }
+        catch(Exception)
+        {
+          return false;
+        }
       }
       return true;
     }

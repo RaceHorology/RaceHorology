@@ -116,9 +116,14 @@ namespace RaceHorologyLib
     /// </summary>
     public void Start()
     {
-      _httpServer.AddWebSocketService<LiveDataBehavior>("/api/LiveData", (connection) => { connection.SetupThis(this); });
+      try
+      {
+        _httpServer.AddWebSocketService<LiveDataBehavior>("/api/LiveData", (connection) => { connection.SetupThis(this); });
 
-      _httpServer.Start();
+        _httpServer.Start();
+      }
+      catch (Exception)
+      { }
     }
 
     /// <summary>
