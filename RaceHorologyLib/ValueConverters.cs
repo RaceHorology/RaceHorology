@@ -64,7 +64,7 @@ namespace RaceHorologyLib
         RunResult.EResultCode rc = (RunResult.EResultCode)values[0];
         string comment = (string)values[1];
 
-        if (rc == RunResult.EResultCode.Normal)
+        if (rc == RunResult.EResultCode.Normal || rc == RunResult.EResultCode.NotSet)
           return "";
 
         if (string.IsNullOrEmpty(comment))
@@ -100,6 +100,9 @@ namespace RaceHorologyLib
         // Return time
         if (rc == RunResult.EResultCode.Normal)
           return t.ToRaceTimeString();
+
+        if (rc == RunResult.EResultCode.NotSet)
+          return "";
 
         // Return result code
         return rc.ToString();
