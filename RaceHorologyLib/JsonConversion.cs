@@ -191,7 +191,10 @@ namespace RaceHorologyLib
         if (value.RunTimes.ContainsKey(i) && value.RunResultCodes.ContainsKey(i))
         {
           string str = (string)_timeConverter.Convert(new object[] { value.RunTimes[i], value.RunResultCodes[i] }, typeof(string), null, null);
-          str = str + " (" + value.SubResults[i].Position + ")";
+          if (value.SubResults[i].Position > 0)
+            str = str + " (" + value.SubResults[i].Position + ")";
+          else
+            str = str + " (-)";
           writer.WriteValue(str);
         }
         else
@@ -271,7 +274,7 @@ namespace RaceHorologyLib
       else
       {
         List<object> dstItems = new List<object>();
-        groupedData.Add(null, dstItems);
+        groupedData.Add("", dstItems);
 
         foreach (var item in cv.SourceCollection)
           dstItems.Add(item);
