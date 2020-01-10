@@ -597,6 +597,10 @@ namespace RaceHorologyLib
 
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
+
+      // Ensure the results always are in sync with participants
+      _race.GetParticipants().CollectionChanged += onParticipantsChanged;
+      findOrCreateRunResults(_race.GetParticipants());
     }
 
 
@@ -645,28 +649,7 @@ namespace RaceHorologyLib
 
     public void SetStartListProvider(StartListViewProvider slp)
     {
-      if (_slVP == slp)
-        return;
-
-      if (_slVP!=null)
-      {
-        _slVP.GetViewList().CollectionChanged -= onParticipantsChanged;
-      }
-
       _slVP = slp;
-
-      if (_slVP != null)
-      {
-        // Ensure the results always are in sync with participants
-        _slVP.GetViewList().CollectionChanged += onParticipantsChanged;
-        foreach (StartListEntry sle in _slVP.GetViewList())
-          findOrCreateRunResult(sle.Participant);
-
-        List<RunResult> results = _results.ToList();
-        foreach (var result in results)
-          if (_slVP.GetViewList().FirstOrDefault(sle => sle.Participant == result.Participant) == null)
-            deleteRunResult(result.Participant);
-      }
     }
     public StartListViewProvider GetStartListProvider()
     {
@@ -790,6 +773,13 @@ namespace RaceHorologyLib
     }
 
 
+    private void findOrCreateRunResults(IEnumerable<RaceParticipant> participants)
+    {
+      foreach (RaceParticipant rp in participants)
+        findOrCreateRunResult(rp);
+    }
+
+
     private RunResult deleteRunResult(RaceParticipant participant)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
@@ -823,6 +813,7 @@ namespace RaceHorologyLib
       {
         var target = findOrCreateRunResult(source.Participant);
         target.UpdateRunResult(source);
+
       }
 
       _UpdateInternals();

@@ -96,16 +96,12 @@ namespace RaceHorologyLib
 
 
     public delegate T1 Creator<T1, T2>(T2 source);
-    public delegate bool Predicate<T1>(T1 source);
-    protected static void PopulateInitially<TC, TSource>(Collection<TC> collection, System.Collections.IEnumerable sourceItems, IComparer<TC> comparer, Creator<TC, TSource> creator, Predicate<TSource> predicate)
+    protected static void PopulateInitially<TC, TSource>(Collection<TC> collection, System.Collections.IEnumerable sourceItems, IComparer<TC> comparer, Creator<TC, TSource> creator)
     {
       foreach (TSource item in sourceItems)
       {
-        if (predicate == null || predicate(item))
-        {
-          TC colItem = creator(item);
-          collection.InsertSorted(colItem, comparer);
-        }
+        TC colItem = creator(item);
+        collection.InsertSorted(colItem, comparer);
       }
     }
 
@@ -192,7 +188,7 @@ namespace RaceHorologyLib
       _viewList = new ObservableCollection<StartListEntry>();
 
       // Initialize and observe source list
-      PopulateInitially<StartListEntry, RaceParticipant>(_viewList, _participants, _comparer, CreateStartListEntry, null);
+      PopulateInitially<StartListEntry, RaceParticipant>(_viewList, _participants, _comparer, CreateStartListEntry);
       _participants.CollectionChanged += OnParticipantsChanged;
       _sourceItemChangedNotifier = new ItemsChangedNotifier(_participants);
       _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
@@ -327,7 +323,7 @@ namespace RaceHorologyLib
       _startList1stRun = slPR1st.GetViewList();
 
       // Initialize and observe source list
-      PopulateInitially<StartListEntry, StartListEntry>(_viewList, _startList1stRun, _comparer, CreateStartListEntry, null);
+      PopulateInitially<StartListEntry, StartListEntry>(_viewList, _startList1stRun, _comparer, CreateStartListEntry);
       _startList1stRun.CollectionChanged += OnSourceChanged;
       _sourceItemChangedNotifier = new ItemsChangedNotifier(_startList1stRun);
       _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
@@ -772,7 +768,6 @@ namespace RaceHorologyLib
   {
     // Input Data
     ItemsChangeObservableCollection<RunResult> _originalResults;
-    ObservableCollection<StartListEntry> _startList;
     AppDataModel _appDataModel;
 
     // Working Data
@@ -796,19 +791,15 @@ namespace RaceHorologyLib
     public void Init(RaceRun raceRun, AppDataModel appDataModel)
     {
       _originalResults = raceRun.GetResultList();
-      _startList = raceRun.GetStartListProvider().GetViewList();
       _appDataModel = appDataModel;
-
 
       _viewList = new ItemsChangeObservableCollection<RunResultWithPosition>();
 
       // Initialize and observe source list
-      PopulateInitially<RunResultWithPosition, RunResult>(_viewList, _originalResults, _comparer, CreateRunResultWithPosition, wasInStartList);
+      PopulateInitially<RunResultWithPosition, RunResult>(_viewList, _originalResults, _comparer, CreateRunResultWithPosition);
       UpdatePositions();
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
-
-      _startList.CollectionChanged += OnStartListChanged;
 
       FinalizeInit();
     }
@@ -844,17 +835,6 @@ namespace RaceHorologyLib
       return new RunResultWithPosition(r);
     }
 
-    void OnStartListChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-      UpdatePositions();
-    }
-
-
-    protected bool wasInStartList(RunResult rr)
-    {
-      return _startList.FirstOrDefault(se => se.Participant == rr.Participant) != null;
-    }
-
 
     void OnOriginalResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -871,10 +851,7 @@ namespace RaceHorologyLib
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
-          RunResult runResult = (RunResult)item;
-
-          if (wasInStartList(runResult))
-            _viewList.InsertSorted(CreateRunResultWithPosition(runResult), _comparer);
+          _viewList.InsertSorted(CreateRunResultWithPosition((RunResult)item), _comparer);
         }
 
       UpdatePositions();
