@@ -74,6 +74,8 @@ namespace RaceHorologyLib
       writer.WriteValue(value.Class.Group.ToString());
       writer.WritePropertyName("Runtime");
       writer.WriteValue(value.Runtime.ToRaceTimeString());
+      writer.WritePropertyName("DiffToFirst");
+      writer.WriteValue(value.DiffToFirst.ToRaceTimeString());
       writer.WritePropertyName("DisqualText");
       writer.WriteValue(value.DisqualText);
       writer.WritePropertyName("JustModified");
@@ -130,6 +132,7 @@ namespace RaceHorologyLib
         writer.WriteValue(value.Runtime.ToRaceTimeString());
       else
         writer.WriteValue(value.Runtime?.ToString(@"mm\:ss"));
+
       writer.WritePropertyName("DisqualText");
       writer.WriteValue(value.DisqualText);
 
@@ -180,7 +183,8 @@ namespace RaceHorologyLib
       writer.WriteValue(value.Participant.Class.Group.ToString());
       writer.WritePropertyName("Totaltime");
       writer.WriteValue(value.TotalTime.ToRaceTimeString());
-
+      writer.WritePropertyName("DiffToFirst");
+      writer.WriteValue(value.DiffToFirst.ToRaceTimeString());
       writer.WritePropertyName("DisqualText");
       writer.WriteValue(value.DisqualText);
 

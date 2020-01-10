@@ -419,6 +419,7 @@ Vue.component('dsv-ontracklist', {
           <th v-if="datafields.includes('Class')">Klasse</th>
           <th v-if="datafields.includes('Group')">Gruppe</th>
           <th class="cell-centered">Zeit</th>
+          <th class="cell-centered">Diff</th>
         </tr>
       </thead>
       <tbody>
@@ -432,6 +433,7 @@ Vue.component('dsv-ontracklist', {
           <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
           <td class="cell-right">{{ item.Runtime }}</td>
+          <td class="cell-right">{{ item.DiffToFirst }}</td>
         </tr>
       </tbody>
     </table>
@@ -459,6 +461,7 @@ Vue.component('dsv-runresultslist', {
           <th v-if="datafields.includes('Class')">Klasse</th>
           <th v-if="datafields.includes('Group')">Gruppe</th>
           <th class="cell-centered">Zeit</th>
+          <th class="cell-centered">Diff</th>
           <th>&nbsp;</th>
         </tr>
       </thead>
@@ -479,6 +482,7 @@ Vue.component('dsv-runresultslist', {
               <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
               <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
               <td class="cell-right">{{ item.Runtime }}</td>
+              <td class="cell-right">{{ item.DiffToFirst }}</td>
               <td>{{ item.DisqualText }}</td>
             </tr>
           </template>
@@ -518,6 +522,7 @@ Vue.component('dsv-raceresultslist', {
             <th>{{ rt }}</th>
           </template>
           <th class="cell-centered">Zeit</th>
+          <th class="cell-centered">Diff</th>
           <th>&nbsp;</th>
         </tr>
       </thead>
@@ -541,6 +546,7 @@ Vue.component('dsv-raceresultslist', {
                 <td class="cell-right">{{ rt }}</td>
               </template>
               <td class="cell-right">{{ item.Totaltime }}</td>
+              <td class="cell-right">{{ item.DiffToFirst }}</td>
               <td>{{ item.DisqualText }}</td>
             </tr>
           </template>
