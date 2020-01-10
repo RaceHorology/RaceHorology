@@ -55,8 +55,12 @@ namespace RaceHorologyLib
           }
           break;
 
-        case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Remove:
+          foreach (RunResult v in e.OldItems)
+            _db.DeleteRunResult(_race, _rr, v);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Replace:
         case NotifyCollectionChangedAction.Reset:
           throw new Exception("not implemented");
