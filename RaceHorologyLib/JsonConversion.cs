@@ -192,17 +192,17 @@ namespace RaceHorologyLib
       writer.WriteStartArray();
       for(uint i=1; i<=_runs; i++)
       {
+        writer.WriteStartObject();
         if (value.RunTimes.ContainsKey(i) && value.RunResultCodes.ContainsKey(i))
         {
           string str = (string)_timeConverter.Convert(new object[] { value.RunTimes[i], value.RunResultCodes[i] }, typeof(string), null, null);
-          if (value.SubResults[i].Position > 0)
-            str = str + " (" + value.SubResults[i].Position + ")";
-          else
-            str = str + " (-)";
+          writer.WritePropertyName("Runtime");
           writer.WriteValue(str);
+
+          writer.WritePropertyName("Position");
+          writer.WriteValue(value.SubResults[i].Position);
         }
-        else
-          writer.WriteValue(string.Empty);
+        writer.WriteEndObject();
       }
       writer.WriteEndArray();
       

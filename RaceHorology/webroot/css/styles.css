@@ -89,7 +89,7 @@ table tr td.dsvalpin-cell-timeBeneathPosition, table tr th.dsvalpin-cell-timeBen
 table tr td.dsvalpin-cell-positionBeneathTime, table tr th.dsvalpin-cell-positionBeneathTime  {
   border-left: none;
   width: 1px;
-  text-align: right;
+  text-align: center;
 }
 
 

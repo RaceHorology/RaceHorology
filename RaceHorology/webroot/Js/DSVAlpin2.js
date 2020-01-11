@@ -191,7 +191,7 @@ Vue.component('dsv-livedatalists', {
         <th v-if="datafields.includes('Group')">Gruppe</th>
 
         <template v-for="rt in runtimeFields" >
-          <th class="cell-right">{{ rt }}</th>
+          <th colspan="2" class="cell-right">{{ rt }}</th>
         </template>
 
         <th colspan="2">Zeit</th>
@@ -213,7 +213,8 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
 
           <template v-if="item.Runtimes" v-for="rt in item.Runtimes" >
-            <td class="cell-right">{{ rt }}</td>
+            <td class="dsvalpin-cell-timeBeneathPosition">{{ rt.Runtime }}</td>
+            <td class="dsvalpin-cell-positionBeneathTime">{{ (rt.Position ? "(" + rt.Position + ")" : "" ) }}</td>
           </template>
 
 
@@ -227,7 +228,7 @@ Vue.component('dsv-livedatalists', {
         <tr>
           <th class="first-col"><em class="vertical">Am Start</em></th>
 
-          <td class="cell-centered" v-bind:colspan="8+runtimeFields.length"><em>keine weiteren Starter</em></td>
+          <td class="cell-centered" v-bind:colspan="8+runtimeFields.length*2"><em>keine weiteren Starter</em></td>
           
           <th class="first-col"><em class="vertical">Am Start</em></th>
         </tr>
@@ -235,7 +236,7 @@ Vue.component('dsv-livedatalists', {
 
 
       <tr>
-        <th class="cell-centered dsvalpin-livetable-divider" colspan="11"></th>
+        <th class="cell-centered dsvalpin-livetable-divider" v-bind:colspan="10+runtimeFields.length*2"></th>
       </tr>
 
       <template v-for="(item, key) in onTrackListUI" >
@@ -252,7 +253,8 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
 
           <template v-if="item.Runtimes" v-for="rt in item.Runtimes" >
-            <td class="cell-right">{{ rt }}</td>
+            <td class="dsvalpin-cell-timeBeneathPosition">{{ rt.Runtime }}</td>
+            <td class="dsvalpin-cell-positionBeneathTime">{{ (rt.Position ? "(" + rt.Position + ")" : "" ) }}</td>
           </template>
 
           <td class="dsvalpin-cell-timeBeneathPosition">{{ item.Runtime }}</td>
@@ -266,7 +268,7 @@ Vue.component('dsv-livedatalists', {
         <tr>
           <th class="first-col"><em class="vertical">Im Lauf</em></th>
 
-          <td class="cell-centered" v-bind:colspan="8+runtimeFields.length"><em>keine Läufer gestartet</em></td>
+          <td class="cell-centered" v-bind:colspan="8+runtimeFields.length*2"><em>keine Läufer gestartet</em></td>
           
           <th class="first-col"><em class="vertical">Im Lauf</em></th>
         </tr>
@@ -274,7 +276,7 @@ Vue.component('dsv-livedatalists', {
 
 
       <tr>
-        <th class="cell-centered dsvalpin-livetable-divider" colspan="11"></th>
+      <th class="cell-centered dsvalpin-livetable-divider" v-bind:colspan="10+runtimeFields.length*2"></th>
       </tr>
 
       <template v-for="(item, key) in justFinishedListUI" >
@@ -291,7 +293,8 @@ Vue.component('dsv-livedatalists', {
           <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
 
           <template v-if="item.Runtimes" v-for="rt in item.Runtimes" >
-            <td class="cell-right">{{ rt }}</td>
+            <td class="dsvalpin-cell-timeBeneathPosition">{{ rt.Runtime }}</td>
+            <td class="dsvalpin-cell-positionBeneathTime">{{ (rt.Position ? "(" + rt.Position + ")" : "" ) }}</td>
           </template>
 
           <td class="dsvalpin-cell-timeBeneathPosition">{{ item.Runtime }}</td>
@@ -304,7 +307,7 @@ Vue.component('dsv-livedatalists', {
       <template v-if="justFinishedListUI.length == 0" >
         <tr>
           <th class="first-col"><em class="vertical">Im Ziel</em></th>
-          <td class="cell-centered" v-bind:colspan="8+runtimeFields.length"><em>noch kein Läufer im Ziel</em></td>
+          <td class="cell-centered" v-bind:colspan="8+runtimeFields.length*2"><em>noch kein Läufer im Ziel</em></td>
           <th class="first-col"><em class="vertical">Im Ziel</em></th>
         </tr>
       </template>
@@ -322,7 +325,7 @@ Vue.component('dsv-livedatalists', {
         <th v-if="datafields.includes('Group')">Gruppe</th>
 
         <template v-for="rt in runtimeFields" >
-          <th class="cell-right">{{ rt }}</th>
+          <th colspan="2" class="cell-right">{{ rt }}</th>
         </template>
 
         <th colspan="2">Zeit</th>
@@ -519,7 +522,7 @@ Vue.component('dsv-raceresultslist', {
           <th v-if="datafields.includes('Class')">Klasse</th>
           <th v-if="datafields.includes('Group')">Gruppe</th>
           <template v-for="rt in datakeys.Runtimes" >
-            <th>{{ rt }}</th>
+            <th colspan="2">{{ rt }}</th>
           </template>
           <th class="cell-centered">Zeit</th>
           <th class="cell-centered">Diff</th>
@@ -543,7 +546,8 @@ Vue.component('dsv-raceresultslist', {
               <td v-if="datafields.includes('Class')">{{ item.Class }}</td>
               <td v-if="datafields.includes('Group')">{{ item.Group }}</td>
               <template v-for="rt in item.Runtimes" >
-                <td class="cell-right">{{ rt }}</td>
+                <td class="dsvalpin-cell-timeBeneathPosition">{{ rt.Runtime }}</td>
+                <td class="dsvalpin-cell-positionBeneathTime">{{ (rt.Position ? "(" + rt.Position + ")" : "" ) }}</td>
               </template>
               <td class="cell-right">{{ item.Totaltime }}</td>
               <td class="cell-right">{{ item.DiffToFirst }}</td>
