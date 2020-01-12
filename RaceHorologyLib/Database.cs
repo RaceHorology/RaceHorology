@@ -25,8 +25,12 @@ namespace RaceHorologyLib
     private Dictionary<uint, ParticipantGroup> _id2ParticipantGroups;
     private Dictionary<uint, ParticipantClass> _id2ParticipantClasses;
 
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
     public void Connect(string filename)
     {
+      Logger.Info("Connect to database: {0}", filename);
+
       _filename = filename;
       _conn = new OleDbConnection
       {
@@ -39,7 +43,7 @@ namespace RaceHorologyLib
       }
       catch (Exception ex)
       {
-        Console.WriteLine("Failed to connect to data source", ex.Message);
+        Logger.Error(ex, "Failed to connect to database: {0} ", filename);
         _conn = null;
         throw;
       }
@@ -53,6 +57,8 @@ namespace RaceHorologyLib
 
     public void Close()
     {
+      Logger.Info("Close database: {0}", _filename);
+
       // Cleanup internal data structures
       _id2Participant = null;
       _id2ParticipantGroups = null;
@@ -84,6 +90,8 @@ namespace RaceHorologyLib
 
     public ItemsChangeObservableCollection<Participant> GetParticipants()
     {
+      Logger.Debug("GetParticipants()");
+
       ItemsChangeObservableCollection<Participant> participants = new ItemsChangeObservableCollection<Participant>();
 
       string sql = @"SELECT * FROM tblTeilnehmer";
@@ -128,6 +136,8 @@ namespace RaceHorologyLib
 
     public List<Race.RaceProperties> GetRaces()
     {
+      Logger.Debug("GetRaces()");
+
       List<Race.RaceProperties> races = new List<Race.RaceProperties>();
 
       string sql = @"SELECT * FROM tblDisziplin WHERE aktiv = true";
@@ -153,6 +163,8 @@ namespace RaceHorologyLib
 
           //string s7 = reader["finalisten"].ToString();
           //string s8 = reader["freier_listenkopf"].ToString();
+
+          Logger.Debug("Reading race: {0}", race);
 
           races.Add(race);
         }
@@ -353,6 +365,7 @@ namespace RaceHorologyLib
 
       try
       {
+        Logger.Debug("CreateOrUpdateParticipant(), SQL: {0}", GetDebugSqlString(cmd));
 
         int temp = cmd.ExecuteNonQuery();
         Debug.Assert(temp == 1, "Database could not be updated");
@@ -362,9 +375,10 @@ namespace RaceHorologyLib
           _id2Participant.Add((uint)id, participant);
           participant.Id = id.ToString();
         }
-      }catch(Exception e)
+      }
+      catch(Exception e)
       {
-        Debug.Print(e.Message);
+        Logger.Warn(e, "CreateOrUpdateParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
 
@@ -426,8 +440,17 @@ namespace RaceHorologyLib
       cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
 
       cmd.CommandType = CommandType.Text;
-      int temp = cmd.ExecuteNonQuery();
-      Debug.Assert(temp == 1, "Database could not be updated");
+      try
+      {
+        Logger.Debug("CreateOrUpdateRunResult(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateRunResult failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
     }
 
     /// <summary>
@@ -451,7 +474,16 @@ namespace RaceHorologyLib
       cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
 
       cmd.CommandType = CommandType.Text;
-      cmd.ExecuteNonQuery();
+      try
+      {
+        Logger.Debug("DeleteRunResult(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "DeleteRunResult failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
     }
 
     public AdditionalRaceProperties GetRaceProperties(Race race)
@@ -601,17 +633,18 @@ namespace RaceHorologyLib
     private void storeRacePropertyInternal(Race race, uint id, string value)
     {
       // Delete and Insert
+      OleDbCommand cmdDelete = null, cmdInsert = null;
       try
       {
         string sqlDelete = @"DELETE from tblListenkopf WHERE id = @id AND disziplin = @disziplin";
-        OleDbCommand cmdDelete = new OleDbCommand(sqlDelete, _conn);
+        cmdDelete = new OleDbCommand(sqlDelete, _conn);
         cmdDelete.Parameters.Add(new OleDbParameter("@id", (long)id));
         cmdDelete.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
         cmdDelete.CommandType = CommandType.Text;
         int temp1 = cmdDelete.ExecuteNonQuery();
 
         string sqlInsert = @"INSERT INTO tblListenkopf (id, disziplin, [value]) VALUES (@id, @disziplin, @value)";
-        OleDbCommand cmdInsert = new OleDbCommand(sqlInsert, _conn);
+        cmdInsert = new OleDbCommand(sqlInsert, _conn);
         cmdInsert.Parameters.Add(new OleDbParameter("@id", (long)id));
         cmdInsert.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
         cmdInsert.Parameters.Add(new OleDbParameter("@value", value));
@@ -620,7 +653,7 @@ namespace RaceHorologyLib
       }
       catch (Exception e)
       {
-        Debug.Print(e.Message);
+        Logger.Warn(e, "storeRacePropertyInternal failed, SQL delete: {0}, SQL insert: {0}", GetDebugSqlString(cmdDelete), GetDebugSqlString(cmdDelete));
       }
     }
 
@@ -629,8 +662,8 @@ namespace RaceHorologyLib
 
 #region Internal Implementation
 
-/* ************************ Participant ********************* */
-private Participant CreateParticipantFromDB(OleDbDataReader reader)
+    /* ************************ Participant ********************* */
+    private Participant CreateParticipantFromDB(OleDbDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
 
@@ -831,6 +864,35 @@ private Participant CreateParticipantFromDB(OleDbDataReader reader)
       return sn;
     }
 
+
+    #endregion
+
+    #region Debugging
+
+    public string GetDebugSqlString(OleDbCommand cmd)
+    {
+      if (cmd == null)
+        return "null";
+
+      string sql = cmd.CommandText;
+
+      foreach (var param in cmd.Parameters)
+      {
+        if (param is OleDbParameter dbParam)
+          if (sql.Contains(dbParam.ParameterName))
+          {
+            string value;
+            if (dbParam.Value == DBNull.Value)
+              value = "null";
+            else
+              value = dbParam.Value.ToString();
+
+            sql = sql.Replace(dbParam.ParameterName, value);
+          }
+      }
+
+      return sql;
+    }
 
     #endregion
 
