@@ -51,6 +51,7 @@ namespace RaceHorology
       cmbFilter.Items.Add(new CBItem { Text = "alle", Value = "all" });
       cmbFilter.Items.Add(new CBItem { Text = "ohne Zeit", Value = "no_time"});
       cmbFilter.Items.Add(new CBItem { Text = "ausgeschieden", Value = "out" });
+      cmbFilter.Items.Add(new CBItem { Text = "keine Daten", Value = "no_data" });
       cmbFilter.SelectedIndex = 1;
 
       cmbDisqualify.ItemsSource = ListOfResultCodes;
@@ -71,6 +72,8 @@ namespace RaceHorology
           _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).RuntimeWOResultCode == null; });
         else if (string.Equals(selected.Value, "out"))
           _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).ResultCode != RunResult.EResultCode.Normal; });
+        else if (string.Equals(selected.Value, "no_data"))
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).ResultCode == RunResult.EResultCode.NotSet; });
       }
 
       if (_viewDisqualificationsFilterHandler != null)
