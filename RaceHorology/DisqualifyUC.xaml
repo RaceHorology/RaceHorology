@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="RaceHorology.DisqualifyUC"
+<UserControl x:Class="RaceHorology.DisqualifyUC"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -121,7 +121,7 @@
                 </Style>
               </DataGridTextColumn.ElementStyle>
             </DataGridTextColumn>
-            <DataGridTextColumn Header="Anmerkung" Width="*">
+            <DataGridTextColumn Header="Anmerkung" >
               <DataGridTextColumn.Binding>
                 <MultiBinding>
                   <Binding Path="ResultCode" />
