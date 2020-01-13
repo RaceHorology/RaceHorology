@@ -1,4 +1,4 @@
-﻿using iText.IO.Font.Constants;
+using iText.IO.Font.Constants;
 using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Events;
@@ -506,13 +506,22 @@ namespace RaceHorologyLib
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
 
       Paragraph parPage = new Paragraph(string.Format("Seite {0}", pageNumber));
-      tableFooter.AddCell(new Cell()
-        .SetTextAlignment(TextAlignment.LEFT)
-        .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
-        .SetPadding(padding)
-        .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", _race.RaceNumber))));
+      if (string.IsNullOrEmpty(_race.RaceNumber))
+        tableFooter.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.LEFT)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+          .SetPadding(padding)
+          .SetFont(fontBold));
+      else
+        tableFooter.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.LEFT)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+          .SetPadding(padding)
+          .SetFont(fontBold)
+          .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", _race.RaceNumber))));
+
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetBorder(Border.NO_BORDER)
@@ -520,6 +529,7 @@ namespace RaceHorologyLib
         .SetPadding(padding)
         .SetFont(fontBold)
         .Add(new Paragraph("")));
+
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .SetBorder(Border.NO_BORDER)
@@ -833,12 +843,19 @@ public abstract class PDFReport : IPDFReport
         .Add(new Paragraph(_race.AdditionalProperties.CoarseLength > 0 ? string.Format("{0} m", _race.AdditionalProperties.CoarseLength) : "")));
 
       table.AddCell(createCell(1, 3));
-      table.AddCell(createCell()
-        .Add(new Paragraph("Homolog Nr.:")
-          .SetFont(fontBold)));
-      table.AddCell(createCell()
-        .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.CoarseHomologNo))));
+      if (string.IsNullOrEmpty(_race.AdditionalProperties.CoarseHomologNo))
+      {
+        table.AddCell(createCell(1, 2));
+      }
+      else
+      {
+        table.AddCell(createCell()
+          .Add(new Paragraph("Homolog Nr.:")
+            .SetFont(fontBold)));
+        table.AddCell(createCell()
+          .SetTextAlignment(TextAlignment.RIGHT)
+          .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.CoarseHomologNo))));
+      }
 
       table.AddCell(createCell(1, 1));
       table.AddCell(createCell(1, 2)
