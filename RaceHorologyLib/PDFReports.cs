@@ -1,4 +1,4 @@
-using iText.IO.Font.Constants;
+﻿using iText.IO.Font.Constants;
 using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Events;
@@ -1527,9 +1527,9 @@ public abstract class PDFReport : IPDFReport
     {
       Table table = base.getResultsTable();
 
+      addNotStartedTable(table, _raceRun);
       addNotFinishedPart(table, _raceRun);
       addDisqualifiedTable(table, _raceRun);
-      addNotStartedTable(table, _raceRun);
 
       return table;
     }
@@ -1757,9 +1757,9 @@ public abstract class PDFReport : IPDFReport
 
       for (int i = 0; i < _race.GetMaxRun(); i++)
       {
+        addNotStartedTable(table, _race.GetRun(i));
         addNotFinishedPart(table, _race.GetRun(i));
         addDisqualifiedTable(table, _race.GetRun(i));
-        addNotStartedTable(table, _race.GetRun(i));
       }
 
       return table;
