@@ -327,6 +327,8 @@ namespace RaceHorologyLib
       _startList1stRun.CollectionChanged += OnSourceChanged;
       _sourceItemChangedNotifier = new ItemsChangedNotifier(_startList1stRun);
       _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
+
+      FinalizeInit();
     }
 
     private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
