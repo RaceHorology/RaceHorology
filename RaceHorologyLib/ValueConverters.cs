@@ -14,7 +14,7 @@ namespace RaceHorologyLib
       uint position = (uint)value;
 
       if (position == 0)
-        return "./.";
+        return "---";
 
       return position.ToString();
     }
