@@ -476,6 +476,7 @@ namespace RaceHorologyLib
     }
 
     public TimeSpan? Runtime { get { return _resultPreviousRun.Runtime; } }
+    public RunResult.EResultCode ResultCode { get { return _resultPreviousRun.ResultCode; } }
 
     public override string ToString()
     {

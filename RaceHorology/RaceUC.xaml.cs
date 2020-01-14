@@ -970,7 +970,28 @@ namespace RaceHorology
       // Start List
       else if (_totalResultsVP is StartListViewProvider)
       {
+        if (_totalResultsVP is BasedOnResultsFirstRunStartListViewProvider)
+        {
+          DataGridTextColumn dgc = new DataGridTextColumn
+          {
+            Header = string.Format("Zeit")
+          };
 
+          MultiBinding mb = new MultiBinding();
+          Binding b1 = new Binding("Runtime")
+          {
+            Mode = BindingMode.OneWay,
+          };
+          Binding b2 = new Binding("ResultCode")
+          {
+            Mode = BindingMode.OneWay,
+          };
+          mb.Bindings.Add(b1);
+          mb.Bindings.Add(b2);
+          mb.Converter = new ResultTimeAndCodeConverter();
+          dgc.Binding = mb;
+          dgTotalResults.Columns.Add(dgc);
+        }
       }
 
       if (_totalResultsVP != null)
@@ -995,7 +1016,12 @@ namespace RaceHorology
         else if (selObj.Type == "results")
           report = new RaceRunResultReport(selObj.RaceRun);
         else if (selObj.Type == "startlist")
-          report = new StartListReport(selObj.RaceRun);
+        {
+          if (selObj.RaceRun.Run == 2)
+            report = new StartListReport2ndRun(selObj.RaceRun);
+          else
+            report = new StartListReport(selObj.RaceRun);
+        }
       }
 
       CreateAndOpenReport(report);

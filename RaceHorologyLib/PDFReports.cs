@@ -1219,6 +1219,155 @@ public abstract class PDFReport : IPDFReport
   }
 
 
+  public class StartListReport2ndRun : PDFReport
+  {
+    RaceRun _raceRun;
+
+    ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+
+    public StartListReport2ndRun(RaceRun rr) : base(rr.GetRace())
+    {
+      _raceRun = rr;
+    }
+
+
+    protected override string getReportName()
+    {
+      return string.Format("Startliste {0}. Durchgang", _raceRun.Run);
+    }
+
+
+    protected override string getTitle()
+    {
+      return string.Format("STARTLISTE {0}. Durchgang", _raceRun.Run);
+    }
+
+
+    protected override ICollectionView getView()
+    {
+      return _raceRun.GetStartListProvider().GetView();
+    }
+
+
+    protected override float[] getTableColumnsWidths()
+    {
+      float[] columns = new float[5 + _nOptFields];
+      for (int i = 0; i < columns.Length; i++)
+        columns[i] = 1;
+
+      return columns;
+    }
+
+    protected override void addHeaderToTable(Table table)
+    {
+
+      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+      Paragraph createParagraph(string text)
+      {
+        return new Paragraph(text).SetFont(font).SetFontSize(10);
+      }
+
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Lfnr")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Stnr")));
+      if (_race.IsFieldActive("Code"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Code")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Teilnehmer")));
+      if (_race.IsFieldActive("Year"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("JG")));
+      if (_race.IsFieldActive("Nation"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("VB")));
+      if (_race.IsFieldActive("Club"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Verein")));
+      if (_race.IsFieldActive("Points"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createParagraph("Punkte")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Zeit-1")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createParagraph("Laufzeit")));
+    }
+
+
+    protected override void addLineToTable(Table table, string group)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        );
+
+      table.AddCell(new Cell(1, 3 + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        .Add(new Paragraph(group)
+          .SetPaddingTop(6)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
+    }
+
+
+    protected override bool addLineToTable(Table table, object data, int i = 0)
+    {
+      StartListEntryAdditionalRun rrwp = data as StartListEntryAdditionalRun;
+      if (rrwp == null)
+        return false;
+
+      Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
+      if (i % 2 == 1)
+        bgColor = PDFHelper.ColorRHBG1;
+
+      // Running Number
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", (i+1)))));
+      // Startnumber
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber))));
+      // Code
+      if (_race.IsFieldActive("Code"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
+      // Name
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
+      // Year
+      if (_race.IsFieldActive("Year"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Year))));
+      // VB
+      if (_race.IsFieldActive("Nation"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
+      // Club
+      if (_race.IsFieldActive("Club"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
+      // Points
+      if (_race.IsFieldActive("Points"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(rrwp.Points))));
+
+      // Runtime 1st run
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
+        (string)_timeConverter.Convert(new object[] { rrwp.Runtime, rrwp.ResultCode }, typeof(string), null, null))));
+
+      // Empty runtime slot
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).SetBorderBottom(new DottedBorder(1F)));
+
+      return true;
+    }
+  }
+
 
 
   public abstract class ResultReport : PDFReport
