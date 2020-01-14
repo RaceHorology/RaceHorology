@@ -1017,7 +1017,7 @@ namespace RaceHorology
           report = new RaceRunResultReport(selObj.RaceRun);
         else if (selObj.Type == "startlist")
         {
-          if (selObj.RaceRun.Run == 2)
+          if (selObj.RaceRun.GetStartListProvider() is BasedOnResultsFirstRunStartListViewProvider)
             report = new StartListReport2ndRun(selObj.RaceRun);
           else
             report = new StartListReport(selObj.RaceRun);
