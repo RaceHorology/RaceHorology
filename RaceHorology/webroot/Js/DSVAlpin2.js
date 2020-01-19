@@ -860,6 +860,7 @@ Vue.component('dsv-startapp', {
       var that = this; // To preserve the Vue context within the jQuery callback
       $.getJSON(url, function (data) {
         that.startlist = data["data"];
+        that.groupby = data["groupby"];
       });
     }
   }
@@ -903,6 +904,7 @@ Vue.component('dsv-raceresultapp', {
         let realData = data["data"]
         that.raceresultlist = realData;
         that.datakeys = data["fields"];
+        that.groupby = data["groupby"];
       });
     }
   }
@@ -985,7 +987,7 @@ var app = new Vue({
         that.groupings = [];
         that.groupings.push({
           value:"", 
-          text:"..."
+          text:"Reset to Default"
         });
         data["data"]["groupings"].forEach(function (a) {
           that.groupings.push({

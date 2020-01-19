@@ -286,13 +286,28 @@ namespace RaceHorologyLib
 
       return groupedData;
     }
-    
+
+    public static string GetGroupBy(ICollectionView cv)
+    { 
+      string groupby = "";
+      if (cv.GroupDescriptions.Count > 0)
+      {
+        if (cv.GroupDescriptions[0] is System.Windows.Data.PropertyGroupDescription pgd)
+        {
+          groupby = pgd.PropertyName.Split('.')[1];
+        }
+      }
+
+      return groupby;
+    }
+
 
     public static string ConvertStartList(ICollectionView startList)
     {
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "startlist" },
+        {"groupby", GetGroupBy(startList)},
         {"data",  GroupData(startList)}
       };
 
@@ -361,6 +376,7 @@ namespace RaceHorologyLib
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "racerunresult" },
+        {"groupby", GetGroupBy(results)},
         {"data",  GroupData(results)}
       };
 
@@ -396,10 +412,12 @@ namespace RaceHorologyLib
         { "Runtimes", new Dictionary<string,string> { { "Runtime1", "Zeit 1" }, { "Runtime2", "Zeit 2" } } }
       };
 
+
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "raceresult" },
         {"fields", fields },
+        {"groupby", GetGroupBy(results)},
         {"data",  GroupData(results)}
       };
 
