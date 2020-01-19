@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,6 +47,8 @@ namespace RaceHorologyLib
 
   public class RunResultWPConverter : JsonConverter<RunResultWithPosition>
   {
+    ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+
     public override void WriteJson(JsonWriter writer, RunResultWithPosition value, JsonSerializer serializer)
     {
       writer.WriteStartObject();
@@ -72,8 +74,13 @@ namespace RaceHorologyLib
       writer.WriteValue(value.Class.ToString());
       writer.WritePropertyName("Group");
       writer.WriteValue(value.Class.Group.ToString());
+
       writer.WritePropertyName("Runtime");
-      writer.WriteValue(value.Runtime.ToRaceTimeString());
+
+      string str = (string)_timeConverter.Convert(new object[] { value.Runtime, value.ResultCode }, typeof(string), null, null);
+      writer.WriteValue(str);
+
+
       writer.WritePropertyName("DiffToFirst");
       writer.WriteValue(value.DiffToFirst.ToRaceTimeString());
       writer.WritePropertyName("DisqualText");
