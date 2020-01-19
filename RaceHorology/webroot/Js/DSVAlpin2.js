@@ -867,6 +867,61 @@ Vue.component('dsv-startapp', {
 });
 
 
+Vue.component('dsv-runresultapp', {
+  mixins: [dsvFilterAndGroupByDataMixin],
+
+  data: function()
+  {
+    return {
+      resultlist: {},
+      datakeys: {},
+      filterby: "",
+      run: 0
+    };
+  },
+
+  props: {
+    runs: {
+      type: Array, 
+      required: true
+    }
+  },
+
+  watch: {
+    groupby: function (newGroupBy, oldGroupBy){
+      this.fetchResultList();
+    },
+    run: function (newRun, oldRun){
+      this.fetchResultList();
+    }
+  },
+
+
+  created: function()
+  {
+    this.fetchResultList();
+  },
+
+  methods: 
+  {
+    fetchResultList()
+    {
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs/"+this.run+"/resultlist";
+
+      if (this.groupby)
+        url += "?groupby="+this.groupby;
+
+      var that = this; // To preserve the Vue context within the jQuery callback
+      $.getJSON(url, function (data) {
+        that.resultlist = data["data"];
+        that.datakeys = data["fields"];
+        that.groupby = data["groupby"];
+      });
+    }
+  }
+});
+
+
 Vue.component('dsv-raceresultapp', {
   mixins: [dsvFilterAndGroupByDataMixin],
 

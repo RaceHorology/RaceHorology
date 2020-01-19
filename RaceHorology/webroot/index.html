@@ -69,6 +69,31 @@
                 </div>
               </dsv-liveapp>
             </b-tab>
+
+            <b-tab title="Einzelergebnisse" enabled>
+              <dsv-runresultapp 
+                :runs="runs" :groupings="groupings" :categories="categories" :classes="classes" :groups="groups" :sex="sex" 
+                inline-template>
+                <div>
+                  <div class="flex-container-centered">
+                    <div>
+                      <b-form-select v-model="run" :options="runs" class="mb-3">
+                      </b-form-select>
+                    </div>
+                    <div>
+                      <b-form-select v-model="groupby" :options="groupings" class="mb-3">
+                      </b-form-select>
+                    </div>
+                    <div>
+                      <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
+                      </b-form-select>
+                    </div>
+                  </div>
+                  <dsv-runresultslist v-bind:datalist="resultlist" v-bind:datakeys="datakeys" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
+                </div>
+              </dsv-runresultapp>
+            </b-tab>
+  
           <b-tab title="Rennergebnis" enabled>
             <dsv-raceresultapp 
               :groupings="groupings" :categories="categories" :classes="classes" :groups="groups" :sex="sex" 
