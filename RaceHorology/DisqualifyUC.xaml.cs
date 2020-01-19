@@ -183,10 +183,19 @@ namespace RaceHorology
     {
       uint startNumber = 0U;
       try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+
       RaceParticipant participant = _race.GetParticipant(startNumber);
 
       if (participant != null)
         _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
+      else
+      {
+        foreach( object item in dgDisqualifications.SelectedItems)
+        {
+          if (item is RunResult rr)
+            _currentRaceRun.SetResultCode(rr.Participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
+        }
+      }
 
       txtStartNumber.Focus();
     }
@@ -199,10 +208,12 @@ namespace RaceHorology
 
     private void DgDisqualifications_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      if (dgDisqualifications.SelectedItem is RunResult rr)
+      if (dgDisqualifications.SelectedItems.Count == 1 && dgDisqualifications.SelectedItems[0] is RunResult rr)
       {
         txtStartNumber.Text = rr.StartNumber.ToString();
       }
+      else
+        txtStartNumber.Text = "Multiple";
     }
   }
 }
