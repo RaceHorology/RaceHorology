@@ -670,13 +670,13 @@ namespace RaceHorologyLib
     public uint Position
     {
       get { return _position; }
-      set { _position = value; NotifyPropertyChanged(); }
+      set { if (_position != value) { _position = value; NotifyPropertyChanged(); } }
     }
 
     public TimeSpan? DiffToFirst
     {
       get { return _diffToFirst; }
-      set { _diffToFirst = value; NotifyPropertyChanged(); }
+      set { if (_diffToFirst != value) { _diffToFirst = value; NotifyPropertyChanged(); } }
     }
 
     public bool JustModified
@@ -760,7 +760,7 @@ namespace RaceHorologyLib
     public TimeSpan? TotalTime
     {
       get { return _totalTime; }
-      set { _totalTime = value; NotifyPropertyChanged(); }
+      set { if (_totalTime != value) { _totalTime = value; NotifyPropertyChanged(); } }
     }
 
     public RunResult.EResultCode ResultCode 
@@ -782,13 +782,13 @@ namespace RaceHorologyLib
     public uint Position
     {
       get { return _position; }
-      set { _position = value; NotifyPropertyChanged(); }
+      set { if (_position != value) { _position = value; NotifyPropertyChanged(); } }
     }
 
     public TimeSpan? DiffToFirst
     {
       get { return _diffToFirst; }
-      set { _diffToFirst = value; NotifyPropertyChanged(); }
+      set { if (_diffToFirst != value) { _diffToFirst = value; NotifyPropertyChanged(); } }
     }
 
 
@@ -798,7 +798,7 @@ namespace RaceHorologyLib
     public double Points
     {
       get { return _points; }
-      set { _points = value; NotifyPropertyChanged(); }
+      set { if (_points != value) { _points = value; NotifyPropertyChanged(); } }
     }
 
     public bool JustModified
