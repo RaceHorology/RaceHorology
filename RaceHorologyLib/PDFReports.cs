@@ -1844,9 +1844,9 @@ public abstract class PDFReport : IPDFReport
 
       for (uint j = 1; j <= _race.GetMaxRun(); j++)
       {
-        if (item.RunTimes.ContainsKey(j))
+        if (item.SubResults.ContainsKey(j))
         {
-          string str = (string)_timeConverter.Convert(new object[] { item.RunTimes[j], item.RunResultCodes[j] }, typeof(string), null, null);
+          string str = (string)_timeConverter.Convert(new object[] { item.SubResults[j].Runtime, item.SubResults[j].RunResultCode }, typeof(string), null, null);
           table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(str)));
         }
         else

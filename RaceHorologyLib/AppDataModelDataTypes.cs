@@ -729,14 +729,17 @@ namespace RaceHorologyLib
       public TimeSpan? Runtime { get; set; }
       public RunResult.EResultCode RunResultCode { get; set; }
       public uint Position { get; set; }
+
+      public override string ToString()
+      {
+        return string.Format("{0} - {1}", Runtime.ToRaceTimeString(), RunResultCode);
+      }
     }
 
     #region private
 
     protected RaceParticipant _participant;
     protected Dictionary<uint, SubResult> _subResults;
-    protected Dictionary<uint, TimeSpan?> _runTimes;
-    protected Dictionary<uint, RunResult.EResultCode> _runResultCodes;
     protected TimeSpan? _totalTime;
     protected RunResult.EResultCode _resultCode;
     protected string _disqualText;
@@ -756,8 +759,6 @@ namespace RaceHorologyLib
     {
       _participant = participant;
       _subResults = new Dictionary<uint, SubResult>();
-      _runTimes = new Dictionary<uint, TimeSpan?>();
-      _runResultCodes = new Dictionary<uint, RunResult.EResultCode>();
 
       _totalTime = null;
       _resultCode = RunResult.EResultCode.Normal;
@@ -831,16 +832,6 @@ namespace RaceHorologyLib
     public Dictionary<uint, SubResult> SubResults { get { return _subResults; } }
 
     /// <summary>
-    /// Returns the separate run results per run
-    /// </summary>
-    public Dictionary<uint, TimeSpan?> RunTimes { get { return _runTimes; } }
-
-    /// <summary>
-    /// Returns the separate run results per run
-    /// </summary>
-    public Dictionary<uint, RunResult.EResultCode> RunResultCodes { get { return _runResultCodes; } }
-
-    /// <summary>
     /// Sets the results for one specific run
     /// </summary>
     /// <param name="run">Run number, typically either 1 or 2</param>
@@ -861,9 +852,6 @@ namespace RaceHorologyLib
           _subResults[run] = new SubResult(result);
           significantChange = true;
         }
-
-        _runTimes[run] = result.Runtime;
-        _runResultCodes[run] = result.ResultCode;
       }
       else
       {
@@ -872,13 +860,9 @@ namespace RaceHorologyLib
           _subResults.Remove(run);
           significantChange = true;
         }
-        _runTimes.Remove(run);
-        _runResultCodes.Remove(run);
       }
 
-      NotifyPropertyChanged(nameof(RunTimes));
       NotifyPropertyChanged(nameof(SubResults));
-      NotifyPropertyChanged(nameof(RunResultCodes));
 
       return significantChange;
     }
@@ -886,7 +870,7 @@ namespace RaceHorologyLib
 
     public override string ToString()
     {
-      return "P:" + _position + " (" + string.Join(",", _runTimes) + ")";
+      return "P:" + _position + " (" + string.Join(",", _subResults) + ")";
     }
 
 

@@ -963,7 +963,7 @@ namespace RaceHorology
       {
         for (int i = 0; i < 2; i++)
         {
-          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", i + 1), string.Format("RunTimes[{0}]", i + 1), string.Format("RunResultCodes[{0}]", i + 1)));
+          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", i + 1), string.Format("SubResults[{0}].Runtime", i + 1), string.Format("SubResults[{0}].RunResultCode ", i + 1)));
           dgTotalResults.Columns.Add(createColumnSubPosition(string.Format("SubResults[{0}].Position", i+1)));
         }
 

@@ -200,9 +200,9 @@ namespace RaceHorologyLib
       for(uint i=1; i<=_runs; i++)
       {
         writer.WriteStartObject();
-        if (value.RunTimes.ContainsKey(i) && value.RunResultCodes.ContainsKey(i))
+        if (value.SubResults.ContainsKey(i))
         {
-          string str = (string)_timeConverter.Convert(new object[] { value.RunTimes[i], value.RunResultCodes[i] }, typeof(string), null, null);
+          string str = (string)_timeConverter.Convert(new object[] { value.SubResults[i].Runtime, value.SubResults[i].RunResultCode }, typeof(string), null, null);
           writer.WritePropertyName("Runtime");
           writer.WriteValue(str);
 
