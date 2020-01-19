@@ -48,7 +48,9 @@
             </b-tab>
 
             <b-tab title="Live" active>
-              <dsv-liveapp inline-template>
+              <dsv-liveapp
+                :groupings="groupings" :categories="categories" :classes="classes" :groups="groups" :sex="sex" 
+                inline-template>
                 <div>
                   <div>
                     <dsv-livedatalists 
@@ -59,10 +61,6 @@
 
                   <div v-if="raceresults">
                     <div class="flex-container-centered">
-                        <div>
-                            <b-form-select v-model="groupby" :options="groupings" class="mb-3">
-                            </b-form-select>
-                        </div>
                         <div>
                           <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                           </b-form-select>

@@ -571,6 +571,8 @@ Vue.component('dsv-racedata', {
 
 
 Vue.component('dsv-liveapp', {
+  mixins: [dsvFilterAndGroupByDataMixin],
+
   data: function()
   {
     return {
@@ -584,17 +586,12 @@ Vue.component('dsv-liveapp', {
      
       currentracerun: {"run": "", "type": ""},
 
-      categories: [],
-      classes: [],
-      groups: [],
-      sex: [],
-      groupings: [],
-
       status: "disconnected",
       lastUpdate: "",
       message: "",
-      groupby: "",
-      filterby: ""
+      
+      filterby: "",
+      lastGroupingForFilter: { grouping: null, count: 0}
     };
   },
 
@@ -757,6 +754,7 @@ Vue.component('dsv-liveapp', {
         {
           this.datakeys = parsedData["fields"];
           this.raceresults = parsedData["data"];
+          this.groupby =  parsedData["groupby"];
         } 
         else if (parsedData["type"] == "currentracerun")
         {
@@ -765,7 +763,7 @@ Vue.component('dsv-liveapp', {
         }
         else if (parsedData["type"] == "event_participant")
         {
-          this.updateFinishedList(parsedData["data"]);
+          this.processEventParticipant(parsedData["data"]);
         }
 
         this.lastUpdate = new Date().toLocaleString();
@@ -790,18 +788,40 @@ Vue.component('dsv-liveapp', {
       this.message = "";
     },
 
-    updateFinishedList(eventData)
+    processEventParticipant(eventData)
     {
       var eventType = eventData["EventType"];
       var particpant = eventData["Participant"];
 
       if (eventType == "Finished")
       {
-        if (!this.finishedListWOResult.find( x => x.StartNumber == particpant.StartNumber))
-        {
-          this.finishedListWOResult.unshift(particpant);
-          this.finishedListWOResult.splice(3);
-        }
+        this.updateFinishedList(particpant);
+        this.updateFilter(particpant);
+      }
+    },
+
+    updateFinishedList(particpant)
+    {
+      if (!this.finishedListWOResult.find( x => x.StartNumber == particpant.StartNumber))
+      {
+        this.finishedListWOResult.unshift(particpant);
+        this.finishedListWOResult.splice(3);
+      }
+    },
+
+    updateFilter(particpant)
+    {
+      if (this.lastGroupingForFilter["grouping"] == particpant[this.groupby])
+        this.lastGroupingForFilter["count"]++;
+      else
+      {
+        this.lastGroupingForFilter["grouping"] = particpant[this.groupby];
+        this.lastGroupingForFilter["count"] = 0;
+      }
+
+      if (this.lastGroupingForFilter["count"] > 2)
+      {
+        this.filterby = particpant[this.groupby];
       }
     }
   },
