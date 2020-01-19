@@ -466,9 +466,22 @@ namespace RaceHorologyLib
 
 
     protected void ProcessGroup(List<RunResult> resultsCurGroup, List<StartListEntry> newStartList)
-    { 
+    {
+      // Find how many valid results are there (could be less than _reverseBestN)
+      int firstBestN = 0;
+      foreach( var item in resultsCurGroup)
+      {
+        if (firstBestN >= _reverseBestN)
+          break;
+
+        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal)
+          break;
+          
+        firstBestN++;
+      }
+
       // Pick best n starter in reverse order
-      for (int i = _reverseBestN - 1; i >= 0; --i)
+      for (int i = firstBestN - 1; i >= 0; --i)
       {
         if (i >= resultsCurGroup.Count())
           continue;
@@ -476,20 +489,20 @@ namespace RaceHorologyLib
         newStartList.Add(CreateStartListEntry(resultsCurGroup[i]));
       }
 
+      // Separate remaining results and remember omitted results for appending to list
       List<RunResult> omittedResults = new List<RunResult>();
-      for (int i = _reverseBestN; i < resultsCurGroup.Count(); ++i)
+      for (int i = firstBestN; i < resultsCurGroup.Count(); ++i)
       {
         RunResult result = resultsCurGroup[i];
-        if (result.Runtime != null)
-          newStartList.Add(CreateStartListEntry(result));
-        else
+        if (result.Runtime == null || result.ResultCode != RunResult.EResultCode.Normal)
           omittedResults.Add(result);
+        else
+          newStartList.Add(CreateStartListEntry(result));
       }
 
       if (_allowNonResults)
       {
-        // Remaining in reverse order
-
+        // Add remaining starters with reverse startnumber order
         omittedResults.Sort(new SortByStartnumberDesc());
         foreach (RunResult result in omittedResults)
         {
