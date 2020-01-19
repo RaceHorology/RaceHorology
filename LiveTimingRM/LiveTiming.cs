@@ -562,7 +562,7 @@ public class LiveTimingRM : ILiveTiming
     lock (_transferLock)
     {
       // Remove all outdated transfers
-      _transfers.RemoveAll(x => x.IsSameType(transfer));
+      _transfers.RemoveAll(x => x.IsEqual(transfer));
       _transfers.Add(transfer);
     }
 
