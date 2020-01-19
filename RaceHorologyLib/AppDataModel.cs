@@ -829,7 +829,7 @@ namespace RaceHorologyLib
     // Helper definition for a participant is on track
     public bool IsOrWasOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null || r.GetRunTime() != null || r.ResultCode != RunResult.EResultCode.NotSet;
+      return r.GetStartTime() != null || r.GetRunTime() != null || (r.ResultCode != RunResult.EResultCode.NotSet && r.ResultCode != RunResult.EResultCode.Normal);
     }
 
     public bool IsOrWasOnTrack(RaceParticipant rp)
