@@ -944,6 +944,7 @@ namespace RaceHorology
         dgc.Binding = mb;
         dgc.CellStyle = new Style();
         dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.MarginProperty, Value = new Thickness(15, 0, 0, 0) });
         return dgc;
       }
 
