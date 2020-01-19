@@ -36,6 +36,7 @@ namespace RaceHorology
       if (!(bool)e.OldValue && (bool)e.NewValue)
       {
         setRaceRun(_dm.GetCurrentRaceRun());
+        _viewDisqualifications.View.Refresh();
       }
     }
 
@@ -62,18 +63,26 @@ namespace RaceHorology
 
     private void CmbFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      bool isInStartList(RunResult rr)
+      {
+        return this._currentRaceRun.GetStartListProvider().GetViewList().FirstOrDefault(p => p.Participant == rr.Participant) != null;
+      }
+
+
       if (_viewDisqualificationsFilterHandler != null)
         _viewDisqualifications.Filter -= _viewDisqualificationsFilterHandler;
 
       if (cmbFilter.SelectedItem is CBItem selected)
       {
         _viewDisqualificationsFilterHandler = null;
-        if (string.Equals(selected.Value, "no_time"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).RuntimeWOResultCode == null; });
+        if (string.Equals(selected.Value, "all"))
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr); });
+        else if (string.Equals(selected.Value, "no_time"))
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.RuntimeWOResultCode == null; });
         else if (string.Equals(selected.Value, "out"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).ResultCode != RunResult.EResultCode.Normal; });
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode != RunResult.EResultCode.Normal; });
         else if (string.Equals(selected.Value, "no_data"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).ResultCode == RunResult.EResultCode.NotSet; });
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode == RunResult.EResultCode.NotSet; });
       }
 
       if (_viewDisqualificationsFilterHandler != null)
