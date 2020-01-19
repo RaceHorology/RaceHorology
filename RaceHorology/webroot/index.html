@@ -36,7 +36,11 @@
                         <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                         </b-form-select>
                       </div>
+                      <div>
+                        <b-button v-on:click="refresh">Refresh</b-button>
+                      </div>
                     </div>
+
                     <dsv-startlist v-bind:datalist="startlist" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
         
                 </div>
@@ -53,7 +57,7 @@
                       v-bind:finishedlist="finishedList" />
                   </div>
 
-                  <div>
+                  <div v-if="raceresults">
                     <div class="flex-container-centered">
                         <div>
                             <b-form-select v-model="groupby" :options="groupings" class="mb-3">
@@ -64,7 +68,7 @@
                           </b-form-select>
                         </div>
                       </div>
-                      <dsv-runresultslist v-bind:datalist="racerunresults" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
+                      <dsv-raceresultslist v-bind:datalist="raceresults" v-bind:datakeys="datakeys" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
                   </div>
                 </div>
               </dsv-liveapp>
@@ -88,6 +92,9 @@
                       <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                       </b-form-select>
                     </div>
+                    <div>
+                      <b-button v-on:click="refresh">Refresh</b-button>
+                    </div>
                   </div>
                   <dsv-runresultslist v-bind:datalist="resultlist" v-bind:datakeys="datakeys" v-bind:groupby="groupby" v-bind:filterby="filterby"/>
                 </div>
@@ -107,6 +114,9 @@
                   <div>
                     <b-form-select v-model="filterby" :options="itemsForGrouping" class="mb-3">
                     </b-form-select>
+                  </div>
+                  <div>
+                    <b-button v-on:click="refresh">Refresh</b-button>
                   </div>
                 </div>
                 <dsv-raceresultslist v-bind:datalist="raceresultlist" v-bind:datakeys="datakeys" v-bind:groupby="groupby" v-bind:filterby="filterby"/>

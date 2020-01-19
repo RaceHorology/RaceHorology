@@ -503,7 +503,7 @@ Vue.component('dsv-raceresultslist', {
   props: {
     datakeys:{
       type: Object, 
-      default: () => {} 
+      requred: true
     }
   },
 
@@ -580,6 +580,8 @@ Vue.component('dsv-liveapp', {
       
       racerunresults: {},
       raceresults: {},
+      datakeys: {},
+     
       currentracerun: {"run": "", "type": ""},
 
       categories: [],
@@ -637,7 +639,6 @@ Vue.component('dsv-liveapp', {
         }
         if (itemsResults)
         {
-          //item["Runtimes"] = itemsResults["Runtimes"].slice(0, -1); //[...itemsResults["Runtimes"]];
           item["Runtimes"] = [...itemsResults["Runtimes"]];
         }
         retList.push(item);
@@ -669,7 +670,6 @@ Vue.component('dsv-liveapp', {
         }
         if (itemsResults)
         {
-          //item["Runtimes"] = itemsResults["Runtimes"].slice(0, -1); //[...itemsResults["Runtimes"]];
           item["Runtimes"] = [...itemsResults["Runtimes"]];
         }
         retList.push(item);
@@ -713,7 +713,6 @@ Vue.component('dsv-liveapp', {
         }
         if (itemsResults)
         {
-          //item["Runtimes"] = itemsResults["Runtimes"].slice(0, -1); //[...itemsResults["Runtimes"]];
           item["Runtimes"] = [...itemsResults["Runtimes"]];
 
           item["Runtime"] = itemsResults["Totaltime"];
@@ -756,6 +755,7 @@ Vue.component('dsv-liveapp', {
         } 
         else if (parsedData["type"] == "raceresult")
         {
+          this.datakeys = parsedData["fields"];
           this.raceresults = parsedData["data"];
         } 
         else if (parsedData["type"] == "currentracerun")
@@ -767,8 +767,6 @@ Vue.component('dsv-liveapp', {
         {
           this.updateFinishedList(parsedData["data"]);
         }
-
-        
 
         this.lastUpdate = new Date().toLocaleString();
       };
@@ -850,6 +848,10 @@ Vue.component('dsv-startapp', {
 
   methods: 
   {
+    refresh(){
+      this.fetchStartList();
+    },
+
     fetchStartList()
     {
       var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs/"+this.run+"/startlist";
@@ -904,6 +906,10 @@ Vue.component('dsv-runresultapp', {
 
   methods: 
   {
+    refresh(){
+      this.fetchResultList();
+    },
+
     fetchResultList()
     {
       var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs/"+this.run+"/resultlist";
@@ -948,6 +954,10 @@ Vue.component('dsv-raceresultapp', {
 
   methods: 
   {
+    refresh(){
+      this.fetchRaceResultList();
+    },
+
     fetchRaceResultList()
     {
       var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//resultlist";
