@@ -18,7 +18,7 @@
       <div>
         <img alt="RH Logo" src="img/RH-LOGO.svg" class="svg-logo-big"/>
         <b-tabs content-class="mt-3">
-            <b-tab title="Startliste">
+            <b-tab title="Startliste" lazy>
               <dsv-startapp 
                 :runs="runs" :groupings="groupings" :categories="categories" :classes="classes" :groups="groups" :sex="sex" 
                 inline-template>
@@ -72,7 +72,7 @@
               </dsv-liveapp>
             </b-tab>
 
-            <b-tab title="Einzelergebnisse" enabled>
+            <b-tab title="Einzelergebnisse" enabled lazy>
               <dsv-runresultapp 
                 :runs="runs" :groupings="groupings" :categories="categories" :classes="classes" :groups="groups" :sex="sex" 
                 inline-template>
@@ -99,7 +99,7 @@
               </dsv-runresultapp>
             </b-tab>
   
-          <b-tab title="Rennergebnis" enabled>
+          <b-tab title="Rennergebnis" enabled lazy>
             <dsv-raceresultapp 
               :groupings="groupings" :categories="categories" :classes="classes" :groups="groups" :sex="sex" 
               inline-template>
