@@ -241,8 +241,9 @@ namespace RaceHorologyLib
           var groups = _dataModel.GetParticipantGroups().ToArray();
           var sex = new string[] { "M", "W" };
           var grouping = new string[] { "Class", "Group", "Sex" };
+          var runs = race.GetMaxRun();
 
-          output = JsonConversion.ConvertMetaData(classes, groups, sex, grouping);
+          output = JsonConversion.ConvertMetaData(classes, groups, sex, grouping, runs);
         }
       }
 

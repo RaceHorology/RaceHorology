@@ -483,7 +483,7 @@ namespace RaceHorologyLib
       return sw.ToString();
     }
 
-    public static string ConvertMetaData(ParticipantClass[] classes, ParticipantGroup[] groups, string[] sex, string[] grouping)
+    public static string ConvertMetaData(ParticipantClass[] classes, ParticipantGroup[] groups, string[] sex, string[] grouping, int runs)
     {
       var wrappedData = new Dictionary<string, object>
       {
@@ -493,7 +493,8 @@ namespace RaceHorologyLib
             {"classes", classes },
             {"groups", groups},
             {"sex", sex},
-            {"groupings", grouping}
+            {"groupings", grouping},
+            {"runs", runs}
           }
         }
       };
