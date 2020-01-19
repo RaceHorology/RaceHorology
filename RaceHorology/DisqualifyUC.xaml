@@ -54,14 +54,7 @@
               <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
               <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
               <DataGridTextColumn Header="Zeit" Binding="{Binding RuntimeOrig, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}" />
-              <DataGridTemplateColumn Header="Ausscheidung">
-                <DataGridTemplateColumn.CellTemplate>
-                  <DataTemplate>
-                    <ComboBox SelectedValue="{Binding ResultCode, Mode=TwoWay}" 
-                              ItemsSource="{Binding ListOfResultCodes, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:DisqualifyUC}, Mode=OneWay}"/>
-                  </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-              </DataGridTemplateColumn>
+              <DataGridTextColumn Header="Ausscheidung" Binding="{Binding ResultCode, Mode=OneWay}" />
               <DataGridTextColumn Header="Anmerkung" Binding="{Binding DisqualText}" Width="*"/>
             </DataGrid.Columns>
           </DataGrid>
