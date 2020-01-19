@@ -72,7 +72,6 @@ namespace RaceHorologyLib
       { 
         GroupDescription gd = new PropertyGroupDescription(propertyName);
         gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-        //gd.CustomSort = new DebugSort();
         _view.GroupDescriptions.Add(gd);
 
         _view.LiveGroupingProperties.Add(propertyName);
@@ -978,6 +977,9 @@ namespace RaceHorologyLib
 
   public class RaceResultViewProvider : ResultViewProvider
   {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+
     delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode code, out string disqualText);
 
     TimeCombination _timeCombination;
@@ -1054,22 +1056,24 @@ namespace RaceHorologyLib
 
       if (rr != null)
       {
-        UpdateResultsFor(rr.Participant);
-        ResortResults();
+        if (UpdateResultsFor(rr.Participant))
+          ResortResults();
       }
     }
 
     private void OnResultListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      bool bSomethingChanged = false;
+
       if (e.OldItems != null)
       {
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
           item.PropertyChanged -= OnRunResultItemChanged;
           RunResultWithPosition rr = item as RunResultWithPosition;
-          UpdateResultsFor(rr?.Participant);
+          if (UpdateResultsFor(rr?.Participant))
+            bSomethingChanged = true;
         }
-        ResortResults();
       }
 
       if (e.NewItems != null)
@@ -1078,22 +1082,31 @@ namespace RaceHorologyLib
         {
           item.PropertyChanged += OnRunResultItemChanged;
           RunResultWithPosition rr = item as RunResultWithPosition;
-          UpdateResultsFor(rr?.Participant);
+          if (UpdateResultsFor(rr?.Participant))
+            bSomethingChanged = true;
         }
-        ResortResults();
       }
+
+      if (bSomethingChanged)
+        ResortResults();
     }
 
     private void UpdateAll()
     {
-      foreach (RaceParticipant p in _race.GetParticipants())
-        UpdateResultsFor(p);
+      bool resortNeeded = false;
 
-      ResortResults();
+      foreach (RaceParticipant p in _race.GetParticipants())
+        if (UpdateResultsFor(p))
+          resortNeeded = true;
+
+      if (resortNeeded)
+        ResortResults();
     }
 
-    private void UpdateResultsFor(RaceParticipant participant)
+    private bool UpdateResultsFor(RaceParticipant participant)
     {
+      bool significantChange = false;
+
       RaceResultItem rri = _viewList.SingleOrDefault(x => x.Participant == participant);
       if (rri == null)
       {
@@ -1112,17 +1125,36 @@ namespace RaceHorologyLib
 
       // Combine and update the race result
       foreach (var res in results)
-        rri.SetRunResult(res.Key, res.Value);
+      {
+        bool sigCh = rri.SetRunResult(res.Key, res.Value);
+        significantChange = significantChange || sigCh;
+      }
+      
       RunResult.EResultCode code;
       string disqualText;
+
+      TimeSpan? oldTime = rri.TotalTime;
       rri.TotalTime = _combineTime(results, out code, out disqualText);
+
       rri.ResultCode = code;
       rri.DisqualText = disqualText;
+
+      System.Diagnostics.Debug.Assert(
+        (!significantChange && rri.TotalTime == oldTime) || significantChange,
+        "no significant change but time did change!!!"
+        );
+
+      if (significantChange && rri.TotalTime == oldTime)
+        Logger.Debug("Significant change although time did not change: {0}", rri.TotalTime);
+
+      return significantChange;
     }
 
 
     void ResortResults()
     {
+      Logger.Debug(System.Reflection.MethodBase.GetCurrentMethod());
+
       if (_viewList == null)
         return;
 

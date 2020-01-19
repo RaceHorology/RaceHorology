@@ -702,9 +702,28 @@ namespace RaceHorologyLib
     {
       public SubResult(RunResultWithPosition rr)
       {
-        Runtime = rr.Runtime;
-        RunResultCode = rr.ResultCode;
+        UpdateSubResult(rr);
+      }
+
+      public bool UpdateSubResult(RunResultWithPosition rr)
+      {
+        bool significantChange = false;
+
+        if (Runtime != rr.Runtime)
+        {
+          Runtime = rr.Runtime;
+          significantChange = true;
+        }
+
+        if (RunResultCode != rr.ResultCode)
+        {
+          RunResultCode = rr.ResultCode;
+          significantChange = true;
+        }
+
         Position = rr.Position;
+
+        return significantChange;
       }
 
       public TimeSpan? Runtime { get; set; }
@@ -826,17 +845,33 @@ namespace RaceHorologyLib
     /// </summary>
     /// <param name="run">Run number, typically either 1 or 2</param>
     /// <param name="result">The corresponding results</param>
-    public void SetRunResult(uint run, RunResultWithPosition result)
+    public bool SetRunResult(uint run, RunResultWithPosition result)
     {
+      bool significantChange = false;
+
       if (result != null)
       {
-        _subResults[run] = new SubResult(result);
+        if (_subResults.ContainsKey(run))
+        {
+          if (_subResults[run].UpdateSubResult(result))
+            significantChange = true;
+        }
+        else
+        {
+          _subResults[run] = new SubResult(result);
+          significantChange = true;
+        }
+
         _runTimes[run] = result.Runtime;
         _runResultCodes[run] = result.ResultCode;
       }
       else
       {
-        _subResults.Remove(run);
+        if (_subResults.ContainsKey(run))
+        {
+          _subResults.Remove(run);
+          significantChange = true;
+        }
         _runTimes.Remove(run);
         _runResultCodes.Remove(run);
       }
@@ -844,6 +879,8 @@ namespace RaceHorologyLib
       NotifyPropertyChanged(nameof(RunTimes));
       NotifyPropertyChanged(nameof(SubResults));
       NotifyPropertyChanged(nameof(RunResultCodes));
+
+      return significantChange;
     }
 
 
