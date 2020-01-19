@@ -821,12 +821,23 @@ Vue.component('dsv-startapp', {
   {
     return {
       startlist: {},
-      filterby: ""
+      filterby: "",
+      run: 0
     };
+  },
+
+  props: {
+    runs: {
+      type: Array, 
+      required: true
+    }
   },
 
   watch: {
     groupby: function (newGroupBy, oldGroupBy){
+      this.fetchStartList();
+    },
+    run: function (newRun, oldRun){
       this.fetchStartList();
     }
   },
@@ -841,7 +852,8 @@ Vue.component('dsv-startapp', {
   {
     fetchStartList()
     {
-      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs//startlist";
+      var url = "http://" + window.location.hostname + ":" + window.location.port + "/api/v0.1" + "/races//runs/"+this.run+"/startlist";
+
       if (this.groupby)
         url += "?groupby="+this.groupby;
 
@@ -908,6 +920,7 @@ var app = new Vue({
       groups: [],
       sex: [],
       groupings: [],
+      runs: [],
     };
   },
 
@@ -979,8 +992,17 @@ var app = new Vue({
             value:a, 
             text:a
           });
-        });        
+        });
 
+        that.runs = [];
+        var runs = data["data"]["runs"];
+        for(var i=0; i<runs; i++)
+        {
+          that.runs.push({
+            value: i,
+            text: (i+1) + ". Durchgang"
+          });
+        }
       });
     },
   },
