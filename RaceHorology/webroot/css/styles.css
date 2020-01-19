@@ -138,4 +138,5 @@ table.dsvalpin-lists .cell-groupheader {
 .flex-container-centered {
   display: flex;
   justify-content: center;
+  margin-top: 1rem;
 }
