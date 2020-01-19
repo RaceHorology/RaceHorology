@@ -904,26 +904,38 @@ namespace RaceHorology
         return dgc;
       }
 
+      DataGridTextColumn createTimeColumn(string header, string runtime, string resultcode)
+      {
+        DataGridTextColumn dgc = new DataGridTextColumn
+        {
+          Header = header
+        };
+
+        MultiBinding mb = new MultiBinding();
+        Binding b1 = new Binding(runtime)
+        {
+          Mode = BindingMode.OneWay,
+        };
+        Binding b2 = new Binding(resultcode)
+        {
+          Mode = BindingMode.OneWay,
+        };
+        mb.Bindings.Add(b1);
+        mb.Bindings.Add(b2);
+        mb.Converter = new ResultTimeAndCodeConverter();
+        dgc.Binding = mb;
+        dgc.CellStyle = new Style();
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        return dgc;
+      }
+
       while (dgTotalResults.Columns.Count > 7)
         dgTotalResults.Columns.RemoveAt(dgTotalResults.Columns.Count - 1);
 
       // Race Run Results
       if (_totalResultsVP is RaceRunResultViewProvider)
       {
-        {
-          DataGridTextColumn dgc = new DataGridTextColumn
-          {
-            Header = "Zeit"
-          };
-          Binding b = new Binding("Runtime")
-          {
-            Mode = BindingMode.OneWay,
-            StringFormat = @"{0:mm\:ss\,ff}"
-          };
-          dgc.Binding = b;
-          dgTotalResults.Columns.Add(dgc);
-        }
-
+        dgTotalResults.Columns.Add(createTimeColumn("Zeit", "Runtime", "ResultCode"));
         dgTotalResults.Columns.Add(createColumnAnmerkung());
       }
 
@@ -932,39 +944,10 @@ namespace RaceHorology
       {
         for (int i = 0; i < 2; i++)
         {
-          DataGridTextColumn dgc2 = new DataGridTextColumn
-          {
-            Header = string.Format("Zeit {0}", i + 1)
-          };
-
-          MultiBinding mb = new MultiBinding();
-          Binding b1 = new Binding(string.Format("RunTimes[{0}]", i + 1))
-          {
-            Mode = BindingMode.OneWay,
-          };
-          Binding b2 = new Binding(string.Format("RunResultCodes[{0}]", i + 1))
-          {
-            Mode = BindingMode.OneWay,
-          };
-          mb.Bindings.Add(b1);
-          mb.Bindings.Add(b2);
-          mb.Converter = new ResultTimeAndCodeConverter();
-          dgc2.Binding = mb;
-          dgTotalResults.Columns.Add(dgc2);
+          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", i + 1), string.Format("RunTimes[{0}]", i + 1), string.Format("RunResultCodes[{0}]", i + 1)));
         }
 
-        DataGridTextColumn dgc = new DataGridTextColumn
-        {
-          Header = "Total"
-        };
-        Binding b = new Binding("TotalTime")
-        {
-          Mode = BindingMode.OneWay,
-          StringFormat = @"{0:mm\:ss\,ff}"
-        };
-        dgc.Binding = b;
-        dgTotalResults.Columns.Add(dgc);
-
+        dgTotalResults.Columns.Add(createTimeColumn("Total", "TotalTime", "ResultCode"));
         dgTotalResults.Columns.Add(createColumnAnmerkung());
       }
       // Start List
@@ -972,25 +955,7 @@ namespace RaceHorology
       {
         if (_totalResultsVP is BasedOnResultsFirstRunStartListViewProvider)
         {
-          DataGridTextColumn dgc = new DataGridTextColumn
-          {
-            Header = string.Format("Zeit")
-          };
-
-          MultiBinding mb = new MultiBinding();
-          Binding b1 = new Binding("Runtime")
-          {
-            Mode = BindingMode.OneWay,
-          };
-          Binding b2 = new Binding("ResultCode")
-          {
-            Mode = BindingMode.OneWay,
-          };
-          mb.Bindings.Add(b1);
-          mb.Bindings.Add(b2);
-          mb.Converter = new ResultTimeAndCodeConverter();
-          dgc.Binding = mb;
-          dgTotalResults.Columns.Add(dgc);
+          dgTotalResults.Columns.Add(createTimeColumn("Zeit", "Runtime", "ResultCode"));
         }
       }
 
