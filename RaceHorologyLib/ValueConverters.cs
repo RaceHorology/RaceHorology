@@ -9,14 +9,36 @@ namespace RaceHorologyLib
   /// </summary>
   public class PositionConverter : IValueConverter
   {
+    private bool _inParantheses;
+    public PositionConverter()
+    {
+      _inParantheses = false;
+    }
+
+
+    public PositionConverter(bool inParantheses)
+    {
+      _inParantheses = inParantheses;
+    }
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
       uint position = (uint)value;
 
-      if (position == 0)
-        return "---";
+      if (_inParantheses)
+      {
+        if (position == 0)
+          return "(-)";
 
-      return position.ToString();
+        return string.Format("({0})", position);
+      }
+      else
+      {
+        if (position == 0)
+          return "---";
+
+        return position.ToString();
+      }
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

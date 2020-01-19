@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -707,9 +707,9 @@ namespace RaceHorologyLib
         Position = rr.Position;
       }
 
-      public TimeSpan? Runtime;
-      public RunResult.EResultCode RunResultCode;
-      public uint Position;
+      public TimeSpan? Runtime { get; set; }
+      public RunResult.EResultCode RunResultCode { get; set; }
+      public uint Position { get; set; }
     }
 
     #region private

@@ -904,6 +904,24 @@ namespace RaceHorology
         return dgc;
       }
 
+      DataGridTextColumn createColumnSubPosition(string property)
+      {
+        DataGridTextColumn dgc = new DataGridTextColumn
+        {
+          Header = "Pos"
+        };
+        Binding b = new Binding(property)
+        {
+          Mode = BindingMode.OneWay,
+        };
+
+        b.Converter = new PositionConverter(true);
+        dgc.Binding = b;
+        dgc.CellStyle = new Style();
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        return dgc;
+      }
+
       DataGridTextColumn createTimeColumn(string header, string runtime, string resultcode)
       {
         DataGridTextColumn dgc = new DataGridTextColumn
@@ -945,6 +963,7 @@ namespace RaceHorology
         for (int i = 0; i < 2; i++)
         {
           dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", i + 1), string.Format("RunTimes[{0}]", i + 1), string.Format("RunResultCodes[{0}]", i + 1)));
+          dgTotalResults.Columns.Add(createColumnSubPosition(string.Format("SubResults[{0}].Position", i+1)));
         }
 
         dgTotalResults.Columns.Add(createTimeColumn("Total", "TotalTime", "ResultCode"));
