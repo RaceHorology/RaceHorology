@@ -1127,7 +1127,7 @@ namespace RaceHorologyLib
       foreach (var res in results)
       {
         bool sigCh = rri.SetRunResult(res.Key, res.Value);
-        significantChange = significantChange || sigCh;
+        //significantChange = significantChange || sigCh;
       }
       
       RunResult.EResultCode code;
@@ -1135,8 +1135,15 @@ namespace RaceHorologyLib
 
       TimeSpan? oldTime = rri.TotalTime;
       rri.TotalTime = _combineTime(results, out code, out disqualText);
+      if (oldTime != rri.TotalTime)
+        significantChange = true;
 
-      rri.ResultCode = code;
+      if (rri.ResultCode != code)
+      {
+        rri.ResultCode = code;
+        significantChange = true;
+      }
+
       rri.DisqualText = disqualText;
 
       System.Diagnostics.Debug.Assert(
