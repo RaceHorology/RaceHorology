@@ -53,7 +53,7 @@
               <DataGridTextColumn Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
               <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
               <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-              <DataGridTextColumn Header="Zeit" Binding="{Binding RuntimeOrig, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}" />
+              <DataGridTextColumn Header="Zeit" Binding="{Binding RuntimeWOResultCode, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}" />
               <DataGridTextColumn Header="Ausscheidung" Binding="{Binding ResultCode, Mode=OneWay}" />
               <DataGridTextColumn Header="Anmerkung" Binding="{Binding DisqualText}" Width="*"/>
             </DataGrid.Columns>
