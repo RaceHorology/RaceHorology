@@ -216,10 +216,16 @@
     <None Include="raceconfigpresets\Inline %28Punkte%29.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="raceconfigpresets\KSC Ebersberg U14-.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="raceconfigpresets\SVM Schüler U12.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="raceconfigpresets\SVM Schüler U8-U10.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\KSC Ebersberg -U12.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="raceconfigpresets\Vereinsrennen - BestOfTwo.preset">
