@@ -532,7 +532,7 @@ namespace RaceHorologyLib
         Add(new RemainingStartListDataProvider(dm, 3));
         Add(new OnTrackDataProvider(dm));
         Add(new OnTrackEventsProvider(dm));
-        Add(new RaceRunDataProvider(dm));
+        //Add(new RaceRunDataProvider(dm));
         Add(new RaceResultDataProvider(dm));
       }
     }
