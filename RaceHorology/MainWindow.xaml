@@ -64,7 +64,7 @@
               <ColumnDefinition Width="Auto" />
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="100" />
+              <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
           </Grid>
         </ItemsPanelTemplate>
@@ -122,10 +122,11 @@
           <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="100" VerticalScrollBarVisibility="Auto"/>
         </Grid>
       </StatusBarItem>      
+      
       <Separator Grid.Column="5" />
 
       <StatusBarItem Grid.Column="6"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
-        <Grid>
+        <Grid Background="White">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
