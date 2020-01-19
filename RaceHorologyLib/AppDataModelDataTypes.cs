@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -842,6 +842,8 @@ namespace RaceHorologyLib
       }
 
       NotifyPropertyChanged(nameof(RunTimes));
+      NotifyPropertyChanged(nameof(SubResults));
+      NotifyPropertyChanged(nameof(RunResultCodes));
     }
 
 
