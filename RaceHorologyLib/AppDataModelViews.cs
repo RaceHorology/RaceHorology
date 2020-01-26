@@ -119,12 +119,38 @@ namespace RaceHorologyLib
     }
     public virtual int Compare(StartListEntry left, StartListEntry right)
     {
+
+      int groupCompare = CompareGroup(left, right);
+      if (groupCompare != 0)
+        return groupCompare;
+
       if (left.StartNumber < right.StartNumber)
         return -1 * (int)_direction;
       else if (left.StartNumber > right.StartNumber)
         return 1  * (int)_direction;
       else
         return 0;
+    }
+
+
+
+    string _groupingPropertyName;
+    public void SetGrouping(string propertyName)
+    {
+      _groupingPropertyName = propertyName;
+    }
+
+    protected int CompareGroup(StartListEntry rrX, StartListEntry rrY)
+    {
+      int groupCompare = 0;
+      if (_groupingPropertyName == "Participant.Class")
+        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+      else if (_groupingPropertyName == "Participant.Group")
+        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+      else if (_groupingPropertyName == "Participant.Sex")
+        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+
+      return groupCompare;
     }
   }
 
@@ -166,7 +192,7 @@ namespace RaceHorologyLib
     protected ObservableCollection<RaceParticipant> _participants;
     protected ItemsChangedNotifier _sourceItemChangedNotifier;
 
-    protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
+    protected StartListEntryComparer _comparer;
 
 
     public FirstRunStartListViewProvider()
@@ -194,6 +220,17 @@ namespace RaceHorologyLib
 
       base.FinalizeInit();
     }
+
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+
+      // Ensure list is sorted again
+      if (_viewList != null)
+        _viewList.Sort(_comparer);
+    }
+
 
     private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -329,6 +366,17 @@ namespace RaceHorologyLib
 
       FinalizeInit();
     }
+
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+
+      // Ensure list is sorted again
+      if (_viewList != null)
+        _viewList.Sort(_comparer);
+    }
+
 
     private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
