@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Sven Flossmann")]
 [assembly: AssemblyProduct("Race Horology")]
-[assembly: AssemblyCopyright("©  2019")]
+[assembly: AssemblyCopyright("©  2019-2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
