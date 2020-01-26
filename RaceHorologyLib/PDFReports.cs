@@ -672,6 +672,7 @@ public abstract class PDFReport : IPDFReport
     protected abstract float[] getTableColumnsWidths();
     protected abstract void addHeaderToTable(Table table);
     protected abstract void addLineToTable(Table table, string group);
+    protected abstract void addCommentLineToTable(Table table, string comment);
     protected abstract bool addLineToTable(Table table, object data, int i = 0);
     protected abstract string getReportName();
 
@@ -1011,6 +1012,9 @@ public abstract class PDFReport : IPDFReport
           foreach (var result in cvGroup.Items)
             if (addLineToTable(table, result, i))
               i++;
+          
+          if (i == 0)
+            addCommentLineToTable(table, "keine Teilnehmer");
         }
       }
       else
@@ -1181,6 +1185,19 @@ public abstract class PDFReport : IPDFReport
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
     }
 
+    protected override void addCommentLineToTable(Table table, string comment)
+    {
+      table.AddCell(new Cell(1, 1)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 2 + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(comment)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE)).SetFontSize(10)));
+    }
+
+
 
     protected override bool addLineToTable(Table table, object data, int i = 0)
     {
@@ -1322,6 +1339,18 @@ public abstract class PDFReport : IPDFReport
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
+    }
+
+    protected override void addCommentLineToTable(Table table, string comment)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 3 + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(comment)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE)).SetFontSize(10)));
     }
 
 
@@ -1578,6 +1607,18 @@ public abstract class PDFReport : IPDFReport
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
     }
 
+    protected override void addCommentLineToTable(Table table, string comment)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 3 + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(comment)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE)).SetFontSize(10)));
+    }
+
     protected override void addSubHeaderToTable(Table table, string group)
     {
       table.AddCell(new Cell(1, 2)
@@ -1794,6 +1835,18 @@ public abstract class PDFReport : IPDFReport
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
           .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(10)));
+    }
+
+    protected override void addCommentLineToTable(Table table, string comment)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(comment)
+          .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE)).SetFontSize(10)));
     }
 
     protected override void addSubHeaderToTable(Table table, string group)
