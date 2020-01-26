@@ -992,6 +992,7 @@ namespace RaceHorologyLib
     ItemsChangeObservableCollection<RaceResultItem> _viewList;
     ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
+    List<RaceRun> _lastConsideredRuns;
 
     public enum TimeCombination { BestRun, Sum };
     public RaceResultViewProvider(TimeCombination timeCombination)
@@ -1008,6 +1009,8 @@ namespace RaceHorologyLib
           _combineTime = SumTime;
           break;
       }
+
+      _lastConsideredRuns = new List<RaceRun>();
     }
 
 
@@ -1091,6 +1094,27 @@ namespace RaceHorologyLib
         ResortResults();
     }
 
+
+    private void CheckRunConsideration()
+    {
+      bool updateAll = false;
+
+      foreach (RaceRun run in _raceRuns)
+      {
+        if (run.HasResults())
+        {
+          if (!_lastConsideredRuns.Contains(run))
+          {
+            updateAll = true;
+            _lastConsideredRuns.Add(run);
+          }
+        }
+      }
+
+      if (updateAll)
+        UpdateAll();
+    }
+
     private void UpdateAll()
     {
       bool resortNeeded = false;
@@ -1105,6 +1129,8 @@ namespace RaceHorologyLib
 
     private bool UpdateResultsFor(RaceParticipant participant)
     {
+      CheckRunConsideration();
+
       bool significantChange = false;
 
       RaceResultItem rri = _viewList.SingleOrDefault(x => x.Participant == participant);
@@ -1116,7 +1142,7 @@ namespace RaceHorologyLib
 
       // Look for the sub-result
       Dictionary<uint, RunResultWithPosition> results = new Dictionary<uint, RunResultWithPosition>();
-      foreach (RaceRun run in _raceRuns)
+      foreach (RaceRun run in _lastConsideredRuns)
       {
         RaceRunResultViewProvider rrVP = (run.GetResultViewProvider() as RaceRunResultViewProvider);
         RunResultWithPosition result = rrVP.GetViewList().SingleOrDefault(x => x.Participant == participant);
@@ -1288,8 +1314,10 @@ namespace RaceHorologyLib
           resCode = res.Value.ResultCode;
           disqualText = res.Value.DisqualText;
         }
-
       }
+
+      if (results.Count == 0)
+        sumTime = null;
 
       return sumTime;
     }
