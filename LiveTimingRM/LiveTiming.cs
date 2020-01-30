@@ -247,7 +247,7 @@ public class LiveTimingRM : ILiveTiming
 
     _isOnline = true;
 
-    _lv.StartLiveTiming(ref _currentLvStruct);
+    startLiveTiming();
   }
 
 
