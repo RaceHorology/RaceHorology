@@ -12,7 +12,17 @@ namespace RaceHorologyLib
 {
   public class ResultCharts
   {
-
+    protected string workaroundGermanUmlaut(string str)
+    {
+      return str
+        .Replace("ä", "ae")
+        .Replace("ö", "oe")
+        .Replace("ü", "ue")
+        .Replace("Ä", "Ae")
+        .Replace("Ö", "Oe")
+        .Replace("Ü", "Ue")
+        .Replace("ß", "ss");
+    }
 
     //Base10Exponent returns the integer exponent (N) that would yield a
     //number of the form A x Exp10(N), where 1.0 <= |A| < 10.0
@@ -92,7 +102,7 @@ namespace RaceHorologyLib
         {
           if (group is System.Windows.Data.CollectionViewGroup cvGroup)
           {
-            var lblGroup = axis.CustomLabels.Add(x1 - 0.5, x1 + 0.5, cvGroup.Name.ToString());
+            var lblGroup = axis.CustomLabels.Add(x1 - 0.5, x1 + 0.5, workaroundGermanUmlaut(cvGroup.Name.ToString()));
             lblGroup.GridTicks = GridTickTypes.None;
 
             // Second Level if possible
@@ -104,7 +114,7 @@ namespace RaceHorologyLib
 
               if (!string.Equals(name2, name2Last))
               {
-                var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, name2Last, 1, LabelMarkStyle.LineSideMark);
+                var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, workaroundGermanUmlaut(name2Last), 1, LabelMarkStyle.LineSideMark);
                 name2Last = name2;
                 x2Last = x2;
               }
@@ -118,7 +128,7 @@ namespace RaceHorologyLib
         // Final 2nd group
         if (name2 != null && name2Last != null)
         {
-          var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, name2Last, 1, LabelMarkStyle.LineSideMark);
+          var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, workaroundGermanUmlaut(name2Last), 1, LabelMarkStyle.LineSideMark);
         }
 
         axis.Maximum = x2 - 0.5;
