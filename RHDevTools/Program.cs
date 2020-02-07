@@ -10,6 +10,15 @@ namespace RHDevTools
   {
     static void Main(string[] args)
     {
+      if (args[0] == "-a" && args.Length == 2)
+        DSVAlpinDBTools.AnonymizeDB(args[1]);
+      else
+        printUsage();
+    }
+
+    static void printUsage()
+    {
+      Console.WriteLine("-a <DBPath>     Anonymize Database");
     }
   }
 }

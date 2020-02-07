@@ -357,7 +357,7 @@ namespace RaceHorologyLib
         cmd.Parameters.Add(new OleDbParameter("@code", participant.Code));
 
 
-      cmd.Parameters.Add(new OleDbParameter("@klasse", 10)); // TODO: Add correct id for klasse
+      cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class))); 
       cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
       cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
 
