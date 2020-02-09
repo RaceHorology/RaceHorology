@@ -84,6 +84,18 @@
   <ItemGroup>
     <None Include="DSVAlpin2LibTest.runsettings" />
     <None Include="packages.config" />
+    <None Include="TestDataBases\FullTestCases\Case1\ALGETdC8001-202002020841.dump">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\FullTestCases\Case1\ALGETdC8001-202002021133.dump">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\FullTestCases\Case1\KSC4--U12_GiantSlalom.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\FullTestCases\Case1\KSC4-U14-_GiantSlalom.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDataBases\TestDB_LessParticipants_LiveTiming_GiantSlalom.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -99,26 +111,44 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4--U12.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4-U14-.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4-U14-_ALGE_Run1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4-U14-_ALGE_Run2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDataBases\Kirchberg U8 U10 10.02.19 RS Neu.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\KSC2019-2-PSL.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\RegioCupFinal2019 - Schueler-U10-U16.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_Empty.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants_LiveTiming.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
