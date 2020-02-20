@@ -8,6 +8,41 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace RaceHorologyLibTest
 {
+
+  public class ALGETdC8001TimeMeasurementSimulate : ALGETdC8001TimeMeasurementBase
+  {
+    string _filePath;
+    System.IO.StreamReader _dumpFile;
+
+
+    public ALGETdC8001TimeMeasurementSimulate(string filePath)
+    {
+      _filePath = filePath;
+    }
+
+    public override void Start()
+    {
+      _dumpFile = new System.IO.StreamReader(_filePath);
+    }
+
+    public override void Stop()
+    {
+      _dumpFile = null;
+    }
+
+
+    public bool ProcessNextLine()
+    {
+      string dataLine = _dumpFile.ReadLine();
+      if (dataLine == null)
+        return false;
+
+      processLine(dataLine);
+      return true;
+    }
+  }
+
+
   [TestClass]
   public class ALGETdC8001Tests
   {
@@ -206,6 +241,42 @@ namespace RaceHorologyLibTest
         var pd = ParseAndTransfer("n0034");
         Assert.IsNull(pd);
       }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_GiantSlalom.config")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
+    public void FullTest()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"KSC4--U12.mdb");
+
+      // Setup Data Model & Co
+      Database db = new Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      LiveTimingMeasurement liveTimingMeasurement = new LiveTimingMeasurement(model);
+
+      ALGETdC8001TimeMeasurementSimulate algeSimulator = new ALGETdC8001TimeMeasurementSimulate(@"KSC4--U12_ALGE_Run1.txt");
+
+      liveTimingMeasurement.SetTimingDevice(algeSimulator, algeSimulator);
+
+      algeSimulator.Start();
+
+      model.SetCurrentRaceRun(model.GetRace(0).GetRun(0));
+
+      liveTimingMeasurement.Start();
+      
+      while (algeSimulator.ProcessNextLine())
+      { 
+      }
+
+      liveTimingMeasurement.Stop();
+      algeSimulator.Stop();
+
     }
 
   }
