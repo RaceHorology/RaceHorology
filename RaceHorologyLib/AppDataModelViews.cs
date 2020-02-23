@@ -1284,7 +1284,7 @@ namespace RaceHorologyLib
 
           sortedItem.Position = curPosition;
 
-          sortedItem.Points = dsvCalc.CalculatePoints(sortedItem, (TimeSpan)firstTime);
+          sortedItem.Points = dsvCalc.CalculatePoints(sortedItem, true);
 
           lastTime = sortedItem.TotalTime;
         }

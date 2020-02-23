@@ -8,6 +8,22 @@ namespace RaceHorologyLib
 {
   public class DSVRaceCalculation
   {
+    public class TopTenResult
+    {
+      public TopTenResult(RaceResultItem rri, double racePoints)
+      {
+        RRI = rri;
+        DSVPoints = rri.Participant.Points;
+        RacePoints = racePoints;
+        TopFive = false;
+      }
+
+      public RaceResultItem RRI { get; set; }
+      public double DSVPoints { get; set; }
+      public double RacePoints { get; set; }
+      public bool TopFive { get; set; }
+    }
+
     private Race _race;
     private string _sex;
     
@@ -22,13 +38,14 @@ namespace RaceHorologyLib
 
     private double _appliedPenalty;
 
-    List<Tuple<RaceResultItem, bool>> _topTen;
+    TimeSpan _bestTime;
+    List<TopTenResult> _topTen;
     List<RaceResultItem> _topFiveDSV;
 
 
 
     public double ExactCalculatedPenalty { get { return _penalty; } }
-    public double CalculatedPenalty { get { return Math.Round(ExactCalculatedPenalty); } }
+    public double CalculatedPenalty { get { return Math.Round(ExactCalculatedPenalty, 2); } }
     public double AppliedPenalty { get { return _appliedPenalty; } }
 
 
@@ -47,15 +64,23 @@ namespace RaceHorologyLib
     }
 
 
-    public double CalculatePoints(RaceResultItem rri, TimeSpan bestTime)
+    public double CalculatePoints(RaceResultItem rri, bool withPenalty)
     {
-      return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / bestTime.TotalSeconds - _valueF + _valueA + _appliedPenalty, 2);
+      double penalty = 0.0;
+      if (withPenalty)
+        penalty = _appliedPenalty;
+
+      return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / _bestTime.TotalSeconds - _valueF + _valueA + penalty, 2);
     }
 
     public void CalculatePenalty()
     {
+      findTopTen();
+
+      markBestFive();
       calculatePenaltyAC();
 
+      findBestFiveDSV();
       calculatePenaltyB();
 
       calculatePenalty();
@@ -78,10 +103,16 @@ namespace RaceHorologyLib
       ResultSorter<RaceResultItem> comparer = new TotalTimeSorter();
       items.Sort(comparer);
 
-      _topTen = new List<Tuple<RaceResultItem, bool>>();
+      _topTen = new List<TopTenResult>();
 
       for (int i = 0; i < 10 && i < items.Count; i++)
-        _topTen.Add(new Tuple<RaceResultItem,bool>(items[i], false));
+      {
+        // Store the best time
+        if (i==0)
+          _bestTime = (TimeSpan)(items[i].TotalTime);
+
+        _topTen.Add(new TopTenResult(items[i], CalculatePoints(items[i], false)));
+      }
     }
 
     void markBestFive()
@@ -95,36 +126,34 @@ namespace RaceHorologyLib
         {
           var item = _topTen[j];
 
-          if (item.Item2 == true)
+          // Already marked as top five?
+          if (item.TopFive)
             continue;
 
-          if (item.Item1.Participant.Points < nextBestValue)
+          if (item.RRI.Participant.Points < nextBestValue)
           {
-            nextBestValue = item.Item1.Participant.Points;
+            nextBestValue = item.RRI.Participant.Points;
             nextBest = j;
           }
 
         }
         if (nextBest < int.MaxValue)
-          _topTen[nextBest] = new Tuple<RaceResultItem, bool>(_topTen[nextBest].Item1, true);
+          _topTen[nextBest].TopFive = true;
       }
     }
 
     void calculatePenaltyAC()
     {
-      findTopTen();
-      markBestFive();
-
       double valueA = .0;
       double valueC = .0;
 
       for (int j = 0; j < _topTen.Count; j++)
       {
         var item = _topTen[j];
-        if (item.Item2 == true)
+        if (item.TopFive == true)
         {
-          valueA += item.Item1.Participant.Points;
-          valueC += item.Item1.Points;
+          valueA += item.RRI.Participant.Points;
+          valueC += item.RacePoints;
         }
       }
 
@@ -135,8 +164,6 @@ namespace RaceHorologyLib
 
     void calculatePenaltyB()
     {
-      findBestFiveDSV();
-
       double valueB = .0;
 
       foreach(var rri in _topFiveDSV)
@@ -150,7 +177,7 @@ namespace RaceHorologyLib
     void calculatePenalty()
     {
       _penalty = (_penaltyA + _penaltyB - _penaltyC) / 10.0;
-      _appliedPenalty = Math.Max(_minPenalty, _penalty);
+      _appliedPenalty = Math.Max(_minPenalty, CalculatedPenalty);
     }
 
 
