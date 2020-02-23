@@ -72,9 +72,13 @@ namespace RaceHorologyLibTest
 
       AppDataModel model = new AppDataModel(db);
 
-      DSVRaceCalculation raceCalc = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), "W");
-      raceCalc.CalculatePenalty();
+      DSVRaceCalculation raceCalcW = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), "W");
+      raceCalcW.CalculatePenalty();
+      Assert.AreEqual(28.56, raceCalcW.CalculatedPenalty);
 
+      DSVRaceCalculation raceCalcM = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), "M");
+      raceCalcM.CalculatePenalty();
+      Assert.AreEqual(51.18, raceCalcM.CalculatedPenalty);
     }
   }
 }
