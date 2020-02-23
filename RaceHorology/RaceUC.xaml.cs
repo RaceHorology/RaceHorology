@@ -1016,7 +1016,7 @@ namespace RaceHorology
     {
       string filePath = System.IO.Path.Combine(
         _dataModel.GetDB().GetDBPathDirectory(),
-        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + " - " + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xml");
+        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + ".xml");
       
       Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
       openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
