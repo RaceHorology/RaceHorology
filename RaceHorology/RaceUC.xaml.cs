@@ -137,6 +137,9 @@ namespace RaceHorology
       cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
       cmbConfigStartlist2.SelectCBItem(cfg.Run2_StartistView);
       cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
+      txtValueF.Text = cfg.ValueF.ToString();
+      txtValueA.Text = cfg.ValueA.ToString();
+      txtMinPenalty.Text = cfg.MinimumPenalty.ToString();
 
       chkConfigFieldsYear.IsChecked = cfg.ActiveFields.Contains("Year");
       chkConfigFieldsClub.IsChecked = cfg.ActiveFields.Contains("Club");
@@ -166,7 +169,9 @@ namespace RaceHorology
       cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
       cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
       cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;
-
+      try { cfg.ValueF = double.Parse(txtValueF.Text); } catch (Exception) { }
+      try { cfg.ValueA = double.Parse(txtValueA.Text); } catch (Exception) { }
+      try { cfg.MinimumPenalty = double.Parse(txtMinPenalty.Text); } catch (Exception) { }
 
       void enableField(List<string> fieldList, string field, bool? enabled)
       {

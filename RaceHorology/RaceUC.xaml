@@ -152,6 +152,42 @@
               <ComboBox x:Name="cmbConfigStartlist2" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
             </StackPanel>            
           </Grid>
+
+          <Grid Margin="0,15,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Height="25" Grid.ColumnSpan="2">
+              <Label DockPanel.Dock="Left" Content="Berechnung"/>
+              <Separator/>
+            </DockPanel>
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblValueF" Margin="5" Content="F-Wert:" Grid.Column="0"/>
+            <TextBox x:Name="txtValueF" Margin="5" Grid.Column="1" />
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblValueA" Margin="5" Content="Adder:" Grid.Column="0"/>
+            <TextBox x:Name="txtValueA" Margin="5" Grid.Column="1" />
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblMinPenalty" Margin="5" Content="Minimumzuschlag:" Grid.Column="0"/>
+            <TextBox x:Name="txtMinPenalty" Margin="5" Grid.Column="1" />
+          </Grid>
+
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
@@ -162,6 +198,7 @@
               <Button x:Name="btnApply" Content="Apply" Margin="5" Padding="5" Click="BtnApply_Click"/>
             </StackPanel>
           </Grid>
+
 
         </StackPanel>
 

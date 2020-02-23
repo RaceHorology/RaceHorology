@@ -91,6 +91,9 @@ namespace RaceHorologyLib
 
     public Dictionary<string, string> LivetimingParams;
 
+    public double ValueF;
+    public double ValueA;
+    public double MinimumPenalty;
 
     public RaceConfiguration()
     {
