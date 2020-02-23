@@ -2090,7 +2090,7 @@ public abstract class PDFReport : IPDFReport
       string formatRang(RaceResultItem rri)
       {
         if (rri.Position > 0)
-          return string.Format("{0}.", rri.Position);
+          return string.Format("{0}", rri.Position);
         else
           return rri.ResultCode.ToString();
       }
@@ -2257,7 +2257,7 @@ public abstract class PDFReport : IPDFReport
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(string.Format("{0}.", i+1))));
+            .Add(createCellParagraphForTable(string.Format("{0}", i+1))));
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
