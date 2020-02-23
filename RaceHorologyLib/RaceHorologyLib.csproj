@@ -73,6 +73,7 @@
     <Compile Include="Database.cs" />
     <Compile Include="AppDataModelDataTypes.cs" />
     <Compile Include="DSVAlpin2HTTPServer.cs" />
+    <Compile Include="DSVCalculations.cs" />
     <Compile Include="DSVExport.cs" />
     <Compile Include="JsonConversion.cs" />
     <Compile Include="LiveTimingMeasurement.cs" />
