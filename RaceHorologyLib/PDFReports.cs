@@ -766,7 +766,7 @@ public abstract class PDFReport : IPDFReport
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,3)
-        .Add(new Paragraph("KAMPFGERICHT")
+        .Add(new Paragraph("KAMPFGERICHT / JURY")
           .SetPaddingTop(6)
           .SetFont(fontBold)));
 
