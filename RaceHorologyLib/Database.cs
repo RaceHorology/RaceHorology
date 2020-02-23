@@ -509,8 +509,8 @@ namespace RaceHorologyLib
               case 0: props.Analyzer = value; break;
               case 1: break; // skip, was: timing device
               case 2: props.Organizer = value; break;
-              case 3: props.RaceDirector.Name = value; break;
-              case 4: props.RaceDirector.Club = value; break;
+              case 3: props.RaceReferee.Name = value; break;
+              case 4: props.RaceReferee.Club = value; break;
               case 5: props.RaceManager.Name = value; break;
               case 6: props.RaceManager.Club = value; break;
               case 7: props.TrainerRepresentative.Name = value; break;
@@ -581,8 +581,8 @@ namespace RaceHorologyLib
     {
       storeRacePropertyInternal(race,  0, props.Analyzer);
       storeRacePropertyInternal(race,  2, props.Organizer);
-      storeRacePropertyInternal(race,  3, props.RaceDirector.Name );
-      storeRacePropertyInternal(race,  4, props.RaceDirector.Club );
+      storeRacePropertyInternal(race,  3, props.RaceReferee.Name );
+      storeRacePropertyInternal(race,  4, props.RaceReferee.Club );
       storeRacePropertyInternal(race,  5, props.RaceManager.Name );
       storeRacePropertyInternal(race,  6, props.RaceManager.Club );
       storeRacePropertyInternal(race,  7, props.TrainerRepresentative.Name );

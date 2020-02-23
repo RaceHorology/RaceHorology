@@ -781,10 +781,10 @@ public abstract class PDFReport : IPDFReport
           .SetPaddingTop(6)
           .SetFont(fontBold)));
       table.AddCell(createCell()
-        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceDirector.Name))
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceReferee.Name))
           .SetPaddingTop(6)));
       table.AddCell(createCell()
-        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceDirector.Club))
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceReferee.Club))
           .SetPaddingTop(6)));
       table.AddCell(createCell()
         .Add(new Paragraph("Streckenname:")

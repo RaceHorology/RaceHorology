@@ -226,7 +226,7 @@ namespace RaceHorologyLib
 
     public string Analyzer { get; set; }
     public string Organizer { get; set; }
-    public Person RaceDirector { get; set; } = new Person(); // Schiedsrichter
+    public Person RaceReferee { get; set; } = new Person(); // Schiedsrichter
     public Person RaceManager { get; set; } = new Person(); // Rennleiter
     public Person TrainerRepresentative { get; set; } = new Person(); // Trainer Vertreter
 
