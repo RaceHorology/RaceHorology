@@ -1258,6 +1258,8 @@ namespace RaceHorologyLib
           firstTime = lastTime = null;
         }
 
+        DSVRaceCalculation dsvCalc = new DSVRaceCalculation(_race, sortedItem.Participant.Sex);
+
         if (sortedItem.TotalTime != null)
         {
           // Same position in case same time
@@ -1282,9 +1284,7 @@ namespace RaceHorologyLib
 
           sortedItem.Position = curPosition;
 
-          double valueF = 1010.0;
-          double valueA = 0.0;
-          sortedItem.Points = Math.Round(valueF * ((TimeSpan)sortedItem.TotalTime).TotalSeconds / ((TimeSpan)firstTime).TotalSeconds - valueF + valueA, 2);
+          sortedItem.Points = dsvCalc.CalculatePoints(sortedItem, (TimeSpan)firstTime);
 
           lastTime = sortedItem.TotalTime;
         }
