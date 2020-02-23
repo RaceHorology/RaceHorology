@@ -174,31 +174,32 @@ namespace RaceHorologyLib
 
       if (false) // TODO: needs to be fixed, btw: optional
       {
-        DSVRaceCalculation dsvCalc = new DSVRaceCalculation(race);
+        DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, "W");
         // women
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "L");
 
         _writer.WriteStartElement("applied_penalty");
-        _writer.WriteValue(dsvCalc.AppliedPenaltyWomen);
+        _writer.WriteValue(dsvCalcW.AppliedPenalty);
         _writer.WriteEndElement();
 
         _writer.WriteStartElement("calculated_penalty");
-        _writer.WriteValue(dsvCalc.CalculatedPenaltyWomen);
+        _writer.WriteValue(dsvCalcW.CalculatedPenalty);
         _writer.WriteEndElement();
 
         _writer.WriteEndElement();
 
         // men
+        DSVRaceCalculation dsvCalcM = new DSVRaceCalculation(race, "M");
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "M");
 
         _writer.WriteStartElement("applied_penalty");
-        _writer.WriteValue(dsvCalc.AppliedPenaltyMen);
+        _writer.WriteValue(dsvCalcM.AppliedPenalty);
         _writer.WriteEndElement();
 
         _writer.WriteStartElement("calculated_penalty");
-        _writer.WriteValue(dsvCalc.CalculatedPenaltyMen);
+        _writer.WriteValue(dsvCalcM.CalculatedPenalty);
         _writer.WriteEndElement();
 
         _writer.WriteEndElement();
