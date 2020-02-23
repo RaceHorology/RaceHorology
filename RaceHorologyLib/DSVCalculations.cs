@@ -49,6 +49,14 @@ namespace RaceHorologyLib
     public double CalculatedPenalty { get { return Math.Round(ExactCalculatedPenalty, 2); } }
     public double AppliedPenalty { get { return _appliedPenalty; } }
 
+    public double ValueF { get { return _valueF; } }
+    public double ValueA { get { return _valueA; } }
+    public double PenaltyA { get { return _penaltyA; } }
+    public double PenaltyB { get { return _penaltyB; } }
+    public double PenaltyC { get { return _penaltyC; } }
+
+    public List<TopTenResult> TopTen { get { return _topTen; } }
+    public List<RaceResultItem> TopFiveDSV {  get { return _topFiveDSV; } }
 
 
     public DSVRaceCalculation(Race race, RaceResultViewProvider vpSource, string sex)

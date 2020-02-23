@@ -1003,7 +1003,12 @@ namespace RaceHorology
       {
         CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
         if (selObj == null)
-          report = new RaceResultReport(_thisRace);
+        {
+          if (_thisRace.GetResultViewProvider() is DSVSchoolRaceResultViewProvider)
+            report = new DSVSchoolRaceResultReport(_thisRace);
+          else
+            report = new RaceResultReport(_thisRace);
+        }
         else if (selObj.Type == "results")
           report = new RaceRunResultReport(selObj.RaceRun);
         else if (selObj.Type == "startlist")

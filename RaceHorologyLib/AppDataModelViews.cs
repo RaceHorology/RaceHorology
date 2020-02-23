@@ -1399,6 +1399,15 @@ namespace RaceHorologyLib
       return new DSVSchoolRaceResultViewProvider();
     }
 
+    public DSVRaceCalculation GetDSVRaceCalculationMen()
+    {
+      return _dsvCalcM;
+    }
+
+    public DSVRaceCalculation GetDSVRaceCalculationWomen()
+    {
+      return _dsvCalcW;
+    }
 
     public override void Init(Race race, AppDataModel appDataModel)
     {
