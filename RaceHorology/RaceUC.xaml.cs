@@ -1012,6 +1012,35 @@ namespace RaceHorology
       CreateAndOpenReport(report);
     }
 
+    private void BtnExportDsv_Click(object sender, RoutedEventArgs e)
+    {
+      string filePath = System.IO.Path.Combine(
+        _dataModel.GetDB().GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + " - " + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xml");
+      
+      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
+      openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
+      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
+      openFileDialog.DefaultExt = ".xml";
+      openFileDialog.Filter = "DSV Results (.xml)|*.xml";
+      try
+      {
+        if (openFileDialog.ShowDialog() == true)
+        {
+          filePath = openFileDialog.FileName;
+          DSVExport dsvExport = new DSVExport();
+          dsvExport.Export(filePath, _thisRace);
+        }
+      }
+      catch (Exception ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
+          "Fehler",
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+      }
+    }
+
 
     public static void CreateAndOpenReport(IPDFReport report)
     {
