@@ -92,6 +92,7 @@ namespace RaceHorology
 
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach DSV Schülerreglement", Value = "RaceResult_SumDSVPointsSchool" });
 
       // Run 1
       UiUtilities.FillGrouping(cmbConfigStartlist1Grouping);

@@ -850,7 +850,7 @@ namespace RaceHorologyLib
 
 
     // Input: RaceRun
-    public void Init(RaceRun raceRun, AppDataModel appDataModel)
+    public virtual void Init(RaceRun raceRun, AppDataModel appDataModel)
     {
       _originalResults = raceRun.GetResultList();
       _appDataModel = appDataModel;
@@ -1025,22 +1025,28 @@ namespace RaceHorologyLib
 
   public class RaceResultViewProvider : ResultViewProvider
   {
-    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
     delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode code, out string disqualText);
 
     TimeCombination _timeCombination;
     // Input Data
-    Race _race;
-    RaceRun[] _raceRuns;
-    AppDataModel _appDataModel;
+    protected Race _race;
+    protected RaceRun[] _raceRuns;
+    protected AppDataModel _appDataModel;
 
     // Working Data
-    ItemsChangeObservableCollection<RaceResultItem> _viewList;
-    ResultSorter<RaceResultItem> _comparer;
+    protected ItemsChangeObservableCollection<RaceResultItem> _viewList;
+    protected ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
-    List<RaceRun> _lastConsideredRuns;
+    protected List<RaceRun> _lastConsideredRuns;
+
+
+    protected virtual double calculatePoints(RaceResultItem rri)
+    {
+      return -1.0;
+    }
 
     public enum TimeCombination { BestRun, Sum };
     public RaceResultViewProvider(TimeCombination timeCombination)
@@ -1069,7 +1075,7 @@ namespace RaceHorologyLib
 
     
     // Input: Race
-    public void Init(Race race, AppDataModel appDataModel)
+    public virtual void Init(Race race, AppDataModel appDataModel)
     {
       _race = race;
       _raceRuns = _race.GetRuns();
@@ -1240,7 +1246,7 @@ namespace RaceHorologyLib
     }
 
 
-    void ResortResults()
+    protected virtual void ResortResults()
     {
       Logger.Debug(System.Reflection.MethodBase.GetCurrentMethod());
 
@@ -1266,13 +1272,6 @@ namespace RaceHorologyLib
           firstTime = lastTime = null;
         }
 
-        DSVRaceCalculation dsvCalc = new DSVRaceCalculation(_race, this, sortedItem.Participant.Sex);
-        try
-        {
-          dsvCalc.CalculatePenalty();
-        }
-        catch (Exception){ }
-
         if (sortedItem.TotalTime != null)
         {
           // Same position in case same time
@@ -1297,7 +1296,7 @@ namespace RaceHorologyLib
 
           sortedItem.Position = curPosition;
 
-          sortedItem.Points = dsvCalc.CalculatePoints(sortedItem, true);
+          sortedItem.Points = calculatePoints(sortedItem);
 
           lastTime = sortedItem.TotalTime;
         }
@@ -1386,6 +1385,57 @@ namespace RaceHorologyLib
 
   }
 
+
+  public class DSVSchoolRaceResultViewProvider : RaceResultViewProvider
+  {
+    protected DSVRaceCalculation _dsvCalcM;
+    protected DSVRaceCalculation _dsvCalcW;
+
+    public DSVSchoolRaceResultViewProvider() : base(RaceResultViewProvider.TimeCombination.Sum)
+    { }
+
+    public override ViewProvider Clone()
+    {
+      return new DSVSchoolRaceResultViewProvider();
+    }
+
+
+    public override void Init(Race race, AppDataModel appDataModel)
+    {
+      _dsvCalcM = new DSVRaceCalculation(race, this, "M");
+      _dsvCalcW = new DSVRaceCalculation(race, this, "W");
+
+      base.Init(race, appDataModel);
+    }
+
+
+    protected override void ResortResults()
+    {
+      if (_viewList == null)
+        return;
+
+      try
+      {
+        _dsvCalcM.CalculatePenalty();
+        _dsvCalcW.CalculatePenalty();
+      }
+      catch (Exception) { }
+
+      base.ResortResults();
+    }
+
+    protected override double calculatePoints(RaceResultItem rri)
+    { 
+      if (rri.Participant.Sex == "M")
+        return _dsvCalcM.CalculatePoints(rri, true);
+      if (rri.Participant.Sex == "W")
+        return _dsvCalcW.CalculatePoints(rri, true);
+
+      return -1.0;
+    }
+  }
+
+
   /* e.g. FamilienWertung
     public class SpecialRaceResultViewProvider : ResultViewProvider
     {
@@ -1398,7 +1448,7 @@ namespace RaceHorologyLib
     */
 
 
-    
+
 
 
 

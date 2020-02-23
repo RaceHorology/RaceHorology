@@ -79,6 +79,7 @@ namespace RaceHorologyLib
       return -1.0;
     }
 
+
     public void CalculatePenalty()
     {
       findTopTen();

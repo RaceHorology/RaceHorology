@@ -34,6 +34,7 @@ namespace RaceHorologyLib
 
       _prototypes["RaceResult_BestOfTwo"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
       _prototypes["RaceResult_Sum"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
+      _prototypes["RaceResult_SumDSVPointsSchool"] = new DSVSchoolRaceResultViewProvider();
 
       _prototypes["RaceRunResult"] = new RaceRunResultViewProvider();
 
@@ -302,10 +303,11 @@ namespace RaceHorologyLib
 
       if (rVP == null)
         rVP = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
-
+      
       rVP.SetDefaultGrouping(_config.DefaultGrouping);
 
       rVP.Init(race, _dataModel);
+
       return rVP;
     }
 
