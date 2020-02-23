@@ -405,13 +405,16 @@ namespace RaceHorologyLib
 
         if (!string.IsNullOrWhiteSpace(rri.DisqualText))
         {
-          _writer.WriteStartElement("notranked");
+          _writer.WriteStartElement("reason");
           _writer.WriteValue(rri.DisqualText);
           _writer.WriteEndElement();
         }
 
         writeCompetitor(_writer, rri.Participant);
-        writeRaceResult(_writer, rri);
+
+        _writer.WriteStartElement("dsvlistpoints");
+        _writer.WriteValue(rri.Participant.Points);
+        _writer.WriteEndElement();
 
         _writer.WriteEndElement();
       }
