@@ -1089,6 +1089,14 @@ namespace RaceHorologyLib
       FinalizeInit();
     }
 
+
+    // Output: sorted List<StartListEntry> according to StartNumber
+    public ItemsChangeObservableCollection<RaceResultItem> GetViewList()
+    {
+      return _viewList;
+    }
+
+
     // Output: List<RunResultWithPosition>
     protected override object GetViewSource()
     {
@@ -1258,7 +1266,12 @@ namespace RaceHorologyLib
           firstTime = lastTime = null;
         }
 
-        DSVRaceCalculation dsvCalc = new DSVRaceCalculation(_race, sortedItem.Participant.Sex);
+        DSVRaceCalculation dsvCalc = new DSVRaceCalculation(_race, this, sortedItem.Participant.Sex);
+        try
+        {
+          dsvCalc.CalculatePenalty();
+        }
+        catch (Exception){ }
 
         if (sortedItem.TotalTime != null)
         {

@@ -25,6 +25,7 @@ namespace RaceHorologyLib
     }
 
     private Race _race;
+    private RaceResultViewProvider _vpSource;
     private string _sex;
     
     private double _valueF;
@@ -38,7 +39,7 @@ namespace RaceHorologyLib
 
     private double _appliedPenalty;
 
-    TimeSpan _bestTime;
+    TimeSpan? _bestTime;
     List<TopTenResult> _topTen;
     List<RaceResultItem> _topFiveDSV;
 
@@ -50,9 +51,10 @@ namespace RaceHorologyLib
 
 
 
-    public DSVRaceCalculation(Race race, string sex)
+    public DSVRaceCalculation(Race race, RaceResultViewProvider vpSource, string sex)
     {
       _race = race;
+      _vpSource = vpSource;
       _sex = sex;
 
       _valueF = race.RaceConfiguration.ValueF;
@@ -61,6 +63,7 @@ namespace RaceHorologyLib
       _minPenalty = race.RaceConfiguration.MinimumPenalty;
       _penalty = _penaltyA = _penaltyB = _penaltyC = 0.0;
       _appliedPenalty = 0.0;
+      _bestTime = null;
     }
 
 
@@ -70,7 +73,10 @@ namespace RaceHorologyLib
       if (withPenalty)
         penalty = _appliedPenalty;
 
-      return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / _bestTime.TotalSeconds - _valueF + _valueA + penalty, 2);
+      if (_bestTime != null)
+        return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - _valueF + _valueA + penalty, 2);
+
+      return -1.0;
     }
 
     public void CalculatePenalty()
@@ -90,10 +96,14 @@ namespace RaceHorologyLib
 
     void findTopTen()
     {
+      System.Collections.IEnumerable results = _vpSource.GetViewList();
+      if (results == null)
+        throw new Exception("calculation not possible");
+
       List<RaceResultItem> items = new List<RaceResultItem>();
 
       // Copy from Results
-      foreach( var item in _race.GetResultViewProvider().GetView().SourceCollection)
+      foreach ( var item in results)
       {
         if (item is RaceResultItem rri)
           if (includeResult(rri))
@@ -191,7 +201,11 @@ namespace RaceHorologyLib
         double bestPoints = double.MaxValue;
         RaceResultItem bestRRI = null;
 
-        foreach (var item in _race.GetResultViewProvider().GetView().SourceCollection)
+        System.Collections.IEnumerable results = _vpSource.GetViewList();
+        if (results == null)
+          throw new Exception("calculation not possible");
+
+        foreach (var item in results)
         {
           if (item is RaceResultItem rri)
           {

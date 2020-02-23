@@ -174,7 +174,7 @@ namespace RaceHorologyLib
 
       if (false) // TODO: needs to be fixed, btw: optional
       {
-        DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, "W");
+        DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), "W");
         // women
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "L");
@@ -190,7 +190,7 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
 
         // men
-        DSVRaceCalculation dsvCalcM = new DSVRaceCalculation(race, "M");
+        DSVRaceCalculation dsvCalcM = new DSVRaceCalculation(race, race.GetResultViewProvider(), "M");
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "M");
 

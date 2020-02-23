@@ -72,7 +72,7 @@ namespace RaceHorologyLibTest
 
       AppDataModel model = new AppDataModel(db);
 
-      DSVRaceCalculation raceCalc = new DSVRaceCalculation(model.GetRace(0), "W");
+      DSVRaceCalculation raceCalc = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), "W");
       raceCalc.CalculatePenalty();
 
     }
