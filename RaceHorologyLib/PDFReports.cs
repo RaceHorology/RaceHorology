@@ -656,6 +656,7 @@ public abstract class PDFReport : IPDFReport
 
     protected int _nOptFields;
 
+
     public PDFReport(Race race)
     {
       _race = race;
@@ -989,9 +990,30 @@ public abstract class PDFReport : IPDFReport
         _nOptFields++;
     }
 
+    protected PdfFont _tableFont;
+    protected PdfFont _tableFontHeader;
+    protected float _tableFontSize;
+    protected float _tableFontSizeHeader;
+
+    protected virtual void determineTableFontAndSize()
+    {
+      _tableFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+      _tableFontHeader = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+      _tableFontSize = 9;
+      if (_nOptFields > 3)
+        _tableFontSize = 8;
+      if (_nOptFields > 4)
+        _tableFontSize = 7;
+
+      _tableFontSizeHeader = _tableFontSize + 1;
+    }
+
     protected virtual Table getResultsTable()
     {
       calcNumOptFields(); // Ensures the member _nOptFields is correct (used by getTableColumnsWidths())
+      determineTableFontAndSize();
+
       var table = new Table(getTableColumnsWidths());
 
       table.SetWidth(UnitValue.CreatePercentValue(100));
@@ -1031,15 +1053,20 @@ public abstract class PDFReport : IPDFReport
 
     protected Paragraph createCellParagraphForTable(string text)
     {
-      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-
       return new Paragraph(text)
-        .SetFont(font)
-        .SetFontSize(9)
+        .SetFont(_tableFont)
+        .SetFontSize(_tableFontSize)
         .SetPaddingTop(0)
         .SetPaddingBottom(0)
         .SetPaddingLeft(0)
         .SetPaddingRight(0);
+    }
+
+    protected Paragraph createHeaderCellParagraphForTable(string text)
+    {
+      return new Paragraph(text)
+        .SetFont(_tableFontHeader)
+        .SetFontSize(_tableFontSizeHeader);
     }
 
 
@@ -1127,42 +1154,35 @@ public abstract class PDFReport : IPDFReport
 
     protected override void addHeaderToTable(Table table)
     {
-
-      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-      Paragraph createParagraph(string text)
-      {
-        return new Paragraph(text).SetFont(font).SetFontSize(10);
-      }
-
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Stnr")));
+        .Add(createHeaderCellParagraphForTable("Stnr")));
       if (_race.IsFieldActive("Code"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Code")));
+          .Add(createHeaderCellParagraphForTable("Code")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Teilnehmer")));
+        .Add(createHeaderCellParagraphForTable("Teilnehmer")));
       if (_race.IsFieldActive("Year"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("JG")));
+          .Add(createHeaderCellParagraphForTable("JG")));
       if (_race.IsFieldActive("Nation"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("VB")));
+          .Add(createHeaderCellParagraphForTable("VB")));
       if (_race.IsFieldActive("Club"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Verein")));
+          .Add(createHeaderCellParagraphForTable("Verein")));
       if (_race.IsFieldActive("Points"))
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Punkte")));
+          .Add(createHeaderCellParagraphForTable("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Laufzeit")));
+        .Add(createHeaderCellParagraphForTable("Laufzeit")));
     }
 
 
@@ -1277,48 +1297,41 @@ public abstract class PDFReport : IPDFReport
 
     protected override void addHeaderToTable(Table table)
     {
-
-      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-      Paragraph createParagraph(string text)
-      {
-        return new Paragraph(text).SetFont(font).SetFontSize(10);
-      }
-
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Lfnr")));
+        .Add(createHeaderCellParagraphForTable("Lfnr")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Stnr")));
+        .Add(createHeaderCellParagraphForTable("Stnr")));
       if (_race.IsFieldActive("Code"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Code")));
+          .Add(createHeaderCellParagraphForTable("Code")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Teilnehmer")));
+        .Add(createHeaderCellParagraphForTable("Teilnehmer")));
       if (_race.IsFieldActive("Year"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("JG")));
+          .Add(createHeaderCellParagraphForTable("JG")));
       if (_race.IsFieldActive("Nation"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("VB")));
+          .Add(createHeaderCellParagraphForTable("VB")));
       if (_race.IsFieldActive("Club"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Verein")));
+          .Add(createHeaderCellParagraphForTable("Verein")));
       if (_race.IsFieldActive("Points"))
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Punkte")));
+          .Add(createHeaderCellParagraphForTable("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Zeit-1")));
+        .Add(createHeaderCellParagraphForTable("Zeit-1")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Laufzeit")));
+        .Add(createHeaderCellParagraphForTable("Laufzeit")));
     }
 
 
@@ -1545,48 +1558,41 @@ public abstract class PDFReport : IPDFReport
 
     protected override void addHeaderToTable(Table table)
     {
-
-      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-      Paragraph createParagraph(string text)
-      {
-        return new Paragraph(text).SetFont(font).SetFontSize(10);
-      }
-
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Rang")));
+        .Add(createHeaderCellParagraphForTable("Rang")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Stnr")));
+        .Add(createHeaderCellParagraphForTable("Stnr")));
       if (_race.IsFieldActive("Code"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Code")));
+          .Add(createHeaderCellParagraphForTable("Code")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Teilnehmer")));
+        .Add(createHeaderCellParagraphForTable("Teilnehmer")));
       if (_race.IsFieldActive("Year"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("JG")));
+          .Add(createHeaderCellParagraphForTable("JG")));
       if (_race.IsFieldActive("Nation"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("VB")));
+          .Add(createHeaderCellParagraphForTable("VB")));
       if (_race.IsFieldActive("Club"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Verein")));
+          .Add(createHeaderCellParagraphForTable("Verein")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Laufzeit")));
+        .Add(createHeaderCellParagraphForTable("Laufzeit")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Diff")));
+        .Add(createHeaderCellParagraphForTable("Diff")));
       if (_race.IsFieldActive("Points"))
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Punkte")));
+          .Add(createHeaderCellParagraphForTable("Punkte")));
     }
 
 
@@ -1767,54 +1773,47 @@ public abstract class PDFReport : IPDFReport
 
     protected override void addHeaderToTable(Table table)
     {
-
-      var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-      Paragraph createParagraph(string text)
-      {
-        return new Paragraph(text).SetFont(font).SetFontSize(10);
-      }
-
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Rang")));
+        .Add(createHeaderCellParagraphForTable("Rang")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Stnr")));
+        .Add(createHeaderCellParagraphForTable("Stnr")));
       if (_race.IsFieldActive("Code"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Code")));
+          .Add(createHeaderCellParagraphForTable("Code")));
       table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Teilnehmer")));
+        .Add(createHeaderCellParagraphForTable("Teilnehmer")));
       if (_race.IsFieldActive("Year"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("JG")));
+          .Add(createHeaderCellParagraphForTable("JG")));
       if (_race.IsFieldActive("Nation"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("VB")));
+          .Add(createHeaderCellParagraphForTable("VB")));
       if (_race.IsFieldActive("Club"))
         table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Verein")));
+          .Add(createHeaderCellParagraphForTable("Verein")));
 
       for (int i = 1; i <= _race.GetMaxRun(); i++)
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
-          .Add(createParagraph(string.Format("Zeit-{0}", i))));
+          .Add(createHeaderCellParagraphForTable(string.Format("Zeit-{0}", i))));
 
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Laufzeit")));
+        .Add(createHeaderCellParagraphForTable("Laufzeit")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createParagraph("Diff")));
+        .Add(createHeaderCellParagraphForTable("Diff")));
       if (_race.IsFieldActive("Points"))
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
-          .Add(createParagraph("Punkte")));
+          .Add(createHeaderCellParagraphForTable("Punkte")));
     }
 
 
@@ -2078,13 +2077,16 @@ public abstract class PDFReport : IPDFReport
     {
       var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-      var fontTitle = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
       int fontSizeTitle = 16;
       int fontSizeNormal = 10;
 
       Paragraph createHeaderParagraph(string text)
       {
         return new Paragraph(text).SetFont(fontBold).SetFontSize(fontSizeNormal);
+      }
+      Paragraph createParagraph(string text)
+      {
+        return new Paragraph(text).SetFont(fontNormal).SetFontSize(fontSizeNormal);
       }
 
       string formatRang(RaceResultItem rri)
@@ -2158,30 +2160,30 @@ public abstract class PDFReport : IPDFReport
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable((string)_positionConverter.Convert(item.RRI.Position, typeof(string), null, null))));
+            .Add(createParagraph((string)_positionConverter.Convert(item.RRI.Position, typeof(string), null, null))));
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(string.Format("{0}", item.RRI.TotalTime.ToRaceTimeString()))));
+            .Add(createParagraph(string.Format("{0}", item.RRI.TotalTime.ToRaceTimeString()))));
 
           table.AddCell(createCellForTable(TextAlignment.CENTER)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(item.RRI.Participant.Participant.CodeOrSvId)));
+            .Add(createParagraph(item.RRI.Participant.Participant.CodeOrSvId)));
           table.AddCell(createCellForTable()
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(item.RRI.Participant.Participant.Fullname)));
+            .Add(createParagraph(item.RRI.Participant.Participant.Fullname)));
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(formatPoints(item.RRI.Participant.Points))));
+            .Add(createParagraph(formatPoints(item.RRI.Participant.Points))));
           if (item.TopFive)
           {
             table.AddCell(createCellForTable(TextAlignment.RIGHT)
               .SetBackgroundColor(bgColor)
-              .Add(createCellParagraphForTable(formatPoints(item.RRI.Participant.Points))));
+              .Add(createParagraph(formatPoints(item.RRI.Participant.Points))));
             table.AddCell(createCellForTable(TextAlignment.RIGHT)
               .SetBackgroundColor(bgColor)
-              .Add(createCellParagraphForTable(formatPoints(item.RacePoints))));
+              .Add(createParagraph(formatPoints(item.RacePoints))));
           }
           else
           {
@@ -2199,16 +2201,16 @@ public abstract class PDFReport : IPDFReport
           );
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
-          .Add(createCellParagraphForTable(formatPoints(dsvCalc.PenaltyA))));
+          .Add(createParagraph(formatPoints(dsvCalc.PenaltyA))));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
-          .Add(createCellParagraphForTable(formatPoints(dsvCalc.PenaltyC))));
+          .Add(createParagraph(formatPoints(dsvCalc.PenaltyC))));
 
         table.AddCell(createCellForTable(5));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createCellParagraphForTable(">>A<<")));
+          .Add(createParagraph(">>A<<")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createCellParagraphForTable(">>C<<")));
+          .Add(createParagraph(">>C<<")));
 
         document.Add(table);
       }
@@ -2257,26 +2259,26 @@ public abstract class PDFReport : IPDFReport
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(string.Format("{0}", i+1))));
+            .Add(createParagraph(string.Format("{0}", i+1))));
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
+            .Add(createParagraph(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
 
           table.AddCell(createCellForTable(TextAlignment.CENTER)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(item.Participant.Participant.CodeOrSvId)));
+            .Add(createParagraph(item.Participant.Participant.CodeOrSvId)));
           table.AddCell(createCellForTable()
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(item.Participant.Participant.Fullname)));
+            .Add(createParagraph(item.Participant.Participant.Fullname)));
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(formatPoints(item.Participant.Points))));
+            .Add(createParagraph(formatPoints(item.Participant.Points))));
           
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createCellParagraphForTable(formatRang(item))));
+            .Add(createParagraph(formatRang(item))));
         }
 
         table.AddCell(createCellForTable(4)
@@ -2284,13 +2286,13 @@ public abstract class PDFReport : IPDFReport
           );
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
-          .Add(createCellParagraphForTable(formatPoints(dsvCalc.PenaltyB))));
+          .Add(createParagraph(formatPoints(dsvCalc.PenaltyB))));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
 
         table.AddCell(createCellForTable(4));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createCellParagraphForTable(">>B<<")));
+          .Add(createParagraph(">>B<<")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT));
 
         document.Add(table);
@@ -2303,56 +2305,56 @@ public abstract class PDFReport : IPDFReport
           .SetBorder(Border.NO_BORDER);
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createCellParagraphForTable("Berechneter Zuschlag:")));
+          .Add(createParagraph("Berechneter Zuschlag:")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createCellParagraphForTable("(")));
+          .Add(createParagraph("(")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable(string.Format("{0}", dsvCalc.PenaltyA))));
+          .Add(createParagraph(string.Format("{0}", dsvCalc.PenaltyA))));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable("+")));
+          .Add(createParagraph("+")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable(string.Format("{0}", dsvCalc.PenaltyB))));
+          .Add(createParagraph(string.Format("{0}", dsvCalc.PenaltyB))));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable("-")));
+          .Add(createParagraph("-")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable(string.Format("{0}", dsvCalc.PenaltyC))));
+          .Add(createParagraph(string.Format("{0}", dsvCalc.PenaltyC))));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable(") : 10 = ")));
+          .Add(createParagraph(") : 10 = ")));
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createCellParagraphForTable(string.Format("{0}", dsvCalc.ExactCalculatedPenalty))));
+          .Add(createParagraph(string.Format("{0}", dsvCalc.ExactCalculatedPenalty))));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createCellParagraphForTable("")));
+          .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createCellParagraphForTable("")));
+          .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable(">>A<<")));
+          .Add(createParagraph(">>A<<")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable("")));
+          .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable(">>B<<")));
+          .Add(createParagraph(">>B<<")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable("")));
+          .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable(">>C<<")));
+          .Add(createParagraph(">>C<<")));
         table.AddCell(createCellForTable(TextAlignment.CENTER)
-          .Add(createCellParagraphForTable("")));
+          .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createCellParagraphForTable("")));
+          .Add(createParagraph("")));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createCellParagraphForTable("Gerundet:")));
+          .Add(createParagraph("Gerundet:")));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
-          .Add(createCellParagraphForTable("")));
+          .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createCellParagraphForTable(string.Format("{0}", dsvCalc.CalculatedPenalty))));
+          .Add(createParagraph(string.Format("{0}", dsvCalc.CalculatedPenalty))));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createCellParagraphForTable("Angewandter Zuschlag:").SetFont(fontBold)));
+          .Add(createParagraph("Angewandter Zuschlag:").SetFont(fontBold)));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
-          .Add(createCellParagraphForTable("")));
+          .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createCellParagraphForTable(string.Format("{0}", dsvCalc.AppliedPenalty)).SetFont(fontBold)));
+          .Add(createParagraph(string.Format("{0}", dsvCalc.AppliedPenalty)).SetFont(fontBold)));
 
         document.Add(table);
       }
