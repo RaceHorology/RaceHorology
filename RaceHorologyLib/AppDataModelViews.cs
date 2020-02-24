@@ -1371,8 +1371,11 @@ namespace RaceHorologyLib
 
         if (res.Value.ResultCode != RunResult.EResultCode.Normal)
         {
-          resCode = res.Value.ResultCode;
-          disqualText = res.Value.DisqualText;
+          if (resCode == RunResult.EResultCode.Normal || resCode == RunResult.EResultCode.NotSet)
+          {
+            resCode = res.Value.ResultCode;
+            disqualText = res.Value.DisqualText;
+          }
         }
       }
 
