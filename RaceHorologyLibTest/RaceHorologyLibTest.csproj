@@ -84,6 +84,7 @@
     <Compile Include="UtilitiesTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="COPYING" />
     <None Include="DSVAlpin2LibTest.runsettings" />
     <None Include="packages.config" />
     <None Include="TestDataBases\FullTestCases\Case1\ALGETdC8001-202002020841.dump">
