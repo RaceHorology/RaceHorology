@@ -79,7 +79,15 @@ namespace RaceHorology
 
         lblVersion.Content = productVersion;
         lblCopyright.Content = string.Format("{0} by {1}", copyrightYear, companyName);
+
+        string licenseMain = File.ReadAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assembly.Location), "COPYING_MAIN.txt"));
+        string licenseGPLv3 = File.ReadAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assembly.Location), "COPYING"));
+        string licenseThirdParty = File.ReadAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assembly.Location), "LICENSES_THIRD_PARTY.txt"));
+        
+        txtLicense.Text = licenseMain + "\n\n\n" + licenseThirdParty + "\n\n\n" + licenseGPLv3;
       }
+
+
     }
 
     private void BtnOk_Click(object sender, RoutedEventArgs e)
