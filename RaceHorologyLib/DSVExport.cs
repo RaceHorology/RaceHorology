@@ -173,7 +173,7 @@ namespace RaceHorologyLib
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("racename");
-      _writer.WriteValue(race.AdditionalProperties.Name);
+      _writer.WriteValue(race.Description);
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("raceplace");
@@ -253,12 +253,9 @@ namespace RaceHorologyLib
       _writer.WriteValue("unknown"); // TODO: needs to be fixed
       _writer.WriteEndElement();
 
-      if (false) // TODO: needs to be fixed, non-optional
-      {
-        _writer.WriteStartElement("fvalue");
-        _writer.WriteValue("unknown");
-        _writer.WriteEndElement();
-      }
+      _writer.WriteStartElement("fvalue");
+      _writer.WriteValue(race.RaceConfiguration.ValueF);
+      _writer.WriteEndElement();
 
       if (false) // TODO: needs to be fixed, btw: optional
       {
@@ -455,9 +452,12 @@ namespace RaceHorologyLib
           notClassified.Add(item);
       }
 
+      _writer.WriteStartElement("raceresults");
+
       writeClassifiedCompetitors(classified);
       writeNotClassifiedCompetitors(notClassified);
 
+      _writer.WriteEndElement();
     }
 
     void writeClassifiedCompetitors(List<RaceResultItem> classified)
@@ -483,7 +483,7 @@ namespace RaceHorologyLib
 
     void writeNotClassifiedCompetitors(List<RaceResultItem> notClassified)
     {
-      _writer.WriteStartElement("not_classified_competitors");
+      _writer.WriteStartElement("not_classified_competitiors");
 
       foreach (RaceResultItem rri in notClassified)
       {
