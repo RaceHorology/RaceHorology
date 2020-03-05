@@ -245,11 +245,10 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
-    //[DeploymentItem(@"TestDataBases\KSC2019-2-PSL.mdb")]
-    [DeploymentItem(@"TestDataBases\Kirchberg U8 U10 10.02.19 RS Neu.mdb")]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void InitializeApplicationModel()
     {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"Kirchberg U8 U10 10.02.19 RS Neu.mdb");
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
