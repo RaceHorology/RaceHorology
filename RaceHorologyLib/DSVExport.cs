@@ -36,6 +36,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -63,6 +65,25 @@ namespace RaceHorologyLib
 
     public void Export(string pathZIPFile, Race race)
     {
+      // Helper function to add a logo
+      void addImageToZip(ZipArchive archive, string imageSrcName, string imageName, Race raceInternal)
+      {
+        PDFHelper pdfHelper = new PDFHelper(raceInternal.GetDataModel());
+        string imgSrcPath = pdfHelper.FindImage(imageSrcName);
+        if (imgSrcPath != null)
+        {
+          // Storing Image as BMP within ZIP
+          var imgZipFile = archive.CreateEntry(imageName + ".jpg");
+          using (var imgZipStream = imgZipFile.Open())
+          {
+            Image img = Image.FromFile(imgSrcPath);
+            img.Save(imgZipStream, ImageFormat.Jpeg);
+            imgZipStream.Close();
+          }
+        }
+      }
+
+
       string baseFileName = Path.GetFileNameWithoutExtension(pathZIPFile);
 
       // Create XML file
@@ -75,10 +96,11 @@ namespace RaceHorologyLib
         {
           var xmlFile = archive.CreateEntry(baseFileName + ".xml");
           using (var xmlStream = xmlFile.Open())
-          using (var streamWriter = new StreamWriter(xmlStream))
           {
             ExportXML(xmlStream, race);
           }
+
+          addImageToZip(archive, "Logo1", "LogoClub", race);
         }
 
         // Write ZIP to file

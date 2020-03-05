@@ -102,7 +102,7 @@ namespace RaceHorologyLib
     {
       Image img = null;
 
-      string imgPath = findImage(filenameWOExt);
+      string imgPath = FindImage(filenameWOExt);
       if (!string.IsNullOrEmpty(imgPath))
         img = new Image(ImageDataFactory.Create(imgPath));
       //iText.Svg.Converter.SvgConverter.
@@ -120,7 +120,7 @@ namespace RaceHorologyLib
     }
 
 
-    string findImage(string filenameWOExt)
+    public string FindImage(string filenameWOExt)
     {
       foreach (var resDir in resourcePaths)
       {
