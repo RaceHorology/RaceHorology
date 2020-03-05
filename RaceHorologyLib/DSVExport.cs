@@ -37,6 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -59,14 +60,44 @@ namespace RaceHorologyLib
       //_xmlSettings.NewLineOnAttributes = true;
     }
 
-    public void Export(string pathXMLFile, Race race)
+
+    public void Export(string pathZIPFile, Race race)
+    {
+      string baseFileName = Path.GetFileNameWithoutExtension(pathZIPFile);
+
+      // Create XML file
+      MemoryStream xmlData = new MemoryStream();
+      ExportXML(xmlData, race);
+
+      using (var zipStream = new MemoryStream())
+      {
+        using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+        {
+          var xmlFile = archive.CreateEntry(baseFileName + ".xml");
+          using (var xmlStream = xmlFile.Open())
+          using (var streamWriter = new StreamWriter(xmlStream))
+          {
+            ExportXML(xmlStream, race);
+          }
+        }
+
+        // Write ZIP to file
+        using (var fileStream = new FileStream(pathZIPFile, FileMode.Create))
+        {
+          zipStream.Seek(0, SeekOrigin.Begin);
+          zipStream.CopyTo(fileStream);
+        }
+      }
+    }
+
+    public void ExportXML(string pathXMLFile, Race race)
     {
       FileStream output = new FileStream(pathXMLFile, FileMode.Create);
-      Export(output, race);
+      ExportXML(output, race);
     }
 
 
-    public void Export(Stream output, Race race)
+    public void ExportXML(Stream output, Race race)
     {
       _writer = XmlWriter.Create(output, _xmlSettings);
 

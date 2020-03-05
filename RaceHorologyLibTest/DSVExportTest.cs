@@ -113,7 +113,7 @@ namespace RaceHorologyLibTest
       DSVExport dsvExport = new DSVExport();
 
       MemoryStream xmlData = new MemoryStream();
-      dsvExport.Export(xmlData, model.GetRace(0));
+      dsvExport.ExportXML(xmlData, model.GetRace(0));
 
       xmlData.Position = 0;
       StreamReader reader = new StreamReader(xmlData);

@@ -1062,13 +1062,13 @@ namespace RaceHorology
     {
       string filePath = System.IO.Path.Combine(
         _dataModel.GetDB().GetDBPathDirectory(),
-        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + ".xml");
+        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + ".zip");
       
       Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
       openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
       openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
-      openFileDialog.DefaultExt = ".xml";
-      openFileDialog.Filter = "DSV Results (.xml)|*.xml";
+      openFileDialog.DefaultExt = ".zip";
+      openFileDialog.Filter = "DSV Results (.zip)|*.zip";
       try
       {
         if (openFileDialog.ShowDialog() == true)
