@@ -83,8 +83,13 @@ namespace RaceHorology
         string licenseMain = File.ReadAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assembly.Location), "COPYING_MAIN.txt"));
         string licenseGPLv3 = File.ReadAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assembly.Location), "COPYING"));
         string licenseThirdParty = File.ReadAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assembly.Location), "LICENSES_THIRD_PARTY.txt"));
-        
-        txtLicense.Text = licenseMain + "\n\n\n" + licenseThirdParty + "\n\n\n" + licenseGPLv3;
+        string credits = File.ReadAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assembly.Location), "CREDITS.txt"));
+
+        txtLicense.Text = licenseMain + "\n\n\n" + licenseGPLv3;
+
+        txtLicense3rdParty.Text = licenseThirdParty;
+
+        txtCredits.Text = credits;
       }
 
 

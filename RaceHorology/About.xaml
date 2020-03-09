@@ -21,7 +21,18 @@
     <Image x:Name="LogoRH_png" Height="80" Source="LogoRH.png" Stretch="Uniform" Margin="10,20,10,20" />
     <Label x:Name="lblVersion" Grid.Row="1" Content="Version x.y" HorizontalContentAlignment="Center" FontFamily="Ubuntu" Foreground="#FF3F434B" />
     <Label x:Name="lblCopyright" Grid.Row="2" Content="(c) 2019-2020 by Sven Flossmann" HorizontalContentAlignment="Center" FontFamily="Ubuntu" Foreground="#FF3F434B" />
-    <TextBox x:Name="txtLicense" Text="Credits and Licenses will be here"  Grid.Row="3" VerticalScrollBarVisibility="Visible" Margin="10" Background="#f8faf7"/>
+
+    <TabControl x:Name="tabControl" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="10,10,10,10" Grid.Row="3" VerticalAlignment="Stretch" >
+      <TabItem Header="Lizenz">
+        <TextBox x:Name="txtLicense" Text="Credits and Licenses will be here"  VerticalScrollBarVisibility="Visible" Margin="10" Background="#f8faf7" FontFamily="Courier New"/>
+      </TabItem>
+      <TabItem Header="3rd Party Lizenzen">
+        <TextBox x:Name="txtLicense3rdParty" Text="Credits and Licenses will be here"  VerticalScrollBarVisibility="Visible" Margin="10" Background="#f8faf7" FontFamily="Courier New"/>
+      </TabItem>
+      <TabItem Header="Danksagungen">
+        <TextBox x:Name="txtCredits" Text="Credits and Licenses will be here"  VerticalScrollBarVisibility="Visible" Margin="10" Background="#f8faf7" FontFamily="Courier New"/>
+      </TabItem>
+    </TabControl>
 
     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
       <Button x:Name="btnOk" Content="Ok" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,10,10" IsDefault="True" IsCancel="True" Click="BtnOk_Click"/>
