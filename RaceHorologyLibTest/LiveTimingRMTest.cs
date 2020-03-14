@@ -61,6 +61,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming.mdb")]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming_GiantSlalom.config")]
     [DeploymentItem(@"3rdparty\DSVAlpinX.liz", "3rdparty")]
     public void TestSerialization()
     {
@@ -76,22 +77,46 @@ namespace RaceHorologyLibTest
       //cl.Init();
 
       string classes = cl.getClasses();
-      Assert.AreEqual(classes, "Klasse|5|Mädchen 2012|5\nKlasse|6|Mädchen 2011|7\nKlasse|7|Buben 2012|6\nKlasse|8|Buben 2011|8\nKlasse|9|Mädchen 2010|9\nKlasse|10|Mädchen 2009|11\nKlasse|11|Buben 2010|10\nKlasse|12|Buben 2009|12\nKlasse|17|Buben 2013|4\nKlasse|18|Buben 2014|2\nKlasse|19|Mädchen 2013|3\nKlasse|20|Mädchen 2014|1");
+      Assert.AreEqual(
+        "Klasse|20|Mädchen 2014|1\n" +
+        "Klasse|18|Buben 2014|2\n" +
+        "Klasse|19|Mädchen 2013|3\n" +
+        "Klasse|17|Buben 2013|4\n" +
+        "Klasse|5|Mädchen 2012|5\n" +
+        "Klasse|7|Buben 2012|6\n" +
+        "Klasse|6|Mädchen 2011|7\n" +
+        "Klasse|8|Buben 2011|8\n" +
+        "Klasse|9|Mädchen 2010|9\n" +
+        "Klasse|11|Buben 2010|10\n" +
+        "Klasse|10|Mädchen 2009|11\n" +
+        "Klasse|12|Buben 2009|12"
+        , classes );
+
 
       string groups = cl.getGroups();
-      Assert.AreEqual(groups, "Gruppe|2|Bambini männlich|2\nGruppe|3|U8 weiblich|3\nGruppe|4|U8 männlich|4\nGruppe|5|U10 weiblich|5\nGruppe|6|U10 männlich|6\nGruppe|9|Bambini weiblich|1");
+      Assert.AreEqual(
+        "Gruppe|9|Bambini weiblich|1\n" +
+        "Gruppe|2|Bambini männlich|2\n" +
+        "Gruppe|3|U8 weiblich|3\n" +
+        "Gruppe|4|U8 männlich|4\n" +
+        "Gruppe|5|U10 weiblich|5\n" +
+        "Gruppe|6|U10 männlich|6"
+        , groups);
 
       string categories = cl.getCategories();
-      Assert.AreEqual(categories, "Kategorie|M|M|1\nKategorie|W|W|2");
+      Assert.AreEqual("Kategorie|M|M|1\nKategorie|W|W|2", categories);
 
       string participants = cl.getParticipantsData();
-      Assert.AreEqual(participants, "W|5|10|1|1||Nachname 1, Vorname 1|2009|Nation 1|Verein 1|9999,99\nM|2|17|2|2||Nachname 2, Vorname 2|2013|Nation 2|Verein 2|9999,99\nM|4|8|3|3||Nachname 3, Vorname 3|2011|Nation 3|Verein 3|9999,99\nW|9|20|4|4||Nachname 4, Vorname 4|2014|Nation 4|Verein 4|9999,99\nM|4|7|5|5||Nachname 5, Vorname 5|2012|Nation 5|Verein 5|9999,99");
-
+      Assert.AreEqual(
+          "W|5|10|1|1||Nachname 1, Vorname 1|2009|Nation 1|Verein 1|9999,99\nM|2|17|2|2||Nachname 2, Vorname 2|2013|Nation 2|Verein 2|9999,99\nM|4|8|3|3||Nachname 3, Vorname 3|2011|Nation 3|Verein 3|9999,99\nW|9|20|4|4||Nachname 4, Vorname 4|2014|Nation 4|Verein 4|9999,99\nM|4|7|5|5||Nachname 5, Vorname 5|2012|Nation 5|Verein 5|9999,99"
+        , participants);
       string startList = cl.getStartListData(model.GetCurrentRaceRun());
-      Assert.AreEqual(startList, "  1\n  2\n  3\n  4\n  5");
+      Assert.AreEqual(
+        "  4\n  2\n  5\n  3\n  1", 
+        startList);
 
       string timingData = cl.getTimingData(model.GetCurrentRaceRun());
-      Assert.AreEqual(timingData, "  10000010,23\n  29000000,01\n  31999999,99\n  42999999,99\n  53999999,99");
+      Assert.AreEqual("  10000010,23\n  29000000,01\n  31999999,99\n  42999999,99\n  53999999,99", timingData);
     }
 
     [TestMethod]
@@ -101,18 +126,18 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"3rdparty\DSVAlpinX.liz", "3rdparty")]
     public void TestOnline()
     {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_LiveTiming.mdb");
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
-      db.Connect(dbFilename);
-      AppDataModel model = new AppDataModel(db);
+      //string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_LiveTiming.mdb");
+      //RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      //db.Connect(dbFilename);
+      //AppDataModel model = new AppDataModel(db);
 
-      model.SetCurrentRace(model.GetRaces()[0]);
-      model.SetCurrentRaceRun(model.GetCurrentRace().GetRun(0));
+      //model.SetCurrentRace(model.GetRaces()[0]);
+      //model.SetCurrentRaceRun(model.GetCurrentRace().GetRun(0));
 
-      LiveTimingRM cl = new LiveTimingRM(model.GetCurrentRace(), "01122", "livetiming", "livetiming");
-      cl.Login();
+      //LiveTimingRM cl = new LiveTimingRM(model.GetCurrentRace(), "01122", "livetiming", "livetiming");
+      //cl.Login();
 
-      cl.startLiveTiming();
+      //cl.startLiveTiming();
 
       //cl.Test1();
       //cl.Test2();
