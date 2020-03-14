@@ -247,7 +247,7 @@ namespace RaceHorologyLibTest
         Nation = "GER",
         SvId = "123",
         Code = "321",
-        Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
+        Class = db.GetParticipantClasses()[0],
         Year = 2009
       };
       db.CreateOrUpdateParticipant(pNew1);
@@ -262,7 +262,7 @@ namespace RaceHorologyLibTest
         Sex = "M",
         Club = "Verein 7",
         Nation = "GER",
-        Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
+        Class = db.GetParticipantClasses()[0],
         Year = 2010
       };
       db.CreateOrUpdateParticipant(pNew2);
@@ -278,7 +278,7 @@ namespace RaceHorologyLibTest
         Sex = "",
         Club = "",
         Nation = "",
-        Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
+        Class = db.GetParticipantClasses()[0],
         Year = 2010
       };
       db.CreateOrUpdateParticipant(pNew3);
@@ -293,7 +293,7 @@ namespace RaceHorologyLibTest
       pNew1.Sex = "W";
       pNew1.Club = "Verein 6.1";
       pNew1.Nation = "GDR";
-      pNew1.Class = new ParticipantClass("", null, "dummy", "M", 2019, 0);
+      pNew1.Class = db.GetParticipantClasses()[0];
       pNew1.Year = 2008;
       db.CreateOrUpdateParticipant(pNew1);
       DBCacheWorkaround();
@@ -306,7 +306,7 @@ namespace RaceHorologyLibTest
       pNew1.Sex = "";
       pNew1.Club = "";
       pNew1.Nation = "";
-      pNew1.Class = new ParticipantClass("", null, "dummy", "M", 2019, 0);
+      pNew1.Class = db.GetParticipantClasses()[0];
       pNew1.Year = 2008;
       db.CreateOrUpdateParticipant(pNew1);
       DBCacheWorkaround();
