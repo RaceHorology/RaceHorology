@@ -296,7 +296,7 @@ namespace RaceHorologyLibTest
         Sex = "M",
         Club = "Verein 7",
         Nation = "GER",
-        Class = db.GetParticipantClasses()[0],
+        Class = db.GetParticipantClasses()[1],
         Year = 2010
       };
       db.CreateOrUpdateParticipant(pNew2);
@@ -312,7 +312,7 @@ namespace RaceHorologyLibTest
         Sex = "",
         Club = "",
         Nation = "",
-        Class = db.GetParticipantClasses()[0],
+        Class = db.GetParticipantClasses()[2],
         Year = 2010
       };
       db.CreateOrUpdateParticipant(pNew3);
@@ -380,7 +380,7 @@ namespace RaceHorologyLibTest
           bRes &= participant.Nation == reader["nation"].ToString();
           bRes &= checkAgainstDB(participant.SvId, reader["svid"]);
           bRes &= checkAgainstDB(participant.Code, reader["code"]);
-          //bRes &= participant.Class == GetClass(GetValueUInt(reader, "klasse"));
+          bRes &= checkAgainstDB(participant.Class.Id, reader["klasse"]);
           bRes &= participant.Year == reader.GetInt16(reader.GetOrdinal("jahrgang"));
           //bRes &= participant.StartNumber == GetStartNumber(reader);
         }
