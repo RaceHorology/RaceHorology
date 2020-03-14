@@ -305,9 +305,9 @@ namespace RaceHorologyLibTest
 
       liveTimingMeasurement.Start();
       
-      while (algeSimulator.ProcessNextLine())
-      { 
-      }
+      //while (algeSimulator.ProcessNextLine())
+      //{ 
+      //}
 
       liveTimingMeasurement.Stop();
       algeSimulator.Stop();
