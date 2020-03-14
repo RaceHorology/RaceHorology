@@ -179,21 +179,18 @@ namespace RaceHorologyLib
       RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
       RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
 
-      System.Windows.Application.Current.Dispatcher.Invoke(() =>
+      if (participant != null)
       {
-        if (participant != null)
-        {
 
-          if (e.BStartTime)
-            currentRaceRun.SetStartTime(participant, e.StartTime);
+        if (e.BStartTime)
+          currentRaceRun.SetStartTime(participant, e.StartTime);
 
-          if (e.BFinishTime)
-            currentRaceRun.SetFinishTime(participant, e.FinishTime);
+        if (e.BFinishTime)
+          currentRaceRun.SetFinishTime(participant, e.FinishTime);
 
-          if (e.BRunTime)
-            currentRaceRun.SetRunTime(participant, e.RunTime);
-        }
-      });
+        if (e.BRunTime)
+          currentRaceRun.SetRunTime(participant, e.RunTime);
+      }
     }
 
     private void OnLiveDateTimeChanged(object sender, LiveDateTimeEventArgs e)
@@ -253,10 +250,7 @@ namespace RaceHorologyLib
 
     private void setToNiZ(RaceParticipant participant)
     {
-      System.Windows.Application.Current.Dispatcher.Invoke(() =>
-      {
-        _raceRun.SetResultCode(participant, RunResult.EResultCode.NiZ);
-      });
+      _raceRun.SetResultCode(participant, RunResult.EResultCode.NiZ);
     }
 
 

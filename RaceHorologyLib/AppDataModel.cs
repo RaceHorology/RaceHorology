@@ -312,6 +312,7 @@ namespace RaceHorologyLib
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
+    private object _participantsLock;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
     private RaceResultViewProvider _raceResultsProvider;
 
@@ -355,9 +356,15 @@ namespace RaceHorologyLib
 
       // Get initially from DB
       _participants = new ItemsChangeObservableCollection<RaceParticipant>();
+      _participantsLock = new object();
+      BindingOperations.EnableCollectionSynchronization(_participants, _participantsLock);
+      
       var particpants = _db.GetRaceParticipants(this);
-      foreach (var p in particpants)
-        _participants.Add(p);
+      lock (_participantsLock)
+      {
+        foreach (var p in particpants)
+          _participants.Add(p);
+      }
 
       //// RaceRuns ////
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
@@ -609,9 +616,11 @@ namespace RaceHorologyLib
     private AppDataModel _appDataModel;
 
     private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
+    private object _resultsLock;
     private bool _hasRealResults;
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
+    private object _onTrackLock;
 
     private StartListViewProvider _slVP;
     private ResultViewProvider _rvp;
@@ -632,7 +641,13 @@ namespace RaceHorologyLib
       _appDataModel = appDataModel;
 
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
+      _onTrackLock = new object();
+      BindingOperations.EnableCollectionSynchronization(_onTrack, _onTrackLock);
+
       _results = new ItemsChangeObservableCollection<RunResult>();
+      _resultsLock = new object();
+      BindingOperations.EnableCollectionSynchronization(_results, _resultsLock);
+
       _hasRealResults = false;
 
       // Ensure the results always are in sync with participants
@@ -799,14 +814,17 @@ namespace RaceHorologyLib
 
     private RunResult findOrCreateRunResult(RaceParticipant participant)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
-      if (result == null)
+      lock (_resultsLock)
       {
-        result = new RunResult(participant);
-        _results.Add(result);
-      }
+        RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+        if (result == null)
+        {
+          result = new RunResult(participant);
+          _results.Add(result);
+        }
 
-      return result;
+        return result;
+      }
     }
 
 
@@ -819,13 +837,16 @@ namespace RaceHorologyLib
 
     private RunResult deleteRunResult(RaceParticipant participant)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
-      if (result != null)
+      lock (_resultsLock)
       {
-        _results.Remove(result);
-      }
+        RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+        if (result != null)
+        {
+          _results.Remove(result);
+        }
 
-      return result;
+        return result;
+      }
     }
 
 
@@ -871,7 +892,11 @@ namespace RaceHorologyLib
 
     public bool IsOrWasOnTrack(RaceParticipant rp)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == rp);
+      RunResult result = null;
+      lock (_resultsLock)
+      {
+        result = _results.SingleOrDefault(r => r.Participant == rp);
+      }
       if (result != null)
         return IsOrWasOnTrack(result);
 
@@ -894,32 +919,39 @@ namespace RaceHorologyLib
     /// </summary>
     private void _UpdateInternals()
     {
-      var results = _results.ToArray();
+      RunResult[] results;
+      lock (_onTrackLock)
+      {
+        results = _results.ToArray();
+      }
 
       var firstResult = results.FirstOrDefault(r => r.ResultCode != RunResult.EResultCode.NotSet);
       _hasRealResults = results.Length > 0 && firstResult != null;
 
-      // Remove from onTrack list if a result is available (= not on track anymore)
-      var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r.OriginalResult)).ToList();
-      foreach (var itemToRemove in itemsToRemove)
+      lock (_onTrackLock)
       {
-        _onTrack.Remove(itemToRemove);
-
-        OnTrackChangedHandler handler = OnTrackChanged;
-        handler?.Invoke(this, null, itemToRemove.Participant, itemToRemove);
-      }
-
-      // Add to onTrack list if run result is not yet available (= is on track)
-      var shallBeOnTrack = results.Where(r => IsOnTrack(r)).ToList();
-
-      foreach (var r in shallBeOnTrack)
-      {
-        if (_onTrack.SingleOrDefault(o => o.Participant == r.Participant) == null)
+        // Remove from onTrack list if a result is available (= not on track anymore)
+        var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r.OriginalResult)).ToList();
+        foreach (var itemToRemove in itemsToRemove)
         {
-          _onTrack.Add(new LiveResult(r, _appDataModel));
+          _onTrack.Remove(itemToRemove);
 
           OnTrackChangedHandler handler = OnTrackChanged;
-          handler?.Invoke(this, r.Participant, null, r);
+          handler?.Invoke(this, null, itemToRemove.Participant, itemToRemove);
+        }
+
+        // Add to onTrack list if run result is not yet available (= is on track)
+        var shallBeOnTrack = results.Where(r => IsOnTrack(r)).ToList();
+
+        foreach (var r in shallBeOnTrack)
+        {
+          if (_onTrack.SingleOrDefault(o => o.Participant == r.Participant) == null)
+          {
+            _onTrack.Add(new LiveResult(r, _appDataModel));
+
+            OnTrackChangedHandler handler = OnTrackChanged;
+            handler?.Invoke(this, r.Participant, null, r);
+          }
         }
       }
     }
