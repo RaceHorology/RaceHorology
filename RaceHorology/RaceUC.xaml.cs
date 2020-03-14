@@ -1,3 +1,38 @@
+/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -92,6 +127,7 @@ namespace RaceHorology
 
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach DSV Schülerreglement", Value = "RaceResult_SumDSVPointsSchool" });
 
       // Run 1
       UiUtilities.FillGrouping(cmbConfigStartlist1Grouping);
@@ -137,6 +173,9 @@ namespace RaceHorology
       cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
       cmbConfigStartlist2.SelectCBItem(cfg.Run2_StartistView);
       cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
+      txtValueF.Text = cfg.ValueF.ToString();
+      txtValueA.Text = cfg.ValueA.ToString();
+      txtMinPenalty.Text = cfg.MinimumPenalty.ToString();
 
       chkConfigFieldsYear.IsChecked = cfg.ActiveFields.Contains("Year");
       chkConfigFieldsClub.IsChecked = cfg.ActiveFields.Contains("Club");
@@ -166,7 +205,9 @@ namespace RaceHorology
       cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
       cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
       cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;
-
+      try { cfg.ValueF = double.Parse(txtValueF.Text); } catch (Exception) { }
+      try { cfg.ValueA = double.Parse(txtValueA.Text); } catch (Exception) { }
+      try { cfg.MinimumPenalty = double.Parse(txtMinPenalty.Text); } catch (Exception) { }
 
       void enableField(List<string> fieldList, string field, bool? enabled)
       {
@@ -997,7 +1038,12 @@ namespace RaceHorology
       {
         CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
         if (selObj == null)
-          report = new RaceResultReport(_thisRace);
+        {
+          if (_thisRace.GetResultViewProvider() is DSVSchoolRaceResultViewProvider)
+            report = new DSVSchoolRaceResultReport(_thisRace);
+          else
+            report = new RaceResultReport(_thisRace);
+        }
         else if (selObj.Type == "results")
           report = new RaceRunResultReport(selObj.RaceRun);
         else if (selObj.Type == "startlist")
@@ -1010,6 +1056,35 @@ namespace RaceHorology
       }
 
       CreateAndOpenReport(report);
+    }
+
+    private void BtnExportDsv_Click(object sender, RoutedEventArgs e)
+    {
+      string filePath = System.IO.Path.Combine(
+        _dataModel.GetDB().GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + ".zip");
+      
+      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
+      openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
+      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
+      openFileDialog.DefaultExt = ".zip";
+      openFileDialog.Filter = "DSV Results (.zip)|*.zip";
+      try
+      {
+        if (openFileDialog.ShowDialog() == true)
+        {
+          filePath = openFileDialog.FileName;
+          DSVExport dsvExport = new DSVExport();
+          dsvExport.Export(filePath, _thisRace);
+        }
+      }
+      catch (Exception ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
+          "Fehler",
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+      }
     }
 
 

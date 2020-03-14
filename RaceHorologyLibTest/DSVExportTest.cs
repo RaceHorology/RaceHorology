@@ -38,18 +38,21 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
-using System.Collections.ObjectModel;
+using System.IO;
 
 namespace RaceHorologyLibTest
 {
   /// <summary>
-  /// Summary description for AppDataModelViewTests
+  /// Summary description for DSVExportTest
   /// </summary>
   [TestClass]
-  public class AppDataModelViewTests
+  public class DSVExportTest
   {
-    public AppDataModelViewTests()
+    public DSVExportTest()
     {
+      //
+      // TODO: Add constructor logic here
+      //
     }
 
     private TestContext testContextInstance;
@@ -93,70 +96,28 @@ namespace RaceHorologyLibTest
     #endregion
 
     [TestMethod]
-    public void StartListViewProviderTest()
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_GiantSlalom.config")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
+    public void Test1()
     {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"KSC4--U12.mdb");
 
-      ObservableCollection<RaceParticipant> participants = new ObservableCollection<RaceParticipant> ();
-      FillTestRaceParticipants(participants);
+      // Setup Data Model & Co
+      Database db = new Database();
+      db.Connect(dbFilename);
 
-      FirstRunStartListViewProvider provider = new FirstRunStartListViewProvider();
-      provider.Init(participants);
+      AppDataModel model = new AppDataModel(db);
 
-      // Test initial order
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 1", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[2].Name);
+      DSVExport dsvExport = new DSVExport();
 
-      // Test Update when inserting
-      {
-        Participant p = new Participant { Name = "Name 3", Firstname = "3" };
-        RaceParticipant r = new RaceParticipant(p, 3, 0.0);
-        participants.Add(r);
-      }
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 1", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[2].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[3].Name);
+      MemoryStream xmlData = new MemoryStream();
+      dsvExport.ExportXML(xmlData, model.GetRace(0));
 
-      // Test Update when deleting
-      participants.RemoveAt(0); // Name 1
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[2].Name);
-
-      // Test Update when startnumber changes
-      participants[1].StartNumber = 2; // Name 4 => StNr 2
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[2].Name);
+      xmlData.Position = 0;
+      StreamReader reader = new StreamReader(xmlData);
+      string s = reader.ReadToEnd();
     }
-
-
-
-    private static void FillTestRaceParticipants(ObservableCollection<RaceParticipant> participants)
-    {
-      // Constraint: Startnumber = Firstname
-      {
-        Participant p1 = new Participant { Name = "Name 1", Firstname="2" };
-        RaceParticipant r1 = new RaceParticipant(p1, 2, 0.0);
-        participants.Add(r1);
-      }
-
-      {
-        Participant p1 = new Participant { Name = "Name 2", Firstname = "1" };
-        RaceParticipant r1 = new RaceParticipant(p1, 1, 0.0);
-        participants.Add(r1);
-      }
-
-      {
-        Participant p1 = new Participant { Name = "Name 4", Firstname = "4" };
-        RaceParticipant r1 = new RaceParticipant(p1, 4, 0.0);
-        participants.Add(r1);
-      }
-
-    }
-
-
-    // TODO: Add tests for RaceRun.OnTrackChangedHandler
   }
 }

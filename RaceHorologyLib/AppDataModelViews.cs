@@ -1,3 +1,38 @@
+/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -850,7 +885,7 @@ namespace RaceHorologyLib
 
 
     // Input: RaceRun
-    public void Init(RaceRun raceRun, AppDataModel appDataModel)
+    public virtual void Init(RaceRun raceRun, AppDataModel appDataModel)
     {
       _originalResults = raceRun.GetResultList();
       _appDataModel = appDataModel;
@@ -1025,22 +1060,28 @@ namespace RaceHorologyLib
 
   public class RaceResultViewProvider : ResultViewProvider
   {
-    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
     delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode code, out string disqualText);
 
     TimeCombination _timeCombination;
     // Input Data
-    Race _race;
-    RaceRun[] _raceRuns;
-    AppDataModel _appDataModel;
+    protected Race _race;
+    protected RaceRun[] _raceRuns;
+    protected AppDataModel _appDataModel;
 
     // Working Data
-    ItemsChangeObservableCollection<RaceResultItem> _viewList;
-    ResultSorter<RaceResultItem> _comparer;
+    protected ItemsChangeObservableCollection<RaceResultItem> _viewList;
+    protected ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
-    List<RaceRun> _lastConsideredRuns;
+    protected List<RaceRun> _lastConsideredRuns;
+
+
+    protected virtual double calculatePoints(RaceResultItem rri)
+    {
+      return -1.0;
+    }
 
     public enum TimeCombination { BestRun, Sum };
     public RaceResultViewProvider(TimeCombination timeCombination)
@@ -1069,7 +1110,7 @@ namespace RaceHorologyLib
 
     
     // Input: Race
-    public void Init(Race race, AppDataModel appDataModel)
+    public virtual void Init(Race race, AppDataModel appDataModel)
     {
       _race = race;
       _raceRuns = _race.GetRuns();
@@ -1088,6 +1129,14 @@ namespace RaceHorologyLib
 
       FinalizeInit();
     }
+
+
+    // Output: sorted List<StartListEntry> according to StartNumber
+    public ItemsChangeObservableCollection<RaceResultItem> GetViewList()
+    {
+      return _viewList;
+    }
+
 
     // Output: List<RunResultWithPosition>
     protected override object GetViewSource()
@@ -1232,7 +1281,7 @@ namespace RaceHorologyLib
     }
 
 
-    void ResortResults()
+    protected virtual void ResortResults()
     {
       Logger.Debug(System.Reflection.MethodBase.GetCurrentMethod());
 
@@ -1282,9 +1331,7 @@ namespace RaceHorologyLib
 
           sortedItem.Position = curPosition;
 
-          double valueF = 1010.0;
-          double valueA = 0.0;
-          sortedItem.Points = Math.Round(valueF * ((TimeSpan)sortedItem.TotalTime).TotalSeconds / ((TimeSpan)firstTime).TotalSeconds - valueF + valueA, 2);
+          sortedItem.Points = calculatePoints(sortedItem);
 
           lastTime = sortedItem.TotalTime;
         }
@@ -1359,8 +1406,11 @@ namespace RaceHorologyLib
 
         if (res.Value.ResultCode != RunResult.EResultCode.Normal)
         {
-          resCode = res.Value.ResultCode;
-          disqualText = res.Value.DisqualText;
+          if (resCode == RunResult.EResultCode.Normal || resCode == RunResult.EResultCode.NotSet)
+          {
+            resCode = res.Value.ResultCode;
+            disqualText = res.Value.DisqualText;
+          }
         }
       }
 
@@ -1372,6 +1422,66 @@ namespace RaceHorologyLib
 
 
   }
+
+
+  public class DSVSchoolRaceResultViewProvider : RaceResultViewProvider
+  {
+    protected DSVRaceCalculation _dsvCalcM;
+    protected DSVRaceCalculation _dsvCalcW;
+
+    public DSVSchoolRaceResultViewProvider() : base(RaceResultViewProvider.TimeCombination.Sum)
+    { }
+
+    public override ViewProvider Clone()
+    {
+      return new DSVSchoolRaceResultViewProvider();
+    }
+
+    public DSVRaceCalculation GetDSVRaceCalculationMen()
+    {
+      return _dsvCalcM;
+    }
+
+    public DSVRaceCalculation GetDSVRaceCalculationWomen()
+    {
+      return _dsvCalcW;
+    }
+
+    public override void Init(Race race, AppDataModel appDataModel)
+    {
+      _dsvCalcM = new DSVRaceCalculation(race, this, "M");
+      _dsvCalcW = new DSVRaceCalculation(race, this, "W");
+
+      base.Init(race, appDataModel);
+    }
+
+
+    protected override void ResortResults()
+    {
+      if (_viewList == null)
+        return;
+
+      try
+      {
+        _dsvCalcM.CalculatePenalty();
+        _dsvCalcW.CalculatePenalty();
+      }
+      catch (Exception) { }
+
+      base.ResortResults();
+    }
+
+    protected override double calculatePoints(RaceResultItem rri)
+    { 
+      if (rri.Participant.Sex == "M")
+        return _dsvCalcM.CalculatePoints(rri, true);
+      if (rri.Participant.Sex == "W")
+        return _dsvCalcW.CalculatePoints(rri, true);
+
+      return -1.0;
+    }
+  }
+
 
   /* e.g. FamilienWertung
     public class SpecialRaceResultViewProvider : ResultViewProvider
@@ -1385,7 +1495,7 @@ namespace RaceHorologyLib
     */
 
 
-    
+
 
 
 

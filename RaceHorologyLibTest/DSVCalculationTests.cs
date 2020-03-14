@@ -38,18 +38,20 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
-using System.Collections.ObjectModel;
 
 namespace RaceHorologyLibTest
 {
   /// <summary>
-  /// Summary description for AppDataModelViewTests
+  /// Summary description for DSVCalculationTests
   /// </summary>
   [TestClass]
-  public class AppDataModelViewTests
+  public class DSVCalculationTests
   {
-    public AppDataModelViewTests()
+    public DSVCalculationTests()
     {
+      //
+      // TODO: Add constructor logic here
+      //
     }
 
     private TestContext testContextInstance;
@@ -93,70 +95,25 @@ namespace RaceHorologyLibTest
     #endregion
 
     [TestMethod]
-    public void StartListViewProviderTest()
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    public void TestMethod1()
     {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
 
-      ObservableCollection<RaceParticipant> participants = new ObservableCollection<RaceParticipant> ();
-      FillTestRaceParticipants(participants);
+      // Setup Data Model & Co
+      Database db = new Database();
+      db.Connect(dbFilename);
 
-      FirstRunStartListViewProvider provider = new FirstRunStartListViewProvider();
-      provider.Init(participants);
+      AppDataModel model = new AppDataModel(db);
 
-      // Test initial order
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 1", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[2].Name);
+      DSVRaceCalculation raceCalcW = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), "W");
+      raceCalcW.CalculatePenalty();
+      Assert.AreEqual(28.56, raceCalcW.CalculatedPenalty);
 
-      // Test Update when inserting
-      {
-        Participant p = new Participant { Name = "Name 3", Firstname = "3" };
-        RaceParticipant r = new RaceParticipant(p, 3, 0.0);
-        participants.Add(r);
-      }
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 1", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[2].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[3].Name);
-
-      // Test Update when deleting
-      participants.RemoveAt(0); // Name 1
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[2].Name);
-
-      // Test Update when startnumber changes
-      participants[1].StartNumber = 2; // Name 4 => StNr 2
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[2].Name);
+      DSVRaceCalculation raceCalcM = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), "M");
+      raceCalcM.CalculatePenalty();
+      Assert.AreEqual(51.18, raceCalcM.CalculatedPenalty);
     }
-
-
-
-    private static void FillTestRaceParticipants(ObservableCollection<RaceParticipant> participants)
-    {
-      // Constraint: Startnumber = Firstname
-      {
-        Participant p1 = new Participant { Name = "Name 1", Firstname="2" };
-        RaceParticipant r1 = new RaceParticipant(p1, 2, 0.0);
-        participants.Add(r1);
-      }
-
-      {
-        Participant p1 = new Participant { Name = "Name 2", Firstname = "1" };
-        RaceParticipant r1 = new RaceParticipant(p1, 1, 0.0);
-        participants.Add(r1);
-      }
-
-      {
-        Participant p1 = new Participant { Name = "Name 4", Firstname = "4" };
-        RaceParticipant r1 = new RaceParticipant(p1, 4, 0.0);
-        participants.Add(r1);
-      }
-
-    }
-
-
-    // TODO: Add tests for RaceRun.OnTrackChangedHandler
   }
 }

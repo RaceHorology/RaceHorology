@@ -1,4 +1,39 @@
-﻿using System;
+﻿/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -509,8 +544,8 @@ namespace RaceHorologyLib
               case 0: props.Analyzer = value; break;
               case 1: break; // skip, was: timing device
               case 2: props.Organizer = value; break;
-              case 3: props.RaceDirector.Name = value; break;
-              case 4: props.RaceDirector.Club = value; break;
+              case 3: props.RaceReferee.Name = value; break;
+              case 4: props.RaceReferee.Club = value; break;
               case 5: props.RaceManager.Name = value; break;
               case 6: props.RaceManager.Club = value; break;
               case 7: props.TrainerRepresentative.Name = value; break;
@@ -581,8 +616,8 @@ namespace RaceHorologyLib
     {
       storeRacePropertyInternal(race,  0, props.Analyzer);
       storeRacePropertyInternal(race,  2, props.Organizer);
-      storeRacePropertyInternal(race,  3, props.RaceDirector.Name );
-      storeRacePropertyInternal(race,  4, props.RaceDirector.Club );
+      storeRacePropertyInternal(race,  3, props.RaceReferee.Name );
+      storeRacePropertyInternal(race,  4, props.RaceReferee.Club );
       storeRacePropertyInternal(race,  5, props.RaceManager.Name );
       storeRacePropertyInternal(race,  6, props.RaceManager.Club );
       storeRacePropertyInternal(race,  7, props.TrainerRepresentative.Name );

@@ -73,6 +73,8 @@
     <Compile Include="Database.cs" />
     <Compile Include="AppDataModelDataTypes.cs" />
     <Compile Include="DSVAlpin2HTTPServer.cs" />
+    <Compile Include="DSVCalculations.cs" />
+    <Compile Include="DSVExport.cs" />
     <Compile Include="JsonConversion.cs" />
     <Compile Include="LiveTimingMeasurement.cs" />
     <Compile Include="ObjectExtensions.cs" />
@@ -119,6 +121,9 @@
     <Content Include="resources\pdf\LogoRHShortM.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="COPYING" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
