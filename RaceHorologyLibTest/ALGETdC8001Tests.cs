@@ -282,37 +282,69 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_GiantSlalom.config")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
-    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run2.txt")]
     public void FullTest()
     {
+      // Preparation & Test Description
+      // - Copy DB
+      // - Delete the tlbZeit
+      // - Run ALGE DG 1
+      // - Compare results DG1
+      // - Run ALGE DG 2
+      // - Compare results DG2
+      // - Compare total results
+
+
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"KSC4--U12.mdb");
 
-      // Setup Data Model & Co
-      Database db = new Database();
-      db.Connect(dbFilename);
+      // Create working copy
+      string dbFilenameWork = TestUtilities.Copy(dbFilename, @"KSC4--U12_work.mdb");
+      DBTestUtilities dbtuDst = new DBTestUtilities(dbFilenameWork);
+      dbtuDst.ClearTimeMeasurements();
+      dbtuDst.Close();
 
-      AppDataModel model = new AppDataModel(db);
-
-      LiveTimingMeasurement liveTimingMeasurement = new LiveTimingMeasurement(model);
+      // Setup Data Model & Co for Simulating ALGE
+      Database dbWork = new Database();
+      dbWork.Connect(dbFilenameWork);
+      AppDataModel modelWork = new AppDataModel(dbWork);
+      LiveTimingMeasurement liveTimingMeasurement = new LiveTimingMeasurement(modelWork);
 
       ALGETdC8001TimeMeasurementSimulate algeSimulator = new ALGETdC8001TimeMeasurementSimulate(@"KSC4--U12_ALGE_Run1.txt");
-
       liveTimingMeasurement.SetTimingDevice(algeSimulator, algeSimulator);
-
       algeSimulator.Start();
 
-      model.SetCurrentRaceRun(model.GetRace(0).GetRun(0));
+      modelWork.SetCurrentRaceRun(modelWork.GetRace(0).GetRun(0));
 
       liveTimingMeasurement.Start();
-      
-      //while (algeSimulator.ProcessNextLine())
-      //{ 
-      //}
-
+      while (algeSimulator.ProcessNextLine())
+      {
+      }
       liveTimingMeasurement.Stop();
       algeSimulator.Stop();
 
-    }
+      dbWork.Close();
 
+      // Compare the generated DB with the ground truth DB
+      Database dbCmpWork = new Database();
+      dbCmpWork.Connect(dbFilenameWork);
+      AppDataModel modelCmpWork = new AppDataModel(dbCmpWork);
+
+      Database dbSrc = new Database();
+      dbSrc.Connect(dbFilename);
+      AppDataModel modelSrc = new AppDataModel(dbSrc);
+
+      foreach ( var res in modelSrc.GetRace(0).GetRun(0).GetResultList())
+      {
+        if (res.ResultCode == RunResult.EResultCode.Normal)
+        {
+          var resWork = modelCmpWork.GetRace(0).GetRun(0).GetResultList().FirstOrDefault(r => r.StartNumber == res.StartNumber);
+
+          Assert.AreEqual(res.GetStartTime(), resWork.GetStartTime());
+          Assert.AreEqual(res.GetFinishTime(), resWork.GetFinishTime());
+          Assert.AreEqual(res.GetRunTime(), resWork.GetRunTime());
+        }
+      }
+
+    }
   }
 }
