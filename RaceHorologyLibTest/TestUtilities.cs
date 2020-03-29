@@ -35,6 +35,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -66,5 +67,43 @@ namespace RaceHorologyLibTest
 
       return dstPath;
     }
+
+    public static string Copy(string srcFilepath, string dstFilename)
+    {
+      string dstFilepath = Path.Combine(Path.GetDirectoryName(srcFilepath), dstFilename);
+      File.Copy(srcFilepath, dstFilepath);
+
+      return dstFilepath;
+    }
+
   }
+
+  public class DBTestUtilities
+  {
+    string _filename;
+    OleDbConnection _conn;
+    public DBTestUtilities(string filename)
+    {
+      _filename = filename;
+      _conn = new OleDbConnection
+      {
+        ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename
+      };
+      _conn.Open();
+    }
+
+    public void Close()
+    {
+      _conn.Close();
+    }
+
+    public void ClearTimeMeasurements()
+    {
+      string sql = @"DELETE FROM tblZeit";
+      var cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = System.Data.CommandType.Text;
+      int temp = cmd.ExecuteNonQuery();
+    }
+  }
+
 }

@@ -39,6 +39,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RaceHorologyLib
@@ -111,6 +112,8 @@ namespace RaceHorologyLib
   public class LiveTimingMeasurement
   {
     AppDataModel _dm;
+    SynchronizationContext _syncContext;
+
     ILiveTimeMeasurement _liveTimer;
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
@@ -118,6 +121,7 @@ namespace RaceHorologyLib
     public LiveTimingMeasurement(AppDataModel dm)
     {
       _dm = dm;
+      _syncContext = System.Threading.SynchronizationContext.Current;
       _isRunning = false;
     }
 
@@ -179,7 +183,7 @@ namespace RaceHorologyLib
       RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
       RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
 
-      System.Windows.Application.Current.Dispatcher.Invoke(() =>
+      _syncContext.Send(delegate 
       {
         if (participant != null)
         {
@@ -193,7 +197,7 @@ namespace RaceHorologyLib
           if (e.BRunTime)
             currentRaceRun.SetRunTime(participant, e.RunTime);
         }
-      });
+      }, null);
     }
 
     private void OnLiveDateTimeChanged(object sender, LiveDateTimeEventArgs e)

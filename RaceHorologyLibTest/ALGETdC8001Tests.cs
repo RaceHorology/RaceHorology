@@ -40,9 +40,23 @@ using System.Text;
 using System.Threading.Tasks;
 using RaceHorologyLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
+
+  public sealed class TestSynchronizationContext : SynchronizationContext
+  {
+    public override void Post(SendOrPostCallback d, object state)
+    {
+      d(state);
+    }
+
+    public override void Send(SendOrPostCallback d, object state)
+    {
+      d(state);
+    }
+  }
 
   public class ALGETdC8001TimeMeasurementSimulate : ALGETdC8001TimeMeasurementBase
   {
@@ -85,8 +99,13 @@ namespace RaceHorologyLibTest
     {
     }
 
-    private TestContext testContextInstance;
+    [TestInitialize]
+    public void Init()
+    {
+      SynchronizationContext.SetSynchronizationContext(new TestSynchronizationContext());
+    }
 
+    private TestContext testContextInstance;
     /// <summary>
     ///Gets or sets the test context which provides
     ///information about and functionality for the current test run.
@@ -282,37 +301,72 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_GiantSlalom.config")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
-    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run2.txt")]
     public void FullTest()
     {
+      // Preparation & Test Description
+      // - Copy DB
+      // - Delete the tlbZeit
+      // - Run ALGE DG 1
+      // - Compare results DG1
+      // - Run ALGE DG 2
+      // - Compare results DG2
+
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"KSC4--U12.mdb");
 
-      // Setup Data Model & Co
-      Database db = new Database();
-      db.Connect(dbFilename);
+      // Create working copy
+      string dbFilenameWork = TestUtilities.Copy(dbFilename, @"KSC4--U12_work.mdb");
+      DBTestUtilities dbtuDst = new DBTestUtilities(dbFilenameWork);
+      dbtuDst.ClearTimeMeasurements();
+      dbtuDst.Close();
 
-      AppDataModel model = new AppDataModel(db);
+      testRun(0, @"KSC4--U12_ALGE_Run1.txt");
+      testRun(1, @"KSC4--U12_ALGE_Run2.txt");
 
-      LiveTimingMeasurement liveTimingMeasurement = new LiveTimingMeasurement(model);
+      void testRun(int run, string testfile)
+      {
+        // Setup Data Model & Co for Simulating ALGE
+        Database dbWork = new Database();
+        dbWork.Connect(dbFilenameWork);
+        AppDataModel modelWork = new AppDataModel(dbWork);
+        LiveTimingMeasurement liveTimingMeasurement = new LiveTimingMeasurement(modelWork);
 
-      ALGETdC8001TimeMeasurementSimulate algeSimulator = new ALGETdC8001TimeMeasurementSimulate(@"KSC4--U12_ALGE_Run1.txt");
+        ALGETdC8001TimeMeasurementSimulate algeSimulator = new ALGETdC8001TimeMeasurementSimulate(testfile);
+        liveTimingMeasurement.SetTimingDevice(algeSimulator, algeSimulator);
+        algeSimulator.Start();
 
-      liveTimingMeasurement.SetTimingDevice(algeSimulator, algeSimulator);
+        modelWork.SetCurrentRaceRun(modelWork.GetRace(0).GetRun(run));
 
-      algeSimulator.Start();
+        liveTimingMeasurement.Start();
+        while (algeSimulator.ProcessNextLine())
+        {
+        }
+        liveTimingMeasurement.Stop();
+        algeSimulator.Stop();
 
-      model.SetCurrentRaceRun(model.GetRace(0).GetRun(0));
+        dbWork.Close();
 
-      liveTimingMeasurement.Start();
-      
-      //while (algeSimulator.ProcessNextLine())
-      //{ 
-      //}
+        // Compare the generated DB with the ground truth DB
+        Database dbCmpWork = new Database();
+        dbCmpWork.Connect(dbFilenameWork);
+        AppDataModel modelCmpWork = new AppDataModel(dbCmpWork);
 
-      liveTimingMeasurement.Stop();
-      algeSimulator.Stop();
+        Database dbSrc = new Database();
+        dbSrc.Connect(dbFilename);
+        AppDataModel modelSrc = new AppDataModel(dbSrc);
 
+        foreach (var res in modelSrc.GetRace(0).GetRun(run).GetResultList())
+        {
+          if (res.ResultCode == RunResult.EResultCode.Normal)
+          {
+            var resWork = modelCmpWork.GetRace(0).GetRun(run).GetResultList().FirstOrDefault(r => r.StartNumber == res.StartNumber);
+
+            Assert.AreEqual(res.GetStartTime(), resWork.GetStartTime());
+            Assert.AreEqual(res.GetFinishTime(), resWork.GetFinishTime());
+            Assert.AreEqual(res.GetRunTime(), resWork.GetRunTime());
+          }
+        }
+      }
     }
-
   }
 }
