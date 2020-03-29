@@ -40,9 +40,23 @@ using System.Text;
 using System.Threading.Tasks;
 using RaceHorologyLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
+
+  public sealed class TestSynchronizationContext : SynchronizationContext
+  {
+    public override void Post(SendOrPostCallback d, object state)
+    {
+      d(state);
+    }
+
+    public override void Send(SendOrPostCallback d, object state)
+    {
+      d(state);
+    }
+  }
 
   public class ALGETdC8001TimeMeasurementSimulate : ALGETdC8001TimeMeasurementBase
   {
@@ -85,8 +99,13 @@ namespace RaceHorologyLibTest
     {
     }
 
-    private TestContext testContextInstance;
+    [TestInitialize]
+    public void Init()
+    {
+      SynchronizationContext.SetSynchronizationContext(new TestSynchronizationContext());
+    }
 
+    private TestContext testContextInstance;
     /// <summary>
     ///Gets or sets the test context which provides
     ///information about and functionality for the current test run.
