@@ -427,7 +427,7 @@ namespace RaceHorologyLib
 
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
-          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+          _viewList.InsertSorted(CreateStartListEntry((StartListEntry)item), _comparer);
     }
 
     private StartListEntry CreateStartListEntry(StartListEntry sleSRC)

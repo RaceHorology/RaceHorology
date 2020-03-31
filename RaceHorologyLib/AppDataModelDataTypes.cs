@@ -324,13 +324,15 @@ namespace RaceHorologyLib
   /// </summary>
   public class RaceParticipant : INotifyPropertyChanged, IDisposable
   {
+    private Race _race;
     public Participant _participant;
     private uint _startnumber;
     private double _points; // Points prior to the race
 
 
-    public RaceParticipant(Participant participant, uint startnumber, double points)
+    public RaceParticipant(Race race, Participant participant, uint startnumber, double points)
     {
+      _race = race;
       _participant = participant;
       _startnumber = startnumber;
       _points = points;
@@ -363,6 +365,7 @@ namespace RaceHorologyLib
     }
     #endregion
 
+    public Race Race { get { return _race; } }
     public Participant Participant { get { return _participant; } }
 
     public string Id { get => _participant.Id; }

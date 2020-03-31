@@ -261,7 +261,7 @@ namespace RaceHorologyLib
           uint startNo = GetValueUInt(reader, startNumberField);
           double points = GetValueDouble(reader, pointsField);
 
-          RaceParticipant raceParticpant = new RaceParticipant(participant, startNo, points);
+          RaceParticipant raceParticpant = new RaceParticipant(race, participant, startNo, points);
           participants.Add(raceParticpant);
         }
       }
@@ -416,6 +416,131 @@ namespace RaceHorologyLib
         Logger.Warn(e, "CreateOrUpdateParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
+
+
+    public void CreateOrUpdateRaceParticipant(RaceParticipant raceParticipant)
+    {
+      // Test whether the participant exists
+      uint id = GetParticipantId(raceParticipant.Participant);
+      
+      if (id == 0) // Store first
+      {
+        Debug.Assert(false, "just for testing whether this happens");
+        CreateOrUpdateParticipant(raceParticipant.Participant);
+        id = GetParticipantId(raceParticipant.Participant);
+      }
+
+      string sql = @"UPDATE tblTeilnehmer SET ";
+      switch (raceParticipant.Race.RaceType)
+      {
+        case Race.ERaceType.DownHill:
+          sql += " dhaktiv = true, ";
+          sql += " startnrdh = @startnr, ";
+          sql += " pktedh = @punkte ";
+          break;
+        case Race.ERaceType.SuperG:
+          sql += " sgaktiv = true, ";
+          sql += " startnrsg = @startnr, ";
+          sql += " pktesg = @punkte ";
+          break;
+        case Race.ERaceType.GiantSlalom:
+          sql += " gsaktiv = true, ";
+          sql += " startnrgs = @startnr, ";
+          sql += " pktegs = @punkte ";
+          break;
+        case Race.ERaceType.Slalom:
+          sql += " slaktiv = true, ";
+          sql += " startnrsl = @startnr, ";
+          sql += " pktesl = @punkte ";
+          break;
+        case Race.ERaceType.KOSlalom:
+          sql += " ksaktiv = true, ";
+          sql += " startnrks = @startnr, ";
+          sql += " pkteks = @punkte ";
+          break;
+        case Race.ERaceType.ParallelSlalom:
+          sql += " psaktiv = true, ";
+          sql += " startnrps = @startnr, ";
+          sql += " pkteps = @punkte ";
+          break;
+      }
+
+      sql += " WHERE id = @id";
+
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+      cmd.Parameters.Add(new OleDbParameter("@startnr", raceParticipant.StartNumber));
+      cmd.Parameters.Add(new OleDbParameter("@punkte", raceParticipant.Points));
+      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+
+      try
+      {
+        Logger.Debug("CreateOrUpdateRaceParticipant(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateRaceParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void RemoveRaceParticipant(RaceParticipant raceParticipant)
+    {
+      // Test whether the participant exists
+      uint id = GetParticipantId(raceParticipant.Participant);
+
+      if (id == 0) // Store first
+      {
+        Debug.Assert(false, "just for testing whether this happens");
+        CreateOrUpdateParticipant(raceParticipant.Participant);
+        id = GetParticipantId(raceParticipant.Participant);
+      }
+
+      string sql = @"UPDATE tblTeilnehmer SET ";
+      switch (raceParticipant.Race.RaceType)
+      {
+        case Race.ERaceType.DownHill:
+          sql += " dhaktiv = false ";
+          break;
+        case Race.ERaceType.SuperG:
+          sql += " sgaktiv = false ";
+          break;
+        case Race.ERaceType.GiantSlalom:
+          sql += " gsaktiv = false ";
+          break;
+        case Race.ERaceType.Slalom:
+          sql += " slaktiv = false ";
+          break;
+        case Race.ERaceType.KOSlalom:
+          sql += " ksaktiv = false ";
+          break;
+        case Race.ERaceType.ParallelSlalom:
+          sql += " psaktiv = false ";
+          break;
+      }
+
+      sql += " WHERE id = @id";
+
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+
+      try
+      {
+        Logger.Debug("RemoveRaceParticipant(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveRaceParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+
 
     /// <summary>
     /// Stores the RunResult
