@@ -83,6 +83,7 @@ namespace RaceHorology
 
       InitializeComponent();
 
+      ucStartNumbers.Init(_dataModel, _thisRace);
       ucDisqualify.Init(_dataModel, _thisRace);
       
       InitializeConfiguration();
@@ -611,17 +612,14 @@ namespace RaceHorology
     {
       if (raceRun != null)
       {
-        dgStartList.ItemsSource = _thisRace.GetParticipants();
-        enableOrDisableColumns(_thisRace, dgStartList);
-
         _rslVP  = (new ViewConfigurator(_thisRace)).GetRemainingStartersViewProvider(raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
-        enableOrDisableColumns(_thisRace, dgRemainingStarters);
+        EnableOrDisableColumns(_thisRace, dgRemainingStarters);
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
-        enableOrDisableColumns(_thisRace, dgRunning);
-        enableOrDisableColumns(_thisRace, dgResults);
+        EnableOrDisableColumns(_thisRace, dgRunning);
+        EnableOrDisableColumns(_thisRace, dgResults);
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
 
         cmbStartListGrouping.SelectCBItem(_rslVP.ActiveGrouping);
@@ -629,7 +627,6 @@ namespace RaceHorology
       }
       else
       {
-        dgStartList.ItemsSource = null;
         dgRemainingStarters.ItemsSource = null;
         dgRunning.ItemsSource = null;
         dgResults.ItemsSource = null;
@@ -1027,7 +1024,7 @@ namespace RaceHorology
         cmbTotalResultGrouping.SelectCBItem(_totalResultsVP.ActiveGrouping);
       }
 
-      enableOrDisableColumns(_thisRace, dgTotalResults);
+      EnableOrDisableColumns(_thisRace, dgTotalResults);
     }
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
@@ -1122,17 +1119,17 @@ namespace RaceHorology
 
 
     #region Common
-    protected static void enableOrDisableColumns(Race race, DataGrid dg)
+    public static void EnableOrDisableColumns(Race race, DataGrid dg)
     {
-      enableOrDisableColumn(race, dg, "Year");
-      enableOrDisableColumn(race, dg, "Club");
-      enableOrDisableColumn(race, dg, "Nation");
-      enableOrDisableColumn(race, dg, "Code");
-      enableOrDisableColumn(race, dg, "Points");
+      EnableOrDisableColumn(race, dg, "Year");
+      EnableOrDisableColumn(race, dg, "Club");
+      EnableOrDisableColumn(race, dg, "Nation");
+      EnableOrDisableColumn(race, dg, "Code");
+      EnableOrDisableColumn(race, dg, "Points");
     }
 
 
-    protected static void enableOrDisableColumn(Race race, DataGrid dg, string columnName)
+    public static void EnableOrDisableColumn(Race race, DataGrid dg, string columnName)
     {
       DataGridColumn col = dg.ColumnByName(columnName);
       if (col != null)
