@@ -311,6 +311,7 @@ namespace RaceHorologyLib
     
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
+    private DatabaseDelegatorRaceParticipant _raceParticipantDBDelegator;
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
     private RaceResultViewProvider _raceResultsProvider;
@@ -361,6 +362,8 @@ namespace RaceHorologyLib
 
       //// RaceRuns ////
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
+
+      _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
 
       // TODO: Assuming 2 runs for now
       CreateRaceRuns(2);
@@ -500,6 +503,24 @@ namespace RaceHorologyLib
     public RaceParticipant GetParticipant(Participant participant)
     {
       return _participants.FirstOrDefault(p => p.Participant == participant);
+    }
+
+    /// <summary>
+    /// Adds a particpant to the race
+    /// </summary>
+    /// <param name="participant">The particpant to add</param>
+    /// <returns>The the corresponding RaceParticipant object</returns>
+    public RaceParticipant AddParticipant(Participant participant)
+    {
+      RaceParticipant raceParticipant = GetParticipant(participant);
+
+      if (raceParticipant == null)
+      {
+        raceParticipant = new RaceParticipant(this, participant, 0, -1);
+      }
+      _participants.Add(raceParticipant);
+
+      return raceParticipant;
     }
 
 
@@ -831,15 +852,13 @@ namespace RaceHorologyLib
 
     protected void onParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      foreach (RaceParticipant rp in e.NewItems)
-      {
-        findOrCreateRunResult(rp);
-      }
+      if (e.NewItems != null)
+        foreach (RaceParticipant rp in e.NewItems)
+          findOrCreateRunResult(rp);
 
-      foreach (RaceParticipant rp in e.OldItems)
-      {
-        deleteRunResult(rp);
-      }
+      if (e.OldItems != null)
+        foreach (RaceParticipant rp in e.OldItems)
+          deleteRunResult(rp);
     }
 
 
@@ -954,6 +973,10 @@ namespace RaceHorologyLib
     void StoreRaceProperties(Race race, AdditionalRaceProperties props);
 
     void CreateOrUpdateParticipant(Participant participant);
+
+    void CreateOrUpdateRaceParticipant(RaceParticipant participant);
+    void RemoveRaceParticipant(RaceParticipant raceParticipant);
+
     void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
     void DeleteRunResult(Race race, RaceRun raceRun, RunResult result);
 

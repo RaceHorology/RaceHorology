@@ -89,9 +89,57 @@ namespace RaceHorologyLib
               _db.CreateOrUpdateRunResult(_race, _rr, v);
           }
           break;
+        case NotifyCollectionChangedAction.Remove:
+          break;
 
         case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
+  /// <summary>
+  /// Observes the run results and triggers a database store in case time / run results changed
+  /// </summary>
+  /// <remarks>
+  /// Delete not implemented (actually not needed)
+  /// </remarks>
+  internal class DatabaseDelegatorRaceParticipant
+  {
+    private Race _race;
+    private IAppDataModelDataBase _db;
+
+    public DatabaseDelegatorRaceParticipant(Race race, IAppDataModelDataBase db)
+    {
+      _db = db;
+      _race = race;
+
+      _race.GetParticipants().ItemChanged += OnItemChanged;
+      _race.GetParticipants().CollectionChanged += OnCollectionChanged;
+    }
+
+    private void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RaceParticipant raceParticipant = (RaceParticipant)sender;
+      _db.CreateOrUpdateRaceParticipant(raceParticipant);
+    }
+
+    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (RaceParticipant v in e.NewItems)
+            _db.CreateOrUpdateRaceParticipant(v);
+          break;
         case NotifyCollectionChangedAction.Remove:
+          foreach (RaceParticipant v in e.OldItems)
+            _db.RemoveRaceParticipant(v);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Replace:
         case NotifyCollectionChangedAction.Reset:
           throw new Exception("not implemented");

@@ -110,7 +110,7 @@ namespace RaceHorologyLibTest
       // Test Update when inserting
       {
         Participant p = new Participant { Name = "Name 3", Firstname = "3" };
-        RaceParticipant r = new RaceParticipant(p, 3, 0.0);
+        RaceParticipant r = new RaceParticipant(null, p, 3, 0.0);
         participants.Add(r);
       }
       Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
@@ -138,19 +138,19 @@ namespace RaceHorologyLibTest
       // Constraint: Startnumber = Firstname
       {
         Participant p1 = new Participant { Name = "Name 1", Firstname="2" };
-        RaceParticipant r1 = new RaceParticipant(p1, 2, 0.0);
+        RaceParticipant r1 = new RaceParticipant(null, p1, 2, 0.0);
         participants.Add(r1);
       }
 
       {
         Participant p1 = new Participant { Name = "Name 2", Firstname = "1" };
-        RaceParticipant r1 = new RaceParticipant(p1, 1, 0.0);
+        RaceParticipant r1 = new RaceParticipant(null, p1, 1, 0.0);
         participants.Add(r1);
       }
 
       {
         Participant p1 = new Participant { Name = "Name 4", Firstname = "4" };
-        RaceParticipant r1 = new RaceParticipant(p1, 4, 0.0);
+        RaceParticipant r1 = new RaceParticipant(null, p1, 4, 0.0);
         participants.Add(r1);
       }
 
