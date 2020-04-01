@@ -221,7 +221,7 @@ namespace RaceHorologyLib
 
 
 
-  public class CopyObservableCollection<T> : ObservableCollection<T>
+  public class CopyObservableCollection<T> : ObservableCollection<T> where T : class
   {
     protected ObservableCollection<T> _source;
     protected Cloner<T> _cloner;
@@ -245,8 +245,12 @@ namespace RaceHorologyLib
 
     protected void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      // Clone
-      throw new NotImplementedException();
+      if (sender is T sourceItem)
+      {
+        int index = _source.IndexOf(sourceItem);
+        var clonedItem = _cloner(sourceItem);
+        SetItem(index, clonedItem);
+      }
     }
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -292,7 +296,7 @@ namespace RaceHorologyLib
           break;
       }
 
-      // Unhook to PropertyChanged
+      // Hook to PropertyChanged
       if (e.NewItems != null)
         foreach (T item in e.NewItems)
         {
