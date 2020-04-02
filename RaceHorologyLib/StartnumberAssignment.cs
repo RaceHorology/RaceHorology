@@ -61,6 +61,18 @@ namespace RaceHorologyLib
       _snAssignment = new ObservableCollection<StartNumberAsignment>();
     }
 
+
+    public void LoadFromRace(Race race)
+    {
+      var particpants = race.GetParticipants();
+
+      foreach(var p in particpants)
+      {
+        if (p.StartNumber != 0)
+          Assign(p.StartNumber, p);
+      }
+    }
+
     /// <summary>
     /// Returns the workng space containing current StartNumber and Particpant
     /// </summary>

@@ -133,7 +133,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRacesNoStartnumber.mdb")]
-    public void StartNumberAssignmentTest()
+    public void StartNumberAssignment_Manual_Test()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRacesNoStartnumber.mdb");
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
@@ -182,8 +182,31 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(null,   sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 3).Participant);
       Assert.AreEqual(rps[2], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 4).Participant);
       Assert.AreEqual(rps[3], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 5).Participant);
+    }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
+    public void StartNumberAssignment_LoadFromRace_Test()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
 
+      AppDataModel model = new AppDataModel(db);
+      var race = model.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.GiantSlalom);
+
+      StartNumberAssignment sna = new StartNumberAssignment();
+      sna.LoadFromRace(race);
+
+      var rps = race.GetParticipants().ToList();
+      foreach(var snap in sna.ParticipantList)
+      {
+        if (snap.StartNumber != 0)
+        {
+          var rp = rps.FirstOrDefault(x => x.StartNumber == snap.StartNumber);
+          Assert.AreEqual(snap.Participant, rp);
+        }
+      }
     }
   }
 }
