@@ -95,5 +95,60 @@ namespace RaceHorologyLibTest
       for (int i = 0; i < rps.Count; i++)
         Assert.AreEqual((uint)i + 1, rps2[i].StartNumber);
     }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRacesNoStartnumber.mdb")]
+    public void StartNumberAssignmentTest()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRacesNoStartnumber.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+      var rps = model.GetRace(0).GetParticipants().ToList();
+
+
+      StartNumberAssignment sna = new StartNumberAssignment();
+
+      uint sn = sna.AssignNextFree(rps[0]);
+      Assert.AreEqual(1U, sn);
+      Assert.AreEqual(rps[0], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 1).Participant);
+
+      sn = sna.AssignNextFree(rps[1]);
+      Assert.AreEqual(2U, sn);
+      Assert.AreEqual(rps[1], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 2).Participant);
+
+      sna.Assign(4U, rps[2]);
+      Assert.AreEqual(rps[2], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 4).Participant);
+
+      sn = sna.AssignNextFree(rps[3]);
+      Assert.AreEqual(5U, sn);
+      Assert.AreEqual(rps[3], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 5).Participant);
+
+      sna.InsertAndShift(2U);
+      Assert.AreEqual(rps[0], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 1).Participant);
+      Assert.AreEqual(null,   sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 2).Participant);
+      Assert.AreEqual(rps[1], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 3).Participant);
+      Assert.AreEqual(null,   sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 4).Participant);
+      Assert.AreEqual(rps[2], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 5).Participant);
+      Assert.AreEqual(rps[3], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 6).Participant);
+
+      sna.Assign(1U, null);
+      Assert.AreEqual(null,   sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 1).Participant);
+      Assert.AreEqual(null,   sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 2).Participant);
+      Assert.AreEqual(rps[1], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 3).Participant);
+      Assert.AreEqual(null,   sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 4).Participant);
+      Assert.AreEqual(rps[2], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 5).Participant);
+      Assert.AreEqual(rps[3], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 6).Participant);
+
+      sna.Delete(1U);
+      Assert.AreEqual(null,   sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 1).Participant);
+      Assert.AreEqual(rps[1], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 2).Participant);
+      Assert.AreEqual(null,   sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 3).Participant);
+      Assert.AreEqual(rps[2], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 4).Participant);
+      Assert.AreEqual(rps[3], sna.ParticipantList.FirstOrDefault(v => v?.StartNumber == 5).Participant);
+
+
+    }
   }
 }
