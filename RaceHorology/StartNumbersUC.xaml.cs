@@ -59,6 +59,8 @@ namespace RaceHorology
     private AppDataModel _dm;
     private Race _race;
 
+    private StartNumberAssignment _snaWorkspace;
+
     public StartNumbersUC()
     {
       InitializeComponent();
@@ -69,11 +71,20 @@ namespace RaceHorology
       _dm = dm;
       _race = race;
 
+      _snaWorkspace = new StartNumberAssignment();
 
-      dgStartList.ItemsSource = _race.GetParticipants();
-      RaceUC.EnableOrDisableColumns(_race, dgStartList);
+      dgStartList.ItemsSource = _snaWorkspace.ParticipantList;
+      //RaceUC.EnableOrDisableColumns(_race, dgStartList);
 
+      IsVisibleChanged += StartNumbersUC_IsVisibleChanged;
+    }
 
+    private void StartNumbersUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+      if (!(bool)e.OldValue && (bool)e.NewValue)
+      {
+        _snaWorkspace.LoadFromRace(_race);
+      }
     }
 
     private void btnDeleteAll_Click(object sender, RoutedEventArgs e)

@@ -43,10 +43,10 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
-  public class StartNumberAsignment
+  public class AssignedStartNumber
   {
-    public uint StartNumber;
-    public RaceParticipant Participant;
+    public uint StartNumber { get; set; }
+    public RaceParticipant Participant { get; set; }
   }
 
   /// <summary>
@@ -54,11 +54,11 @@ namespace RaceHorologyLib
   /// </summary>
   public class StartNumberAssignment
   {
-    ObservableCollection<StartNumberAsignment> _snAssignment;
+    ObservableCollection<AssignedStartNumber> _snAssignment;
 
     public StartNumberAssignment()
     {
-      _snAssignment = new ObservableCollection<StartNumberAsignment>();
+      _snAssignment = new ObservableCollection<AssignedStartNumber>();
     }
 
 
@@ -76,7 +76,7 @@ namespace RaceHorologyLib
     /// <summary>
     /// Returns the workng space containing current StartNumber and Particpant
     /// </summary>
-    public ObservableCollection<StartNumberAsignment> ParticipantList
+    public ObservableCollection<AssignedStartNumber> ParticipantList
     { get { return _snAssignment; } }
 
     /// <summary>
@@ -99,15 +99,15 @@ namespace RaceHorologyLib
     public void Assign(uint sn, RaceParticipant participant)
     {
       if ((int)sn - 1 < _snAssignment.Count)
-        _snAssignment[(int)sn - 1] = new StartNumberAsignment { Participant = participant };
+        _snAssignment[(int)sn - 1] = new AssignedStartNumber { Participant = participant };
       else
       {
         // Fill up with empty space
         while (_snAssignment.Count < (int)sn - 1)
-          _snAssignment.Add(new StartNumberAsignment());
+          _snAssignment.Add(new AssignedStartNumber());
 
         // Put participant at the correct place
-        _snAssignment.Add(new StartNumberAsignment { Participant = participant });
+        _snAssignment.Add(new AssignedStartNumber { Participant = participant });
       }
 
       updateStartNumbers((int)sn - 1);
@@ -119,7 +119,7 @@ namespace RaceHorologyLib
     /// <param name="sn"></param>
     public void InsertAndShift(uint sn)
     {
-      _snAssignment.Insert((int)sn-1, new StartNumberAsignment());
+      _snAssignment.Insert((int)sn-1, new AssignedStartNumber());
 
       updateStartNumbers((int)sn - 1);
     }

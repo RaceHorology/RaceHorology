@@ -50,9 +50,6 @@ namespace RaceHorologyLibTest
   {
     public StartNumberTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
     }
 
     private TestContext testContextInstance;
