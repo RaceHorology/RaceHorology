@@ -85,7 +85,14 @@ namespace RaceHorology
       if (!(bool)e.OldValue && (bool)e.NewValue)
       {
         _snaWorkspace.LoadFromRace(_race);
+        UpdateNextStartNumber();
       }
+    }
+
+    private void UpdateNextStartNumber()
+    {
+      txtNextStartNumber.Text = _snaWorkspace.GetNextFreeStartNumber().ToString();
+      txtNextStartNumberManual.Text = _snaWorkspace.GetNextFreeStartNumber().ToString();
     }
 
     private void btnDeleteAll_Click(object sender, RoutedEventArgs e)
@@ -96,12 +103,16 @@ namespace RaceHorology
         var particpants = _race.GetParticipants();
         foreach (var p in particpants)
           p.StartNumber = 0;
+
+        UpdateNextStartNumber();
       }
     }
 
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {
       _snaWorkspace.LoadFromRace(_race);
+
+      UpdateNextStartNumber();
     }
 
     private void BtnApply_Click(object sender, RoutedEventArgs e)
@@ -114,6 +125,8 @@ namespace RaceHorology
       if (dgStartList.SelectedItem is AssignedStartNumber selItem)
       {
         _snaWorkspace.InsertAndShift(selItem.StartNumber);
+
+        UpdateNextStartNumber();
       }
     }
 
@@ -122,6 +135,8 @@ namespace RaceHorology
       if (dgStartList.SelectedItem is AssignedStartNumber selItem)
       {
         _snaWorkspace.Delete(selItem.StartNumber);
+
+        UpdateNextStartNumber();
       }
     }
 
@@ -135,6 +150,8 @@ namespace RaceHorology
         if (dgParticipants.SelectedItem is RaceParticipant selItem)
         {
           _snaWorkspace.Assign(sn, selItem);
+
+          UpdateNextStartNumber();
         }
       }
       catch (Exception)
