@@ -147,6 +147,13 @@ namespace RaceHorologyLib
       updateStartNumbers(updateSNFrom);
     }
 
+
+    public bool IsAssigned(RaceParticipant rp)
+    {
+      var pAlreadyExisting = _snAssignment.FirstOrDefault(v => v.Participant == rp);
+      return pAlreadyExisting != null;
+    }
+
     /// <summary>
     /// Inserts a new startnumber slot at the given position. All existing start numbers higher that sn will be increased accordingly.
     /// </summary>

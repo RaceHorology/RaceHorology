@@ -61,6 +61,8 @@ namespace RaceHorology
 
     private StartNumberAssignment _snaWorkspace;
 
+    CollectionViewSource _participantFilter;
+
     public StartNumbersUC()
     {
       InitializeComponent();
@@ -74,7 +76,16 @@ namespace RaceHorology
       _snaWorkspace = new StartNumberAssignment();
 
       dgStartList.ItemsSource = _snaWorkspace.ParticipantList;
-      dgParticipants.ItemsSource = _race.GetParticipants();
+
+
+      _participantFilter = new CollectionViewSource() { Source = _race.GetParticipants() };
+      _participantFilter.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) 
+      { 
+        RaceParticipant rr = (RaceParticipant)ea.Item; ea.Accepted = !_snaWorkspace.IsAssigned(rr); 
+      });
+
+      dgParticipants.ItemsSource = _participantFilter.View;
+
       //RaceUC.EnableOrDisableColumns(_race, dgStartList);
 
       IsVisibleChanged += StartNumbersUC_IsVisibleChanged;
@@ -91,6 +102,9 @@ namespace RaceHorology
 
     private void UpdateNextStartNumber()
     {
+
+      _participantFilter.View.Refresh();
+
       txtNextStartNumber.Text = _snaWorkspace.GetNextFreeStartNumber().ToString();
       txtNextStartNumberManual.Text = _snaWorkspace.GetNextFreeStartNumber().ToString();
     }
