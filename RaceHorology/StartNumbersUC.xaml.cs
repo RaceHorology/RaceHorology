@@ -74,6 +74,7 @@ namespace RaceHorology
       _snaWorkspace = new StartNumberAssignment();
 
       dgStartList.ItemsSource = _snaWorkspace.ParticipantList;
+      dgParticipants.ItemsSource = _race.GetParticipants();
       //RaceUC.EnableOrDisableColumns(_race, dgStartList);
 
       IsVisibleChanged += StartNumbersUC_IsVisibleChanged;
@@ -96,6 +97,48 @@ namespace RaceHorology
         foreach (var p in particpants)
           p.StartNumber = 0;
       }
+    }
+
+    private void BtnReset_Click(object sender, RoutedEventArgs e)
+    {
+      _snaWorkspace.LoadFromRace(_race);
+    }
+
+    private void BtnApply_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void btnInsert_Click(object sender, RoutedEventArgs e)
+    {
+      if (dgStartList.SelectedItem is AssignedStartNumber selItem)
+      {
+        _snaWorkspace.InsertAndShift(selItem.StartNumber);
+      }
+    }
+
+    private void btnRemove_Click(object sender, RoutedEventArgs e)
+    {
+      if (dgStartList.SelectedItem is AssignedStartNumber selItem)
+      {
+        _snaWorkspace.Delete(selItem.StartNumber);
+      }
+    }
+
+    private void btnAssign_Click(object sender, RoutedEventArgs e)
+    {
+
+      try
+      {
+        uint sn = uint.Parse(txtNextStartNumberManual.Text);
+
+        if (dgParticipants.SelectedItem is RaceParticipant selItem)
+        {
+          _snaWorkspace.Assign(sn, selItem);
+        }
+      }
+      catch (Exception)
+      { }
     }
   }
 }
