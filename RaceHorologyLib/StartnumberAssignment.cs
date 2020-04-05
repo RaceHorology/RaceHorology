@@ -170,6 +170,15 @@ namespace RaceHorologyLib
       updateStartNumbers((int)sn - 1);
     }
 
+
+    /// <summary>
+    /// Delete all assignments
+    /// </summary>
+    public void DeleteAll()
+    {
+      _snAssignment.Clear();
+    }
+
     /// <summary>
     /// Returns the next free startnumber (number of assigned startnumber slots + 1)
     /// </summary>

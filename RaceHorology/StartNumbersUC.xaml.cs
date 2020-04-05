@@ -97,15 +97,9 @@ namespace RaceHorology
 
     private void btnDeleteAll_Click(object sender, RoutedEventArgs e)
     {
-      var result = MessageBox.Show("Alle Startnummern löschen?\n\nDies kann nicht rückgängig gemacht werden.", "Startnummern löschen?", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
-      if (result == MessageBoxResult.Yes)
-      {
-        var particpants = _race.GetParticipants();
-        foreach (var p in particpants)
-          p.StartNumber = 0;
+      _snaWorkspace.DeleteAll();
 
-        UpdateNextStartNumber();
-      }
+      UpdateNextStartNumber();
     }
 
     private void BtnReset_Click(object sender, RoutedEventArgs e)
