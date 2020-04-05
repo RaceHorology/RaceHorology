@@ -122,6 +122,8 @@ namespace RaceHorologyLib
     /// <param name="participant">The particpant the startnumber to assign</param>
     public void Assign(uint sn, RaceParticipant participant)
     {
+      int updateSNFrom = Math.Min(_snAssignment.Count, (int)sn - 1);
+
       // Check if already existing and assign null
       var pAlreadyExisting = _snAssignment.FirstOrDefault(v => v.Participant == participant);
       if (pAlreadyExisting!=null)
@@ -142,7 +144,7 @@ namespace RaceHorologyLib
         _snAssignment.Add(new AssignedStartNumber { Participant = participant });
       }
 
-      updateStartNumbers((int)sn - 1);
+      updateStartNumbers(updateSNFrom);
     }
 
     /// <summary>
