@@ -36,17 +36,41 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
 
-  public class AssignedStartNumber
+  public class AssignedStartNumber : INotifyPropertyChanged
   {
-    public uint StartNumber { get; set; }
-    public RaceParticipant Participant { get; set; }
+    private uint _startNumber;
+    private RaceParticipant _particpant;
+
+    public uint StartNumber { get { return _startNumber; } set { _startNumber = value; NotifyPropertyChanged(); } }
+    public RaceParticipant Participant { get { return _particpant; } set { _particpant = value; NotifyPropertyChanged(); } }
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    // Pass through the property change
+    private void OnParticipantPropertyChanged(object sender, PropertyChangedEventArgs args)
+    {
+      NotifyPropertyChanged(args.PropertyName);
+    }
+
+    #endregion
   }
 
   /// <summary>
@@ -142,7 +166,10 @@ namespace RaceHorologyLib
     /// <returns></returns>
     public uint GetNextFreeStartNumber()
     {
-      return (uint)_snAssignment.Count+1;
+      if (_snAssignment.Count == 0)
+        return 1;
+      
+      return _snAssignment.Last().StartNumber + 1U;
     }
 
     /// <summary>
@@ -152,7 +179,7 @@ namespace RaceHorologyLib
     protected void updateStartNumbers(int from = 0)
     {
       for (int i = from; i < _snAssignment.Count; i++)
-        if (_snAssignment != null && _snAssignment[i] != null)
+        if (_snAssignment != null )//&& _snAssignment[i] != null)
           _snAssignment[i].StartNumber = (uint)i + 1;
     }
   }
