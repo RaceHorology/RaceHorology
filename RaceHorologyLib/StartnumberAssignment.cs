@@ -215,18 +215,79 @@ namespace RaceHorologyLib
   {
     Race _race;
     StartNumberAssignment _snAssignment;
+    string _groupProperty;
 
-    public ParticpantSelector(Race race, StartNumberAssignment snAssignment)
+    Random _random;
+
+    Dictionary<object, List<RaceParticipant>> _group2participant;
+
+    public ParticpantSelector(Race race, StartNumberAssignment snAssignment, string groupProperty)
     {
       _race = race;
       _snAssignment = snAssignment;
+      _groupProperty = groupProperty;
+
+      _random = new Random();
+
+      _group2participant = new Dictionary<object, List<RaceParticipant>>();
+      fillGroup2Particpant();
     }
 
+    public Dictionary<object, List<RaceParticipant>> Group2Participant { get { return _group2participant; } private set { _group2participant = value; } }
 
-    public RaceParticipant PickNextParticipant()
+
+    private void fillGroup2Particpant()
     {
-      return null;
+      foreach (var rp in _race.GetParticipants())
+      {
+        object group = PropertyUtilities.GetPropertyValue(rp, _groupProperty);
+
+        if (!_group2participant.ContainsKey(group))
+          _group2participant[group] = new List<RaceParticipant>();
+
+        _group2participant[group].Add(rp);
+      }
     }
+
+
+    public void AssignParticipants(object group)
+    {
+      AssignParticipants(_group2participant[group]);
+    }
+
+
+    public void AssignParticipants(List<RaceParticipant> participants)
+    {
+      var wcParticipants = participants.ToList();
+
+      while (wcParticipants.Count > 0)
+      {
+        RaceParticipant rp = pickParticipant(wcParticipants);
+        assignParticipant(rp);
+        removeParticipant(wcParticipants, rp);
+      }
+    }
+
+
+    protected void assignParticipant(RaceParticipant rp)
+    {
+      if (!_snAssignment.IsAssigned(rp))
+        _snAssignment.AssignNextFree(rp);
+    }
+
+
+    protected RaceParticipant pickParticipant(List<RaceParticipant> participants)
+    {
+      int pickedIndex = _random.Next(participants.Count);
+      return participants[pickedIndex];
+    }
+
+    protected void removeParticipant(List<RaceParticipant> participants, RaceParticipant rp)
+    {
+      participants.Remove(rp);
+    }
+
 
   }
 }
+  

@@ -205,5 +205,32 @@ namespace RaceHorologyLibTest
         }
       }
     }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    public void StartNumberAssignment_ParticpantSelector_Test()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+      var race = model.GetRace(0);
+
+      StartNumberAssignment sna = new StartNumberAssignment();
+      sna.LoadFromRace(race);
+
+      ParticpantSelector ps = new ParticpantSelector(race, sna, "Class");
+      foreach (var g in ps.Group2Participant)
+        foreach (var rp in g.Value)
+          Assert.AreEqual(rp.Class, g.Key);
+
+      ParticpantSelector ps2 = new ParticpantSelector(race, sna, "Sex");
+      foreach (var g in ps2.Group2Participant)
+        foreach (var rp in g.Value)
+          Assert.AreEqual(rp.Sex, g.Key);
+
+
+    }
   }
 }
