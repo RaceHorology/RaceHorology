@@ -213,19 +213,23 @@ namespace RaceHorologyLib
 
   public class ParticpantSelector
   {
-    Race _race;
-    StartNumberAssignment _snAssignment;
-    string _groupProperty;
+    private Race _race;
+    private StartNumberAssignment _snAssignment;
+    private string _groupProperty;
 
-    Random _random;
+    private object _currentGroup;
 
-    Dictionary<object, List<RaceParticipant>> _group2participant;
+    private Random _random;
 
-    public ParticpantSelector(Race race, StartNumberAssignment snAssignment, string groupProperty)
+    private Dictionary<object, List<RaceParticipant>> _group2participant;
+
+    public ParticpantSelector(Race race, StartNumberAssignment snAssignment, string groupProperty = null)
     {
       _race = race;
       _snAssignment = snAssignment;
       _groupProperty = groupProperty;
+
+      _currentGroup = null;
 
       _random = new Random();
 
@@ -233,20 +237,72 @@ namespace RaceHorologyLib
       fillGroup2Particpant();
     }
 
+
     public Dictionary<object, List<RaceParticipant>> Group2Participant { get { return _group2participant; } private set { _group2participant = value; } }
+
+    public string GroupProperty
+    {
+      get { return _groupProperty; }
+      set 
+      {
+        _groupProperty = value; 
+        fillGroup2Particpant();
+      }
+    }
 
 
     private void fillGroup2Particpant()
     {
+      _group2participant.Clear();
+
       foreach (var rp in _race.GetParticipants())
       {
-        object group = PropertyUtilities.GetPropertyValue(rp, _groupProperty);
+        object group = "";
+        if (_groupProperty != null)
+          group = PropertyUtilities.GetPropertyValue(rp, _groupProperty);
 
         if (!_group2participant.ContainsKey(group))
           _group2participant[group] = new List<RaceParticipant>();
 
         _group2participant[group].Add(rp);
       }
+
+      _currentGroup = null;
+      SwitchToNextGroup();
+    }
+
+
+    public object CurrentGroup
+    {
+      get { return _currentGroup; }
+      private set { _currentGroup = value; }
+    }
+
+
+    public bool SwitchToNextGroup()
+    {
+      List<object> groups = _group2participant.Keys.ToList();
+      groups.Sort();
+
+      int index = 0;
+      if (CurrentGroup != null)
+      {
+        index = groups.FindIndex(g => g == _currentGroup);
+        index++;
+      }
+
+      if (index >= groups.Count)
+        CurrentGroup = null;
+      else
+        CurrentGroup = groups[index];
+
+      return CurrentGroup != null;
+    }
+
+
+    public void AssignParticipants()
+    {
+      AssignParticipants(_currentGroup);
     }
 
 

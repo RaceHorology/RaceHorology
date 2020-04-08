@@ -208,7 +208,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
-    public void StartNumberAssignment_ParticpantSelector_Test()
+    public void StartNumberAssignment_ParticpantSelector1_Test()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
@@ -230,7 +230,63 @@ namespace RaceHorologyLibTest
         foreach (var rp in g.Value)
           Assert.AreEqual(rp.Sex, g.Key);
 
+      ParticpantSelector ps3 = new ParticpantSelector(race, sna, null);
+      foreach (var g in ps3.Group2Participant)
+      {
+        Assert.AreEqual("", g.Key);
+        Assert.AreEqual(race.GetParticipants().Count, g.Value.Count);
+      }
 
+      ps3.GroupProperty = "Sex";
+      foreach (var g in ps3.Group2Participant)
+        foreach (var rp in g.Value)
+          Assert.AreEqual(rp.Sex, g.Key);
+
+      // TEST: Iterating through groups
+      Assert.AreEqual(ps2.CurrentGroup, "M");
+      Assert.IsTrue(ps2.SwitchToNextGroup());
+      Assert.AreEqual(ps2.CurrentGroup, "W");
+      Assert.IsFalse(ps2.SwitchToNextGroup());
+      Assert.IsNull(ps2.CurrentGroup, "W");
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    public void StartNumberAssignment_ParticpantSelector2_Test()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+      var race = model.GetRace(0);
+
+      StartNumberAssignment sna = new StartNumberAssignment();
+      sna.LoadFromRace(race);
+
+      sna.DeleteAll();
+
+      ParticpantSelector ps = new ParticpantSelector(race, sna, "Class");
+
+      Assert.AreEqual(ps.CurrentGroup.ToString(), "U14 weiblich Jg. 07");
+      ps.AssignParticipants();
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual(ps.CurrentGroup.ToString(), "U14 weiblich Jg. 06");
+      ps.AssignParticipants();
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual(ps.CurrentGroup.ToString(), "U16 weiblich  Jg. 05/04");
+      ps.AssignParticipants();
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual(ps.CurrentGroup.ToString(), "U14 männlich Jg. 07");
+      ps.AssignParticipants();
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual(ps.CurrentGroup.ToString(), "U14 männlich Jg. 06");
+      ps.AssignParticipants();
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual(ps.CurrentGroup.ToString(), "U16 männlich Jg. 05/04");
+      ps.AssignParticipants();
+      Assert.IsFalse(ps.SwitchToNextGroup());
     }
   }
 }
