@@ -73,11 +73,13 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <Label Content="Gruppierung:" Margin="5" Grid.Row="0" Grid.Column="0"/>
-            <ComboBox x:Name="cmbGrouping" Margin="5" Grid.Column="1" />
+            <ComboBox x:Name="cmbGrouping" Margin="5" Grid.Column="1" SelectionChanged="cmbGrouping_SelectionChanged" />
 
             <Label Content="Verlosungszahl:" Margin="5" Grid.Row="1" Grid.Column="0"/>
             <TextBox x:Name="txtVerlosung" Margin="5" Grid.Row="1" Grid.Column="1"/>
@@ -88,7 +90,13 @@
             <Label Content="Nächste Startnummer:" Margin="5" Grid.Row="3" Grid.Column="0"/>
             <TextBox x:Name="txtNextStartNumber" Margin="5" Grid.Row="3" Grid.Column="1"/>
 
-            <Button Content="Vergeben" Margin="5" Padding="5" Grid.Row="4" Grid.Column="1" />
+            <Label Content="Nächste Gruppe:" Margin="5" Grid.Row="4" Grid.Column="0"/>
+            <ComboBox x:Name="cmbNextGroup" Margin="5" Grid.Row="4" Grid.Column="1"/>
+
+            <Button x:Name="btnAssignCurrentGroup"  Content="Aktuelle Gruppe zuweisen" Margin="5" Padding="5" Grid.Row="5" Grid.Column="1" Click="btnAssignCurrentGroup_Click"/>
+
+            <Button x:Name="btnAssignAll" Content="Alle Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Row="6" Grid.Column="1" Click="btnAssignAll_Click"/>
+
           </Grid>
 
         </GroupBox>
@@ -127,7 +135,7 @@
               <Label Content="Startnummer:" Grid.Column="0" Margin="5" />
               <TextBox x:Name="txtNextStartNumberManual" Grid.Column="1" Margin="5" Width="40"/>
 
-              <Button x:Name="btnAssign" Content="Zuweisen" Margin="5" Padding="5" Grid.Column="3" Click="btnAssign_Click"/>
+              <Button x:Name="btnAssign" Content="Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Column="3" Click="btnAssign_Click"/>
             </Grid>
           </Grid>          
         </GroupBox>

@@ -60,6 +60,7 @@ namespace RaceHorology
     private Race _race;
 
     private StartNumberAssignment _snaWorkspace;
+    private ParticpantSelector _rpSelector;
 
     CollectionViewSource _participantFilter;
 
@@ -74,6 +75,7 @@ namespace RaceHorology
       _race = race;
 
       _snaWorkspace = new StartNumberAssignment();
+      _rpSelector = new ParticpantSelector(_race, _snaWorkspace);
 
       dgStartList.ItemsSource = _snaWorkspace.ParticipantList;
 
@@ -85,10 +87,11 @@ namespace RaceHorology
       });
 
       dgParticipants.ItemsSource = _participantFilter.View;
-
       //RaceUC.EnableOrDisableColumns(_race, dgStartList);
 
       IsVisibleChanged += StartNumbersUC_IsVisibleChanged;
+
+      UiUtilities.FillGrouping(cmbGrouping);
     }
 
     private void StartNumbersUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -107,6 +110,9 @@ namespace RaceHorology
 
       txtNextStartNumber.Text = _snaWorkspace.GetNextFreeStartNumber().ToString();
       txtNextStartNumberManual.Text = _snaWorkspace.GetNextFreeStartNumber().ToString();
+
+
+      //cmbNextGroup.SelectedItem = _rpSelector.CurrentGroup;
     }
 
     private void btnDeleteAll_Click(object sender, RoutedEventArgs e)
@@ -164,6 +170,23 @@ namespace RaceHorology
       }
       catch (Exception)
       { }
+    }
+
+    private void btnAssignCurrentGroup_Click(object sender, RoutedEventArgs e)
+    {
+      _rpSelector.AssignParticipants();
+      _rpSelector.SwitchToNextGroup();
+    }
+
+    private void btnAssignAll_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void cmbGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbGrouping.SelectedValue is CBItem grouping)
+        _rpSelector.GroupProperty = (string)grouping.Value;
     }
   }
 }
