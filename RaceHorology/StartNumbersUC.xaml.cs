@@ -179,6 +179,7 @@ namespace RaceHorology
 
     private void btnAssign_Click(object sender, RoutedEventArgs e)
     {
+      setStartNumbersNotToAssign();
 
       try
       {
@@ -195,12 +196,16 @@ namespace RaceHorology
 
     private void btnAssignCurrentGroup_Click(object sender, RoutedEventArgs e)
     {
+      setStartNumbersNotToAssign();
+
       _rpSelector.AssignParticipants();
       _rpSelector.SwitchToNextGroup();
     }
 
     private void btnAssignAll_Click(object sender, RoutedEventArgs e)
     {
+      setStartNumbersNotToAssign();
+
       do
       {
         _rpSelector.AssignParticipants();
@@ -214,5 +219,22 @@ namespace RaceHorology
         _rpSelector.GroupProperty = (string)grouping.Value;
     }
 
+    private void setStartNumbersNotToAssign()
+    {
+      var parts = txtNotToBeAssigned.Text.Split(new char[] { ',', ' ', ';' });
+      List<uint> snNotToAsign = new List<uint>();
+      foreach (var p in parts)
+      {
+
+        try
+        {
+          uint v = uint.Parse(p);
+          snNotToAsign.Add(v);
+        }
+        catch (Exception)
+        { }
+      }
+      _snaWorkspace.SetStartNumbersNotToAssign(snNotToAsign);
+    }
   }
 }

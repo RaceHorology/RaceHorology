@@ -80,10 +80,15 @@ namespace RaceHorologyLib
   {
     ObservableCollection<AssignedStartNumber> _snAssignment;
     private uint _nextFreeStartNumber;
+    private List<uint> _snsNotToAssign;
+
 
     public StartNumberAssignment()
     {
       _snAssignment = new ObservableCollection<AssignedStartNumber>();
+
+      _snsNotToAssign = new List<uint>();
+
       determineNextFreeStartNumber();
     }
 
@@ -104,6 +109,13 @@ namespace RaceHorologyLib
             handler.Invoke(this, new EventArgs());
         }
       }
+    }
+
+
+    public void SetStartNumbersNotToAssign(IEnumerable<uint> sns)
+    {
+      _snsNotToAssign.Clear();
+      _snsNotToAssign.AddRange(sns);
     }
 
 
@@ -244,6 +256,9 @@ namespace RaceHorologyLib
         sn = 1;
       else
         sn = _snAssignment.Last().StartNumber + 1U;
+
+      while (_snsNotToAssign.Contains(sn))
+        sn++;
 
       NextFreeStartNumber = sn;
     }
