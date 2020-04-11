@@ -126,6 +126,9 @@
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StartNumbersUC.xaml.cs">
+      <DependentUpon>StartNumbersUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TimerPlus.cs" />
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
@@ -166,6 +169,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Settings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StartNumbersUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

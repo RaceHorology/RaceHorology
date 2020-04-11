@@ -440,7 +440,9 @@ namespace RaceHorologyLib
 
     public StartListEntry ShallowCopy()
     {
-      return (StartListEntry)this.MemberwiseClone();
+      StartListEntry copy = new StartListEntry(_participant);
+      copy._started = _started;
+      return copy;
     }
 
 
