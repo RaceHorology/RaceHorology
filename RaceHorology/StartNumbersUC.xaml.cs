@@ -75,10 +75,14 @@ namespace RaceHorology
       _race = race;
 
       _snaWorkspace = new StartNumberAssignment();
+      _snaWorkspace.ParticipantList.CollectionChanged += OnWorkspaceChanged;
+      _snaWorkspace.NextStartnumberChanged += OnNextStartnumberChanged;
+
       _rpSelector = new ParticpantSelector(_race, _snaWorkspace);
+      _rpSelector.CurrentGroupChanged += OnCurrentGroupChangedHandler;
+      _rpSelector.GroupingChanged += OnGroupingChangedHandler;
 
       dgStartList.ItemsSource = _snaWorkspace.ParticipantList;
-
 
       _participantFilter = new CollectionViewSource() { Source = _race.GetParticipants() };
       _participantFilter.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) 
@@ -99,34 +103,54 @@ namespace RaceHorology
       if (!(bool)e.OldValue && (bool)e.NewValue)
       {
         _snaWorkspace.LoadFromRace(_race);
-        UpdateNextStartNumber();
+
+        OnWorkspaceChanged(this, null);
+        OnCurrentGroupChangedHandler(this, null);
       }
     }
 
-    private void UpdateNextStartNumber()
+
+    private void OnWorkspaceChanged(object source, EventArgs e)
     {
-
       _participantFilter.View.Refresh();
-
-      txtNextStartNumber.Text = _snaWorkspace.GetNextFreeStartNumber().ToString();
-      txtNextStartNumberManual.Text = _snaWorkspace.GetNextFreeStartNumber().ToString();
-
-
-      //cmbNextGroup.SelectedItem = _rpSelector.CurrentGroup;
     }
+
+    private void OnNextStartnumberChanged(object source, EventArgs e)
+    { 
+      txtNextStartNumber.Text = _snaWorkspace.NextFreeStartNumber.ToString();
+      txtNextStartNumberManual.Text = _snaWorkspace.NextFreeStartNumber.ToString();
+    }
+
+
+    private void OnCurrentGroupChangedHandler(object source, EventArgs e)
+    {
+      // Selected current group
+      foreach (var v in cmbNextGroup.Items)
+        if (v is CBItem cbItem)
+          if (cbItem.Value == _rpSelector.CurrentGroup)
+            cmbNextGroup.SelectedItem = v;
+    }
+
+
+    private void OnGroupingChangedHandler(object source, EventArgs e)
+    {
+      cmbNextGroup.Items.Clear();
+      foreach (var g in _rpSelector.Group2Participant.Keys)
+      {
+        cmbNextGroup.Items.Add(new CBItem { Text = g.ToString(), Value = g });
+      }
+    }
+
 
     private void btnDeleteAll_Click(object sender, RoutedEventArgs e)
     {
       _snaWorkspace.DeleteAll();
-
-      UpdateNextStartNumber();
+      _rpSelector.SwitchToFirstGroup();
     }
 
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {
       _snaWorkspace.LoadFromRace(_race);
-
-      UpdateNextStartNumber();
     }
 
     private void BtnApply_Click(object sender, RoutedEventArgs e)
@@ -134,25 +158,24 @@ namespace RaceHorology
 
     }
 
+
     private void btnInsert_Click(object sender, RoutedEventArgs e)
     {
       if (dgStartList.SelectedItem is AssignedStartNumber selItem)
       {
         _snaWorkspace.InsertAndShift(selItem.StartNumber);
-
-        UpdateNextStartNumber();
       }
     }
+
 
     private void btnRemove_Click(object sender, RoutedEventArgs e)
     {
       if (dgStartList.SelectedItem is AssignedStartNumber selItem)
       {
         _snaWorkspace.Delete(selItem.StartNumber);
-
-        UpdateNextStartNumber();
       }
     }
+
 
     private void btnAssign_Click(object sender, RoutedEventArgs e)
     {
@@ -164,8 +187,6 @@ namespace RaceHorology
         if (dgParticipants.SelectedItem is RaceParticipant selItem)
         {
           _snaWorkspace.Assign(sn, selItem);
-
-          UpdateNextStartNumber();
         }
       }
       catch (Exception)
@@ -180,7 +201,11 @@ namespace RaceHorology
 
     private void btnAssignAll_Click(object sender, RoutedEventArgs e)
     {
-
+      do
+      {
+        _rpSelector.AssignParticipants();
+      }
+      while (_rpSelector.SwitchToNextGroup());
     }
 
     private void cmbGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -188,5 +213,6 @@ namespace RaceHorology
       if (cmbGrouping.SelectedValue is CBItem grouping)
         _rpSelector.GroupProperty = (string)grouping.Value;
     }
+
   }
 }

@@ -79,10 +79,31 @@ namespace RaceHorologyLib
   public class StartNumberAssignment
   {
     ObservableCollection<AssignedStartNumber> _snAssignment;
+    private uint _nextFreeStartNumber;
 
     public StartNumberAssignment()
     {
       _snAssignment = new ObservableCollection<AssignedStartNumber>();
+      determineNextFreeStartNumber();
+    }
+
+
+    public event EventHandler NextStartnumberChanged;
+    public uint NextFreeStartNumber
+    { 
+      get { return _nextFreeStartNumber; } 
+
+      private set 
+      { 
+        if (_nextFreeStartNumber != value)
+        {
+          _nextFreeStartNumber = value;
+
+          var handler = NextStartnumberChanged;
+          if (handler != null)
+            handler.Invoke(this, new EventArgs());
+        }
+      }
     }
 
 
@@ -110,7 +131,7 @@ namespace RaceHorologyLib
     /// <returns></returns>
     public uint AssignNextFree(RaceParticipant participant)
     {
-      uint sn = GetNextFreeStartNumber();
+      uint sn = NextFreeStartNumber;
       Assign(sn, participant);
       return sn;
     }
@@ -184,18 +205,22 @@ namespace RaceHorologyLib
     public void DeleteAll()
     {
       _snAssignment.Clear();
+      determineNextFreeStartNumber();
     }
 
     /// <summary>
     /// Returns the next free startnumber (number of assigned startnumber slots + 1)
     /// </summary>
     /// <returns></returns>
-    public uint GetNextFreeStartNumber()
+    private void determineNextFreeStartNumber()
     {
+      uint sn = 0;
       if (_snAssignment.Count == 0)
-        return 1;
-      
-      return _snAssignment.Last().StartNumber + 1U;
+        sn = 1;
+      else
+        sn = _snAssignment.Last().StartNumber + 1U;
+
+      NextFreeStartNumber = sn;
     }
 
     /// <summary>
@@ -207,6 +232,8 @@ namespace RaceHorologyLib
       for (int i = from; i < _snAssignment.Count; i++)
         if (_snAssignment != null )//&& _snAssignment[i] != null)
           _snAssignment[i].StartNumber = (uint)i + 1;
+
+      determineNextFreeStartNumber();
     }
   }
 
@@ -222,6 +249,10 @@ namespace RaceHorologyLib
     private Random _random;
 
     private Dictionary<object, List<RaceParticipant>> _group2participant;
+
+
+    public event EventHandler CurrentGroupChanged;
+    public event EventHandler GroupingChanged;
 
     public ParticpantSelector(Race race, StartNumberAssignment snAssignment, string groupProperty = null)
     {
@@ -245,8 +276,11 @@ namespace RaceHorologyLib
       get { return _groupProperty; }
       set 
       {
-        _groupProperty = value; 
-        fillGroup2Particpant();
+        if (_groupProperty != value)
+        {
+          _groupProperty = value;
+          fillGroup2Particpant();
+        }
       }
     }
 
@@ -267,15 +301,42 @@ namespace RaceHorologyLib
         _group2participant[group].Add(rp);
       }
 
-      _currentGroup = null;
-      SwitchToNextGroup();
+      var handler = GroupingChanged;
+      if (handler != null)
+        handler.Invoke(this, new EventArgs());
+
+      SwitchToFirstGroup();
     }
 
 
     public object CurrentGroup
     {
       get { return _currentGroup; }
-      private set { _currentGroup = value; }
+      private set 
+      {
+        if (_currentGroup != value)
+        {
+          _currentGroup = value;
+
+          var handler = CurrentGroupChanged;
+          if (handler != null)
+            handler.Invoke(this, new EventArgs());
+        }
+      }
+    }
+
+
+    public bool SwitchToFirstGroup()
+    {
+      List<object> groups = _group2participant.Keys.ToList();
+      groups.Sort();
+
+      if (groups.Count > 0)
+        CurrentGroup = groups[0];
+      else
+        CurrentGroup = null;
+
+      return CurrentGroup != null;
     }
 
 
@@ -284,7 +345,7 @@ namespace RaceHorologyLib
       List<object> groups = _group2participant.Keys.ToList();
       groups.Sort();
 
-      int index = 0;
+      int index = int.MaxValue;
       if (CurrentGroup != null)
       {
         index = groups.FindIndex(g => g == _currentGroup);
@@ -308,7 +369,8 @@ namespace RaceHorologyLib
 
     public void AssignParticipants(object group)
     {
-      AssignParticipants(_group2participant[group]);
+      if (group != null && _group2participant.ContainsKey(group))
+        AssignParticipants(_group2participant[group]);
     }
 
 

@@ -287,6 +287,11 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(ps.CurrentGroup.ToString(), "U16 männlich Jg. 05/04");
       ps.AssignParticipants();
       Assert.IsFalse(ps.SwitchToNextGroup());
+      Assert.IsNull(ps.CurrentGroup);
+
+      // Check once more
+      Assert.IsFalse(ps.SwitchToNextGroup());
+      Assert.IsNull(ps.CurrentGroup);
     }
   }
 }
