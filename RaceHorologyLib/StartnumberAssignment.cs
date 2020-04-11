@@ -118,6 +118,31 @@ namespace RaceHorologyLib
       }
     }
 
+
+    /// <summary>
+    /// Save the startnumber assignment to the race
+    /// In case a participant has a startnumber, but is not assigned in this workspace, the startnumber will be deleted.
+    /// </summary>
+    /// <param name="race"></param>
+    public void SaveToRace(Race race)
+    {
+      var particpants = race.GetParticipants();
+
+      foreach (var p in particpants)
+      {
+        var ass = _snAssignment.FirstOrDefault(a => a.Participant == p);
+        if (ass != null)
+        {
+          p.StartNumber = ass.StartNumber;
+        }
+        else
+        {
+          p.StartNumber = 0;
+        }
+      }
+    }
+
+
     /// <summary>
     /// Returns the workng space containing current StartNumber and Particpant
     /// </summary>

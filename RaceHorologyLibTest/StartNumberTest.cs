@@ -206,6 +206,61 @@ namespace RaceHorologyLibTest
       }
     }
 
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
+    public void StartNumberAssignment_SaveToRace_Test1()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+      var race = model.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.GiantSlalom);
+
+      StartNumberAssignment sna = new StartNumberAssignment();
+      sna.LoadFromRace(race);
+
+      sna.DeleteAll();
+      sna.SaveToRace(race);
+
+      foreach (var p in race.GetParticipants())
+        Assert.AreEqual(0U, p.StartNumber);
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRacesNoStartnumber.mdb")]
+    public void StartNumberAssignment_SaveToRace_Test2()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRacesNoStartnumber.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+      var race = model.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.GiantSlalom);
+
+      StartNumberAssignment sna = new StartNumberAssignment();
+      sna.LoadFromRace(race);
+
+      uint sn = 1;
+      foreach (var p in race.GetParticipants())
+      {
+        sna.Assign(sn, p);
+        sn++;
+      }
+      sna.SaveToRace(race);
+
+      sn = 1;
+      foreach (var p in race.GetParticipants())
+      {
+        Assert.AreEqual(sn, p.StartNumber);
+        sn++;
+      }
+    }
+
+
+
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
     public void StartNumberAssignment_ParticpantSelector1_Test()

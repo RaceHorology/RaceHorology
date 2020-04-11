@@ -155,7 +155,7 @@ namespace RaceHorology
 
     private void BtnApply_Click(object sender, RoutedEventArgs e)
     {
-
+      _snaWorkspace.SaveToRace(_race);
     }
 
 
