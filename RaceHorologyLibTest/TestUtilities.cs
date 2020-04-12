@@ -33,6 +33,7 @@
  * 
  */
 
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
@@ -104,6 +105,102 @@ namespace RaceHorologyLibTest
       cmd.CommandType = System.Data.CommandType.Text;
       int temp = cmd.ExecuteNonQuery();
     }
+  }
+
+
+
+  public class DummyDataBase : IAppDataModelDataBase
+  {
+    List<Race.RaceProperties> _races;
+    
+
+    public DummyDataBase()
+    {
+      _races = new List<Race.RaceProperties>();
+      _races.Add(new Race.RaceProperties 
+      {
+        RaceType = Race.ERaceType.GiantSlalom,
+        Runs = 1,
+        RaceNumber = "TEST1",
+        Description = "Test Race",
+        DateStart = DateTime.Now,
+        DateResult = DateTime.Now
+      });
+    }
+
+    public string GetDBPath() { return "dummy"; }
+    public string GetDBFileName() { return "dummy"; }
+    public string GetDBPathDirectory() { return "dummy"; }
+
+
+    public ItemsChangeObservableCollection<Participant> GetParticipants() { return new ItemsChangeObservableCollection<Participant>(); }
+
+    public List<ParticipantGroup> GetParticipantGroups() { return new List<ParticipantGroup>(); }
+    public List<ParticipantClass> GetParticipantClasses() { return new List<ParticipantClass>(); }
+
+
+    public List<Race.RaceProperties> GetRaces() { return _races; }
+    public List<RaceParticipant> GetRaceParticipants(Race race) { return new List<RaceParticipant>(); }
+
+    public List<RunResult> GetRaceRun(Race race, uint run) { return new List<RunResult>(); }
+
+    public AdditionalRaceProperties GetRaceProperties(Race race) { return null; }
+    public void StoreRaceProperties(Race race, AdditionalRaceProperties props) { }
+
+    public void CreateOrUpdateParticipant(Participant participant) { }
+
+    public void CreateOrUpdateRaceParticipant(RaceParticipant participant) { }
+    public void RemoveRaceParticipant(RaceParticipant raceParticipant) { }
+
+    public void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result) { }
+    public void DeleteRunResult(Race race, RaceRun raceRun, RunResult result) { }
+
+  };
+
+
+
+  public class TestDataGenerator
+  {
+    Race _race;
+
+    public TestDataGenerator()
+    {
+      Model = new AppDataModel(new DummyDataBase());
+      _race = Model.GetRace(0);
+    }
+
+    public AppDataModel Model { get; private set; }
+
+
+    public List<RaceParticipant> createRaceParticipants(int n)
+    {
+      List<RaceParticipant> participants = new List<RaceParticipant>();
+
+      for (int i = 0; i < n; i++)
+        participants.Add(createRaceParticipant());
+
+      return participants;
+    }
+
+    public RaceParticipant createRaceParticipant()
+    {
+      return _race.AddParticipant(createParticipant());
+    }
+
+
+    uint _participantSerial = 0;
+    public Participant createParticipant()
+    {
+      _participantSerial++;
+
+      return new Participant
+      {
+        Name = string.Format("Name {0}", _participantSerial),
+        Firstname = string.Format("Firstname {0}", _participantSerial),
+        Id = _participantSerial.ToString()
+      };
+    }
+
   }
 
 }

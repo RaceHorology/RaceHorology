@@ -66,6 +66,8 @@ namespace RaceHorology
       txtAutomaticNiZTimeout.Text = Properties.Settings.Default.AutomaticNiZTimeout.ToString();
       txtAutomaticNaSStarters.Text = Properties.Settings.Default.AutomaticNaSStarters.ToString();
       txtStartTimeIntervall.Text = Properties.Settings.Default.StartTimeIntervall.ToString();
+
+      txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
     }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
@@ -100,6 +102,8 @@ namespace RaceHorology
           Properties.Settings.Default.StartTimeIntervall = uint.Parse(txtStartTimeIntervall.Text); 
       }
       catch (Exception) { }
+
+      Properties.Settings.Default.StartNumbersNotToBeAssigned = txtNotToBeAssigned.Text;
 
       Properties.Settings.Default.Save();
 
