@@ -348,5 +348,49 @@ namespace RaceHorologyLibTest
       Assert.IsFalse(ps.SwitchToNextGroup());
       Assert.IsNull(ps.CurrentGroup);
     }
+
+
+    [TestMethod]
+    public void StartNumberAssignment_ParticpantSelector3_Test()
+    {
+      TestDataGenerator testData = new TestDataGenerator();
+
+      var participants = testData.createRaceParticipants(100);
+      // Point distribution: 
+      // 1..90 increasing, 
+      // 81..90: 999.0, 
+      // 91..100 equal 9999.0
+      for(int i=0; i<participants.Count; i++)
+      {
+        if (i<80)
+          participants[i].Points = (double)(i + 1);
+        else if (i < 90)
+          participants[i].Points = 999.0;
+        else if (i < 100)
+          participants[i].Points = 9999.0;
+      }
+
+      StartNumberAssignment sna = new StartNumberAssignment();
+      ParticpantSelector ps = new ParticpantSelector(participants[0].Race, sna, null);
+      ps.AnzahlVerlosung = 10;
+
+      ps.AssignParticipants(participants);
+
+      // Check: 
+      foreach(var a in sna.ParticipantList)
+      {
+        int id = int.Parse(a.Participant.Id);
+
+        if (id <= 10)
+          Assert.IsTrue(a.StartNumber <= 10);
+        else if (id <= 80)
+          Assert.IsTrue(a.StartNumber == id);
+        else if (id <= 90)
+          Assert.IsTrue(80 < a.StartNumber && a.StartNumber <= 90);
+        else if (id <= 100)
+          Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
+      }
+
+    }
   }
 }

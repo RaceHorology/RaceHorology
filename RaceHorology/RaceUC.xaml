@@ -475,7 +475,7 @@
           </Grid>
         </ScrollViewer>
       </TabItem>
-      <TabItem Header="Teilnehmer &amp; Startnummern" FontSize="12">
+      <TabItem Header="Startnummern" FontSize="12">
         <local:StartNumbersUC x:Name="ucStartNumbers" />
       </TabItem>
       <TabItem Header="Zeitnahme" FontSize="12" >

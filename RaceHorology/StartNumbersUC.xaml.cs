@@ -63,6 +63,7 @@ namespace RaceHorology
     private ParticpantSelector _rpSelector;
 
     CollectionViewSource _participantFilter;
+    CollectionViewSource _startNUmberAssignmentFilter;
 
     public StartNumbersUC()
     {
@@ -82,20 +83,22 @@ namespace RaceHorology
       _rpSelector.CurrentGroupChanged += OnCurrentGroupChangedHandler;
       _rpSelector.GroupingChanged += OnGroupingChangedHandler;
 
-      dgStartList.ItemsSource = _snaWorkspace.ParticipantList;
+      _startNUmberAssignmentFilter = new CollectionViewSource() { Source = _snaWorkspace.ParticipantList };
+      _startNUmberAssignmentFilter.IsLiveFilteringRequested = true;
+      _startNUmberAssignmentFilter.LiveFilteringProperties.Add("StartNumber");
+      chkShowEmptyStartNumbers_Click(null, null); // Initially setup the filter
+      dgStartList.ItemsSource = _startNUmberAssignmentFilter.View;
 
       _participantFilter = new CollectionViewSource() { Source = _race.GetParticipants() };
       _participantFilter.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) 
       { 
         RaceParticipant rr = (RaceParticipant)ea.Item; ea.Accepted = !_snaWorkspace.IsAssigned(rr); 
       });
-
       dgParticipants.ItemsSource = _participantFilter.View;
       //RaceUC.EnableOrDisableColumns(_race, dgStartList);
 
       IsVisibleChanged += StartNumbersUC_IsVisibleChanged;
 
-      UiUtilities.FillGrouping(cmbGrouping);
     }
 
     private void StartNumbersUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -103,6 +106,9 @@ namespace RaceHorology
       if (!(bool)e.OldValue && (bool)e.NewValue)
       {
         _snaWorkspace.LoadFromRace(_race);
+
+        UiUtilities.FillGrouping(cmbGrouping, _race.RaceConfiguration.Run1_StartistViewGrouping);
+        txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
 
         OnWorkspaceChanged(this, null);
         OnCurrentGroupChangedHandler(this, null);
@@ -113,6 +119,8 @@ namespace RaceHorology
     private void OnWorkspaceChanged(object source, EventArgs e)
     {
       _participantFilter.View.Refresh();
+
+      enableOrDisableControls();
     }
 
     private void OnNextStartnumberChanged(object source, EventArgs e)
@@ -125,10 +133,31 @@ namespace RaceHorology
     private void OnCurrentGroupChangedHandler(object source, EventArgs e)
     {
       // Selected current group
-      foreach (var v in cmbNextGroup.Items)
-        if (v is CBItem cbItem)
-          if (cbItem.Value == _rpSelector.CurrentGroup)
-            cmbNextGroup.SelectedItem = v;
+      if (_rpSelector.CurrentGroup != null)
+      {
+        foreach (var v in cmbNextGroup.Items)
+          if (v is CBItem cbItem)
+            if (cbItem.Value == _rpSelector.CurrentGroup)
+              cmbNextGroup.SelectedItem = v;
+      }
+      else
+        cmbNextGroup.SelectedItem = null;
+
+      enableOrDisableControls();
+    }
+
+
+    private void enableOrDisableControls()
+    {
+      // Enable / Disable Buttons
+      bool enableGroup = (cmbNextGroup.SelectedItem as CBItem)?.Value != null;
+      bool enableOthers = !_participantFilter.View.IsEmpty;
+
+      btnAssignCurrentGroup.IsEnabled = enableGroup && enableOthers;
+      cmbNextGroup.IsEnabled = enableGroup && enableOthers;
+
+      btnAssignAll.IsEnabled = enableOthers;
+      btnAssign.IsEnabled = enableOthers;
     }
 
 
@@ -188,6 +217,7 @@ namespace RaceHorology
         if (dgParticipants.SelectedItem is RaceParticipant selItem)
         {
           _snaWorkspace.Assign(sn, selItem);
+          dgParticipants.SelectedIndex = 0;
         }
       }
       catch (Exception)
@@ -197,6 +227,7 @@ namespace RaceHorology
     private void btnAssignCurrentGroup_Click(object sender, RoutedEventArgs e)
     {
       setStartNumbersNotToAssign();
+      setAnzVerlosung();
 
       _rpSelector.AssignParticipants();
       _rpSelector.SwitchToNextGroup();
@@ -205,6 +236,7 @@ namespace RaceHorology
     private void btnAssignAll_Click(object sender, RoutedEventArgs e)
     {
       setStartNumbersNotToAssign();
+      setAnzVerlosung();
 
       do
       {
@@ -217,6 +249,18 @@ namespace RaceHorology
     {
       if (cmbGrouping.SelectedValue is CBItem grouping)
         _rpSelector.GroupProperty = (string)grouping.Value;
+    }
+
+
+    private void setAnzVerlosung()
+    {
+      try
+      {
+        int anzVerlosung = int.Parse(txtVerlosung.Text);
+        _rpSelector.AnzahlVerlosung = anzVerlosung;
+      }
+      catch (Exception)
+      { }
     }
 
     private void setStartNumbersNotToAssign()
@@ -235,6 +279,24 @@ namespace RaceHorology
         { }
       }
       _snaWorkspace.SetStartNumbersNotToAssign(snNotToAsign);
+    }
+
+
+    private void startNUmberAssignmentFilter(object sender, FilterEventArgs ea)
+    {
+      AssignedStartNumber rr = (AssignedStartNumber)ea.Item;
+      ea.Accepted = rr.Participant != null;
+    }
+
+
+    private void chkShowEmptyStartNumbers_Click(object sender, RoutedEventArgs e)
+    {
+      if (chkShowEmptyStartNumbers.IsChecked == false)
+        _startNUmberAssignmentFilter.Filter += startNUmberAssignmentFilter;
+      else
+        _startNUmberAssignmentFilter.Filter -= startNUmberAssignmentFilter;
+
+      _startNUmberAssignmentFilter.View.Refresh();
     }
   }
 }

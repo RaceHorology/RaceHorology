@@ -53,6 +53,11 @@ namespace RaceHorologyLib
     public uint StartNumber { get { return _startNumber; } set { _startNumber = value; NotifyPropertyChanged(); } }
     public RaceParticipant Participant { get { return _particpant; } set { _particpant = value; NotifyPropertyChanged(); } }
 
+    public override string ToString()
+    {
+      return string.Format("{0}: {1}", _startNumber, _particpant);
+    }
+
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -284,6 +289,8 @@ namespace RaceHorologyLib
     private StartNumberAssignment _snAssignment;
     private string _groupProperty;
 
+    private int _anzVerlosung;
+
     private object _currentGroup;
 
     private Random _random;
@@ -307,6 +314,10 @@ namespace RaceHorologyLib
       _group2participant = new Dictionary<object, List<RaceParticipant>>();
       fillGroup2Particpant();
     }
+
+
+    public int AnzahlVerlosung
+    { get { return _anzVerlosung; } set { _anzVerlosung = value; } }
 
 
     public Dictionary<object, List<RaceParticipant>> Group2Participant { get { return _group2participant; } private set { _group2participant = value; } }
@@ -414,15 +425,71 @@ namespace RaceHorologyLib
     }
 
 
+    class PointsComparer : System.Collections.Generic.IComparer<RaceParticipant>
+    {
+
+      public int Compare(RaceParticipant left, RaceParticipant right)
+      {
+        // According to points, but other direction
+        int compPoints = left.Points.CompareTo(right.Points);
+        return compPoints;
+      }
+    }
+
+
     public void AssignParticipants(List<RaceParticipant> participants)
+    {
+      var wcParticipants = participants.ToList();
+
+      // Sort
+      wcParticipants.Sort(new PointsComparer());
+
+      // Split into groups
+      List<RaceParticipant> g1, g2;
+      int g1Count = Math.Min(_anzVerlosung, wcParticipants.Count);
+
+      if (0 < g1Count)
+      {
+        g1 = wcParticipants.GetRange(0, g1Count);
+        assignParticipantsRandomly(g1);
+      }
+
+      if (g1Count < wcParticipants.Count)
+      {
+        g2 = wcParticipants.GetRange(g1Count, wcParticipants.Count - g1Count);
+        assignParticipantsOrdered(g2);
+      }
+    }
+
+
+    private void assignParticipantsRandomly(List<RaceParticipant> participants)
     {
       var wcParticipants = participants.ToList();
 
       while (wcParticipants.Count > 0)
       {
-        RaceParticipant rp = pickParticipant(wcParticipants);
+        RaceParticipant rp = pickRandomParticipant(wcParticipants);
         assignParticipant(rp);
         removeParticipant(wcParticipants, rp);
+      }
+    }
+
+
+    private void assignParticipantsOrdered(List<RaceParticipant> participants)
+    {
+      var wcParticipants = participants.ToList();
+
+      while (wcParticipants.Count > 0)
+      {
+        List<RaceParticipant> samePoints = new List<RaceParticipant>();
+        do
+        {
+          RaceParticipant rp = wcParticipants[0];
+          samePoints.Add(rp);
+          removeParticipant(wcParticipants, rp);
+        } while (wcParticipants.Count > 0 && wcParticipants[0].Points == samePoints[0].Points);
+
+        assignParticipantsRandomly(samePoints);
       }
     }
 
@@ -434,13 +501,13 @@ namespace RaceHorologyLib
     }
 
 
-    protected RaceParticipant pickParticipant(List<RaceParticipant> participants)
+    protected RaceParticipant pickRandomParticipant(List<RaceParticipant> participants)
     {
       int pickedIndex = _random.Next(participants.Count);
       return participants[pickedIndex];
     }
 
-    protected void removeParticipant(List<RaceParticipant> participants, RaceParticipant rp)
+    protected static void removeParticipant(List<RaceParticipant> participants, RaceParticipant rp)
     {
       participants.Remove(rp);
     }
