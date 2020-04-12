@@ -843,8 +843,6 @@ namespace RaceHorology
       FillCmbTotalsResults(cmbTotalResult);
       cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = null });
       cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
-
-      chartResults.Init(_dataModel, _thisRace);
     }
 
 
@@ -885,8 +883,6 @@ namespace RaceHorology
     {
       if (cmbTotalResultGrouping.SelectedValue is CBItem grouping)
         _totalResultsVP?.ChangeGrouping((string)grouping.Value);
-
-      chartResults.Display(_thisRace.GetResultViewProvider());
     }
 
 
@@ -905,8 +901,6 @@ namespace RaceHorology
       }
 
       _totalResultsVP = vp;
-
-      chartResults.Display(_thisRace.GetResultViewProvider());
 
       adaptTotalResultsView();
     }

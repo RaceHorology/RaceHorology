@@ -679,11 +679,10 @@
     <Grid Grid.Column="2" >
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
-        <RowDefinition Height="2*"/>
-        <RowDefinition Height="5"/>
-        <RowDefinition Height="1*"/>
+        <RowDefinition Height="*"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
+      
       <Grid Width="Auto">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -694,6 +693,7 @@
         <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
         <ComboBox x:Name="cmbTotalResult" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResult_SelectionChanged"/>
       </Grid>
+      
       <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
         <DataGrid.Columns>
           <DataGridTextColumn local:DataGridUtil.Name="Position" Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
@@ -732,12 +732,8 @@
         </DataGrid.RowStyle>
 
       </DataGrid>
-
-      <GridSplitter x:Name="gridSplitterResult" HorizontalAlignment="Stretch" Height="5" Grid.Row="2" />
-
-      <local:ChartTestsUC x:Name="chartResults" Grid.Row="3"/>
       
-      <Grid Width="Auto" Grid.Row="4">
+      <Grid Width="Auto" Grid.Row="2">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
