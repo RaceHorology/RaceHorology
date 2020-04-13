@@ -67,12 +67,15 @@ namespace RaceHorologyLibTest
     }
 
     [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.xls")]
     public void DetectColumn()
     {
-      //var stream = File.Open(@"C:\Users\sven\Dropbox\SyncFolder\WSVGlonn_Zeitnahme\Rennen 2020\2020-02-02 - KC4\Bewerbsdaten\Anmeldung\Teilnehmer_V1_202001301844.xls", FileMode.Open, FileAccess.Read);
-
-      var ir = new ImportReader(@"C:\Users\sven\Dropbox\SyncFolder\WSVGlonn_Zeitnahme\Rennen 2020\2020-02-02 - KC4\Bewerbsdaten\Anmeldung\Teilnehmer_V1_202001301844-U14-.csv");
+      var ir = new ImportReader(@"Teilnehmer_V1_202001301844.xls");
       var columns = ir.Columns;
+
+      var ir2 = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
+      var columns2 = ir2.Columns;
     }
   }
 }
