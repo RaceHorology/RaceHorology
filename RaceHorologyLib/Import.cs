@@ -49,10 +49,13 @@ namespace RaceHorologyLib
   {
     DataSet _dataSet;
 
+    static private string[] txtExtensions = { ".csv", ".tsv", ".txt" };
+
     public ImportReader(string path)
     {
       IExcelDataReader reader;
-      if (System.IO.Path.GetExtension(path).ToLower() == ".csv")
+
+      if (txtExtensions.Contains(System.IO.Path.GetExtension(path).ToLower()))
       {
         // CSV File
         var stream = File.Open(path, FileMode.Open, FileAccess.Read);

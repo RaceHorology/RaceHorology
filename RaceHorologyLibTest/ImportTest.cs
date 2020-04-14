@@ -68,14 +68,69 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.tsv")]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.txt")]
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.xls")]
-    public void DetectColumn()
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.xlsx")]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844_comma.csv")]
+    public void DetectColumns()
     {
-      var ir = new ImportReader(@"Teilnehmer_V1_202001301844.xls");
-      var columns = ir.Columns;
+      string[] columnShall =
+      {
+        "FIS-Code-Nr.",
+        "Name",
+        "Vorname",
+        "Verband",
+        "Verein",
+        "Jahrgang",
+        "Geschlecht",
+        "FIS-Distanzpunkte",
+        "FIS-Sprintpunkte",
+        "Startnummer",
+        "Gruppe",
+        "DSV-Id",
+        "Startpass",
+        "Leer",
+        "Nation",
+        "Transponder",
+        "Melder-Name",
+        "Melder-Adresse",
+        "Melder-Telefon",
+        "Melder-Mobil",
+        "Melder-Email",
+        "Nachname Vorname"
+      };
 
-      var ir2 = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
-      var columns2 = ir2.Columns;
+      void checkColumns(List<string> columns)
+      {
+        for (int i = 0; i < columnShall.Length; i++)
+          Assert.AreEqual(columnShall[i], columns[i]);
+      }
+
+      {
+        var ir = new ImportReader(@"Teilnehmer_V1_202001301844.xls");
+        checkColumns(ir.Columns);
+      }
+      { 
+        var ir = new ImportReader(@"Teilnehmer_V1_202001301844.xlsx");
+        checkColumns(ir.Columns);
+      }
+      {
+        var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
+        checkColumns(ir.Columns);
+      }
+      {
+        var ir = new ImportReader(@"Teilnehmer_V1_202001301844.txt");
+        checkColumns(ir.Columns);
+      }
+      {
+        var ir = new ImportReader(@"Teilnehmer_V1_202001301844.tsv");
+        checkColumns(ir.Columns);
+      }
+      {
+        var ir = new ImportReader(@"Teilnehmer_V1_202001301844_comma.csv");
+        checkColumns(ir.Columns);
+      }
     }
   }
 }
