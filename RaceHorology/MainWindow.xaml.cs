@@ -44,6 +44,7 @@ using Microsoft.Win32;
 using RaceHorologyLib;
 using System.Collections.ObjectModel;
 using QRCoder;
+using System.Collections.Generic;
 
 namespace RaceHorology
 {
@@ -425,6 +426,37 @@ namespace RaceHorology
     private void LogoRH_png_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
       System.Diagnostics.Process.Start("http://www.race-horology.com");
+    }
+
+    private void btnTest1_Click(object sender, RoutedEventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      if (openFileDialog.ShowDialog() == true)
+      {
+        string path = openFileDialog.FileName;
+
+        ImportReader ir = new ImportReader(path);
+
+
+        List<string> reqFields = new List<string>();
+        reqFields.Add("Name");
+        reqFields.Add("Vorname");
+        reqFields.Add("Club");
+        reqFields.Add("Jahr");
+
+        Mapping mapping = new Mapping(reqFields, ir.Columns);
+
+        mappingUC.Mapping = mapping;
+      }
+
+
+
+
+    }
+
+    private void btnTest2_Click(object sender, RoutedEventArgs e)
+    {
+
     }
   }
 }
