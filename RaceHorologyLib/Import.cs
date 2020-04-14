@@ -101,6 +101,8 @@ namespace RaceHorologyLib
       _requiredFields = requiredFields;
 
       _mapping = new Dictionary<string, string>();
+
+      initMapping();
     }
 
 
@@ -111,7 +113,16 @@ namespace RaceHorologyLib
 
     public Dictionary<string, string> MappingList { get { return _mapping; } private set { _mapping = value; } }
 
+    public List<string> AvailableFields { get { return _availableFields; } }
 
+
+    void initMapping()
+    {
+      foreach(var v in _requiredFields)
+      {
+        Assign(v, null);
+      }
+    }
 
   }
 
