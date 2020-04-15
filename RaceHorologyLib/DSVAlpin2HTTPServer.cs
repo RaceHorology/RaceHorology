@@ -301,17 +301,17 @@ namespace RaceHorologyLib
       int i = 0;
       while (i < urlPathParts.Length)
       {
-        if (string.Equals(urlPathParts[i], "api", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(urlPathParts[i], "api", System.StringComparison.OrdinalIgnoreCase))
         {
           i++;
           apiVersion = urlPathParts[i];
         }
-        else if (string.Equals(urlPathParts[i], "races", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(urlPathParts[i], "races", System.StringComparison.OrdinalIgnoreCase))
         {
           i++;
           try { raceNo = int.Parse(urlPathParts[i]); } catch (Exception) { raceNo = -1; }
         }
-        else if (string.Equals(urlPathParts[i], "runs", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(urlPathParts[i], "runs", System.StringComparison.OrdinalIgnoreCase))
         {
           i++;
           try { runNo = int.Parse(urlPathParts[i]); } catch (Exception) { runNo = -1; }

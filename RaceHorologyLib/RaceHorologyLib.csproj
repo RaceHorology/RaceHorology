@@ -109,6 +109,9 @@
     <PackageReference Include="PdfSharp">
       <Version>1.50.5147</Version>
     </PackageReference>
+    <PackageReference Include="StringComparison">
+      <Version>1.0.3</Version>
+    </PackageReference>
     <PackageReference Include="WebSocketSharp-netstandard">
       <Version>1.0.1</Version>
     </PackageReference>

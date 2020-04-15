@@ -132,11 +132,21 @@ namespace RaceHorologyLib
 
     void initMapping()
     {
-      int i = 0;
       foreach(var v in _requiredFields)
       {
-        Assign(v, _availableFields[i]);
-        i++;
+        double maxV = 0;
+        int selI = 0;
+        for (int i = 0; i < _availableFields.Count; i++)
+        {
+          double val = StringComparison.ComparisonMetrics.RatcliffObershelpSimilarity(v, _availableFields[i]);
+          if (val > maxV)
+          {
+            selI = i;
+            maxV = val;
+          }
+        }
+
+        Assign(v, _availableFields[selI]);
       }
     }
 
