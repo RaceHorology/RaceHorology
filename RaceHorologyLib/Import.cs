@@ -36,6 +36,7 @@
 using ExcelDataReader;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -91,7 +92,14 @@ namespace RaceHorologyLib
 
   public class Mapping
   {
-    Dictionary<string, string> _mapping; // Required, Provided
+    public class MappingEntry
+    {
+      public string Key { get; set; }
+      public string Value { get; set; }
+    }
+
+
+    ObservableCollection<MappingEntry> _mapping;
     List<string> _availableFields;
     List<string> _requiredFields;
 
@@ -100,7 +108,7 @@ namespace RaceHorologyLib
       _availableFields = availableFields;
       _requiredFields = requiredFields;
 
-      _mapping = new Dictionary<string, string>();
+      _mapping = new ObservableCollection<MappingEntry>();
 
       initMapping();
     }
@@ -108,19 +116,27 @@ namespace RaceHorologyLib
 
     public void Assign(string requiredField, string providedField)
     {
-      _mapping[requiredField] = providedField;
+      var mapEntry = _mapping.FirstOrDefault(m => m.Key == requiredField);
+      if (mapEntry != null)
+      {
+        mapEntry.Value = providedField;
+      }
+      else
+        _mapping.Add(new MappingEntry { Key = requiredField, Value = providedField });
     }
 
-    public Dictionary<string, string> MappingList { get { return _mapping; } private set { _mapping = value; } }
+    public ObservableCollection<MappingEntry> MappingList { get { return _mapping; } private set { _mapping = value; } }
 
     public List<string> AvailableFields { get { return _availableFields; } }
 
 
     void initMapping()
     {
+      int i = 0;
       foreach(var v in _requiredFields)
       {
-        Assign(v, null);
+        Assign(v, _availableFields[i]);
+        i++;
       }
     }
 

@@ -11,14 +11,14 @@
       <ColumnDefinition/>
     </Grid.ColumnDefinitions>
 
-    <DataGrid x:Name="dgMapping">
+    <DataGrid x:Name="dgMapping" AutoGenerateColumns="False" CanUserAddRows="False">
       <DataGrid.Columns>
-        <DataGridTextColumn Header="Feld" Binding="{Binding Key, Mode=OneWay}" />
+        <DataGridTextColumn Header="Feld" Binding="{Binding Key, Mode=TwoWay}" />
         <DataGridTemplateColumn Header="Quelle">
           <DataGridTemplateColumn.CellTemplate>
             <DataTemplate>
-              <ComboBox SelectedValue="{Binding Value, Mode=OneWay}" 
-                              ItemsSource="{Binding Mapping.AvailableFields, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MappingUC}, Mode=OneWay}"/>
+              <ComboBox SelectedValue="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ItemsSource="{Binding Mapping.AvailableFields, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MappingUC}, Mode=OneWay}"/>
             </DataTemplate>
           </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
