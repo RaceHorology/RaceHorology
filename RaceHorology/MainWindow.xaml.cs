@@ -428,6 +428,7 @@ namespace RaceHorology
       System.Diagnostics.Process.Start("http://www.race-horology.com");
     }
 
+    Mapping mapping;
     private void btnTest1_Click(object sender, RoutedEventArgs e)
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -444,7 +445,7 @@ namespace RaceHorology
         reqFields.Add("Club");
         reqFields.Add("Jahr");
 
-        Mapping mapping = new Mapping(reqFields, ir.Columns);
+        mapping = new Mapping(reqFields, ir.Columns);
 
         mappingUC.Mapping = mapping;
       }
