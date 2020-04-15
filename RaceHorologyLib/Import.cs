@@ -139,6 +139,7 @@ namespace RaceHorologyLib
         for (int i = 0; i < _availableFields.Count; i++)
         {
           double val = StringComparison.ComparisonMetrics.RatcliffObershelpSimilarity(v, _availableFields[i]);
+          //double val = StringComparison.ComparisonMetrics.Similarity(v, _availableFields[i], (StringComparison.Enums.StringComparisonOption) 4095);
           if (val > maxV)
           {
             selI = i;
