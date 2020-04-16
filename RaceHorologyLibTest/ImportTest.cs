@@ -60,11 +60,6 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
-    [TestMethod]
-    public void TestMethod1()
-    {
-
-    }
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
@@ -136,7 +131,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
-    public void ImportParticpant()
+    public void ImportParticpants()
     {
       var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
 
