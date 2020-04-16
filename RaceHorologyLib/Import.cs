@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -128,11 +128,19 @@ namespace RaceHorologyLib
         _mapping.Add(new MappingEntry { Key = requiredField, Value = providedField });
     }
 
+    /// <summary>
+    /// The mapping from required field => configured field
+    /// </summary>
     public ObservableCollection<MappingEntry> MappingList { get { return _mapping; } private set { _mapping = value; } }
 
+    /// <summary>
+    /// Returns the available fields (used by the UI to populate the ComboBox)
+    /// </summary>
     public List<string> AvailableFields { get { return _availableFields; } }
 
-
+    /// <summary>
+    /// Initially populates the mapping
+    /// </summary>
     void initMapping()
     {
       foreach (var v in _requiredFields)
@@ -141,7 +149,9 @@ namespace RaceHorologyLib
       }
     }
 
-
+    /// <summary>
+    /// Tries to guess which field form the _availableFields maps best to the required field
+    /// </summary>
     virtual protected string guessMappedField(string reqField, double threshold = 0.7)
     {
       double maxV = 0;
@@ -167,15 +177,23 @@ namespace RaceHorologyLib
       return null;
     }
 
+    /// <summary>
+    /// Returns potential synonyms for the given field
+    /// </summary>
     virtual protected List<string> synonyms(string field)
     {
       return new List<string> { field };
     }
   }
 
-
+  /// <summary>
+  /// Pre-configured mapping for participant mapping (participant import)
+  /// </summary>
   public class ParticipantMapping : Mapping
   {
+    /// <summary>
+    /// Map defining the required fields and potential available fields
+    /// </summary>
     static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
     {
       { "Name", new List<string>{ "Name" } },
