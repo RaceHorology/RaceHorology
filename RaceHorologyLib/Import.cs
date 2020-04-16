@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -219,9 +219,60 @@ namespace RaceHorologyLib
 
 
 
-  class Import
+  public class Import
   {
+    DataSet _importDataSet;
+    List<Participant> _particpants;
+    Mapping _mapping;
+
     public Import(DataSet ds, List<Participant> particpants, Mapping mapping)
-    { }
+    {
+      _importDataSet = ds;
+      _particpants = particpants;
+      _mapping = mapping;
+    }
+
+
+    public void DoImport()
+    {
+      var rows = _importDataSet.Tables[0].Rows;
+
+
+      foreach(DataRow row in rows)
+      {
+        Participant partImp = createParticipant(row);
+
+        Participant partExisting = findExistingParticpant(partImp);
+
+        if (partExisting != null)
+          updateParticipant(partExisting, partImp);
+        else
+          insertParticpant(partImp);
+      }
+    }
+
+    Participant createParticipant(DataRow row)
+    {
+      return null;
+    }
+
+    Participant findExistingParticpant(Participant partImp)
+    {
+      return null;
+    }
+
+    Participant updateParticipant(Participant partExisting, Participant partImp)
+    {
+      return partExisting;
+    }
+
+    Participant insertParticpant(Participant partImp)
+    {
+      _particpants.Add(partImp);
+      
+      return partImp;
+    }
+
+
   }
 }

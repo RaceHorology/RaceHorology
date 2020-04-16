@@ -132,5 +132,20 @@ namespace RaceHorologyLibTest
         checkColumns(ir.Columns);
       }
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
+    public void ImportParticpant()
+    {
+      var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
+
+      ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
+
+      List<Participant> participants = new List<Participant>();
+      Import im = new Import(ir.Data, participants, mapping);
+      im.DoImport();
+
+    }
   }
 }
