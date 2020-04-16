@@ -94,7 +94,7 @@ namespace RaceHorologyLib
 
       _snsNotToAssign = new List<uint>();
 
-      determineNextFreeStartNumber();
+      NextFreeStartNumber = determineNextFreeStartNumber();
     }
 
 
@@ -114,6 +114,14 @@ namespace RaceHorologyLib
             handler.Invoke(this, new EventArgs());
         }
       }
+    }
+
+    public uint SetNextStartNumber(uint sn)
+    {
+      if (sn >= determineNextFreeStartNumber())
+        NextFreeStartNumber = sn;
+
+      return NextFreeStartNumber;
     }
 
 
@@ -247,14 +255,14 @@ namespace RaceHorologyLib
     public void DeleteAll()
     {
       _snAssignment.Clear();
-      determineNextFreeStartNumber();
+      NextFreeStartNumber = determineNextFreeStartNumber();
     }
 
     /// <summary>
     /// Returns the next free startnumber (number of assigned startnumber slots + 1)
     /// </summary>
     /// <returns></returns>
-    private void determineNextFreeStartNumber()
+    private uint determineNextFreeStartNumber()
     {
       uint sn = 0;
       if (_snAssignment.Count == 0)
@@ -265,7 +273,7 @@ namespace RaceHorologyLib
       while (_snsNotToAssign.Contains(sn))
         sn++;
 
-      NextFreeStartNumber = sn;
+      return sn;
     }
 
     /// <summary>
@@ -278,7 +286,7 @@ namespace RaceHorologyLib
         if (_snAssignment != null )//&& _snAssignment[i] != null)
           _snAssignment[i].StartNumber = (uint)i + 1;
 
-      determineNextFreeStartNumber();
+      NextFreeStartNumber = determineNextFreeStartNumber();
     }
   }
 
