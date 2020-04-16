@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -128,6 +128,13 @@ namespace RaceHorologyLib
         _mapping.Add(new MappingEntry { Key = requiredField, Value = providedField });
     }
 
+
+    public string MappedField(string requiredField)
+    {
+      var mapEntry = _mapping.First(m => m.Key == requiredField);
+      return mapEntry.Value;
+    }
+
     /// <summary>
     /// The mapping from required field => configured field
     /// </summary>
@@ -240,20 +247,42 @@ namespace RaceHorologyLib
 
       foreach(DataRow row in rows)
       {
-        Participant partImp = createParticipant(row);
+        try
+        {
+          Participant partImp = createParticipant(row);
 
-        Participant partExisting = findExistingParticpant(partImp);
+          Participant partExisting = findExistingParticpant(partImp);
 
-        if (partExisting != null)
-          updateParticipant(partExisting, partImp);
-        else
-          insertParticpant(partImp);
+          if (partExisting != null)
+            updateParticipant(partExisting, partImp);
+          else
+            insertParticpant(partImp);
+        }
+        catch(Exception)
+        { }
       }
     }
 
     Participant createParticipant(DataRow row)
     {
-      return null;
+      Participant p = new Participant
+      {
+        Name = getValue<string>(row, "Name"),
+        Firstname = getValue<string>(row, "Firstname"),
+        Sex = getValue<string>(row, "Sex"),
+        Club = getValue<string>(row, "Club"),
+        Nation = getValue<string>(row, "Nation"),
+        SvId = getValue<string>(row, "SvId"),
+        Code = getValue<string>(row, "Code"),
+        Year = uint.Parse(getValue<string>(row, "Year"))
+      };
+
+      return p;
+    }
+
+    T getValue<T>(DataRow row, string field)
+    {
+      return row.Field<T>(_mapping.MappedField(field));
     }
 
     Participant findExistingParticpant(Participant partImp)

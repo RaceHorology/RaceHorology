@@ -146,6 +146,11 @@ namespace RaceHorologyLibTest
       Import im = new Import(ir.Data, participants, mapping);
       im.DoImport();
 
+      for(int i=0; i<153; i++)
+      {
+        Assert.AreEqual(string.Format("Name {0}", i + 1), participants[i].Name);
+      }
+
     }
   }
 }
