@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -293,7 +293,7 @@ namespace RaceHorologyLib
     }
     public ParticipantGroup Group
     {
-      get => _class.Group;
+      get => _class?.Group;
     }
 
     public override string ToString()
