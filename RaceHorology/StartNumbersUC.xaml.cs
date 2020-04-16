@@ -229,8 +229,14 @@ namespace RaceHorology
       setStartNumbersNotToAssign();
       setAnzVerlosung();
 
-      _rpSelector.AssignParticipants();
-      _rpSelector.SwitchToNextGroup();
+      try
+      {
+        _snaWorkspace.SetNextStartNumber(uint.Parse(txtNextStartNumber.Text));
+        _rpSelector.AssignParticipants();
+        _rpSelector.SwitchToNextGroup();
+      }
+      catch (Exception)
+      { }
     }
 
     private void btnAssignAll_Click(object sender, RoutedEventArgs e)
