@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -59,7 +59,7 @@ namespace RaceHorologyLib
       if (txtExtensions.Contains(System.IO.Path.GetExtension(path).ToLower()))
       {
         // CSV File
-        var stream = File.Open(path, FileMode.Open, FileAccess.Read);
+        var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         reader = ExcelReaderFactory.CreateCsvReader(stream);
         _dataSet = reader.AsDataSet(new ExcelDataSetConfiguration() { ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration() { UseHeaderRow = true } });
       }
