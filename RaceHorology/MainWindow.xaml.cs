@@ -428,6 +428,7 @@ namespace RaceHorology
       System.Diagnostics.Process.Start("http://www.race-horology.com");
     }
 
+    ImportReader ir;
     Mapping mapping;
     private void btnTest1_Click(object sender, RoutedEventArgs e)
     {
@@ -436,7 +437,7 @@ namespace RaceHorology
       {
         string path = openFileDialog.FileName;
 
-        ImportReader ir = new ImportReader(path);
+        ir = new ImportReader(path);
 
         mapping = new ParticipantMapping(ir.Columns);
 
@@ -450,7 +451,8 @@ namespace RaceHorology
 
     private void btnTest2_Click(object sender, RoutedEventArgs e)
     {
-
+      Import imp = new Import(ir.Data, _dataModel.GetParticipants(), mapping);
+      imp.DoImport();
     }
   }
 }
