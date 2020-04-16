@@ -103,10 +103,13 @@ namespace RaceHorologyLib
     List<string> _availableFields;
     List<string> _requiredFields;
 
-    public Mapping(List<string>requiredFields, List<string>availableFields)
+    public Mapping(IEnumerable<string> requiredFields, IEnumerable<string> availableFields)
     {
-      _availableFields = availableFields;
-      _requiredFields = requiredFields;
+      _availableFields = new List<string>();
+      _availableFields.Add("---");
+      _availableFields.AddRange(availableFields);
+      
+      _requiredFields = requiredFields.ToList();
 
       _mapping = new ObservableCollection<MappingEntry>();
 
@@ -132,26 +135,71 @@ namespace RaceHorologyLib
 
     void initMapping()
     {
-      foreach(var v in _requiredFields)
+      foreach (var v in _requiredFields)
       {
-        double maxV = 0;
-        int selI = 0;
-        for (int i = 0; i < _availableFields.Count; i++)
+        Assign(v, guessMappedField(v));
+      }
+    }
+
+
+    virtual protected string guessMappedField(string reqField, double threshold = 0.7)
+    {
+      double maxV = 0;
+      int selI = 0;
+      for (int i = 0; i < _availableFields.Count; i++)
+      {
+        foreach (var s in synonyms(reqField))
         {
-          double val = StringComparison.ComparisonMetrics.RatcliffObershelpSimilarity(v, _availableFields[i]);
-          //double val = StringComparison.ComparisonMetrics.Similarity(v, _availableFields[i], (StringComparison.Enums.StringComparisonOption) 4095);
+          double val = StringComparison.ComparisonMetrics.Similarity(s, _availableFields[i],
+            StringComparison.Enums.StringComparisonOption.UseHammingDistance | StringComparison.Enums.StringComparisonOption.UseRatcliffObershelpSimilarity
+            );
           if (val > maxV)
           {
             selI = i;
             maxV = val;
           }
         }
-
-        Assign(v, _availableFields[selI]);
       }
+
+      if (maxV > threshold)
+        return _availableFields[selI];
+
+      return null;
     }
 
+    virtual protected List<string> synonyms(string field)
+    {
+      return new List<string> { field };
+    }
   }
+
+
+  public class ParticipantMapping : Mapping
+  {
+    static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
+    {
+      { "Name", new List<string>{ "Name" } },
+      { "Firstname", new List<string>{"Vorname"} },
+      { "Sex", new List<string>{"Geschlecht", "Kategorie"} },
+      { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang" } },
+      { "Club", new List<string>{"Club", "Verein"} },
+      { "Nation", new List<string>{"Nation", "Verband"} },
+      { "Code", new List<string>{"DSV-Id", "Code"} },
+      { "SvId", new List<string>{"SvId", "SkiverbandId"} }
+    };
+
+    public ParticipantMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
+    { 
+    }
+
+    protected override List<string> synonyms(string field)
+    {
+      return _requiredField[field];
+    }
+
+
+  }
+
 
 
   class Import

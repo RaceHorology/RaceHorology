@@ -438,14 +438,7 @@ namespace RaceHorology
 
         ImportReader ir = new ImportReader(path);
 
-
-        List<string> reqFields = new List<string>();
-        reqFields.Add("Name");
-        reqFields.Add("Vorname");
-        reqFields.Add("Club");
-        reqFields.Add("Jahr");
-
-        mapping = new Mapping(reqFields, ir.Columns);
+        mapping = new ParticipantMapping(ir.Columns);
 
         mappingUC.Mapping = mapping;
       }
