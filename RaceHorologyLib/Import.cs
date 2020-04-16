@@ -197,7 +197,6 @@ namespace RaceHorologyLib
       return _requiredField[field];
     }
 
-
   }
 
 
