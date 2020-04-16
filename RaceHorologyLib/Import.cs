@@ -229,10 +229,10 @@ namespace RaceHorologyLib
   public class Import
   {
     DataSet _importDataSet;
-    List<Participant> _particpants;
+    IList<Participant> _particpants;
     Mapping _mapping;
 
-    public Import(DataSet ds, List<Participant> particpants, Mapping mapping)
+    public Import(DataSet ds, IList<Participant> particpants, Mapping mapping)
     {
       _importDataSet = ds;
       _particpants = particpants;
