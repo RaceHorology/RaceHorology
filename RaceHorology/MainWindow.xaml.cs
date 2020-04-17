@@ -44,7 +44,6 @@ using Microsoft.Win32;
 using RaceHorologyLib;
 using System.Collections.ObjectModel;
 using QRCoder;
-using System.Collections.Generic;
 
 namespace RaceHorology
 {
@@ -217,6 +216,13 @@ namespace RaceHorology
 
       while (tabControlTopLevel.Items.Count > 2)
         tabControlTopLevel.Items.RemoveAt(1);
+    }
+
+    private void btnImport_Click(object sender, RoutedEventArgs e)
+    {
+      ImportWizard importWizard = new ImportWizard(_dataModel.GetParticipants());
+      importWizard.Owner = this;
+      importWizard.ShowDialog();
     }
 
 
@@ -426,40 +432,6 @@ namespace RaceHorology
     private void LogoRH_png_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
       System.Diagnostics.Process.Start("http://www.race-horology.com");
-    }
-
-    ImportReader ir;
-    Mapping mapping;
-    private void btnTest1_Click(object sender, RoutedEventArgs e)
-    {
-      OpenFileDialog openFileDialog = new OpenFileDialog();
-      if (openFileDialog.ShowDialog() == true)
-      {
-        string path = openFileDialog.FileName;
-
-        ir = new ImportReader(path);
-
-        mapping = new ParticipantMapping(ir.Columns);
-
-        mappingUC.Mapping = mapping;
-      }
-
-
-
-
-    }
-
-    private void btnTest2_Click(object sender, RoutedEventArgs e)
-    {
-      Import imp = new Import(ir.Data, _dataModel.GetParticipants(), mapping);
-      imp.DoImport();
-    }
-
-    private void btnImport_Click(object sender, RoutedEventArgs e)
-    {
-      ImportWizard importWizard = new ImportWizard(_dataModel.GetParticipants());
-      importWizard.Owner = this;
-      importWizard.ShowDialog();
     }
   }
 }
