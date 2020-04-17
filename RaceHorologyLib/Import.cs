@@ -282,16 +282,36 @@ namespace RaceHorologyLib
 
     T getValue<T>(DataRow row, string field)
     {
-      return row.Field<T>(_mapping.MappedField(field));
+      var columnName = _mapping.MappedField(field);
+
+      if (columnName != null)
+        if (row.Table.Columns.Contains(columnName))
+          return row.Field<T>(_mapping.MappedField(field));
+
+      return default;
+    }
+
+    bool sameParticpant(Participant p1, Participant p2)
+    {
+      if (!string.IsNullOrEmpty(p1.SvId) && !string.IsNullOrEmpty(p2.SvId))
+        return p1.SvId == p2.SvId;
+
+      if (!string.IsNullOrEmpty(p1.Code) && !string.IsNullOrEmpty(p2.Code))
+        return p1.Code == p2.Code;
+
+      return p1.Fullname == p2.Fullname;
+
     }
 
     Participant findExistingParticpant(Participant partImp)
     {
-      return null;
+      var pFound = _particpants.FirstOrDefault(p => sameParticpant(p, partImp));
+      return pFound;
     }
 
     Participant updateParticipant(Participant partExisting, Participant partImp)
     {
+      partExisting.Assign(partImp);
       return partExisting;
     }
 
