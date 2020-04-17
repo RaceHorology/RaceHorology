@@ -53,13 +53,15 @@
             <DataGrid x:Name="dgParticipants" Grid.Row="1"  AlternatingRowBackground="#FFf8faf7" FontSize="12" />
             <Grid Grid.Column="1" Margin="9.667,31,-0.333,-0.333" Grid.RowSpan="2">
               <Grid.RowDefinitions>
-                <RowDefinition Height="21*"/>
-                <RowDefinition/>
+                <RowDefinition Height="664*"/>
+                <RowDefinition Height="71*"/>
+                <RowDefinition Height="35*"/>
               </Grid.RowDefinitions>
-              <local:MappingUC x:Name="mappingUC" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0.999,10.333"/>
-              <StackPanel Orientation="Horizontal" Grid.Row="2">
+              <local:MappingUC x:Name="mappingUC" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0.999,10.333" Grid.RowSpan="2"/>
+              <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,70.667,-0.001,0" Grid.RowSpan="2">
                 <Button x:Name="btnTest1" Content="Test 1" Padding="5" Margin="0,0,10,0" Click="btnTest1_Click"/>
                 <Button x:Name="btnTest2" Content="Test 2" Padding="5" Margin="0,0,5,0" Click="btnTest2_Click"/>
+                <Button x:Name="btnImport" Content="Importieren" Padding="5" Margin="0,0,5,0" Click="btnImport_Click"/>
               </StackPanel>
             </Grid>
           </Grid>

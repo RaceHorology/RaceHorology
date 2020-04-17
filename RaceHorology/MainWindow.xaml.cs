@@ -454,5 +454,12 @@ namespace RaceHorology
       Import imp = new Import(ir.Data, _dataModel.GetParticipants(), mapping);
       imp.DoImport();
     }
+
+    private void btnImport_Click(object sender, RoutedEventArgs e)
+    {
+      ImportWizard importWizard = new ImportWizard(_dataModel.GetParticipants());
+      importWizard.Owner = this;
+      importWizard.ShowDialog();
+    }
   }
 }
