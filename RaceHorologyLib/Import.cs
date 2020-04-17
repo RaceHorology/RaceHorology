@@ -206,7 +206,7 @@ namespace RaceHorologyLib
       { "Name", new List<string>{ "Name" } },
       { "Firstname", new List<string>{"Vorname"} },
       { "Sex", new List<string>{"Geschlecht", "Kategorie"} },
-      { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang" } },
+      { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG" } },
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband"} },
       { "Code", new List<string>{"DSV-Id", "Code"} },
