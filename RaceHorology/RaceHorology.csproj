@@ -115,6 +115,12 @@
     <Compile Include="DisqualifyUC.xaml.cs">
       <DependentUpon>DisqualifyUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ImportWizard.xaml.cs">
+      <DependentUpon>ImportWizard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MappingUC.xaml.cs">
+      <DependentUpon>MappingUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MsChart.xaml.cs">
       <DependentUpon>MsChart.xaml</DependentUpon>
     </Compile>
@@ -144,6 +150,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ImportWizard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -156,6 +166,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MappingUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MsChart.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

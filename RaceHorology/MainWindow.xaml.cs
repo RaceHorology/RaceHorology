@@ -218,6 +218,13 @@ namespace RaceHorology
         tabControlTopLevel.Items.RemoveAt(1);
     }
 
+    private void btnImport_Click(object sender, RoutedEventArgs e)
+    {
+      ImportWizard importWizard = new ImportWizard(_dataModel.GetParticipants());
+      importWizard.Owner = this;
+      importWizard.ShowDialog();
+    }
+
 
     /// <summary>
     /// Starts the web backend for the mobile clients (e.g. for speaker) 

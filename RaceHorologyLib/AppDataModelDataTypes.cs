@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -231,12 +231,12 @@ namespace RaceHorologyLib
     public string Name
     {
       get => _name;
-      set { _name = value; NotifyPropertyChanged(); }
+      set { if (_name != value) { _name = value; NotifyPropertyChanged(); } }
     }
     public string Firstname
     {
       get => _firstname;
-      set { _firstname = value; NotifyPropertyChanged(); }
+      set { if (_firstname != value) { _firstname = value; NotifyPropertyChanged(); } }
     }
 
     public string Fullname
@@ -248,30 +248,30 @@ namespace RaceHorologyLib
     public string Sex
     {
       get => _sex;
-      set { _sex = value; NotifyPropertyChanged(); }
+      set { if (_sex != value) { _sex = value; NotifyPropertyChanged(); } }
     }
 
     public uint Year
     {
       get => _year;
-      set { _year = value; NotifyPropertyChanged(); }
+      set { if (_year != value) { _year = value; NotifyPropertyChanged(); } }
     }
     public string Club
     {
       get => _club;
-      set { _club = value; NotifyPropertyChanged(); }
+      set { if (_club != value) { _club = value; NotifyPropertyChanged(); } }
     }
 
     public string SvId
     {
       get => _svid;
-      set { _svid = value; NotifyPropertyChanged(); }
+      set { if (_svid != value) { _svid = value; NotifyPropertyChanged(); } }
     }
 
     public string Code
     {
       get => _code;
-      set { _code = value; NotifyPropertyChanged(); }
+      set { if (_code != value) { _code = value; NotifyPropertyChanged(); } }
     }
 
     public string CodeOrSvId
@@ -283,22 +283,36 @@ namespace RaceHorologyLib
     public string Nation
     {
       get => _nation;
-      set { _nation = value; NotifyPropertyChanged(); }
+      set { if (_nation != value) { _nation = value; NotifyPropertyChanged(); } }
     }
 
     public ParticipantClass Class
     {
       get => _class;
-      set { _class = value; NotifyPropertyChanged(); }
+      set { if (_class != value) { _class = value; NotifyPropertyChanged(); } }
     }
     public ParticipantGroup Group
     {
-      get => _class.Group;
+      get => _class?.Group;
     }
 
     public override string ToString()
     {
       return _name + ", " + _firstname + "(" + _year + ")";
+    }
+
+
+    public void Assign(Participant other)
+    {
+      Name = other.Name;
+      Firstname = other.Firstname;
+      Sex = other.Sex;
+      Year = other.Year;
+      Club = other.Club;
+      SvId = other.SvId;
+      Code = other.Code;
+      Nation = other.Nation;
+      Class = other.Class;
     }
 
 

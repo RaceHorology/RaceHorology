@@ -44,9 +44,13 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="1*"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
             <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  AlternatingRowBackground="#FFf8faf7" FontSize="12"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
+              <Button x:Name="btnImport" Content="Importieren" Padding="5" Margin="5" Click="btnImport_Click"/>
+            </StackPanel>
           </Grid>
         </TabItem>
         <TabItem Header="Neues Rennen" FontSize="16" IsEnabled="False">

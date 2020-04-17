@@ -962,7 +962,10 @@ namespace RaceHorologyLib
     private ParticipantClass GetParticipantClass(uint id)
     {
       ReadParticipantClasses();
-      return _id2ParticipantClasses[id];
+      if (_id2ParticipantClasses.ContainsKey(id))
+        return _id2ParticipantClasses[id];
+
+      return null;
     }
 
 
