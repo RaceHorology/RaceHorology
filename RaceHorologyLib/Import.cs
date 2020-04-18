@@ -267,8 +267,8 @@ namespace RaceHorologyLib
     {
       Participant p = new Participant
       {
-        Name = getValue<string>(row, "Name"),
-        Firstname = getValue<string>(row, "Firstname"),
+        Name = getNameComaSeparated(getValue<string>(row, "Name")),
+        Firstname = getFirstNameComaSeparated(getValue<string>(row, "Firstname")),
         Sex = getValue<string>(row, "Sex"),
         Club = getValue<string>(row, "Club"),
         Nation = getValue<string>(row, "Nation"),
@@ -289,6 +289,30 @@ namespace RaceHorologyLib
           return row.Field<T>(_mapping.MappedField(field));
 
       return default;
+    }
+
+    string getNameComaSeparated(string name)
+    {
+      string res;
+      var nameParts = name.Split(',');
+      if (nameParts.Length > 1)
+        res = nameParts[0];
+      else
+        res = name;
+
+      return res.Trim();
+    }
+
+    string getFirstNameComaSeparated(string name)
+    {
+      string res;
+      var nameParts = name.Split(',');
+      if (nameParts.Length > 1)
+        res = nameParts[nameParts.Length - 1];
+      else
+        res = name;
+
+      return res.Trim();
     }
 
     bool sameParticpant(Participant p1, Participant p2)
