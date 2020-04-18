@@ -89,6 +89,14 @@ namespace RaceHorology
     }
 
     /// <summary>
+    /// "File Create" callback - opens a data base
+    /// </summary>
+    private void NewCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      MessageBox.Show("Not implemented");
+    }
+
+    /// <summary>
     /// "File Open" callback - opens a data base
     /// </summary>
     private void OpenCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -433,5 +441,6 @@ namespace RaceHorology
     {
       System.Diagnostics.Process.Start("http://www.race-horology.com");
     }
+
   }
 }
