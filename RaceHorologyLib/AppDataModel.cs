@@ -510,15 +510,15 @@ namespace RaceHorologyLib
     /// </summary>
     /// <param name="participant">The particpant to add</param>
     /// <returns>The the corresponding RaceParticipant object</returns>
-    public RaceParticipant AddParticipant(Participant participant)
+    public RaceParticipant AddParticipant(Participant participant, uint startnumber= 0, double points = -1)
     {
       RaceParticipant raceParticipant = GetParticipant(participant);
 
       if (raceParticipant == null)
       {
-        raceParticipant = new RaceParticipant(this, participant, 0, -1);
+        raceParticipant = new RaceParticipant(this, participant, startnumber, points);
+        _participants.Add(raceParticipant);
       }
-      _participants.Add(raceParticipant);
 
       return raceParticipant;
     }
