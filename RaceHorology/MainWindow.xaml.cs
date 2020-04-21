@@ -228,6 +228,11 @@ namespace RaceHorology
 
     private void btnImport_Click(object sender, RoutedEventArgs e)
     {
+      if (_dataModel?.GetParticipants() == null)
+      {
+        Logger.Error("Import not possible: datamodel not available");
+        return;
+      }
       ImportWizard importWizard = new ImportWizard(_dataModel.GetParticipants());
       importWizard.Owner = this;
       importWizard.ShowDialog();
