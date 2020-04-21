@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -182,5 +182,23 @@ namespace RaceHorologyLibTest
       }
 
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
+    public void ImportParticpantsForRace()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
+
+      RaceMapping mapping = new RaceMapping(ir.Columns);
+
+      List<Participant> participants = new List<Participant>();
+      RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
+      im.DoImport();
+
+    }
+
   }
 }

@@ -225,6 +225,41 @@ namespace RaceHorologyLib
   }
 
 
+  /// <summary>
+  /// Pre-configured mapping for race mapping (race import)
+  /// </summary>
+  public class RaceMapping : Mapping
+  {
+    /// <summary>
+    /// Map defining the required fields and potential available fields
+    /// </summary>
+    static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
+    {
+      { "Name", new List<string>{ "Name" } },
+      { "Firstname", new List<string>{"Vorname"} },
+      { "Sex", new List<string>{"Geschlecht", "Kategorie"} },
+      { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG" } },
+      { "Club", new List<string>{"Club", "Verein"} },
+      { "Nation", new List<string>{"Nation", "Verband"} },
+      { "Code", new List<string>{"DSV-Id", "Code"} },
+      { "SvId", new List<string>{"SvId", "SkiverbandId"} },
+      { "Points", new List<string>{"Points", "Punkte"} },
+      { "StartNumber", new List<string>{"start number", "Startnummer", "SN"} },
+    };
+
+    public RaceMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
+    {
+    }
+
+    protected override List<string> synonyms(string field)
+    {
+      return _requiredField[field];
+    }
+
+  }
+
+
+
 
   public class Import
   {
@@ -249,19 +284,30 @@ namespace RaceHorologyLib
       {
         try
         {
-          Participant partImp = createParticipant(row);
-
-          Participant partExisting = findExistingParticpant(partImp);
-
-          if (partExisting != null)
-            updateParticipant(partExisting, partImp);
-          else
-            insertParticpant(partImp);
+          importRow(row);
         }
         catch(Exception)
         { }
       }
     }
+
+
+    public Participant importRow(DataRow row) 
+    {
+      Participant partImported = null;
+
+      Participant partCreated = createParticipant(row);
+
+      Participant partExisting = findExistingParticpant(partCreated);
+
+      if (partExisting != null)
+        partImported = updateParticipant(partExisting, partCreated);
+      else
+        partImported = insertParticpant(partCreated);
+
+      return partImported;
+    }
+
 
     Participant createParticipant(DataRow row)
     {
@@ -345,7 +391,59 @@ namespace RaceHorologyLib
       
       return partImp;
     }
+  }
+
+
+  public class RaceImport
+  {
+    DataSet _importDataSet;
+    Race _race;
+    Mapping _mapping;
+
+    public RaceImport(DataSet ds, Race race, Mapping mapping)
+    {
+      _importDataSet = ds;
+      _race = race;
+      _mapping = mapping;
+    }
+
+
+    public void DoImport()
+    {
+      // 1. Normaler Import
+      Import particpantImport = new Import(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
+
+      // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
+      var rows = _importDataSet.Tables[0].Rows;
+      foreach (DataRow row in rows)
+      {
+        try
+        {
+          Participant importedParticipant = particpantImport.importRow(row);
+
+          double points = getPoints(row);
+          uint sn = getStartNumber(row);
+
+          _race.AddParticipant(importedParticipant);
+        }
+        catch (Exception)
+        { }
+      }
+    }
+
+
+    double getPoints(DataRow row) 
+    {
+      return -1;
+    }
+
+
+    uint getStartNumber(DataRow row)
+    {
+      return 0;
+    }
 
 
   }
+
 }
