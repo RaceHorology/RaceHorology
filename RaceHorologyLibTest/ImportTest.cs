@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -199,6 +199,59 @@ namespace RaceHorologyLibTest
       im.DoImport();
 
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
+    public void ImportParticpantsForRaceWithPoints()
+    {
+      return;
+      var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
+
+      ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
+
+      List<Participant> participants = new List<Participant>();
+      Import im = new Import(ir.Data, participants, mapping);
+      im.DoImport();
+
+      for (int i = 0; i < 153; i++)
+      {
+        Assert.AreEqual(string.Format("Name {0}", i + 1), participants[i].Name);
+      }
+
+    }
+
+
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
+    public void ImportPointsForParticpant()
+    {
+      return;
+      var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
+
+      ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
+
+      List<Participant> participants = new List<Participant>();
+      Import im = new Import(ir.Data, participants, mapping);
+      im.DoImport();
+
+      for (int i = 0; i < 153; i++)
+      {
+        Assert.AreEqual(string.Format("Name {0}", i + 1), participants[i].Name);
+      }
+
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\DSVA2008.txt")]
+    public void ReadDSVPoints()
+    {
+
+    }
+
 
   }
 }

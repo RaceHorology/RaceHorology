@@ -156,6 +156,9 @@
     <Content Include="TestDataBases\FullTestCases\Case2\1554MSBS.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestDataBases\Import\DSVSA2008.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDataBases\Import\Teilnehmer_V1_202001301844.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
