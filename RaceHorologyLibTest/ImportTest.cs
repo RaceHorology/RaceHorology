@@ -194,31 +194,61 @@ namespace RaceHorologyLibTest
 
       RaceMapping mapping = new RaceMapping(ir.Columns);
 
-      List<Participant> participants = new List<Participant>();
       RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
-      im.DoImport();
-
-    }
-
-
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
-    public void ImportParticpantsForRaceWithPoints()
-    {
-      return;
-      var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
-
-      ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
-
-      List<Participant> participants = new List<Participant>();
-      Import im = new Import(ir.Data, participants, mapping);
       im.DoImport();
 
       for (int i = 0; i < 153; i++)
       {
-        Assert.AreEqual(string.Format("Name {0}", i + 1), participants[i].Name);
-      }
+        Participant p = tg.Model.GetParticipants()[i];
+        RaceParticipant rp = tg.Model.GetRace(0).GetParticipants()[i];
 
+        Assert.AreEqual(string.Format("Name {0}", i + 1), p.Name);
+        Assert.AreEqual(string.Format("Name {0}", i + 1), rp.Name);
+        Assert.IsTrue(rp.Participant == p);
+      }
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_Import_Race.xlsx")]
+    public void ImportParticpantsForRaceWithPoints()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      var ir = new ImportReader(@"Teilnehmer_Import_Race.xlsx");
+
+      RaceMapping mapping = new RaceMapping(ir.Columns);
+
+      RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
+      im.DoImport();
+
+      for (int i = 0; i < 20; i++)
+      {
+        Participant p = tg.Model.GetParticipants()[i];
+        RaceParticipant rp = tg.Model.GetRace(0).GetParticipants()[i];
+
+        Assert.AreEqual(string.Format("Name {0}", i + 1), p.Name);
+      
+        Assert.AreEqual(string.Format("Name {0}", i + 1), rp.Name);
+
+        if (i==0)
+          Assert.AreEqual((double)(1), rp.Points);
+        else if (i == 1)
+          Assert.AreEqual((double)(2), rp.Points);
+        else if (i == 2)
+          Assert.AreEqual((double)(3.3), rp.Points);
+        else if (i == 3)
+          Assert.AreEqual((double)(-1), rp.Points);
+        else
+          Assert.AreEqual((double)(i + 1), rp.Points);
+
+        if (i == 3)
+          Assert.AreEqual((uint)(0), rp.StartNumber);
+        else
+          Assert.AreEqual((uint)(20 - i), rp.StartNumber);
+
+        Assert.IsTrue(rp.Participant == p);
+      }
     }
 
 

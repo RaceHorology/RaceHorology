@@ -105,6 +105,9 @@
     <None Include="TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestDataBases\Import\Teilnehmer_Import_Race.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

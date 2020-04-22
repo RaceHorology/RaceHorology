@@ -261,17 +261,78 @@ namespace RaceHorologyLib
 
 
 
-  public class Import
+  public class BaseImport
+  {
+    protected Mapping _mapping;
+
+    protected BaseImport(Mapping mapping)
+    {
+      _mapping = mapping;
+
+    }
+
+    protected object getValueAsObject(DataRow row, string field)
+    {
+      var columnName = _mapping.MappedField(field);
+
+      if (columnName != null)
+        if (row.Table.Columns.Contains(columnName))
+          if (!row.IsNull(columnName))
+            return row[columnName];
+
+      return null;
+    }
+
+    protected string getValueAsString(DataRow row, string field)
+    {
+      return Convert.ToString(getValueAsObject(row, field));
+    }
+
+    protected double getValueAsDouble(DataRow row, string field, double @default = 0.0)
+    {
+      object v = getValueAsObject(row, field);
+      if (v == null)
+        return @default;
+
+      try
+      {
+        return Convert.ToDouble(v);
+      }
+      catch (Exception)
+      {
+        return @default;
+      }
+    }
+
+    protected uint getValueAsUint(DataRow row, string field, uint @default = 0)
+    {
+      object v = getValueAsObject(row, field);
+      if (v == null)
+        return @default;
+
+      try
+      {
+        return Convert.ToUInt32(v);
+      }
+      catch(Exception)
+      {
+        return @default;
+      }
+    }
+
+  }
+
+
+
+  public class Import : BaseImport
   {
     DataSet _importDataSet;
     IList<Participant> _particpants;
-    Mapping _mapping;
 
-    public Import(DataSet ds, IList<Participant> particpants, Mapping mapping)
+    public Import(DataSet ds, IList<Participant> particpants, Mapping mapping) : base(mapping)
     {
       _importDataSet = ds;
       _particpants = particpants;
-      _mapping = mapping;
     }
 
 
@@ -313,28 +374,17 @@ namespace RaceHorologyLib
     {
       Participant p = new Participant
       {
-        Name = getNameComaSeparated(getValue<string>(row, "Name")),
-        Firstname = getFirstNameComaSeparated(getValue<string>(row, "Firstname")),
-        Sex = getValue<string>(row, "Sex"),
-        Club = getValue<string>(row, "Club"),
-        Nation = getValue<string>(row, "Nation"),
-        SvId = getValue<string>(row, "SvId"),
-        Code = getValue<string>(row, "Code"),
-        Year = uint.Parse(getValue<string>(row, "Year"))
+        Name = getNameComaSeparated(getValueAsString(row, "Name")),
+        Firstname = getFirstNameComaSeparated(getValueAsString(row, "Firstname")),
+        Sex = getValueAsString(row, "Sex"),
+        Club = getValueAsString(row, "Club"),
+        Nation = getValueAsString(row, "Nation"),
+        SvId = getValueAsString(row, "SvId"),
+        Code = getValueAsString(row, "Code"),
+        Year = getValueAsUint(row, "Year")
       };
 
       return p;
-    }
-
-    T getValue<T>(DataRow row, string field)
-    {
-      var columnName = _mapping.MappedField(field);
-
-      if (columnName != null)
-        if (row.Table.Columns.Contains(columnName))
-          return row.Field<T>(_mapping.MappedField(field));
-
-      return default;
     }
 
     string getNameComaSeparated(string name)
@@ -394,17 +444,15 @@ namespace RaceHorologyLib
   }
 
 
-  public class RaceImport
+  public class RaceImport : BaseImport
   {
     DataSet _importDataSet;
     Race _race;
-    Mapping _mapping;
 
-    public RaceImport(DataSet ds, Race race, Mapping mapping)
+    public RaceImport(DataSet ds, Race race, Mapping mapping) : base(mapping)
     {
       _importDataSet = ds;
       _race = race;
-      _mapping = mapping;
     }
 
 
@@ -424,7 +472,7 @@ namespace RaceHorologyLib
           double points = getPoints(row);
           uint sn = getStartNumber(row);
 
-          _race.AddParticipant(importedParticipant);
+          _race.AddParticipant(importedParticipant, sn, points);
         }
         catch (Exception)
         { }
@@ -434,13 +482,13 @@ namespace RaceHorologyLib
 
     double getPoints(DataRow row) 
     {
-      return -1;
+      return getValueAsDouble(row, "Points", -1);
     }
 
 
     uint getStartNumber(DataRow row)
     {
-      return 0;
+      return getValueAsUint(row, "StartNumber", 0);
     }
 
 
