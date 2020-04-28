@@ -233,7 +233,7 @@ namespace RaceHorology
         Logger.Error("Import not possible: datamodel not available");
         return;
       }
-      ImportWizard importWizard = new ImportWizard(_dataModel.GetParticipants());
+      ImportWizard importWizard = new ImportWizard(_dataModel);
       importWizard.Owner = this;
       importWizard.ShowDialog();
     }

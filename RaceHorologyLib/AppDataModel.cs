@@ -552,6 +552,12 @@ namespace RaceHorologyLib
       return _appDataModel;
     }
 
+
+    public override string ToString()
+    {
+      return RaceType.ToString();
+    }
+
   }
 
 
