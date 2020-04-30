@@ -60,7 +60,7 @@ namespace RaceHorologyLib
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
 
-    List<Race> _races;
+    ObservableCollection<Race> _races;
     Race _currentRace;
     RaceRun _currentRaceRun;
 
@@ -116,8 +116,7 @@ namespace RaceHorologyLib
       // Get notification if a participant got changed / added / removed and trigger storage in DB
       _participantsDelegatorDB = new DatabaseDelegatorParticipant(_participants, _db);
 
-
-      _races = new List<Race>();
+      _races = new ObservableCollection<Race>();
 
       var races = _db.GetRaces();
       foreach (Race.RaceProperties raceProperties in races)
@@ -152,7 +151,8 @@ namespace RaceHorologyLib
       return _db.GetParticipantClasses();
     }
 
-    public List<Race> GetRaces()
+
+    public ObservableCollection<Race> GetRaces()
     {
       return _races;
     }
@@ -163,6 +163,22 @@ namespace RaceHorologyLib
 
       return null;
     }
+
+    public Race AddRace(Race.RaceProperties raceProperties)
+    {
+      // Ensure this type of race is not yet existing
+      Race raceExisting = _races.FirstOrDefault(r => r.RaceType == raceProperties.RaceType);
+      if (raceExisting != null)
+      {
+        return null;
+      }
+
+      Race race = new Race(_db, this, raceProperties);
+      _races.Add(race);
+
+      return race;
+    }
+
 
     public void SetCurrentRace(Race race)
     {
