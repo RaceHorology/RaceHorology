@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,6 +39,8 @@ namespace RaceHorology
 
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
+      _dm.GetRaces().CollectionChanged += OnRacesChanged;
+
       ConnectGUIToDataModel();
     }
 
@@ -53,15 +56,28 @@ namespace RaceHorology
       dgParticipants.ItemsSource = participants;
 
       foreach (var r in _dm.GetRaces())
-      {
-        TabItem tabRace = new TabItem { Header = r.RaceType.ToString(), Name = r.RaceType.ToString() };
-        tabControlTopLevel.Items.Insert(1, tabRace);
+        addRaceTab(r);
+    }
 
-        tabRace.FontSize = 16;
 
-        RaceUC raceUC = new RaceUC(_dm, r, _liveTimingMeasurement, _txtLiveTimingStatus);
-        tabRace.Content = raceUC;
-      }
+    private void addRaceTab(Race r)
+    {
+      TabItem tabRace = new TabItem { Header = r.RaceType.ToString(), Name = r.RaceType.ToString() };
+      tabControlTopLevel.Items.Insert(1, tabRace);
+
+      tabRace.FontSize = 16;
+
+      RaceUC raceUC = new RaceUC(_dm, r, _liveTimingMeasurement, _txtLiveTimingStatus);
+      tabRace.Content = raceUC;
+    }
+
+
+    private void OnRacesChanged(object source, NotifyCollectionChangedEventArgs args)
+    {
+      foreach(var item in args.NewItems)
+        if (item is Race race)
+          addRaceTab(race);
+
     }
 
 
@@ -110,5 +126,14 @@ namespace RaceHorology
 
     #endregion
 
+    private void btnCreateRace_Click(object sender, RoutedEventArgs e)
+    {
+      Race.RaceProperties raceProps = new Race.RaceProperties
+      {
+        RaceType = Race.ERaceType.KOSlalom
+      };
+
+      _dm.AddRace(raceProps);
+    }
   }
 }

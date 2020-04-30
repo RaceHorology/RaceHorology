@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+  <Grid>
     <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
       <TabItem Header="Teilnehmer" FontSize="16">
         <Grid Grid.Column="0" Background="#FFE5E5E5">
@@ -22,8 +22,27 @@
           </StackPanel>
         </Grid>
       </TabItem>
-      <TabItem Header="Neues Rennen" FontSize="16" IsEnabled="False">
+      <TabItem Header="Neues Rennen" FontSize="16">
+        <Grid Margin="5" >
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Label Content="Renntyp:"/>
+          <ComboBox x:Name="cmbRaceType" Grid.Column="1"/>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.ColumnSpan="2">
+            <Button x:Name="btnCreateRace" Content="Rennen erstellen" Click="btnCreateRace_Click"/>
+          </StackPanel>
+        </Grid>
       </TabItem>
+
     </TabControl>
   </Grid>
 </UserControl>
