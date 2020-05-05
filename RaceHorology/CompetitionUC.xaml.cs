@@ -55,6 +55,8 @@ namespace RaceHorology
       ObservableCollection<Participant> participants = _dm.GetParticipants();
       dgParticipants.ItemsSource = participants;
 
+      fillAvailableRacesTypes();
+
       foreach (var r in _dm.GetRaces())
         addRaceTab(r);
     }
@@ -74,7 +76,10 @@ namespace RaceHorology
 
     private void OnRacesChanged(object source, NotifyCollectionChangedEventArgs args)
     {
-      foreach(var item in args.NewItems)
+      fillAvailableRacesTypes();
+
+      // Create tabs
+      foreach (var item in args.NewItems)
         if (item is Race race)
           addRaceTab(race);
 
@@ -126,11 +131,40 @@ namespace RaceHorology
 
     #endregion
 
+
+    Race.ERaceType[] raceTypes = new Race.ERaceType []
+    {
+      Race.ERaceType.DownHill,
+      Race.ERaceType.SuperG,
+      Race.ERaceType.GiantSlalom,
+      Race.ERaceType.Slalom,
+      Race.ERaceType.KOSlalom,
+      Race.ERaceType.ParallelSlalom
+    };
+
+    private void fillAvailableRacesTypes()
+    {
+      cmbRaceType.Items.Clear();
+      foreach ( var rt in raceTypes)
+      {
+        if (_dm.GetRaces().FirstOrDefault(r => r.RaceType == rt) == null)
+        {
+          cmbRaceType.Items.Add(rt);
+        }
+      }
+    }
+
     private void btnCreateRace_Click(object sender, RoutedEventArgs e)
     {
+
+      if (cmbRaceType.SelectedIndex < 0)
+        return;
+
+      Race.ERaceType rt = (Race.ERaceType)cmbRaceType.SelectedItem;
+
       Race.RaceProperties raceProps = new Race.RaceProperties
       {
-        RaceType = Race.ERaceType.KOSlalom
+        RaceType = rt
       };
 
       _dm.AddRace(raceProps);
