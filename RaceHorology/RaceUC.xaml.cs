@@ -557,7 +557,8 @@ namespace RaceHorology
         _currentRaceRun = selectedRaceRun;
 
         if (_currentRaceRun != null)
-          _dataModel.SetCurrentRaceRun(_currentRaceRun);
+          if (_dataModel.GetCurrentRace() == _currentRaceRun.GetRace())
+            _dataModel.SetCurrentRaceRun(_currentRaceRun);
 
         ConnectUiToRaceRun(_currentRaceRun);
 
