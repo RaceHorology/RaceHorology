@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -160,6 +160,77 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, races.Where(r => r.RaceType == Race.ERaceType.ParallelSlalom).Count());
       Assert.AreEqual(0, races.Where(r => r.RaceType == Race.ERaceType.KOSlalom).Count());
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseModifyRaces()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        model = new AppDataModel(db);
+      }
+
+
+      Race.RaceProperties raceProp = new Race.RaceProperties
+      {
+        RaceType = Race.ERaceType.SuperG,
+        Runs = 2,
+        RaceNumber = null,
+        Description = null,
+        DateStart = null,
+        DateResult = null
+      };
+
+      model.AddRace(raceProp);
+      DBCacheWorkaround();
+      Assert.IsTrue(checkRace(dbFilename, raceProp, true));
+
+      model.RemoveRace(model.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.SuperG));
+      DBCacheWorkaround();
+      Assert.IsTrue(checkRace(dbFilename, raceProp, false));
+    }
+
+    bool checkRace(string dbFilename, Race.RaceProperties raceProps, bool active)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblDisziplin WHERE dtyp = @dtyp";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@dtyp", (int)raceProps.RaceType));
+
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= ((bool)reader.GetValue(reader.GetOrdinal("aktiv")) == active);
+
+          bRes &= (uint)(byte)reader.GetValue(reader.GetOrdinal("durchgaenge")) == raceProps.Runs;
+          bRes &= TestUtilities.IsStringEqualDB(raceProps.RaceNumber, reader.GetValue(reader.GetOrdinal("bewerbsnummer")));
+          bRes &= TestUtilities.IsStringEqualDB(raceProps.Description, reader.GetValue(reader.GetOrdinal("bewerbsbezeichnung")));
+          bRes &= TestUtilities.IsDateTimeEqualDB(raceProps.DateStart, reader.GetValue(reader.GetOrdinal("datum_startliste")));
+          bRes &= TestUtilities.IsDateTimeEqualDB(raceProps.DateResult, reader.GetValue(reader.GetOrdinal("datum_rangliste")));
+        }
+        else
+          bRes = false;
+      }
+
+      conn.Close();
+
+      return bRes;
+    }
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]

@@ -646,6 +646,53 @@ namespace RaceHorologyLib
       }
     }
 
+
+    public void UpdateRace(Race race, bool active)
+    {
+      string sql = @"UPDATE tblDisziplin " +
+                    @"SET aktiv = @aktiv, durchgaenge = @durchgaenge, bewerbsnummer = @bewerbsnummer, bewerbsbezeichnung = @bewerbsbezeichnung, datum_startliste = @datum_startliste, datum_rangliste = @datum_rangliste " +
+                    @"WHERE dtyp = @dtyp";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+
+      cmd.Parameters.Add(new OleDbParameter("@aktiv", active));
+      cmd.Parameters.Add(new OleDbParameter("@durchgaenge", race.GetMaxRun()));
+      if (string.IsNullOrEmpty(race.RaceNumber))
+        cmd.Parameters.Add(new OleDbParameter("@bewerbsnummer", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@bewerbsnummer", race.RaceNumber));
+
+      if (string.IsNullOrEmpty(race.Description))
+        cmd.Parameters.Add(new OleDbParameter("@bewerbsbezeichnung", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@bewerbsbezeichnung", race.Description));
+
+      if (race.DateStart == null)
+        cmd.Parameters.Add(new OleDbParameter("@datum_startliste", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@datum_startliste", race.DateStart));
+
+      if (race.DateResult == null)
+        cmd.Parameters.Add(new OleDbParameter("@datum_rangliste", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@datum_rangliste", race.DateResult));
+
+      cmd.Parameters.Add(new OleDbParameter("@dtyp", (int)race.RaceType));
+
+      cmd.CommandType = CommandType.Text;
+      try
+      {
+        Logger.Debug("DeleteRunResult(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "DeleteRunResult failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+
     public AdditionalRaceProperties GetRaceProperties(Race race)
     {
       AdditionalRaceProperties props = new AdditionalRaceProperties();
@@ -1045,7 +1092,7 @@ namespace RaceHorologyLib
           if (sql.Contains(dbParam.ParameterName))
           {
             string value;
-            if (dbParam.Value == DBNull.Value)
+            if (dbParam.Value == DBNull.Value || dbParam.Value == null)
               value = "null";
             else
               value = dbParam.Value.ToString();

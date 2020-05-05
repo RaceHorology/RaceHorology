@@ -77,6 +77,29 @@ namespace RaceHorologyLibTest
       return dstFilepath;
     }
 
+
+    public static bool IsStringEqualDB(string valueShall, object valueIs)
+    {
+      if (valueShall == null)
+        if (DBNull.Value.Equals(valueIs))
+          return true;
+        else
+          return false;
+
+      return string.Equals(valueShall, valueIs);
+    }
+
+    public static bool IsDateTimeEqualDB(DateTime? valueShall, object valueIs)
+    {
+      if (valueShall == null)
+        if (DBNull.Value.Equals(valueIs))
+          return true;
+        else
+          return false;
+
+      return valueShall == (DateTime)valueIs;
+    }
+
   }
 
   public class DBTestUtilities
@@ -154,6 +177,8 @@ namespace RaceHorologyLibTest
 
     public void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result) { }
     public void DeleteRunResult(Race race, RaceRun raceRun, RunResult result) { }
+
+    public void UpdateRace(Race race, bool active) { }
 
   };
 

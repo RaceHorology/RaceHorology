@@ -192,4 +192,35 @@ namespace RaceHorologyLib
   }
 
 
+  internal class DatabaseDelegatorCompetition
+  {
+    private IAppDataModelDataBase _db;
+    AppDataModel _dm;
+
+    public DatabaseDelegatorCompetition(AppDataModel dm, IAppDataModelDataBase db)
+    {
+      _dm = dm;
+      _db = db;
+
+      _dm.GetRaces().CollectionChanged += OnRacesChanged;
+    }
+
+    private void OnRacesChanged(object source, NotifyCollectionChangedEventArgs args)
+    {
+      if (args.NewItems != null)
+        foreach (var item in args.NewItems)
+          if (item is Race race)
+            _db.UpdateRace(race, true);
+
+      if (args.OldItems != null)
+        foreach (var item in args.OldItems)
+          if (item is Race race)
+            _db.UpdateRace(race, false);
+    }
+
+
+
+  }
+
+
 }
