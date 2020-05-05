@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -137,14 +137,14 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("20190120_B", race.RaceNumber);
         Assert.AreEqual("Super G Bezeichnung 1\r\nSuper G Bezeichnung 2", race.Description);
         Assert.AreEqual(new DateTime(2019, 1, 18), race.DateStart);
-        Assert.AreEqual(new DateTime(), race.DateResult);
+        Assert.AreEqual(null, race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
         Assert.AreEqual(2U, race.Runs);
         Assert.AreEqual("20190120_C", race.RaceNumber);
         Assert.AreEqual("Riesenslalom Bezeichnung 1\r\nRiesenslalom Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(), race.DateStart);
+        Assert.AreEqual(null, race.DateStart);
         Assert.AreEqual(new DateTime(2019, 1, 20), race.DateResult);
       }
       {
