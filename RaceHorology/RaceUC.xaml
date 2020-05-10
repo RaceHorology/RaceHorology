@@ -285,9 +285,6 @@
               <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Label x:Name="lblName" Margin="5,0,0,0" Content="Name:" Grid.Row="0" Grid.Column="0"/>
-            <TextBox x:Name="txtName" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name}"/>
-
             <Label x:Name="lblRaceNo" Margin="5,0,0,0" Content="Bewerbsnummer:" Grid.Row="1" Grid.Column="0"/>
             <TextBox x:Name="txtRaceNo" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding RaceNumber}"/>
 
