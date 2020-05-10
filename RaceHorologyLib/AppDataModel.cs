@@ -18,15 +18,15 @@
  *
  *  Diese Datei ist Teil von Race Horology.
  *
- *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  Race Horology ist Freie Software: Sie kï¿½nnen es unter den Bedingungen
  *  der GNU Affero General Public License, wie von der Free Software Foundation,
  *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
- *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *  verï¿½ffentlichten Version, weiter verteilen und/oder modifizieren.
  *
- *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
- *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
- *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
- *  Siehe die GNU Affero General Public License für weitere Details.
+ *  Race Horology wird in der Hoffnung, dass es nï¿½tzlich sein wird, aber
+ *  OHNE JEDE GEWï¿½HRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewï¿½hrleistung der MARKTFï¿½HIGKEIT oder EIGNUNG Fï¿½R EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License fï¿½r weitere Details.
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
@@ -284,6 +284,8 @@ namespace RaceHorologyLib
     public string RaceNumber { get; set; }
     public string Description { get; set; }
 
+    public DateTime? DateStartList { get; set; }
+    public DateTime? DateResultList { get; set; }
 
     public string Analyzer { get; set; }
     public string Organizer { get; set; }
@@ -322,10 +324,6 @@ namespace RaceHorologyLib
     {
       public Race.ERaceType RaceType;
       public uint Runs;
-      public string RaceNumber;
-      public string Description;
-      public DateTime? DateStart;
-      public DateTime? DateResult;
     }
 
     // Mainly race decription parameters
@@ -344,10 +342,10 @@ namespace RaceHorologyLib
 
 
     public ERaceType RaceType { get { return _properties.RaceType;  } }
-    public string RaceNumber {  get { return _properties.RaceNumber; } }
-    public string Description { get { return _properties.Description; } }
-    public DateTime? DateStart { get { return _properties.DateStart; } }
-    public DateTime? DateResult { get { return _properties.DateResult; } }
+    public string RaceNumber {  get { return _addProperties.RaceNumber; } }
+    public string Description { get { return _addProperties.Description; } }
+    public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
+    public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
 
     public RaceConfiguration RaceConfiguration
     {

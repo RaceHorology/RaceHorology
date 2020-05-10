@@ -126,34 +126,18 @@ namespace RaceHorologyLibTest
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.DownHill).First();
         Assert.AreEqual(2U, race.Runs);
-        Assert.AreEqual(null, race.RaceNumber);
-        Assert.AreEqual("Abfahrt - Bezeichnung 1\r\nAbfahrt - Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(2019, 1, 19), race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 19), race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.SuperG).First();
         Assert.AreEqual(1U, race.Runs);
-        Assert.AreEqual("20190120_B", race.RaceNumber);
-        Assert.AreEqual("Super G Bezeichnung 1\r\nSuper G Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(2019, 1, 18), race.DateStart);
-        Assert.AreEqual(null, race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
         Assert.AreEqual(2U, race.Runs);
-        Assert.AreEqual("20190120_C", race.RaceNumber);
-        Assert.AreEqual("Riesenslalom Bezeichnung 1\r\nRiesenslalom Bezeichnung 2", race.Description);
-        Assert.AreEqual(null, race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 20), race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.Slalom).First();
         Assert.AreEqual(1U, race.Runs);
-        Assert.AreEqual("20190120_D", race.RaceNumber);
-        Assert.AreEqual(null, race.Description);
-        Assert.AreEqual(new DateTime(2019, 2, 21), race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 21), race.DateResult);
       }
 
       //
@@ -183,11 +167,7 @@ namespace RaceHorologyLibTest
       Race.RaceProperties raceProp = new Race.RaceProperties
       {
         RaceType = Race.ERaceType.SuperG,
-        Runs = 2,
-        RaceNumber = null,
-        Description = null,
-        DateStart = null,
-        DateResult = null
+        Runs = 2
       };
 
       model.AddRace(raceProp);
@@ -217,10 +197,6 @@ namespace RaceHorologyLibTest
           bRes &= ((bool)reader.GetValue(reader.GetOrdinal("aktiv")) == active);
 
           bRes &= (uint)(byte)reader.GetValue(reader.GetOrdinal("durchgaenge")) == raceProps.Runs;
-          bRes &= TestUtilities.IsStringEqualDB(raceProps.RaceNumber, reader.GetValue(reader.GetOrdinal("bewerbsnummer")));
-          bRes &= TestUtilities.IsStringEqualDB(raceProps.Description, reader.GetValue(reader.GetOrdinal("bewerbsbezeichnung")));
-          bRes &= TestUtilities.IsDateTimeEqualDB(raceProps.DateStart, reader.GetValue(reader.GetOrdinal("datum_startliste")));
-          bRes &= TestUtilities.IsDateTimeEqualDB(raceProps.DateResult, reader.GetValue(reader.GetOrdinal("datum_rangliste")));
         }
         else
           bRes = false;

@@ -143,11 +143,7 @@ namespace RaceHorologyLibTest
       _races.Add(new Race.RaceProperties 
       {
         RaceType = Race.ERaceType.GiantSlalom,
-        Runs = 1,
-        RaceNumber = "TEST1",
-        Description = "Test Race",
-        DateStart = DateTime.Now,
-        DateResult = DateTime.Now
+        Runs = 1
       });
     }
 

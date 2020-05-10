@@ -391,7 +391,7 @@ namespace RaceHorologyLib
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateResult?.ToShortDateString() + "\n" + (_race.AdditionalProperties.Location ?? ""))));
+        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties.Location ?? ""))));
 
       return tableHeader;
     }
