@@ -225,15 +225,20 @@ namespace RaceHorologyLibTest
 
         Race r1 = model.GetRace(0);
 
-        var p1 = r1.AdditionalProperties;
+        // Check initially
+        Assert.AreEqual("MeinBewerb", r1.AdditionalProperties.Description);
+        Assert.AreEqual(new DateTime(2019, 1, 19), r1.AdditionalProperties.DateStartList);
+        Assert.AreEqual(new DateTime(2019, 1, 20), r1.AdditionalProperties.DateResultList);
+        Assert.AreEqual("20190120", r1.AdditionalProperties.RaceNumber);
 
+        // Modify
+        var p1 = r1.AdditionalProperties;
         p1.Description = "Descr1";
         p1.DateStartList = new DateTime(2020, 1, 2);
         p1.DateResultList = new DateTime(2020, 1, 3);
         p1.RaceNumber = "ABCDEF123456";
-
-        r1.AdditionalProperties = p1;
-        // Implicitly calld: db.StoreRaceProperties()
+        // Store
+        r1.AdditionalProperties = p1; // Implicitly calls: db.StoreRaceProperties()
 
         db.Close();
       }
