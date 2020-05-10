@@ -208,6 +208,54 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Modifies different properties and reads them afterwards
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseModifyRaceProperties()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      { 
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+
+        Race r1 = model.GetRace(0);
+
+        var p1 = r1.AdditionalProperties;
+
+        p1.Description = "Descr1";
+        p1.DateStartList = new DateTime(2020, 1, 2);
+        p1.DateResultList = new DateTime(2020, 1, 3);
+        p1.RaceNumber = "ABCDEF123456";
+
+        r1.AdditionalProperties = p1;
+        // Implicitly calld: db.StoreRaceProperties()
+
+        db.Close();
+      }
+
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+        Race r1 = model.GetRace(0);
+
+        Assert.AreEqual("Descr1", r1.AdditionalProperties.Description);
+        Assert.AreEqual(new DateTime(2020, 1, 2), r1.AdditionalProperties.DateStartList);
+        Assert.AreEqual(new DateTime(2020, 1, 3), r1.AdditionalProperties.DateResultList);
+        Assert.AreEqual("ABCDEF123456", r1.AdditionalProperties.RaceNumber);
+      }
+    }
+
+
+    /// <summary>
+    /// Check different participants per race
+    /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
     public void DatabaseRaceParticipants()
@@ -257,7 +305,9 @@ namespace RaceHorologyLibTest
       }
     }
 
-
+    /// <summary>
+    /// Check reading different race runs
+    /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void DatabaseRaceRuns()
