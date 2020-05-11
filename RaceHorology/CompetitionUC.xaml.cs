@@ -62,9 +62,36 @@ namespace RaceHorology
     }
 
 
+    /// <summary>
+    /// Represents a tab item for a race
+    /// Reason to exist: Getting a "close" or "delete" button within the tab.
+    /// </summary>
+    public class RaceTabItem : TabItem
+    {
+      Race _race;
+      public RaceTabItem(Race r)
+      {
+        _race = r;
+        RaceTabHeaderUC tabHeader = new RaceTabHeaderUC();
+        Header = tabHeader;
+        Name = r.RaceType.ToString();
+        tabHeader.lblName.Content = r.RaceType.ToString();
+        tabHeader.btnClose.Click += BtnClose_Click;
+      }
+
+      public Race Race {  get { return _race; } }
+
+      private void BtnClose_Click(object sender, RoutedEventArgs e)
+      {
+        if (MessageBox.Show(string.Format("Rennen \"{0}\" wirklich löschen?", _race.RaceType), "Rennen löschen?", MessageBoxButton.YesNo,MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
+          _race.GetDataModel().RemoveRace(_race);
+      }
+    }
+
+
     private void addRaceTab(Race r)
     {
-      TabItem tabRace = new TabItem { Header = r.RaceType.ToString(), Name = r.RaceType.ToString() };
+      TabItem tabRace = new RaceTabItem(r);
       tabControlTopLevel.Items.Insert(1, tabRace);
 
       tabRace.FontSize = 16;
@@ -79,10 +106,20 @@ namespace RaceHorology
       fillAvailableRacesTypes();
 
       // Create tabs
-      foreach (var item in args.NewItems)
-        if (item is Race race)
-          addRaceTab(race);
+      if (args.NewItems != null)
+        foreach (var item in args.NewItems)
+          if (item is Race race)
+            addRaceTab(race);
 
+      if (args.OldItems != null)
+        foreach (var item in args.OldItems)
+          if (item is Race race)
+            foreach (var tab in tabControlTopLevel.Items)
+              if (tab is RaceTabItem rTab && rTab.Race == race)
+              {
+                tabControlTopLevel.Items.Remove(tab);
+                break;
+              }
     }
 
 
