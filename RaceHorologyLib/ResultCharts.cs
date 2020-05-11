@@ -443,19 +443,33 @@ namespace RaceHorologyLib
     }
 
 
-    public void RenderToFile(Stream wmfStream, RaceResultViewProvider results)
+    public void RenderToWmf(Stream wmfStream, RaceResultViewProvider results)
     {
 
       SetupChart(_chart, results);
 
       //_chart.SaveImage(path, ChartImageFormat.Png);
-
+  
       MemoryStream emfStream = new MemoryStream();
       _chart.SaveImage(emfStream, ChartImageFormat.Emf);
 
       emfStream.Seek(0, SeekOrigin.Begin);
       ConvertToWMF(emfStream, wmfStream);
+
+      //_chart.SaveImage(wmfStream, System.Drawing.Imaging.ImageFormat.Wmf);
+      //wmfStream.Seek(0, SeekOrigin.Begin);
+      //_chart.SaveImage(@"c:\trash\test.wmf", System.Drawing.Imaging.ImageFormat.Wmf);
     }
+
+
+    public void RenderToImage(Stream imgStream, RaceResultViewProvider results)
+    {
+
+      SetupChart(_chart, results);
+
+      _chart.SaveImage(imgStream, ChartImageFormat.Png);
+    }
+
 
 
     #region EMF to WMF (iText can only WMF)
@@ -474,7 +488,12 @@ namespace RaceHorologyLib
     {
       const int MM_ANISOTROPIC = 8;
       System.Drawing.Imaging.Metafile mf = new System.Drawing.Imaging.Metafile(emfStream);
+      System.Drawing.Imaging.Metafile mf2 = new System.Drawing.Imaging.Metafile(@"c:\trash\test.emf");
+
       int handle = mf.GetHenhmetafile().ToInt32();
+      int handle2 = mf2.GetHenhmetafile().ToInt32();
+
+
 
       int bufferSize = GdipEmfToWmfBits(handle, 0, null, MM_ANISOTROPIC, EmfToWmfBitsFlags.EmfToWmfBitsFlagsIncludePlaceable);
 

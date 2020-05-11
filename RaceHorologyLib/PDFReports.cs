@@ -2067,19 +2067,37 @@ public abstract class PDFReport : IPDFReport
 
       // Render the chart (vector format WMF)
       OfflineChart fileHelper = new OfflineChart((int)areaChart.GetWidth(), (int)areaChart.GetHeight());
-      MemoryStream chartStreamWMF = new MemoryStream();
-      fileHelper.RenderToFile(chartStreamWMF, _race.GetResultViewProvider());
 
-      // Create an iText Image 
-      WmfImageData imgData = new WmfImageData(chartStreamWMF.ToArray());
-      var pdfFormxObj = new PdfFormXObject(imgData, pdf);
-      Image imgChart = new Image(pdfFormxObj);
+      if (false)
+      {
+        MemoryStream chartStreamWMF = new MemoryStream();
+        fileHelper.RenderToWmf(chartStreamWMF, _race.GetResultViewProvider());
 
-      // Render the image
-      PdfCanvas pdfCanvas = new PdfCanvas(page);
-      Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)
-        .SetHorizontalAlignment(HorizontalAlignment.CENTER)
-        .Add(imgChart.SetAutoScale(true));
+        // Create an iText Image 
+        //WmfImageData imgData = new WmfImageData(chartStreamWMF.ToArray());
+        WmfImageData imgData = new WmfImageData(@"c:\trash\test.wmf");
+        var pdfFormxObj = new PdfFormXObject(imgData, pdf);
+        Image imgChart = new Image(pdfFormxObj);
+        // Render the image
+        PdfCanvas pdfCanvas = new PdfCanvas(page);
+        Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)
+          .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+          .Add(imgChart.SetAutoScale(true));
+      }
+      else
+      {
+        MemoryStream imgStream = new MemoryStream();
+        fileHelper.RenderToImage(imgStream, _race.GetResultViewProvider());
+
+        // Create an iText Image 
+        var imgData = new Image(ImageDataFactory.Create(imgStream.ToArray()));
+        // Render the image
+        PdfCanvas pdfCanvas = new PdfCanvas(page);
+        Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)
+          .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+          .Add(imgData.SetAutoScale(true));
+      }
+
 
       // WORKAROUND: to let the other pages appear correctly
       document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
