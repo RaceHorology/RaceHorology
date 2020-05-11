@@ -875,12 +875,12 @@ namespace RaceHorologyLib
       if (dateStart == null)
         cmd.Parameters.Add(new OleDbParameter("@datum_startliste", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@datum_startliste", dateStart));
+        cmd.Parameters.Add(new OleDbParameter("@datum_startliste", ((DateTime)dateStart).Date));
 
       if (dateResult == null)
         cmd.Parameters.Add(new OleDbParameter("@datum_rangliste", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@datum_rangliste", dateResult));
+        cmd.Parameters.Add(new OleDbParameter("@datum_rangliste", ((DateTime)dateResult).Date));
 
       cmd.Parameters.Add(new OleDbParameter("@dtyp", (int)r.RaceType));
 
