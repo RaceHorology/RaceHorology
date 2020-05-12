@@ -36,29 +36,10 @@
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties" />
       <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
     </Menu>
-    <Grid Grid.Row="1" Background="#ffeff5f0">
+    <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffeff5f0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
-
-      <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
-        <TabItem Header="Teilnehmer" FontSize="16">
-          <Grid Grid.Column="0" Background="#FFE5E5E5">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="1*"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-            <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  AlternatingRowBackground="#FFf8faf7" FontSize="12"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
-              <Button x:Name="btnImport" Content="Importieren" Padding="5" Margin="5" Click="btnImport_Click"/>
-            </StackPanel>
-          </Grid>
-        </TabItem>
-        <TabItem Header="Neues Rennen" FontSize="16" IsEnabled="False">
-        </TabItem>
-      </TabControl>
     </Grid>
     <StatusBar Height="Auto" Margin="0" Grid.Row="2" VerticalAlignment="Top" Width="Auto" Background="#ffe6eee5">
       <StatusBar.ItemsPanel>

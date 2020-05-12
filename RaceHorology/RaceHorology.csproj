@@ -112,6 +112,9 @@
     <Compile Include="ChartTestsUC.xaml.cs">
       <DependentUpon>ChartTestsUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CompetitionUC.xaml.cs">
+      <DependentUpon>CompetitionUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DisqualifyUC.xaml.cs">
       <DependentUpon>DisqualifyUC.xaml</DependentUpon>
     </Compile>
@@ -123,6 +126,9 @@
     </Compile>
     <Compile Include="MsChart.xaml.cs">
       <DependentUpon>MsChart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RaceTabHeaderUC.xaml.cs">
+      <DependentUpon>RaceTabHeaderUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="RaceUC.xaml.cs">
       <DependentUpon>RaceUC.xaml</DependentUpon>
@@ -143,6 +149,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ChartTestsUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CompetitionUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -173,6 +183,10 @@
     <Page Include="MsChart.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RaceTabHeaderUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RaceUC.xaml">
       <SubType>Designer</SubType>

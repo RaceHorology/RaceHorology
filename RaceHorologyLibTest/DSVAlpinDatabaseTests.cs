@@ -126,34 +126,18 @@ namespace RaceHorologyLibTest
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.DownHill).First();
         Assert.AreEqual(2U, race.Runs);
-        Assert.AreEqual(null, race.RaceNumber);
-        Assert.AreEqual("Abfahrt - Bezeichnung 1\r\nAbfahrt - Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(2019, 1, 19), race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 19), race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.SuperG).First();
         Assert.AreEqual(1U, race.Runs);
-        Assert.AreEqual("20190120_B", race.RaceNumber);
-        Assert.AreEqual("Super G Bezeichnung 1\r\nSuper G Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(2019, 1, 18), race.DateStart);
-        Assert.AreEqual(new DateTime(), race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
         Assert.AreEqual(2U, race.Runs);
-        Assert.AreEqual("20190120_C", race.RaceNumber);
-        Assert.AreEqual("Riesenslalom Bezeichnung 1\r\nRiesenslalom Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(), race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 20), race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.Slalom).First();
         Assert.AreEqual(1U, race.Runs);
-        Assert.AreEqual("20190120_D", race.RaceNumber);
-        Assert.AreEqual(null, race.Description);
-        Assert.AreEqual(new DateTime(2019, 2, 21), race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 21), race.DateResult);
       }
 
       //
@@ -161,6 +145,122 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, races.Where(r => r.RaceType == Race.ERaceType.KOSlalom).Count());
     }
 
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseModifyRaces()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        model = new AppDataModel(db);
+      }
+
+
+      Race.RaceProperties raceProp = new Race.RaceProperties
+      {
+        RaceType = Race.ERaceType.SuperG,
+        Runs = 2
+      };
+
+      model.AddRace(raceProp);
+      DBCacheWorkaround();
+      Assert.IsTrue(checkRace(dbFilename, raceProp, true));
+
+      model.RemoveRace(model.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.SuperG));
+      DBCacheWorkaround();
+      Assert.IsTrue(checkRace(dbFilename, raceProp, false));
+    }
+
+    bool checkRace(string dbFilename, Race.RaceProperties raceProps, bool active)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblDisziplin WHERE dtyp = @dtyp";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@dtyp", (int)raceProps.RaceType));
+
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= ((bool)reader.GetValue(reader.GetOrdinal("aktiv")) == active);
+
+          bRes &= (uint)(byte)reader.GetValue(reader.GetOrdinal("durchgaenge")) == raceProps.Runs;
+        }
+        else
+          bRes = false;
+      }
+
+      conn.Close();
+
+      return bRes;
+    }
+
+
+    /// <summary>
+    /// Modifies different properties and reads them afterwards
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseModifyRaceProperties()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      { 
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+
+        Race r1 = model.GetRace(0);
+
+        // Check initially
+        Assert.AreEqual("MeinBewerb", r1.AdditionalProperties.Description);
+        Assert.AreEqual(new DateTime(2019, 1, 19), r1.AdditionalProperties.DateStartList);
+        Assert.AreEqual(new DateTime(2019, 1, 20), r1.AdditionalProperties.DateResultList);
+        Assert.AreEqual("20190120", r1.AdditionalProperties.RaceNumber);
+
+        // Modify
+        var p1 = r1.AdditionalProperties;
+        p1.Description = "Descr1";
+        p1.DateStartList = new DateTime(2020, 1, 2);
+        p1.DateResultList = new DateTime(2020, 1, 3);
+        p1.RaceNumber = "ABCDEF123456";
+        // Store
+        r1.AdditionalProperties = p1; // Implicitly calls: db.StoreRaceProperties()
+
+        db.Close();
+      }
+
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+        Race r1 = model.GetRace(0);
+
+        Assert.AreEqual("Descr1", r1.AdditionalProperties.Description);
+        Assert.AreEqual(new DateTime(2020, 1, 2), r1.AdditionalProperties.DateStartList);
+        Assert.AreEqual(new DateTime(2020, 1, 3), r1.AdditionalProperties.DateResultList);
+        Assert.AreEqual("ABCDEF123456", r1.AdditionalProperties.RaceNumber);
+      }
+    }
+
+
+    /// <summary>
+    /// Check different participants per race
+    /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
     public void DatabaseRaceParticipants()
@@ -210,7 +310,9 @@ namespace RaceHorologyLibTest
       }
     }
 
-
+    /// <summary>
+    /// Check reading different race runs
+    /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void DatabaseRaceRuns()

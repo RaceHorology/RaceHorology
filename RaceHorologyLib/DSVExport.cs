@@ -145,7 +145,7 @@ namespace RaceHorologyLib
       _writer.WriteStartElement("racedescription");
 
       _writer.WriteStartElement("racedate");
-      _writer.WriteValue(race.DateResult.ToString("yyyy-MM-dd"));
+      _writer.WriteValue(race.DateResultList?.ToString("yyyy-MM-dd"));
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("gender");
@@ -153,7 +153,7 @@ namespace RaceHorologyLib
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("season");
-      _writer.WriteValue(race.DateResult.AddMonths(2).ToString("yyyy"));
+      _writer.WriteValue(race.DateResultList?.AddMonths(2).ToString("yyyy"));
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("raceid");

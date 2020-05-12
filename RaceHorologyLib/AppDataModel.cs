@@ -60,7 +60,9 @@ namespace RaceHorologyLib
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
 
-    List<Race> _races;
+    DatabaseDelegatorCompetition _competitionDelegatorDB;
+
+    ObservableCollection<Race> _races;
     Race _currentRace;
     RaceRun _currentRaceRun;
 
@@ -116,12 +118,13 @@ namespace RaceHorologyLib
       // Get notification if a participant got changed / added / removed and trigger storage in DB
       _participantsDelegatorDB = new DatabaseDelegatorParticipant(_participants, _db);
 
-
-      _races = new List<Race>();
+      _races = new ObservableCollection<Race>();
 
       var races = _db.GetRaces();
       foreach (Race.RaceProperties raceProperties in races)
         _races.Add(new Race(_db, this, raceProperties));
+      // Get notification if a race got changed / added / removed and trigger storage in DB
+      _competitionDelegatorDB = new DatabaseDelegatorCompetition(this, _db);
 
       _currentRace = _races.First();
     }
@@ -152,7 +155,8 @@ namespace RaceHorologyLib
       return _db.GetParticipantClasses();
     }
 
-    public List<Race> GetRaces()
+
+    public ObservableCollection<Race> GetRaces()
     {
       return _races;
     }
@@ -163,6 +167,28 @@ namespace RaceHorologyLib
 
       return null;
     }
+
+    public Race AddRace(Race.RaceProperties raceProperties)
+    {
+      // Ensure this type of race is not yet existing
+      Race raceExisting = _races.FirstOrDefault(r => r.RaceType == raceProperties.RaceType);
+      if (raceExisting != null)
+      {
+        return null;
+      }
+
+      Race race = new Race(_db, this, raceProperties);
+      _races.Add(race);
+
+      return race;
+    }
+
+
+    public bool RemoveRace(Race race)
+    {
+      return _races.Remove(race);
+    }
+
 
     public void SetCurrentRace(Race race)
     {
@@ -253,11 +279,12 @@ namespace RaceHorologyLib
     }
 
 
-    public string Name { get; set; }
     public string Location { get; set; }
     public string RaceNumber { get; set; }
     public string Description { get; set; }
 
+    public DateTime? DateStartList { get; set; }
+    public DateTime? DateResultList { get; set; }
 
     public string Analyzer { get; set; }
     public string Organizer { get; set; }
@@ -296,10 +323,6 @@ namespace RaceHorologyLib
     {
       public Race.ERaceType RaceType;
       public uint Runs;
-      public string RaceNumber;
-      public string Description;
-      public DateTime DateStart;
-      public DateTime DateResult;
     }
 
     // Mainly race decription parameters
@@ -318,10 +341,10 @@ namespace RaceHorologyLib
 
 
     public ERaceType RaceType { get { return _properties.RaceType;  } }
-    public string RaceNumber {  get { return _properties.RaceNumber; } }
-    public string Description { get { return _properties.Description; } }
-    public DateTime DateStart { get { return _properties.DateStart; } }
-    public DateTime DateResult { get { return _properties.DateResult; } }
+    public string RaceNumber {  get { return _addProperties.RaceNumber; } }
+    public string Description { get { return _addProperties.Description; } }
+    public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
+    public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
 
     public RaceConfiguration RaceConfiguration
     {
@@ -510,15 +533,15 @@ namespace RaceHorologyLib
     /// </summary>
     /// <param name="participant">The particpant to add</param>
     /// <returns>The the corresponding RaceParticipant object</returns>
-    public RaceParticipant AddParticipant(Participant participant)
+    public RaceParticipant AddParticipant(Participant participant, uint startnumber= 0, double points = -1)
     {
       RaceParticipant raceParticipant = GetParticipant(participant);
 
       if (raceParticipant == null)
       {
-        raceParticipant = new RaceParticipant(this, participant, 0, -1);
+        raceParticipant = new RaceParticipant(this, participant, startnumber, points);
+        _participants.Add(raceParticipant);
       }
-      _participants.Add(raceParticipant);
 
       return raceParticipant;
     }
@@ -550,6 +573,12 @@ namespace RaceHorologyLib
     public AppDataModel GetDataModel()
     {
       return _appDataModel;
+    }
+
+
+    public override string ToString()
+    {
+      return RaceType.ToString();
     }
 
   }
@@ -979,6 +1008,8 @@ namespace RaceHorologyLib
 
     void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
     void DeleteRunResult(Race race, RaceRun raceRun, RunResult result);
+
+    void UpdateRace(Race race, bool active);
 
   };
 

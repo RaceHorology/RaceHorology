@@ -16,18 +16,37 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
       <RowDefinition/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <Label Content="Daten:" Grid.Row="0" Grid.Column="0" FontSize="16"/>
-    <DataGrid x:Name="dgImport" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,0,5,5" />
+    <Grid Grid.Row="0" Grid.Column="0" Margin="5">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
 
+      <Label Content="Daten:" Grid.Row="0" Grid.Column="0" FontSize="16"/>
+      <DataGrid x:Name="dgImport" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" />
+    </Grid>
+    
     <GridSplitter x:Name="gridSplitter1" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" Grid.RowSpan="2" />
 
-    <Label Content="Feld-Zuordnung:" Grid.Row="0" Grid.Column="2" FontSize="16"/>
-    <local:MappingUC x:Name="mappingUC" Grid.Column="2" Grid.Row="1" Margin="5,0,5,5" />
+    <Grid Grid.Row="0" Grid.Column="2" Margin="5">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Label Content="Feld-Zuordnung:" Grid.Row="0" Grid.Column="0" FontSize="16"/>
+      <local:MappingUC x:Name="mappingUC" Grid.Row="1" Grid.Column="0" />
+
+      <Label Content="Rennen:" Grid.Row="2" FontSize="16"/>
+      <ListBox x:Name="lbRaces" Grid.Row="3" />
+    </Grid>
+
     
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="2">
       <Button x:Name="btnSelectImportFile" Content="Datei auswählen" Padding="5" Margin="5" Click="btnSelectImportFile_Click"/>

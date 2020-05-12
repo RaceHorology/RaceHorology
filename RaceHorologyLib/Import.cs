@@ -225,18 +225,114 @@ namespace RaceHorologyLib
   }
 
 
+  /// <summary>
+  /// Pre-configured mapping for race mapping (race import)
+  /// </summary>
+  public class RaceMapping : Mapping
+  {
+    /// <summary>
+    /// Map defining the required fields and potential available fields
+    /// </summary>
+    static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
+    {
+      { "Name", new List<string>{ "Name" } },
+      { "Firstname", new List<string>{"Vorname"} },
+      { "Sex", new List<string>{"Geschlecht", "Kategorie"} },
+      { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG" } },
+      { "Club", new List<string>{"Club", "Verein"} },
+      { "Nation", new List<string>{"Nation", "Verband"} },
+      { "Code", new List<string>{"DSV-Id", "Code"} },
+      { "SvId", new List<string>{"SvId", "SkiverbandId"} },
+      { "Points", new List<string>{"Points", "Punkte"} },
+      { "StartNumber", new List<string>{"start number", "Startnummer", "SN"} },
+    };
 
-  public class Import
+    public RaceMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
+    {
+    }
+
+    protected override List<string> synonyms(string field)
+    {
+      return _requiredField[field];
+    }
+
+  }
+
+
+
+
+  public class BaseImport
+  {
+    protected Mapping _mapping;
+
+    protected BaseImport(Mapping mapping)
+    {
+      _mapping = mapping;
+
+    }
+
+    protected object getValueAsObject(DataRow row, string field)
+    {
+      var columnName = _mapping.MappedField(field);
+
+      if (columnName != null)
+        if (row.Table.Columns.Contains(columnName))
+          if (!row.IsNull(columnName))
+            return row[columnName];
+
+      return null;
+    }
+
+    protected string getValueAsString(DataRow row, string field)
+    {
+      return Convert.ToString(getValueAsObject(row, field));
+    }
+
+    protected double getValueAsDouble(DataRow row, string field, double @default = 0.0)
+    {
+      object v = getValueAsObject(row, field);
+      if (v == null)
+        return @default;
+
+      try
+      {
+        return Convert.ToDouble(v);
+      }
+      catch (Exception)
+      {
+        return @default;
+      }
+    }
+
+    protected uint getValueAsUint(DataRow row, string field, uint @default = 0)
+    {
+      object v = getValueAsObject(row, field);
+      if (v == null)
+        return @default;
+
+      try
+      {
+        return Convert.ToUInt32(v);
+      }
+      catch(Exception)
+      {
+        return @default;
+      }
+    }
+
+  }
+
+
+
+  public class Import : BaseImport
   {
     DataSet _importDataSet;
     IList<Participant> _particpants;
-    Mapping _mapping;
 
-    public Import(DataSet ds, IList<Participant> particpants, Mapping mapping)
+    public Import(DataSet ds, IList<Participant> particpants, Mapping mapping) : base(mapping)
     {
       _importDataSet = ds;
       _particpants = particpants;
-      _mapping = mapping;
     }
 
 
@@ -249,46 +345,70 @@ namespace RaceHorologyLib
       {
         try
         {
-          Participant partImp = createParticipant(row);
-
-          Participant partExisting = findExistingParticpant(partImp);
-
-          if (partExisting != null)
-            updateParticipant(partExisting, partImp);
-          else
-            insertParticpant(partImp);
+          importRow(row);
         }
         catch(Exception)
         { }
       }
     }
 
+
+    public Participant importRow(DataRow row) 
+    {
+      Participant partImported = null;
+
+      Participant partCreated = createParticipant(row);
+
+      Participant partExisting = findExistingParticpant(partCreated);
+
+      if (partExisting != null)
+        partImported = updateParticipant(partExisting, partCreated);
+      else
+        partImported = insertParticpant(partCreated);
+
+      return partImported;
+    }
+
+
     Participant createParticipant(DataRow row)
     {
       Participant p = new Participant
       {
-        Name = getValue<string>(row, "Name"),
-        Firstname = getValue<string>(row, "Firstname"),
-        Sex = getValue<string>(row, "Sex"),
-        Club = getValue<string>(row, "Club"),
-        Nation = getValue<string>(row, "Nation"),
-        SvId = getValue<string>(row, "SvId"),
-        Code = getValue<string>(row, "Code"),
-        Year = uint.Parse(getValue<string>(row, "Year"))
+        Name = getNameComaSeparated(getValueAsString(row, "Name")),
+        Firstname = getFirstNameComaSeparated(getValueAsString(row, "Firstname")),
+        Sex = getValueAsString(row, "Sex"),
+        Club = getValueAsString(row, "Club"),
+        Nation = getValueAsString(row, "Nation"),
+        SvId = getValueAsString(row, "SvId"),
+        Code = getValueAsString(row, "Code"),
+        Year = getValueAsUint(row, "Year")
       };
 
       return p;
     }
 
-    T getValue<T>(DataRow row, string field)
+    string getNameComaSeparated(string name)
     {
-      var columnName = _mapping.MappedField(field);
+      string res;
+      var nameParts = name.Split(',');
+      if (nameParts.Length > 1)
+        res = nameParts[0];
+      else
+        res = name;
 
-      if (columnName != null)
-        if (row.Table.Columns.Contains(columnName))
-          return row.Field<T>(_mapping.MappedField(field));
+      return res.Trim();
+    }
 
-      return default;
+    string getFirstNameComaSeparated(string name)
+    {
+      string res;
+      var nameParts = name.Split(',');
+      if (nameParts.Length > 1)
+        res = nameParts[nameParts.Length - 1];
+      else
+        res = name;
+
+      return res.Trim();
     }
 
     bool sameParticpant(Participant p1, Participant p2)
@@ -321,7 +441,57 @@ namespace RaceHorologyLib
       
       return partImp;
     }
+  }
+
+
+  public class RaceImport : BaseImport
+  {
+    DataSet _importDataSet;
+    Race _race;
+
+    public RaceImport(DataSet ds, Race race, Mapping mapping) : base(mapping)
+    {
+      _importDataSet = ds;
+      _race = race;
+    }
+
+
+    public void DoImport()
+    {
+      // 1. Normaler Import
+      Import particpantImport = new Import(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
+
+      // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
+      var rows = _importDataSet.Tables[0].Rows;
+      foreach (DataRow row in rows)
+      {
+        try
+        {
+          Participant importedParticipant = particpantImport.importRow(row);
+
+          double points = getPoints(row);
+          uint sn = getStartNumber(row);
+
+          _race.AddParticipant(importedParticipant, sn, points);
+        }
+        catch (Exception)
+        { }
+      }
+    }
+
+
+    double getPoints(DataRow row) 
+    {
+      return getValueAsDouble(row, "Points", -1);
+    }
+
+
+    uint getStartNumber(DataRow row)
+    {
+      return getValueAsUint(row, "StartNumber", 0);
+    }
 
 
   }
+
 }

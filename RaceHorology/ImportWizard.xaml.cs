@@ -21,15 +21,15 @@ namespace RaceHorology
   /// </summary>
   public partial class ImportWizard : Window
   {
-    IList<Participant> _importTarget;
+    AppDataModel _dm;
     
     ImportReader _importReader;
     Mapping _importMapping;
 
 
-    public ImportWizard(IList<Participant> importTarget)
+    public ImportWizard(AppDataModel dm)
     {
-      _importTarget = importTarget;
+      _dm = dm;
 
       InitializeComponent();
       
@@ -49,10 +49,12 @@ namespace RaceHorology
         string path = openFileDialog.FileName;
 
         _importReader = new ImportReader(path);
-        _importMapping = new ParticipantMapping(_importReader.Columns);
+        _importMapping = new RaceMapping(_importReader.Columns);
         mappingUC.Mapping = _importMapping;
 
         dgImport.ItemsSource = _importReader.Data.Tables[0].DefaultView;
+
+        fillRaceList();
 
         return true;
       }
@@ -61,10 +63,31 @@ namespace RaceHorology
     }
 
 
+    void fillRaceList()
+    {
+      lbRaces.SelectionMode = SelectionMode.Multiple;
+      lbRaces.Items.Clear();
+      lbRaces.SelectedItems.Clear();
+      foreach (var r in _dm.GetRaces())
+      {
+        lbRaces.Items.Add(r);
+        lbRaces.SelectedItems.Add(r);
+      }
+    }
+
+
     private void btnImport_Click(object sender, RoutedEventArgs e)
     {
-      Import imp = new Import(_importReader.Data, _importTarget, _importMapping);
-      imp.DoImport();
+
+      foreach (var r in lbRaces.SelectedItems)
+      {
+        Race race = r as Race;
+        if (race != null)
+        {
+          RaceImport imp = new RaceImport(_importReader.Data, race, _importMapping);
+          imp.DoImport();
+        }
+      }
 
       DialogResult = true;
     }

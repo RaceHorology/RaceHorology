@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="RaceHorology.RaceTabHeaderUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RaceHorology"
+             mc:Ignorable="d" 
+             >
+  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
+    <Label x:Name="lblName" Content="adsdssdsd"  HorizontalAlignment="Left" 
+      Margin="0" VerticalAlignment="Center"/>
+    <Button Content="X"  HorizontalAlignment="Right" Margin="0,0,0,0" Padding="0" 
+        Name="btnClose" VerticalAlignment="Center" Width="20" 
+        FontWeight="Bold" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
+        Visibility="Visible"/>
+  </StackPanel>
+</UserControl>
