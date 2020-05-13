@@ -44,7 +44,7 @@ namespace RaceHorology
       ConnectGUIToDataModel();
     }
 
-
+    #region RaceTabs
 
     /// <summary>
     /// Connects the GUI (e.g. Data Grids, ...) to the data model
@@ -122,22 +122,6 @@ namespace RaceHorology
               }
     }
 
-
-    private void btnImport_Click(object sender, RoutedEventArgs e)
-    {
-      if (_dm?.GetParticipants() == null)
-      {
-        Logger.Error("Import not possible: datamodel not available");
-        return;
-      }
-      ImportWizard importWizard = new ImportWizard(_dm);
-      importWizard.Owner = Window.GetWindow(this);
-      importWizard.ShowDialog();
-    }
-
-
-    #region Tab Management
-
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
     {
       EnsureOnlyCurrentRaceCanBeSelected(isRunning);
@@ -166,10 +150,8 @@ namespace RaceHorology
       }
     }
 
-    #endregion
 
-
-    Race.ERaceType[] raceTypes = new Race.ERaceType []
+    Race.ERaceType[] raceTypes = new Race.ERaceType[]
     {
       Race.ERaceType.DownHill,
       Race.ERaceType.SuperG,
@@ -182,7 +164,7 @@ namespace RaceHorology
     private void fillAvailableRacesTypes()
     {
       cmbRaceType.Items.Clear();
-      foreach ( var rt in raceTypes)
+      foreach (var rt in raceTypes)
       {
         if (_dm.GetRaces().FirstOrDefault(r => r.RaceType == rt) == null)
         {
@@ -206,5 +188,25 @@ namespace RaceHorology
 
       _dm.AddRace(raceProps);
     }
+
+    #endregion
+
+
+    #region Particpants
+
+    private void btnImport_Click(object sender, RoutedEventArgs e)
+    {
+      if (_dm?.GetParticipants() == null)
+      {
+        Logger.Error("Import not possible: datamodel not available");
+        return;
+      }
+      ImportWizard importWizard = new ImportWizard(_dm);
+      importWizard.Owner = Window.GetWindow(this);
+      importWizard.ShowDialog();
+    }
+
+    #endregion
+
   }
 }
