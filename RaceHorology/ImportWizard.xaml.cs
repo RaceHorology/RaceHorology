@@ -54,7 +54,7 @@ namespace RaceHorology
 
         dgImport.ItemsSource = _importReader.Data.Tables[0].DefaultView;
 
-        fillRaceList();
+        FillRaceList(lbRaces, _dm);
 
         return true;
       }
@@ -63,12 +63,12 @@ namespace RaceHorology
     }
 
 
-    void fillRaceList()
+    public static void FillRaceList(ListBox lbRaces, AppDataModel dm)
     {
       lbRaces.SelectionMode = SelectionMode.Multiple;
       lbRaces.Items.Clear();
       lbRaces.SelectedItems.Clear();
-      foreach (var r in _dm.GetRaces())
+      foreach (var r in dm.GetRaces())
       {
         lbRaces.Items.Add(r);
         lbRaces.SelectedItems.Add(r);

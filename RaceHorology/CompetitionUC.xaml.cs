@@ -54,6 +54,7 @@ namespace RaceHorology
       // Connect with GUI DataGrids
       ObservableCollection<Participant> participants = _dm.GetParticipants();
       dgParticipants.ItemsSource = participants;
+      fillParticipantRaces();
 
       fillAvailableRacesTypes();
 
@@ -193,6 +194,12 @@ namespace RaceHorology
 
 
     #region Particpants
+
+
+    private void fillParticipantRaces()
+    {
+      ImportWizard.FillRaceList(lbRaces, _dm);
+    }
 
     private void btnImport_Click(object sender, RoutedEventArgs e)
     {

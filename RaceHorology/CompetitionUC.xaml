@@ -8,21 +8,52 @@
              d:DesignHeight="450" d:DesignWidth="800">
   <Grid>
     <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
-      <TabItem Header="Teilnehmer" FontSize="16">
-        <Grid Grid.Column="0" Background="#FFE5E5E5">
+      <TabItem >
+        <TabItem.Header>
+          <Label Content="Teilnehmer" Padding="0" Margin="0" FontSize="16"/>
+        </TabItem.Header>
+        <Grid Grid.Column="0" Background="#FFE5E5E5" >
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="2*"/>
+          </Grid.ColumnDefinitions>
+
+          <GridSplitter x:Name="gridSplitter" Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5"/>
+
           <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-          <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  AlternatingRowBackground="#FFf8faf7" FontSize="12"/>
+
+          <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" AlternatingRowBackground="#FFf8faf7" Grid.Row="1" FontSize="12"/>
+
+          <Grid Grid.Row="1" Grid.Column="2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Rennen:" Grid.Row="0" Grid.Column="0"/>
+            <ListBox x:Name="lbRaces" Grid.Row="0" Grid.Column="1" />
+
+          </Grid>
+          
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
-            <Button x:Name="btnImport" Content="Importieren" Padding="5" Margin="5" Click="btnImport_Click"/>
+            <Button x:Name="btnImport" Content="Teilnehmer Importieren" Padding="5" Margin="5" Click="btnImport_Click"/>
           </StackPanel>
         </Grid>
       </TabItem>
-      <TabItem Header="Neues Rennen" FontSize="16">
+      
+      <TabItem >
+        <TabItem.Header>
+          <Label Content="Neues Rennen" Padding="0" Margin="0" FontSize="16"/>
+        </TabItem.Header>
         <Grid Margin="5" >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
