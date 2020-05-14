@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -42,6 +44,7 @@ namespace RaceHorology
       _dm.GetRaces().CollectionChanged += OnRacesChanged;
 
       ConnectGUIToDataModel();
+      ConnectGUIToParticipants();
     }
 
     #region RaceTabs
@@ -51,11 +54,6 @@ namespace RaceHorology
     /// </summary>
     private void ConnectGUIToDataModel()
     {
-      // Connect with GUI DataGrids
-      ObservableCollection<Participant> participants = _dm.GetParticipants();
-      dgParticipants.ItemsSource = participants;
-      fillParticipantRaces();
-
       fillAvailableRacesTypes();
 
       foreach (var r in _dm.GetRaces())
@@ -213,7 +211,178 @@ namespace RaceHorology
       importWizard.ShowDialog();
     }
 
+
+    /// <summary>
+    /// Connects the GUI (e.g. Data Grids, ...) to the data model
+    /// </summary>
+    ParticipantList _editParticipants;
+    private void ConnectGUIToParticipants()
+    {
+      // Connect with GUI DataGrids
+      ObservableCollection<Participant> participants = _dm.GetParticipants();
+
+      _editParticipants = new ParticipantList(participants, _dm);
+
+      dgParticipants.ItemsSource = _editParticipants;
+
+      CreateParticipantOfRaceColumns();
+
+      fillParticipantRaces();
+    }
+
+    private void CreateParticipantOfRaceColumns()
+    {
+      for(int i=0; i < _dm.GetRaces().Count; i++)
+      {
+        Race race = _dm.GetRace(i);
+        dgParticipants.Columns.Add(new DataGridCheckBoxColumn
+        {
+          Binding = new Binding(string.Format("ParticipantOfRace[{0}]", i)),
+          Header = race.RaceType.ToString()
+        });
+      }
+    }
+
     #endregion
+
+  }
+
+  public class ParticpantOfRace
+  {
+    Participant _participant;
+    IList<Race> _races;
+
+    public ParticpantOfRace(Participant p, IList<Race> races )
+    {
+      _participant = p;
+      _races = races;
+    }
+
+    public bool this[int i]
+    {
+      get 
+      {
+        if (i >= _races.Count)
+          return false;
+        
+        return _races[i].GetParticipants().FirstOrDefault(rp => rp.Participant == _participant) != null; 
+      }
+
+      set
+      {
+        if (i < _races.Count)
+        {
+          if (value == true)
+          {
+            _races[i].AddParticipant(_participant);
+          }
+          else
+          {
+            _races[i].RemoveParticipant(_participant);
+          }
+        }
+      }
+    }
+  }
+
+  public class ParticipantEdit : INotifyPropertyChanged
+  {
+    Participant _participant;
+    ParticpantOfRace _participantOfRace;
+
+    public ParticipantEdit(Participant p, IList<Race> races)
+    {
+      _participant = p;
+      _participant.PropertyChanged += OnParticpantPropertyChanged;
+
+      _participantOfRace = new ParticpantOfRace(p, races);
+    }
+
+    public string Id 
+    { 
+      get => _participant.Id; 
+    }
+
+    public string Name
+    {
+      get => _participant.Name;
+      set => _participant.Name = value;
+    }
+
+    public string Firstname
+    {
+      get => _participant.Firstname;
+      set => _participant.Firstname = value;
+    }
+    public string Sex
+    {
+      get => _participant.Sex;
+      set => _participant.Sex = value;
+    }
+    public uint Year
+    {
+      get => _participant.Year;
+      set => _participant.Year = value;
+    }
+    public string Club
+    {
+      get => _participant.Club;
+      set => _participant.Club = value;
+    }
+    public string SvId
+    {
+      get => _participant.SvId;
+      set => _participant.SvId = value;
+    }
+    public string Code
+    {
+      get => _participant.Code;
+      set => _participant.Code = value;
+    }
+    public string Nation
+    {
+      get => _participant.Nation;
+      set => _participant.Nation = value;
+    }
+    public ParticipantClass Class
+    {
+      get => _participant.Class;
+      set => _participant.Class = value;
+    }
+    public ParticipantGroup Group
+    {
+      get => _participant.Group;
+    }
+
+
+    public ParticpantOfRace ParticipantOfRace
+    { 
+      get => _participantOfRace; 
+    }
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void OnParticpantPropertyChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(eargs.PropertyName));
+    }
+
+    #endregion
+  }
+
+  public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
+  {
+    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces()))
+    { }
 
   }
 }
