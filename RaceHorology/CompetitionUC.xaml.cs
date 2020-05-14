@@ -119,6 +119,8 @@ namespace RaceHorology
                 tabControlTopLevel.Items.Remove(tab);
                 break;
               }
+
+      ConnectGUIToParticipants();
     }
 
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
@@ -220,9 +222,7 @@ namespace RaceHorology
     {
       // Connect with GUI DataGrids
       ObservableCollection<Participant> participants = _dm.GetParticipants();
-
       _editParticipants = new ParticipantList(participants, _dm);
-
       dgParticipants.ItemsSource = _editParticipants;
 
       CreateParticipantOfRaceColumns();
@@ -232,7 +232,12 @@ namespace RaceHorology
 
     private void CreateParticipantOfRaceColumns()
     {
-      for(int i=0; i < _dm.GetRaces().Count; i++)
+      // Delete previous race columns
+      while (dgParticipants.Columns.Count > 10)
+        dgParticipants.Columns.RemoveAt(dgParticipants.Columns.Count - 1);
+
+      // Add columns for each race
+      for (int i=0; i < _dm.GetRaces().Count; i++)
       {
         Race race = _dm.GetRace(i);
         dgParticipants.Columns.Add(new DataGridCheckBoxColumn
@@ -247,6 +252,11 @@ namespace RaceHorology
 
   }
 
+
+  /// <summary>
+  /// Represents and modified the participants membership to a race
+  /// Example: ParticpantOfRace[i] = true | false
+  /// </summary>
   public class ParticpantOfRace
   {
     Participant _participant;
@@ -285,6 +295,12 @@ namespace RaceHorology
     }
   }
 
+
+  /// <summary>
+  /// Represents a row within the participant data grid for editing participants
+  /// - Proxies standard participant properties
+  /// - Contains ParticpantOfRace to modifiy the membership to a race (eg. pe.ParticpantOfRace[i] = true | false )
+  /// </summary>
   public class ParticipantEdit : INotifyPropertyChanged
   {
     Participant _participant;
@@ -379,6 +395,10 @@ namespace RaceHorology
     #endregion
   }
 
+
+  /// <summary>
+  /// Represents the complete participant data grid for editing participants
+  /// </summary>
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
     public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces()))
