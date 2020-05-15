@@ -221,13 +221,13 @@ namespace RaceHorologyLib
 
 
 
-  public class CopyObservableCollection<T> : ObservableCollection<T> where T : class
+  public class CopyObservableCollection<TC, T> : ObservableCollection<TC> where T : class where TC : class
   {
     protected ObservableCollection<T> _source;
-    protected Cloner<T> _cloner;
+    protected Cloner<TC,T> _cloner;
 
-    public delegate TC Cloner<TC>(TC source);
-    public CopyObservableCollection(ObservableCollection<T> source, Cloner<T> cloner)
+    public delegate TClone Cloner<TClone,TSource>(TSource source);
+    public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC,T> cloner)
     {
       _source = source;
       _cloner = cloner;
@@ -284,7 +284,7 @@ namespace RaceHorologyLib
         case NotifyCollectionChangedAction.Reset:
           Clear();
 
-          List<T> toInsert = new List<T>();
+          List<TC> toInsert = new List<TC>();
           foreach (T item in _source)
             toInsert.Add(_cloner(item));
           this.InsertRange(toInsert);

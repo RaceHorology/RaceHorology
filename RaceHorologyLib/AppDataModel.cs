@@ -546,6 +546,17 @@ namespace RaceHorologyLib
       return raceParticipant;
     }
 
+    /// <summary>
+    /// Removes a particpant from the race
+    /// </summary>
+    /// <param name="participant">The particpant to add</param>
+    /// <returns>The the corresponding RaceParticipant object</returns>
+    public void RemoveParticipant(Participant participant)
+    {
+      RaceParticipant raceParticipant = GetParticipant(participant);
+      _participants.Remove(raceParticipant);
+    }
+
 
     /// <summary>
     /// Returns the results of the race.

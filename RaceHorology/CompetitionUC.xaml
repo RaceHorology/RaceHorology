@@ -8,21 +8,118 @@
              d:DesignHeight="450" d:DesignWidth="800">
   <Grid>
     <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
-      <TabItem Header="Teilnehmer" FontSize="16">
-        <Grid Grid.Column="0" Background="#FFE5E5E5">
+      <TabItem >
+        <TabItem.Header>
+          <Label Content="Teilnehmer" Padding="0" Margin="0" FontSize="16"/>
+        </TabItem.Header>
+        <Grid Grid.Column="0" Background="#FFE5E5E5" >
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
-          <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-          <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1"  AlternatingRowBackground="#FFf8faf7" FontSize="12"/>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="2*"/>
+          </Grid.ColumnDefinitions>
+
+          <GridSplitter x:Name="gridSplitter" Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5"/>
+
+          <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+
+            <Label Content="Suche (&lt;Ctrl&gt;-F):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
+            <TextBox x:Name="txtSearch" Width="100" Margin="5" Grid.Column="3"/>
+
+
+          </Grid>
+
+
+          <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" AlternatingRowBackground="#FFf8faf7" Grid.Row="1" FontSize="12" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+              <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}"/>
+              <DataGridTextColumn Header="Geschlecht" Binding="{Binding Sex}"/>
+              <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}"/>
+              <DataGridTextColumn Header="Verein" Binding="{Binding Club}"/>
+              <DataGridTextColumn Header="SvId" Binding="{Binding SvId}"/>
+              <DataGridTextColumn Header="Code" Binding="{Binding Code}"/>
+              <DataGridTextColumn Header="Nation" Binding="{Binding Nation}"/>
+              <DataGridTextColumn Header="Klasse" Binding="{Binding Class}"/>
+              <DataGridTextColumn Header="Gruppe" Binding="{Binding Group}"/>
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <Grid Grid.Row="1" Grid.Column="2" x:Name="gridParticpant">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Name:" Grid.Row="0" Grid.Column="0"/>
+            <TextBox x:Name="txtName" Margin="5" Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Name, ElementName=dgParticipants}"/>
+
+            <Label Content="Vorname:" Grid.Row="1" Grid.Column="0"/>
+            <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.Firstname, ElementName=dgParticipants}"/>
+
+            <Label Content="Geschlecht:" Grid.Row="2" Grid.Column="0"/>
+            <TextBox x:Name="txtSex" Margin="5" Grid.Row="2" Grid.Column="1" Text="{Binding SelectedItem.Sex, ElementName=dgParticipants}"/>
+
+            <Label Content="Jahrgang:" Grid.Row="3" Grid.Column="0"/>
+            <TextBox x:Name="txtYear" Margin="5" Grid.Row="3" Grid.Column="1" Text="{Binding SelectedItem.Year, ElementName=dgParticipants}"/>
+
+            <Label Content="Verein:" Grid.Row="4" Grid.Column="0"/>
+            <TextBox x:Name="txtClub" Margin="5" Grid.Row="4" Grid.Column="1" Text="{Binding SelectedItem.Club, ElementName=dgParticipants}"/>
+
+            <Label Content="Skiverband-Id:" Grid.Row="5" Grid.Column="0"/>
+            <TextBox x:Name="txtSvId" Margin="5" Grid.Row="5" Grid.Column="1" Text="{Binding SelectedItem.SvId, ElementName=dgParticipants}"/>
+
+            <Label Content="Code:" Grid.Row="6" Grid.Column="0"/>
+            <TextBox x:Name="txtCode" Margin="5" Grid.Row="6" Grid.Column="1" Text="{Binding SelectedItem.Code, ElementName=dgParticipants}"/>
+
+            <Label Content="Nation:" Grid.Row="7" Grid.Column="0"/>
+            <TextBox x:Name="txtNation" Margin="5" Grid.Row="7" Grid.Column="1" Text="{Binding SelectedItem.Nation, ElementName=dgParticipants}"/>
+
+            <Label Content="Klasse:" Grid.Row="8" Grid.Column="0"/>
+            <TextBox x:Name="txtClass" Margin="5" Grid.Row="8" Grid.Column="1" Text="{Binding SelectedItem.Class, ElementName=dgParticipants}"/>
+
+
+
+            <Label Content="Rennen:" Grid.Row="10" Grid.Column="0"/>
+            <ListBox x:Name="lbRaces" Margin="5" Grid.Row="10" Grid.Column="1" />
+
+          </Grid>
+
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
-            <Button x:Name="btnImport" Content="Importieren" Padding="5" Margin="5" Click="btnImport_Click"/>
+            <Button x:Name="btnImport" Content="Teilnehmer Importieren" Padding="5" Margin="5" Click="btnImport_Click"/>
           </StackPanel>
         </Grid>
       </TabItem>
-      <TabItem Header="Neues Rennen" FontSize="16">
+
+      <TabItem >
+        <TabItem.Header>
+          <Label Content="Neues Rennen" Padding="0" Margin="0" FontSize="16"/>
+        </TabItem.Header>
         <Grid Margin="5" >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
