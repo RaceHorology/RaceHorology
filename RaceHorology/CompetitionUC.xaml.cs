@@ -1,4 +1,4 @@
-using RaceHorologyLib;
+﻿using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -42,6 +42,13 @@ namespace RaceHorology
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
       _dm.GetRaces().CollectionChanged += OnRacesChanged;
+
+      txtSearch.TextChanged += new DelayedEventHandler(
+          TimeSpan.FromMilliseconds(300),
+          txtSearch_TextChanged
+      ).Delayed;
+
+      this.KeyDown += new KeyEventHandler(KeyDownHandler);
 
       ConnectGUIToDataModel();
       ConnectGUIToParticipants();
@@ -214,22 +221,34 @@ namespace RaceHorology
     }
 
 
+    ParticipantList _editParticipants;
+    CollectionViewSource _viewParticipants;
+    FilterEventHandler _viewParticipantsFilterHandler;
+
     /// <summary>
     /// Connects the GUI (e.g. Data Grids, ...) to the data model
     /// </summary>
-    ParticipantList _editParticipants;
+
     private void ConnectGUIToParticipants()
     {
       // Connect with GUI DataGrids
       ObservableCollection<Participant> participants = _dm.GetParticipants();
       _editParticipants = new ParticipantList(participants, _dm);
-      dgParticipants.ItemsSource = _editParticipants;
+
+      _viewParticipants = new CollectionViewSource();
+      _viewParticipants.Source = _editParticipants;
+
+      dgParticipants.ItemsSource = _viewParticipants.View;
 
       CreateParticipantOfRaceColumns();
 
       fillParticipantRaces();
     }
 
+
+    /// <summary>
+    /// (Re-)Creates the columns for adding/removing the participants to an race
+    /// </summary>
     private void CreateParticipantOfRaceColumns()
     {
       // Delete previous race columns
@@ -249,6 +268,48 @@ namespace RaceHorology
     }
 
     #endregion
+
+    private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        if (_viewParticipantsFilterHandler != null)
+          _viewParticipants.Filter -= _viewParticipantsFilterHandler;
+
+        string sFilter = txtSearch.Text;
+
+        _viewParticipantsFilterHandler = null;
+        _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
+        {
+          ParticipantEdit p = (ParticipantEdit)ea.Item;
+
+          ea.Accepted =
+                p.Name.Contains(sFilter)
+            || p.Firstname.Contains(sFilter)
+            || p.Club.Contains(sFilter)
+            || p.Nation.Contains(sFilter)
+            || p.Year.ToString().Contains(sFilter)
+            || p.Code.Contains(sFilter)
+            || p.SvId.Contains(sFilter)
+            || p.Class.ToString().Contains(sFilter)
+            || p.Group.ToString().Contains(sFilter);
+        });
+
+        if (_viewParticipantsFilterHandler != null)
+          _viewParticipants.Filter += _viewParticipantsFilterHandler;
+
+        _viewParticipants.View.Refresh();
+      });
+    }
+
+    private void KeyDownHandler(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.F && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+      {
+        txtSearch.Focus();
+        txtSearch.SelectAll();
+      }
+    }
 
   }
 
