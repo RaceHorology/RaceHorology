@@ -53,6 +53,8 @@ namespace RaceHorology
 
       ConnectGUIToDataModel();
       ConnectGUIToParticipants();
+
+      ucClassesAndGroups.Init(_dm);
     }
 
     #region RaceTabs
