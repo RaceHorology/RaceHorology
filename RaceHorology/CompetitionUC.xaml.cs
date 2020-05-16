@@ -1,9 +1,10 @@
-using RaceHorologyLib;
+﻿using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -302,18 +303,23 @@ namespace RaceHorology
         _viewParticipantsFilterHandler = null;
         _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
         {
+          bool contains(string bigString, string part)
+          {
+            return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
+          }
+
           ParticipantEdit p = (ParticipantEdit)ea.Item;
 
           ea.Accepted =
-                p.Name.Contains(sFilter)
-            || p.Firstname.Contains(sFilter)
-            || p.Club.Contains(sFilter)
-            || p.Nation.Contains(sFilter)
-            || p.Year.ToString().Contains(sFilter)
-            || p.Code.Contains(sFilter)
-            || p.SvId.Contains(sFilter)
-            || p.Class.ToString().Contains(sFilter)
-            || p.Group.ToString().Contains(sFilter);
+               contains(p.Name, sFilter)
+            || contains(p.Firstname, sFilter)
+            || contains(p.Club, sFilter)
+            || contains(p.Nation, sFilter)
+            || contains(p.Year.ToString(), sFilter)
+            || contains(p.Code, sFilter)
+            || contains(p.SvId, sFilter)
+            || contains(p.Class.ToString(), sFilter)
+            || contains(p.Group.ToString(), sFilter);
         });
 
         if (_viewParticipantsFilterHandler != null)
