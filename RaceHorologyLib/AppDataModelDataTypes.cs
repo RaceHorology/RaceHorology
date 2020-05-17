@@ -66,7 +66,7 @@ namespace RaceHorologyLib
     public string Name
     {
       get => _name;
-      //set { _name = value; NotifyPropertyChanged(); }
+      set { _name = value; NotifyPropertyChanged(); }
     }
 
     public uint SortPos
@@ -141,19 +141,19 @@ namespace RaceHorologyLib
     public string Name
     {
       get => _name;
-      //set { _name = value; NotifyPropertyChanged(); }
+      set { _name = value; NotifyPropertyChanged(); }
     }
 
     public string Sex
     {
       get => _sex;
-      //set { _sex = value; NotifyPropertyChanged(); }
+      set { _sex = value; NotifyPropertyChanged(); }
     }
 
     public uint Year
     {
       get => _year;
-      //set { _year = value; NotifyPropertyChanged(); }
+      set { _year = value; NotifyPropertyChanged(); }
     }
 
     public uint SortPos
@@ -289,7 +289,26 @@ namespace RaceHorologyLib
     public ParticipantClass Class
     {
       get => _class;
-      set { if (_class != value) { _class = value; NotifyPropertyChanged(); } }
+      set 
+      { 
+        if (_class != value) 
+        {
+          if (_class != null)
+            _class.PropertyChanged -= OnClassChanged;
+
+          if (_class?.Group != null)
+            (_class?.Group).PropertyChanged -= OnGroupChanged;
+
+          _class = value; 
+          NotifyPropertyChanged();
+
+          if (_class != null)
+            _class.PropertyChanged += OnClassChanged;
+
+          if (_class?.Group != null)
+            (_class?.Group).PropertyChanged += OnGroupChanged;
+        }
+      }
     }
     public ParticipantGroup Group
     {
@@ -328,6 +347,15 @@ namespace RaceHorologyLib
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private void OnClassChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Class"));
+    }
+
+    private void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
+    }
 
     #endregion
   }
