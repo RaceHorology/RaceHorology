@@ -198,6 +198,10 @@ namespace RaceHorologyLib
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
+    }
     #endregion
   }
 
