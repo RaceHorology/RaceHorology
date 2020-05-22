@@ -57,6 +57,9 @@ namespace RaceHorologyLib
   {
     private IAppDataModelDataBase _db;
 
+    ObservableCollection<ParticipantGroup> _particpantGroups;
+    ObservableCollection<ParticipantClass> _particpantClasses;
+
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
 
@@ -113,6 +116,9 @@ namespace RaceHorologyLib
       _db = db;
       _interactiveTimeMeasurements = new Dictionary<Participant, DateTime>();
 
+      _particpantGroups = new ObservableCollection<ParticipantGroup>(_db.GetParticipantGroups());
+      _particpantClasses = new ObservableCollection<ParticipantClass>(_db.GetParticipantClasses());
+
       //// Particpants ////
       _participants = _db.GetParticipants();
       // Get notification if a participant got changed / added / removed and trigger storage in DB
@@ -145,14 +151,14 @@ namespace RaceHorologyLib
     }
 
 
-    public List<ParticipantGroup> GetParticipantGroups()
+    public ObservableCollection<ParticipantGroup> GetParticipantGroups()
     {
-      return _db.GetParticipantGroups();
+      return _particpantGroups;
     }
 
-    public List<ParticipantClass> GetParticipantClasses()
+    public ObservableCollection<ParticipantClass> GetParticipantClasses()
     {
-      return _db.GetParticipantClasses();
+      return _particpantClasses;
     }
 
 
