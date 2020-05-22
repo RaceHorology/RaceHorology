@@ -51,6 +51,13 @@ namespace RaceHorologyLib
     private string _name;
     private uint _sortpos;
 
+    public ParticipantGroup()
+    {
+      _id = null;
+      _name = "";
+      _sortpos = uint.MaxValue;
+    }
+
     public ParticipantGroup(string id, string name, uint sortpos)
     {
       _id = id;
@@ -123,10 +130,20 @@ namespace RaceHorologyLib
     private uint _sortpos;
 
 
+    public ParticipantClass()
+    {
+      _id = null;
+      _group = null;
+      _name = "";
+      _sex = "";
+      _year = 0;
+      _sortpos = uint.MaxValue;
+    }
+
     public ParticipantClass(string id, ParticipantGroup parentGroup, string name, string sex, uint year, uint sortpos)
     {
       _id = id;
-      _group = parentGroup;
+      Group = parentGroup;
       _name = name;
       _sex = sex;
       _year = year;
@@ -164,6 +181,19 @@ namespace RaceHorologyLib
     public ParticipantGroup Group
     {
       get => _group;
+      set
+      {
+        if (_group != value)
+        {
+          if (_group != null)
+            _group.PropertyChanged -= OnGroupChanged;
+
+          _group = value; NotifyPropertyChanged();
+
+          if (_group != null)
+            _group.PropertyChanged += OnGroupChanged;
+        }
+      }
     }
 
     public override string ToString()
