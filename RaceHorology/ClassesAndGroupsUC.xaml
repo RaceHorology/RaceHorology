@@ -12,6 +12,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="618*"/>
@@ -80,6 +81,11 @@
         </DataGridTemplateColumn>
       </DataGrid.Columns>
     </DataGrid>
+
+    <StackPanel Orientation="Horizontal"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Right" >
+      <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
+      <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
+    </StackPanel>
 
   </Grid>
 </UserControl>
