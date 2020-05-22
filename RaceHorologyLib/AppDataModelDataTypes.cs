@@ -73,12 +73,27 @@ namespace RaceHorologyLib
     public string Name
     {
       get => _name;
-      set { _name = value; NotifyPropertyChanged(); }
+      set
+      {
+        if (_name != value)
+        {
+          _name = value; 
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public uint SortPos
     {
       get => _sortpos;
+      set
+      { 
+        if (_sortpos != value)
+        {
+          _sortpos = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public override string ToString()
@@ -158,7 +173,14 @@ namespace RaceHorologyLib
     public string Name
     {
       get => _name;
-      set { _name = value; NotifyPropertyChanged(); }
+      set
+      {
+        if (_name != value)
+        {
+          _name = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public string Sex
@@ -176,6 +198,14 @@ namespace RaceHorologyLib
     public uint SortPos
     {
       get => _sortpos;
+      set
+      {
+        if (_sortpos != value)
+        {
+          _sortpos = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public ParticipantGroup Group
