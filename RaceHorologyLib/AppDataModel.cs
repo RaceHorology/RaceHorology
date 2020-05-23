@@ -18,15 +18,15 @@
  *
  *  Diese Datei ist Teil von Race Horology.
  *
- *  Race Horology ist Freie Software: Sie kï¿½nnen es unter den Bedingungen
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
  *  der GNU Affero General Public License, wie von der Free Software Foundation,
  *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
- *  verï¿½ffentlichten Version, weiter verteilen und/oder modifizieren.
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
  *
- *  Race Horology wird in der Hoffnung, dass es nï¿½tzlich sein wird, aber
- *  OHNE JEDE GEWï¿½HRLEISTUNG, bereitgestellt; sogar ohne die implizite
- *  Gewï¿½hrleistung der MARKTFï¿½HIGKEIT oder EIGNUNG Fï¿½R EINEN BESTIMMTEN ZWECK.
- *  Siehe die GNU Affero General Public License fï¿½r weitere Details.
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
@@ -58,7 +58,10 @@ namespace RaceHorologyLib
     private IAppDataModelDataBase _db;
 
     ObservableCollection<ParticipantGroup> _particpantGroups;
+    DatabaseDelegatorGroups _particpantGroupsDelegatorDB;
+    
     ObservableCollection<ParticipantClass> _particpantClasses;
+    DatabaseDelegatorClasses _particpantClassesDelegatorDB;
 
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
@@ -117,7 +120,13 @@ namespace RaceHorologyLib
       _interactiveTimeMeasurements = new Dictionary<Participant, DateTime>();
 
       _particpantGroups = new ObservableCollection<ParticipantGroup>(_db.GetParticipantGroups());
+      _particpantGroups.CollectionChanged += OnGroupCollectionChanged;
       _particpantClasses = new ObservableCollection<ParticipantClass>(_db.GetParticipantClasses());
+      _particpantClasses.CollectionChanged += OnClassCollectionChanged;
+
+      _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
+      _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
+
 
       //// Particpants ////
       _participants = _db.GetParticipants();
@@ -134,7 +143,6 @@ namespace RaceHorologyLib
 
       _currentRace = _races.First();
     }
-
 
     public IAppDataModelDataBase GetDB()
     {
@@ -260,6 +268,51 @@ namespace RaceHorologyLib
 
     public delegate void ParticipantMeasuredHandler(object sender, Participant participant);
     public event ParticipantMeasuredHandler ParticipantMeasuredEvent;
+
+
+    #region Internal - Fix Consistencies
+
+    private void OnGroupCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeGroupFromClasses(ParticipantGroup g)
+      {
+        foreach(var c in _particpantClasses)
+          if (c.Group == g)
+            c.Group = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantGroup v in e.OldItems)
+            removeGroupFromClasses(v);
+          break;
+      }
+    }
+
+
+
+    private void OnClassCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeClassFromParticipants(ParticipantClass c)
+      {
+        foreach (var p in _participants)
+          if (p.Class == c)
+            p.Class = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantClass v in e.OldItems)
+            removeClassFromParticipants(v);
+          break;
+      }
+    }
+
+    #endregion
+
+
   }
 
 

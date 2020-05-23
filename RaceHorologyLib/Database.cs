@@ -980,7 +980,11 @@ namespace RaceHorologyLib
     private ParticipantGroup GetParticipantGroup(uint id)
     {
       ReadParticipantGroups();
-      return _id2ParticipantGroups[id];
+      
+      if (_id2ParticipantGroups.ContainsKey(id))
+        return _id2ParticipantGroups[id];
+
+      return null;
     }
 
     public void CreateOrUpdateGroup(ParticipantGroup g)
@@ -1101,7 +1105,10 @@ namespace RaceHorologyLib
       cmd.Parameters.Add(new OleDbParameter("@klname", c.Name));
       cmd.Parameters.Add(new OleDbParameter("@geschlecht", c.Sex));
       cmd.Parameters.Add(new OleDbParameter("@bis_jahrgang", c.Year));
-      cmd.Parameters.Add(new OleDbParameter("@gruppe", gid));
+      if (gid == 0)
+        cmd.Parameters.Add(new OleDbParameter("@gruppe", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@gruppe", gid));
       cmd.Parameters.Add(new OleDbParameter("@sortpos", c.SortPos));
       cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
       cmd.CommandType = CommandType.Text;
