@@ -120,7 +120,9 @@ namespace RaceHorologyLib
       _interactiveTimeMeasurements = new Dictionary<Participant, DateTime>();
 
       _particpantGroups = new ObservableCollection<ParticipantGroup>(_db.GetParticipantGroups());
+      _particpantGroups.CollectionChanged += OnGroupCollectionChanged;
       _particpantClasses = new ObservableCollection<ParticipantClass>(_db.GetParticipantClasses());
+      _particpantClasses.CollectionChanged += OnClassCollectionChanged;
 
       _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
       _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
@@ -141,7 +143,6 @@ namespace RaceHorologyLib
 
       _currentRace = _races.First();
     }
-
 
     public IAppDataModelDataBase GetDB()
     {
@@ -267,6 +268,51 @@ namespace RaceHorologyLib
 
     public delegate void ParticipantMeasuredHandler(object sender, Participant participant);
     public event ParticipantMeasuredHandler ParticipantMeasuredEvent;
+
+
+    #region Internal - Fix Consistencies
+
+    private void OnGroupCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeGroupFromClasses(ParticipantGroup g)
+      {
+        foreach(var c in _particpantClasses)
+          if (c.Group == g)
+            c.Group = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantGroup v in e.OldItems)
+            removeGroupFromClasses(v);
+          break;
+      }
+    }
+
+
+
+    private void OnClassCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeClassFromParticipants(ParticipantClass c)
+      {
+        foreach (var p in _participants)
+          if (p.Class == c)
+            p.Class = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantClass v in e.OldItems)
+            removeClassFromParticipants(v);
+          break;
+      }
+    }
+
+    #endregion
+
+
   }
 
 
