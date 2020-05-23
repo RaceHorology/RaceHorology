@@ -68,6 +68,14 @@ namespace RaceHorologyLib
     public string Id
     {
       get => _id;
+      set
+      {
+        if (_id != value)
+        {
+          _id = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public string Name
@@ -168,6 +176,14 @@ namespace RaceHorologyLib
     public string Id
     {
       get => _id;
+      set
+      {
+        if (_id != value)
+        {
+          _id = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public string Name
