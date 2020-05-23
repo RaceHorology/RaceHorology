@@ -983,6 +983,77 @@ namespace RaceHorologyLib
       return _id2ParticipantGroups[id];
     }
 
+    public void CreateOrUpdateGroup(ParticipantGroup g)
+    {
+      // Test whether the participant exists
+      uint id = GetParticipantGroupId(g);
+      bool bNew = (id == 0);
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblGruppe " +
+                     @"SET grpname = @grpname, sortpos = @sortpos " +
+                     @"WHERE id = @id";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        id = GetNewId("tblGruppe"); // Figure out the new ID
+
+        string sql = @"INSERT INTO tblGruppe (grpname, sortpos, id) " +
+                     @"VALUES (@grpname, @sortpos, @id) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+
+      cmd.Parameters.Add(new OleDbParameter("@grpname", g.Name));
+      cmd.Parameters.Add(new OleDbParameter("@sortpos", g.SortPos));
+      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.CommandType = CommandType.Text;
+
+      try
+      {
+        Logger.Debug("CreateOrUpdateGroup(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+
+        if (bNew)
+        {
+          _id2ParticipantGroups.Add((uint)id, g);
+          g.Id = id.ToString();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateGroup failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void RemoveGroup(ParticipantGroup g)
+    {
+      uint id = GetParticipantGroupId(g);
+
+      if (id == 0)
+        throw new Exception("RemoveGroup: id not found");
+
+      string sql = @"DELETE FROM tblGruppe " +
+                   @"WHERE id = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveGroup(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveGroup failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
 
 
     /* ************************ Classes ********************* */

@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -540,6 +540,87 @@ namespace RaceHorologyLibTest
       // Test 1: Check whether database is correct
       CheckParticipant(dbFilename, participant1, 1);
       CheckParticipant(dbFilename, participant6, 6);
+    }
+
+    #endregion
+
+    #region Classes and Groups
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteGroups()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var groups = db.GetParticipantGroups();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        groups = db.GetParticipantGroups();
+      }
+
+      Assert.AreEqual(6, db.GetParticipantGroups().Count);
+
+      // Edit existing one
+      {
+        var g = groups.FirstOrDefault(v => v.Id == "5");
+        Assert.AreEqual("U10 weiblich", g.Name);
+        g.Name = "U10 modified";
+        db.CreateOrUpdateGroup(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckGroup(dbFilename, g, ulong.Parse(g.Id)));
+        Assert.AreEqual(6, db.GetParticipantGroups().Count);
+      }
+
+      // Create new one
+      {
+        var g = new ParticipantGroup(null, "Group 1", 1);
+        db.CreateOrUpdateGroup(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckGroup(dbFilename, g, ulong.Parse(g.Id)));
+        Assert.AreEqual(7, db.GetParticipantGroups().Count);
+      }
+
+      // Delete one
+      {
+        var g = groups.FirstOrDefault(v => v.Id == "10");
+        db.RemoveGroup(g);
+        DBCacheWorkaround();
+
+        g = groups.FirstOrDefault(v => v.Id == "10");
+        Assert.IsNull(g);
+
+        Assert.AreEqual(6, db.GetParticipantGroups().Count);
+      }
+    }
+
+    bool CheckGroup(string dbFilename, ParticipantGroup groupShall, ulong id)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblGruppe WHERE id = @id";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@id", id));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= groupShall.Name == reader["grpname"].ToString();
+          bRes &= groupShall.SortPos == (double)reader["sortpos"];
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
     }
 
     #endregion
