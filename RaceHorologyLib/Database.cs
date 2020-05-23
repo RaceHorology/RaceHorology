@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -1073,6 +1073,83 @@ namespace RaceHorologyLib
         }
       }
     }
+
+    public void CreateOrUpdateClass(ParticipantClass c)
+    {
+      // Test whether the participant exists
+      uint id = GetParticipantClassId(c);
+      bool bNew = (id == 0);
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblKlasse " +
+                     @"SET klname = @klname, geschlecht = @geschlecht, bis_jahrgang = @bis_jahrgang, gruppe = @gruppe, sortpos = @sortpos " +
+                     @"WHERE id = @id";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        id = GetNewId("tblKlasse"); // Figure out the new ID
+
+        string sql = @"INSERT INTO tblKlasse (klname, geschlecht, bis_jahrgang, gruppe, sortpos, id) " +
+                     @"VALUES (@klname, @geschlecht, @bis_jahrgang, @gruppe, @sortpos, @id) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+
+      uint gid = GetParticipantGroupId(c.Group);
+      cmd.Parameters.Add(new OleDbParameter("@klname", c.Name));
+      cmd.Parameters.Add(new OleDbParameter("@geschlecht", c.Sex));
+      cmd.Parameters.Add(new OleDbParameter("@bis_jahrgang", c.Year));
+      cmd.Parameters.Add(new OleDbParameter("@gruppe", gid));
+      cmd.Parameters.Add(new OleDbParameter("@sortpos", c.SortPos));
+      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.CommandType = CommandType.Text;
+
+      try
+      {
+        Logger.Debug("CreateOrUpdateClass(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+
+        if (bNew)
+        {
+          _id2ParticipantClasses.Add((uint)id, c);
+          c.Id = id.ToString();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateClass failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void RemoveClass(ParticipantClass c)
+    {
+      uint id = GetParticipantClassId(c);
+
+      if (id == 0)
+        throw new Exception("RemoveClass: id not found");
+
+      string sql = @"DELETE FROM tblKlasse " +
+                   @"WHERE id = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveClass(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveClass failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
 
     private ParticipantClass CreateParticipantClassFromDB(OleDbDataReader reader)
     {

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -622,6 +622,89 @@ namespace RaceHorologyLibTest
 
       return bRes;
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteClasses()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var classes = db.GetParticipantClasses();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        classes = db.GetParticipantClasses();
+      }
+
+      Assert.AreEqual(12, classes.Count);
+
+      // Edit existing one
+      {
+        var c = classes.FirstOrDefault(v => v.Id == "9");
+        Assert.AreEqual("Mädchen 2010", c.Name);
+        c.Name = "Mädchen 2010 modified";
+        db.CreateOrUpdateClass(c);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
+        Assert.AreEqual(12, classes.Count);
+      }
+
+      // Create new one
+      {
+        var c = new ParticipantClass(null, db.GetParticipantGroups()[0], "Class New 1", "M", 2000, 99);
+        db.CreateOrUpdateClass(c);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
+        Assert.AreEqual(13, classes.Count);
+      }
+
+      // Delete one
+      {
+        var c = classes.FirstOrDefault(v => v.Id == "21");
+        db.RemoveClass(c);
+        DBCacheWorkaround();
+
+        c = classes.FirstOrDefault(v => v.Id == "21");
+        Assert.IsNull(c);
+
+        Assert.AreEqual(12, classes.Count);
+      }
+    }
+
+    bool CheckClass(string dbFilename, ParticipantClass classShall, ulong id)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblKlasse WHERE id = @id";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@id", id));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= classShall.Name == reader["klname"].ToString();
+          bRes &= classShall.Sex == reader["geschlecht"].ToString();
+          bRes &= classShall.Year == Convert.ToUInt32(reader["bis_jahrgang"]);
+          bRes &= classShall.Group.Id == reader["gruppe"].ToString();
+          bRes &= classShall.SortPos == (double)reader["sortpos"];
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
+    }
+
 
     #endregion
 
