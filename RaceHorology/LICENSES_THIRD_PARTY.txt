@@ -4,6 +4,7 @@ Race Horology nutzt weitere sogenannte Third Party Sofftware. Diese sind folgend
 - NLog
 - QRCoder
 - websocket-sharp
+- gong-wpf-dragdrop
 
 Details dieser Software bzw. der Lizenzbedingungen sind nachstehend.
 
@@ -70,3 +71,12 @@ Copyright (c) 2013-2018 Raffael Herrmann
 This software uses "websocket-sharp" (https://github.com/sta/websocket-sharp)
 
 Copyright (c) 2010-2020 sta.blockhead
+
+
+------------- gong-wpf-dragdrop ------------- 
+
+This software uses "gong-wpf-dragdrop" (https://github.com/punker76/gong-wpf-dragdrop)
+
+gong-wpf-dragdrop is used in unmodified binary form under the "BSD 3-Clause license".
+
+Copyright (c) 2013-2019, Jan Karger, Steven Kirk

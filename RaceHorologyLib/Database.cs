@@ -336,17 +336,8 @@ namespace RaceHorologyLib
       }
       else
       {
-        // Figure out the new ID
-        using (OleDbCommand command = new OleDbCommand("SELECT MAX(id) FROM tblTeilnehmer;", _conn))
-        {
-          object oId = command.ExecuteScalar();
-          if (oId == DBNull.Value)
-            id = 0;
-          else
-            id = Convert.ToUInt32(oId);
-          id++;
-        }
-               
+        id = GetNewId("tblTeilnehmer"); // Figure out the new ID
+
         string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, svid, code, klasse, jahrgang, id) " +
                      @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @svid, @code, @klasse, @jahrgang, @id) ";
         cmd = new OleDbCommand(sql, _conn);
@@ -992,6 +983,77 @@ namespace RaceHorologyLib
       return _id2ParticipantGroups[id];
     }
 
+    public void CreateOrUpdateGroup(ParticipantGroup g)
+    {
+      // Test whether the participant exists
+      uint id = GetParticipantGroupId(g);
+      bool bNew = (id == 0);
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblGruppe " +
+                     @"SET grpname = @grpname, sortpos = @sortpos " +
+                     @"WHERE id = @id";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        id = GetNewId("tblGruppe"); // Figure out the new ID
+
+        string sql = @"INSERT INTO tblGruppe (grpname, sortpos, id) " +
+                     @"VALUES (@grpname, @sortpos, @id) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+
+      cmd.Parameters.Add(new OleDbParameter("@grpname", g.Name));
+      cmd.Parameters.Add(new OleDbParameter("@sortpos", g.SortPos));
+      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.CommandType = CommandType.Text;
+
+      try
+      {
+        Logger.Debug("CreateOrUpdateGroup(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+
+        if (bNew)
+        {
+          _id2ParticipantGroups.Add((uint)id, g);
+          g.Id = id.ToString();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateGroup failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void RemoveGroup(ParticipantGroup g)
+    {
+      uint id = GetParticipantGroupId(g);
+
+      if (id == 0)
+        throw new Exception("RemoveGroup: id not found");
+
+      string sql = @"DELETE FROM tblGruppe " +
+                   @"WHERE id = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveGroup(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveGroup failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
 
 
     /* ************************ Classes ********************* */
@@ -1011,6 +1073,83 @@ namespace RaceHorologyLib
         }
       }
     }
+
+    public void CreateOrUpdateClass(ParticipantClass c)
+    {
+      // Test whether the participant exists
+      uint id = GetParticipantClassId(c);
+      bool bNew = (id == 0);
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblKlasse " +
+                     @"SET klname = @klname, geschlecht = @geschlecht, bis_jahrgang = @bis_jahrgang, gruppe = @gruppe, sortpos = @sortpos " +
+                     @"WHERE id = @id";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        id = GetNewId("tblKlasse"); // Figure out the new ID
+
+        string sql = @"INSERT INTO tblKlasse (klname, geschlecht, bis_jahrgang, gruppe, sortpos, id) " +
+                     @"VALUES (@klname, @geschlecht, @bis_jahrgang, @gruppe, @sortpos, @id) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+
+      uint gid = GetParticipantGroupId(c.Group);
+      cmd.Parameters.Add(new OleDbParameter("@klname", c.Name));
+      cmd.Parameters.Add(new OleDbParameter("@geschlecht", c.Sex));
+      cmd.Parameters.Add(new OleDbParameter("@bis_jahrgang", c.Year));
+      cmd.Parameters.Add(new OleDbParameter("@gruppe", gid));
+      cmd.Parameters.Add(new OleDbParameter("@sortpos", c.SortPos));
+      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.CommandType = CommandType.Text;
+
+      try
+      {
+        Logger.Debug("CreateOrUpdateClass(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+
+        if (bNew)
+        {
+          _id2ParticipantClasses.Add((uint)id, c);
+          c.Id = id.ToString();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateClass failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void RemoveClass(ParticipantClass c)
+    {
+      uint id = GetParticipantClassId(c);
+
+      if (id == 0)
+        throw new Exception("RemoveClass: id not found");
+
+      string sql = @"DELETE FROM tblKlasse " +
+                   @"WHERE id = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveClass(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveClass failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
 
     private ParticipantClass CreateParticipantClassFromDB(OleDbDataReader reader)
     {
@@ -1060,6 +1199,24 @@ namespace RaceHorologyLib
         return (int)command.ExecuteScalar();
       }
     }
+
+
+    private uint GetNewId(string table, string field = "id")
+    {
+      uint id = 0;
+      using (OleDbCommand command = new OleDbCommand(string.Format("SELECT MAX({0}) FROM {1};", field, table), _conn))
+      {
+        object oId = command.ExecuteScalar();
+        if (oId == DBNull.Value)
+          id = 0;
+        else
+          id = Convert.ToUInt32(oId);
+        id++;
+      }
+
+      return id;
+    }
+
 
     static private uint GetValueUInt(OleDbDataReader reader, string field)
     {

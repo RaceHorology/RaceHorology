@@ -58,6 +58,9 @@
     <ApplicationIcon>RH-LOGO-FIN-APP.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GongSolutions.WPF.DragDrop, Version=2.0.0.0, Culture=neutral, PublicKeyToken=91f1945125b7a587, processorArchitecture=MSIL">
+      <HintPath>..\packages\gong-wpf-dragdrop.2.2.0\lib\net47\GongSolutions.WPF.DragDrop.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -112,6 +115,9 @@
     <Compile Include="ChartTestsUC.xaml.cs">
       <DependentUpon>ChartTestsUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ClassesAndGroupsUC.xaml.cs">
+      <DependentUpon>ClassesAndGroupsUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CompetitionUC.xaml.cs">
       <DependentUpon>CompetitionUC.xaml</DependentUpon>
     </Compile>
@@ -149,6 +155,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ChartTestsUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ClassesAndGroupsUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -302,6 +312,7 @@
     <None Include="CREDITS.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Resource Include="Icons\icons8-delete-52.png" />
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -94,6 +94,7 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+    #region Generic Datebase Tests
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
@@ -111,6 +112,22 @@ namespace RaceHorologyLibTest
 
       db.Close();
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void InitializeApplicationModel()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+    }
+
+    #endregion
+
+    #region Races
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
@@ -257,7 +274,44 @@ namespace RaceHorologyLibTest
       }
     }
 
+    /// <summary>
+    /// Check reading different race runs
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void DatabaseRaceRuns()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
 
+      db.GetParticipants();
+
+      AppDataModel model = new AppDataModel(db);
+
+      Race.RaceProperties rprops = new Race.RaceProperties();
+      rprops.RaceType = Race.ERaceType.GiantSlalom;
+      rprops.Runs = 2;
+      Race race = new Race(db, model, rprops);
+
+      var rr1 = db.GetRaceRun(race, 1);
+      var rr2 = db.GetRaceRun(race, 2);
+
+      Assert.IsTrue(rr1.Count() == 4);
+      Assert.IsTrue(rr2.Count() == 4);
+
+      Assert.IsTrue(rr1.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 3");
+
+      Assert.IsTrue(rr2.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 2");
+
+      Assert.IsTrue(rr2.Where(x => x.Participant.Participant.Name == "Nachname 5").Count() == 0);
+
+      db.Close();
+    }
+
+    #endregion
+
+    #region Participant
     /// <summary>
     /// Check different participants per race
     /// </summary>
@@ -310,53 +364,6 @@ namespace RaceHorologyLibTest
       }
     }
 
-    /// <summary>
-    /// Check reading different race runs
-    /// </summary>
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
-    public void DatabaseRaceRuns()
-    {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
-      db.Connect(dbFilename);
-
-      db.GetParticipants();
-
-      AppDataModel model = new AppDataModel(db);
-
-      Race.RaceProperties rprops = new Race.RaceProperties();
-      rprops.RaceType = Race.ERaceType.GiantSlalom;
-      rprops.Runs = 2;
-      Race race = new Race(db, model, rprops);
-
-      var rr1 = db.GetRaceRun(race, 1);
-      var rr2 = db.GetRaceRun(race, 2);
-
-      Assert.IsTrue(rr1.Count() == 4);
-      Assert.IsTrue(rr2.Count() == 4);
-
-      Assert.IsTrue(rr1.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 3");
-
-      Assert.IsTrue(rr2.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 2");
-
-      Assert.IsTrue(rr2.Where(x => x.Participant.Participant.Name == "Nachname 5").Count() == 0);
-
-      db.Close();
-    }
-
-
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
-    public void InitializeApplicationModel()
-    {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
-      db.Connect(dbFilename);
-
-      AppDataModel model = new AppDataModel(db);
-    }
-
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
     public void CreateAndUpdateParticipants()
@@ -389,7 +396,7 @@ namespace RaceHorologyLibTest
       db.CreateOrUpdateParticipant(pNew1);
       DBCacheWorkaround();
       Assert.IsTrue(CheckParticipant(dbFilename, pNew1, 1));
-      
+
 
       Participant pNew2 = new Participant
       {
@@ -420,7 +427,7 @@ namespace RaceHorologyLibTest
       db.CreateOrUpdateParticipant(pNew3);
       DBCacheWorkaround();
       Assert.IsTrue(CheckParticipant(dbFilename, pNew3, 3));
-      
+
 
       // Update a Participant
       pNew1 = participants.Where(x => x.Name == "Nachname 6").FirstOrDefault();
@@ -495,6 +502,213 @@ namespace RaceHorologyLibTest
       return bRes;
     }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void AppDataModelTest_EditParticipants()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+      }
+
+      AppDataModel model = new AppDataModel(db);
+
+      Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      participant1.Name = "Nachname 1.1";
+
+      Participant participant6 = new Participant
+      {
+        Name = "Nachname 6",
+        Firstname = "Vorname 6",
+        Sex = "M",
+        Club = "Verein 6",
+        Nation = "Nation 6",
+        Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
+        Year = 2000,
+      };
+      model.GetParticipants().Add(participant6);
+
+
+      DBCacheWorkaround();
+
+
+      // Test 1: Check whether database is correct
+      CheckParticipant(dbFilename, participant1, 1);
+      CheckParticipant(dbFilename, participant6, 6);
+    }
+
+    #endregion
+
+    #region Classes and Groups
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteGroups()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var groups = db.GetParticipantGroups();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        groups = db.GetParticipantGroups();
+      }
+
+      Assert.AreEqual(6, db.GetParticipantGroups().Count);
+
+      // Edit existing one
+      {
+        var g = groups.FirstOrDefault(v => v.Id == "5");
+        Assert.AreEqual("U10 weiblich", g.Name);
+        g.Name = "U10 modified";
+        db.CreateOrUpdateGroup(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckGroup(dbFilename, g, ulong.Parse(g.Id)));
+        Assert.AreEqual(6, db.GetParticipantGroups().Count);
+      }
+
+      // Create new one
+      {
+        var g = new ParticipantGroup(null, "Group 1", 1);
+        db.CreateOrUpdateGroup(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckGroup(dbFilename, g, ulong.Parse(g.Id)));
+        Assert.AreEqual(7, db.GetParticipantGroups().Count);
+      }
+
+      // Delete one
+      {
+        var g = groups.FirstOrDefault(v => v.Id == "10");
+        db.RemoveGroup(g);
+        DBCacheWorkaround();
+
+        g = groups.FirstOrDefault(v => v.Id == "10");
+        Assert.IsNull(g);
+
+        Assert.AreEqual(6, db.GetParticipantGroups().Count);
+      }
+    }
+
+    bool CheckGroup(string dbFilename, ParticipantGroup groupShall, ulong id)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblGruppe WHERE id = @id";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@id", id));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= groupShall.Name == reader["grpname"].ToString();
+          bRes &= groupShall.SortPos == (double)reader["sortpos"];
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteClasses()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var classes = db.GetParticipantClasses();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        classes = db.GetParticipantClasses();
+      }
+
+      Assert.AreEqual(12, classes.Count);
+
+      // Edit existing one
+      {
+        var c = classes.FirstOrDefault(v => v.Id == "9");
+        Assert.AreEqual("Mädchen 2010", c.Name);
+        c.Name = "Mädchen 2010 modified";
+        db.CreateOrUpdateClass(c);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
+        Assert.AreEqual(12, classes.Count);
+      }
+
+      // Create new one
+      {
+        var c = new ParticipantClass(null, db.GetParticipantGroups()[0], "Class New 1", "M", 2000, 99);
+        db.CreateOrUpdateClass(c);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
+        Assert.AreEqual(13, classes.Count);
+      }
+
+      // Delete one
+      {
+        var c = classes.FirstOrDefault(v => v.Id == "21");
+        db.RemoveClass(c);
+        DBCacheWorkaround();
+
+        c = classes.FirstOrDefault(v => v.Id == "21");
+        Assert.IsNull(c);
+
+        Assert.AreEqual(12, classes.Count);
+      }
+    }
+
+    bool CheckClass(string dbFilename, ParticipantClass classShall, ulong id)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblKlasse WHERE id = @id";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@id", id));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= classShall.Name == reader["klname"].ToString();
+          bRes &= classShall.Sex == reader["geschlecht"].ToString();
+          bRes &= classShall.Year == Convert.ToUInt32(reader["bis_jahrgang"]);
+          bRes &= classShall.Group.Id == reader["gruppe"].ToString();
+          bRes &= classShall.SortPos == (double)reader["sortpos"];
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
+    }
+
+
+    #endregion
+
+    #region RunResults
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
@@ -706,44 +920,6 @@ namespace RaceHorologyLibTest
       }
     }
 
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
-    public void AppDataModelTest_EditParticipants()
-    {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
-      db.Connect(dbFilename);
-
-      void DBCacheWorkaround()
-      {
-        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
-        db.Connect(dbFilename);
-      }
-
-      AppDataModel model = new AppDataModel(db);
-
-      Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
-      participant1.Name = "Nachname 1.1";
-
-      Participant participant6 = new Participant
-      {
-        Name = "Nachname 6",
-        Firstname = "Vorname 6",
-        Sex = "M",
-        Club = "Verein 6",
-        Nation = "Nation 6",
-        Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
-        Year = 2000,
-      };
-      model.GetParticipants().Add(participant6);
-
-
-      DBCacheWorkaround();
-
-
-      // Test 1: Check whether database is correct
-      CheckParticipant(dbFilename, participant1, 1);
-      CheckParticipant(dbFilename, participant6, 6);
-    }
+    #endregion
   }
 }

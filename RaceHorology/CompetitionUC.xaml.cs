@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -52,6 +53,8 @@ namespace RaceHorology
 
       ConnectGUIToDataModel();
       ConnectGUIToParticipants();
+
+      ucClassesAndGroups.Init(_dm);
     }
 
     #region RaceTabs
@@ -203,11 +206,6 @@ namespace RaceHorology
     #region Particpants
 
 
-    private void fillParticipantRaces()
-    {
-      ImportWizard.FillRaceList(lbRaces, _dm);
-    }
-
     private void btnImport_Click(object sender, RoutedEventArgs e)
     {
       if (_dm?.GetParticipants() == null)
@@ -241,8 +239,7 @@ namespace RaceHorology
       dgParticipants.ItemsSource = _viewParticipants.View;
 
       CreateParticipantOfRaceColumns();
-
-      fillParticipantRaces();
+      CreateParticipantOfRaceCheckboxes();
     }
 
 
@@ -256,7 +253,7 @@ namespace RaceHorology
         dgParticipants.Columns.RemoveAt(dgParticipants.Columns.Count - 1);
 
       // Add columns for each race
-      for (int i=0; i < _dm.GetRaces().Count; i++)
+      for (int i = 0; i < _dm.GetRaces().Count; i++)
       {
         Race race = _dm.GetRace(i);
         dgParticipants.Columns.Add(new DataGridCheckBoxColumn
@@ -264,6 +261,33 @@ namespace RaceHorology
           Binding = new Binding(string.Format("ParticipantOfRace[{0}]", i)),
           Header = race.RaceType.ToString()
         });
+      }
+    }
+    /// <summary>
+    /// (Re-)Creates the checkboxes for adding/removing the participants to an race
+    /// </summary>
+    private void CreateParticipantOfRaceCheckboxes()
+    {
+      // Delete previous check boxes
+      spRaces.Children.Clear();
+
+      // Add checkbox for each race
+      for (int i = 0; i < _dm.GetRaces().Count; i++)
+      {
+        Race race = _dm.GetRace(i);
+
+        CheckBox cb = new CheckBox
+        {
+          Content = race.RaceType.ToString(),
+          Margin = new Thickness(0, 0, 0, 5)
+        };
+        cb.SetBinding(CheckBox.IsCheckedProperty, new Binding
+        {
+          Path = new PropertyPath(string.Format("SelectedItem.ParticipantOfRace[{0}]", i)),
+          ElementName = "dgParticipants"
+        });
+
+        spRaces.Children.Add(cb);
       }
     }
 
@@ -281,18 +305,23 @@ namespace RaceHorology
         _viewParticipantsFilterHandler = null;
         _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
         {
+          bool contains(string bigString, string part)
+          {
+            return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
+          }
+
           ParticipantEdit p = (ParticipantEdit)ea.Item;
 
           ea.Accepted =
-                p.Name.Contains(sFilter)
-            || p.Firstname.Contains(sFilter)
-            || p.Club.Contains(sFilter)
-            || p.Nation.Contains(sFilter)
-            || p.Year.ToString().Contains(sFilter)
-            || p.Code.Contains(sFilter)
-            || p.SvId.Contains(sFilter)
-            || p.Class.ToString().Contains(sFilter)
-            || p.Group.ToString().Contains(sFilter);
+               contains(p.Name, sFilter)
+            || contains(p.Firstname, sFilter)
+            || contains(p.Club, sFilter)
+            || contains(p.Nation, sFilter)
+            || contains(p.Year.ToString(), sFilter)
+            || contains(p.Code, sFilter)
+            || contains(p.SvId, sFilter)
+            || contains(p.Class.ToString(), sFilter)
+            || contains(p.Group.ToString(), sFilter);
         });
 
         if (_viewParticipantsFilterHandler != null)
@@ -318,7 +347,7 @@ namespace RaceHorology
   /// Represents and modified the participants membership to a race
   /// Example: ParticpantOfRace[i] = true | false
   /// </summary>
-  public class ParticpantOfRace
+  public class ParticpantOfRace : INotifyPropertyChanged
   {
     Participant _participant;
     IList<Race> _races;
@@ -351,11 +380,25 @@ namespace RaceHorology
           {
             _races[i].RemoveParticipant(_participant);
           }
+
+          NotifyPropertyChanged();
         }
       }
     }
 
 
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
   }
 
 
@@ -375,6 +418,13 @@ namespace RaceHorology
       _participant.PropertyChanged += OnParticpantPropertyChanged;
 
       _participantOfRace = new ParticpantOfRace(p, races);
+      _participantOfRace.PropertyChanged += OnParticpantOfRaceChanged;
+    }
+
+
+    public Participant Participant
+    {
+      get => _participant;
     }
 
     public string Id 
@@ -453,6 +503,11 @@ namespace RaceHorology
     private void OnParticpantPropertyChanged(object source, PropertyChangedEventArgs eargs)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(eargs.PropertyName));
+    }
+
+    private void OnParticpantOfRaceChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ParticipantOfRace"));
     }
 
     #endregion

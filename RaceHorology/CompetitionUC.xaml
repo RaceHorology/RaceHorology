@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="RaceHorology.CompetitionUC"
+<UserControl x:Class="RaceHorology.CompetitionUC"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="800" d:DesignWidth="800">
   <Grid>
     <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
       <TabItem >
@@ -19,9 +19,9 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="618*"/> <!-- Golden Cut 618:382 -->
             <ColumnDefinition Width="5"/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="382*"/>
           </Grid.ColumnDefinitions>
 
           <GridSplitter x:Name="gridSplitter" Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5"/>
@@ -35,7 +35,7 @@
             </Grid.ColumnDefinitions>
             <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
 
-            <Label Content="Suche (&lt;Ctrl&gt;-F):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
+            <Label Content="Filter (&lt;Ctrl&gt;-F):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
             <TextBox x:Name="txtSearch" Width="100" Margin="5" Grid.Column="3"/>
 
 
@@ -57,7 +57,8 @@
             </DataGrid.Columns>
           </DataGrid>
 
-          <Grid Grid.Row="1" Grid.Column="2" x:Name="gridParticpant">
+          <Label x:Name="lblEditParticipant" Content="Teilnehmer ändern" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+          <Grid Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" x:Name="gridParticpant">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -74,6 +75,7 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <Label Content="Name:" Grid.Row="0" Grid.Column="0"/>
@@ -106,8 +108,12 @@
 
 
             <Label Content="Rennen:" Grid.Row="10" Grid.Column="0"/>
-            <ListBox x:Name="lbRaces" Margin="5" Grid.Row="10" Grid.Column="1" />
+            <StackPanel x:Name="spRaces" Grid.Row="10" Grid.Column="1" Margin="5">
+              <CheckBox Content="222" IsChecked="{Binding SelectedItem.ParticipantOfRace[0], ElementName=dgParticipants}"/>
+              <CheckBox Content="222" IsChecked="{Binding SelectedItem.ParticipantOfRace[1], ElementName=dgParticipants}"/>
+            </StackPanel>
 
+            <local:ClassesAndGroupsUC x:Name="ucClassesAndGroups" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2"/>
           </Grid>
 
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">

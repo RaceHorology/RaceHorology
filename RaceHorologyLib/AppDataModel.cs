@@ -18,15 +18,15 @@
  *
  *  Diese Datei ist Teil von Race Horology.
  *
- *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  Race Horology ist Freie Software: Sie kï¿½nnen es unter den Bedingungen
  *  der GNU Affero General Public License, wie von der Free Software Foundation,
  *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
- *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *  verï¿½ffentlichten Version, weiter verteilen und/oder modifizieren.
  *
- *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
- *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
- *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
- *  Siehe die GNU Affero General Public License für weitere Details.
+ *  Race Horology wird in der Hoffnung, dass es nï¿½tzlich sein wird, aber
+ *  OHNE JEDE GEWï¿½HRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewï¿½hrleistung der MARKTFï¿½HIGKEIT oder EIGNUNG Fï¿½R EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License fï¿½r weitere Details.
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
@@ -56,6 +56,9 @@ namespace RaceHorologyLib
   public class AppDataModel : ILiveDateTimeProvider
   {
     private IAppDataModelDataBase _db;
+
+    ObservableCollection<ParticipantGroup> _particpantGroups;
+    ObservableCollection<ParticipantClass> _particpantClasses;
 
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
@@ -113,6 +116,9 @@ namespace RaceHorologyLib
       _db = db;
       _interactiveTimeMeasurements = new Dictionary<Participant, DateTime>();
 
+      _particpantGroups = new ObservableCollection<ParticipantGroup>(_db.GetParticipantGroups());
+      _particpantClasses = new ObservableCollection<ParticipantClass>(_db.GetParticipantClasses());
+
       //// Particpants ////
       _participants = _db.GetParticipants();
       // Get notification if a participant got changed / added / removed and trigger storage in DB
@@ -145,14 +151,14 @@ namespace RaceHorologyLib
     }
 
 
-    public List<ParticipantGroup> GetParticipantGroups()
+    public ObservableCollection<ParticipantGroup> GetParticipantGroups()
     {
-      return _db.GetParticipantGroups();
+      return _particpantGroups;
     }
 
-    public List<ParticipantClass> GetParticipantClasses()
+    public ObservableCollection<ParticipantClass> GetParticipantClasses()
     {
-      return _db.GetParticipantClasses();
+      return _particpantClasses;
     }
 
 
@@ -1013,6 +1019,11 @@ namespace RaceHorologyLib
     void StoreRaceProperties(Race race, AdditionalRaceProperties props);
 
     void CreateOrUpdateParticipant(Participant participant);
+
+    void CreateOrUpdateClass(ParticipantClass c);
+    void RemoveClass(ParticipantClass c);
+    void CreateOrUpdateGroup(ParticipantGroup g);
+    void RemoveGroup(ParticipantGroup g);
 
     void CreateOrUpdateRaceParticipant(RaceParticipant participant);
     void RemoveRaceParticipant(RaceParticipant raceParticipant);
