@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -336,17 +336,8 @@ namespace RaceHorologyLib
       }
       else
       {
-        // Figure out the new ID
-        using (OleDbCommand command = new OleDbCommand("SELECT MAX(id) FROM tblTeilnehmer;", _conn))
-        {
-          object oId = command.ExecuteScalar();
-          if (oId == DBNull.Value)
-            id = 0;
-          else
-            id = Convert.ToUInt32(oId);
-          id++;
-        }
-               
+        id = GetNewId("tblTeilnehmer"); // Figure out the new ID
+
         string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, svid, code, klasse, jahrgang, id) " +
                      @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @svid, @code, @klasse, @jahrgang, @id) ";
         cmd = new OleDbCommand(sql, _conn);
@@ -1060,6 +1051,24 @@ namespace RaceHorologyLib
         return (int)command.ExecuteScalar();
       }
     }
+
+
+    private uint GetNewId(string table, string field = "id")
+    {
+      uint id = 0;
+      using (OleDbCommand command = new OleDbCommand(string.Format("SELECT MAX({0}) FROM {1};", field, table), _conn))
+      {
+        object oId = command.ExecuteScalar();
+        if (oId == DBNull.Value)
+          id = 0;
+        else
+          id = Convert.ToUInt32(oId);
+        id++;
+      }
+
+      return id;
+    }
+
 
     static private uint GetValueUInt(OleDbDataReader reader, string field)
     {
