@@ -176,6 +176,15 @@ namespace RaceHorologyLibTest
 
     public void UpdateRace(Race race, bool active) { }
 
+    public void CreateOrUpdateClass(ParticipantClass c) { }
+
+    public void RemoveClass(ParticipantClass c) { }
+
+    public void CreateOrUpdateGroup(ParticipantGroup g) { }
+
+    public void RemoveGroup(ParticipantGroup g) { }
+
+
   };
 
 
