@@ -134,6 +134,7 @@
           </Grid>
 
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
+            <Button x:Name="btnAssignClasses" Content="Klassen neu zuweisen" Padding="5" Margin="5" Click="btnAssignClasses_Click"/>
             <Button x:Name="btnImport" Content="Teilnehmer Importieren" Padding="5" Margin="5" Click="btnImport_Click"/>
           </StackPanel>
         </Grid>

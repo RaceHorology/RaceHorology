@@ -345,6 +345,11 @@ namespace RaceHorology
       }
     }
 
+    private void btnAssignClasses_Click(object sender, RoutedEventArgs e)
+    {
+      ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
+      ca.Assign(_dm.GetParticipants());
+    }
   }
 
 
