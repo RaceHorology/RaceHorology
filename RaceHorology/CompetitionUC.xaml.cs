@@ -32,9 +32,14 @@ namespace RaceHorology
     LiveTimingMeasurement _liveTimingMeasurement;
     TextBox _txtLiveTimingStatus;
 
+    public ObservableCollection<ParticipantClass> ParticipantClasses { get; }
+
     public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
       _dm = dm;
+
+      ParticipantClasses = _dm.GetParticipantClasses();
+
       _liveTimingMeasurement = liveTimingMeasurement;
       _txtLiveTimingStatus = txtLiveTimingStatus;
 
@@ -340,6 +345,11 @@ namespace RaceHorology
       }
     }
 
+    private void btnAssignClasses_Click(object sender, RoutedEventArgs e)
+    {
+      ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
+      ca.Assign(_dm.GetParticipants());
+    }
   }
 
 

@@ -324,12 +324,12 @@ namespace RaceHorologyLib
 
 
 
-  public class Import : BaseImport
+  public class ParticipantImport : BaseImport
   {
     DataSet _importDataSet;
     IList<Participant> _particpants;
 
-    public Import(DataSet ds, IList<Participant> particpants, Mapping mapping) : base(mapping)
+    public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping) : base(mapping)
     {
       _importDataSet = ds;
       _particpants = particpants;
@@ -459,7 +459,7 @@ namespace RaceHorologyLib
     public void DoImport()
     {
       // 1. Normaler Import
-      Import particpantImport = new Import(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
+      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
 
       // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
       var rows = _importDataSet.Tables[0].Rows;
