@@ -350,6 +350,15 @@ namespace RaceHorology
       ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
       ca.Assign(_dm.GetParticipants());
     }
+
+    private void btnResetClass_Click(object sender, RoutedEventArgs e)
+    {
+      if (dgParticipants.SelectedItem is ParticipantEdit p)
+      {
+        ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
+        p.Class = ca.DetermineClass(p.Participant);
+      }
+    }
   }
 
 

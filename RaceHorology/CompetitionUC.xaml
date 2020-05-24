@@ -120,9 +120,17 @@
             <TextBox x:Name="txtNation" Margin="5" Grid.Row="7" Grid.Column="1" Text="{Binding SelectedItem.Nation, ElementName=dgParticipants}"/>
 
             <Label Content="Klasse:" Grid.Row="8" Grid.Column="0"/>
-            <ComboBox x:Name="cmbClass" Margin="5" Grid.Row="8" Grid.Column="1" 
+            <Grid HorizontalAlignment="Stretch" Margin="0" Grid.Row="8" Grid.Column="1">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <ComboBox x:Name="cmbClass" Margin="5" Grid.Column="0"
                       SelectedValue="{Binding SelectedItem.Class, ElementName=dgParticipants, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       ItemsSource="{Binding Path=ParticipantClasses, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+              <Button x:Name="btnResetClass" Content="Zurücksetzen" Padding="5" Margin="5" Width="Auto" Grid.Column="1" Click="btnResetClass_Click"/>
+            </Grid>
+
 
             <Label Content="Rennen:" Grid.Row="10" Grid.Column="0"/>
             <StackPanel x:Name="spRaces" Grid.Row="10" Grid.Column="1" Margin="5">
