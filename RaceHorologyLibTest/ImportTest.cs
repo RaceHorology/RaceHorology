@@ -173,7 +173,7 @@ namespace RaceHorologyLibTest
       ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
 
       List<Participant> participants = new List<Participant>();
-      Import im = new Import(ir.Data, participants, mapping);
+      ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping);
       im.DoImport();
 
       for(int i=0; i<153; i++)
@@ -264,7 +264,7 @@ namespace RaceHorologyLibTest
       ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
 
       List<Participant> participants = new List<Participant>();
-      Import im = new Import(ir.Data, participants, mapping);
+      ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping);
       im.DoImport();
 
       for (int i = 0; i < 153; i++)
