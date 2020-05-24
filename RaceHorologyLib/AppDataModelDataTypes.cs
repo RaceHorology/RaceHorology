@@ -379,8 +379,9 @@ namespace RaceHorologyLib
           if (_class?.Group != null)
             (_class?.Group).PropertyChanged -= OnGroupChanged;
 
-          _class = value; 
+          _class = value;
           NotifyPropertyChanged();
+          NotifyPropertyChanged("Group");
 
           if (_class != null)
             _class.PropertyChanged += OnClassChanged;
