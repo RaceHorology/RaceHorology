@@ -45,8 +45,32 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
+  interface IImportReader
+  {
 
-  public class ImportReader
+    DataSet Data { get; }
+    
+    List<string> Columns { get; }
+  }
+
+
+  public static class ImportUtils
+  {
+    internal static List<string> extractFields(DataSet ds)
+    {
+      List<string> ret = new List<string>();
+      foreach (DataColumn col in ds.Tables[0].Columns)
+      {
+        ret.Add(col.ColumnName);
+      }
+      return ret;
+    }
+  }
+
+
+
+
+  public class ImportReader : IImportReader
   {
     DataSet _dataSet;
 
@@ -71,22 +95,13 @@ namespace RaceHorologyLib
         _dataSet = reader.AsDataSet(new ExcelDataSetConfiguration() { ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration() { UseHeaderRow = true } });
       }
 
-      Columns = extractFields(_dataSet);
+      Columns = ImportUtils.extractFields(_dataSet);
     }
 
     public DataSet Data { get { return _dataSet; } }
 
-    public List<string> Columns { get; set; }
+    public List<string> Columns { get; protected set; }
 
-    protected static List<string> extractFields(DataSet ds)
-    {
-      List<string> ret = new List<string>();
-      foreach (DataColumn col in ds.Tables[0].Columns)
-      {
-        ret.Add(col.ColumnName);
-      }
-      return ret;
-    }
   }
 
 
@@ -236,9 +251,9 @@ namespace RaceHorologyLib
     static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
     {
       { "Name", new List<string>{ "Name" } },
-      { "Firstname", new List<string>{"Vorname"} },
-      { "Sex", new List<string>{"Geschlecht", "Kategorie"} },
-      { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG" } },
+      { "Firstname", new List<string>{"Vorname", "Firstname"} },
+      { "Sex", new List<string>{"Geschlecht", "Kategorie", "Sex"} },
+      { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG", "Year" } },
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband"} },
       { "Code", new List<string>{"DSV-Id", "Code"} },
