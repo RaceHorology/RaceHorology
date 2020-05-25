@@ -37,6 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -133,4 +134,32 @@ namespace RaceHorologyLib
 
 
   }
+
+
+  public class DSVImportReaderZip : DSVImportReader
+  {
+    public DSVImportReaderZip(string path) : base(getStream(path))
+    {
+    }
+
+    static Stream getStream(string zipPath)
+    {
+      ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Read);
+
+      {
+        foreach (ZipArchiveEntry entry in archive.Entries)
+        {
+          if (entry.FullName.StartsWith("DSVSA") && entry.FullName.EndsWith(".txt"))
+          {
+            return entry.Open();
+          }
+        }
+      }
+
+      return null;
+    }
+
+  }
+
+
 }

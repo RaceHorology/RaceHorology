@@ -130,5 +130,47 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("F", row["Sex"]);
       }
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
+    public void ImportPointListViaZIP()
+    {
+
+      DSVImportReader reader = new DSVImportReaderZip(@"Punktelisten.zip");
+
+      Assert.AreEqual("Code", reader.Columns[0]);
+      Assert.AreEqual("Name", reader.Columns[1]);
+      Assert.AreEqual("Firstname", reader.Columns[2]);
+      Assert.AreEqual("Year", reader.Columns[3]);
+      Assert.AreEqual("Club", reader.Columns[4]);
+      Assert.AreEqual("Verband", reader.Columns[5]);
+      Assert.AreEqual("Points", reader.Columns[6]);
+      Assert.AreEqual("Sex", reader.Columns[7]);
+
+      {
+        DataRow row = reader.Data.Tables[0].Rows[0];
+        Assert.AreEqual("22444", row["Code"]);
+        Assert.AreEqual("ABBOLD", row["Name"]);
+        Assert.AreEqual("Markus", row["Firstname"]);
+        Assert.AreEqual(2004U, row["Year"]);
+        Assert.AreEqual("SC Garmisch", row["Club"]);
+        Assert.AreEqual("BSV-WF", row["Verband"]);
+        Assert.AreEqual(211.61, row["Points"]);
+        Assert.AreEqual("M", row["Sex"]);
+      }
+      {
+        DataRow row = reader.Data.Tables[0].Rows[reader.Data.Tables[0].Rows.Count-1];
+        Assert.AreEqual("26134", row["Code"]);
+        Assert.AreEqual("OETSCHMANN", row["Name"]);
+        Assert.AreEqual("Sophie", row["Firstname"]);
+        Assert.AreEqual(2005U, row["Year"]);
+        Assert.AreEqual("DAV Peissenberg", row["Club"]);
+        Assert.AreEqual("BSV-WF", row["Verband"]);
+        Assert.AreEqual(207.98, row["Points"]);
+        Assert.AreEqual("F", row["Sex"]);
+      }
+    }
+
   }
 }
