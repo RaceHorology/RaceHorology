@@ -39,6 +39,7 @@ using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -138,13 +139,17 @@ namespace RaceHorologyLib
 
   public class DSVImportReaderZip : DSVImportReader
   {
-    public DSVImportReaderZip(string path) : base(getStream(path))
+    public DSVImportReaderZip(string path) : base(getStream(new FileStream(path, FileMode.Open)))
     {
     }
 
-    static Stream getStream(string zipPath)
+    public DSVImportReaderZip(Stream streamZip) : base(getStream(streamZip))
     {
-      ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Read);
+    }
+
+    static Stream getStream(Stream streamZip)
+    {
+      ZipArchive archive = new ZipArchive(streamZip, ZipArchiveMode.Read);
 
       {
         foreach (ZipArchiveEntry entry in archive.Entries)
@@ -157,6 +162,27 @@ namespace RaceHorologyLib
       }
 
       return null;
+    }
+
+  }
+
+
+  public class DSVImportReaderOnline : DSVImportReaderZip
+  {
+
+    public DSVImportReaderOnline() : base(getZipOnlineStream())
+    {
+
+    }
+
+
+    protected static Stream getZipOnlineStream()
+    {
+      WebClient client = new WebClient();
+
+      Stream stream = client.OpenRead("https://alpin.rennverwaltung.de/punktelisten/zip");
+
+      return stream;
     }
 
   }

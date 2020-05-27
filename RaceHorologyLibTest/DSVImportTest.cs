@@ -172,5 +172,22 @@ namespace RaceHorologyLibTest
       }
     }
 
+    [TestMethod]
+    public void ImportPointListViaWeb()
+    {
+      DSVImportReader reader = new DSVImportReaderOnline();
+
+      Assert.AreEqual("Code", reader.Columns[0]);
+      Assert.AreEqual("Name", reader.Columns[1]);
+      Assert.AreEqual("Firstname", reader.Columns[2]);
+      Assert.AreEqual("Year", reader.Columns[3]);
+      Assert.AreEqual("Club", reader.Columns[4]);
+      Assert.AreEqual("Verband", reader.Columns[5]);
+      Assert.AreEqual("Points", reader.Columns[6]);
+      Assert.AreEqual("Sex", reader.Columns[7]);
+
+      Assert.IsTrue(reader.Data.Tables[0].Rows.Count > 0, "Some rows generated");
+    }
+
   }
 }
