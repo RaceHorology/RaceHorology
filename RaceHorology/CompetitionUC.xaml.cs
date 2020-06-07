@@ -1,4 +1,5 @@
-﻿using RaceHorologyLib;
+﻿using Microsoft.Win32;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -357,6 +358,37 @@ namespace RaceHorology
       {
         ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
         p.Class = ca.DetermineClass(p.Participant);
+      }
+    }
+
+    private void btnImportDSVOnline_Click(object sender, RoutedEventArgs e)
+    {
+      DSVImportReader dsvImportReader = new DSVImportReaderOnline();
+      foreach (Race race in _dm.GetRaces())
+      {
+        UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
+        import.DoImport();
+      }
+    }
+
+    private void btnImportDSVFile_Click(object sender, RoutedEventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      if (openFileDialog.ShowDialog() == true)
+      {
+        string path = openFileDialog.FileName;
+
+        DSVImportReader dsvImportReader;
+        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
+          dsvImportReader = new DSVImportReaderZip(path);
+        else
+          dsvImportReader = new DSVImportReader(path);
+
+        foreach (Race race in _dm.GetRaces())
+        {
+          UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
+          import.DoImport();
+        }
       }
     }
   }
