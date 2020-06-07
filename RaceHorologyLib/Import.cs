@@ -275,7 +275,6 @@ namespace RaceHorologyLib
 
 
 
-
   public class BaseImport
   {
     protected Mapping _mapping;
@@ -505,8 +504,66 @@ namespace RaceHorologyLib
     {
       return getValueAsUint(row, "StartNumber", 0);
     }
+  }
+
+
+  public class UpdatePointsImport : BaseImport
+  {
+    DataSet _importDataSet;
+    Race _race;
+
+
+    public UpdatePointsImport(DataSet ds, Race race, Mapping mapping) : base(mapping)
+    {
+      _importDataSet = ds;
+      _race = race;
+    }
+
+
+
+    public void DoImport()
+    {
+      // 1. Normaler Import
+      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
+
+      // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
+      var rows = _importDataSet.Tables[0].Rows;
+      foreach (DataRow row in rows)
+      {
+        try
+        {
+
+          RaceParticipant rp = findParticipant(_race.GetParticipants(), row);
+
+          if (rp != null)
+          {
+            double points = getPoints(row);
+            rp.Points = points;
+          }
+        }
+        catch (Exception)
+        { }
+      }
+    }
+
+    RaceParticipant findParticipant(IList<RaceParticipant> participants, DataRow row)
+    {
+      RaceParticipant rp = null;
+
+      string svId = getValueAsString(row, "SvId");
+      rp = participants.FirstOrDefault(r => r.SvId == svId);
+
+      return rp;
+    }
+
+
+    double getPoints(DataRow row)
+    {
+      return getValueAsDouble(row, "Points", -1);
+    }
 
 
   }
+
 
 }

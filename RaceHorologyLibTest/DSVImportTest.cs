@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System.Data;
+using System.Linq;
 
 namespace RaceHorologyLibTest
 {
@@ -98,7 +99,7 @@ namespace RaceHorologyLibTest
     {
       DSVImportReader reader = new DSVImportReader(@"DSVSA2008.txt");
 
-      Assert.AreEqual("Code", reader.Columns[0]);
+      Assert.AreEqual("SvId", reader.Columns[0]);
       Assert.AreEqual("Name", reader.Columns[1]);
       Assert.AreEqual("Firstname", reader.Columns[2]);
       Assert.AreEqual("Year", reader.Columns[3]);
@@ -109,7 +110,7 @@ namespace RaceHorologyLibTest
 
       {
         DataRow row = reader.Data.Tables[0].Rows[0];
-        Assert.AreEqual("22444", row["Code"]);
+        Assert.AreEqual("22444", row["SvId"]);
         Assert.AreEqual("ABBOLD", row["Name"]);
         Assert.AreEqual("Markus", row["Firstname"]);
         Assert.AreEqual(2004U, row["Year"]);
@@ -120,7 +121,7 @@ namespace RaceHorologyLibTest
       }
       {
         DataRow row = reader.Data.Tables[0].Rows[1881];
-        Assert.AreEqual("26134", row["Code"]);
+        Assert.AreEqual("26134", row["SvId"]);
         Assert.AreEqual("OETSCHMANN", row["Name"]);
         Assert.AreEqual("Sophie", row["Firstname"]);
         Assert.AreEqual(2005U, row["Year"]);
@@ -139,7 +140,7 @@ namespace RaceHorologyLibTest
 
       DSVImportReader reader = new DSVImportReaderZip(@"Punktelisten.zip");
 
-      Assert.AreEqual("Code", reader.Columns[0]);
+      Assert.AreEqual("SvId", reader.Columns[0]);
       Assert.AreEqual("Name", reader.Columns[1]);
       Assert.AreEqual("Firstname", reader.Columns[2]);
       Assert.AreEqual("Year", reader.Columns[3]);
@@ -150,7 +151,7 @@ namespace RaceHorologyLibTest
 
       {
         DataRow row = reader.Data.Tables[0].Rows[0];
-        Assert.AreEqual("22444", row["Code"]);
+        Assert.AreEqual("22444", row["SvId"]);
         Assert.AreEqual("ABBOLD", row["Name"]);
         Assert.AreEqual("Markus", row["Firstname"]);
         Assert.AreEqual(2004U, row["Year"]);
@@ -160,8 +161,8 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("M", row["Sex"]);
       }
       {
-        DataRow row = reader.Data.Tables[0].Rows[reader.Data.Tables[0].Rows.Count-1];
-        Assert.AreEqual("26134", row["Code"]);
+        DataRow row = reader.Data.Tables[0].Rows[reader.Data.Tables[0].Rows.Count - 1];
+        Assert.AreEqual("26134", row["SvId"]);
         Assert.AreEqual("OETSCHMANN", row["Name"]);
         Assert.AreEqual("Sophie", row["Firstname"]);
         Assert.AreEqual(2005U, row["Year"]);
@@ -177,7 +178,7 @@ namespace RaceHorologyLibTest
     {
       DSVImportReader reader = new DSVImportReaderOnline();
 
-      Assert.AreEqual("Code", reader.Columns[0]);
+      Assert.AreEqual("SvId", reader.Columns[0]);
       Assert.AreEqual("Name", reader.Columns[1]);
       Assert.AreEqual("Firstname", reader.Columns[2]);
       Assert.AreEqual("Year", reader.Columns[3]);
@@ -187,6 +188,35 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("Sex", reader.Columns[7]);
 
       Assert.IsTrue(reader.Data.Tables[0].Rows.Count > 0, "Some rows generated");
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
+    public void UpdatePoints()
+    {
+      // Setup Data Model & Co
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      Database db = new Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      // Import DSV Point List
+      DSVImportReader dsvImportReader = new DSVImportReaderZip(@"Punktelisten.zip");
+
+      // Process Races
+      Race race = model.GetRace(0);
+
+      // Check two prior
+      Assert.AreEqual(148.86, race.GetParticipants().First(r=>r.SvId=="24438").Points);
+      Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
+
+      UpdatePointsImport upi = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
+      upi.DoImport();
+
+      Assert.AreEqual(110.96, race.GetParticipants().First(r => r.SvId == "24438").Points);
+      Assert.AreEqual(100.33, race.GetParticipants().First(r => r.SvId == "25399").Points);
     }
 
   }

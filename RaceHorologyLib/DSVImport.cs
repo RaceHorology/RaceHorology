@@ -45,6 +45,51 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
+
+  /// <summary>
+  /// Pre-configured mapping for race mapping (race import)
+  /// </summary>
+  public class DSVMapping : Mapping
+  {
+    /// <summary>
+    /// Map defining the required fields and potential available fields
+    /// </summary>
+    static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
+    {
+      { "SvId", new List<string>{"SvId"} },
+      { "Name", new List<string>{ "Name" } },
+      { "Firstname", new List<string>{ "Firstname"} },
+      { "Year", new List<string>{ "Year" } },
+      { "Club", new List<string>{ "Club" } },
+      { "Nation", new List<string>{ "Verband" } },
+      { "Points", new List<string>{"Points"} },
+      { "Sex", new List<string>{"Sex"} }
+    };
+
+    static List<string> _availableFields = new List<string>
+    {
+      "SvId",
+      "Name",
+      "Firstname",
+      "Year",
+      "Club",
+      "Nation",
+      "Points",
+      "Sex"
+    };
+
+    public DSVMapping() : base(_requiredField.Keys, _availableFields)
+    {
+    }
+
+    protected override List<string> synonyms(string field)
+    {
+      return _requiredField[field];
+    }
+
+  }
+
+
   public class DSVImportReader : IImportReader
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -54,10 +99,14 @@ namespace RaceHorologyLib
     protected List<string> _columns;
     protected DataSet _dataSet;
 
+    public Mapping Mapping { get; }
+
 
     public DSVImportReader(Stream dsvData)
     {
       _dsvData = dsvData;
+
+      Mapping = new DSVMapping();
 
       readData();
     }
@@ -82,7 +131,7 @@ namespace RaceHorologyLib
       _dataSet = new DataSet();
       DataTable table = _dataSet.Tables.Add();
 
-      table.Columns.Add("Code");
+      table.Columns.Add("SvId");
       table.Columns.Add("Name");
       table.Columns.Add("Firstname");
       table.Columns.Add("Year", typeof(uint));
@@ -110,7 +159,7 @@ namespace RaceHorologyLib
             continue;
 
           DataRow row = table.NewRow();
-          row["Code"] = id;
+          row["SvId"] = id;
           row["Name"] = name;
           row["Firstname"] = firstname;
           row["Year"] = uint.Parse(year);
@@ -131,9 +180,6 @@ namespace RaceHorologyLib
 
       _columns = ImportUtils.extractFields(_dataSet);
     }
-
-
-
   }
 
 
