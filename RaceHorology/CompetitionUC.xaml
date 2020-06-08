@@ -142,6 +142,13 @@
           </Grid>
 
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
+
+            <RibbonMenuButton x:Name="ExampleMenu" Label="Test">
+              <RibbonMenuItem x:Name="ExampleMenuItem1" Header="Save1" />
+              <RibbonMenuItem x:Name="ExampleMenuItem2" Header="Save2" />
+              <RibbonMenuItem x:Name="ExampleMenuItem3" Header="Save3" />
+            </RibbonMenuButton>
+
             <Button x:Name="btnImportDSVOnline" Content="DSV Punkte aktualisieren (online)" Padding="5" Margin="5" Click="btnImportDSVOnline_Click"/>
             <Button x:Name="btnImportDSVFile" Content="DSV Punkte aktualisieren (Datei)" Padding="5" Margin="5" Click="btnImportDSVFile_Click"/>
             <Button x:Name="btnAssignClasses" Content="Klassen neu zuweisen" Padding="5" Margin="5" Click="btnAssignClasses_Click"/>
