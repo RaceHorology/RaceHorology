@@ -77,6 +77,7 @@
     <Compile Include="DSVAlpinDatabaseTests.cs" />
     <Compile Include="DSVCalculationTests.cs" />
     <Compile Include="DSVExportTest.cs" />
+    <Compile Include="DSVImportTest.cs" />
     <Compile Include="ImportTest.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />

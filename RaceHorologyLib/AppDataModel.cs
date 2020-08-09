@@ -18,15 +18,15 @@
  *
  *  Diese Datei ist Teil von Race Horology.
  *
- *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  Race Horology ist Freie Software: Sie kï¿½nnen es unter den Bedingungen
  *  der GNU Affero General Public License, wie von der Free Software Foundation,
  *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
- *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *  verï¿½ffentlichten Version, weiter verteilen und/oder modifizieren.
  *
- *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
- *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
- *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
- *  Siehe die GNU Affero General Public License für weitere Details.
+ *  Race Horology wird in der Hoffnung, dass es nï¿½tzlich sein wird, aber
+ *  OHNE JEDE GEWï¿½HRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewï¿½hrleistung der MARKTFï¿½HIGKEIT oder EIGNUNG Fï¿½R EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License fï¿½r weitere Details.
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
@@ -141,7 +141,8 @@ namespace RaceHorologyLib
       // Get notification if a race got changed / added / removed and trigger storage in DB
       _competitionDelegatorDB = new DatabaseDelegatorCompetition(this, _db);
 
-      _currentRace = _races.First();
+      if (_races.Count > 0)
+        _currentRace = _races.First();
     }
 
     public IAppDataModelDataBase GetDB()
