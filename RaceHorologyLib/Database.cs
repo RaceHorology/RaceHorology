@@ -53,7 +53,7 @@ namespace RaceHorologyLib
   public class Database
     : IAppDataModelDataBase
   {
-    private string _filename;
+    private string _dbPath;
     private System.Data.OleDb.OleDbConnection _conn;
 
     private Dictionary<uint, Participant> _id2Participant;
@@ -62,14 +62,30 @@ namespace RaceHorologyLib
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    public void Connect(string filename)
+    /// <summary>
+    /// Create a new database file for RaceHorology
+    /// </summary>
+    /// <param name="dbPath">The target path name.</param>
+    /// <returns>The target path name</returns>
+    public string CreateDatabase(string dbPath)
     {
-      Logger.Info("Connect to database: {0}", filename);
+      string pathTemplates = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"dbtemplates");
 
-      _filename = filename;
+      string dbTemplate = System.IO.Path.Combine(pathTemplates, "TemplateDB_Standard.mdb");
+      System.IO.File.Copy(dbTemplate, dbPath);
+
+      return dbPath;
+    }
+
+
+    public void Connect(string dbPath)
+    {
+      Logger.Info("Connect to database: {0}", dbPath);
+
+      _dbPath = dbPath;
       _conn = new OleDbConnection
       {
-        ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename
+        ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbPath
       };
 
       try
@@ -78,7 +94,7 @@ namespace RaceHorologyLib
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "Failed to connect to database: {0} ", filename);
+        Logger.Error(ex, "Failed to connect to database: {0} ", dbPath);
         _conn = null;
         throw;
       }
@@ -92,7 +108,7 @@ namespace RaceHorologyLib
 
     public void Close()
     {
-      Logger.Info("Close database: {0}", _filename);
+      Logger.Info("Close database: {0}", _dbPath);
 
       // Cleanup internal data structures
       _id2Participant = null;
@@ -108,18 +124,18 @@ namespace RaceHorologyLib
 
     public string GetDBPath()
     {
-      return _filename;
+      return _dbPath;
     }
 
     public string GetDBFileName()
     {
-      return System.IO.Path.GetFileNameWithoutExtension(_filename);
+      return System.IO.Path.GetFileNameWithoutExtension(_dbPath);
     }
 
 
     public string GetDBPathDirectory()
     {
-      return new System.IO.FileInfo(_filename).Directory.FullName;
+      return new System.IO.FileInfo(_dbPath).Directory.FullName;
     }
 
 

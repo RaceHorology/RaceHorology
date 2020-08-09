@@ -93,7 +93,15 @@ namespace RaceHorology
     /// </summary>
     private void NewCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
-      MessageBox.Show("Not implemented");
+      SaveFileDialog openFileDialog = new SaveFileDialog();
+      openFileDialog.DefaultExt = ".mdb";
+      openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
+      openFileDialog.OverwritePrompt = true;
+      if (openFileDialog.ShowDialog() == true)
+      {
+        string dbPath = openFileDialog.FileName;
+        OpenDatabase(new Database().CreateDatabase(dbPath));
+      }
     }
 
     /// <summary>

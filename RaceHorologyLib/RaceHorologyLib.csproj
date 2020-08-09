@@ -120,6 +120,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="dbtemplates\TemplateDB_Standard.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\pdf\LogoRH.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
