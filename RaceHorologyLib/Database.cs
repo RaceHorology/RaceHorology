@@ -72,7 +72,7 @@ namespace RaceHorologyLib
       string pathTemplates = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"dbtemplates");
 
       string dbTemplate = System.IO.Path.Combine(pathTemplates, "TemplateDB_Standard.mdb");
-      System.IO.File.Copy(dbTemplate, dbPath);
+      System.IO.File.Copy(dbTemplate, dbPath, true);
 
       return dbPath;
     }
