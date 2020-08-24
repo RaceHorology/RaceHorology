@@ -420,6 +420,10 @@ namespace RaceHorologyLib
       if (id == 0)
         throw new Exception("RemoveParticipant: id not found");
 
+      // First, delete all dependent data
+      DeleteRunResultsForParticipant(participant);
+
+      // Second, delete participant itself
       string sql = @"DELETE FROM tblTeilnehmer " +
                    @"WHERE id = @id";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
@@ -635,7 +639,7 @@ namespace RaceHorologyLib
     }
 
     /// <summary>
-    /// Stores the RunResult
+    /// Deletes the RunResult
     /// </summary>
     /// <param name="raceRun">The correlated RaceRun the reuslt is associated with.</param>
     /// <param name="result">The RunResult to store.</param>
@@ -664,6 +668,36 @@ namespace RaceHorologyLib
       catch (Exception e)
       {
         Logger.Warn(e, "DeleteRunResult failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+
+    /// <summary>
+    /// Deletes all RunResults for a participant
+    /// </summary>
+    /// <param name="participant">The participant of the run rsults to be deleted.</param>
+    protected void DeleteRunResultsForParticipant(Participant participant)
+    {
+      uint idParticipant = GetParticipantId(participant);
+
+      if (idParticipant == 0)
+        throw new Exception("DeleteRunResultsForParticipant is wrong");
+
+      string sql = @"DELETE FROM tblZeit " +
+                   @"WHERE teilnehmer = @teilnehmer";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+
+      cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+      cmd.CommandType = CommandType.Text;
+      try
+      {
+        Logger.Debug("DeleteRunResultsForParticipant(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "DeleteRunResultsForParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
 

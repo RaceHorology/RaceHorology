@@ -457,7 +457,34 @@ namespace RaceHorologyLibTest
 
     }
 
-    private bool CheckParticipant(string dbFilename, Participant participant, int id)
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void DeleteParticipants()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      var participants = db.GetParticipants();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        participants = db.GetParticipants();
+      }
+
+      Participant parDel1 = participants[0];
+      db.RemoveParticipant(parDel1);
+
+      DBCacheWorkaround();
+
+      CheckParticipant(dbFilename, null, int.Parse(parDel1.Id));
+    }
+
+
+
+      private bool CheckParticipant(string dbFilename, Participant participant, int id)
     {
       bool bRes = true;
 
@@ -476,12 +503,13 @@ namespace RaceHorologyLibTest
 
         return value == sDB;
       }
-
+      
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
+          string s = reader["nachname"].ToString();
           bRes &= participant.Name == reader["nachname"].ToString();
           bRes &= participant.Firstname == reader["vorname"].ToString();
           bRes &= participant.Sex == reader["sex"].ToString();
@@ -494,7 +522,12 @@ namespace RaceHorologyLibTest
           //bRes &= participant.StartNumber == GetStartNumber(reader);
         }
         else
+        {
           bRes = false;
+
+          if (participant == null)
+            bRes = true;
+        }
       }
 
       conn.Close();
