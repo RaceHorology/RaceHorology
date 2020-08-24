@@ -403,10 +403,22 @@ namespace RaceHorology
 
     private void btnDeleteParticipant_Click(object sender, RoutedEventArgs e)
     {
-      if (dgParticipants.SelectedItem is ParticipantEdit item)
+      ParticipantEdit[] selectedItems = new ParticipantEdit[dgParticipants.SelectedItems.Count];
+      dgParticipants.SelectedItems.CopyTo(selectedItems, 0);
+      if (selectedItems.Length > 0)
       {
-        Participant participant = item.Participant;
-        _dm.GetParticipants().Remove(participant);
+        string szQuestion = string.Format("Sollen die markierten {0} Teilnehmer gelöscht werden?", selectedItems.Length);
+        if (MessageBox.Show(szQuestion, "Teilnehmer löschen?", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
+        {
+          foreach (var item in selectedItems)
+          {
+            if (item is ParticipantEdit pe)
+            {
+              Participant participant = pe.Participant;
+              _dm.GetParticipants().Remove(participant);
+            }
+          }
+        }
       }
     }
   }

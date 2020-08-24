@@ -147,8 +147,6 @@
 
               </Grid>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.Column="2">
-                <Button x:Name="btnAddParticipant" Content="Teilnehmer hinzufügen" Margin="5" Click="btnAddParticipant_Click"/>
-                <Button x:Name="btnDeleteParticipant" Content="Teilnehmer löschen" Margin="5" Click="btnDeleteParticipant_Click"/>
               </StackPanel>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
 
@@ -162,6 +160,8 @@
                 <Button x:Name="btnImportDSVFile" Content="DSV Punkte aktualisieren (Datei)" Padding="5" Margin="5" Click="btnImportDSVFile_Click"/>
                 <Button x:Name="btnAssignClasses" Content="Klassen neu zuweisen" Padding="5" Margin="5" Click="btnAssignClasses_Click"/>
                 <Button x:Name="btnImport" Content="Teilnehmer Importieren" Padding="5" Margin="5" Click="btnImport_Click"/>
+                <Button x:Name="btnAddParticipant" Content="Teilnehmer hinzufügen" Margin="5" Click="btnAddParticipant_Click"/>
+                <Button x:Name="btnDeleteParticipant" Content="Teilnehmer löschen" Margin="5" Click="btnDeleteParticipant_Click"/>
               </StackPanel>
             </Grid>
           </TabItem>
