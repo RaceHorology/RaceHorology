@@ -418,7 +418,10 @@ namespace RaceHorologyLib
       uint id = GetParticipantId(participant);
 
       if (id == 0)
-        throw new Exception("RemoveParticipant: id not found");
+      {
+        Logger.Debug("RemoveParticipant(), id was not found, skipping delete for participant: '{0}'", participant);
+        return;
+      }
 
       // First, delete all dependent data
       DeleteRunResultsForParticipant(participant);
