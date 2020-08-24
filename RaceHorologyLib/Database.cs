@@ -413,6 +413,31 @@ namespace RaceHorologyLib
       }
     }
 
+    public void RemoveParticipant(Participant participant)
+    {
+      uint id = GetParticipantId(participant);
+
+      if (id == 0)
+        throw new Exception("RemoveParticipant: id not found");
+
+      string sql = @"DELETE FROM tblTeilnehmer " +
+                   @"WHERE id = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveParticipant(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
 
     public void CreateOrUpdateRaceParticipant(RaceParticipant raceParticipant)
     {

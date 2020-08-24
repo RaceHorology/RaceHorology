@@ -1073,6 +1073,7 @@ namespace RaceHorologyLib
     void StoreRaceProperties(Race race, AdditionalRaceProperties props);
 
     void CreateOrUpdateParticipant(Participant participant);
+    void RemoveParticipant(Participant participant);
 
     void CreateOrUpdateClass(ParticipantClass c);
     void RemoveClass(ParticipantClass c);
