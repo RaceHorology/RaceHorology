@@ -391,6 +391,24 @@ namespace RaceHorology
         }
       }
     }
+
+    private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
+    {
+      Participant participant = new Participant();
+      _dm.GetParticipants().Add(participant);
+
+      ParticipantEdit item = _editParticipants.FirstOrDefault(p => p.Participant == participant);
+      dgParticipants.SelectedItem = item;
+    }
+
+    private void btnDeleteParticipant_Click(object sender, RoutedEventArgs e)
+    {
+      if (dgParticipants.SelectedItem is ParticipantEdit item)
+      {
+        Participant participant = item.Participant;
+        _dm.GetParticipants().Remove(participant);
+      }
+    }
   }
 
 

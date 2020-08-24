@@ -49,7 +49,7 @@
               </Grid>
 
 
-              <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" AlternatingRowBackground="#FFf8faf7" Grid.Row="1" FontSize="12" AutoGenerateColumns="False">
+              <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" AlternatingRowBackground="#FFf8faf7" Grid.Row="1" FontSize="12" AutoGenerateColumns="False" CanUserAddRows="True">
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
                   <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}"/>
@@ -146,7 +146,10 @@
                 </StackPanel>
 
               </Grid>
-
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.Column="2">
+                <Button x:Name="btnAddParticipant" Content="Teilnehmer hinzufügen" Margin="5" Click="btnAddParticipant_Click"/>
+                <Button x:Name="btnDeleteParticipant" Content="Teilnehmer löschen" Margin="5" Click="btnDeleteParticipant_Click"/>
+              </StackPanel>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.RowSpan="2">
 
                 <RibbonMenuButton x:Name="ExampleMenu" Label="Test" Margin="5" Background="#FFDDDDDD" BorderBrush="#FF707070" BorderThickness="1">
