@@ -218,12 +218,12 @@ namespace RaceHorologyLib
     /// </summary>
     static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
     {
-      { "Name", new List<string>{ "Name" } },
+      { "Name", new List<string>{ "Name", "Nachname" } },
       { "Firstname", new List<string>{"Vorname"} },
       { "Sex", new List<string>{"Geschlecht", "Kategorie"} },
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG" } },
       { "Club", new List<string>{"Club", "Verein"} },
-      { "Nation", new List<string>{"Nation", "Verband"} },
+      { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
       { "Code", new List<string>{"DSV-Id", "Code"} },
       { "SvId", new List<string>{"SvId", "SkiverbandId"} }
     };
@@ -250,12 +250,12 @@ namespace RaceHorologyLib
     /// </summary>
     static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
     {
-      { "Name", new List<string>{ "Name" } },
+      { "Name", new List<string>{ "Name", "Nachname" } },
       { "Firstname", new List<string>{"Vorname", "Firstname"} },
       { "Sex", new List<string>{"Geschlecht", "Kategorie", "Sex"} },
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG", "Year" } },
       { "Club", new List<string>{"Club", "Verein"} },
-      { "Nation", new List<string>{"Nation", "Verband"} },
+      { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
       { "Code", new List<string>{"DSV-Id", "Code"} },
       { "SvId", new List<string>{"SvId", "SkiverbandId"} },
       { "Points", new List<string>{"Points", "Punkte"} },
