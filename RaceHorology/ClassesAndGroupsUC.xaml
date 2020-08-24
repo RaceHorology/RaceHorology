@@ -5,9 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:dd="urn:gong-wpf-dragdrop"
              xmlns:local="clr-namespace:RaceHorology"
+             xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib"
              mc:Ignorable="d" 
              x:Name="_this"
              d:DesignHeight="450" d:DesignWidth="800">
+  <UserControl.Resources>
+    <racehorologylib:AgeToYearInputConverter x:Key="AgeToYearInputConverter" />
+  </UserControl.Resources>
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -32,7 +36,7 @@
               >
       <DataGrid.Columns>
         <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
-        <DataGridTextColumn Header="ältester Jahrgang" Binding="{Binding Year}"/>
+        <DataGridTextColumn Header="ältester Jahrgang" Binding="{Binding Year, Converter={StaticResource AgeToYearInputConverter}}"/>
         <DataGridTextColumn Header="Geschlecht" Binding="{Binding Sex}"/>
 
         <DataGridComboBoxColumn Header="Gruppe" 
