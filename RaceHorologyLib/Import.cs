@@ -129,7 +129,7 @@ namespace RaceHorologyLib
 
     Stream getDataStream(string zipPath)
     {
-      ZipArchive archive = new ZipArchive(new FileStream(zipPath, FileMode.Open), ZipArchiveMode.Read);
+      ZipArchive archive = new ZipArchive(new FileStream(zipPath, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read);
 
       {
         foreach (ZipArchiveEntry entry in archive.Entries)
