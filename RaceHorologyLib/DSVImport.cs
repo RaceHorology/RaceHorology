@@ -185,7 +185,7 @@ namespace RaceHorologyLib
 
   public class DSVImportReaderZip : DSVImportReader
   {
-    public DSVImportReaderZip(string path) : base(getStream(new FileStream(path, FileMode.Open)))
+    public DSVImportReaderZip(string path) : base(getStream(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)))
     {
     }
 
