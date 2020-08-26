@@ -208,6 +208,55 @@ namespace RaceHorologyLibTest
       }
     }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\1557MRBR.zip")]
+    public void ImportParticpantsForRaceViaZip()
+    {
+      string[] columnShall =
+      {
+        "id",
+        "nachname",
+        "vorname",
+        "geschlecht",
+        "verein",
+        "verbandskürzel",
+        "jg",
+        "punkte",
+        "adr_str",
+        "adr_plz",
+        "adr_ort"
+      };
+
+      void checkColumns(List<string> columns)
+      {
+        for (int i = 0; i < columnShall.Length; i++)
+          Assert.AreEqual(columnShall[i], columns[i]);
+      }
+
+      TestDataGenerator tg = new TestDataGenerator();
+
+      var ir = new ImportZipReader(@"1557MRBR.zip");
+
+      checkColumns(ir.Columns);
+
+      RaceMapping mapping = new RaceMapping(ir.Columns);
+
+      RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
+      im.DoImport();
+
+      Assert.AreEqual(3, ir.Data.Tables[0].Rows.Count);
+
+      for (int i = 0; i < 2; i++)
+      {
+        Participant p = tg.Model.GetParticipants()[i];
+        RaceParticipant rp = tg.Model.GetRace(0).GetParticipants()[i];
+
+        Assert.AreEqual(string.Format("NACHNAME{0}", i + 1), p.Name);
+        Assert.AreEqual(string.Format("Vorname{0}", i + 1), rp.Firstname);
+        Assert.IsTrue(rp.Participant == p);
+      }
+    }
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_Import_Race.xlsx")]

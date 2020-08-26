@@ -22,8 +22,8 @@ namespace RaceHorology
   public partial class ImportWizard : Window
   {
     AppDataModel _dm;
-    
-    ImportReader _importReader;
+
+    IImportReader _importReader;
     Mapping _importMapping;
 
 
@@ -44,11 +44,18 @@ namespace RaceHorology
     protected bool selectImportFile()
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
+      openFileDialog.Filter = 
+        "Import Files (*.csv;*.tsv;*.txt;*xls;*.xlsx;*.zip)|*.csv;*.tsv;*.txt;*xls;*.xlsx;*.zip" + "|" +
+        "Alle Dateien|*.*";
       if (openFileDialog.ShowDialog() == true)
       {
         string path = openFileDialog.FileName;
 
-        _importReader = new ImportReader(path);
+        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
+          _importReader = new ImportZipReader(path);
+        else
+          _importReader = new ImportReader(path);
+        
         _importMapping = new RaceMapping(_importReader.Columns);
         mappingUC.Mapping = _importMapping;
 
