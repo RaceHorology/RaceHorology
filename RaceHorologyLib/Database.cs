@@ -72,7 +72,7 @@ namespace RaceHorologyLib
       string pathTemplates = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"dbtemplates");
 
       string dbTemplate = System.IO.Path.Combine(pathTemplates, "TemplateDB_Standard.mdb");
-      System.IO.File.Copy(dbTemplate, dbPath);
+      System.IO.File.Copy(dbTemplate, dbPath, true);
 
       return dbPath;
     }
@@ -413,6 +413,38 @@ namespace RaceHorologyLib
       }
     }
 
+    public void RemoveParticipant(Participant participant)
+    {
+      uint id = GetParticipantId(participant);
+
+      if (id == 0)
+      {
+        Logger.Debug("RemoveParticipant(), id was not found, skipping delete for participant: '{0}'", participant);
+        return;
+      }
+
+      // First, delete all dependent data
+      DeleteRunResultsForParticipant(participant);
+
+      // Second, delete participant itself
+      string sql = @"DELETE FROM tblTeilnehmer " +
+                   @"WHERE id = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveParticipant(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
 
     public void CreateOrUpdateRaceParticipant(RaceParticipant raceParticipant)
     {
@@ -610,7 +642,7 @@ namespace RaceHorologyLib
     }
 
     /// <summary>
-    /// Stores the RunResult
+    /// Deletes the RunResult
     /// </summary>
     /// <param name="raceRun">The correlated RaceRun the reuslt is associated with.</param>
     /// <param name="result">The RunResult to store.</param>
@@ -639,6 +671,36 @@ namespace RaceHorologyLib
       catch (Exception e)
       {
         Logger.Warn(e, "DeleteRunResult failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+
+    /// <summary>
+    /// Deletes all RunResults for a participant
+    /// </summary>
+    /// <param name="participant">The participant of the run rsults to be deleted.</param>
+    protected void DeleteRunResultsForParticipant(Participant participant)
+    {
+      uint idParticipant = GetParticipantId(participant);
+
+      if (idParticipant == 0)
+        throw new Exception("DeleteRunResultsForParticipant is wrong");
+
+      string sql = @"DELETE FROM tblZeit " +
+                   @"WHERE teilnehmer = @teilnehmer";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+
+      cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+      cmd.CommandType = CommandType.Text;
+      try
+      {
+        Logger.Debug("DeleteRunResultsForParticipant(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "DeleteRunResultsForParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
 

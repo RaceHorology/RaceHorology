@@ -167,6 +167,7 @@ namespace RaceHorologyLibTest
     public void StoreRaceProperties(Race race, AdditionalRaceProperties props) { }
 
     public void CreateOrUpdateParticipant(Participant participant) { }
+    public void RemoveParticipant(Participant participant) { }
 
     public void CreateOrUpdateRaceParticipant(RaceParticipant participant) { }
     public void RemoveRaceParticipant(RaceParticipant raceParticipant) { }
@@ -183,7 +184,6 @@ namespace RaceHorologyLibTest
     public void CreateOrUpdateGroup(ParticipantGroup g) { }
 
     public void RemoveGroup(ParticipantGroup g) { }
-
 
   };
 

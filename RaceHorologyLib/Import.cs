@@ -39,13 +39,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
-  interface IImportReader
+  public interface IImportReader
   {
 
     DataSet Data { get; }
@@ -103,6 +104,53 @@ namespace RaceHorologyLib
     public List<string> Columns { get; protected set; }
 
   }
+
+
+
+  public class ImportZipReader : IImportReader
+  {
+    DataSet _dataSet;
+
+    static private string[] txtExtensions = { ".csv", ".tsv", ".txt" };
+
+    public ImportZipReader(string path)
+    {
+      IExcelDataReader reader;
+
+      Stream dataStream = getDataStream(path);
+      MemoryStream stream = new MemoryStream();
+      dataStream.CopyTo(stream);
+
+      reader = ExcelReaderFactory.CreateCsvReader(stream);
+      _dataSet = reader.AsDataSet(new ExcelDataSetConfiguration() { ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration() { UseHeaderRow = true } });
+
+      Columns = ImportUtils.extractFields(_dataSet);
+    }
+
+    Stream getDataStream(string zipPath)
+    {
+      ZipArchive archive = new ZipArchive(new FileStream(zipPath, FileMode.Open), ZipArchiveMode.Read);
+
+      {
+        foreach (ZipArchiveEntry entry in archive.Entries)
+        {
+          if (entry.FullName.StartsWith("T_") && entry.FullName.EndsWith(".txt"))
+          {
+            return entry.Open();
+          }
+        }
+      }
+
+      return null;
+    }
+
+    public DataSet Data { get { return _dataSet; } }
+
+    public List<string> Columns { get; protected set; }
+  }
+
+
+
 
 
   public class Mapping
@@ -218,12 +266,12 @@ namespace RaceHorologyLib
     /// </summary>
     static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
     {
-      { "Name", new List<string>{ "Name" } },
+      { "Name", new List<string>{ "Name", "Nachname" } },
       { "Firstname", new List<string>{"Vorname"} },
       { "Sex", new List<string>{"Geschlecht", "Kategorie"} },
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG" } },
       { "Club", new List<string>{"Club", "Verein"} },
-      { "Nation", new List<string>{"Nation", "Verband"} },
+      { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
       { "Code", new List<string>{"DSV-Id", "Code"} },
       { "SvId", new List<string>{"SvId", "SkiverbandId"} }
     };
@@ -250,12 +298,12 @@ namespace RaceHorologyLib
     /// </summary>
     static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
     {
-      { "Name", new List<string>{ "Name" } },
+      { "Name", new List<string>{ "Name", "Nachname" } },
       { "Firstname", new List<string>{"Vorname", "Firstname"} },
       { "Sex", new List<string>{"Geschlecht", "Kategorie", "Sex"} },
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG", "Year" } },
       { "Club", new List<string>{"Club", "Verein"} },
-      { "Nation", new List<string>{"Nation", "Verband"} },
+      { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
       { "Code", new List<string>{"DSV-Id", "Code"} },
       { "SvId", new List<string>{"SvId", "SkiverbandId"} },
       { "Points", new List<string>{"Points", "Punkte"} },

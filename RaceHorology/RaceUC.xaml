@@ -194,52 +194,9 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
-              <Button x:Name="btnReset" Content="Reset" Margin="5" Padding="5" Click="BtnReset_Click"/>
-              <Button x:Name="btnApply" Content="Apply" Margin="5" Padding="5" Click="BtnApply_Click"/>
+              <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
+              <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
             </StackPanel>
-          </Grid>
-
-
-        </StackPanel>
-
-      </TabItem>
-      <TabItem Header="Live Timing" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
-        <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="20"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <Label x:Name="lblLTBewerb" Content="Bewerbsnummer:" Grid.Row="0" Grid.Column="0" Margin="5"/>
-            <TextBox x:Name="txtLTBewerb" Grid.Row="0" Grid.Column="1"  Margin="5"/>
-
-            <Label x:Name="lblLTLogin" Content="Login:" Grid.Row="1" Grid.Column="0" Margin="5"/>
-            <TextBox x:Name="txtLTLogin" Grid.Row="1" Grid.Column="1"  Margin="5"/>
-
-            <Label x:Name="lblLTPassword" Content="Passwort:" Grid.Row="2" Grid.Column="0" Margin="5"/>
-            <PasswordBox x:Name="txtLTPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
-
-            <Button x:Name="btnLTLogin" Content="Login" Width="100" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="1"  Margin="5" Click="BtnLTLogin_Click" />
-
-            <Label x:Name="lblLTEvent" Content="Veranstaltung:" Grid.Row="5" Grid.Column="0" Margin="5"/>
-            <ComboBox x:Name="cmbLTEvent" Grid.Row="5" Grid.Column="1"  Margin="5" SelectionChanged="CmbLTEvent_SelectionChanged"/>
-
-            <Button x:Name="btnLTStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="1"  Margin="5" Click="BtnLTStart_Click" />
-
           </Grid>
 
 
@@ -480,8 +437,8 @@
             </Grid>
 
             <StackPanel Orientation="Horizontal" Grid.Row="28" Grid.Column="2" HorizontalAlignment="Right" Margin="0,15,0,0">
-              <Button x:Name="btnAddPropReset" Content="Reset" Margin="5" Padding="5" Click="BtnAddPropReset_Click"/>
-              <Button x:Name="btnAddPropApply" Content="Apply" Margin="5" Padding="5" Click="BtnAddPropApply_Click"/>
+              <Button x:Name="btnAddPropReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnAddPropReset_Click"/>
+              <Button x:Name="btnAddPropApply" Content="Speichern" Margin="5" Padding="5" Click="BtnAddPropApply_Click"/>
             </StackPanel>
 
           </Grid>
@@ -489,6 +446,49 @@
       </TabItem>
       <TabItem Header="Startnummern" FontSize="12">
         <local:StartNumbersUC x:Name="ucStartNumbers" />
+      </TabItem>
+      <TabItem Header="Live Timing" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="20"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label x:Name="lblLTBewerb" Content="Bewerbsnummer:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+            <TextBox x:Name="txtLTBewerb" Grid.Row="0" Grid.Column="1"  Margin="5"/>
+
+            <Label x:Name="lblLTLogin" Content="Login:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+            <TextBox x:Name="txtLTLogin" Grid.Row="1" Grid.Column="1"  Margin="5"/>
+
+            <Label x:Name="lblLTPassword" Content="Passwort:" Grid.Row="2" Grid.Column="0" Margin="5"/>
+            <PasswordBox x:Name="txtLTPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
+
+            <Button x:Name="btnLTLogin" Content="Login" Width="100" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="1"  Margin="5" Click="BtnLTLogin_Click" />
+
+            <Label x:Name="lblLTEvent" Content="Veranstaltung:" Grid.Row="5" Grid.Column="0" Margin="5"/>
+            <ComboBox x:Name="cmbLTEvent" Grid.Row="5" Grid.Column="1"  Margin="5" SelectionChanged="CmbLTEvent_SelectionChanged"/>
+
+            <Button x:Name="btnLTStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="1"  Margin="5" Click="BtnLTStart_Click" />
+
+          </Grid>
+
+
+        </StackPanel>
+
       </TabItem>
       <TabItem Header="Zeitnahme" FontSize="12" >
         <Grid>

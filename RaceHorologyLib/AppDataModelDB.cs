@@ -182,8 +182,12 @@ namespace RaceHorologyLib
             _db.CreateOrUpdateParticipant(participant);
           break;
 
-        case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Remove:
+          foreach (Participant participant in e.OldItems)
+            _db.RemoveParticipant(participant);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Replace:
         case NotifyCollectionChangedAction.Reset:
           throw new Exception("not implemented");

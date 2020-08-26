@@ -56,6 +56,26 @@ namespace RaceHorologyLib
   */
 
 
+
+  class NullEnabledComparer : System.Collections.Generic.IComparer<IComparable>
+  {
+    public int Compare(IComparable x, IComparable y)
+    {
+      if (x == null && y == null)
+        return 0;
+
+      if (x == null && y != null)
+        return 1;
+
+      if (x != null && y == null)
+        return -1;
+      
+      return x.CompareTo(y);
+    }
+  }
+
+
+
   /// <summary>
   /// BaseClass for all ViewProvider
   /// </summary>
@@ -175,15 +195,17 @@ namespace RaceHorologyLib
       _groupingPropertyName = propertyName;
     }
 
+
+    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(StartListEntry rrX, StartListEntry rrY)
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
 
       return groupCompare;
     }
@@ -792,15 +814,17 @@ namespace RaceHorologyLib
       _groupingPropertyName = propertyName;
     }
 
+
+    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(RunResult rrX, RunResult rrY)
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
 
       return groupCompare;
     }
@@ -808,11 +832,11 @@ namespace RaceHorologyLib
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
 
       return groupCompare;
     }

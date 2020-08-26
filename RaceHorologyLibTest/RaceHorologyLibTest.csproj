@@ -86,6 +86,7 @@
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilitiesTest.cs" />
+    <Compile Include="ValueConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="COPYING" />
@@ -104,6 +105,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\1557MRBR.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDataBases\Import\DSV\Punktelisten.zip">
