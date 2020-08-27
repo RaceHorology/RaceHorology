@@ -115,6 +115,58 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
+    public void DatabaseCreate()
+    {
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      string dbFilename = db.CreateDatabase("new.mdb");
+      db.Connect(dbFilename);
+
+      var participants = db.GetParticipants();
+
+      Assert.IsTrue(participants.Count() == 0);
+
+      db.Close();
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void DatabaseUpgradeSchema()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+
+      Assert.IsFalse(existsTable(dbFilename, "RHMisc"), "table 'RHMisc' not yet existing");
+
+      // Open first time, upgrade will be performed
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsTable(dbFilename, "RHMisc"), "table 'RHMisc' is existing");
+
+      // open second time (when upgrade was performed)
+      db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsTable(dbFilename, "RHMisc"), "table 'RHMisc' is still existing");
+    }
+
+
+    bool existsTable(string dbFilename, string tableName)
+    {
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      var schema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+
+      return 
+        schema.Rows
+          .OfType<System.Data.DataRow>()
+          .Any(r => r.ItemArray[2].ToString().ToLower() == tableName.ToLower());
+    }
+
+
+    [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void InitializeApplicationModel()
     {

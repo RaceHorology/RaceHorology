@@ -91,6 +91,7 @@ namespace RaceHorologyLib
       try
       {
         _conn.Open();
+        checkOrUpgradeSchema();
       }
       catch (Exception ex)
       {
@@ -99,7 +100,7 @@ namespace RaceHorologyLib
         throw;
       }
 
-      // Setup internal daat structures
+      // Setup internal data structures
       _id2Participant = new Dictionary<uint, Participant>();
       _id2ParticipantGroups = new Dictionary<uint, ParticipantGroup>();
       _id2ParticipantClasses = new Dictionary<uint, ParticipantClass>();
@@ -117,6 +118,32 @@ namespace RaceHorologyLib
 
       _conn.Close();
       _conn = null;
+    }
+
+
+    void dropTable(string table)
+    {
+      string sql = "DROP TABLE RHMisc";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
+    }
+
+    void checkOrUpgradeSchema()
+    {
+      checkOrUpgradeSchema_RHMisc();
+    }
+
+    void checkOrUpgradeSchema_RHMisc()
+    {
+      // Check if table already existing
+      var schema = _conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+      if (schema.Rows.OfType<System.Data.DataRow>().Any(r => r.ItemArray[2].ToString().ToLower() == "RHMisc".ToLower()))
+        return;
+
+      // Create TABLE RHMisc 
+      string sql = @"CREATE TABLE RHMisc ([key] TEXT(255) NOT NULL, [val] LONGTEXT, PRIMARY KEY ([key]) )";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
     }
 
 
