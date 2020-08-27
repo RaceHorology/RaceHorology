@@ -361,15 +361,13 @@ namespace RaceHorology
       }
     }
 
+
     private void btnImportDSVOnline_Click(object sender, RoutedEventArgs e)
     {
       DSVImportReader dsvImportReader = new DSVImportReaderOnline();
-      foreach (Race race in _dm.GetRaces())
-      {
-        UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
-        import.DoImport();
-      }
+      DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
     }
+
 
     private void btnImportDSVFile_Click(object sender, RoutedEventArgs e)
     {
@@ -377,20 +375,16 @@ namespace RaceHorology
       if (openFileDialog.ShowDialog() == true)
       {
         string path = openFileDialog.FileName;
-
         DSVImportReader dsvImportReader;
         if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
           dsvImportReader = new DSVImportReaderZip(path);
         else
-          dsvImportReader = new DSVImportReader(path);
+          dsvImportReader = new DSVImportReaderFile(path);
 
-        foreach (Race race in _dm.GetRaces())
-        {
-          UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
-          import.DoImport();
-        }
+        DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
       }
     }
+
 
     private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
     {

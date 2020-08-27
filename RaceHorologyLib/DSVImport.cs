@@ -46,6 +46,19 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
+  static public class DSVUpdatePoints
+  {
+    static public void UpdatePoints(AppDataModel dm, DSVImportReader dsvImportReader)
+    {
+      foreach (Race race in dm.GetRaces())
+      {
+        UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
+        import.DoImport();
+      }
+      dm.GetDB().StoreKeyValue("DSV_UsedDSVList", dsvImportReader.UsedDSVList);
+    }
+  }
+
   /// <summary>
   /// Pre-configured mapping for race mapping (race import)
   /// </summary>
