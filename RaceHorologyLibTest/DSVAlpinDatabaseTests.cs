@@ -165,6 +165,25 @@ namespace RaceHorologyLibTest
           .Any(r => r.ItemArray[2].ToString().ToLower() == tableName.ToLower());
     }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void StoreGetKeyValue()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      db.StoreKeyValue("key1", "value1");
+      Assert.AreEqual("value1", db.GetKeyValue("key1"));
+
+      db.StoreKeyValue("key2", "value2");
+      Assert.AreEqual("value2", db.GetKeyValue("key2"));
+
+      db.StoreKeyValue("key1", "value12");
+      Assert.AreEqual("value12", db.GetKeyValue("key1"));
+
+      Assert.AreEqual(null, db.GetKeyValue("keyXXX"));
+    }
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]

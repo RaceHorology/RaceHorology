@@ -993,8 +993,52 @@ namespace RaceHorologyLib
         Logger.Warn(e, "DeleteRunResult failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
+    #endregion
 
+    #region Store / Get Key Value
+    public void StoreKeyValue(string key, string value)
+    {
+      // Delete and Insert
+      OleDbCommand cmdDelete = null, cmdInsert = null;
+      try
+      {
+        string sqlDelete = @"DELETE from RHMisc WHERE [key] = @key";
+        cmdDelete = new OleDbCommand(sqlDelete, _conn);
+        cmdDelete.Parameters.Add(new OleDbParameter("@key", key));
+        cmdDelete.CommandType = CommandType.Text;
+        int temp1 = cmdDelete.ExecuteNonQuery();
 
+        string sqlInsert = @"INSERT INTO RHMisc ([key], [val]) VALUES (@key, @value)";
+        cmdInsert = new OleDbCommand(sqlInsert, _conn);
+        cmdInsert.Parameters.Add(new OleDbParameter("@key", key));
+        cmdInsert.Parameters.Add(new OleDbParameter("@val", value));
+        cmdInsert.CommandType = CommandType.Text;
+        int temp2 = cmdInsert.ExecuteNonQuery();
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "StoreKeyValue failed, SQL delete: {0}, SQL insert: {0}", GetDebugSqlString(cmdDelete), GetDebugSqlString(cmdDelete));
+      }
+    }
+
+    public string GetKeyValue(string key)
+    {
+      string value = null;
+      string sql = @"SELECT * FROM RHMisc WHERE [key] = @key";
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@key", key));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          value = reader["val"].ToString();
+        }
+      }
+
+      return value;
+    }
 
     #endregion
 

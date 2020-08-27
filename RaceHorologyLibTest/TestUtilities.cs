@@ -185,6 +185,8 @@ namespace RaceHorologyLibTest
 
     public void RemoveGroup(ParticipantGroup g) { }
 
+    public void StoreKeyValue(string key, string value) { }
+    public string GetKeyValue(string key) { return null; }
   };
 
 
