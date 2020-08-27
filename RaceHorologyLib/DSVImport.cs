@@ -94,39 +94,32 @@ namespace RaceHorologyLib
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-    protected Stream _dsvData;
-
     protected List<string> _columns;
     protected DataSet _dataSet;
+    protected string _usedDSVList;
 
-    public Mapping Mapping { get; }
+    public Mapping Mapping { get; protected set; }
 
 
-    public DSVImportReader(Stream dsvData)
+
+    public DSVImportReader()
     {
-      _dsvData = dsvData;
-
-      Mapping = new DSVMapping();
-
-      readData();
-    }
-
-
-    public DSVImportReader(string dsvDataFilename)
-    {
-      _dsvData = File.Open(dsvDataFilename, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-      readData();
     }
 
     public DataSet Data { get => _dataSet; }
 
     public List<string> Columns { get => _columns; }
 
-    protected void readData()
-    {
+    public string UsedDSVList { get => _usedDSVList; }
 
-      StreamReader sr = new StreamReader(_dsvData, true);
+
+    protected void readData(Stream dsvData, string usedDsvList)
+    {
+      Mapping = new DSVMapping();
+
+      _usedDSVList = usedDsvList;
+
+      StreamReader sr = new StreamReader(dsvData, true);
 
       _dataSet = new DataSet();
       DataTable table = _dataSet.Tables.Add();
@@ -183,17 +176,35 @@ namespace RaceHorologyLib
   }
 
 
+  public class DSVImportReaderFile : DSVImportReader
+  {
+    public DSVImportReaderFile(string dsvDataFilename)
+    {
+      string usedDSVList = System.IO.Path.GetFileNameWithoutExtension(dsvDataFilename);
+
+      readData(File.Open(dsvDataFilename, FileMode.Open, FileAccess.Read, FileShare.Read), usedDSVList);
+    }
+  }
+
   public class DSVImportReaderZip : DSVImportReader
   {
-    public DSVImportReaderZip(string path) : base(getStream(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)))
+    public DSVImportReaderZip(string path)
     {
+      string usedDSVList;
+      var stream = getStream(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), out usedDSVList);
+
+      readData(stream, usedDSVList);
     }
 
-    public DSVImportReaderZip(Stream streamZip) : base(getStream(streamZip))
+    public DSVImportReaderZip(Stream streamZip)
     {
+      string usedDSVList;
+      var stream = getStream(streamZip, out usedDSVList);
+
+      readData(stream, usedDSVList);
     }
 
-    static Stream getStream(Stream streamZip)
+    static Stream getStream(Stream streamZip, out string dsvList)
     {
       ZipArchive archive = new ZipArchive(streamZip, ZipArchiveMode.Read);
 
@@ -202,14 +213,15 @@ namespace RaceHorologyLib
         {
           if (entry.FullName.StartsWith("DSVSA") && entry.FullName.EndsWith(".txt"))
           {
+            dsvList = System.IO.Path.GetFileNameWithoutExtension(entry.FullName);
             return entry.Open();
           }
         }
       }
 
+      dsvList = null;
       return null;
     }
-
   }
 
 

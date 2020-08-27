@@ -97,8 +97,12 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\Import\DSV\DSVSA2008.txt")]
     public void ImportPointList()
     {
-      DSVImportReader reader = new DSVImportReader(@"DSVSA2008.txt");
+      DSVImportReader reader = new DSVImportReaderFile(@"DSVSA2008.txt");
 
+      Assert.AreEqual("DSVSA2008", reader.UsedDSVList);
+
+      Assert.IsNotNull(reader.Mapping);
+      
       Assert.AreEqual("SvId", reader.Columns[0]);
       Assert.AreEqual("Name", reader.Columns[1]);
       Assert.AreEqual("Firstname", reader.Columns[2]);
@@ -140,6 +144,10 @@ namespace RaceHorologyLibTest
 
       DSVImportReader reader = new DSVImportReaderZip(@"Punktelisten.zip");
 
+      Assert.AreEqual("DSVSA20end", reader.UsedDSVList);
+
+      Assert.IsNotNull(reader.Mapping);
+
       Assert.AreEqual("SvId", reader.Columns[0]);
       Assert.AreEqual("Name", reader.Columns[1]);
       Assert.AreEqual("Firstname", reader.Columns[2]);
@@ -177,6 +185,10 @@ namespace RaceHorologyLibTest
     public void ImportPointListViaWeb()
     {
       DSVImportReader reader = new DSVImportReaderOnline();
+
+      Assert.IsTrue(reader.UsedDSVList.StartsWith("DSVSA"));
+
+      Assert.IsNotNull(reader.Mapping);
 
       Assert.AreEqual("SvId", reader.Columns[0]);
       Assert.AreEqual("Name", reader.Columns[1]);
