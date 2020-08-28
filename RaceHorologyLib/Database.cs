@@ -69,11 +69,11 @@ namespace RaceHorologyLib
     /// <returns>The target path name</returns>
     public string CreateDatabase(string dbPath)
     {
-      string pathTemplates = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"dbtemplates");
-
-      string dbTemplate = System.IO.Path.Combine(pathTemplates, "TemplateDB_Standard.mdb");
-      System.IO.File.Copy(dbTemplate, dbPath, true);
-
+      var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("RaceHorologyLib.dbtemplates.TemplateDB_Standard.mdb");
+      var fileStream = System.IO.File.Create(dbPath);
+      stream.Seek(0, System.IO.SeekOrigin.Begin);
+      stream.CopyTo(fileStream);
+      fileStream.Close();
       return dbPath;
     }
 
