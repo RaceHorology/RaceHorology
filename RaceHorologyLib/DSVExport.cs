@@ -250,7 +250,9 @@ namespace RaceHorologyLib
       _writer.WriteStartElement("racedata");
 
       _writer.WriteStartElement("useddsvlist");
-      _writer.WriteValue("unknown"); // TODO: needs to be fixed
+
+      string usedDSVList = race.GetDataModel().GetDB().GetKeyValue("DSV_UsedDSVList");
+      _writer.WriteValue(usedDSVList);
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("fvalue");
