@@ -352,7 +352,7 @@ namespace RaceHorologyLib
       {
         object group = "";
         if (_groupProperty != null)
-          group = PropertyUtilities.GetPropertyValue(rp, _groupProperty);
+          group = PropertyUtilities.GetPropertyValue(rp, _groupProperty, "");
 
         if (!_group2participant.ContainsKey(group))
           _group2participant[group] = new List<RaceParticipant>();

@@ -129,7 +129,7 @@ namespace RaceHorologyLib
 
     Stream getDataStream(string zipPath)
     {
-      ZipArchive archive = new ZipArchive(new FileStream(zipPath, FileMode.Open), ZipArchiveMode.Read);
+      ZipArchive archive = new ZipArchive(new FileStream(zipPath, FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read);
 
       {
         foreach (ZipArchiveEntry entry in archive.Entries)
@@ -273,7 +273,7 @@ namespace RaceHorologyLib
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
       { "Code", new List<string>{"DSV-Id", "Code"} },
-      { "SvId", new List<string>{"SvId", "SkiverbandId"} }
+      { "SvId", new List<string>{"SvId", "SkiverbandId", "id" } }
     };
 
     public ParticipantMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
@@ -304,8 +304,8 @@ namespace RaceHorologyLib
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG", "Year" } },
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
-      { "Code", new List<string>{"DSV-Id", "Code"} },
-      { "SvId", new List<string>{"SvId", "SkiverbandId"} },
+      { "Code", new List<string>{"DSV-Id", "Code" } },
+      { "SvId", new List<string>{"SvId", "SkiverbandId", "id" } },
       { "Points", new List<string>{"Points", "Punkte"} },
       { "StartNumber", new List<string>{"start number", "Startnummer", "SN"} },
     };
@@ -358,7 +358,7 @@ namespace RaceHorologyLib
 
       try
       {
-        return Convert.ToDouble(v);
+        return Convert.ToDouble(v, System.Globalization.CultureInfo.InvariantCulture);
       }
       catch (Exception)
       {

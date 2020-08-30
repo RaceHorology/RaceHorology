@@ -69,11 +69,11 @@ namespace RaceHorologyLib
     /// <returns>The target path name</returns>
     public string CreateDatabase(string dbPath)
     {
-      string pathTemplates = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"dbtemplates");
-
-      string dbTemplate = System.IO.Path.Combine(pathTemplates, "TemplateDB_Standard.mdb");
-      System.IO.File.Copy(dbTemplate, dbPath, true);
-
+      var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("RaceHorologyLib.dbtemplates.TemplateDB_Standard.mdb");
+      var fileStream = System.IO.File.Create(dbPath);
+      stream.Seek(0, System.IO.SeekOrigin.Begin);
+      stream.CopyTo(fileStream);
+      fileStream.Close();
       return dbPath;
     }
 
@@ -91,6 +91,7 @@ namespace RaceHorologyLib
       try
       {
         _conn.Open();
+        checkOrUpgradeSchema();
       }
       catch (Exception ex)
       {
@@ -99,7 +100,7 @@ namespace RaceHorologyLib
         throw;
       }
 
-      // Setup internal daat structures
+      // Setup internal data structures
       _id2Participant = new Dictionary<uint, Participant>();
       _id2ParticipantGroups = new Dictionary<uint, ParticipantGroup>();
       _id2ParticipantClasses = new Dictionary<uint, ParticipantClass>();
@@ -117,6 +118,32 @@ namespace RaceHorologyLib
 
       _conn.Close();
       _conn = null;
+    }
+
+
+    void dropTable(string table)
+    {
+      string sql = "DROP TABLE RHMisc";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
+    }
+
+    void checkOrUpgradeSchema()
+    {
+      checkOrUpgradeSchema_RHMisc();
+    }
+
+    void checkOrUpgradeSchema_RHMisc()
+    {
+      // Check if table already existing
+      var schema = _conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+      if (schema.Rows.OfType<System.Data.DataRow>().Any(r => r.ItemArray[2].ToString().ToLower() == "RHMisc".ToLower()))
+        return;
+
+      // Create TABLE RHMisc 
+      string sql = @"CREATE TABLE RHMisc ([key] TEXT(255) NOT NULL, [val] LONGTEXT, PRIMARY KEY ([key]) )";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
     }
 
 
@@ -966,8 +993,52 @@ namespace RaceHorologyLib
         Logger.Warn(e, "DeleteRunResult failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
+    #endregion
 
+    #region Store / Get Key Value
+    public void StoreKeyValue(string key, string value)
+    {
+      // Delete and Insert
+      OleDbCommand cmdDelete = null, cmdInsert = null;
+      try
+      {
+        string sqlDelete = @"DELETE from RHMisc WHERE [key] = @key";
+        cmdDelete = new OleDbCommand(sqlDelete, _conn);
+        cmdDelete.Parameters.Add(new OleDbParameter("@key", key));
+        cmdDelete.CommandType = CommandType.Text;
+        int temp1 = cmdDelete.ExecuteNonQuery();
 
+        string sqlInsert = @"INSERT INTO RHMisc ([key], [val]) VALUES (@key, @value)";
+        cmdInsert = new OleDbCommand(sqlInsert, _conn);
+        cmdInsert.Parameters.Add(new OleDbParameter("@key", key));
+        cmdInsert.Parameters.Add(new OleDbParameter("@val", value));
+        cmdInsert.CommandType = CommandType.Text;
+        int temp2 = cmdInsert.ExecuteNonQuery();
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "StoreKeyValue failed, SQL delete: {0}, SQL insert: {0}", GetDebugSqlString(cmdDelete), GetDebugSqlString(cmdDelete));
+      }
+    }
+
+    public string GetKeyValue(string key)
+    {
+      string value = null;
+      string sql = @"SELECT * FROM RHMisc WHERE [key] = @key";
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@key", key));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          value = reader["val"].ToString();
+        }
+      }
+
+      return value;
+    }
 
     #endregion
 

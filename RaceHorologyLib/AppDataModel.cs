@@ -1088,6 +1088,9 @@ namespace RaceHorologyLib
 
     void UpdateRace(Race race, bool active);
 
+
+    void StoreKeyValue(string key, string value);
+    string GetKeyValue(string key);
   };
 
 }

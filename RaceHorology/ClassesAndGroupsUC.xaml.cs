@@ -1,4 +1,5 @@
 ﻿using GongSolutions.Wpf.DragDrop;
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,20 @@ namespace RaceHorology
     private void BtnApply_Click(object sender, RoutedEventArgs e)
     {
       _cgVM.Store();
+    }
+
+    private void BtnImport_Click(object sender, RoutedEventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      openFileDialog.Filter =
+        "Bewerbsdateien (*.mdb)|*.mdb";
+      if (openFileDialog.ShowDialog() == true)
+      {
+        Database importDB = new Database();
+        importDB.Connect(openFileDialog.FileName);
+        AppDataModel importModel = new AppDataModel(importDB);
+        _cgVM.Import(importModel);
+      }
     }
   }
 
@@ -97,6 +112,33 @@ namespace RaceHorology
         var c2 = new ParticipantClass(c1.Id, c1.Group == null ? null : _group2Group[c1.Group], c1.Name, c1.Sex, c1.Year, c1.SortPos);
         dstClasses.Add(c2);
         _class2Class.Add(c1, c2);
+      }
+
+      GroupViewModel.Assign(dstGroups);
+      ClassViewModel.Assign(dstClasses);
+    }
+
+
+    public void Import(AppDataModel srcModel)
+    {
+      var srcGroups = srcModel.GetParticipantGroups();
+      var srcClasses = srcModel.GetParticipantClasses();
+
+      List<ParticipantGroup> dstGroups = new List<ParticipantGroup>();
+      List<ParticipantClass> dstClasses = new List<ParticipantClass>();
+      Dictionary<ParticipantGroup, ParticipantGroup> group2Group = new Dictionary<ParticipantGroup, ParticipantGroup>();
+
+      foreach (var g1 in srcGroups)
+      {
+        var g2 = new ParticipantGroup(g1.Id, g1.Name, g1.SortPos);
+        dstGroups.Add(g2);
+        group2Group.Add(g1, g2);
+      }
+
+      foreach (var c1 in srcClasses)
+      {
+        var c2 = new ParticipantClass(c1.Id, c1.Group == null ? null : group2Group[c1.Group], c1.Name, c1.Sex, c1.Year, c1.SortPos);
+        dstClasses.Add(c2);
       }
 
       GroupViewModel.Assign(dstGroups);
