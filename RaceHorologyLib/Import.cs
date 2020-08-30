@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -273,7 +273,7 @@ namespace RaceHorologyLib
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
       { "Code", new List<string>{"DSV-Id", "Code"} },
-      { "SvId", new List<string>{"SvId", "SkiverbandId"} }
+      { "SvId", new List<string>{"SvId", "SkiverbandId", "id" } }
     };
 
     public ParticipantMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
@@ -304,8 +304,8 @@ namespace RaceHorologyLib
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG", "Year" } },
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
-      { "Code", new List<string>{"DSV-Id", "Code"} },
-      { "SvId", new List<string>{"SvId", "SkiverbandId"} },
+      { "Code", new List<string>{"DSV-Id", "Code" } },
+      { "SvId", new List<string>{"SvId", "SkiverbandId", "id" } },
       { "Points", new List<string>{"Points", "Punkte"} },
       { "StartNumber", new List<string>{"start number", "Startnummer", "SN"} },
     };
