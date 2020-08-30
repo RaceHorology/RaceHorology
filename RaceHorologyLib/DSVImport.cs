@@ -153,6 +153,10 @@ namespace RaceHorologyLib
         try
         {
           string id = line.Substring(0, 10).Trim();
+
+          if (id == "1000") // Last line
+            continue;
+
           string name = line.Substring(10, 20).Trim();
           string firstname = line.Substring(30, 14).Trim();
           string year = line.Substring(44, 10).Trim();
@@ -160,10 +164,6 @@ namespace RaceHorologyLib
           string region = line.Substring(84, 10).Trim();
           string points = line.Substring(94, 10).Trim();
           string sex = line.Substring(104).Trim();
-
-          if (id == "1000") // Last line
-            continue;
-
           DataRow row = table.NewRow();
           row["SvId"] = id;
           row["Name"] = name;
