@@ -410,6 +410,15 @@ namespace RaceHorologyLib
       return obj;
     }
 
+    public static object GetPropertyValue(object obj, string propertyName, object defaultValue)
+    {
+      object val = GetPropertyValue(obj, propertyName);
+      if (val == null)
+        val = defaultValue;
+
+      return val;
+    }
+
   }
 
 
