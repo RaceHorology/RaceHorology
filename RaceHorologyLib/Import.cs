@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -358,7 +358,7 @@ namespace RaceHorologyLib
 
       try
       {
-        return Convert.ToDouble(v);
+        return Convert.ToDouble(v, System.Globalization.CultureInfo.InvariantCulture);
       }
       catch (Exception)
       {
