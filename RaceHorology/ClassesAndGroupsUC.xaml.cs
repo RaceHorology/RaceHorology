@@ -128,8 +128,8 @@ namespace RaceHorology
         _class2Class.Add(c1, c2);
       }
 
-      GroupViewModel.Assign(dstGroups);
-      ClassViewModel.Assign(dstClasses);
+      GroupViewModel.Assign(dstGroups, true);
+      ClassViewModel.Assign(dstClasses, true);
     }
 
 
@@ -155,13 +155,8 @@ namespace RaceHorology
         dstClasses.Add(c2);
       }
 
-      if (replace)
-      {
-        GroupViewModel.Items.Clear();
-        ClassViewModel.Items.Clear();
-      }
-      GroupViewModel.Items.InsertRange(dstGroups);
-      ClassViewModel.Items.InsertRange(dstClasses);
+      GroupViewModel.Assign(dstGroups, false);
+      ClassViewModel.Assign(dstClasses, false);
     }
 
 
@@ -278,10 +273,12 @@ namespace RaceHorology
       _itemsWONewItem.Source = Items;
     }
 
-    public void Assign(IList<ParticipantGroup> groups)
+    public void Assign(IList<ParticipantGroup> groups, bool delete)
     {
-      Items.Clear();
+      if (delete)
+        Items.Clear();
       Items.InsertRange(groups);
+      Items.Sort(new StdComparer());
     }
 
     void IDropTarget.DragOver(IDropInfo dropInfo)
@@ -321,10 +318,12 @@ namespace RaceHorology
       Items = new ObservableCollection<ParticipantClass>();
     }
 
-    public void Assign(IList<ParticipantClass> classes)
+    public void Assign(IList<ParticipantClass> classes, bool delete)
     {
-      Items.Clear();
+      if (delete)
+        Items.Clear();
       Items.InsertRange(classes);
+      Items.Sort(new StdComparer());
     }
 
     void IDropTarget.DragOver(IDropInfo dropInfo)
