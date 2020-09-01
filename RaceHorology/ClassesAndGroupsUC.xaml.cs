@@ -59,7 +59,21 @@ namespace RaceHorology
         Database importDB = new Database();
         importDB.Connect(openFileDialog.FileName);
         AppDataModel importModel = new AppDataModel(importDB);
-        _cgVM.Import(importModel);
+        _cgVM.Import(importModel, true);
+      }
+    }
+
+    private void BtnImportAdd_Click(object sender, RoutedEventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      openFileDialog.Filter =
+        "Bewerbsdateien (*.mdb)|*.mdb";
+      if (openFileDialog.ShowDialog() == true)
+      {
+        Database importDB = new Database();
+        importDB.Connect(openFileDialog.FileName);
+        AppDataModel importModel = new AppDataModel(importDB);
+        _cgVM.Import(importModel, false);
       }
     }
   }
@@ -119,7 +133,7 @@ namespace RaceHorology
     }
 
 
-    public void Import(AppDataModel srcModel)
+    public void Import(AppDataModel srcModel, bool replace)
     {
       var srcGroups = srcModel.GetParticipantGroups();
       var srcClasses = srcModel.GetParticipantClasses();
@@ -141,8 +155,13 @@ namespace RaceHorology
         dstClasses.Add(c2);
       }
 
-      GroupViewModel.Assign(dstGroups);
-      ClassViewModel.Assign(dstClasses);
+      if (replace)
+      {
+        GroupViewModel.Items.Clear();
+        ClassViewModel.Items.Clear();
+      }
+      GroupViewModel.Items.InsertRange(dstGroups);
+      ClassViewModel.Items.InsertRange(dstClasses);
     }
 
 
