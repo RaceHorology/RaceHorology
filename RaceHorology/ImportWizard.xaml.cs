@@ -91,7 +91,7 @@ namespace RaceHorology
         Race race = r as Race;
         if (race != null)
         {
-          RaceImport imp = new RaceImport(_importReader.Data, race, _importMapping);
+          RaceImport imp = new RaceImport(_importReader.Data, race, _importMapping, new ClassAssignment(_dm.GetParticipantClasses()));
           imp.DoImport();
         }
       }
