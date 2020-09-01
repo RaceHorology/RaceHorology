@@ -326,11 +326,12 @@ namespace RaceHorologyLib
   public class BaseImport
   {
     protected Mapping _mapping;
+    protected ClassAssignment _classAssignment;
 
-    protected BaseImport(Mapping mapping)
+    protected BaseImport(Mapping mapping, ClassAssignment classAssignment)
     {
       _mapping = mapping;
-
+      _classAssignment = classAssignment;
     }
 
     protected object getValueAsObject(DataRow row, string field)
@@ -382,6 +383,12 @@ namespace RaceHorologyLib
       }
     }
 
+    protected void assignClass(Participant participant)
+    {
+      if (_classAssignment != null)
+        participant.Class = _classAssignment.DetermineClass(participant);
+    }
+
   }
 
 
@@ -391,7 +398,7 @@ namespace RaceHorologyLib
     DataSet _importDataSet;
     IList<Participant> _particpants;
 
-    public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping) : base(mapping)
+    public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
     {
       _importDataSet = ds;
       _particpants = particpants;
@@ -427,6 +434,8 @@ namespace RaceHorologyLib
         partImported = updateParticipant(partExisting, partCreated);
       else
         partImported = insertParticpant(partCreated);
+
+      assignClass(partImported);
 
       return partImported;
     }
@@ -511,7 +520,7 @@ namespace RaceHorologyLib
     DataSet _importDataSet;
     Race _race;
 
-    public RaceImport(DataSet ds, Race race, Mapping mapping) : base(mapping)
+    public RaceImport(DataSet ds, Race race, Mapping mapping, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
     {
       _importDataSet = ds;
       _race = race;
@@ -521,7 +530,7 @@ namespace RaceHorologyLib
     public void DoImport()
     {
       // 1. Normaler Import
-      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
+      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping, _classAssignment);
 
       // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
       var rows = _importDataSet.Tables[0].Rows;
@@ -561,7 +570,7 @@ namespace RaceHorologyLib
     Race _race;
 
 
-    public UpdatePointsImport(DataSet ds, Race race, Mapping mapping) : base(mapping)
+    public UpdatePointsImport(DataSet ds, Race race, Mapping mapping) : base(mapping, null)
     {
       _importDataSet = ds;
       _race = race;
