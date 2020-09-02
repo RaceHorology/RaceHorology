@@ -247,7 +247,7 @@ public class LiveTimingRM : ILiveTiming
 
     _isOnline = true;
 
-    _lv.StartLiveTiming(ref _currentLvStruct);
+    startLiveTiming();
   }
 
 
@@ -310,8 +310,11 @@ public class LiveTimingRM : ILiveTiming
   internal string getClasses()
   {
     string result = "";
-    
-    foreach (var c in _race.GetDataModel().GetParticipantClasses())
+
+    var classes = _race.GetDataModel().GetParticipantClasses().ToList();
+    classes.Sort();
+
+    foreach (var c in classes)
     {
       string item;
       item = string.Format("Klasse|{0}|{1}|{2}", c.Id, c.Name, c.SortPos);
@@ -330,7 +333,10 @@ public class LiveTimingRM : ILiveTiming
   {
     string result = "";
 
-    foreach (var c in _race.GetDataModel().GetParticipantGroups())
+    var groups = _race.GetDataModel().GetParticipantGroups().ToList();
+    groups.Sort();
+
+    foreach (var c in groups)
     {
       string item;
       item = string.Format("Gruppe|{0}|{1}|{2}", c.Id, c.Name, c.SortPos);
@@ -562,7 +568,7 @@ public class LiveTimingRM : ILiveTiming
     lock (_transferLock)
     {
       // Remove all outdated transfers
-      _transfers.RemoveAll(x => x.IsSameType(transfer));
+      _transfers.RemoveAll(x => x.IsEqual(transfer));
       _transfers.Add(transfer);
     }
 

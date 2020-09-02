@@ -71,19 +71,66 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ALGETdC8001Tests.cs" />
+    <Compile Include="AppDataModelTest.cs" />
     <Compile Include="AppDataModelViewTests.cs" />
     <Compile Include="DSVAlpin2HTTPServerTest.cs" />
     <Compile Include="DSVAlpinDatabaseTests.cs" />
+    <Compile Include="DSVCalculationTests.cs" />
+    <Compile Include="DSVExportTest.cs" />
+    <Compile Include="DSVImportTest.cs" />
+    <Compile Include="ImportTest.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />
+    <Compile Include="StartNumberTest.cs" />
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilitiesTest.cs" />
+    <Compile Include="ValueConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="COPYING" />
     <None Include="DSVAlpin2LibTest.runsettings" />
     <None Include="packages.config" />
+    <None Include="TestDataBases\FullTestCases\Case1\ALGETdC8001-202002020841.dump">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\FullTestCases\Case1\ALGETdC8001-202002021133.dump">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\FullTestCases\Case1\KSC4--U12_GiantSlalom.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\FullTestCases\Case1\KSC4-U14-_GiantSlalom.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\1557MRBR.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\DSV\Punktelisten.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_Import_Race.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.tsv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844_comma.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDataBases\TestDB_LessParticipants_LiveTiming_GiantSlalom.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -99,28 +146,53 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestDataBases\Kirchberg U8 U10 10.02.19 RS Neu.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4--U12.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestDataBases\KSC2019-2-PSL.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestDataBases\RegioCupFinal2019 - Schueler-U10-U16.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4-U14-.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4-U14-_ALGE_Run1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case1\KSC4-U14-_ALGE_Run2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\FullTestCases\Case2\1554MSBS.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\Import\DSV\DSVSA2008.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\Import\Teilnehmer_V1_202001301844.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_Empty.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\TestDB_EmptyManyClasses.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants_LiveTiming.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\TestDB_LessParticipants_MultipleRacesNoStartnumber.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

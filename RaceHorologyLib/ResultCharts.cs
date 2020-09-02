@@ -1,3 +1,38 @@
+/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,7 +47,17 @@ namespace RaceHorologyLib
 {
   public class ResultCharts
   {
-
+    protected string workaroundGermanUmlaut(string str)
+    {
+      return str
+        .Replace("ä", "ae")
+        .Replace("ö", "oe")
+        .Replace("ü", "ue")
+        .Replace("Ä", "Ae")
+        .Replace("Ö", "Oe")
+        .Replace("Ü", "Ue")
+        .Replace("ß", "ss");
+    }
 
     //Base10Exponent returns the integer exponent (N) that would yield a
     //number of the form A x Exp10(N), where 1.0 <= |A| < 10.0
@@ -92,7 +137,7 @@ namespace RaceHorologyLib
         {
           if (group is System.Windows.Data.CollectionViewGroup cvGroup)
           {
-            var lblGroup = axis.CustomLabels.Add(x1 - 0.5, x1 + 0.5, cvGroup.Name.ToString());
+            var lblGroup = axis.CustomLabels.Add(x1 - 0.5, x1 + 0.5, workaroundGermanUmlaut(cvGroup.Name.ToString()));
             lblGroup.GridTicks = GridTickTypes.None;
 
             // Second Level if possible
@@ -104,7 +149,7 @@ namespace RaceHorologyLib
 
               if (!string.Equals(name2, name2Last))
               {
-                var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, name2Last, 1, LabelMarkStyle.LineSideMark);
+                var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, workaroundGermanUmlaut(name2Last), 1, LabelMarkStyle.LineSideMark);
                 name2Last = name2;
                 x2Last = x2;
               }
@@ -118,7 +163,7 @@ namespace RaceHorologyLib
         // Final 2nd group
         if (name2 != null && name2Last != null)
         {
-          var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, name2Last, 1, LabelMarkStyle.LineSideMark);
+          var lblName2 = axis.CustomLabels.Add(x2Last - 0.5, (x2 - 1) + 0.5, workaroundGermanUmlaut(name2Last), 1, LabelMarkStyle.LineSideMark);
         }
 
         axis.Maximum = x2 - 0.5;
@@ -398,19 +443,33 @@ namespace RaceHorologyLib
     }
 
 
-    public void RenderToFile(Stream wmfStream, RaceResultViewProvider results)
+    public void RenderToWmf(Stream wmfStream, RaceResultViewProvider results)
     {
 
       SetupChart(_chart, results);
 
       //_chart.SaveImage(path, ChartImageFormat.Png);
-
+  
       MemoryStream emfStream = new MemoryStream();
       _chart.SaveImage(emfStream, ChartImageFormat.Emf);
 
       emfStream.Seek(0, SeekOrigin.Begin);
       ConvertToWMF(emfStream, wmfStream);
+
+      //_chart.SaveImage(wmfStream, System.Drawing.Imaging.ImageFormat.Wmf);
+      //wmfStream.Seek(0, SeekOrigin.Begin);
+      //_chart.SaveImage(@"c:\trash\test.wmf", System.Drawing.Imaging.ImageFormat.Wmf);
     }
+
+
+    public void RenderToImage(Stream imgStream, RaceResultViewProvider results)
+    {
+
+      SetupChart(_chart, results);
+
+      _chart.SaveImage(imgStream, ChartImageFormat.Png);
+    }
+
 
 
     #region EMF to WMF (iText can only WMF)
@@ -429,7 +488,12 @@ namespace RaceHorologyLib
     {
       const int MM_ANISOTROPIC = 8;
       System.Drawing.Imaging.Metafile mf = new System.Drawing.Imaging.Metafile(emfStream);
+      System.Drawing.Imaging.Metafile mf2 = new System.Drawing.Imaging.Metafile(@"c:\trash\test.emf");
+
       int handle = mf.GetHenhmetafile().ToInt32();
+      int handle2 = mf2.GetHenhmetafile().ToInt32();
+
+
 
       int bufferSize = GdipEmfToWmfBits(handle, 0, null, MM_ANISOTROPIC, EmfToWmfBitsFlags.EmfToWmfBitsFlagsIncludePlaceable);
 

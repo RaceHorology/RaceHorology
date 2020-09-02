@@ -1,4 +1,39 @@
-﻿using System;
+﻿/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
@@ -8,28 +43,19 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
-  public class ALGETdC8001TimeMeasurement : ILiveTimeMeasurement, ILiveDateTimeProvider
+  public abstract class ALGETdC8001TimeMeasurementBase : ILiveTimeMeasurement, ILiveDateTimeProvider
   {
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
 
-    public delegate void RawMessageReceivedEventHandler(object sender, string message);
-    public event RawMessageReceivedEventHandler RawMessageReceived;
-
-    private string _serialPortName;
-    private SerialPort _serialPort;
-    System.IO.StreamWriter _dumpFile;
-
-    System.Threading.Thread _instanceCaller;
-    bool _stopRequest;
-
-    string _statusText;
+    ALGETdC8001LineParser _parser;
+    protected string _statusText;
 
     TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
 
-    public ALGETdC8001TimeMeasurement(string comport)
+    public ALGETdC8001TimeMeasurementBase()
     {
-      _serialPortName = comport;
       _statusText = "Not running";
+      _parser = new ALGETdC8001LineParser();
     }
 
 
@@ -38,9 +64,9 @@ namespace RaceHorologyLib
       return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
     }
 
-    public string GetInfo()
+    public virtual string GetInfo()
     {
-      return "ALGE TdC 8001 (" + _serialPortName + ")";
+      return "ALGE TdC 8001 (base)";
     }
 
 
@@ -50,130 +76,35 @@ namespace RaceHorologyLib
     }
 
 
-    public void Start()
+    public abstract void Start();
+    public abstract void Stop();
+
+
+    protected void processLine(string dataLine)
     {
-      if (string.IsNullOrEmpty(_serialPortName))
-        return;
-
-      _statusText = "Starting";
-
-      _stopRequest = false;
-
-      string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
-      _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
-
-      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
-      _serialPort.NewLine = "\r"; // CR, ASCII(13)
-      _serialPort.Handshake = Handshake.RequestToSend;
-      _serialPort.ReadTimeout = 1000;
-
-      // Start processing in a separate Thread
-      _instanceCaller = new System.Threading.Thread(
-          new System.Threading.ThreadStart(this.MainLoop));
-      _instanceCaller.Start();
-    }
-
-    public void Stop()
-    {
-      if (_instanceCaller != null)
+      ALGETdC8001LiveTimingData parsedData = null;
+      try
       {
-        _statusText = "Stopping";
-
-        _stopRequest = true;
-        _instanceCaller.Join(); // Wait until thread has been terminated
-
-        _dumpFile.Close();
+        parsedData = _parser.Parse(dataLine);
       }
-    }
+      catch (Exception)
+      {}
 
-    private void MainLoop()
-    {
-      ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
-
-      while (!_stopRequest)
+      try
       {
-        if (!EnsureOpenPort())
+        UpdateLiveDayTime(parsedData);
+
+        TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(parsedData);
+        if (timeMeasurmentData != null)
         {
-          _statusText = "Serial port not available";
-
-          System.Threading.Thread.Sleep(2000);
-          continue;
-        }
-
-        try
-        {
-          _statusText = "Running";
-
-          string dataLine = _serialPort.ReadLine();
-          DebugLine(dataLine);
-
-          ALGETdC8001LiveTimingData parsedData = null;
-          try
-          {
-            parsedData = parser.Parse(dataLine);
-          }
-          catch (FormatException)
-          { continue; }
-
-          try
-          {
-            UpdateLiveDayTime(parsedData);
-
-            TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(parsedData);
-            if (timeMeasurmentData != null)
-            {
-              // Trigger event
-              var handle = TimeMeasurementReceived;
-              handle?.Invoke(this, timeMeasurmentData);
-            }
-          }
-          catch (FormatException)
-          { continue; }
-        }
-        catch (TimeoutException)
-        { continue; }
-      }
-
-      _serialPort.Close();
-
-      _statusText = "Stopped";
-    }
-
-
-    bool EnsureOpenPort()
-    {
-      if (!_serialPort.IsOpen)
-      {
-        try
-        {
-          _serialPort.Open();
-        }
-        catch (ArgumentException)
-        {
-          return false;
-        }
-        catch (IOException)
-        {
-          return false;
-        }
-        catch (InvalidOperationException)
-        {
-          return false;
+          // Trigger event
+          var handle = TimeMeasurementReceived;
+          handle?.Invoke(this, timeMeasurmentData);
         }
       }
-      return true;
+      catch (FormatException)
+      {}
     }
-
-
-    void DebugLine(string dataLine)
-    {
-      _dumpFile?.WriteLine(dataLine);
-      _dumpFile?.Flush();
-
-      RawMessageReceivedEventHandler handler = RawMessageReceived;
-      handler?.Invoke(this, dataLine);
-    }
-
 
     public static TimeMeasurementEventArgs TransferToTimemeasurementData(in ALGETdC8001LiveTimingData parsedData)
     {
@@ -225,7 +156,7 @@ namespace RaceHorologyLib
     #region Implementation of ILiveDateTimeProvider
     public event LiveDateTimeChangedHandler LiveDateTimeChanged;
 
-    void UpdateLiveDayTime(in ALGETdC8001LiveTimingData justReceivedData)
+    protected void UpdateLiveDayTime(in ALGETdC8001LiveTimingData justReceivedData)
     {
       // Sort out invalid data
       if (justReceivedData.Flag == 'p'
@@ -248,9 +179,138 @@ namespace RaceHorologyLib
       handler?.Invoke(this, new LiveDateTimeEventArgs(justReceivedData.Time));
 
     }
+    #endregion
   }
 
-  #endregion
+
+  public class ALGETdC8001TimeMeasurement : ALGETdC8001TimeMeasurementBase
+  {
+    public delegate void RawMessageReceivedEventHandler(object sender, string message);
+    public event RawMessageReceivedEventHandler RawMessageReceived;
+
+    private string _serialPortName;
+    private SerialPort _serialPort;
+    System.IO.StreamWriter _dumpFile;
+
+    System.Threading.Thread _instanceCaller;
+    bool _stopRequest;
+
+    public ALGETdC8001TimeMeasurement(string comport) : base()
+    {
+      _serialPortName = comport;
+    }
+
+    public override string GetInfo()
+    {
+      return "ALGE TdC 8001 (" + _serialPortName + ")";
+    }
+
+    public override void Start()
+    {
+      if (string.IsNullOrEmpty(_serialPortName))
+        return;
+
+      _statusText = "Starting";
+
+      _stopRequest = false;
+
+      string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
+      _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
+
+      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
+      _serialPort.NewLine = "\r"; // CR, ASCII(13)
+      _serialPort.Handshake = Handshake.RequestToSend;
+      _serialPort.ReadTimeout = 1000;
+
+      // Start processing in a separate Thread
+      _instanceCaller = new System.Threading.Thread(
+          new System.Threading.ThreadStart(this.MainLoop));
+      _instanceCaller.Start();
+    }
+    
+    public override void Stop()
+    {
+      if (_instanceCaller != null)
+      {
+        _statusText = "Stopping";
+
+        _stopRequest = true;
+        _instanceCaller.Join(); // Wait until thread has been terminated
+
+        _dumpFile.Close();
+      }
+    }
+
+    private void MainLoop()
+    {
+      while (!_stopRequest)
+      {
+        if (!EnsureOpenPort())
+        {
+          _statusText = "Serial port not available";
+
+          System.Threading.Thread.Sleep(2000);
+          continue;
+        }
+
+        try
+        {
+          _statusText = "Running";
+
+          string dataLine = _serialPort.ReadLine();
+
+          debugLine(dataLine);
+          processLine(dataLine);
+        }
+        catch (TimeoutException)
+        { continue; }
+      }
+
+      _serialPort.Close();
+
+      _statusText = "Stopped";
+    }
+
+
+    bool EnsureOpenPort()
+    {
+      if (!_serialPort.IsOpen)
+      {
+        try
+        {
+          _serialPort.Open();
+        }
+        catch (ArgumentException)
+        {
+          return false;
+        }
+        catch (IOException)
+        {
+          return false;
+        }
+        catch (InvalidOperationException)
+        {
+          return false;
+        }
+        catch (Exception)
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
+
+    void debugLine(string dataLine)
+    {
+      _dumpFile?.WriteLine(dataLine);
+      _dumpFile?.Flush();
+
+      RawMessageReceivedEventHandler handler = RawMessageReceived;
+      handler?.Invoke(this, dataLine);
+    }
+
+  }
 
 
   public class ALGETdC8001LiveTimingData

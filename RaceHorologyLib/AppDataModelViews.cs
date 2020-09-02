@@ -1,3 +1,38 @@
+/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +54,6 @@ namespace RaceHorologyLib
     }
   }
   */
-
 
   /// <summary>
   /// BaseClass for all ViewProvider
@@ -72,7 +106,6 @@ namespace RaceHorologyLib
       { 
         GroupDescription gd = new PropertyGroupDescription(propertyName);
         gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-        //gd.CustomSort = new DebugSort();
         _view.GroupDescriptions.Add(gd);
 
         _view.LiveGroupingProperties.Add(propertyName);
@@ -120,12 +153,40 @@ namespace RaceHorologyLib
     }
     public virtual int Compare(StartListEntry left, StartListEntry right)
     {
+
+      int groupCompare = CompareGroup(left, right);
+      if (groupCompare != 0)
+        return groupCompare;
+
       if (left.StartNumber < right.StartNumber)
         return -1 * (int)_direction;
       else if (left.StartNumber > right.StartNumber)
         return 1  * (int)_direction;
       else
         return 0;
+    }
+
+
+
+    string _groupingPropertyName;
+    public void SetGrouping(string propertyName)
+    {
+      _groupingPropertyName = propertyName;
+    }
+
+
+    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
+    protected int CompareGroup(StartListEntry rrX, StartListEntry rrY)
+    {
+      int groupCompare = 0;
+      if (_groupingPropertyName == "Participant.Class")
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
+      else if (_groupingPropertyName == "Participant.Group")
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
+      else if (_groupingPropertyName == "Participant.Sex")
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
+
+      return groupCompare;
     }
   }
 
@@ -167,7 +228,7 @@ namespace RaceHorologyLib
     protected ObservableCollection<RaceParticipant> _participants;
     protected ItemsChangedNotifier _sourceItemChangedNotifier;
 
-    protected System.Collections.Generic.IComparer<StartListEntry> _comparer;
+    protected StartListEntryComparer _comparer;
 
 
     public FirstRunStartListViewProvider()
@@ -195,6 +256,17 @@ namespace RaceHorologyLib
 
       base.FinalizeInit();
     }
+
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+
+      // Ensure list is sorted again
+      if (_viewList != null)
+        _viewList.Sort(_comparer);
+    }
+
 
     private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -327,7 +399,20 @@ namespace RaceHorologyLib
       _startList1stRun.CollectionChanged += OnSourceChanged;
       _sourceItemChangedNotifier = new ItemsChangedNotifier(_startList1stRun);
       _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
+
+      FinalizeInit();
     }
+
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+
+      // Ensure list is sorted again
+      if (_viewList != null)
+        _viewList.Sort(_comparer);
+    }
+
 
     private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -343,7 +428,7 @@ namespace RaceHorologyLib
 
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
-          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+          _viewList.InsertSorted(CreateStartListEntry((StartListEntry)item), _comparer);
     }
 
     private StartListEntry CreateStartListEntry(StartListEntry sleSRC)
@@ -464,9 +549,22 @@ namespace RaceHorologyLib
 
 
     protected void ProcessGroup(List<RunResult> resultsCurGroup, List<StartListEntry> newStartList)
-    { 
+    {
+      // Find how many valid results are there (could be less than _reverseBestN)
+      int firstBestN = 0;
+      foreach( var item in resultsCurGroup)
+      {
+        if (firstBestN >= _reverseBestN)
+          break;
+
+        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal)
+          break;
+          
+        firstBestN++;
+      }
+
       // Pick best n starter in reverse order
-      for (int i = _reverseBestN - 1; i >= 0; --i)
+      for (int i = firstBestN - 1; i >= 0; --i)
       {
         if (i >= resultsCurGroup.Count())
           continue;
@@ -474,20 +572,20 @@ namespace RaceHorologyLib
         newStartList.Add(CreateStartListEntry(resultsCurGroup[i]));
       }
 
+      // Separate remaining results and remember omitted results for appending to list
       List<RunResult> omittedResults = new List<RunResult>();
-      for (int i = _reverseBestN; i < resultsCurGroup.Count(); ++i)
+      for (int i = firstBestN; i < resultsCurGroup.Count(); ++i)
       {
         RunResult result = resultsCurGroup[i];
-        if (result.Runtime != null)
-          newStartList.Add(CreateStartListEntry(result));
-        else
+        if (result.Runtime == null || result.ResultCode != RunResult.EResultCode.Normal)
           omittedResults.Add(result);
+        else
+          newStartList.Add(CreateStartListEntry(result));
       }
 
       if (_allowNonResults)
       {
-        // Remaining in reverse order
-
+        // Add remaining starters with reverse startnumber order
         omittedResults.Sort(new SortByStartnumberDesc());
         foreach (RunResult result in omittedResults)
         {
@@ -580,7 +678,7 @@ namespace RaceHorologyLib
 
 
       // Create working list
-      _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
+      _viewList = new CopyObservableCollection<StartListEntry, StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
       foreach (StartListEntry entry in _viewList)
         UpdateStartListEntry(entry);
 
@@ -695,15 +793,17 @@ namespace RaceHorologyLib
       _groupingPropertyName = propertyName;
     }
 
+
+    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(RunResult rrX, RunResult rrY)
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
 
       return groupCompare;
     }
@@ -711,11 +811,11 @@ namespace RaceHorologyLib
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
 
       return groupCompare;
     }
@@ -788,7 +888,7 @@ namespace RaceHorologyLib
 
 
     // Input: RaceRun
-    public void Init(RaceRun raceRun, AppDataModel appDataModel)
+    public virtual void Init(RaceRun raceRun, AppDataModel appDataModel)
     {
       _originalResults = raceRun.GetResultList();
       _appDataModel = appDataModel;
@@ -907,6 +1007,7 @@ namespace RaceHorologyLib
           {
             System.Diagnostics.Debug.Assert(curPosition == 1);
             firstTime = item.Runtime;
+            item.DiffToFirst = null;
           }
           else
             item.DiffToFirst = item.Runtime - firstTime;
@@ -915,7 +1016,10 @@ namespace RaceHorologyLib
           lastTime = item.Runtime;
         }
         else
+        {
           item.Position = 0;
+          item.DiffToFirst = null;
+        }
 
         // Set the JustModified flag to highlight new results
         item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
@@ -959,18 +1063,28 @@ namespace RaceHorologyLib
 
   public class RaceResultViewProvider : ResultViewProvider
   {
-    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResult> results, out RunResult.EResultCode code, out string disqualText);
+    protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+
+    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode code, out string disqualText);
 
     TimeCombination _timeCombination;
     // Input Data
-    Race _race;
-    RaceRun[] _raceRuns;
-    AppDataModel _appDataModel;
+    protected Race _race;
+    protected RaceRun[] _raceRuns;
+    protected AppDataModel _appDataModel;
 
     // Working Data
-    ItemsChangeObservableCollection<RaceResultItem> _viewList;
-    ResultSorter<RaceResultItem> _comparer;
+    protected ItemsChangeObservableCollection<RaceResultItem> _viewList;
+    protected ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
+    protected List<RaceRun> _lastConsideredRuns;
+
+
+    protected virtual double calculatePoints(RaceResultItem rri)
+    {
+      return -1.0;
+    }
 
     public enum TimeCombination { BestRun, Sum };
     public RaceResultViewProvider(TimeCombination timeCombination)
@@ -987,6 +1101,8 @@ namespace RaceHorologyLib
           _combineTime = SumTime;
           break;
       }
+
+      _lastConsideredRuns = new List<RaceRun>();
     }
 
 
@@ -997,7 +1113,7 @@ namespace RaceHorologyLib
 
     
     // Input: Race
-    public void Init(Race race, AppDataModel appDataModel)
+    public virtual void Init(Race race, AppDataModel appDataModel)
     {
       _race = race;
       _raceRuns = _race.GetRuns();
@@ -1007,14 +1123,23 @@ namespace RaceHorologyLib
 
       foreach (RaceRun r in _raceRuns)
       {
-        r.GetResultList().CollectionChanged += OnResultListCollectionChanged;
-        OnResultListCollectionChanged(r.GetResultList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, r.GetResultList().ToList()));
+        RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
+        rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
+        OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
 
       UpdateAll();
 
       FinalizeInit();
     }
+
+
+    // Output: sorted List<StartListEntry> according to StartNumber
+    public ItemsChangeObservableCollection<RaceResultItem> GetViewList()
+    {
+      return _viewList;
+    }
+
 
     // Output: List<RunResultWithPosition>
     protected override object GetViewSource()
@@ -1030,26 +1155,28 @@ namespace RaceHorologyLib
 
     private void OnRunResultItemChanged(object sender, PropertyChangedEventArgs e)
     {
-      RunResult rr = sender as RunResult;
+      RunResultWithPosition rr = sender as RunResultWithPosition;
 
       if (rr != null)
       {
-        UpdateResultsFor(rr.Participant);
-        ResortResults();
+        if (UpdateResultsFor(rr.Participant))
+          ResortResults();
       }
     }
 
     private void OnResultListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      bool bSomethingChanged = false;
+
       if (e.OldItems != null)
       {
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
           item.PropertyChanged -= OnRunResultItemChanged;
-          RunResult rr = item as RunResult;
-          UpdateResultsFor(rr?.Participant);
+          RunResultWithPosition rr = item as RunResultWithPosition;
+          if (UpdateResultsFor(rr?.Participant))
+            bSomethingChanged = true;
         }
-        ResortResults();
       }
 
       if (e.NewItems != null)
@@ -1057,23 +1184,55 @@ namespace RaceHorologyLib
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
           item.PropertyChanged += OnRunResultItemChanged;
-          RunResult rr = item as RunResult;
-          UpdateResultsFor(rr?.Participant);
+          RunResultWithPosition rr = item as RunResultWithPosition;
+          if (UpdateResultsFor(rr?.Participant))
+            bSomethingChanged = true;
         }
-        ResortResults();
       }
+
+      if (bSomethingChanged)
+        ResortResults();
+    }
+
+
+    private void CheckRunConsideration()
+    {
+      bool updateAll = false;
+
+      foreach (RaceRun run in _raceRuns)
+      {
+        if (run.HasResults())
+        {
+          if (!_lastConsideredRuns.Contains(run))
+          {
+            updateAll = true;
+            _lastConsideredRuns.Add(run);
+          }
+        }
+      }
+
+      if (updateAll)
+        UpdateAll();
     }
 
     private void UpdateAll()
     {
-      foreach (RaceParticipant p in _race.GetParticipants())
-        UpdateResultsFor(p);
+      bool resortNeeded = false;
 
-      ResortResults();
+      foreach (RaceParticipant p in _race.GetParticipants())
+        if (UpdateResultsFor(p))
+          resortNeeded = true;
+
+      if (resortNeeded)
+        ResortResults();
     }
 
-    private void UpdateResultsFor(RaceParticipant participant)
+    private bool UpdateResultsFor(RaceParticipant participant)
     {
+      CheckRunConsideration();
+
+      bool significantChange = false;
+
       RaceResultItem rri = _viewList.SingleOrDefault(x => x.Participant == participant);
       if (rri == null)
       {
@@ -1082,26 +1241,53 @@ namespace RaceHorologyLib
       }
 
       // Look for the sub-result
-      Dictionary<uint, RunResult> results = new Dictionary<uint, RunResult>();
-      foreach (RaceRun run in _raceRuns)
+      Dictionary<uint, RunResultWithPosition> results = new Dictionary<uint, RunResultWithPosition>();
+      foreach (RaceRun run in _lastConsideredRuns)
       {
-        RunResult result = run.GetResultList().SingleOrDefault(x => x.Participant == participant);
+        RaceRunResultViewProvider rrVP = (run.GetResultViewProvider() as RaceRunResultViewProvider);
+        RunResultWithPosition result = rrVP.GetViewList().SingleOrDefault(x => x.Participant == participant);
         results.Add(run.Run, result);
       }
 
       // Combine and update the race result
       foreach (var res in results)
-        rri.SetRunResult(res.Key, res.Value);
+      {
+        bool sigCh = rri.SetRunResult(res.Key, res.Value);
+        //significantChange = significantChange || sigCh;
+      }
+      
       RunResult.EResultCode code;
       string disqualText;
+
+      TimeSpan? oldTime = rri.TotalTime;
       rri.TotalTime = _combineTime(results, out code, out disqualText);
-      rri.ResultCode = code;
+      if (oldTime != rri.TotalTime)
+        significantChange = true;
+
+      if (rri.ResultCode != code)
+      {
+        rri.ResultCode = code;
+        significantChange = true;
+      }
+
       rri.DisqualText = disqualText;
+
+      System.Diagnostics.Debug.Assert(
+        (!significantChange && rri.TotalTime == oldTime) || significantChange,
+        "no significant change but time did change!!!"
+        );
+
+      if (significantChange && rri.TotalTime == oldTime)
+        Logger.Debug("Significant change although time did not change: {0}", rri.TotalTime);
+
+      return significantChange;
     }
 
 
-    void ResortResults()
+    protected virtual void ResortResults()
     {
+      Logger.Debug(System.Reflection.MethodBase.GetCurrentMethod());
+
       if (_viewList == null)
         return;
 
@@ -1141,21 +1327,21 @@ namespace RaceHorologyLib
           {
             System.Diagnostics.Debug.Assert(curPosition == 1);
             firstTime = sortedItem.TotalTime;
+            sortedItem.DiffToFirst = null;
           }
           else
             sortedItem.DiffToFirst = sortedItem.TotalTime - firstTime;
 
           sortedItem.Position = curPosition;
 
-          double valueF = 1010.0;
-          double valueA = 0.0;
-          sortedItem.Points = Math.Round(valueF * ((TimeSpan)sortedItem.TotalTime).TotalSeconds / ((TimeSpan)firstTime).TotalSeconds - valueF + valueA, 2);
+          sortedItem.Points = calculatePoints(sortedItem);
 
           lastTime = sortedItem.TotalTime;
         }
         else
         {
           sortedItem.Position = 0;
+          sortedItem.DiffToFirst = null;
         }
 
         // Set the JustModified flag to highlight new results
@@ -1164,7 +1350,7 @@ namespace RaceHorologyLib
     }
 
 
-    TimeSpan? MinimumTime(Dictionary<uint, RunResult> results, out RunResult.EResultCode resCode, out string disqualText)
+    TimeSpan? MinimumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? minTime = null;
       RunResult.EResultCode bestCode = RunResult.EResultCode.NQ;
@@ -1201,7 +1387,7 @@ namespace RaceHorologyLib
       return minTime;
     }
 
-    TimeSpan? SumTime(Dictionary<uint, RunResult> results, out RunResult.EResultCode resCode, out string disqualText)
+    TimeSpan? SumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? sumTime = new TimeSpan(0);
       resCode = RunResult.EResultCode.Normal;
@@ -1210,7 +1396,10 @@ namespace RaceHorologyLib
       foreach (var res in results)
       {
         if (res.Value == null)
+        {
+          sumTime = null;
           continue;
+        }
 
         if (res.Value?.Runtime != null)
           sumTime += (TimeSpan)res.Value.Runtime;
@@ -1220,17 +1409,82 @@ namespace RaceHorologyLib
 
         if (res.Value.ResultCode != RunResult.EResultCode.Normal)
         {
-          resCode = res.Value.ResultCode;
-          disqualText = res.Value.DisqualText;
+          if (resCode == RunResult.EResultCode.Normal || resCode == RunResult.EResultCode.NotSet)
+          {
+            resCode = res.Value.ResultCode;
+            disqualText = res.Value.DisqualText;
+          }
         }
-
       }
+
+      if (results.Count == 0)
+        sumTime = null;
 
       return sumTime;
     }
 
 
   }
+
+
+  public class DSVSchoolRaceResultViewProvider : RaceResultViewProvider
+  {
+    protected DSVRaceCalculation _dsvCalcM;
+    protected DSVRaceCalculation _dsvCalcW;
+
+    public DSVSchoolRaceResultViewProvider() : base(RaceResultViewProvider.TimeCombination.Sum)
+    { }
+
+    public override ViewProvider Clone()
+    {
+      return new DSVSchoolRaceResultViewProvider();
+    }
+
+    public DSVRaceCalculation GetDSVRaceCalculationMen()
+    {
+      return _dsvCalcM;
+    }
+
+    public DSVRaceCalculation GetDSVRaceCalculationWomen()
+    {
+      return _dsvCalcW;
+    }
+
+    public override void Init(Race race, AppDataModel appDataModel)
+    {
+      _dsvCalcM = new DSVRaceCalculation(race, this, "M");
+      _dsvCalcW = new DSVRaceCalculation(race, this, "W");
+
+      base.Init(race, appDataModel);
+    }
+
+
+    protected override void ResortResults()
+    {
+      if (_viewList == null)
+        return;
+
+      try
+      {
+        _dsvCalcM.CalculatePenalty();
+        _dsvCalcW.CalculatePenalty();
+      }
+      catch (Exception) { }
+
+      base.ResortResults();
+    }
+
+    protected override double calculatePoints(RaceResultItem rri)
+    { 
+      if (rri.Participant.Sex == "M")
+        return _dsvCalcM.CalculatePoints(rri, true);
+      if (rri.Participant.Sex == "W")
+        return _dsvCalcW.CalculatePoints(rri, true);
+
+      return -1.0;
+    }
+  }
+
 
   /* e.g. FamilienWertung
     public class SpecialRaceResultViewProvider : ResultViewProvider
@@ -1244,7 +1498,7 @@ namespace RaceHorologyLib
     */
 
 
-    
+
 
 
 

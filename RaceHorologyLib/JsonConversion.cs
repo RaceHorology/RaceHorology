@@ -1,4 +1,39 @@
-﻿using Newtonsoft.Json;
+﻿/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,6 +82,8 @@ namespace RaceHorologyLib
 
   public class RunResultWPConverter : JsonConverter<RunResultWithPosition>
   {
+    ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+
     public override void WriteJson(JsonWriter writer, RunResultWithPosition value, JsonSerializer serializer)
     {
       writer.WriteStartObject();
@@ -72,8 +109,15 @@ namespace RaceHorologyLib
       writer.WriteValue(value.Class.ToString());
       writer.WritePropertyName("Group");
       writer.WriteValue(value.Class.Group.ToString());
+
       writer.WritePropertyName("Runtime");
-      writer.WriteValue(value.Runtime.ToRaceTimeString());
+
+      string str = (string)_timeConverter.Convert(new object[] { value.Runtime, value.ResultCode }, typeof(string), null, null);
+      writer.WriteValue(str);
+
+
+      writer.WritePropertyName("DiffToFirst");
+      writer.WriteValue(value.DiffToFirst.ToRaceTimeString());
       writer.WritePropertyName("DisqualText");
       writer.WriteValue(value.DisqualText);
       writer.WritePropertyName("JustModified");
@@ -130,6 +174,7 @@ namespace RaceHorologyLib
         writer.WriteValue(value.Runtime.ToRaceTimeString());
       else
         writer.WriteValue(value.Runtime?.ToString(@"mm\:ss"));
+
       writer.WritePropertyName("DisqualText");
       writer.WriteValue(value.DisqualText);
 
@@ -180,7 +225,8 @@ namespace RaceHorologyLib
       writer.WriteValue(value.Participant.Class.Group.ToString());
       writer.WritePropertyName("Totaltime");
       writer.WriteValue(value.TotalTime.ToRaceTimeString());
-
+      writer.WritePropertyName("DiffToFirst");
+      writer.WriteValue(value.DiffToFirst.ToRaceTimeString());
       writer.WritePropertyName("DisqualText");
       writer.WriteValue(value.DisqualText);
 
@@ -188,13 +234,17 @@ namespace RaceHorologyLib
       writer.WriteStartArray();
       for(uint i=1; i<=_runs; i++)
       {
-        if (value.RunTimes.ContainsKey(i) && value.RunResultCodes.ContainsKey(i))
+        writer.WriteStartObject();
+        if (value.SubResults.ContainsKey(i))
         {
-          string str = (string)_timeConverter.Convert(new object[] { value.RunTimes[i], value.RunResultCodes[i] }, typeof(string), null, null);
+          string str = (string)_timeConverter.Convert(new object[] { value.SubResults[i].Runtime, value.SubResults[i].RunResultCode }, typeof(string), null, null);
+          writer.WritePropertyName("Runtime");
           writer.WriteValue(str);
+
+          writer.WritePropertyName("Position");
+          writer.WriteValue(value.SubResults[i].Position);
         }
-        else
-          writer.WriteValue(string.Empty);
+        writer.WriteEndObject();
       }
       writer.WriteEndArray();
       
@@ -270,7 +320,7 @@ namespace RaceHorologyLib
       else
       {
         List<object> dstItems = new List<object>();
-        groupedData.Add(null, dstItems);
+        groupedData.Add("", dstItems);
 
         foreach (var item in cv.SourceCollection)
           dstItems.Add(item);
@@ -278,13 +328,28 @@ namespace RaceHorologyLib
 
       return groupedData;
     }
-    
+
+    public static string GetGroupBy(ICollectionView cv)
+    { 
+      string groupby = "";
+      if (cv.GroupDescriptions.Count > 0)
+      {
+        if (cv.GroupDescriptions[0] is System.Windows.Data.PropertyGroupDescription pgd)
+        {
+          groupby = pgd.PropertyName.Split('.')[1];
+        }
+      }
+
+      return groupby;
+    }
+
 
     public static string ConvertStartList(ICollectionView startList)
     {
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "startlist" },
+        {"groupby", GetGroupBy(startList)},
         {"data",  GroupData(startList)}
       };
 
@@ -350,9 +415,29 @@ namespace RaceHorologyLib
 
     public static string ConvertRunResults(ICollectionView results)
     {
+      var fields = new Dictionary<string, object>
+      { { "Id", "Id" },
+        { "Position", "Platz" },
+        { "StartNumber", "Startnummer" },
+        { "Name", "Nachname" },
+        { "Firstname", "Vorname" },
+        { "Sex", "Geschlecht" },
+        { "Year", "Jahr" },
+        { "Club", "Verein" },
+        { "Nation", "Nation" },
+        { "Class", "Klasse" },
+        { "Group", "Gruppe" },
+        { "Runtime", "Zeit" },
+        { "DiffToFirst", "Diff" },
+        { "DisqualText", "Bemerkung" }
+      };
+
+
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "racerunresult" },
+        {"fields", fields },
+        {"groupby", GetGroupBy(results)},
         {"data",  GroupData(results)}
       };
 
@@ -385,13 +470,17 @@ namespace RaceHorologyLib
         { "Class", "Klasse" },
         { "Group", "Gruppe" },
         { "Totaltime", "Zeit" },
-        { "Runtimes", new Dictionary<string,string> { { "Runtime1", "Zeit 1" }, { "Runtime2", "Zeit 2" } } }
+        { "Runtimes", new Dictionary<string,string> { { "Runtime1", "Zeit 1" }, { "Runtime2", "Zeit 2" } } },
+        { "DiffToFirst", "Diff" },
+        { "DisqualText", "Bemerkung" }
       };
+
 
       var wrappedData = new Dictionary<string, object>
       {
         {"type", "raceresult" },
         {"fields", fields },
+        {"groupby", GetGroupBy(results)},
         {"data",  GroupData(results)}
       };
 
@@ -475,7 +564,7 @@ namespace RaceHorologyLib
       return sw.ToString();
     }
 
-    public static string ConvertMetaData(ParticipantClass[] classes, ParticipantGroup[] groups, string[] sex, string[] grouping)
+    public static string ConvertMetaData(ParticipantClass[] classes, ParticipantGroup[] groups, string[] sex, string[] grouping, int runs)
     {
       var wrappedData = new Dictionary<string, object>
       {
@@ -485,7 +574,8 @@ namespace RaceHorologyLib
             {"classes", classes },
             {"groups", groups},
             {"sex", sex},
-            {"groupings", grouping}
+            {"groupings", grouping},
+            {"runs", runs}
           }
         }
       };

@@ -1,12 +1,12 @@
 {
   "Runs": 2,
-  "DefaultGrouping": "Participant.Class",
+  "DefaultGrouping": "Participant.Group",
   "RaceResultView": "RaceResult_BestOfTwo",
   "RaceResultViewParams": null,
   "Run1_StartistView": "Startlist_1stRun_StartnumberAscending",
-  "Run1_StartistViewGrouping": "Participant.Class",
+  "Run1_StartistViewGrouping": "Participant.Group",
   "Run1_StartistViewParams": null,
   "Run2_StartistView": "Startlist_2nd_StartnumberDescending",
-  "Run2_StartistViewGrouping": "Participant.Class",
+  "Run2_StartistViewGrouping": "Participant.Group",
   "Run2_StartistViewParams": null
 }

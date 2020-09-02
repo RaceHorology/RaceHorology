@@ -1,4 +1,39 @@
-﻿using RaceHorologyLib;
+﻿/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +57,22 @@ namespace RaceHorology
     CollectionViewSource _viewDisqualifications;
     FilterEventHandler _viewDisqualificationsFilterHandler;
 
-    public List<EResultCode> ListOfResultCodes { get; } = new List<EResultCode> { EResultCode.Normal, EResultCode.DIS, EResultCode.NaS, EResultCode.NiZ, EResultCode.NQ};
+    public List<EResultCode> ListOfResultCodes { get; } = new List<EResultCode> { EResultCode.Normal, EResultCode.DIS, EResultCode.NaS, EResultCode.NiZ, EResultCode.NQ, EResultCode.NotSet};
 
     public DisqualifyUC()
     {
       InitializeComponent();
+
+      IsVisibleChanged += DisqualifyUC_IsVisibleChanged;
+    }
+
+    private void DisqualifyUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+      if (!(bool)e.OldValue && (bool)e.NewValue)
+      {
+        setRaceRun(_dm.GetCurrentRaceRun());
+        _viewDisqualifications.View.Refresh();
+      }
     }
 
     public void Init(AppDataModel dm, Race race)
@@ -41,6 +87,7 @@ namespace RaceHorology
       cmbFilter.Items.Add(new CBItem { Text = "alle", Value = "all" });
       cmbFilter.Items.Add(new CBItem { Text = "ohne Zeit", Value = "no_time"});
       cmbFilter.Items.Add(new CBItem { Text = "ausgeschieden", Value = "out" });
+      cmbFilter.Items.Add(new CBItem { Text = "keine Daten", Value = "no_data" });
       cmbFilter.SelectedIndex = 1;
 
       cmbDisqualify.ItemsSource = ListOfResultCodes;
@@ -51,16 +98,26 @@ namespace RaceHorology
 
     private void CmbFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      bool isInStartList(RunResult rr)
+      {
+        return this._currentRaceRun.GetStartListProvider().GetViewList().FirstOrDefault(p => p.Participant == rr.Participant) != null;
+      }
+
+
       if (_viewDisqualificationsFilterHandler != null)
         _viewDisqualifications.Filter -= _viewDisqualificationsFilterHandler;
 
       if (cmbFilter.SelectedItem is CBItem selected)
       {
         _viewDisqualificationsFilterHandler = null;
-        if (string.Equals(selected.Value, "no_time"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).RuntimeWOResultCode == null; });
+        if (string.Equals(selected.Value, "all"))
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr); });
+        else if (string.Equals(selected.Value, "no_time"))
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.RuntimeWOResultCode == null; });
         else if (string.Equals(selected.Value, "out"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((RunResult)ea.Item).ResultCode != RunResult.EResultCode.Normal; });
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode != RunResult.EResultCode.Normal; });
+        else if (string.Equals(selected.Value, "no_data"))
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode == RunResult.EResultCode.NotSet; });
       }
 
       if (_viewDisqualificationsFilterHandler != null)
@@ -75,30 +132,40 @@ namespace RaceHorology
       CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
       RaceRun selectedRaceRun = selected?.Value as RaceRun;
 
-      _currentRaceRun = selectedRaceRun;
-
-      ConnectUiToRaceRun(_currentRaceRun);
+      setRaceRun(selectedRaceRun);
     }
 
 
-    private void ConnectUiToRaceRun(RaceRun raceRun)
+    private void setRaceRun(RaceRun rr)
+    {
+      _currentRaceRun = rr;
+      connectUiToRaceRun(_currentRaceRun);
+
+      cmbRaceRun.SelectCBItem(rr);
+    }
+
+
+    private void connectUiToRaceRun(RaceRun raceRun)
     {
       if (raceRun != null)
       {
-        _viewDisqualifications = new CollectionViewSource();
+        if (_viewDisqualifications == null)
+        {
+          _viewDisqualifications = new CollectionViewSource();
+          _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
+          _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
+          _viewDisqualifications.IsLiveFilteringRequested = true;
+        }
         _viewDisqualifications.Source = raceRun.GetResultList();
-        _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.Runtime));
-        _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
-        _viewDisqualifications.IsLiveFilteringRequested = true;
-
 
         dgDisqualifications.ItemsSource = _viewDisqualifications.View;
-
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
+
         cmbResultGrouping.SelectCBItem(raceRun.GetResultViewProvider().ActiveGrouping);
       }
       else
       {
+        dgDisqualifications.ItemsSource = null;
         dgResults.ItemsSource = null;
       }
     }
@@ -151,15 +218,17 @@ namespace RaceHorology
     {
       uint startNumber = 0U;
       try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+
       RaceParticipant participant = _race.GetParticipant(startNumber);
 
       if (participant != null)
+        _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
+      else
       {
-        RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
-        if (rr != null)
+        foreach( object item in dgDisqualifications.SelectedItems)
         {
-          rr.DisqualText = txtDisqualify.Text;
-          rr.ResultCode = (EResultCode)cmbDisqualify.SelectedValue;
+          if (item is RunResult rr)
+            _currentRaceRun.SetResultCode(rr.Participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
         }
       }
 
@@ -174,10 +243,12 @@ namespace RaceHorology
 
     private void DgDisqualifications_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      if (dgDisqualifications.SelectedItem is RunResult rr)
+      if (dgDisqualifications.SelectedItems.Count == 1 && dgDisqualifications.SelectedItems[0] is RunResult rr)
       {
         txtStartNumber.Text = rr.StartNumber.ToString();
       }
+      else
+        txtStartNumber.Text = "Multiple";
     }
   }
 }

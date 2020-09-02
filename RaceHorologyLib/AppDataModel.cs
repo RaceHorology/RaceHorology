@@ -1,3 +1,38 @@
+/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie k�nnen es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  ver�ffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es n�tzlich sein wird, aber
+ *  OHNE JEDE GEW�HRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gew�hrleistung der MARKTF�HIGKEIT oder EIGNUNG F�R EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License f�r weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,10 +57,18 @@ namespace RaceHorologyLib
   {
     private IAppDataModelDataBase _db;
 
+    ObservableCollection<ParticipantGroup> _particpantGroups;
+    DatabaseDelegatorGroups _particpantGroupsDelegatorDB;
+    
+    ObservableCollection<ParticipantClass> _particpantClasses;
+    DatabaseDelegatorClasses _particpantClassesDelegatorDB;
+
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
 
-    List<Race> _races;
+    DatabaseDelegatorCompetition _competitionDelegatorDB;
+
+    ObservableCollection<Race> _races;
     Race _currentRace;
     RaceRun _currentRaceRun;
 
@@ -76,21 +119,31 @@ namespace RaceHorologyLib
       _db = db;
       _interactiveTimeMeasurements = new Dictionary<Participant, DateTime>();
 
+      _particpantGroups = new ObservableCollection<ParticipantGroup>(_db.GetParticipantGroups());
+      _particpantGroups.CollectionChanged += OnGroupCollectionChanged;
+      _particpantClasses = new ObservableCollection<ParticipantClass>(_db.GetParticipantClasses());
+      _particpantClasses.CollectionChanged += OnClassCollectionChanged;
+
+      _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
+      _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
+
+
       //// Particpants ////
       _participants = _db.GetParticipants();
       // Get notification if a participant got changed / added / removed and trigger storage in DB
       _participantsDelegatorDB = new DatabaseDelegatorParticipant(_participants, _db);
 
-
-      _races = new List<Race>();
+      _races = new ObservableCollection<Race>();
 
       var races = _db.GetRaces();
       foreach (Race.RaceProperties raceProperties in races)
         _races.Add(new Race(_db, this, raceProperties));
+      // Get notification if a race got changed / added / removed and trigger storage in DB
+      _competitionDelegatorDB = new DatabaseDelegatorCompetition(this, _db);
 
-      _currentRace = _races.First();
+      if (_races.Count > 0)
+        _currentRace = _races.First();
     }
-
 
     public IAppDataModelDataBase GetDB()
     {
@@ -107,17 +160,18 @@ namespace RaceHorologyLib
     }
 
 
-    public List<ParticipantGroup> GetParticipantGroups()
+    public ObservableCollection<ParticipantGroup> GetParticipantGroups()
     {
-      return _db.GetParticipantGroups();
+      return _particpantGroups;
     }
 
-    public List<ParticipantClass> GetParticipantClasses()
+    public ObservableCollection<ParticipantClass> GetParticipantClasses()
     {
-      return _db.GetParticipantClasses();
+      return _particpantClasses;
     }
 
-    public List<Race> GetRaces()
+
+    public ObservableCollection<Race> GetRaces()
     {
       return _races;
     }
@@ -128,6 +182,28 @@ namespace RaceHorologyLib
 
       return null;
     }
+
+    public Race AddRace(Race.RaceProperties raceProperties)
+    {
+      // Ensure this type of race is not yet existing
+      Race raceExisting = _races.FirstOrDefault(r => r.RaceType == raceProperties.RaceType);
+      if (raceExisting != null)
+      {
+        return null;
+      }
+
+      Race race = new Race(_db, this, raceProperties);
+      _races.Add(race);
+
+      return race;
+    }
+
+
+    public bool RemoveRace(Race race)
+    {
+      return _races.Remove(race);
+    }
+
 
     public void SetCurrentRace(Race race)
     {
@@ -152,6 +228,9 @@ namespace RaceHorologyLib
     {
       if (_currentRaceRun != raceRun)
       {
+        if (_currentRaceRun != null && _currentRaceRun.GetRace() != _currentRace)
+          throw (new Exception("The RaceRun that shall be set as current race run does not match to the current Race."));
+
         _currentRaceRun = raceRun;
 
         CurrentRaceChangedHandler handler = CurrentRaceChanged;
@@ -190,6 +269,51 @@ namespace RaceHorologyLib
 
     public delegate void ParticipantMeasuredHandler(object sender, Participant participant);
     public event ParticipantMeasuredHandler ParticipantMeasuredEvent;
+
+
+    #region Internal - Fix Consistencies
+
+    private void OnGroupCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeGroupFromClasses(ParticipantGroup g)
+      {
+        foreach(var c in _particpantClasses)
+          if (c.Group == g)
+            c.Group = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantGroup v in e.OldItems)
+            removeGroupFromClasses(v);
+          break;
+      }
+    }
+
+
+
+    private void OnClassCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeClassFromParticipants(ParticipantClass c)
+      {
+        foreach (var p in _participants)
+          if (p.Class == c)
+            p.Class = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantClass v in e.OldItems)
+            removeClassFromParticipants(v);
+          break;
+      }
+    }
+
+    #endregion
+
+
   }
 
 
@@ -215,15 +339,16 @@ namespace RaceHorologyLib
     }
 
 
-    public string Name { get; set; }
     public string Location { get; set; }
     public string RaceNumber { get; set; }
     public string Description { get; set; }
 
+    public DateTime? DateStartList { get; set; }
+    public DateTime? DateResultList { get; set; }
 
     public string Analyzer { get; set; }
     public string Organizer { get; set; }
-    public Person RaceDirector { get; set; } = new Person(); // Schiedsrichter
+    public Person RaceReferee { get; set; } = new Person(); // Schiedsrichter
     public Person RaceManager { get; set; } = new Person(); // Rennleiter
     public Person TrainerRepresentative { get; set; } = new Person(); // Trainer Vertreter
 
@@ -258,10 +383,6 @@ namespace RaceHorologyLib
     {
       public Race.ERaceType RaceType;
       public uint Runs;
-      public string RaceNumber;
-      public string Description;
-      public DateTime DateStart;
-      public DateTime DateResult;
     }
 
     // Mainly race decription parameters
@@ -273,16 +394,17 @@ namespace RaceHorologyLib
     
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
+    private DatabaseDelegatorRaceParticipant _raceParticipantDBDelegator;
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
     private RaceResultViewProvider _raceResultsProvider;
 
 
     public ERaceType RaceType { get { return _properties.RaceType;  } }
-    public string RaceNumber {  get { return _properties.RaceNumber; } }
-    public string Description { get { return _properties.Description; } }
-    public DateTime DateStart { get { return _properties.DateStart; } }
-    public DateTime DateResult { get { return _properties.DateResult; } }
+    public string RaceNumber {  get { return _addProperties.RaceNumber; } }
+    public string Description { get { return _addProperties.Description; } }
+    public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
+    public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
 
     public RaceConfiguration RaceConfiguration
     {
@@ -323,6 +445,8 @@ namespace RaceHorologyLib
 
       //// RaceRuns ////
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
+
+      _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
 
       // TODO: Assuming 2 runs for now
       CreateRaceRuns(2);
@@ -464,6 +588,35 @@ namespace RaceHorologyLib
       return _participants.FirstOrDefault(p => p.Participant == participant);
     }
 
+    /// <summary>
+    /// Adds a particpant to the race
+    /// </summary>
+    /// <param name="participant">The particpant to add</param>
+    /// <returns>The the corresponding RaceParticipant object</returns>
+    public RaceParticipant AddParticipant(Participant participant, uint startnumber= 0, double points = -1)
+    {
+      RaceParticipant raceParticipant = GetParticipant(participant);
+
+      if (raceParticipant == null)
+      {
+        raceParticipant = new RaceParticipant(this, participant, startnumber, points);
+        _participants.Add(raceParticipant);
+      }
+
+      return raceParticipant;
+    }
+
+    /// <summary>
+    /// Removes a particpant from the race
+    /// </summary>
+    /// <param name="participant">The particpant to add</param>
+    /// <returns>The the corresponding RaceParticipant object</returns>
+    public void RemoveParticipant(Participant participant)
+    {
+      RaceParticipant raceParticipant = GetParticipant(participant);
+      _participants.Remove(raceParticipant);
+    }
+
 
     /// <summary>
     /// Returns the results of the race.
@@ -491,6 +644,12 @@ namespace RaceHorologyLib
     public AppDataModel GetDataModel()
     {
       return _appDataModel;
+    }
+
+
+    public override string ToString()
+    {
+      return RaceType.ToString();
     }
 
   }
@@ -571,6 +730,7 @@ namespace RaceHorologyLib
     private AppDataModel _appDataModel;
 
     private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
+    private bool _hasRealResults;
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
 
@@ -594,6 +754,11 @@ namespace RaceHorologyLib
 
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
+      _hasRealResults = false;
+
+      // Ensure the results always are in sync with participants
+      _race.GetParticipants().CollectionChanged += onParticipantsChanged;
+      findOrCreateRunResults(_race.GetParticipants());
     }
 
 
@@ -742,6 +907,17 @@ namespace RaceHorologyLib
     }
 
 
+    public void SetResultCode(RaceParticipant participant, RunResult.EResultCode rc, string disqualText)
+    {
+      RunResult result = findOrCreateRunResult(participant);
+
+      result.ResultCode = rc;
+      result.DisqualText = disqualText;
+
+      _UpdateInternals();
+    }
+
+
     private RunResult findOrCreateRunResult(RaceParticipant participant)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
@@ -755,13 +931,50 @@ namespace RaceHorologyLib
     }
 
 
+    private void findOrCreateRunResults(IEnumerable<RaceParticipant> participants)
+    {
+      foreach (RaceParticipant rp in participants)
+        findOrCreateRunResult(rp);
+    }
+
+
+    private RunResult deleteRunResult(RaceParticipant participant)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      if (result != null)
+      {
+        _results.Remove(result);
+      }
+
+      return result;
+    }
+
+
+    protected void onParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.NewItems != null)
+        foreach (RaceParticipant rp in e.NewItems)
+          findOrCreateRunResult(rp);
+
+      if (e.OldItems != null)
+        foreach (RaceParticipant rp in e.OldItems)
+          deleteRunResult(rp);
+    }
+
+
+
     public void InsertResults(List<RunResult> r)
     {
-      foreach (var v in r)
-        _results.Add(v);
+      foreach (var source in r)
+      {
+        var target = findOrCreateRunResult(source.Participant);
+        target.UpdateRunResult(source);
+
+      }
 
       _UpdateInternals();
     }
+
 
     // Helper definition for a participant is on track
     public bool IsOnTrack(RunResult r)
@@ -772,7 +985,7 @@ namespace RaceHorologyLib
     // Helper definition for a participant is on track
     public bool IsOrWasOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null || r.GetRunTime() != null || r.ResultCode != RunResult.EResultCode.Normal;
+      return r.GetStartTime() != null || r.GetRunTime() != null || (r.ResultCode != RunResult.EResultCode.NotSet && r.ResultCode != RunResult.EResultCode.Normal);
     }
 
     public bool IsOrWasOnTrack(RaceParticipant rp)
@@ -782,6 +995,11 @@ namespace RaceHorologyLib
         return IsOrWasOnTrack(result);
 
       return false;
+    }
+
+    public bool HasResults()
+    {
+      return _hasRealResults;
     }
 
 
@@ -797,6 +1015,9 @@ namespace RaceHorologyLib
     {
       var results = _results.ToArray();
 
+      var firstResult = results.FirstOrDefault(r => r.ResultCode != RunResult.EResultCode.NotSet);
+      _hasRealResults = results.Length > 0 && firstResult != null;
+
       // Remove from onTrack list if a result is available (= not on track anymore)
       var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r.OriginalResult)).ToList();
       foreach (var itemToRemove in itemsToRemove)
@@ -811,6 +1032,7 @@ namespace RaceHorologyLib
       var shallBeOnTrack = results.Where(r => IsOnTrack(r)).ToList();
 
       foreach (var r in shallBeOnTrack)
+      {
         if (_onTrack.SingleOrDefault(o => o.Participant == r.Participant) == null)
         {
           _onTrack.Add(new LiveResult(r, _appDataModel));
@@ -818,6 +1040,7 @@ namespace RaceHorologyLib
           OnTrackChangedHandler handler = OnTrackChanged;
           handler?.Invoke(this, r.Participant, null, r);
         }
+      }
     }
 
   }
@@ -850,8 +1073,24 @@ namespace RaceHorologyLib
     void StoreRaceProperties(Race race, AdditionalRaceProperties props);
 
     void CreateOrUpdateParticipant(Participant participant);
-    void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
+    void RemoveParticipant(Participant participant);
 
+    void CreateOrUpdateClass(ParticipantClass c);
+    void RemoveClass(ParticipantClass c);
+    void CreateOrUpdateGroup(ParticipantGroup g);
+    void RemoveGroup(ParticipantGroup g);
+
+    void CreateOrUpdateRaceParticipant(RaceParticipant participant);
+    void RemoveRaceParticipant(RaceParticipant raceParticipant);
+
+    void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
+    void DeleteRunResult(Race race, RaceRun raceRun, RunResult result);
+
+    void UpdateRace(Race race, bool active);
+
+
+    void StoreKeyValue(string key, string value);
+    string GetKeyValue(string key);
   };
 
 }

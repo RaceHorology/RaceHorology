@@ -76,22 +76,34 @@ h3 {
 .dsvalpin-lists th, .dsvalpin-lists th em {
   padding-top: 12px;
   padding-bottom: 12px;
-  text-align: left;
+  text-align: center;
   background-color: #667583;
   color: white;
 }
+
+table tr td.dsvalpin-cell-timeBeneathPosition, table tr th.dsvalpin-cell-timeBeneathPosition {
+  border-right: none;
+  text-align: right;
+}
+
+table tr td.dsvalpin-cell-positionBeneathTime, table tr th.dsvalpin-cell-positionBeneathTime  {
+  border-left: none;
+  width: 1px;
+  text-align: center;
+}
+
 
 table tr th.dsvalpin-livetable-divider
 {
   padding: 1px;
 }
 
-.dsvalpin-lists td, .dsvalpin-lists th {
+table.dsvalpin-lists td, table.dsvalpin-lists th {
   border: 1px solid #ddd;
   padding: 6px;
 }
 
-.dsvalpin-lists .cell-groupheader {
+table.dsvalpin-lists .cell-groupheader {
   padding-top: 16px;
   text-align: center;
   font-weight: bold;
@@ -126,4 +138,5 @@ table tr th.dsvalpin-livetable-divider
 .flex-container-centered {
   display: flex;
   justify-content: center;
+  margin-top: 1rem;
 }
