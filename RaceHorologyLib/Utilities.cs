@@ -528,6 +528,35 @@ namespace RaceHorologyLib
   }
 
 
+  public class NullEnabledComparer : System.Collections.Generic.IComparer<IComparable>
+  {
+    public int Compare(IComparable x, IComparable y)
+    {
+      if (x == null && y == null)
+        return 0;
+
+      if (x == null && y != null)
+        return 1;
+
+      if (x != null && y == null)
+        return -1;
+
+      return x.CompareTo(y);
+    }
+  }
+
+
+  public class StdComparer : System.Collections.Generic.IComparer<IComparable>
+  {
+    public int Compare(IComparable x, IComparable y)
+    {
+      return x.CompareTo(y);
+    }
+  }
+
+
+
+
 
   public class Singleton<T> where T : class, new()
   {
