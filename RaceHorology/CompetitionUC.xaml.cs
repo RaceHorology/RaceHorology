@@ -285,15 +285,112 @@ namespace RaceHorology
         CheckBox cb = new CheckBox
         {
           Content = race.RaceType.ToString(),
-          Margin = new Thickness(0, 0, 0, 5)
+          Margin = new Thickness(0, 0, 0, 5),
+          IsThreeState = true
         };
-        cb.SetBinding(CheckBox.IsCheckedProperty, new Binding
-        {
-          Path = new PropertyPath(string.Format("SelectedItem.ParticipantOfRace[{0}]", i)),
-          ElementName = "dgParticipants"
-        });
 
         spRaces.Children.Add(cb);
+      }
+    }
+
+
+    private void dgParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      updatePartcipantEditFields();
+    }
+
+
+    private IList<object> GetPropertyValues(IList<object> objects, string propertyName)
+    {
+      List<object> values = new List<object>();
+      foreach(var o in objects)
+      {
+        object value = PropertyUtilities.GetPropertyValue(o, propertyName);
+        values.Add(value);
+      }
+      return values;
+    }
+
+    private void updatePartcipantEditFields()
+    {
+      IList<object> items = dgParticipants.SelectedItems.Cast<object>().ToList();
+
+      updatePartcipantEditField(txtName, GetPropertyValues(items, "Name"));
+      updatePartcipantEditField(txtFirstname, GetPropertyValues(items, "Firstname"));
+      updatePartcipantEditField(txtSex, GetPropertyValues(items, "Sex"));
+      updatePartcipantEditField(txtYear, GetPropertyValues(items, "Year"));
+      updatePartcipantEditField(txtClub, GetPropertyValues(items, "Club"));
+      updatePartcipantEditField(txtSvId, GetPropertyValues(items, "SvId"));
+      updatePartcipantEditField(txtCode, GetPropertyValues(items, "Code"));
+      updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
+
+      updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
+
+      for (int i=0; i< spRaces.Children.Count; i++)
+      {
+        List<object> values = new List<object>();
+        foreach (var item in items)
+        {
+          values.Add(_dm.GetRace(i).GetParticipants().FirstOrDefault(rp => rp.Participant == ((ParticipantEdit)item).Participant) != null);
+        }
+        updatePartcipantCheckbox(spRaces.Children[i] as CheckBox, values);
+      }
+    }
+
+    private void updatePartcipantEditField(TextBox control, IList<object> values)
+    {
+      IEnumerable<object> vsDistinct = values.Distinct();
+
+      if (vsDistinct.Count() == 1)
+      {
+        control.Text = vsDistinct.First().ToString();
+      }
+      else if (vsDistinct.Count() > 1)
+      {
+        control.Text = "<Verschiedene>";
+      }
+      else // vsDistinct.Count() == 0
+      {
+        control.Text = "";
+      }
+    }
+
+    private void updatePartcipantCheckbox(CheckBox control, IList<object> values)
+    {
+      IEnumerable<object> vsDistinct = values.Distinct();
+
+      if (vsDistinct.Count() == 1)
+      {
+        control.IsChecked = (bool)vsDistinct.First() == true;
+        control.IsThreeState = false;
+      }
+      else if (vsDistinct.Count() > 1)
+      {
+        control.IsChecked = null;
+        control.IsThreeState = true;
+      }
+      else // vsDistinct.Count() == 0
+      {
+        control.IsChecked = null;
+        control.IsThreeState = true;
+      }
+    }
+
+    private void updatePartcipantCombobox(ComboBox control, IList<object> values)
+    {
+      IEnumerable<object> vsDistinct = values.Distinct();
+
+      if (vsDistinct.Count() == 1)
+      {
+        control.SelectedValue = vsDistinct.First();
+      }
+      else if (vsDistinct.Count() > 1)
+      {
+        control.SelectedValue = null;
+      }
+      else // vsDistinct.Count() == 0
+      {
+        control.SelectedValue = null;
       }
     }
 
@@ -415,6 +512,7 @@ namespace RaceHorology
         }
       }
     }
+
   }
 
 
