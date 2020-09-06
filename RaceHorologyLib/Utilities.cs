@@ -410,6 +410,28 @@ namespace RaceHorologyLib
       return obj;
     }
 
+    public static bool SetPropertyValue(object obj, string propertyName, object value)
+    {
+      if (propertyName == null || obj == null)
+        return false;
+
+      System.Reflection.PropertyInfo info = null;
+      foreach (string part in propertyName.Split('.'))
+      {
+        if (obj == null) { return false; }
+
+        Type type = obj.GetType();
+        info = type.GetProperty(part);
+        if (info == null) { return false; }
+      }
+
+      if (info == null) 
+        return false;
+  
+      info.SetValue(obj, Convert.ChangeType(value, info.PropertyType));
+      return true;
+    }
+
     public static object GetPropertyValue(object obj, string propertyName, object defaultValue)
     {
       object val = GetPropertyValue(obj, propertyName);
