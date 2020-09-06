@@ -133,7 +133,8 @@
                     <ColumnDefinition Width="Auto"/>
                   </Grid.ColumnDefinitions>
                   <ComboBox x:Name="cmbClass" Margin="5" Grid.Column="0"
-                      ItemsSource="{Binding Path=ParticipantClasses, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                            ItemsSource="{Binding Path=ParticipantClasses, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            LostFocus="ParticipantEditControl_LostFocus"/>
                   <Button x:Name="btnResetClass" Content="Zurücksetzen" Padding="5" Margin="5" Width="Auto" Grid.Column="1" Click="btnResetClass_Click"/>
                 </Grid>
 

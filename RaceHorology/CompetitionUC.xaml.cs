@@ -421,6 +421,9 @@ namespace RaceHorology
         storePartcipantEditField(txtCode, items, "Code");
       if (sender == txtNation)
         storePartcipantEditField(txtNation, items, "Nation");
+
+      if (sender == cmbClass)
+        storePartcipantComboBox(cmbClass, items, "Class");
     }
 
 
@@ -431,6 +434,16 @@ namespace RaceHorology
 
       foreach (var item in items.Cast<ParticipantEdit>())
         PropertyUtilities.SetPropertyValue(item, propertyName, control.Text);
+    }
+
+    private void storePartcipantComboBox(ComboBox control, IList<ParticipantEdit> items, string propertyName)
+    {
+      if (control.SelectedValue == null)
+        return;
+
+      var value = control.SelectedValue;
+      foreach (var item in items.Cast<ParticipantEdit>())
+        PropertyUtilities.SetPropertyValue(item, propertyName, value);
     }
 
 
