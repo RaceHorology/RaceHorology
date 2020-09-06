@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -285,17 +285,186 @@ namespace RaceHorology
         CheckBox cb = new CheckBox
         {
           Content = race.RaceType.ToString(),
-          Margin = new Thickness(0, 0, 0, 5)
+          Margin = new Thickness(0, 0, 0, 5),
+          IsThreeState = true
         };
-        cb.SetBinding(CheckBox.IsCheckedProperty, new Binding
-        {
-          Path = new PropertyPath(string.Format("SelectedItem.ParticipantOfRace[{0}]", i)),
-          ElementName = "dgParticipants"
-        });
+        cb.LostFocus += ParticipantEditControl_LostFocus;
 
         spRaces.Children.Add(cb);
       }
     }
+
+
+    private void dgParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      updatePartcipantEditFields();
+    }
+
+
+    private IList<object> GetPropertyValues(IList<object> objects, string propertyName)
+    {
+      List<object> values = new List<object>();
+      foreach(var o in objects)
+      {
+        object value = PropertyUtilities.GetPropertyValue(o, propertyName);
+        values.Add(value);
+      }
+      return values;
+    }
+
+    private void updatePartcipantEditFields()
+    {
+      IList<object> items = dgParticipants.SelectedItems.Cast<object>().ToList();
+
+      updatePartcipantEditField(txtName, GetPropertyValues(items, "Name"));
+      updatePartcipantEditField(txtFirstname, GetPropertyValues(items, "Firstname"));
+      updatePartcipantEditField(txtSex, GetPropertyValues(items, "Sex"));
+      updatePartcipantEditField(txtYear, GetPropertyValues(items, "Year"));
+      updatePartcipantEditField(txtClub, GetPropertyValues(items, "Club"));
+      updatePartcipantEditField(txtSvId, GetPropertyValues(items, "SvId"));
+      updatePartcipantEditField(txtCode, GetPropertyValues(items, "Code"));
+      updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
+
+      updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
+
+      for (int i=0; i< spRaces.Children.Count; i++)
+      {
+        List<object> values = new List<object>();
+        foreach (var item in items)
+        {
+          values.Add(_dm.GetRace(i).GetParticipants().FirstOrDefault(rp => rp.Participant == ((ParticipantEdit)item).Participant) != null);
+        }
+        updatePartcipantCheckbox(spRaces.Children[i] as CheckBox, values);
+      }
+    }
+
+    private void updatePartcipantEditField(TextBox control, IList<object> values)
+    {
+      IEnumerable<object> vsDistinct = values.Distinct();
+
+      if (vsDistinct.Count() == 1)
+      {
+        control.Text = vsDistinct.First().ToString();
+      }
+      else if (vsDistinct.Count() > 1)
+      {
+        control.Text = "<Verschiedene>";
+      }
+      else // vsDistinct.Count() == 0
+      {
+        control.Text = "";
+      }
+
+      control.IsEnabled = values.Count() > 0;
+    }
+
+    private void updatePartcipantCheckbox(CheckBox control, IList<object> values)
+    {
+      IEnumerable<object> vsDistinct = values.Distinct();
+
+      if (vsDistinct.Count() == 1)
+      {
+        control.IsChecked = (bool)vsDistinct.First() == true;
+        control.IsThreeState = false;
+      }
+      else if (vsDistinct.Count() > 1)
+      {
+        control.IsChecked = null;
+        control.IsThreeState = true;
+      }
+      else // vsDistinct.Count() == 0
+      {
+        control.IsChecked = null;
+        control.IsThreeState = true;
+      }
+
+      control.IsEnabled = values.Count() > 0;
+    }
+
+    private void updatePartcipantCombobox(ComboBox control, IList<object> values)
+    {
+      IEnumerable<object> vsDistinct = values.Distinct();
+
+      if (vsDistinct.Count() == 1)
+      {
+        control.SelectedValue = vsDistinct.First();
+      }
+      else if (vsDistinct.Count() > 1)
+      {
+        control.SelectedValue = null;
+      }
+      else // vsDistinct.Count() == 0
+      {
+        control.SelectedValue = null;
+      }
+
+      control.IsEnabled = values.Count() > 0;
+    }
+
+
+    private void ParticipantEditControl_LostFocus(object sender, RoutedEventArgs e)
+    {
+      IList<ParticipantEdit> items = dgParticipants.SelectedItems.Cast<ParticipantEdit>().ToList();
+
+      if (sender == txtName)
+        storePartcipantEditField(txtName, items, "Name");
+      if (sender == txtFirstname)
+        storePartcipantEditField(txtFirstname, items, "Firstname");
+      if (sender == txtSex)
+        storePartcipantEditField(txtSex, items, "Sex");
+      if (sender == txtYear)
+        storePartcipantEditField(txtYear, items, "Year");
+      if (sender == txtClub)
+        storePartcipantEditField(txtClub, items, "Club");
+      if (sender == txtSvId)
+        storePartcipantEditField(txtSvId, items, "SvId");
+      if (sender == txtCode)
+        storePartcipantEditField(txtCode, items, "Code");
+      if (sender == txtNation)
+        storePartcipantEditField(txtNation, items, "Nation");
+
+      if (sender == cmbClass)
+        storePartcipantComboBox(cmbClass, items, "Class");
+
+      for (int i = 0; i < spRaces.Children.Count; i++)
+      {
+        CheckBox cb = (CheckBox)spRaces.Children[i];
+        if (sender == cb)
+        {
+          if (cb.IsChecked != null) // Either true or false, but not "third state"
+          {
+            bool bVal = (bool)cb.IsChecked;
+            foreach (var item in items.Cast<ParticipantEdit>())
+            {
+              item.ParticipantOfRace[i] = bVal;
+            }
+          }
+        }
+      }
+
+
+    }
+
+
+    private void storePartcipantEditField(TextBox control, IList<ParticipantEdit> items, string propertyName)
+    {
+      if (control.Text == "<Verschiedene>")
+        return;
+
+      foreach (var item in items.Cast<ParticipantEdit>())
+        PropertyUtilities.SetPropertyValue(item, propertyName, control.Text);
+    }
+
+    private void storePartcipantComboBox(ComboBox control, IList<ParticipantEdit> items, string propertyName)
+    {
+      if (control.SelectedValue == null)
+        return;
+
+      var value = control.SelectedValue;
+      foreach (var item in items.Cast<ParticipantEdit>())
+        PropertyUtilities.SetPropertyValue(item, propertyName, value);
+    }
+
 
     #endregion
 
@@ -352,13 +521,15 @@ namespace RaceHorology
       ca.Assign(_dm.GetParticipants());
     }
 
+
     private void btnResetClass_Click(object sender, RoutedEventArgs e)
     {
-      if (dgParticipants.SelectedItem is ParticipantEdit p)
-      {
-        ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
-        p.Class = ca.DetermineClass(p.Participant);
-      }
+      List<Participant> participants = new List<Participant>();
+      foreach (var pe in dgParticipants.SelectedItems.Cast<ParticipantEdit>())
+        participants.Add(pe.Participant);
+
+      ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
+      ca.Assign(participants);
     }
 
 
@@ -415,6 +586,7 @@ namespace RaceHorology
         }
       }
     }
+
   }
 
 
