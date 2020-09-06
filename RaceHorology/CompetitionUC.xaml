@@ -162,7 +162,7 @@
                 </RibbonMenuButton>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="2">
-                  <Button x:Name="btnAssignClasses" Content="Klassen neu zuweisen" Padding="5" Margin="5" Click="btnAssignClasses_Click"/>
+                  <Button x:Name="btnAssignClasses" Content="Alle Klassen neu zuweisen" Padding="5" Margin="5" Click="btnAssignClasses_Click"/>
                   <Button x:Name="btnDeleteParticipant" Content="Teilnehmer löschen" Padding="5" Margin="5" Click="btnDeleteParticipant_Click"/>
                   <Button x:Name="btnAddParticipant" Content="Teilnehmer hinzufügen" Padding="5" Margin="5" Click="btnAddParticipant_Click"/>
                 </StackPanel>

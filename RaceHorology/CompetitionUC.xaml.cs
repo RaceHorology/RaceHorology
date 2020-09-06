@@ -521,13 +521,15 @@ namespace RaceHorology
       ca.Assign(_dm.GetParticipants());
     }
 
+
     private void btnResetClass_Click(object sender, RoutedEventArgs e)
     {
-      if (dgParticipants.SelectedItem is ParticipantEdit p)
-      {
-        ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
-        p.Class = ca.DetermineClass(p.Participant);
-      }
+      List<Participant> participants = new List<Participant>();
+      foreach (var pe in dgParticipants.SelectedItems.Cast<ParticipantEdit>())
+        participants.Add(pe.Participant);
+
+      ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
+      ca.Assign(participants);
     }
 
 
