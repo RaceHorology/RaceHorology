@@ -103,28 +103,28 @@
                 </Grid.RowDefinitions>
 
                 <Label Content="Name:" Grid.Row="0" Grid.Column="0"/>
-                <TextBox x:Name="txtName" Margin="5" Grid.Row="0" Grid.Column="1" />
+                <TextBox x:Name="txtName" Margin="5" Grid.Row="0" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Vorname:" Grid.Row="1" Grid.Column="0"/>
-                <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1"/>
+                <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Geschlecht:" Grid.Row="2" Grid.Column="0"/>
-                <TextBox x:Name="txtSex" Margin="5" Grid.Row="2" Grid.Column="1"/>
+                <TextBox x:Name="txtSex" Margin="5" Grid.Row="2" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Jahrgang:" Grid.Row="3" Grid.Column="0"/>
-                <TextBox x:Name="txtYear" Margin="5" Grid.Row="3" Grid.Column="1"/>
+                <TextBox x:Name="txtYear" Margin="5" Grid.Row="3" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Verein:" Grid.Row="4" Grid.Column="0"/>
-                <TextBox x:Name="txtClub" Margin="5" Grid.Row="4" Grid.Column="1"/>
+                <TextBox x:Name="txtClub" Margin="5" Grid.Row="4" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Skiverband-Id:" Grid.Row="5" Grid.Column="0"/>
-                <TextBox x:Name="txtSvId" Margin="5" Grid.Row="5" Grid.Column="1"/>
+                <TextBox x:Name="txtSvId" Margin="5" Grid.Row="5" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Code:" Grid.Row="6" Grid.Column="0"/>
-                <TextBox x:Name="txtCode" Margin="5" Grid.Row="6" Grid.Column="1"/>
+                <TextBox x:Name="txtCode" Margin="5" Grid.Row="6" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Nation:" Grid.Row="7" Grid.Column="0"/>
-                <TextBox x:Name="txtNation" Margin="5" Grid.Row="7" Grid.Column="1"/>
+                <TextBox x:Name="txtNation" Margin="5" Grid.Row="7" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Klasse:" Grid.Row="8" Grid.Column="0"/>
                 <Grid HorizontalAlignment="Stretch" Margin="0" Grid.Row="8" Grid.Column="1">

@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -399,6 +399,40 @@ namespace RaceHorology
 
       control.IsEnabled = values.Count() > 0;
     }
+
+
+    private void ParticipantEditControl_LostFocus(object sender, RoutedEventArgs e)
+    {
+      IList<ParticipantEdit> items = dgParticipants.SelectedItems.Cast<ParticipantEdit>().ToList();
+
+      if (sender == txtName)
+        storePartcipantEditField(txtName, items, "Name");
+      if (sender == txtFirstname)
+        storePartcipantEditField(txtFirstname, items, "Firstname");
+      if (sender == txtSex)
+        storePartcipantEditField(txtSex, items, "Sex");
+      if (sender == txtYear)
+        storePartcipantEditField(txtYear, items, "Year");
+      if (sender == txtClub)
+        storePartcipantEditField(txtClub, items, "Club");
+      if (sender == txtSvId)
+        storePartcipantEditField(txtSvId, items, "SvId");
+      if (sender == txtCode)
+        storePartcipantEditField(txtCode, items, "Code");
+      if (sender == txtNation)
+        storePartcipantEditField(txtNation, items, "Nation");
+    }
+
+
+    private void storePartcipantEditField(TextBox control, IList<ParticipantEdit> items, string propertyName)
+    {
+      if (control.Text == "<Verschiedene>")
+        return;
+
+      foreach (var item in items.Cast<ParticipantEdit>())
+        PropertyUtilities.SetPropertyValue(item, propertyName, control.Text);
+    }
+
 
     #endregion
 
