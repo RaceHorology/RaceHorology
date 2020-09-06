@@ -288,6 +288,7 @@ namespace RaceHorology
           Margin = new Thickness(0, 0, 0, 5),
           IsThreeState = true
         };
+        cb.LostFocus += ParticipantEditControl_LostFocus;
 
         spRaces.Children.Add(cb);
       }
@@ -424,6 +425,24 @@ namespace RaceHorology
 
       if (sender == cmbClass)
         storePartcipantComboBox(cmbClass, items, "Class");
+
+      for (int i = 0; i < spRaces.Children.Count; i++)
+      {
+        CheckBox cb = (CheckBox)spRaces.Children[i];
+        if (sender == cb)
+        {
+          if (cb.IsChecked != null) // Either true or false, but not "third state"
+          {
+            bool bVal = (bool)cb.IsChecked;
+            foreach (var item in items.Cast<ParticipantEdit>())
+            {
+              item.ParticipantOfRace[i] = bVal;
+            }
+          }
+        }
+      }
+
+
     }
 
 

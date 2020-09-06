@@ -141,8 +141,8 @@
 
                 <Label Content="Rennen:" Grid.Row="10" Grid.Column="0"/>
                 <StackPanel x:Name="spRaces" Grid.Row="10" Grid.Column="1" Margin="5">
-                  <CheckBox Content="222" />
-                  <CheckBox Content="222" />
+                  <CheckBox Content="222" LostFocus="ParticipantEditControl_LostFocus"/>
+                  <CheckBox Content="222" LostFocus="ParticipantEditControl_LostFocus"/>
                 </StackPanel>
 
               </Grid>
