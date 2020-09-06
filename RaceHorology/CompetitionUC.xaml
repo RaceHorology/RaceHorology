@@ -103,28 +103,28 @@
                 </Grid.RowDefinitions>
 
                 <Label Content="Name:" Grid.Row="0" Grid.Column="0"/>
-                <TextBox x:Name="txtName" Margin="5" Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.Name, ElementName=dgParticipants}"/>
+                <TextBox x:Name="txtName" Margin="5" Grid.Row="0" Grid.Column="1" />
 
                 <Label Content="Vorname:" Grid.Row="1" Grid.Column="0"/>
-                <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.Firstname, ElementName=dgParticipants}"/>
+                <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1"/>
 
                 <Label Content="Geschlecht:" Grid.Row="2" Grid.Column="0"/>
-                <TextBox x:Name="txtSex" Margin="5" Grid.Row="2" Grid.Column="1" Text="{Binding SelectedItem.Sex, ElementName=dgParticipants}"/>
+                <TextBox x:Name="txtSex" Margin="5" Grid.Row="2" Grid.Column="1"/>
 
                 <Label Content="Jahrgang:" Grid.Row="3" Grid.Column="0"/>
-                <TextBox x:Name="txtYear" Margin="5" Grid.Row="3" Grid.Column="1" Text="{Binding SelectedItem.Year, ElementName=dgParticipants}"/>
+                <TextBox x:Name="txtYear" Margin="5" Grid.Row="3" Grid.Column="1"/>
 
                 <Label Content="Verein:" Grid.Row="4" Grid.Column="0"/>
-                <TextBox x:Name="txtClub" Margin="5" Grid.Row="4" Grid.Column="1" Text="{Binding SelectedItem.Club, ElementName=dgParticipants}"/>
+                <TextBox x:Name="txtClub" Margin="5" Grid.Row="4" Grid.Column="1"/>
 
                 <Label Content="Skiverband-Id:" Grid.Row="5" Grid.Column="0"/>
-                <TextBox x:Name="txtSvId" Margin="5" Grid.Row="5" Grid.Column="1" Text="{Binding SelectedItem.SvId, ElementName=dgParticipants}"/>
+                <TextBox x:Name="txtSvId" Margin="5" Grid.Row="5" Grid.Column="1"/>
 
                 <Label Content="Code:" Grid.Row="6" Grid.Column="0"/>
-                <TextBox x:Name="txtCode" Margin="5" Grid.Row="6" Grid.Column="1" Text="{Binding SelectedItem.Code, ElementName=dgParticipants}"/>
+                <TextBox x:Name="txtCode" Margin="5" Grid.Row="6" Grid.Column="1"/>
 
                 <Label Content="Nation:" Grid.Row="7" Grid.Column="0"/>
-                <TextBox x:Name="txtNation" Margin="5" Grid.Row="7" Grid.Column="1" Text="{Binding SelectedItem.Nation, ElementName=dgParticipants}"/>
+                <TextBox x:Name="txtNation" Margin="5" Grid.Row="7" Grid.Column="1"/>
 
                 <Label Content="Klasse:" Grid.Row="8" Grid.Column="0"/>
                 <Grid HorizontalAlignment="Stretch" Margin="0" Grid.Row="8" Grid.Column="1">
@@ -133,7 +133,6 @@
                     <ColumnDefinition Width="Auto"/>
                   </Grid.ColumnDefinitions>
                   <ComboBox x:Name="cmbClass" Margin="5" Grid.Column="0"
-                      SelectedValue="{Binding SelectedItem.Class, ElementName=dgParticipants, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       ItemsSource="{Binding Path=ParticipantClasses, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                   <Button x:Name="btnResetClass" Content="Zurücksetzen" Padding="5" Margin="5" Width="Auto" Grid.Column="1" Click="btnResetClass_Click"/>
                 </Grid>
@@ -141,8 +140,8 @@
 
                 <Label Content="Rennen:" Grid.Row="10" Grid.Column="0"/>
                 <StackPanel x:Name="spRaces" Grid.Row="10" Grid.Column="1" Margin="5">
-                  <CheckBox Content="222" IsChecked="{Binding SelectedItem.ParticipantOfRace[0], ElementName=dgParticipants}"/>
-                  <CheckBox Content="222" IsChecked="{Binding SelectedItem.ParticipantOfRace[1], ElementName=dgParticipants}"/>
+                  <CheckBox Content="222" />
+                  <CheckBox Content="222" />
                 </StackPanel>
 
               </Grid>
