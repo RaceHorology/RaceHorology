@@ -353,6 +353,8 @@ namespace RaceHorology
       {
         control.Text = "";
       }
+
+      control.IsEnabled = values.Count() > 0;
     }
 
     private void updatePartcipantCheckbox(CheckBox control, IList<object> values)
@@ -374,6 +376,8 @@ namespace RaceHorology
         control.IsChecked = null;
         control.IsThreeState = true;
       }
+
+      control.IsEnabled = values.Count() > 0;
     }
 
     private void updatePartcipantCombobox(ComboBox control, IList<object> values)
@@ -392,6 +396,8 @@ namespace RaceHorology
       {
         control.SelectedValue = null;
       }
+
+      control.IsEnabled = values.Count() > 0;
     }
 
     #endregion
