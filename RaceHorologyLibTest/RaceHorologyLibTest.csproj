@@ -73,6 +73,7 @@
     <Compile Include="ALGETdC8001Tests.cs" />
     <Compile Include="AppDataModelTest.cs" />
     <Compile Include="AppDataModelViewTests.cs" />
+    <Compile Include="AppDataModelCalculationsTest.cs" />
     <Compile Include="DSVAlpin2HTTPServerTest.cs" />
     <Compile Include="DSVAlpinDatabaseTests.cs" />
     <Compile Include="DSVCalculationTests.cs" />
