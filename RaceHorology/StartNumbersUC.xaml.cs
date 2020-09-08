@@ -199,10 +199,10 @@ namespace RaceHorology
 
     private void btnRemove_Click(object sender, RoutedEventArgs e)
     {
-      if (dgStartList.SelectedItem is AssignedStartNumber selItem)
-      {
-        _snaWorkspace.Delete(selItem.StartNumber);
-      }
+      var items = dgStartList.SelectedItems.OfType<AssignedStartNumber>().ToList();
+
+      foreach (var i in items)
+        _snaWorkspace.Delete(i.StartNumber);
     }
 
 
