@@ -24,10 +24,12 @@
 
       <Grid Grid.Row="0">
         <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="0" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
+        <Label Content="Startliste" FontSize="16"/>
+        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
           <DataGrid.Columns>
             <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
             <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Participant.Name, Mode=OneWay}" />
