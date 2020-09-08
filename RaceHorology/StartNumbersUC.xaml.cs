@@ -214,11 +214,13 @@ namespace RaceHorology
       {
         uint sn = uint.Parse(txtNextStartNumberManual.Text);
 
-        if (dgParticipants.SelectedItem is RaceParticipant selItem)
-        {
-          _snaWorkspace.Assign(sn, selItem);
-          dgParticipants.SelectedIndex = 0;
-        }
+        var selParticipants = dgParticipants.SelectedItems.OfType<RaceParticipant>().ToList();
+        
+        _snaWorkspace.SetNextStartNumber(sn);
+        foreach(var selParticipant in selParticipants)
+          _snaWorkspace.AssignNextFree(selParticipant);
+
+        dgParticipants.SelectedIndex = 0;
       }
       catch (Exception)
       { }
