@@ -1,4 +1,4 @@
-<UserControl x:Class="RaceHorology.StartNumbersUC"
+﻿<UserControl x:Class="RaceHorology.StartNumbersUC"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -96,13 +96,13 @@
             <ComboBox x:Name="cmbGrouping" Margin="5" Grid.Column="1" SelectionChanged="cmbGrouping_SelectionChanged" />
 
             <Label Content="Verlosungszahl:" Margin="5" Grid.Row="1" Grid.Column="0"/>
-            <TextBox x:Name="txtVerlosung" Margin="5" Grid.Row="1" Grid.Column="1"/>
+            <TextBox x:Name="txtVerlosung" Margin="5" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center"/>
 
             <Label Content="Richtung:" Margin="5" Grid.Row="2" Grid.Column="0"/>
             <ComboBox x:Name="cmbDirection" Margin="5" Grid.Row="2" Grid.Column="1"/>
 
             <Label Content="Nächste Startnummer:" Margin="5" Grid.Row="3" Grid.Column="0"/>
-            <TextBox x:Name="txtNextStartNumber" Margin="5" Grid.Row="3" Grid.Column="1"/>
+            <TextBox x:Name="txtNextStartNumber" Margin="5" Grid.Row="3" Grid.Column="1" VerticalContentAlignment="Center"/>
 
             <Label Content="Nächste Gruppe:" Margin="5" Grid.Row="4" Grid.Column="0"/>
             <ComboBox x:Name="cmbNextGroup" Margin="5" Grid.Row="4" Grid.Column="1"/>
@@ -146,8 +146,8 @@
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
 
-              <Label Content="Startnummer:" Grid.Column="0" Margin="5" />
-              <TextBox x:Name="txtNextStartNumberManual" Grid.Column="1" Margin="5" Width="40"/>
+              <Label Content="Nächste Startnummer:" Grid.Column="0" Margin="5" />
+              <TextBox x:Name="txtNextStartNumberManual" Grid.Column="1" Margin="5" Width="40" VerticalContentAlignment="Center"/>
 
               <Button x:Name="btnAssign" Content="Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Column="3" Click="btnAssign_Click"/>
             </Grid>
