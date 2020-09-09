@@ -7,168 +7,170 @@
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="800">
   <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="5" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
 
-
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*" />
-    </Grid.ColumnDefinitions>
-
-    <Grid Grid.Column="0">
+    <Grid Grid.Row="0">
       <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="5"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Label Content="Vorläuige Startliste" FontSize="16"/>
+      <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
+        <DataGrid.Columns>
+          <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Participant.Name, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Participant.Firstname, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Participant.Year, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Participant.Class, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Participant.Club, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Participant.Points, Mode=OneWay}" />
+        </DataGrid.Columns>
+      </DataGrid>
+      <Grid Grid.Row="2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="btnDeleteAll" Content="Alle Löschen" Margin="5" Padding="5" Grid.Column="0" Click="btnDeleteAll_Click"/>
+        <Button x:Name="btnInsert" Content="Einfügen" Margin="5" Padding="5" Grid.Column="4" Click="btnInsert_Click"/>
+        <Button x:Name="btnRemove" Content="Entfernen" Margin="5" Padding="5" Grid.Column="5" Click="btnRemove_Click"/>
+        <CheckBox x:Name="chkShowEmptyStartNumbers" Content="Zeige leere Startnummern" Margin="5" VerticalAlignment="Center" Grid.Column="2" Click="chkShowEmptyStartNumbers_Click"/>
+      </Grid>
+    </Grid>
+
+    <GridSplitter x:Name="gridSplitter2" HorizontalAlignment="Stretch" Height="5" Grid.Row="1" />
+
+    <Grid Grid.Row="2">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
         <RowDefinition Height="*"/>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Grid Grid.Row="0">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="0" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
-          <DataGrid.Columns>
-            <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Participant.Name, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Participant.Firstname, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Participant.Year, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Participant.Class, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Participant.Club, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Participant.Points, Mode=OneWay}" />
-          </DataGrid.Columns>
-        </DataGrid>
-        <Grid Grid.Row="2">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <Button x:Name="btnDeleteAll" Content="Alle Löschen" Margin="5" Padding="5" Grid.Column="0" Click="btnDeleteAll_Click"/>
-          <Button x:Name="btnInsert" Content="Einfügen" Margin="5" Padding="5" Grid.Column="4" Click="btnInsert_Click"/>
-          <Button x:Name="btnRemove" Content="Entfernen" Margin="5" Padding="5" Grid.Column="5" Click="btnRemove_Click"/>
-          <CheckBox x:Name="chkShowEmptyStartNumbers" Content="Zeige leere Startnummern" Margin="5" VerticalAlignment="Center" Grid.Column="2" Click="chkShowEmptyStartNumbers_Click"/>
+      <Label Content="Teilnehmer zuweisen" Grid.Row="0"  FontSize="16"/>
+
+      <Grid Grid.Row="1" Grid.IsSharedSizeScope="True">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="5"/>
+          <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <GroupBox Header="Verlosen" Grid.Column="0" Margin="5">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Label Content="Gruppierung:" Margin="5" Grid.Row="0" Grid.Column="0"/>
+              <ComboBox x:Name="cmbGrouping" Margin="5" Grid.Column="1" SelectionChanged="cmbGrouping_SelectionChanged" />
+
+              <Label Content="Verlosungszahl:" Margin="5" Grid.Row="1" Grid.Column="0"/>
+              <TextBox x:Name="txtVerlosung" Margin="5" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center"/>
+
+              <Label Content="Richtung:" Margin="5" Grid.Row="2" Grid.Column="0"/>
+              <ComboBox x:Name="cmbDirection" Margin="5" Grid.Row="2" Grid.Column="1"/>
+
+              <Label Content="Nächste Startnummer:" Margin="5" Grid.Row="3" Grid.Column="0"/>
+              <TextBox x:Name="txtNextStartNumber" Margin="5" Grid.Row="3" Grid.Column="1" VerticalContentAlignment="Center"/>
+
+              <Label Content="Nächste Gruppe:" Margin="5" Grid.Row="4" Grid.Column="0"/>
+              <ComboBox x:Name="cmbNextGroup" Margin="5" Grid.Row="4" Grid.Column="1"/>
+
+              <Button x:Name="btnAssignCurrentGroup"  Content="Aktuelle Gruppe zuweisen" Margin="5" Padding="5" Grid.Row="5" Grid.Column="1" Click="btnAssignCurrentGroup_Click"/>
+
+              <Button x:Name="btnAssignAll" Content="Alle Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Row="8" Grid.Column="1" Click="btnAssignAll_Click"/>
+
+            </Grid>
+          </GroupBox>
+
+          <GroupBox Header="Sonstiges" Grid.Column="0" Grid.Row="1"  Margin="5">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label Content="Nicht zu vergebene Startnummern:&#10;(durch Komma getrennt)" Margin="5" Grid.Row="6" Grid.Column="0"/>
+              <TextBox x:Name="txtNotToBeAssigned" Margin="5" Grid.Row="6" Grid.Column="1" TextWrapping="Wrap"/>
+            </Grid>
+          </GroupBox>
+
         </Grid>
 
-      </Grid>
+        <GridSplitter x:Name="gridSplitter3" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="5" Grid.Column="1"/>
 
-      <GridSplitter x:Name="gridSplitter2" HorizontalAlignment="Stretch" Height="5" Grid.Row="1" />
-
-      <Grid Grid.Row="2" Grid.IsSharedSizeScope="True">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="5"/>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <GroupBox Header="Verlosen" Grid.Column="0">
-
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <Label Content="Gruppierung:" Margin="5" Grid.Row="0" Grid.Column="0"/>
-            <ComboBox x:Name="cmbGrouping" Margin="5" Grid.Column="1" SelectionChanged="cmbGrouping_SelectionChanged" />
-
-            <Label Content="Verlosungszahl:" Margin="5" Grid.Row="1" Grid.Column="0"/>
-            <TextBox x:Name="txtVerlosung" Margin="5" Grid.Row="1" Grid.Column="1"/>
-
-            <Label Content="Richtung:" Margin="5" Grid.Row="2" Grid.Column="0"/>
-            <ComboBox x:Name="cmbDirection" Margin="5" Grid.Row="2" Grid.Column="1"/>
-
-            <Label Content="Nächste Startnummer:" Margin="5" Grid.Row="3" Grid.Column="0"/>
-            <TextBox x:Name="txtNextStartNumber" Margin="5" Grid.Row="3" Grid.Column="1"/>
-
-            <Label Content="Nächste Gruppe:" Margin="5" Grid.Row="4" Grid.Column="0"/>
-            <ComboBox x:Name="cmbNextGroup" Margin="5" Grid.Row="4" Grid.Column="1"/>
-
-            <Button x:Name="btnAssignCurrentGroup"  Content="Aktuelle Gruppe zuweisen" Margin="5" Padding="5" Grid.Row="5" Grid.Column="1" Click="btnAssignCurrentGroup_Click"/>
-
-            <Button x:Name="btnAssignAll" Content="Alle Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Row="8" Grid.Column="1" Click="btnAssignAll_Click"/>
-
-          </Grid>
-
-        </GroupBox>
-
-        <GridSplitter x:Name="gridSplitter3" VerticalAlignment="Stretch" Width="5" Grid.Column="1" Grid.RowSpan="2"/>
-
-        <GroupBox Header="Manuell" Grid.Column="2" Grid.RowSpan="2">
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <DataGrid x:Name="dgParticipants" Margin="5" Grid.Column="1" Grid.Row="0" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
-              <DataGrid.Columns>
-                <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
-                <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-                <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
-                <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-                <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-                <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
-              </DataGrid.Columns>
-            </DataGrid>
-
-            <Grid Grid.Row="4" Grid.Column="1">
+        <Grid Grid.Column="2">
+          <GroupBox Header="Manuell" Margin="5">
+            <Grid>
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
 
-              <Label Content="Startnummer:" Grid.Column="0" Margin="5" />
-              <TextBox x:Name="txtNextStartNumberManual" Grid.Column="1" Margin="5" Width="40"/>
+              <DataGrid x:Name="dgParticipants" Margin="5" Grid.Column="1" Grid.Row="0" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
+                <DataGrid.Columns>
+                  <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
+                </DataGrid.Columns>
+              </DataGrid>
 
-              <Button x:Name="btnAssign" Content="Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Column="3" Click="btnAssign_Click"/>
-            </Grid>
-          </Grid>          
-        </GroupBox>
+              <Grid Grid.Row="4" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-        <GroupBox Header="Sonstiges" Grid.Column="0" Grid.Row="1" >
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label Content="Nicht zu vergebene Startnummern:&#10;(durch Komma getrennt)" Margin="5" Grid.Row="6" Grid.Column="0"/>
-            <TextBox x:Name="txtNotToBeAssigned" Margin="5" Grid.Row="6" Grid.Column="1" TextWrapping="Wrap"/>
-          </Grid>
-        </GroupBox>
+                <Label Content="Nächste Startnummer:" Grid.Column="0" Margin="5" />
+                <TextBox x:Name="txtNextStartNumberManual" Grid.Column="1" Margin="5" Width="40" VerticalContentAlignment="Center"/>
 
-
+                <Button x:Name="btnAssign" Content="Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Column="3" Click="btnAssign_Click"/>
+              </Grid>
+            </Grid>          
+          </GroupBox>
+        </Grid>
       </Grid>
 
       
-      <StackPanel Orientation="Horizontal"  Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" >
+      <StackPanel Orientation="Horizontal"  Grid.Row="2" HorizontalAlignment="Right" >
         <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
         <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
       </StackPanel>
-
     </Grid>
   </Grid>
 </UserControl>
