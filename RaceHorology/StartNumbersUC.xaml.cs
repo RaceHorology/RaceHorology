@@ -271,7 +271,9 @@ namespace RaceHorology
         _rpSelector.AnzahlVerlosung = anzVerlosung;
       }
       catch (Exception)
-      { }
+      {
+        _rpSelector.AnzahlVerlosung = int.MaxValue;
+      }
     }
 
     private void setStartNumbersNotToAssign()
