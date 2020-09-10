@@ -217,8 +217,11 @@ namespace RaceHorology
         var selParticipants = dgParticipants.SelectedItems.OfType<RaceParticipant>().ToList();
         
         _snaWorkspace.SetNextStartNumber(sn);
-        foreach(var selParticipant in selParticipants)
-          _snaWorkspace.AssignNextFree(selParticipant);
+        foreach (var selParticipant in selParticipants)
+        {
+          _snaWorkspace.Assign(sn, selParticipant);
+          sn++;
+        }
 
         dgParticipants.SelectedIndex = 0;
       }
