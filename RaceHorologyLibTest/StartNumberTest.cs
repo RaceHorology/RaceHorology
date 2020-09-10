@@ -370,25 +370,54 @@ namespace RaceHorologyLibTest
           participants[i].Points = 9999.0;
       }
 
-      StartNumberAssignment sna = new StartNumberAssignment();
-      ParticpantSelector ps = new ParticpantSelector(participants[0].Race, sna, null);
-      ps.AnzahlVerlosung = 10;
 
-      ps.AssignParticipants(participants);
-
-      // Check: 
-      foreach(var a in sna.ParticipantList)
+      // Ascending
       {
-        int id = int.Parse(a.Participant.Id);
+        StartNumberAssignment sna = new StartNumberAssignment();
+        ParticpantSelector ps = new ParticpantSelector(participants[0].Race, sna, null);
+        ps.AnzahlVerlosung = 10;
 
-        if (id <= 10)
-          Assert.IsTrue(a.StartNumber <= 10);
-        else if (id <= 80)
-          Assert.IsTrue(a.StartNumber == id);
-        else if (id <= 90)
-          Assert.IsTrue(80 < a.StartNumber && a.StartNumber <= 90);
-        else if (id <= 100)
-          Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
+        ps.AssignParticipants(participants);
+
+        // Check: 
+        foreach (var a in sna.ParticipantList)
+        {
+          int id = int.Parse(a.Participant.Id);
+
+          if (id <= 10)
+            Assert.IsTrue(a.StartNumber <= 10);
+          else if (id <= 80)
+            Assert.IsTrue(a.StartNumber == id);
+          else if (id <= 90)
+            Assert.IsTrue(80 < a.StartNumber && a.StartNumber <= 90);
+          else if (id <= 100)
+            Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
+        }
+      }
+
+      // Descending
+      {
+        StartNumberAssignment sna = new StartNumberAssignment();
+        ParticpantSelector ps = new ParticpantSelector(participants[0].Race, sna, null);
+        ps.AnzahlVerlosung = 10;
+        ps.Sorting = new ParticpantSelector.PointsComparerDesc();
+
+        ps.AssignParticipants(participants);
+
+        // Check: 
+        foreach (var a in sna.ParticipantList)
+        {
+          int id = int.Parse(a.Participant.Id);
+
+          if (id <= 10)
+            Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
+          else if (id <= 80)
+            Assert.IsTrue(a.StartNumber == 100-id+1);
+          else if (id <= 90)
+            Assert.IsTrue(10 < a.StartNumber && a.StartNumber <= 20);
+          else if (id <= 100)
+            Assert.IsTrue(a.StartNumber <= 10);
+        }
       }
 
     }
