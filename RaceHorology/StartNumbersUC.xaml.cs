@@ -60,7 +60,7 @@ namespace RaceHorology
     private Race _race;
 
     private StartNumberAssignment _snaWorkspace;
-    private ParticpantSelector _rpSelector;
+    private ParticipantSelector _rpSelector;
 
     CollectionViewSource _participantFilter;
     CollectionViewSource _startNUmberAssignmentFilter;
@@ -79,9 +79,14 @@ namespace RaceHorology
       _snaWorkspace.ParticipantList.CollectionChanged += OnWorkspaceChanged;
       _snaWorkspace.NextStartnumberChanged += OnNextStartnumberChanged;
 
-      _rpSelector = new ParticpantSelector(_race, _snaWorkspace);
+      _rpSelector = new ParticipantSelector(_race, _snaWorkspace);
       _rpSelector.CurrentGroupChanged += OnCurrentGroupChangedHandler;
       _rpSelector.GroupingChanged += OnGroupingChangedHandler;
+
+      cmbDirection.Items.Clear();
+      cmbDirection.Items.Add(new CBItem { Text = "Aufsteigend", Value = new ParticipantSelector.PointsComparerAsc() });
+      cmbDirection.Items.Add(new CBItem { Text = "Absteigend", Value = new ParticipantSelector.PointsComparerDesc() });
+      cmbDirection.SelectedIndex = 0;
 
       _startNUmberAssignmentFilter = new CollectionViewSource() { Source = _snaWorkspace.ParticipantList };
       _startNUmberAssignmentFilter.IsLiveFilteringRequested = true;
@@ -217,8 +222,11 @@ namespace RaceHorology
         var selParticipants = dgParticipants.SelectedItems.OfType<RaceParticipant>().ToList();
         
         _snaWorkspace.SetNextStartNumber(sn);
-        foreach(var selParticipant in selParticipants)
-          _snaWorkspace.AssignNextFree(selParticipant);
+        foreach (var selParticipant in selParticipants)
+        {
+          _snaWorkspace.Assign(sn, selParticipant);
+          sn++;
+        }
 
         dgParticipants.SelectedIndex = 0;
       }
@@ -259,6 +267,11 @@ namespace RaceHorology
         _rpSelector.GroupProperty = (string)grouping.Value;
     }
 
+    private void cmbDirection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbDirection.SelectedValue is CBItem direction)
+        _rpSelector.Sorting = (ParticipantSelector.ISorting)direction.Value;
+    }
 
     private void setAnzVerlosung()
     {
@@ -268,7 +281,9 @@ namespace RaceHorology
         _rpSelector.AnzahlVerlosung = anzVerlosung;
       }
       catch (Exception)
-      { }
+      {
+        _rpSelector.AnzahlVerlosung = int.MaxValue;
+      }
     }
 
     private void setStartNumbersNotToAssign()
@@ -306,5 +321,6 @@ namespace RaceHorology
 
       _startNUmberAssignmentFilter.View.Refresh();
     }
+
   }
 }

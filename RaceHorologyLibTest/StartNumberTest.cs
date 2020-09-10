@@ -275,17 +275,17 @@ namespace RaceHorologyLibTest
       StartNumberAssignment sna = new StartNumberAssignment();
       sna.LoadFromRace(race);
 
-      ParticpantSelector ps = new ParticpantSelector(race, sna, "Class");
+      ParticipantSelector ps = new ParticipantSelector(race, sna, "Class");
       foreach (var g in ps.Group2Participant)
         foreach (var rp in g.Value)
           Assert.AreEqual(rp.Class, g.Key);
 
-      ParticpantSelector ps2 = new ParticpantSelector(race, sna, "Sex");
+      ParticipantSelector ps2 = new ParticipantSelector(race, sna, "Sex");
       foreach (var g in ps2.Group2Participant)
         foreach (var rp in g.Value)
           Assert.AreEqual(rp.Sex, g.Key);
 
-      ParticpantSelector ps3 = new ParticpantSelector(race, sna, null);
+      ParticipantSelector ps3 = new ParticipantSelector(race, sna, null);
       foreach (var g in ps3.Group2Participant)
       {
         Assert.AreEqual("", g.Key);
@@ -322,7 +322,7 @@ namespace RaceHorologyLibTest
 
       sna.DeleteAll();
 
-      ParticpantSelector ps = new ParticpantSelector(race, sna, "Class");
+      ParticipantSelector ps = new ParticipantSelector(race, sna, "Class");
 
       Assert.AreEqual(ps.CurrentGroup.ToString(), "U14 weiblich Jg. 07");
       ps.AssignParticipants();
@@ -370,25 +370,54 @@ namespace RaceHorologyLibTest
           participants[i].Points = 9999.0;
       }
 
-      StartNumberAssignment sna = new StartNumberAssignment();
-      ParticpantSelector ps = new ParticpantSelector(participants[0].Race, sna, null);
-      ps.AnzahlVerlosung = 10;
 
-      ps.AssignParticipants(participants);
-
-      // Check: 
-      foreach(var a in sna.ParticipantList)
+      // Ascending
       {
-        int id = int.Parse(a.Participant.Id);
+        StartNumberAssignment sna = new StartNumberAssignment();
+        ParticipantSelector ps = new ParticipantSelector(participants[0].Race, sna, null);
+        ps.AnzahlVerlosung = 10;
 
-        if (id <= 10)
-          Assert.IsTrue(a.StartNumber <= 10);
-        else if (id <= 80)
-          Assert.IsTrue(a.StartNumber == id);
-        else if (id <= 90)
-          Assert.IsTrue(80 < a.StartNumber && a.StartNumber <= 90);
-        else if (id <= 100)
-          Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
+        ps.AssignParticipants(participants);
+
+        // Check: 
+        foreach (var a in sna.ParticipantList)
+        {
+          int id = int.Parse(a.Participant.Id);
+
+          if (id <= 10)
+            Assert.IsTrue(a.StartNumber <= 10);
+          else if (id <= 80)
+            Assert.IsTrue(a.StartNumber == id);
+          else if (id <= 90)
+            Assert.IsTrue(80 < a.StartNumber && a.StartNumber <= 90);
+          else if (id <= 100)
+            Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
+        }
+      }
+
+      // Descending
+      {
+        StartNumberAssignment sna = new StartNumberAssignment();
+        ParticipantSelector ps = new ParticipantSelector(participants[0].Race, sna, null);
+        ps.AnzahlVerlosung = 10;
+        ps.Sorting = new ParticipantSelector.PointsComparerDesc();
+
+        ps.AssignParticipants(participants);
+
+        // Check: 
+        foreach (var a in sna.ParticipantList)
+        {
+          int id = int.Parse(a.Participant.Id);
+
+          if (id <= 10)
+            Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
+          else if (id <= 80)
+            Assert.IsTrue(a.StartNumber == 100-id+1);
+          else if (id <= 90)
+            Assert.IsTrue(10 < a.StartNumber && a.StartNumber <= 20);
+          else if (id <= 100)
+            Assert.IsTrue(a.StartNumber <= 10);
+        }
       }
 
     }
