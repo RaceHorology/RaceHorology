@@ -96,7 +96,7 @@
               <TextBox x:Name="txtVerlosung" Margin="5" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center"/>
 
               <Label Content="Richtung:" Margin="5" Grid.Row="2" Grid.Column="0"/>
-              <ComboBox x:Name="cmbDirection" Margin="5" Grid.Row="2" Grid.Column="1"/>
+              <ComboBox x:Name="cmbDirection" Margin="5" Grid.Row="2" Grid.Column="1" SelectionChanged="cmbDirection_SelectionChanged"/>
 
               <Label Content="Nächste Startnummer:" Margin="5" Grid.Row="3" Grid.Column="0"/>
               <TextBox x:Name="txtNextStartNumber" Margin="5" Grid.Row="3" Grid.Column="1" VerticalContentAlignment="Center"/>

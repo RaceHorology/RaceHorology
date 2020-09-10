@@ -83,6 +83,11 @@ namespace RaceHorology
       _rpSelector.CurrentGroupChanged += OnCurrentGroupChangedHandler;
       _rpSelector.GroupingChanged += OnGroupingChangedHandler;
 
+      cmbDirection.Items.Clear();
+      cmbDirection.Items.Add(new CBItem { Text = "Aufsteigend", Value = new ParticpantSelector.PointsComparerAsc() });
+      cmbDirection.Items.Add(new CBItem { Text = "Absteigend", Value = new ParticpantSelector.PointsComparerDesc() });
+      cmbDirection.SelectedIndex = 0;
+
       _startNUmberAssignmentFilter = new CollectionViewSource() { Source = _snaWorkspace.ParticipantList };
       _startNUmberAssignmentFilter.IsLiveFilteringRequested = true;
       _startNUmberAssignmentFilter.LiveFilteringProperties.Add("StartNumber");
@@ -262,6 +267,11 @@ namespace RaceHorology
         _rpSelector.GroupProperty = (string)grouping.Value;
     }
 
+    private void cmbDirection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbDirection.SelectedValue is CBItem direction)
+        _rpSelector.Sorting = (ParticpantSelector.ISorting)direction.Value;
+    }
 
     private void setAnzVerlosung()
     {
@@ -311,5 +321,6 @@ namespace RaceHorology
 
       _startNUmberAssignmentFilter.View.Refresh();
     }
+
   }
 }
