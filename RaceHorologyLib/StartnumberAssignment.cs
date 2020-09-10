@@ -294,7 +294,7 @@ namespace RaceHorologyLib
   }
 
 
-  public class ParticpantSelector
+  public class ParticipantSelector
   {
     private Race _race;
     private StartNumberAssignment _snAssignment;
@@ -318,7 +318,7 @@ namespace RaceHorologyLib
       public abstract int Compare(RaceParticipant left, RaceParticipant right);
     }
 
-    public ParticpantSelector(Race race, StartNumberAssignment snAssignment, string groupProperty = null)
+    public ParticipantSelector(Race race, StartNumberAssignment snAssignment, string groupProperty = null)
     {
       _race = race;
       _snAssignment = snAssignment;
