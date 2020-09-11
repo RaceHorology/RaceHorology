@@ -103,17 +103,47 @@ namespace RaceHorology
       //RaceUC.EnableOrDisableColumns(_race, dgStartList);
 
       IsVisibleChanged += StartNumbersUC_IsVisibleChanged;
+    }
 
+    private void SetupDefaults()
+    {
+      int nVerlosung = int.MaxValue;
+      string grouping = _race.RaceConfiguration.Run1_StartistViewGrouping;
+
+      switch (_race.RaceConfiguration.Run1_StartistView)
+      {
+        case "Startlist_1stRun_StartnumberAscending":
+          nVerlosung = int.MaxValue;
+          break;
+        case "Startlist_1stRun_Points_0":
+          nVerlosung = 0;
+          break;
+        case "Startlist_1stRun_Points_15":
+          nVerlosung = 15;
+          break;
+        case "Startlist_1stRun_Points_30":
+          nVerlosung = 30;
+          break;
+      }
+
+      if (nVerlosung != int.MaxValue)
+        txtVerlosung.Text = nVerlosung.ToString();
+      else
+        txtVerlosung.Text = "";
+
+      cmbGrouping.SelectCBItem(grouping);
     }
 
     private void StartNumbersUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-      if (!(bool)e.OldValue && (bool)e.NewValue)
+      if (!(bool)e.OldValue && (bool)e.NewValue) // Became visible
       {
         _snaWorkspace.LoadFromRace(_race);
 
         UiUtilities.FillGrouping(cmbGrouping, _race.RaceConfiguration.Run1_StartistViewGrouping);
         txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
+
+        SetupDefaults();
 
         OnWorkspaceChanged(this, null);
         OnCurrentGroupChangedHandler(this, null);
