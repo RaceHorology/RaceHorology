@@ -33,10 +33,12 @@
  * 
  */
 
+using RaceHorologyLib;
 using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace RaceHorologyLibTest
 {
@@ -91,8 +93,35 @@ namespace RaceHorologyLibTest
     #endregion
 
     [TestMethod]
-    public void TestMethod1()
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
+    public void ImportRace()
     {
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      string dbFilename = db.CreateDatabase("new.mdb");
+      db.Connect(dbFilename);
+
+      AppDataModel dm = new AppDataModel(db);
+
+      // Create a Race
+      dm.AddRace(new Race.RaceProperties { RaceType = Race.ERaceType.GiantSlalom, Runs = 2 });
+
+      TimeSpan time = TestUtilities.Time(() =>
+      {
+        var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
+        RaceMapping mapping = new RaceMapping(ir.Columns);
+
+        RaceImport im = new RaceImport(ir.Data, dm.GetRace(0), mapping);
+        im.DoImport();
+      });
+
+      Assert.IsTrue(dm.GetParticipants().Count() == 153);
+      Assert.IsTrue(dm.GetRace(0).GetParticipants().Count() == 153);
+
+      TestContext.WriteLine(string.Format("Import took: {0:0.00} sec", time.TotalSeconds));
+      Assert.IsTrue(time.TotalSeconds < 4);
+
+      db.Close();
+
     }
   }
 }
