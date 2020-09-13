@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -342,10 +342,16 @@ namespace RaceHorologyLib
 
   }
 
+  public interface IImport
+  {
+    ImportResults DoImport();
+  }
+
   public class BaseImport
   {
     protected Mapping _mapping;
     protected ClassAssignment _classAssignment;
+
 
     protected BaseImport(Mapping mapping, ClassAssignment classAssignment)
     {
@@ -412,7 +418,7 @@ namespace RaceHorologyLib
 
 
 
-  public class ParticipantImport : BaseImport
+  public class ParticipantImport : BaseImport, IImport
   {
     DataSet _importDataSet;
     IList<Participant> _particpants;
@@ -424,20 +430,26 @@ namespace RaceHorologyLib
     }
 
 
-    public void DoImport()
+    public  ImportResults DoImport()
     {
-      var rows = _importDataSet.Tables[0].Rows;
+      ImportResults impRes = new ImportResults();
 
+      var rows = _importDataSet.Tables[0].Rows;
 
       foreach(DataRow row in rows)
       {
         try
         {
           importRow(row);
+          impRes.AddSuccess();
         }
-        catch(Exception)
-        { }
+        catch (Exception)
+        {
+          impRes.AddError();
+        }
       }
+
+      return impRes;
     }
 
 
@@ -534,7 +546,7 @@ namespace RaceHorologyLib
   }
 
 
-  public class RaceImport : BaseImport
+  public class RaceImport : BaseImport, IImport
   {
     DataSet _importDataSet;
     Race _race;
@@ -546,8 +558,10 @@ namespace RaceHorologyLib
     }
 
 
-    public void DoImport()
+    public ImportResults DoImport()
     {
+      ImportResults impRes = new ImportResults();
+
       // 1. Normaler Import
       ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping, _classAssignment);
 
@@ -563,10 +577,16 @@ namespace RaceHorologyLib
           uint sn = getStartNumber(row);
 
           _race.AddParticipant(importedParticipant, sn, points);
+
+          impRes.AddSuccess();
         }
         catch (Exception)
-        { }
+        {
+          impRes.AddError();
+        }
       }
+
+      return impRes;
     }
 
 
@@ -583,7 +603,7 @@ namespace RaceHorologyLib
   }
 
 
-  public class UpdatePointsImport : BaseImport
+  public class UpdatePointsImport : BaseImport, IImport
   {
     DataSet _importDataSet;
     Race _race;
@@ -597,8 +617,10 @@ namespace RaceHorologyLib
 
 
 
-    public void DoImport()
+    public ImportResults DoImport()
     {
+      ImportResults impRes = new ImportResults();
+
       // 1. Normaler Import
       ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
 
@@ -608,18 +630,21 @@ namespace RaceHorologyLib
       {
         try
         {
-
           RaceParticipant rp = findParticipant(_race.GetParticipants(), row);
-
-          if (rp != null)
+          if (rp != null) // Only update points from known participants
           {
             double points = getPoints(row);
             rp.Points = points;
+            impRes.AddSuccess();
           }
         }
         catch (Exception)
-        { }
+        {
+          impRes.AddError();
+        }
       }
+
+      return impRes;
     }
 
     RaceParticipant findParticipant(IList<RaceParticipant> participants, DataRow row)

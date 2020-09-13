@@ -105,14 +105,19 @@ namespace RaceHorologyLibTest
       // Create a Race
       dm.AddRace(new Race.RaceProperties { RaceType = Race.ERaceType.GiantSlalom, Runs = 2 });
 
+      ImportResults impRes = new ImportResults();
+
       TimeSpan time = TestUtilities.Time(() =>
       {
         var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
         RaceMapping mapping = new RaceMapping(ir.Columns);
 
         RaceImport im = new RaceImport(ir.Data, dm.GetRace(0), mapping);
-        im.DoImport();
+        impRes = im.DoImport();
       });
+
+      Assert.AreEqual(153, impRes.SuccessCount);
+      Assert.AreEqual(0, impRes.ErrorCount);
 
       Assert.IsTrue(dm.GetParticipants().Count() == 153);
       Assert.IsTrue(dm.GetRace(0).GetParticipants().Count() == 153);

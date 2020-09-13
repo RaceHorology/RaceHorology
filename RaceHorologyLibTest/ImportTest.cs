@@ -180,7 +180,6 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1, ir1.ErrorCount);
     }
 
-
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
     public void ImportParticpants()
@@ -191,14 +190,16 @@ namespace RaceHorologyLibTest
 
       List<Participant> participants = new List<Participant>();
       ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping);
-      im.DoImport();
+      var impRes = im.DoImport();
 
-      for(int i=0; i<153; i++)
+      Assert.AreEqual(153, impRes.SuccessCount);
+      Assert.AreEqual(0, impRes.ErrorCount);
+
+      for (int i=0; i<153; i++)
       {
         Assert.AreEqual(string.Format("Name {0}", i + 1), participants[i].Name);
         Assert.IsNull(participants[i].Class);
       }
-
     }
 
 
@@ -213,7 +214,10 @@ namespace RaceHorologyLibTest
       RaceMapping mapping = new RaceMapping(ir.Columns);
 
       RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
-      im.DoImport();
+      var impRes = im.DoImport();
+
+      Assert.AreEqual(153, impRes.SuccessCount);
+      Assert.AreEqual(0, impRes.ErrorCount);
 
       for (int i = 0; i < 153; i++)
       {
@@ -243,7 +247,10 @@ namespace RaceHorologyLibTest
 
       ClassAssignment cla = new ClassAssignment(dm.GetParticipantClasses());
       RaceImport im = new RaceImport(ir.Data, dm.GetRace(0), mapping, cla);
-      im.DoImport();
+      var impRes = im.DoImport();
+
+      Assert.AreEqual(153, impRes.SuccessCount);
+      Assert.AreEqual(0, impRes.ErrorCount);
 
       for (int i = 0; i < 153; i++)
       {
@@ -293,7 +300,10 @@ namespace RaceHorologyLibTest
       RaceMapping mapping = new RaceMapping(ir.Columns);
 
       RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
-      im.DoImport();
+      var impRes = im.DoImport();
+
+      Assert.AreEqual(3, impRes.SuccessCount);
+      Assert.AreEqual(0, impRes.ErrorCount);
 
       Assert.AreEqual(3, ir.Data.Tables[0].Rows.Count);
 
@@ -320,7 +330,10 @@ namespace RaceHorologyLibTest
       RaceMapping mapping = new RaceMapping(ir.Columns);
 
       RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
-      im.DoImport();
+      var impRes = im.DoImport();
+
+      Assert.AreEqual(20, impRes.SuccessCount);
+      Assert.AreEqual(0, impRes.ErrorCount);
 
       for (int i = 0; i < 20; i++)
       {
@@ -365,7 +378,10 @@ namespace RaceHorologyLibTest
 
       List<Participant> participants = new List<Participant>();
       ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping);
-      im.DoImport();
+      var impRes = im.DoImport();
+
+      Assert.AreEqual(153, impRes.SuccessCount);
+      Assert.AreEqual(0, impRes.ErrorCount);
 
       for (int i = 0; i < 153; i++)
       {
