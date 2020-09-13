@@ -456,7 +456,7 @@ namespace RaceHorologyLibTest
       {
         Name = "Nachname 6",
         Firstname = "Vorname 6",
-        Sex = "M",
+        Sex = new ParticipantCategory('M'),
         Club = "Verein 6",
         Nation = "GER",
         SvId = "123",
@@ -473,7 +473,7 @@ namespace RaceHorologyLibTest
       {
         Name = "Nachname 7",
         Firstname = "Vorname 7",
-        Sex = "M",
+        Sex = new ParticipantCategory('M'),
         Club = "Verein 7",
         Nation = "GER",
         Class = db.GetParticipantClasses()[1],
@@ -489,7 +489,7 @@ namespace RaceHorologyLibTest
       {
         Name = "Nachname 8",
         Firstname = "Vorname 8",
-        Sex = "",
+        Sex = null,
         Club = "",
         Nation = "",
         Class = db.GetParticipantClasses()[2],
@@ -504,7 +504,7 @@ namespace RaceHorologyLibTest
       pNew1 = participants.Where(x => x.Name == "Nachname 6").FirstOrDefault();
       pNew1.Name = "Nachname 6.1";
       pNew1.Firstname = "Vorname 6.1";
-      pNew1.Sex = "W";
+      pNew1.Sex = new ParticipantCategory('W');
       pNew1.Club = "Verein 6.1";
       pNew1.Nation = "GDR";
       pNew1.Class = db.GetParticipantClasses()[0];
@@ -517,7 +517,7 @@ namespace RaceHorologyLibTest
       pNew1 = participants.Where(x => x.Name == "Nachname 6.1").FirstOrDefault();
       pNew1.Name = "Nachname 6.2";
       pNew1.Firstname = "Vorname 6.2";
-      pNew1.Sex = "";
+      pNew1.Sex = null;
       pNew1.Club = "";
       pNew1.Nation = "";
       pNew1.Class = db.GetParticipantClasses()[0];
@@ -583,7 +583,7 @@ namespace RaceHorologyLibTest
           string s = reader["nachname"].ToString();
           bRes &= participant.Name == reader["nachname"].ToString();
           bRes &= participant.Firstname == reader["vorname"].ToString();
-          bRes &= participant.Sex == reader["sex"].ToString();
+          bRes &= participant.Sex.Name == reader["sex"].ToString()[0];
           bRes &= participant.Club == reader["verein"].ToString();
           bRes &= participant.Nation == reader["nation"].ToString();
           bRes &= checkAgainstDB(participant.SvId, reader["svid"]);
@@ -629,10 +629,10 @@ namespace RaceHorologyLibTest
       {
         Name = "Nachname 6",
         Firstname = "Vorname 6",
-        Sex = "M",
+        Sex = new ParticipantCategory('M'),
         Club = "Verein 6",
         Nation = "Nation 6",
-        Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
+        Class = new ParticipantClass("", null, "dummy", new ParticipantCategory('M'), 2019, 0),
         Year = 2000,
       };
       model.GetParticipants().Add(participant6);
@@ -759,7 +759,7 @@ namespace RaceHorologyLibTest
 
       // Create new one
       {
-        var c = new ParticipantClass(null, db.GetParticipantGroups()[0], "Class New 1", "M", 2000, 99);
+        var c = new ParticipantClass(null, db.GetParticipantGroups()[0], "Class New 1", new ParticipantCategory('M'), 2000, 99);
         db.CreateOrUpdateClass(c);
         DBCacheWorkaround();
         Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
@@ -796,7 +796,7 @@ namespace RaceHorologyLibTest
         if (reader.Read())
         {
           bRes &= classShall.Name == reader["klname"].ToString();
-          bRes &= classShall.Sex == reader["geschlecht"].ToString();
+          bRes &= classShall.Sex.Name == reader["geschlecht"].ToString()[0];
           bRes &= classShall.Year == Convert.ToUInt32(reader["bis_jahrgang"]);
           bRes &= classShall.Group.Id == reader["gruppe"].ToString();
           bRes &= classShall.SortPos == (double)reader["sortpos"];

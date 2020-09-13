@@ -422,6 +422,7 @@ namespace RaceHorologyLib
   {
     DataSet _importDataSet;
     IList<Participant> _particpants;
+    IList<ParticipantCategory> _categories;
 
     public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
     {
@@ -478,7 +479,7 @@ namespace RaceHorologyLib
       {
         Name = getNameComaSeparated(getValueAsString(row, "Name")),
         Firstname = getFirstNameComaSeparated(getValueAsString(row, "Firstname")),
-        Sex = getValueAsString(row, "Sex"),
+        // TODO Sex = new ParticipantCategory(getValueAsString(row, "Sex")),
         Club = getValueAsString(row, "Club"),
         Nation = getValueAsString(row, "Nation"),
         SvId = getValueAsString(row, "SvId"),

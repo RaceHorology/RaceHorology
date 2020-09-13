@@ -142,13 +142,16 @@ namespace RaceHorologyLib
 
   }
 
-  
+  /// <summary>
+  /// Represents the participant's class
+  /// Defines a relation via IComparable based on its sortkey
+  /// </summary>
   public class ParticipantClass : INotifyPropertyChanged, IComparable<ParticipantClass>, IComparable
   {
     private string _id;
     private ParticipantGroup _group;
     private string _name;
-    private string _sex;
+    private ParticipantCategory _sex;
     private uint _year; // ältester mit erfaßter Jahrgang
     private uint _sortpos;
 
@@ -158,12 +161,12 @@ namespace RaceHorologyLib
       _id = null;
       _group = null;
       _name = "";
-      _sex = "";
+      _sex = null;
       _year = 0;
       _sortpos = uint.MaxValue;
     }
 
-    public ParticipantClass(string id, ParticipantGroup parentGroup, string name, string sex, uint year, uint sortpos)
+    public ParticipantClass(string id, ParticipantGroup parentGroup, string name, ParticipantCategory sex, uint year, uint sortpos)
     {
       _id = id;
       Group = parentGroup;
@@ -199,7 +202,7 @@ namespace RaceHorologyLib
       }
     }
 
-    public string Sex
+    public ParticipantCategory Sex
     {
       get => _sex;
       set { _sex = value; NotifyPropertyChanged(); }
@@ -428,7 +431,7 @@ namespace RaceHorologyLib
     private string _id;
     private string _name;
     private string _firstname;
-    private string _sex;
+    private ParticipantCategory _sex;
     private uint _year;
     private string _club;
     private string _nation;
@@ -459,10 +462,23 @@ namespace RaceHorologyLib
     }
 
 
-    public string Sex
+    public ParticipantCategory Sex
     {
       get => _sex;
-      set { if (_sex != value) { _sex = value; NotifyPropertyChanged(); } }
+      set
+      {
+        if (_sex != value)
+        {
+          if (_sex != null)
+            _sex.PropertyChanged -= OnSexChanged;
+
+          _sex = value;
+          NotifyPropertyChanged();
+
+          if (_sex != null)
+            _sex.PropertyChanged += OnSexChanged;
+        }
+      }
     }
 
     public uint Year
@@ -572,6 +588,12 @@ namespace RaceHorologyLib
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
     }
 
+    private void OnSexChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Sex"));
+    }
+
+
     #endregion
   }
 
@@ -629,7 +651,7 @@ namespace RaceHorologyLib
     public string Name { get => _participant.Name; }
     public string Firstname { get => _participant.Firstname; }
     public string Fullname { get => _participant.Fullname; }
-    public string Sex { get => _participant.Sex; }
+    public ParticipantCategory Sex { get => _participant.Sex; }
     public uint Year { get => _participant.Year; }
     public string Club { get => _participant.Club; }
     public string Nation { get => _participant.Nation; }
@@ -714,7 +736,7 @@ namespace RaceHorologyLib
     public string Club { get { return _participant.Club; } }
     public ParticipantClass Class { get { return _participant.Class; } }
     public ParticipantGroup Group { get => _participant.Group; }
-    public string Sex { get { return _participant.Sex; } }
+    public ParticipantCategory Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
     public string SvId{ get { return _participant.SvId; } }
     public string Code{ get { return _participant.Code; } }
@@ -813,7 +835,7 @@ namespace RaceHorologyLib
     public string Club { get { return _participant.Club; } }
     public ParticipantClass Class { get { return _participant.Class; } }
     public ParticipantGroup Group { get => _participant.Group; }
-    public string Sex { get { return _participant.Sex; } }
+    public ParticipantCategory Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
     public string SvId { get { return _participant.SvId; } }
     public string Code { get { return _participant.Code; } }

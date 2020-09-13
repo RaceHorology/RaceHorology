@@ -1452,8 +1452,8 @@ namespace RaceHorologyLib
 
     public override void Init(Race race, AppDataModel appDataModel)
     {
-      _dsvCalcM = new DSVRaceCalculation(race, this, "M");
-      _dsvCalcW = new DSVRaceCalculation(race, this, "W");
+      _dsvCalcM = new DSVRaceCalculation(race, this, 'M');
+      _dsvCalcW = new DSVRaceCalculation(race, this, 'W');
 
       base.Init(race, appDataModel);
     }
@@ -1476,9 +1476,9 @@ namespace RaceHorologyLib
 
     protected override double calculatePoints(RaceResultItem rri)
     { 
-      if (rri.Participant.Sex == "M")
+      if (rri.Participant.Sex.Name == 'M')
         return _dsvCalcM.CalculatePoints(rri, true);
-      if (rri.Participant.Sex == "W")
+      if (rri.Participant.Sex.Name == 'W')
         return _dsvCalcW.CalculatePoints(rri, true);
 
       return -1.0;

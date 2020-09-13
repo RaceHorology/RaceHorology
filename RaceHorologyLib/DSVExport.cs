@@ -261,7 +261,7 @@ namespace RaceHorologyLib
 
       if (false) // TODO: needs to be fixed, btw: optional
       {
-        DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), "W");
+        DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
         // women
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "L");
@@ -277,7 +277,7 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
 
         // men
-        DSVRaceCalculation dsvCalcM = new DSVRaceCalculation(race, race.GetResultViewProvider(), "M");
+        DSVRaceCalculation dsvCalcM = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'M');
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "M");
 
@@ -601,17 +601,17 @@ namespace RaceHorologyLib
 
     static string mapSex(RaceParticipant particpant)
     {
-      switch (particpant.Sex)
+      switch (particpant.Sex.Name)
       {
-        case "M":
-        case "m":
-        case "H":
-        case "h":
+        case 'M':
+        case 'm':
+        case 'H':
+        case 'h':
           return "M";
-        case "W":
-        case "w":
-        case "D":
-        case "d":
+        case 'W':
+        case 'w':
+        case 'D':
+        case 'd':
           return "L";
       }
 

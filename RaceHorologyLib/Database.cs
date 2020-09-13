@@ -59,6 +59,7 @@ namespace RaceHorologyLib
     private Dictionary<uint, Participant> _id2Participant;
     private Dictionary<uint, ParticipantGroup> _id2ParticipantGroups;
     private Dictionary<uint, ParticipantClass> _id2ParticipantClasses;
+    private Dictionary<char, ParticipantCategory> _id2ParticipantCategory;
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -104,7 +105,7 @@ namespace RaceHorologyLib
       _id2Participant = new Dictionary<uint, Participant>();
       _id2ParticipantGroups = new Dictionary<uint, ParticipantGroup>();
       _id2ParticipantClasses = new Dictionary<uint, ParticipantClass>();
-
+      _id2ParticipantCategory = new Dictionary<char, ParticipantCategory>();
     }
 
     public void Close()
@@ -115,6 +116,7 @@ namespace RaceHorologyLib
       _id2Participant = null;
       _id2ParticipantGroups = null;
       _id2ParticipantClasses = null;
+      _id2ParticipantCategory = null;
 
       _conn.Close();
       _conn = null;
@@ -209,6 +211,17 @@ namespace RaceHorologyLib
         classes.Add(p.Value);
 
       return classes;
+    }
+
+    public List<ParticipantCategory> GetParticipantCategories()
+    {
+      ReadParticipantCategories();
+
+      List<ParticipantCategory> cats = new List<ParticipantCategory>();
+      foreach (var p in _id2ParticipantCategory)
+        cats.Add(p.Value);
+
+      return cats;
     }
 
 
@@ -388,10 +401,10 @@ namespace RaceHorologyLib
 
       cmd.Parameters.Add(new OleDbParameter("@nachname", participant.Name));
       cmd.Parameters.Add(new OleDbParameter("@vorname", participant.Firstname));
-      if (string.IsNullOrEmpty(participant.Sex))
+      if (participant.Sex == null)
         cmd.Parameters.Add(new OleDbParameter("@sex", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex));
+        cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex.Name));
 
       if (string.IsNullOrEmpty(participant.Club))
         cmd.Parameters.Add(new OleDbParameter("@verein", DBNull.Value));
@@ -1058,7 +1071,7 @@ namespace RaceHorologyLib
           Id = reader["id"].ToString(),
           Name = reader["nachname"].ToString(),
           Firstname = reader["vorname"].ToString(),
-          Sex = reader["sex"].ToString(),
+          Sex = GetParticipantCategory(reader["sex"].ToString()),
           Club = reader["verein"].ToString(),
           Nation = reader["nation"].ToString(),
           SvId = reader["svid"].ToString(),
@@ -1315,12 +1328,11 @@ namespace RaceHorologyLib
         return _id2ParticipantClasses[id];
       else
       {
-
         ParticipantClass p = new ParticipantClass(
           reader["id"].ToString(),
           GetParticipantGroup(GetValueUInt(reader, "gruppe")),
           reader["klname"].ToString(),
-          reader["geschlecht"].ToString(),
+          GetParticipantCategory(reader["geschlecht"].ToString()),
           GetValueUInt(reader, "bis_jahrgang"),
           GetValueUInt(reader, "sortpos")
         );
@@ -1344,6 +1356,155 @@ namespace RaceHorologyLib
 
       return null;
     }
+
+
+
+    /* ************************ Category ********************* */
+    public void ReadParticipantCategories()
+    {
+      if (_id2ParticipantCategory.Count() > 0)
+        return;
+
+      string sql = @"SELECT * FROM tblKategorie";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          CreateParticipantCategoryFromDB(reader);
+        }
+      }
+    }
+
+
+    private ParticipantCategory CreateParticipantCategoryFromDB(OleDbDataReader reader)
+    {
+      char id = ConvertToParticipantCategoryId(reader["kat"].ToString());
+
+      if (_id2ParticipantCategory.ContainsKey(id))
+        return _id2ParticipantCategory[id];
+      else
+      {
+        ParticipantCategory p = new ParticipantCategory(
+          ConvertToParticipantCategoryId(reader["kat"].ToString()),
+          reader["kname"].ToString(),
+          GetValueUInt(reader, "sortpos")
+        );
+        _id2ParticipantCategory.Add(id, p);
+
+        return p;
+      }
+    }
+
+    private char GetParticipantCategoryId(ParticipantCategory cat)
+    {
+      ReadParticipantGroups();
+      return _id2ParticipantCategory.Where(x => x.Value == cat).FirstOrDefault().Key;
+    }
+
+    private char ConvertToParticipantCategoryId(string id)
+    {
+      if (id.Length != 1)
+        return char.MinValue;
+      return id[0];
+    }
+
+    private ParticipantCategory GetParticipantCategory(string id)
+    {
+      return GetParticipantCategory(ConvertToParticipantCategoryId(id));
+    }
+
+    private ParticipantCategory GetParticipantCategory(char id)
+    {
+      ReadParticipantCategories();
+
+      if (_id2ParticipantCategory.ContainsKey(id))
+        return _id2ParticipantCategory[id];
+
+      return null;
+    }
+
+    public void CreateOrUpdateCategory(ParticipantCategory c)
+    {
+      // Test whether the participant exists
+      char id = GetParticipantCategoryId(c);
+
+      // Check whether category already existed
+      string sqlQuery = @"SELECT COUNT(*) FROM tblKategorie WHERE kat = @kat";
+      bool bNew;
+      using (OleDbCommand cmdQuery = new OleDbCommand(sqlQuery, _conn))
+      {
+        bNew = ((int)cmdQuery.ExecuteScalar() == 0);
+      }
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblKategorie " +
+                     @"SET kname = @kname, sortpos = @sortpos " +
+                     @"WHERE kat = @id";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        Debug.Assert(id == char.MinValue);
+        id = c.Name; // Name is the ID
+        string sql = @"INSERT INTO tblKategorie (kname, sortpos, kat) " +
+                     @"VALUES (@kname, @sortpos, @id) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+
+      cmd.Parameters.Add(new OleDbParameter("@kname", c.PrettyName));
+      cmd.Parameters.Add(new OleDbParameter("@sortpos", c.SortPos));
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      cmd.CommandType = CommandType.Text;
+
+      try
+      {
+        Logger.Debug("CreateOrUpdateCategory(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+
+        if (bNew)
+        {
+          _id2ParticipantCategory.Add(id, c);
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateCategory failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void RemoveCategory(ParticipantCategory c)
+    {
+      char id = GetParticipantCategoryId(c);
+
+      if (id == char.MinValue)
+        throw new Exception("RemoveCategory: id not found");
+
+      string sql = @"DELETE FROM tblKategorie " +
+                   @"WHERE kat = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveCategory(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveCategory failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+
 
 
 

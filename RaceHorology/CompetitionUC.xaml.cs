@@ -690,7 +690,7 @@ namespace RaceHorology
       get => _participant.Firstname;
       set => _participant.Firstname = value;
     }
-    public string Sex
+    public ParticipantCategory Sex
     {
       get => _participant.Sex;
       set => _participant.Sex = value;
