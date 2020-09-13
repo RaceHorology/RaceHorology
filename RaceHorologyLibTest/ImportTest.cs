@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -161,6 +161,23 @@ namespace RaceHorologyLibTest
         var ir = new ImportReader(@"Teilnehmer_V1_202001301844_comma.csv");
         checkColumns(ir.Columns);
       }
+    }
+
+    [TestMethod]
+    public void ImportResultsClass()
+    {
+      ImportResults ir1 = new ImportResults();
+
+      Assert.AreEqual(0, ir1.SuccessCount);
+      Assert.AreEqual(0, ir1.ErrorCount);
+
+      ir1.AddError();
+      Assert.AreEqual(0, ir1.SuccessCount);
+      Assert.AreEqual(1, ir1.ErrorCount);
+
+      ir1.AddSuccess();
+      Assert.AreEqual(1, ir1.SuccessCount);
+      Assert.AreEqual(1, ir1.ErrorCount);
     }
 
 

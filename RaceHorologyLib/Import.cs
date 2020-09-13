@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -322,6 +322,25 @@ namespace RaceHorologyLib
   }
 
 
+  public class ImportResults
+  {
+    int _success = 0;
+    int _error = 0;
+
+    public int SuccessCount { get { return _success; } }
+    public int ErrorCount { get { return _error; } }
+
+    public void AddSuccess()
+    {
+      _success++;
+    }
+
+    public void AddError()
+    {
+      _error++;
+    }
+
+  }
 
   public class BaseImport
   {
