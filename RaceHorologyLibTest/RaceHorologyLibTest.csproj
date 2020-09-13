@@ -80,6 +80,7 @@
     <Compile Include="DSVExportTest.cs" />
     <Compile Include="DSVImportTest.cs" />
     <Compile Include="ImportTest.cs" />
+    <Compile Include="IntegrationTests.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />
     <Compile Include="StartNumberTest.cs" />

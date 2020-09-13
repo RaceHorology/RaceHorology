@@ -85,16 +85,38 @@ namespace RaceHorology
 
     private void btnImport_Click(object sender, RoutedEventArgs e)
     {
+      string messageTextDetails = "";
 
-      foreach (var r in lbRaces.SelectedItems)
-      {
-        Race race = r as Race;
-        if (race != null)
+      if (lbRaces.SelectedItems.Count > 0)
+      { 
+        foreach (var r in lbRaces.SelectedItems)
         {
-          RaceImport imp = new RaceImport(_importReader.Data, race, _importMapping, new ClassAssignment(_dm.GetParticipantClasses()));
-          imp.DoImport();
+          Race race = r as Race;
+          if (race != null)
+          {
+            RaceImport imp = new RaceImport(_importReader.Data, race, _importMapping, new ClassAssignment(_dm.GetParticipantClasses()));
+            ImportResults results = imp.DoImport();
+
+            messageTextDetails += string.Format(
+              "Zusammenfassung für das Rennen {0}:\n" +
+              "- Erfolgreich importierte Teilnehmer: {1}\n" +
+              "- Nicht importierte Teilnehmer: {2}\n\n",
+              race.ToString(), results.SuccessCount, results.ErrorCount);
+          }
         }
       }
+      else
+      {
+        ParticipantImport imp = new ParticipantImport(_importReader.Data, _dm.GetParticipants(), _importMapping, new ClassAssignment(_dm.GetParticipantClasses()));
+        ImportResults results = imp.DoImport();
+
+        messageTextDetails += string.Format(
+          "Zusammenfassung für den allgemeinen Teilnehmerimport:\n" +
+          "- Erfolgreich importierte Teilnehmer: {0}\n" +
+          "- Nicht importierte Teilnehmer: {1}\n\n",
+          results.SuccessCount, results.ErrorCount);
+      }
+      MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
 
       DialogResult = true;
     }
