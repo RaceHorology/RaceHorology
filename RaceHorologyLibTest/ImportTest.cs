@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -50,9 +50,6 @@ namespace RaceHorologyLibTest
   {
     public ImportTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
     }
 
     private TestContext testContextInstance;
