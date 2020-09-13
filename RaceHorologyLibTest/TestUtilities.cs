@@ -37,6 +37,7 @@ using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -98,6 +99,14 @@ namespace RaceHorologyLibTest
           return false;
 
       return valueShall == (DateTime)valueIs;
+    }
+
+    public static TimeSpan Time(Action action)
+    {
+      Stopwatch stopwatch = Stopwatch.StartNew();
+      action();
+      stopwatch.Stop();
+      return stopwatch.Elapsed;
     }
 
   }

@@ -8,7 +8,7 @@
         Loaded="ImportWizard_Loaded"
         WindowStartupLocation="CenterOwner"
         Background="#e6eee5"
-        Title="Daten-Import" Height="450" Width="800">
+        Title="Daten-Import" Height="600" Width="1000">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="3*"/>

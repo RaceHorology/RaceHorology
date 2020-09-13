@@ -44,7 +44,10 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
-
+  /// <summary>
+  /// Represents an startnumber + participant assignment slot
+  /// Used by StartNumberAssignment
+  /// </summary>
   public class AssignedStartNumber : INotifyPropertyChanged
   {
     private uint _startNumber;
@@ -291,11 +294,12 @@ namespace RaceHorologyLib
   }
 
 
-  public class ParticpantSelector
+  public class ParticipantSelector
   {
     private Race _race;
     private StartNumberAssignment _snAssignment;
     private string _groupProperty;
+    private ISorting _sorting;
 
     private int _anzVerlosung;
 
@@ -309,11 +313,17 @@ namespace RaceHorologyLib
     public event EventHandler CurrentGroupChanged;
     public event EventHandler GroupingChanged;
 
-    public ParticpantSelector(Race race, StartNumberAssignment snAssignment, string groupProperty = null)
+    public abstract class ISorting : IComparer<RaceParticipant> 
+    {
+      public abstract int Compare(RaceParticipant left, RaceParticipant right);
+    }
+
+    public ParticipantSelector(Race race, StartNumberAssignment snAssignment, string groupProperty = null)
     {
       _race = race;
       _snAssignment = snAssignment;
       _groupProperty = groupProperty;
+      _sorting = new PointsComparerAsc();
 
       _currentGroup = null;
 
@@ -326,6 +336,12 @@ namespace RaceHorologyLib
 
     public int AnzahlVerlosung
     { get { return _anzVerlosung; } set { _anzVerlosung = value; } }
+
+    public ISorting Sorting
+    {
+      get { return _sorting; }
+      set { _sorting = value; }
+    }
 
 
     public Dictionary<object, List<RaceParticipant>> Group2Participant { get { return _group2participant; } private set { _group2participant = value; } }
@@ -433,13 +449,24 @@ namespace RaceHorologyLib
     }
 
 
-    class PointsComparer : System.Collections.Generic.IComparer<RaceParticipant>
+    public class PointsComparerAsc :  ISorting
     {
 
-      public int Compare(RaceParticipant left, RaceParticipant right)
+      public override int Compare(RaceParticipant left, RaceParticipant right)
       {
         // According to points, but other direction
         int compPoints = left.Points.CompareTo(right.Points);
+        return compPoints;
+      }
+    }
+
+    public class PointsComparerDesc : ISorting
+    {
+
+      public override int Compare(RaceParticipant left, RaceParticipant right)
+      {
+        // According to points, but other direction
+        int compPoints = right.Points.CompareTo(left.Points);
         return compPoints;
       }
     }
@@ -450,7 +477,7 @@ namespace RaceHorologyLib
       var wcParticipants = participants.ToList();
 
       // Sort
-      wcParticipants.Sort(new PointsComparer());
+      wcParticipants.Sort(_sorting);
 
       // Split into groups
       List<RaceParticipant> g1, g2;
