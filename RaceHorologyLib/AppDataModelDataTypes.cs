@@ -282,7 +282,141 @@ namespace RaceHorologyLib
   }
 
 
+  /// <summary>
+  /// Represents the category of a participant, typically its sex
+  /// </summary>
+  public class ParticipantCategory : INotifyPropertyChanged, IComparable<ParticipantCategory>, IComparable, IEquatable<ParticipantCategory>
+  {
+    private char _name;
+    private string _prettyName;
+    private uint _sortpos;
 
+    public ParticipantCategory()
+    {
+      _name = char.MinValue;
+      _prettyName = "";
+      _sortpos = uint.MaxValue;
+    }
+
+    public ParticipantCategory(char name)
+    {
+      _name = name;
+      _prettyName = new string(name, 1);
+      _sortpos = uint.MaxValue;
+    }
+
+    public ParticipantCategory(char name, string prettyName, uint sortpos)
+    {
+      _name = name;
+      _prettyName = prettyName;
+      _sortpos = sortpos;
+    }
+
+    public string PrettyName
+    {
+      get => _prettyName;
+      set
+      {
+        if (_prettyName != value)
+        {
+          _prettyName = value;
+          NotifyPropertyChanged();
+        }
+      }
+    }
+
+    public char Name
+    {
+      get => _name;
+      set
+      {
+        if (_name != value)
+        {
+          _name = value;
+          NotifyPropertyChanged();
+        }
+      }
+    }
+
+    public uint SortPos
+    {
+      get => _sortpos;
+      set
+      {
+        if (_sortpos != value)
+        {
+          _sortpos = value;
+          NotifyPropertyChanged();
+        }
+      }
+    }
+
+    public override string ToString()
+    {
+      return _prettyName;
+    }
+
+
+    public int CompareTo(ParticipantCategory other)
+    {
+      if (_sortpos == other._sortpos)
+        return _name.CompareTo(other._name);
+
+      return _sortpos.CompareTo(other._sortpos);
+    }
+
+    int IComparable.CompareTo(object obj)
+    {
+      if (obj is ParticipantCategory other)
+        return CompareTo(other);
+
+      return -1;
+    }
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
+
+    #region Equality
+    public bool Equals(ParticipantCategory other)
+    {
+      return _name == other._name;
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (obj is ParticipantCategory other)
+        return Equals(other);
+
+      return false;
+    }
+
+    public static bool operator ==(ParticipantCategory obj1, ParticipantCategory obj2)
+    {
+      return object.Equals(obj1, obj2);
+    }
+
+    public static bool operator !=(ParticipantCategory obj1, ParticipantCategory obj2)
+    {
+      return !object.Equals(obj1, obj2);
+    }
+
+    public override int GetHashCode()
+    {
+      return _name.GetHashCode();
+    }
+    #endregion
+  }
 
 
   /// <summary>

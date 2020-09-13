@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="ALGETdC8001Tests.cs" />
     <Compile Include="AppDataModelTest.cs" />
+    <Compile Include="AppDataModelTypesTest.cs" />
     <Compile Include="AppDataModelViewTests.cs" />
     <Compile Include="AppDataModelCalculationsTest.cs" />
     <Compile Include="DSVAlpin2HTTPServerTest.cs" />
