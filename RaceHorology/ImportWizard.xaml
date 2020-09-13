@@ -1,0 +1,60 @@
+﻿<Window x:Class="RaceHorology.ImportWizard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RaceHorology"
+        mc:Ignorable="d"
+        Loaded="ImportWizard_Loaded"
+        WindowStartupLocation="CenterOwner"
+        Background="#e6eee5"
+        Title="Daten-Import" Height="600" Width="1000">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="3*"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" Grid.Column="0" Margin="5">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+
+      <Label Content="Daten:" Grid.Row="0" Grid.Column="0" FontSize="16"/>
+      <DataGrid x:Name="dgImport" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" />
+    </Grid>
+    
+    <GridSplitter x:Name="gridSplitter1" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" Grid.RowSpan="2" />
+
+    <Grid Grid.Row="0" Grid.Column="2" Margin="5">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Label Content="Feld-Zuordnung:" Grid.Row="0" Grid.Column="0" FontSize="16"/>
+      <local:MappingUC x:Name="mappingUC" Grid.Row="1" Grid.Column="0" />
+
+      <Label Content="Rennen:" Grid.Row="2" FontSize="16"/>
+      <ListBox x:Name="lbRaces" Grid.Row="3" />
+    </Grid>
+
+    
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="2">
+      <Button x:Name="btnSelectImportFile" Content="Datei auswählen" Padding="5" Margin="5" Click="btnSelectImportFile_Click"/>
+    </StackPanel>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="2">
+      <Button x:Name="btnCancel" Content="Abbrechen" Padding="5" Margin="5" Click="btnCancel_Click"/>
+      <Button x:Name="btnImport" Content="Import" Padding="5" Margin="5" Click="btnImport_Click"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

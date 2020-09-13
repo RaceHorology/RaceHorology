@@ -56,6 +56,27 @@
           <TextBox x:Name="txtStartTimeIntervall" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Right" MinWidth="50" />
         </Grid>
       </TabItem>
+      <TabItem Header="Standardwerte">
+        <Grid Background="#FFE5E5E5">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Label Content="Nicht zu vergebene Startnummern:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
+          <TextBox x:Name="txtNotToBeAssigned" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="50" />
+          
+        </Grid>
+      </TabItem>
     </TabControl>
     <!--
     <Grid Grid.Row="1">
