@@ -150,21 +150,302 @@
             <Label x:Name="lblConfigStartlist2" Margin="5" Content="Startsortierung:" Grid.Column="0"/>
             <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
               <ComboBox x:Name="cmbConfigStartlist2" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
-            </StackPanel>            
+            </StackPanel>
+          </Grid>
+
+          <Grid Margin="0,15,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Height="25" Grid.ColumnSpan="2">
+              <Label DockPanel.Dock="Left" Content="Berechnung"/>
+              <Separator/>
+            </DockPanel>
           </Grid>
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Label x:Name="lblValueF" Margin="5" Content="F-Wert:" Grid.Column="0"/>
+            <TextBox x:Name="txtValueF" Margin="5" Grid.Column="1" />
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblValueA" Margin="5" Content="Adder:" Grid.Column="0"/>
+            <TextBox x:Name="txtValueA" Margin="5" Grid.Column="1" />
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="lblMinPenalty" Margin="5" Content="Minimumzuschlag:" Grid.Column="0"/>
+            <TextBox x:Name="txtMinPenalty" Margin="5" Grid.Column="1" />
+          </Grid>
+
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
-              <Button x:Name="btnReset" Content="Reset" Margin="5" Padding="5" Click="BtnReset_Click"/>
-              <Button x:Name="btnApply" Content="Apply" Margin="5" Padding="5" Click="BtnApply_Click"/>
+              <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
+              <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
             </StackPanel>
           </Grid>
 
+
         </StackPanel>
 
+      </TabItem>
+      <TabItem x:Name="RaceProperties" Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.IsSharedSizeScope="True">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="lblRaceNo" Margin="5,0,0,0" Content="Bewerbsnummer:" Grid.Row="1" Grid.Column="0"/>
+            <TextBox x:Name="txtRaceNo" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding RaceNumber}"/>
+
+            <Label x:Name="lblLocation" Margin="5,0,0,0" Content="Ort:" Grid.Row="2" Grid.Column="0"/>
+            <TextBox x:Name="txtLocation" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Location}"/>
+
+            <Label x:Name="lblDate" VerticalAlignment="Center" Margin="5,0,0,0" Content="Datum:" Grid.Row="3" Grid.Column="0"/>
+            <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" >
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label Margin="0,0,0,0" VerticalAlignment="Center" Content="Startliste:" Grid.Column="0"/>
+              <DatePicker Margin="5" VerticalAlignment="Center" Grid.Column="1" SelectedDate="{Binding DateStartList, Mode=TwoWay}"/>
+              <Label Margin="10,0,0,0" VerticalAlignment="Center" Content="Ergebnisliste:" Grid.Column="2"/>
+              <DatePicker Margin="5" VerticalAlignment="Center" Grid.Column="3" SelectedDate="{Binding DateResultList, Mode=TwoWay}"/>
+            </Grid>
+
+            <Label x:Name="lblDescription" Margin="5,0,0,0" Content="Beschreibung:" Grid.Row="4" Grid.Column="0"/>
+            <TextBox x:Name="txtDescription" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" AcceptsReturn="True" Height="50" Text="{Binding Description}"/>
+
+            <Label x:Name="lblOrganisator" Margin="5,0,0,0" Content="Organisator:" Grid.Row="5" Grid.Column="0"/>
+            <TextBox x:Name="txtOrganisator" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Organizer}"/>
+
+            <Label x:Name="lblAnalyzer" Margin="5,0,0,0" Content="Auswertung / Zeitnahme:" Grid.Row="6" Grid.Column="0"/>
+            <TextBox x:Name="txtAnalyzer" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Analyzer}"/>
+
+            <Label x:Name="lblRaceDirector" Margin="5,0,0,0" Content="Schiedrichter:" Grid.Row="7" Grid.Column="0" />
+            <TextBox x:Name="txtRaceDirector" Margin="5" HorizontalAlignment="Stretch" Grid.Row="7" Grid.Column="1" Text="{Binding Path=RaceReferee.Name}"/>
+            <TextBox x:Name="txtRaceDirectorClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="7" Grid.Column="2"  Text="{Binding Path=RaceReferee.Club}"/>
+
+            <Label x:Name="lblRaceManager" Margin="5,0,0,0" Content="Rennleiter:" Grid.Row="8" Grid.Column="0"/>
+            <TextBox x:Name="txtRaceManager" Margin="5" HorizontalAlignment="Stretch" Grid.Row="8" Grid.Column="1" Text="{Binding Path=RaceManager.Name}"/>
+            <TextBox x:Name="txtRaceManagerClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="8" Grid.Column="2" Text="{Binding Path=RaceManager.Club}"/>
+
+            <Label x:Name="lblTrainerRepresentative" Margin="5,0,0,0" Content="Trainervertreter:" Grid.Row="9" Grid.Column="0"/>
+            <TextBox x:Name="txtTrainerRepresentative" Margin="5" HorizontalAlignment="Stretch" Grid.Row="9" Grid.Column="1" Text="{Binding Path=TrainerRepresentative.Name}"/>
+            <TextBox x:Name="txtTrainerRepresentativeClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="9" Grid.Column="2" Text="{Binding Path=TrainerRepresentative.Club}"/>
+
+            <DockPanel Height="25" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,15,0,0">
+              <Label DockPanel.Dock="Left" Content="Streckendaten"/>
+              <Separator/>
+            </DockPanel>
+            <Grid Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Label Margin="0,0,5,0" Content="Starthöhe (m):" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60"/>
+
+              <Label Content="Zielhöhe (m):" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60"/>
+
+              <Label Content="Länge:" Grid.Row="0" Grid.Column="4" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="5" Text="{Binding Path=CoarseLength}" MinWidth="60"/>
+
+              <Label Margin="0,0,5,0" Content="Homolog Nr." Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Path=CoarseHomologNo}"/>
+
+            </Grid>
+
+            <DockPanel Height="25" Grid.Row="14" Grid.ColumnSpan="3" Margin="0,15,0,0">
+              <Label DockPanel.Dock="Left" Content="Durchgang 1"/>
+              <Separator/>
+            </DockPanel>
+
+            <Label x:Name="lblCourseSetter1" Margin="5,0,0,0" Content="Kurssetzer:" Grid.Row="15" Grid.Column="0"/>
+            <TextBox x:Name="txtCourseSetter1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="15" Grid.Column="1" Text="{Binding Path=RaceRun1.CoarseSetter.Name}"/>
+            <TextBox x:Name="txtCourseSetterClub1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="15" Grid.Column="2" Text="{Binding Path=RaceRun1.CoarseSetter.Club}"/>
+
+            <Label x:Name="lblForeRunner1_1" Margin="5,0,0,0" Content="Vorläufer 1:" Grid.Row="16" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner1_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="16" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner1.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub1_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="16" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner1.Club}"/>
+
+            <Label x:Name="lblForeRunner1_2" Margin="5,0,0,0" Content="Vorläufer 2:" Grid.Row="17" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner1_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="17" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner2.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub1_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="17" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner2.Club}"/>
+
+            <Label x:Name="lblForeRunner1_3" Margin="5,0,0,0" Content="Vorläufer 3:" Grid.Row="18" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner1_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="18" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner3.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub1_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="18" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner3.Club}"/>
+
+            <Grid Grid.Row="19" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun1.Gates}" Width="30"/>
+
+              <Label Content="/" Grid.Row="0" Grid.Column="2"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun1.Turns}" Width="30"/>
+
+              <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun1.StartTime}" Width="60"/>
+            </Grid>
+
+
+            <DockPanel Height="25" Grid.Row="20" Grid.ColumnSpan="3" Margin="0,15,0,0">
+              <Label DockPanel.Dock="Left" Content="Durchgang 2"/>
+              <Separator/>
+            </DockPanel>
+
+            <Label x:Name="lblCourseSetter2" Margin="5,0,0,0" Content="Kurssetzer:" Grid.Row="21" Grid.Column="0"/>
+            <TextBox x:Name="txtCourseSetter2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="21" Grid.Column="1" Text="{Binding Path=RaceRun2.CoarseSetter.Name}"/>
+            <TextBox x:Name="txtCourseSetterClub2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="21" Grid.Column="2" Text="{Binding Path=RaceRun2.CoarseSetter.Club}"/>
+
+            <Label x:Name="lblForeRunner2_1" Margin="5,0,0,0" Content="Vorläufer 1:" Grid.Row="22" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner2_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="22" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner1.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub2_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="22" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner1.Club}"/>
+
+            <Label x:Name="lblForeRunner2_2" Margin="5,0,0,0" Content="Vorläufer 2:" Grid.Row="23" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner2_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="23" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner2.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub2_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="23" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner2.Club}"/>
+
+            <Label x:Name="lblForeRunner2_3" Margin="5,0,0,0" Content="Vorläufer 3:" Grid.Row="24" Grid.Column="0"/>
+            <TextBox x:Name="txtForeRunner2_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="24" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner3.Name}"/>
+            <TextBox x:Name="txtForeRunnerClub2_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="24" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner3.Club}"/>
+
+            <Grid Grid.Row="25" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun2.Gates}" Width="30"/>
+
+              <Label Content="/" Grid.Row="0" Grid.Column="2"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun2.Turns}" Width="30"/>
+
+              <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun2.StartTime}" Width="60"/>
+            </Grid>
+
+            <DockPanel Height="25" Grid.Row="26" Grid.ColumnSpan="3" Margin="0,15,0,0">
+              <Label DockPanel.Dock="Left" Content="Wetterdaten"/>
+              <Separator/>
+            </DockPanel>
+            <Grid Grid.Row="27" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Label Margin="0,0,5,0" Content="Wetter:" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=Weather}"/>
+
+              <Label Content="Schnee:" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=Snow}"/>
+
+              <Label Margin="0,0,5,0" Content="Temperatur Start (°C):" Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Text="{Binding Path=TempStart}"/>
+
+              <Label Content="Temperatur Ziel (°C):" Grid.Row="1" Grid.Column="2" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="1" Grid.Column="3" Text="{Binding Path=TempFinish}"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="28" Grid.Column="2" HorizontalAlignment="Right" Margin="0,15,0,0">
+              <Button x:Name="btnAddPropReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnAddPropReset_Click"/>
+              <Button x:Name="btnAddPropApply" Content="Speichern" Margin="5" Padding="5" Click="BtnAddPropApply_Click"/>
+            </StackPanel>
+
+          </Grid>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem Header="Startnummern" FontSize="12">
+        <local:StartNumbersUC x:Name="ucStartNumbers" />
       </TabItem>
       <TabItem Header="Live Timing" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
@@ -208,248 +489,6 @@
 
         </StackPanel>
 
-      </TabItem>
-      <TabItem x:Name="RaceProperties" Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.IsSharedSizeScope="True">
-          <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Label x:Name="lblName" Margin="5,0,0,0" Content="Name:" Grid.Row="0" Grid.Column="0"/>
-            <TextBox x:Name="txtName" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name}"/>
-
-            <Label x:Name="lblRaceNo" Margin="5,0,0,0" Content="Bewerbsnummer:" Grid.Row="1" Grid.Column="0"/>
-            <TextBox x:Name="txtRaceNo" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding RaceNumber}"/>
-
-            <Label x:Name="lblLocation" Margin="5,0,0,0" Content="Ort:" Grid.Row="2" Grid.Column="0"/>
-            <TextBox x:Name="txtLocation" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Location}"/>
-
-            <Label x:Name="lblDescription" Margin="5,0,0,0" Content="Beschreibung:" Grid.Row="3" Grid.Column="0"/>
-            <TextBox x:Name="txtDescription" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" AcceptsReturn="True" Height="50" Text="{Binding Description}"/>
-
-            <Label x:Name="lblOrganisator" Margin="5,0,0,0" Content="Organisator:" Grid.Row="4" Grid.Column="0"/>
-            <TextBox x:Name="txtOrganisator" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Organizer}"/>
-
-            <Label x:Name="lblAnalyzer" Margin="5,0,0,0" Content="Auswertung / Zeitnahme:" Grid.Row="5" Grid.Column="0"/>
-            <TextBox x:Name="txtAnalyzer" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Analyzer}"/>
-
-            <Label x:Name="lblRaceDirector" Margin="5,0,0,0" Content="Schiedrichter:" Grid.Row="6" Grid.Column="0" />
-            <TextBox x:Name="txtRaceDirector" Margin="5" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="1" Text="{Binding Path=RaceDirector.Name}"/>
-            <TextBox x:Name="txtRaceDirectorClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="2"  Text="{Binding Path=RaceDirector.Club}"/>
-
-            <Label x:Name="lblRaceManager" Margin="5,0,0,0" Content="Rennleiter:" Grid.Row="7" Grid.Column="0"/>
-            <TextBox x:Name="txtRaceManager" Margin="5" HorizontalAlignment="Stretch" Grid.Row="7" Grid.Column="1" Text="{Binding Path=RaceManager.Name}"/>
-            <TextBox x:Name="txtRaceManagerClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="7" Grid.Column="2" Text="{Binding Path=RaceManager.Club}"/>
-
-            <Label x:Name="lblTrainerRepresentative" Margin="5,0,0,0" Content="Trainervertreter:" Grid.Row="8" Grid.Column="0"/>
-            <TextBox x:Name="txtTrainerRepresentative" Margin="5" HorizontalAlignment="Stretch" Grid.Row="8" Grid.Column="1" Text="{Binding Path=TrainerRepresentative.Name}"/>
-            <TextBox x:Name="txtTrainerRepresentativeClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="8" Grid.Column="2" Text="{Binding Path=TrainerRepresentative.Club}"/>
-
-            <DockPanel Height="25" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,15,0,0">
-              <Label DockPanel.Dock="Left" Content="Streckendaten"/>
-              <Separator/>
-            </DockPanel>
-            <Grid Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,0,0,0">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-
-              <Label Margin="0,0,5,0" Content="Starthöhe (m):" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60"/>
-
-              <Label Content="Zielhöhe (m):" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60"/>
-
-              <Label Content="Länge:" Grid.Row="0" Grid.Column="4" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="5" Text="{Binding Path=CoarseLength}" MinWidth="60"/>
-
-              <Label Margin="0,0,5,0" Content="Homolog Nr." Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Path=CoarseHomologNo}"/>
-
-            </Grid>
-
-            <DockPanel Height="25" Grid.Row="13" Grid.ColumnSpan="3" Margin="0,15,0,0">
-              <Label DockPanel.Dock="Left" Content="Durchgang 1"/>
-              <Separator/>
-            </DockPanel>
-
-            <Label x:Name="lblCourseSetter1" Margin="5,0,0,0" Content="Kurssetzer:" Grid.Row="14" Grid.Column="0"/>
-            <TextBox x:Name="txtCourseSetter1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="14" Grid.Column="1" Text="{Binding Path=RaceRun1.CoarseSetter.Name}"/>
-            <TextBox x:Name="txtCourseSetterClub1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="14" Grid.Column="2" Text="{Binding Path=RaceRun1.CoarseSetter.Club}"/>
-
-            <Label x:Name="lblForeRunner1_1" Margin="5,0,0,0" Content="Vorläufer 1:" Grid.Row="15" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner1_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="15" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner1.Name}"/>
-            <TextBox x:Name="txtForeRunnerClub1_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="15" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner1.Club}"/>
-
-            <Label x:Name="lblForeRunner1_2" Margin="5,0,0,0" Content="Vorläufer 2:" Grid.Row="16" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner1_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="16" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner2.Name}"/>
-            <TextBox x:Name="txtForeRunnerClub1_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="16" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner2.Club}"/>
-
-            <Label x:Name="lblForeRunner1_3" Margin="5,0,0,0" Content="Vorläufer 3:" Grid.Row="17" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner1_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="17" Grid.Column="1" Text="{Binding Path=RaceRun1.Forerunner3.Name}"/>
-            <TextBox x:Name="txtForeRunnerClub1_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="17" Grid.Column="2" Text="{Binding Path=RaceRun1.Forerunner3.Club}"/>
-
-            <Grid Grid.Row="18" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-
-              <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun1.Gates}" Width="30"/>
-
-              <Label Content="/" Grid.Row="0" Grid.Column="2"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun1.Turns}" Width="30"/>
-
-              <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun1.StartTime}" Width="60"/>
-            </Grid>
-
-
-            <DockPanel Height="25" Grid.Row="19" Grid.ColumnSpan="3" Margin="0,15,0,0">
-              <Label DockPanel.Dock="Left" Content="Durchgang 2"/>
-              <Separator/>
-            </DockPanel>
-
-            <Label x:Name="lblCourseSetter2" Margin="5,0,0,0" Content="Kurssetzer:" Grid.Row="20" Grid.Column="0"/>
-            <TextBox x:Name="txtCourseSetter2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="20" Grid.Column="1" Text="{Binding Path=RaceRun2.CoarseSetter.Name}"/>
-            <TextBox x:Name="txtCourseSetterClub2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="20" Grid.Column="2" Text="{Binding Path=RaceRun2.CoarseSetter.Club}"/>
-
-            <Label x:Name="lblForeRunner2_1" Margin="5,0,0,0" Content="Vorläufer 1:" Grid.Row="21" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner2_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="21" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner1.Name}"/>
-            <TextBox x:Name="txtForeRunnerClub2_1" Margin="5" HorizontalAlignment="Stretch" Grid.Row="21" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner1.Club}"/>
-
-            <Label x:Name="lblForeRunner2_2" Margin="5,0,0,0" Content="Vorläufer 2:" Grid.Row="22" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner2_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="22" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner2.Name}"/>
-            <TextBox x:Name="txtForeRunnerClub2_2" Margin="5" HorizontalAlignment="Stretch" Grid.Row="22" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner2.Club}"/>
-
-            <Label x:Name="lblForeRunner2_3" Margin="5,0,0,0" Content="Vorläufer 3:" Grid.Row="23" Grid.Column="0"/>
-            <TextBox x:Name="txtForeRunner2_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="23" Grid.Column="1" Text="{Binding Path=RaceRun2.Forerunner3.Name}"/>
-            <TextBox x:Name="txtForeRunnerClub2_3" Margin="5" HorizontalAlignment="Stretch" Grid.Row="23" Grid.Column="2" Text="{Binding Path=RaceRun2.Forerunner3.Club}"/>
-
-            <Grid Grid.Row="24" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-
-              <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun2.Gates}" Width="30"/>
-
-              <Label Content="/" Grid.Row="0" Grid.Column="2"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun2.Turns}" Width="30"/>
-
-              <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun2.StartTime}" Width="60"/>
-            </Grid>
-
-            <DockPanel Height="25" Grid.Row="25" Grid.ColumnSpan="3" Margin="0,15,0,0">
-              <Label DockPanel.Dock="Left" Content="Wetterdaten"/>
-              <Separator/>
-            </DockPanel>
-            <Grid Grid.Row="26" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,0,0,0">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-
-              <Label Margin="0,0,5,0" Content="Wetter:" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=Weather}"/>
-
-              <Label Content="Schnee:" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=Snow}"/>
-
-              <Label Margin="0,0,5,0" Content="Temperatur Start (°C):" Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Text="{Binding Path=TempStart}"/>
-
-              <Label Content="Temperatur Ziel (°C):" Grid.Row="1" Grid.Column="2" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="5"  Grid.Row="1" Grid.Column="3" Text="{Binding Path=TempFinish}"/>
-            </Grid>
-
-            <StackPanel Orientation="Horizontal" Grid.Row="27" Grid.Column="2" HorizontalAlignment="Right" Margin="0,15,0,0">
-              <Button x:Name="btnAddPropReset" Content="Reset" Margin="5" Padding="5" Click="BtnAddPropReset_Click"/>
-              <Button x:Name="btnAddPropApply" Content="Apply" Margin="5" Padding="5" Click="BtnAddPropApply_Click"/>
-            </StackPanel>
-            
-          </Grid>
-        </ScrollViewer>
-      </TabItem>
-      <TabItem Header="Teilnehmer &amp; Startnummern" FontSize="12">
-        <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
-          <DataGrid.Columns>
-            <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-            <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
-          </DataGrid.Columns>
-        </DataGrid>
       </TabItem>
       <TabItem Header="Zeitnahme" FontSize="12" >
         <Grid>
@@ -543,7 +582,7 @@
                 <TextBox x:Name="txtFinish" Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="1" HorizontalAlignment="Left" Width="80" Margin="5,0,5,0" VerticalAlignment="Center" TextAlignment="Right"  GotFocus="TxtManualTime_GotFocus" LostFocus="TxtManualTime_LostFocus"/>
                 <Label x:Name="lblRun" Content="Laufzeit" Grid.Row="2" Grid.Column="4" HorizontalAlignment="Right" Margin="5,0,5,0"  VerticalAlignment="Center" FontSize="12"/>
                 <TextBox x:Name="txtRun" Grid.Row="2" Grid.Column="5" Width="80" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,5,0" TextAlignment="Right"  GotFocus="TxtManualTime_GotFocus" LostFocus="TxtManualTime_LostFocus"/>
-                
+
                 <Button x:Name="btnManualTimeStore" Grid.Row="2" Grid.Column="7" Content="Speichern &lt;F2&gt;" Margin="5,0,5,0"  VerticalAlignment="Center" Click="BtnManualTimeStore_Click"/>
               </Grid>
             </Grid>
@@ -642,7 +681,7 @@
       </TabItem>
       <TabItem Header="Ausscheidungen" FontSize="12">
         <local:DisqualifyUC x:Name="ucDisqualify">
-          
+
         </local:DisqualifyUC>
       </TabItem>
     </TabControl>
@@ -652,11 +691,10 @@
     <Grid Grid.Column="2" >
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
-        <RowDefinition Height="2*"/>
-        <RowDefinition Height="5"/>
-        <RowDefinition Height="1*"/>
+        <RowDefinition Height="*"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
+
       <Grid Width="Auto">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -667,6 +705,7 @@
         <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
         <ComboBox x:Name="cmbTotalResult" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResult_SelectionChanged"/>
       </Grid>
+
       <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
         <DataGrid.Columns>
           <DataGridTextColumn local:DataGridUtil.Name="Position" Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
@@ -706,17 +745,15 @@
 
       </DataGrid>
 
-      <GridSplitter x:Name="gridSplitterResult" HorizontalAlignment="Stretch" Height="5" Grid.Row="2" />
-
-      <local:ChartTestsUC x:Name="chartResults" Grid.Row="3"/>
-      
-      <Grid Width="Auto" Grid.Row="4">
+      <Grid Width="Auto" Grid.Row="2">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
+        <Button x:Name="btnExport" Content="Export DSV" Margin="5" Grid.Row="0" Grid.Column="3" Click="BtnExportDsv_Click"/>
         <Button x:Name="btnPrint" Content="Drucken" Margin="5" Grid.Row="0" Grid.Column="4" Click="BtnPrint_Click"/>
       </Grid>
     </Grid>

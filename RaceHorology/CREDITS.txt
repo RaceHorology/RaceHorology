@@ -1,0 +1,13 @@
+﻿Besonderen Dank gilt folgenden Mitwirkenden
+
+Race Horology Logo
+  Marc Heckner - http://herrheckner.com/
+
+Beratung und Consulting während der Entwicklung
+  Bernd Altmann - http://www.rennmeldung.de
+
+Testen und Ausprobieren währende der Entwicklung
+  Nils Schüller (WSV Glonn)
+  Klaus Breitschaft (WSV Glonn)
+  Dieter Limmer (WSV München)
+  Andreas Ewert (SV Germering)

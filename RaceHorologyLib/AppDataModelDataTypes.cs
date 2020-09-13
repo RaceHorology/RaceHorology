@@ -1,4 +1,39 @@
-﻿using System;
+/*
+ *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -16,6 +51,13 @@ namespace RaceHorologyLib
     private string _name;
     private uint _sortpos;
 
+    public ParticipantGroup()
+    {
+      _id = null;
+      _name = "";
+      _sortpos = uint.MaxValue;
+    }
+
     public ParticipantGroup(string id, string name, uint sortpos)
     {
       _id = id;
@@ -26,17 +68,40 @@ namespace RaceHorologyLib
     public string Id
     {
       get => _id;
+      set
+      {
+        if (_id != value)
+        {
+          _id = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public string Name
     {
       get => _name;
-      //set { _name = value; NotifyPropertyChanged(); }
+      set
+      {
+        if (_name != value)
+        {
+          _name = value; 
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public uint SortPos
     {
       get => _sortpos;
+      set
+      { 
+        if (_sortpos != value)
+        {
+          _sortpos = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public override string ToString()
@@ -88,10 +153,20 @@ namespace RaceHorologyLib
     private uint _sortpos;
 
 
+    public ParticipantClass()
+    {
+      _id = null;
+      _group = null;
+      _name = "";
+      _sex = "";
+      _year = 0;
+      _sortpos = uint.MaxValue;
+    }
+
     public ParticipantClass(string id, ParticipantGroup parentGroup, string name, string sex, uint year, uint sortpos)
     {
       _id = id;
-      _group = parentGroup;
+      Group = parentGroup;
       _name = name;
       _sex = sex;
       _year = year;
@@ -101,34 +176,70 @@ namespace RaceHorologyLib
     public string Id
     {
       get => _id;
+      set
+      {
+        if (_id != value)
+        {
+          _id = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public string Name
     {
       get => _name;
-      //set { _name = value; NotifyPropertyChanged(); }
+      set
+      {
+        if (_name != value)
+        {
+          _name = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public string Sex
     {
       get => _sex;
-      //set { _sex = value; NotifyPropertyChanged(); }
+      set { _sex = value; NotifyPropertyChanged(); }
     }
 
     public uint Year
     {
       get => _year;
-      //set { _year = value; NotifyPropertyChanged(); }
+      set { _year = value; NotifyPropertyChanged(); }
     }
 
     public uint SortPos
     {
       get => _sortpos;
+      set
+      {
+        if (_sortpos != value)
+        {
+          _sortpos = value;
+          NotifyPropertyChanged();
+        }
+      }
     }
 
     public ParticipantGroup Group
     {
       get => _group;
+      set
+      {
+        if (_group != value)
+        {
+          if (_group != null)
+            _group.PropertyChanged -= OnGroupChanged;
+
+          _group = value; NotifyPropertyChanged();
+
+          if (_group != null)
+            _group.PropertyChanged += OnGroupChanged;
+        }
+      }
     }
 
     public override string ToString()
@@ -163,6 +274,10 @@ namespace RaceHorologyLib
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
+    }
     #endregion
   }
 
@@ -196,12 +311,12 @@ namespace RaceHorologyLib
     public string Name
     {
       get => _name;
-      set { _name = value; NotifyPropertyChanged(); }
+      set { if (_name != value) { _name = value; NotifyPropertyChanged(); } }
     }
     public string Firstname
     {
       get => _firstname;
-      set { _firstname = value; NotifyPropertyChanged(); }
+      set { if (_firstname != value) { _firstname = value; NotifyPropertyChanged(); } }
     }
 
     public string Fullname
@@ -213,30 +328,30 @@ namespace RaceHorologyLib
     public string Sex
     {
       get => _sex;
-      set { _sex = value; NotifyPropertyChanged(); }
+      set { if (_sex != value) { _sex = value; NotifyPropertyChanged(); } }
     }
 
     public uint Year
     {
       get => _year;
-      set { _year = value; NotifyPropertyChanged(); }
+      set { if (_year != value) { _year = value; NotifyPropertyChanged(); } }
     }
     public string Club
     {
       get => _club;
-      set { _club = value; NotifyPropertyChanged(); }
+      set { if (_club != value) { _club = value; NotifyPropertyChanged(); } }
     }
 
     public string SvId
     {
       get => _svid;
-      set { _svid = value; NotifyPropertyChanged(); }
+      set { if (_svid != value) { _svid = value; NotifyPropertyChanged(); } }
     }
 
     public string Code
     {
       get => _code;
-      set { _code = value; NotifyPropertyChanged(); }
+      set { if (_code != value) { _code = value; NotifyPropertyChanged(); } }
     }
 
     public string CodeOrSvId
@@ -248,22 +363,56 @@ namespace RaceHorologyLib
     public string Nation
     {
       get => _nation;
-      set { _nation = value; NotifyPropertyChanged(); }
+      set { if (_nation != value) { _nation = value; NotifyPropertyChanged(); } }
     }
 
     public ParticipantClass Class
     {
       get => _class;
-      set { _class = value; NotifyPropertyChanged(); }
+      set 
+      { 
+        if (_class != value) 
+        {
+          if (_class != null)
+            _class.PropertyChanged -= OnClassChanged;
+
+          if (_class?.Group != null)
+            (_class?.Group).PropertyChanged -= OnGroupChanged;
+
+          _class = value;
+          NotifyPropertyChanged();
+          NotifyPropertyChanged("Group");
+
+          if (_class != null)
+            _class.PropertyChanged += OnClassChanged;
+
+          if (_class?.Group != null)
+            (_class?.Group).PropertyChanged += OnGroupChanged;
+        }
+      }
     }
     public ParticipantGroup Group
     {
-      get => _class.Group;
+      get => _class?.Group;
     }
 
     public override string ToString()
     {
       return _name + ", " + _firstname + "(" + _year + ")";
+    }
+
+
+    public void Assign(Participant other)
+    {
+      Name = other.Name;
+      Firstname = other.Firstname;
+      Sex = other.Sex;
+      Year = other.Year;
+      Club = other.Club;
+      SvId = other.SvId;
+      Code = other.Code;
+      Nation = other.Nation;
+      Class = other.Class;
     }
 
 
@@ -279,6 +428,15 @@ namespace RaceHorologyLib
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private void OnClassChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Class"));
+    }
+
+    private void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
+    }
 
     #endregion
   }
@@ -289,13 +447,15 @@ namespace RaceHorologyLib
   /// </summary>
   public class RaceParticipant : INotifyPropertyChanged, IDisposable
   {
+    private Race _race;
     public Participant _participant;
     private uint _startnumber;
     private double _points; // Points prior to the race
 
 
-    public RaceParticipant(Participant participant, uint startnumber, double points)
+    public RaceParticipant(Race race, Participant participant, uint startnumber, double points)
     {
+      _race = race;
       _participant = participant;
       _startnumber = startnumber;
       _points = points;
@@ -328,6 +488,7 @@ namespace RaceHorologyLib
     }
     #endregion
 
+    public Race Race { get { return _race; } }
     public Participant Participant { get { return _participant; } }
 
     public string Id { get => _participant.Id; }
@@ -402,7 +563,9 @@ namespace RaceHorologyLib
 
     public StartListEntry ShallowCopy()
     {
-      return (StartListEntry)this.MemberwiseClone();
+      StartListEntry copy = new StartListEntry(_participant);
+      copy._started = _started;
+      return copy;
     }
 
 
