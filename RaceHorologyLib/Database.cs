@@ -1432,10 +1432,11 @@ namespace RaceHorologyLib
       char id = GetParticipantCategoryId(c);
 
       // Check whether category already existed
-      string sqlQuery = @"SELECT COUNT(*) FROM tblKategorie WHERE kat = @kat";
+      string sqlQuery = @"SELECT COUNT(*) FROM tblKategorie WHERE kat = @id";
       bool bNew;
       using (OleDbCommand cmdQuery = new OleDbCommand(sqlQuery, _conn))
       {
+        cmdQuery.Parameters.Add(new OleDbParameter("@id", id));
         bNew = ((int)cmdQuery.ExecuteScalar() == 0);
       }
 

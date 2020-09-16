@@ -583,7 +583,12 @@ namespace RaceHorologyLibTest
           string s = reader["nachname"].ToString();
           bRes &= participant.Name == reader["nachname"].ToString();
           bRes &= participant.Firstname == reader["vorname"].ToString();
-          bRes &= participant.Sex.Name == reader["sex"].ToString()[0];
+
+          if (participant.Sex == null)
+            bRes &= reader["sex"] == DBNull.Value;
+          else
+            bRes &= participant.Sex.Name == reader["sex"].ToString()[0];
+
           bRes &= participant.Club == reader["verein"].ToString();
           bRes &= participant.Nation == reader["nation"].ToString();
           bRes &= checkAgainstDB(participant.SvId, reader["svid"]);
@@ -648,7 +653,85 @@ namespace RaceHorologyLibTest
 
     #endregion
 
-    #region Classes and Groups
+    #region Categories and Classes and Groups
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteCategories()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var categories = db.GetParticipantCategories();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        categories = db.GetParticipantCategories();
+      }
+
+      Assert.AreEqual(14, db.GetParticipantCategories().Count);
+
+      // Edit existing one
+      {
+        var g = categories.FirstOrDefault(v => v.Name == 'M');
+        Assert.AreEqual("Herren", g.PrettyName);
+        Assert.AreEqual(3U, g.SortPos);
+        g.PrettyName = "Herren modified";
+        db.CreateOrUpdateCategory(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckCategory(dbFilename, g, g.Name));
+        Assert.AreEqual(14, db.GetParticipantCategories().Count);
+      }
+
+      // Create new one
+      {
+        var g = new ParticipantCategory('X', "XXX", 999);
+        db.CreateOrUpdateCategory(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckCategory(dbFilename, g, g.Name));
+        Assert.AreEqual(15, db.GetParticipantCategories().Count);
+      }
+
+      // Delete one
+      {
+        var g = categories.FirstOrDefault(v => v.Name == '0');
+        db.RemoveCategory(g);
+        DBCacheWorkaround();
+        g = categories.FirstOrDefault(v => v.Name == '0');
+        Assert.IsNull(g);
+        Assert.AreEqual(14, db.GetParticipantCategories().Count);
+      }
+    }
+
+    bool CheckGroup(string dbFilename, ParticipantGroup groupShall, ulong id)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblGruppe WHERE id = @id";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@id", id));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= groupShall.Name == reader["grpname"].ToString();
+          bRes &= groupShall.SortPos == (double)reader["sortpos"];
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
+    }
+
+
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
     public void CreateAndUpdateAndDeleteGroups()
@@ -700,24 +783,24 @@ namespace RaceHorologyLibTest
       }
     }
 
-    bool CheckGroup(string dbFilename, ParticipantGroup groupShall, ulong id)
+    bool CheckCategory(string dbFilename, ParticipantCategory categShall, char name)
     {
       bool bRes = true;
 
       OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
       conn.Open();
 
-      string sql = @"SELECT * FROM tblGruppe WHERE id = @id";
+      string sql = @"SELECT * FROM tblKategorie WHERE kat = @name";
       OleDbCommand command = new OleDbCommand(sql, conn);
-      command.Parameters.Add(new OleDbParameter("@id", id));
+      command.Parameters.Add(new OleDbParameter("@name", name));
 
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
-          bRes &= groupShall.Name == reader["grpname"].ToString();
-          bRes &= groupShall.SortPos == (double)reader["sortpos"];
+          bRes &= categShall.PrettyName == reader["kname"].ToString();
+          bRes &= categShall.SortPos == (double)reader["sortpos"];
         }
         else
           bRes = false;
