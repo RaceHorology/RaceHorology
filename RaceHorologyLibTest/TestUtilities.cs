@@ -165,6 +165,7 @@ namespace RaceHorologyLibTest
 
     public List<ParticipantGroup> GetParticipantGroups() { return new List<ParticipantGroup>(); }
     public List<ParticipantClass> GetParticipantClasses() { return new List<ParticipantClass>(); }
+    public List<ParticipantCategory> GetParticipantCategories() { return new List<ParticipantCategory>(); }
 
 
     public List<Race.RaceProperties> GetRaces() { return _races; }
@@ -211,6 +212,14 @@ namespace RaceHorologyLibTest
     }
 
     public AppDataModel Model { get; private set; }
+
+    public List<ParticipantCategory> createCategories()
+    {
+      List<ParticipantCategory> cats = new List<ParticipantCategory>();
+      cats.Add(new ParticipantCategory('M'));
+      cats.Add(new ParticipantCategory('W'));
+      return cats;
+    }
 
 
     public List<RaceParticipant> createRaceParticipants(int n)
