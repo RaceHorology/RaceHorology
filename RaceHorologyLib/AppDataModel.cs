@@ -63,6 +63,8 @@ namespace RaceHorologyLib
     ObservableCollection<ParticipantClass> _particpantClasses;
     DatabaseDelegatorClasses _particpantClassesDelegatorDB;
 
+    ObservableCollection<ParticipantCategory> _particpantCategories;
+
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
 
@@ -123,9 +125,12 @@ namespace RaceHorologyLib
       _particpantGroups.CollectionChanged += OnGroupCollectionChanged;
       _particpantClasses = new ObservableCollection<ParticipantClass>(_db.GetParticipantClasses());
       _particpantClasses.CollectionChanged += OnClassCollectionChanged;
+      _particpantCategories = new ObservableCollection<ParticipantCategory>(_db.GetParticipantCategories());
+      //_particpantCategories.CollectionChanged += OnCategoryCollectionChanged;
 
       _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
       _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
+      //_particpantCategoriesDelegatorDB = new DatabaseDelegatorCategories(this, _db);
 
 
       //// Particpants ////
@@ -159,6 +164,11 @@ namespace RaceHorologyLib
       return _participants;
     }
 
+
+    public ObservableCollection<ParticipantCategory> GetParticipantCategories()
+    {
+      return _particpantCategories;
+    }
 
     public ObservableCollection<ParticipantGroup> GetParticipantGroups()
     {
@@ -1063,7 +1073,8 @@ namespace RaceHorologyLib
 
     List<ParticipantGroup> GetParticipantGroups();
     List<ParticipantClass> GetParticipantClasses();
-    
+    List<ParticipantCategory> GetParticipantCategories();
+
     List<Race.RaceProperties> GetRaces();
     List<RaceParticipant> GetRaceParticipants(Race race);
 
