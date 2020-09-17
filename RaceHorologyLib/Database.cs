@@ -133,13 +133,12 @@ namespace RaceHorologyLib
     void checkOrUpgradeSchema()
     {
       checkOrUpgradeSchema_RHMisc();
+      checkOrUpgradeSchema_tblKategorie();
     }
 
     void checkOrUpgradeSchema_RHMisc()
     {
-      // Check if table already existing
-      var schema = _conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
-      if (schema.Rows.OfType<System.Data.DataRow>().Any(r => r.ItemArray[2].ToString().ToLower() == "RHMisc".ToLower()))
+      if (existsTable("RHMisc"))
         return;
 
       // Create TABLE RHMisc 
@@ -148,6 +147,34 @@ namespace RaceHorologyLib
       int res = cmd.ExecuteNonQuery();
     }
 
+    void checkOrUpgradeSchema_tblKategorie()
+    {
+      // Check if table already existing
+      if (existsColumn("tblKategorie", "RHSynonyms"))
+        return;
+
+      // Create TABLE RHMisc 
+      string sql = @"ALTER TABLE tblKategorie ADD RHSynonyms TEXT(255)";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
+    }
+
+
+    bool existsTable(string tableName)
+    {
+      var schema = _conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+      return
+        schema.Rows
+          .OfType<System.Data.DataRow>()
+          .Any(r => r.ItemArray[2].ToString().ToLower() == tableName.ToLower());
+    }
+
+    bool existsColumn(string tableName, string column)
+    {
+      System.Data.DataTable schema = _conn.GetSchema("COLUMNS");
+      var col = schema.Select("TABLE_NAME='" + tableName + "' AND COLUMN_NAME='" + column + "'");
+      return col.Length > 0;
+    }
 
     #region IAppDataModelDataBase implementation
 

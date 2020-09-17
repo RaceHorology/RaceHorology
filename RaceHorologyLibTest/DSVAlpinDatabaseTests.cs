@@ -130,7 +130,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
-    public void DatabaseUpgradeSchema()
+    public void DatabaseUpgradeSchema_RHMisc()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
 
@@ -151,6 +151,29 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(existsTable(dbFilename, "RHMisc"), "table 'RHMisc' is still existing");
     }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void DatabaseUpgradeSchema_tblKategorie()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+
+      Assert.IsFalse(existsColumn(dbFilename, "tblKategorie", "RHSynonyms"));
+
+      // Open first time, upgrade will be performed
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsColumn(dbFilename, "tblKategorie", "RHSynonyms"));
+
+      // open second time (when upgrade was performed)
+      db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsColumn(dbFilename, "tblKategorie", "RHSynonyms"));
+    }
+
 
     bool existsTable(string dbFilename, string tableName)
     {
@@ -159,10 +182,24 @@ namespace RaceHorologyLibTest
 
       var schema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
 
-      return 
+      return
         schema.Rows
           .OfType<System.Data.DataRow>()
           .Any(r => r.ItemArray[2].ToString().ToLower() == tableName.ToLower());
+    }
+
+    bool existsColumn(string dbFilename, string tableName, string column)
+    {
+      using (OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename })
+      { 
+        conn.Open();
+
+        System.Data.DataTable schema = conn.GetSchema("COLUMNS");
+
+        var col = schema.Select("TABLE_NAME='" + tableName + "' AND COLUMN_NAME='" + column + "'");
+
+        return col.Length > 0;
+      }
     }
 
     [TestMethod]
