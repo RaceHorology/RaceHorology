@@ -291,12 +291,14 @@ namespace RaceHorologyLib
   public class ParticipantCategory : INotifyPropertyChanged, IComparable<ParticipantCategory>, IComparable, IEquatable<ParticipantCategory>
   {
     private char _name;
+    private string _synonyms;
     private string _prettyName;
     private uint _sortpos;
 
     public ParticipantCategory()
     {
       _name = char.MinValue;
+      _synonyms = null;
       _prettyName = "";
       _sortpos = uint.MaxValue;
     }
@@ -304,13 +306,15 @@ namespace RaceHorologyLib
     public ParticipantCategory(char name)
     {
       _name = name;
+      _synonyms = null;
       _prettyName = new string(name, 1);
       _sortpos = uint.MaxValue;
     }
 
-    public ParticipantCategory(char name, string prettyName, uint sortpos)
+    public ParticipantCategory(char name, string prettyName, uint sortpos, string synonyms = null)
     {
       _name = name;
+      _synonyms = synonyms;
       _prettyName = prettyName;
       _sortpos = sortpos;
     }
@@ -323,6 +327,19 @@ namespace RaceHorologyLib
         if (_prettyName != value)
         {
           _prettyName = value;
+          NotifyPropertyChanged();
+        }
+      }
+    }
+
+    public string Synonyms
+    {
+      get => _synonyms;
+      set
+      {
+        if (_synonyms != value)
+        {
+          _synonyms = value;
           NotifyPropertyChanged();
         }
       }

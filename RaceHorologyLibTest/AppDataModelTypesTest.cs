@@ -96,23 +96,33 @@ namespace RaceHorologyLibTest
     {
       ParticipantCategory c1 = new ParticipantCategory();
       Assert.AreEqual(char.MinValue, c1.Name);
+      Assert.IsNull(c1.Synonyms);
       Assert.AreEqual("", c1.PrettyName);
       Assert.AreEqual(uint.MaxValue, c1.SortPos);
 
       ParticipantCategory c2 = new ParticipantCategory('W');
       Assert.AreEqual('W', c2.Name);
+      Assert.IsNull(c2.Synonyms);
       Assert.AreEqual("W", c2.PrettyName);
       Assert.AreEqual(uint.MaxValue, c2.SortPos);
 
       ParticipantCategory c3 = new ParticipantCategory('W', "Weiblich", 1);
       Assert.AreEqual('W', c3.Name);
+      Assert.IsNull(c3.Synonyms);
       Assert.AreEqual("Weiblich", c3.PrettyName);
       Assert.AreEqual(1U, c3.SortPos);
 
       ParticipantCategory c4 = new ParticipantCategory('M', "Männlich", 2);
       Assert.AreEqual('M', c4.Name);
+      Assert.IsNull(c4.Synonyms);
       Assert.AreEqual("Männlich", c4.PrettyName);
       Assert.AreEqual(2U, c4.SortPos);
+
+      ParticipantCategory c5 = new ParticipantCategory('M', "Männlich", 2, "mHh");
+      Assert.AreEqual('M', c5.Name);
+      Assert.AreEqual("mHh", c5.Synonyms);
+      Assert.AreEqual("Männlich", c5.PrettyName);
+      Assert.AreEqual(2U, c5.SortPos);
 
 
       Assert.IsTrue(c1 != c2);

@@ -154,7 +154,7 @@ namespace RaceHorologyLib
         return;
 
       // Create TABLE RHMisc 
-      string sql = @"ALTER TABLE tblKategorie ADD RHSynonyms TEXT(255)";
+      string sql = @"ALTER TABLE tblKategorie ADD RHSynonyms TEXT(255) DEFAULT NULL";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
     }
@@ -1417,7 +1417,8 @@ namespace RaceHorologyLib
         ParticipantCategory p = new ParticipantCategory(
           ConvertToParticipantCategoryId(reader["kat"].ToString()),
           reader["kname"].ToString(),
-          GetValueUInt(reader, "sortpos")
+          GetValueUInt(reader, "sortpos"),
+          reader["RHSynonyms"].ToString()
         );
         _id2ParticipantCategory.Add(id, p);
 
@@ -1471,7 +1472,7 @@ namespace RaceHorologyLib
       if (!bNew)
       {
         string sql = @"UPDATE tblKategorie " +
-                     @"SET kname = @kname, sortpos = @sortpos " +
+                     @"SET kname = @kname, sortpos = @sortpos, RHSynonyms = @synonyms " +
                      @"WHERE kat = @id";
         cmd = new OleDbCommand(sql, _conn);
       }
@@ -1479,13 +1480,14 @@ namespace RaceHorologyLib
       {
         Debug.Assert(id == char.MinValue);
         id = c.Name; // Name is the ID
-        string sql = @"INSERT INTO tblKategorie (kname, sortpos, kat) " +
-                     @"VALUES (@kname, @sortpos, @id) ";
+        string sql = @"INSERT INTO tblKategorie (kname, sortpos, RHSynonyms, kat) " +
+                     @"VALUES (@kname, @sortpos, synonyms, @id) ";
         cmd = new OleDbCommand(sql, _conn);
       }
 
       cmd.Parameters.Add(new OleDbParameter("@kname", c.PrettyName));
       cmd.Parameters.Add(new OleDbParameter("@sortpos", c.SortPos));
+      cmd.Parameters.Add(new OleDbParameter("@synonyms", string.IsNullOrEmpty(c.Synonyms)? (object)DBNull.Value : (object)c.Synonyms));
       cmd.Parameters.Add(new OleDbParameter("@id", id));
       cmd.CommandType = CommandType.Text;
 
