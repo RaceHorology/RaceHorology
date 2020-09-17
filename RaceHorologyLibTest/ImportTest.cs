@@ -204,6 +204,12 @@ namespace RaceHorologyLibTest
       Assert.AreEqual('W', participants[1].Sex.Name);
       Assert.AreEqual('M', participants[2].Sex.Name);
       Assert.AreEqual('M', participants[3].Sex.Name);
+
+      // Check synonyms
+      Assert.AreEqual('M', participants[4].Sex.Name);//h
+      Assert.AreEqual('M', participants[6].Sex.Name);//H
+      Assert.AreEqual('M', participants[7].Sex.Name);//x
+      Assert.AreEqual('M', participants[10].Sex.Name);//X
     }
 
 

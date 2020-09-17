@@ -548,16 +548,34 @@ namespace RaceHorologyLib
 
     ParticipantCategory importSex(string sex)
     {
+      // Looks in category name first, afterwards in synonyms
+
       if (string.IsNullOrEmpty(sex))
         return null;
 
-      foreach(var c in _categories)
+      char sexInvariant = char.ToLowerInvariant(sex[0]);
+
+      ParticipantCategory category = null;
+      foreach (var c in _categories)
       {
-        if (char.ToLowerInvariant(c.Name) == char.ToLowerInvariant(sex[0]))
-          return c;
+        if (char.ToLowerInvariant(c.Name) == sexInvariant)
+        {
+          category = c;
+          break;
+        }
       }
 
-      return null;
+      if (category == null)
+        foreach (var c in _categories)
+        {
+          if (!string.IsNullOrEmpty(c.Synonyms) && c.Synonyms.ToLowerInvariant().Contains(sexInvariant))
+          {
+            category = c;
+            break;
+          }
+        }
+
+      return category;
     }
   }
 

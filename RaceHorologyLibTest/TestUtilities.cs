@@ -216,7 +216,7 @@ namespace RaceHorologyLibTest
     public List<ParticipantCategory> createCategories()
     {
       List<ParticipantCategory> cats = new List<ParticipantCategory>();
-      cats.Add(new ParticipantCategory('M'));
+      cats.Add(new ParticipantCategory('M', "Männlich", 0, "hx"));
       cats.Add(new ParticipantCategory('W'));
       return cats;
     }
