@@ -194,6 +194,8 @@ namespace RaceHorologyLibTest
     public void CreateOrUpdateGroup(ParticipantGroup g) { }
 
     public void RemoveGroup(ParticipantGroup g) { }
+    public void CreateOrUpdateCategory(ParticipantCategory c) { }
+    public void RemoveCategory(ParticipantCategory c) { }
 
     public void StoreKeyValue(string key, string value) { }
     public string GetKeyValue(string key) { return null; }
