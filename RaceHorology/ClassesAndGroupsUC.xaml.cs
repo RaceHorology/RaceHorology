@@ -137,7 +137,12 @@ namespace RaceHorology
 
       foreach (var c1 in srcClasses)
       {
-        var c2 = new ParticipantClass(c1.Id, c1.Group == null ? null : _group2Group[c1.Group], c1.Name, _category2Category[c1.Sex], c1.Year, c1.SortPos);
+        var c2 = new ParticipantClass(
+          c1.Id, 
+          c1.Group == null ? null : _group2Group[c1.Group], c1.Name,
+          c1.Sex == null   ? null   : _category2Category[c1.Sex], 
+          c1.Year, 
+          c1.SortPos);
         dstClasses.Add(c2);
         _class2Class.Add(c1, c2);
       }
