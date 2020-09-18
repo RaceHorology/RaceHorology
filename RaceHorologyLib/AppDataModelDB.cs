@@ -321,4 +321,51 @@ namespace RaceHorologyLib
   }
 
 
+  internal class DatabaseDelegatorCategories
+  {
+    private IAppDataModelDataBase _db;
+    AppDataModel _dm;
+
+    ItemsChangedNotifier _notifierClasses;
+
+    public DatabaseDelegatorCategories(AppDataModel dm, IAppDataModelDataBase db)
+    {
+      _dm = dm;
+      _db = db;
+
+      _notifierClasses = new ItemsChangedNotifier(_dm.GetParticipantCategories());
+
+      _notifierClasses.ItemChanged += OnItemChanged;
+      _notifierClasses.CollectionChanged += OnCollectionChanged;
+    }
+
+    void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is ParticipantCategory c)
+        _db.CreateOrUpdateCategory(c);
+    }
+
+    void OnCollectionChanged(object source, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (ParticipantCategory c in e.NewItems)
+            _db.CreateOrUpdateCategory(c);
+          break;
+
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantCategory c in e.OldItems)
+            _db.RemoveCategory(c);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
+
 }

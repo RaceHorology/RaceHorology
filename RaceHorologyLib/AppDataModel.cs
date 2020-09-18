@@ -64,6 +64,7 @@ namespace RaceHorologyLib
     DatabaseDelegatorClasses _particpantClassesDelegatorDB;
 
     ObservableCollection<ParticipantCategory> _particpantCategories;
+    DatabaseDelegatorCategories _particpantCategoriesDelegatorDB;
 
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
@@ -126,11 +127,11 @@ namespace RaceHorologyLib
       _particpantClasses = new ObservableCollection<ParticipantClass>(_db.GetParticipantClasses());
       _particpantClasses.CollectionChanged += OnClassCollectionChanged;
       _particpantCategories = new ObservableCollection<ParticipantCategory>(_db.GetParticipantCategories());
-      //_particpantCategories.CollectionChanged += OnCategoryCollectionChanged;
+      _particpantCategories.CollectionChanged += OnCategoryCollectionChanged;
 
       _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
       _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
-      //_particpantCategoriesDelegatorDB = new DatabaseDelegatorCategories(this, _db);
+      _particpantCategoriesDelegatorDB = new DatabaseDelegatorCategories(this, _db);
 
 
       //// Particpants ////
@@ -301,8 +302,6 @@ namespace RaceHorologyLib
       }
     }
 
-
-
     private void OnClassCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       void removeClassFromParticipants(ParticipantClass c)
@@ -317,6 +316,34 @@ namespace RaceHorologyLib
         case NotifyCollectionChangedAction.Remove:
           foreach (ParticipantClass v in e.OldItems)
             removeClassFromParticipants(v);
+          break;
+      }
+    }
+
+    private void OnCategoryCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeCategoryFromClasses(ParticipantCategory g)
+      {
+        foreach (var c in _particpantClasses)
+          if (c.Sex == g)
+            c.Sex = null;
+      }
+
+      void removeCategoryFromParticipants(ParticipantCategory c)
+      {
+        foreach (var p in _participants)
+          if (p.Sex == c)
+            p.Sex = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantCategory c in e.OldItems)
+          {
+            removeCategoryFromClasses(c);
+            removeCategoryFromParticipants(c);
+          }
           break;
       }
     }
@@ -1090,6 +1117,9 @@ namespace RaceHorologyLib
     void RemoveClass(ParticipantClass c);
     void CreateOrUpdateGroup(ParticipantGroup g);
     void RemoveGroup(ParticipantGroup g);
+    void CreateOrUpdateCategory(ParticipantCategory c);
+    void RemoveCategory(ParticipantCategory c);
+
 
     void CreateOrUpdateRaceParticipant(RaceParticipant participant);
     void RemoveRaceParticipant(RaceParticipant raceParticipant);
