@@ -51,7 +51,7 @@ namespace RaceHorologyLib
 
       foreach (var c in _classesByYear)
       {
-        if (c.Sex.ToLowerInvariant() == p.Sex.ToLowerInvariant())
+        if (c.Sex == p.Sex)
         {
           if (c.Year < p.Year)
             break;

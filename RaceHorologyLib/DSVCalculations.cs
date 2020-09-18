@@ -61,7 +61,7 @@ namespace RaceHorologyLib
 
     private Race _race;
     private RaceResultViewProvider _vpSource;
-    private string _sex;
+    private char _sex;
     
     private double _valueF;
     private double _valueA;
@@ -94,7 +94,7 @@ namespace RaceHorologyLib
     public List<RaceResultItem> TopFiveDSV {  get { return _topFiveDSV; } }
 
 
-    public DSVRaceCalculation(Race race, RaceResultViewProvider vpSource, string sex)
+    public DSVRaceCalculation(Race race, RaceResultViewProvider vpSource, char sex)
     {
       _race = race;
       _vpSource = vpSource;
@@ -276,10 +276,10 @@ namespace RaceHorologyLib
 
     bool includeResult(RaceResultItem rri)
     {
-      if (string.IsNullOrEmpty(_sex))
+      if (_sex == char.MinValue)
         return true;
 
-      return rri.Participant.Sex == _sex;
+      return rri.Participant.Sex.Name == _sex;
     }
 
     bool didStart(RaceResultItem rri)

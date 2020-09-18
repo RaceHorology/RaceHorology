@@ -107,7 +107,7 @@ namespace RaceHorology
       }
       else
       {
-        ParticipantImport imp = new ParticipantImport(_importReader.Data, _dm.GetParticipants(), _importMapping, new ClassAssignment(_dm.GetParticipantClasses()));
+        ParticipantImport imp = new ParticipantImport(_importReader.Data, _dm.GetParticipants(), _importMapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
         ImportResults results = imp.DoImport();
 
         messageTextDetails += string.Format(

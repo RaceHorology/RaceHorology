@@ -34,12 +34,14 @@ namespace RaceHorology
     TextBox _txtLiveTimingStatus;
 
     public ObservableCollection<ParticipantClass> ParticipantClasses { get; }
+    public ObservableCollection<ParticipantCategory> ParticipantCategories { get; }
 
     public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
       _dm = dm;
 
       ParticipantClasses = _dm.GetParticipantClasses();
+      ParticipantCategories = _dm.GetParticipantCategories();
 
       _liveTimingMeasurement = liveTimingMeasurement;
       _txtLiveTimingStatus = txtLiveTimingStatus;
@@ -318,13 +320,12 @@ namespace RaceHorology
 
       updatePartcipantEditField(txtName, GetPropertyValues(items, "Name"));
       updatePartcipantEditField(txtFirstname, GetPropertyValues(items, "Firstname"));
-      updatePartcipantEditField(txtSex, GetPropertyValues(items, "Sex"));
+      updatePartcipantCombobox(cmbSex, GetPropertyValues(items, "Sex"));
       updatePartcipantEditField(txtYear, GetPropertyValues(items, "Year"));
       updatePartcipantEditField(txtClub, GetPropertyValues(items, "Club"));
       updatePartcipantEditField(txtSvId, GetPropertyValues(items, "SvId"));
       updatePartcipantEditField(txtCode, GetPropertyValues(items, "Code"));
       updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
-
       updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
 
       for (int i=0; i< spRaces.Children.Count; i++)
@@ -410,8 +411,8 @@ namespace RaceHorology
         storePartcipantEditField(txtName, items, "Name");
       if (sender == txtFirstname)
         storePartcipantEditField(txtFirstname, items, "Firstname");
-      if (sender == txtSex)
-        storePartcipantEditField(txtSex, items, "Sex");
+      if (sender == cmbSex)
+        storePartcipantComboBox(cmbSex, items, "Sex");
       if (sender == txtYear)
         storePartcipantEditField(txtYear, items, "Year");
       if (sender == txtClub)
@@ -422,7 +423,6 @@ namespace RaceHorology
         storePartcipantEditField(txtCode, items, "Code");
       if (sender == txtNation)
         storePartcipantEditField(txtNation, items, "Nation");
-
       if (sender == cmbClass)
         storePartcipantComboBox(cmbClass, items, "Class");
 
@@ -690,7 +690,7 @@ namespace RaceHorology
       get => _participant.Firstname;
       set => _participant.Firstname = value;
     }
-    public string Sex
+    public ParticipantCategory Sex
     {
       get => _participant.Sex;
       set => _participant.Sex = value;

@@ -422,11 +422,13 @@ namespace RaceHorologyLib
   {
     DataSet _importDataSet;
     IList<Participant> _particpants;
+    IList<ParticipantCategory> _categories;
 
-    public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
+    public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
     {
       _importDataSet = ds;
       _particpants = particpants;
+      _categories = categories;
     }
 
 
@@ -478,7 +480,7 @@ namespace RaceHorologyLib
       {
         Name = getNameComaSeparated(getValueAsString(row, "Name")),
         Firstname = getFirstNameComaSeparated(getValueAsString(row, "Firstname")),
-        Sex = getValueAsString(row, "Sex"),
+        Sex = importSex(getValueAsString(row, "Sex")),
         Club = getValueAsString(row, "Club"),
         Nation = getValueAsString(row, "Nation"),
         SvId = getValueAsString(row, "SvId"),
@@ -543,6 +545,38 @@ namespace RaceHorologyLib
       
       return partImp;
     }
+
+    ParticipantCategory importSex(string sex)
+    {
+      // Looks in category name first, afterwards in synonyms
+
+      if (string.IsNullOrEmpty(sex))
+        return null;
+
+      char sexInvariant = char.ToLowerInvariant(sex[0]);
+
+      ParticipantCategory category = null;
+      foreach (var c in _categories)
+      {
+        if (char.ToLowerInvariant(c.Name) == sexInvariant)
+        {
+          category = c;
+          break;
+        }
+      }
+
+      if (category == null)
+        foreach (var c in _categories)
+        {
+          if (!string.IsNullOrEmpty(c.Synonyms) && c.Synonyms.ToLowerInvariant().Contains(sexInvariant))
+          {
+            category = c;
+            break;
+          }
+        }
+
+      return category;
+    }
   }
 
 
@@ -563,7 +597,7 @@ namespace RaceHorologyLib
       ImportResults impRes = new ImportResults();
 
       // 1. Normaler Import
-      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping, _classAssignment);
+      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping, _race.GetDataModel().GetParticipantCategories(), _classAssignment);
 
       // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
       var rows = _importDataSet.Tables[0].Rows;
@@ -622,7 +656,7 @@ namespace RaceHorologyLib
       ImportResults impRes = new ImportResults();
 
       // 1. Normaler Import
-      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
+      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping, _race.GetDataModel().GetParticipantCategories());
 
       // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
       var rows = _importDataSet.Tables[0].Rows;

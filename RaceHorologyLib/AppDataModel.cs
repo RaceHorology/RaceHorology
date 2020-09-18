@@ -18,15 +18,15 @@
  *
  *  Diese Datei ist Teil von Race Horology.
  *
- *  Race Horology ist Freie Software: Sie k�nnen es unter den Bedingungen
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
  *  der GNU Affero General Public License, wie von der Free Software Foundation,
  *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
- *  ver�ffentlichten Version, weiter verteilen und/oder modifizieren.
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
  *
- *  Race Horology wird in der Hoffnung, dass es n�tzlich sein wird, aber
- *  OHNE JEDE GEW�HRLEISTUNG, bereitgestellt; sogar ohne die implizite
- *  Gew�hrleistung der MARKTF�HIGKEIT oder EIGNUNG F�R EINEN BESTIMMTEN ZWECK.
- *  Siehe die GNU Affero General Public License f�r weitere Details.
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
@@ -62,6 +62,9 @@ namespace RaceHorologyLib
     
     ObservableCollection<ParticipantClass> _particpantClasses;
     DatabaseDelegatorClasses _particpantClassesDelegatorDB;
+
+    ObservableCollection<ParticipantCategory> _particpantCategories;
+    DatabaseDelegatorCategories _particpantCategoriesDelegatorDB;
 
     ItemsChangeObservableCollection<Participant> _participants;
     DatabaseDelegatorParticipant _participantsDelegatorDB;
@@ -123,9 +126,12 @@ namespace RaceHorologyLib
       _particpantGroups.CollectionChanged += OnGroupCollectionChanged;
       _particpantClasses = new ObservableCollection<ParticipantClass>(_db.GetParticipantClasses());
       _particpantClasses.CollectionChanged += OnClassCollectionChanged;
+      _particpantCategories = new ObservableCollection<ParticipantCategory>(_db.GetParticipantCategories());
+      _particpantCategories.CollectionChanged += OnCategoryCollectionChanged;
 
       _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
       _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
+      _particpantCategoriesDelegatorDB = new DatabaseDelegatorCategories(this, _db);
 
 
       //// Particpants ////
@@ -159,6 +165,11 @@ namespace RaceHorologyLib
       return _participants;
     }
 
+
+    public ObservableCollection<ParticipantCategory> GetParticipantCategories()
+    {
+      return _particpantCategories;
+    }
 
     public ObservableCollection<ParticipantGroup> GetParticipantGroups()
     {
@@ -291,8 +302,6 @@ namespace RaceHorologyLib
       }
     }
 
-
-
     private void OnClassCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       void removeClassFromParticipants(ParticipantClass c)
@@ -307,6 +316,34 @@ namespace RaceHorologyLib
         case NotifyCollectionChangedAction.Remove:
           foreach (ParticipantClass v in e.OldItems)
             removeClassFromParticipants(v);
+          break;
+      }
+    }
+
+    private void OnCategoryCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeCategoryFromClasses(ParticipantCategory g)
+      {
+        foreach (var c in _particpantClasses)
+          if (c.Sex == g)
+            c.Sex = null;
+      }
+
+      void removeCategoryFromParticipants(ParticipantCategory c)
+      {
+        foreach (var p in _participants)
+          if (p.Sex == c)
+            p.Sex = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantCategory c in e.OldItems)
+          {
+            removeCategoryFromClasses(c);
+            removeCategoryFromParticipants(c);
+          }
           break;
       }
     }
@@ -1063,7 +1100,8 @@ namespace RaceHorologyLib
 
     List<ParticipantGroup> GetParticipantGroups();
     List<ParticipantClass> GetParticipantClasses();
-    
+    List<ParticipantCategory> GetParticipantCategories();
+
     List<Race.RaceProperties> GetRaces();
     List<RaceParticipant> GetRaceParticipants(Race race);
 
@@ -1079,6 +1117,9 @@ namespace RaceHorologyLib
     void RemoveClass(ParticipantClass c);
     void CreateOrUpdateGroup(ParticipantGroup g);
     void RemoveGroup(ParticipantGroup g);
+    void CreateOrUpdateCategory(ParticipantCategory c);
+    void RemoveCategory(ParticipantCategory c);
+
 
     void CreateOrUpdateRaceParticipant(RaceParticipant participant);
     void RemoveRaceParticipant(RaceParticipant raceParticipant);
