@@ -1292,7 +1292,7 @@ namespace RaceHorologyLib
 
       uint gid = GetParticipantGroupId(c.Group);
       cmd.Parameters.Add(new OleDbParameter("@klname", c.Name));
-      cmd.Parameters.Add(new OleDbParameter("@geschlecht", c.Sex.Name));
+      cmd.Parameters.Add(new OleDbParameter("@geschlecht", c.Sex == null ? (object)DBNull.Value : (object)c.Sex.Name));
       cmd.Parameters.Add(new OleDbParameter("@bis_jahrgang", c.Year));
       if (gid == 0)
         cmd.Parameters.Add(new OleDbParameter("@gruppe", DBNull.Value));

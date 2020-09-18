@@ -873,6 +873,16 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(12, classes.Count);
       }
 
+      {
+        var c = classes.FirstOrDefault(v => v.Id == "9");
+        Assert.IsNotNull(c.Sex);
+        c.Sex = null;
+        db.CreateOrUpdateClass(c);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
+        Assert.AreEqual(12, classes.Count);
+      }
+
       // Create new one
       {
         var c = new ParticipantClass(null, db.GetParticipantGroups()[0], "Class New 1", new ParticipantCategory('M'), 2000, 99);
@@ -912,7 +922,10 @@ namespace RaceHorologyLibTest
         if (reader.Read())
         {
           bRes &= classShall.Name == reader["klname"].ToString();
-          bRes &= classShall.Sex.Name == reader["geschlecht"].ToString()[0];
+          if (classShall.Sex == null)
+            bRes &= reader["geschlecht"] == DBNull.Value;
+          else
+            bRes &= classShall.Sex.Name == reader["geschlecht"].ToString()[0];
           bRes &= classShall.Year == Convert.ToUInt32(reader["bis_jahrgang"]);
           bRes &= classShall.Group.Id == reader["gruppe"].ToString();
           bRes &= classShall.SortPos == (double)reader["sortpos"];
