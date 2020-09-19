@@ -116,7 +116,7 @@ namespace RaceHorologyLib
       if (withPenalty)
         penalty = _appliedPenalty;
 
-      if (_bestTime != null)
+      if (_bestTime != null && rri.TotalTime != null)
         return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - _valueF + _valueA + penalty, 2);
 
       return -1.0;
@@ -163,7 +163,7 @@ namespace RaceHorologyLib
       {
         // Store the best time
         if (i==0)
-          _bestTime = (TimeSpan)(items[i].TotalTime);
+          _bestTime = items[i].TotalTime;
 
         _topTen.Add(new TopTenResult(items[i], CalculatePoints(items[i], false)));
       }
