@@ -536,7 +536,8 @@ namespace RaceHorology
     private void btnImportDSVOnline_Click(object sender, RoutedEventArgs e)
     {
       DSVImportReader dsvImportReader = new DSVImportReaderOnline();
-      DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+      var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+      showImportResult(impRes);
     }
 
 
@@ -552,12 +553,43 @@ namespace RaceHorology
         else
           dsvImportReader = new DSVImportReaderFile(path);
 
-        DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+        var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+        showImportResult(impRes);
       }
     }
 
+    private void showImportResult(List<ImportResults> impRes)
+    {
+      string messageTextDetails = "";
 
-    private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
+      int nRace = 0;
+      foreach (var i in impRes)
+      {
+        Race race = _dm.GetRace(nRace);
+
+        string notFoundParticipants = string.Join("\n", i.Errors);
+
+        messageTextDetails += string.Format(
+          "Zusammenfassung für das Rennen \"{0}\":\n" +
+          "- Punkte erfolgreich aktualisiert: {1}\n",
+          race.ToString(), i.SuccessCount);
+        
+        if (i.ErrorCount > 0)
+        {
+          messageTextDetails += string.Format("\n" +
+            "- Teilnehmer nicht gefunden: {0}\n"+
+            "{1}", 
+            i.ErrorCount, notFoundParticipants);
+        }
+
+        messageTextDetails += "\n";
+      }
+      
+      MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+
+  private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
     {
       Participant participant = new Participant();
       _dm.GetParticipants().Add(participant);
