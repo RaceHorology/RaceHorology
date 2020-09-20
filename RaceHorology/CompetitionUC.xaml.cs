@@ -537,7 +537,7 @@ namespace RaceHorology
     {
       DSVImportReader dsvImportReader = new DSVImportReaderOnline();
       var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-      showImportResult(impRes);
+      showImportResult(impRes, dsvImportReader.UsedDSVList);
     }
 
 
@@ -554,13 +554,15 @@ namespace RaceHorology
           dsvImportReader = new DSVImportReaderFile(path);
 
         var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-        showImportResult(impRes);
+        showImportResult(impRes, dsvImportReader.UsedDSVList);
       }
     }
 
-    private void showImportResult(List<ImportResults> impRes)
+    private void showImportResult(List<ImportResults> impRes, string usedDSVLists)
     {
       string messageTextDetails = "";
+
+      messageTextDetails += string.Format("Benutzte DSV Liste: {0}\n\n", usedDSVLists);
 
       int nRace = 0;
       foreach (var i in impRes)
