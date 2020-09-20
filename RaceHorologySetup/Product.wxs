@@ -12,6 +12,7 @@
 
 		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 		<UIRef Id="WixUI_InstallDir" />
+		<UIRef Id="WixUI_ErrorProgressText" />
 		<WixVariable Id="WixUILicenseRtf" Value="RaceHorologyLicense.rtf" />
 
 		<WixVariable Id="WixUIBannerBmp" Value="WixUIBannerBmp.bmp"/>
