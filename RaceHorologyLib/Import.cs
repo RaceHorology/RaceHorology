@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -326,9 +326,17 @@ namespace RaceHorologyLib
   {
     int _success = 0;
     int _error = 0;
+    List<string> _errors;
 
     public int SuccessCount { get { return _success; } }
     public int ErrorCount { get { return _error; } }
+    public List<string> Errors { get { return _errors; } }
+
+    public ImportResults()
+    {
+      _errors = new List<string>();
+    }
+
 
     public void AddSuccess()
     {
@@ -338,6 +346,12 @@ namespace RaceHorologyLib
     public void AddError()
     {
       _error++;
+    }
+
+    public void AddError(string message)
+    {
+      _error++;
+      _errors.Add(message);
     }
 
   }

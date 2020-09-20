@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -175,6 +175,12 @@ namespace RaceHorologyLibTest
       ir1.AddSuccess();
       Assert.AreEqual(1, ir1.SuccessCount);
       Assert.AreEqual(1, ir1.ErrorCount);
+
+      ir1.AddError("message 1");
+      Assert.AreEqual(1, ir1.SuccessCount);
+      Assert.AreEqual(2, ir1.ErrorCount);
+      Assert.AreEqual(1, ir1.Errors.Count);
+      Assert.AreEqual("message 1", ir1.Errors[0]);
     }
 
     [TestMethod]
