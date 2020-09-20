@@ -6,10 +6,14 @@
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 		<MediaTemplate EmbedCab='yes'/>
 
-		<Feature Id="ProductFeature" Title="RaceHorology" Level="1">
+		<Feature Id="MainProgram" Title="Race Horology" Level="1">
 			<ComponentGroupRef Id="RaceHorologyComponents" />
 		</Feature>
+
+		<UIRef Id="WixUI_InstallDir" />
+		<WixVariable Id="WixUILicenseRtf" Value="RaceHorologyLicense.rtf" />
 	</Product>
+
 
 	<Fragment>
 		<Directory Id="TARGETDIR" Name="SourceDir">
