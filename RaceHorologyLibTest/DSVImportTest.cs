@@ -206,7 +206,7 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
     [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
-    public void UpdatePoints()
+    public void UpdatePoints1()
     {
       // Setup Data Model & Co
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
@@ -222,7 +222,42 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
       Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
 
-      DSVUpdatePoints.UpdatePoints(model, dsvImportReader);
+      UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
+      ImportResults impRes = import.DoImport();
+
+      Assert.AreEqual(125, impRes.SuccessCount);
+      Assert.AreEqual(2, impRes.ErrorCount);
+
+      Assert.AreEqual(110.96, race.GetParticipants().First(r => r.SvId == "24438").Points);
+      Assert.AreEqual(100.33, race.GetParticipants().First(r => r.SvId == "25399").Points);
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
+    public void UpdatePoints2()
+    {
+      // Setup Data Model & Co
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      Database db = new Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+      Race race = model.GetRace(0);
+
+      // Import DSV Point List
+      DSVImportReader dsvImportReader = new DSVImportReaderZip(@"Punktelisten.zip");
+
+      // Check two prior
+      Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
+      Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
+
+      var impRes = DSVUpdatePoints.UpdatePoints(model, dsvImportReader);
+
+      Assert.AreEqual(1, impRes.Count);
+      Assert.AreEqual(125, impRes[0].SuccessCount);
+      Assert.AreEqual(2, impRes[0].ErrorCount);
 
       Assert.AreEqual(110.96, race.GetParticipants().First(r => r.SvId == "24438").Points);
       Assert.AreEqual(100.33, race.GetParticipants().First(r => r.SvId == "25399").Points);
