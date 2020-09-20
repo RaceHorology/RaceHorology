@@ -8,6 +8,7 @@
 
 		<Feature Id="MainProgram" Title="Race Horology" Level="1">
 			<ComponentGroupRef Id="RaceHorologyComponents" />
+			<ComponentRef Id="ApplicationShortcut" />   
 		</Feature>
 
 		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
@@ -25,7 +26,23 @@
 			<Directory Id="ProgramFilesFolder">
 				<Directory Id="INSTALLFOLDER" Name="RaceHorology" />
 			</Directory>
+			<!-- Start Menu -->
+			<Directory Id="ProgramMenuFolder">
+					<Directory Id="ApplicationProgramsFolder" Name="Race Horology"/>
+			</Directory>			
 		</Directory>
+
+		<DirectoryRef Id="ApplicationProgramsFolder">
+				<Component Id="ApplicationShortcut">
+						<Shortcut Id="ApplicationStartMenuShortcut" 
+									Name="Race Horology" 
+								Description="Zeitnahme einfach gemacht"
+								Target="[#fil0899BEEFD8A0DD156CB85C27767C4216]"
+											WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+						<RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+						<RegistryValue Root="HKCU" Key="Software\RaceHorology\RaceHorology" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				</Component>
+		</DirectoryRef>		
 	</Fragment>
 
 	<Fragment>
