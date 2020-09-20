@@ -61,7 +61,7 @@ namespace RaceHorologyLib
 
     private Race _race;
     private RaceResultViewProvider _vpSource;
-    private string _sex;
+    private char _sex;
     
     private double _valueF;
     private double _valueA;
@@ -94,7 +94,7 @@ namespace RaceHorologyLib
     public List<RaceResultItem> TopFiveDSV {  get { return _topFiveDSV; } }
 
 
-    public DSVRaceCalculation(Race race, RaceResultViewProvider vpSource, string sex)
+    public DSVRaceCalculation(Race race, RaceResultViewProvider vpSource, char sex)
     {
       _race = race;
       _vpSource = vpSource;
@@ -116,7 +116,7 @@ namespace RaceHorologyLib
       if (withPenalty)
         penalty = _appliedPenalty;
 
-      if (_bestTime != null)
+      if (_bestTime != null && rri.TotalTime != null)
         return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - _valueF + _valueA + penalty, 2);
 
       return -1.0;
@@ -163,7 +163,7 @@ namespace RaceHorologyLib
       {
         // Store the best time
         if (i==0)
-          _bestTime = (TimeSpan)(items[i].TotalTime);
+          _bestTime = items[i].TotalTime;
 
         _topTen.Add(new TopTenResult(items[i], CalculatePoints(items[i], false)));
       }
@@ -276,10 +276,10 @@ namespace RaceHorologyLib
 
     bool includeResult(RaceResultItem rri)
     {
-      if (string.IsNullOrEmpty(_sex))
+      if (_sex == char.MinValue)
         return true;
 
-      return rri.Participant.Sex == _sex;
+      return rri.Participant.Sex.Name == _sex;
     }
 
     bool didStart(RaceResultItem rri)

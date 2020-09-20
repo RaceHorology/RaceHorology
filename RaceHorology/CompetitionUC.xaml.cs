@@ -34,12 +34,14 @@ namespace RaceHorology
     TextBox _txtLiveTimingStatus;
 
     public ObservableCollection<ParticipantClass> ParticipantClasses { get; }
+    public ObservableCollection<ParticipantCategory> ParticipantCategories { get; }
 
     public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
       _dm = dm;
 
       ParticipantClasses = _dm.GetParticipantClasses();
+      ParticipantCategories = _dm.GetParticipantCategories();
 
       _liveTimingMeasurement = liveTimingMeasurement;
       _txtLiveTimingStatus = txtLiveTimingStatus;
@@ -318,13 +320,12 @@ namespace RaceHorology
 
       updatePartcipantEditField(txtName, GetPropertyValues(items, "Name"));
       updatePartcipantEditField(txtFirstname, GetPropertyValues(items, "Firstname"));
-      updatePartcipantEditField(txtSex, GetPropertyValues(items, "Sex"));
+      updatePartcipantCombobox(cmbSex, GetPropertyValues(items, "Sex"));
       updatePartcipantEditField(txtYear, GetPropertyValues(items, "Year"));
       updatePartcipantEditField(txtClub, GetPropertyValues(items, "Club"));
       updatePartcipantEditField(txtSvId, GetPropertyValues(items, "SvId"));
       updatePartcipantEditField(txtCode, GetPropertyValues(items, "Code"));
       updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
-
       updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
 
       for (int i=0; i< spRaces.Children.Count; i++)
@@ -410,8 +411,8 @@ namespace RaceHorology
         storePartcipantEditField(txtName, items, "Name");
       if (sender == txtFirstname)
         storePartcipantEditField(txtFirstname, items, "Firstname");
-      if (sender == txtSex)
-        storePartcipantEditField(txtSex, items, "Sex");
+      if (sender == cmbSex)
+        storePartcipantComboBox(cmbSex, items, "Sex");
       if (sender == txtYear)
         storePartcipantEditField(txtYear, items, "Year");
       if (sender == txtClub)
@@ -422,7 +423,6 @@ namespace RaceHorology
         storePartcipantEditField(txtCode, items, "Code");
       if (sender == txtNation)
         storePartcipantEditField(txtNation, items, "Nation");
-
       if (sender == cmbClass)
         storePartcipantComboBox(cmbClass, items, "Class");
 
@@ -536,7 +536,8 @@ namespace RaceHorology
     private void btnImportDSVOnline_Click(object sender, RoutedEventArgs e)
     {
       DSVImportReader dsvImportReader = new DSVImportReaderOnline();
-      DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+      var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+      showImportResult(impRes, dsvImportReader.UsedDSVList);
     }
 
 
@@ -552,12 +553,45 @@ namespace RaceHorology
         else
           dsvImportReader = new DSVImportReaderFile(path);
 
-        DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+        var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+        showImportResult(impRes, dsvImportReader.UsedDSVList);
       }
     }
 
+    private void showImportResult(List<ImportResults> impRes, string usedDSVLists)
+    {
+      string messageTextDetails = "";
 
-    private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
+      messageTextDetails += string.Format("Benutzte DSV Liste: {0}\n\n", usedDSVLists);
+
+      int nRace = 0;
+      foreach (var i in impRes)
+      {
+        Race race = _dm.GetRace(nRace);
+
+        string notFoundParticipants = string.Join("\n", i.Errors);
+
+        messageTextDetails += string.Format(
+          "Zusammenfassung für das Rennen \"{0}\":\n" +
+          "- Punkte erfolgreich aktualisiert: {1}\n",
+          race.ToString(), i.SuccessCount);
+        
+        if (i.ErrorCount > 0)
+        {
+          messageTextDetails += string.Format("\n" +
+            "- Teilnehmer nicht gefunden: {0}\n"+
+            "{1}", 
+            i.ErrorCount, notFoundParticipants);
+        }
+
+        messageTextDetails += "\n";
+      }
+      
+      MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+
+  private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
     {
       Participant participant = new Participant();
       _dm.GetParticipants().Add(participant);
@@ -690,7 +724,7 @@ namespace RaceHorology
       get => _participant.Firstname;
       set => _participant.Firstname = value;
     }
-    public string Sex
+    public ParticipantCategory Sex
     {
       get => _participant.Sex;
       set => _participant.Sex = value;

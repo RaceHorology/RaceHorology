@@ -264,7 +264,7 @@ namespace RaceHorologyLib
         //p.Label = string.Format("{0} {1}.", item.Participant.Name, item.Participant.Firstname.Substring(0, 1));
         p.Label = string.Format("{0} ({1}{2})", item.Participant.StartNumber, item.Participant.Name.Substring(0, 2), item.Participant.Firstname.Substring(0, 1));
 
-        if (item.Participant.Sex == "M")
+        if (item.Participant.Sex.Name == 'M')
         {
           p.MarkerColor = System.Drawing.Color.FromArgb(0x26, 0xb5, 0xd9); //93abc6, 26b5d9
           p.MarkerStyle = MarkerStyle.Circle;
