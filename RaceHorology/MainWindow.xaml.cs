@@ -89,11 +89,26 @@ namespace RaceHorology
     }
 
     /// <summary>
+    /// "File Create" callback - opens a data base
+    /// </summary>
+    private void NewCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      SaveFileDialog openFileDialog = new SaveFileDialog();
+      openFileDialog.DefaultExt = ".mdb";
+      openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
+      openFileDialog.OverwritePrompt = true;
+      if (openFileDialog.ShowDialog() == true)
+      {
+        string dbPath = openFileDialog.FileName;
+        OpenDatabase(new Database().CreateDatabase(dbPath));
+      }
+    }
+
+    /// <summary>
     /// "File Open" callback - opens a data base
     /// </summary>
     private void OpenCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
-
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.DefaultExt = ".mdb";
       openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
@@ -190,20 +205,8 @@ namespace RaceHorology
     /// </summary>
     private void ConnectGUIToDataModel()
     {
-      // Connect with GUI DataGrids
-      ObservableCollection<Participant> participants = _dataModel.GetParticipants();
-      dgParticipants.ItemsSource = participants;
-
-      foreach (var r in _dataModel.GetRaces())
-      {
-        TabItem tabRace = new TabItem { Header = r.RaceType.ToString(), Name = r.RaceType.ToString() };
-        tabControlTopLevel.Items.Insert(1, tabRace);
-
-        tabRace.FontSize = 16;
-
-        RaceUC raceUC = new RaceUC(_dataModel, r, _liveTimingMeasurement, txtLiveTimingStatus);
-        tabRace.Content = raceUC;
-      }
+      CompetitionUC competitionUC = new CompetitionUC(_dataModel, _liveTimingMeasurement, txtLiveTimingStatus);
+      ucMainArea.Children.Add(competitionUC);
     }
 
 
@@ -212,10 +215,7 @@ namespace RaceHorology
     /// </summary>
     private void DisconnectGUIFromDataModel()
     {
-      dgParticipants.ItemsSource = null;
-
-      while (tabControlTopLevel.Items.Count > 2)
-        tabControlTopLevel.Items.RemoveAt(1);
+      ucMainArea.Children.Clear();
     }
 
 
@@ -369,10 +369,8 @@ namespace RaceHorology
 
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
     {
-      EnsureOnlyCurrentRaceCanBeSelected(isRunning);
       UpdateLiveTimingStartStopButtons(isRunning);
     }
-
 
     private void Alge_OnMessageReceived(object sender, string message)
     {
@@ -394,37 +392,10 @@ namespace RaceHorology
 
     #endregion
 
-
-    #region Tab Management
-
-    private void EnsureOnlyCurrentRaceCanBeSelected(bool onlyCurrentRace)
-    {
-      foreach (TabItem tab in tabControlTopLevel.Items)
-      {
-        RaceUC raceUC = tab.Content as RaceUC;
-        if (raceUC != null)
-        {
-          bool isEnabled = !onlyCurrentRace || (_dataModel.GetCurrentRace() == raceUC.GetRace());
-          tab.IsEnabled = isEnabled;
-        }
-      }
-    }
-
-    private void TabControlTopLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      var selected = tabControlTopLevel.SelectedContent as RaceUC;
-      if (selected != null)
-      {
-        _dataModel.SetCurrentRace(selected.GetRace());
-        _dataModel.SetCurrentRaceRun(selected.GetRaceRun());
-      }
-    }
-
-    #endregion
-
     private void LogoRH_png_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
       System.Diagnostics.Process.Start("http://www.race-horology.com");
     }
+
   }
 }

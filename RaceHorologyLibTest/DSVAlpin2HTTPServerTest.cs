@@ -99,7 +99,7 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
     public void JsonConversion()
     {
-      string dbFilename = Path.Combine(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 

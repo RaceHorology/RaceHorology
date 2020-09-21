@@ -89,9 +89,57 @@ namespace RaceHorologyLib
               _db.CreateOrUpdateRunResult(_race, _rr, v);
           }
           break;
+        case NotifyCollectionChangedAction.Remove:
+          break;
 
         case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
+  /// <summary>
+  /// Observes the run results and triggers a database store in case time / run results changed
+  /// </summary>
+  /// <remarks>
+  /// Delete not implemented (actually not needed)
+  /// </remarks>
+  internal class DatabaseDelegatorRaceParticipant
+  {
+    private Race _race;
+    private IAppDataModelDataBase _db;
+
+    public DatabaseDelegatorRaceParticipant(Race race, IAppDataModelDataBase db)
+    {
+      _db = db;
+      _race = race;
+
+      _race.GetParticipants().ItemChanged += OnItemChanged;
+      _race.GetParticipants().CollectionChanged += OnCollectionChanged;
+    }
+
+    private void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RaceParticipant raceParticipant = (RaceParticipant)sender;
+      _db.CreateOrUpdateRaceParticipant(raceParticipant);
+    }
+
+    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (RaceParticipant v in e.NewItems)
+            _db.CreateOrUpdateRaceParticipant(v);
+          break;
         case NotifyCollectionChangedAction.Remove:
+          foreach (RaceParticipant v in e.OldItems)
+            _db.RemoveRaceParticipant(v);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Replace:
         case NotifyCollectionChangedAction.Reset:
           throw new Exception("not implemented");
@@ -134,8 +182,184 @@ namespace RaceHorologyLib
             _db.CreateOrUpdateParticipant(participant);
           break;
 
-        case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Remove:
+          foreach (Participant participant in e.OldItems)
+            _db.RemoveParticipant(participant);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
+
+  internal class DatabaseDelegatorCompetition
+  {
+    private IAppDataModelDataBase _db;
+    AppDataModel _dm;
+
+    public DatabaseDelegatorCompetition(AppDataModel dm, IAppDataModelDataBase db)
+    {
+      _dm = dm;
+      _db = db;
+
+      _dm.GetRaces().CollectionChanged += OnRacesChanged;
+    }
+
+    private void OnRacesChanged(object source, NotifyCollectionChangedEventArgs args)
+    {
+      if (args.NewItems != null)
+        foreach (var item in args.NewItems)
+          if (item is Race race)
+            _db.UpdateRace(race, true);
+
+      if (args.OldItems != null)
+        foreach (var item in args.OldItems)
+          if (item is Race race)
+            _db.UpdateRace(race, false);
+    }
+
+  }
+
+
+  internal class DatabaseDelegatorClasses
+  {
+    private IAppDataModelDataBase _db;
+    AppDataModel _dm;
+
+    ItemsChangedNotifier _notifierClasses;
+
+    public DatabaseDelegatorClasses(AppDataModel dm, IAppDataModelDataBase db)
+    {
+      _dm = dm;
+      _db = db;
+
+      _notifierClasses = new ItemsChangedNotifier(_dm.GetParticipantClasses());
+
+      _notifierClasses.ItemChanged += OnItemChanged;
+      _notifierClasses.CollectionChanged += OnCollectionChanged;
+    }
+
+    void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is ParticipantClass c)
+        _db.CreateOrUpdateClass(c);
+    }
+
+    void OnCollectionChanged(object source, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (ParticipantClass c in e.NewItems)
+            _db.CreateOrUpdateClass(c);
+          break;
+
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantClass v in e.OldItems)
+            _db.RemoveClass(v);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
+
+
+
+  internal class DatabaseDelegatorGroups
+  {
+    private IAppDataModelDataBase _db;
+    AppDataModel _dm;
+
+    ItemsChangedNotifier _notifierClasses;
+
+    public DatabaseDelegatorGroups(AppDataModel dm, IAppDataModelDataBase db)
+    {
+      _dm = dm;
+      _db = db;
+
+      _notifierClasses = new ItemsChangedNotifier(_dm.GetParticipantGroups());
+
+      _notifierClasses.ItemChanged += OnItemChanged;
+      _notifierClasses.CollectionChanged += OnCollectionChanged;
+    }
+
+    void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is ParticipantGroup g)
+        _db.CreateOrUpdateGroup(g);
+    }
+
+    void OnCollectionChanged(object source, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (ParticipantGroup c in e.NewItems)
+            _db.CreateOrUpdateGroup(c);
+          break;
+
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantGroup v in e.OldItems)
+            _db.RemoveGroup(v);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
+
+  internal class DatabaseDelegatorCategories
+  {
+    private IAppDataModelDataBase _db;
+    AppDataModel _dm;
+
+    ItemsChangedNotifier _notifierClasses;
+
+    public DatabaseDelegatorCategories(AppDataModel dm, IAppDataModelDataBase db)
+    {
+      _dm = dm;
+      _db = db;
+
+      _notifierClasses = new ItemsChangedNotifier(_dm.GetParticipantCategories());
+
+      _notifierClasses.ItemChanged += OnItemChanged;
+      _notifierClasses.CollectionChanged += OnCollectionChanged;
+    }
+
+    void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is ParticipantCategory c)
+        _db.CreateOrUpdateCategory(c);
+    }
+
+    void OnCollectionChanged(object source, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (ParticipantCategory c in e.NewItems)
+            _db.CreateOrUpdateCategory(c);
+          break;
+
+        case NotifyCollectionChangedAction.Remove:
+          foreach (ParticipantCategory c in e.OldItems)
+            _db.RemoveCategory(c);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Replace:
         case NotifyCollectionChangedAction.Reset:
           throw new Exception("not implemented");

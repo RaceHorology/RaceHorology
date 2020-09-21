@@ -176,5 +176,88 @@ namespace RaceHorologyLib
     }
   }
 
+  /// <summary>
+  /// Converts a property name to a translated user names
+  /// </summary>
+  public class PropertyNameConverter : IValueConverter
+  {
+    public PropertyNameConverter()
+    {
+    }
+
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      switch((string)value)
+      {
+        case "Name":
+          return "Name";
+        case "Firstname":
+          return "Vorname";
+        case "Sex":
+          return "Geschlecht";
+        case "Year":
+          return "Jahrgang";
+        case "Club":
+          return "Verein";
+        case "Nation":
+          return "Nation / Verband";
+        case "Code":
+          return "Code";
+        case "SvId":
+          return "Skiverbands-Id";
+        case "Class":
+          return "Klasse";
+        case "Group":
+          return "Gruppe";
+
+        default:
+          return value;
+      }
+
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
+  /// <summary>
+  /// Converts an age input to a year
+  /// </summary>
+  public class AgeToYearInputConverter : IValueConverter
+  {
+    public AgeToYearInputConverter()
+    {
+    }
+
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      return value;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      try
+      {
+        int input = int.Parse(value.ToString());
+        if (input < 100) // assume this is an age not year
+        {
+          int currentYear = DateTime.Now.AddMonths(3).Year; // Season runs from 1.10.XX ... 31.9.XX
+          int birthYear = currentYear - input;
+          return birthYear;
+        }
+      }
+      catch (Exception)
+      { }
+
+      return value;
+    }
+  }
+
+
 
 }

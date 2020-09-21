@@ -94,6 +94,7 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+    #region Generic Datebase Tests
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
@@ -112,6 +113,130 @@ namespace RaceHorologyLibTest
       db.Close();
     }
 
+
+    [TestMethod]
+    public void DatabaseCreate()
+    {
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      string dbFilename = db.CreateDatabase("new.mdb");
+      db.Connect(dbFilename);
+
+      var participants = db.GetParticipants();
+
+      Assert.IsTrue(participants.Count() == 0);
+
+      db.Close();
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Schema_V0.3.mdb")]
+    public void DatabaseUpgradeSchema_RHMisc()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Schema_V0.3.mdb");
+
+      Assert.IsFalse(existsTable(dbFilename, "RHMisc"), "table 'RHMisc' not yet existing");
+
+      // Open first time, upgrade will be performed
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsTable(dbFilename, "RHMisc"), "table 'RHMisc' is existing");
+
+      // open second time (when upgrade was performed)
+      db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsTable(dbFilename, "RHMisc"), "table 'RHMisc' is still existing");
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Schema_V0.3.mdb")]
+    public void DatabaseUpgradeSchema_tblKategorie()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Schema_V0.3.mdb");
+
+      Assert.IsFalse(existsColumn(dbFilename, "tblKategorie", "RHSynonyms"));
+
+      // Open first time, upgrade will be performed
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsColumn(dbFilename, "tblKategorie", "RHSynonyms"));
+
+      // open second time (when upgrade was performed)
+      db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsColumn(dbFilename, "tblKategorie", "RHSynonyms"));
+    }
+
+
+    bool existsTable(string dbFilename, string tableName)
+    {
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      var schema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+
+      return
+        schema.Rows
+          .OfType<System.Data.DataRow>()
+          .Any(r => r.ItemArray[2].ToString().ToLower() == tableName.ToLower());
+    }
+
+    bool existsColumn(string dbFilename, string tableName, string column)
+    {
+      using (OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename })
+      { 
+        conn.Open();
+
+        System.Data.DataTable schema = conn.GetSchema("COLUMNS");
+
+        var col = schema.Select("TABLE_NAME='" + tableName + "' AND COLUMN_NAME='" + column + "'");
+
+        return col.Length > 0;
+      }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void StoreGetKeyValue()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      db.StoreKeyValue("key1", "value1");
+      Assert.AreEqual("value1", db.GetKeyValue("key1"));
+
+      db.StoreKeyValue("key2", "value2");
+      Assert.AreEqual("value2", db.GetKeyValue("key2"));
+
+      db.StoreKeyValue("key1", "value12");
+      Assert.AreEqual("value12", db.GetKeyValue("key1"));
+
+      Assert.AreEqual(null, db.GetKeyValue("keyXXX"));
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void InitializeApplicationModel()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+    }
+
+    #endregion
+
+    #region Races
+
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
     public void DatabaseRaces()
@@ -126,34 +251,18 @@ namespace RaceHorologyLibTest
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.DownHill).First();
         Assert.AreEqual(2U, race.Runs);
-        Assert.AreEqual(null, race.RaceNumber);
-        Assert.AreEqual("Abfahrt - Bezeichnung 1\r\nAbfahrt - Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(2019, 1, 19), race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 19), race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.SuperG).First();
         Assert.AreEqual(1U, race.Runs);
-        Assert.AreEqual("20190120_B", race.RaceNumber);
-        Assert.AreEqual("Super G Bezeichnung 1\r\nSuper G Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(2019, 1, 18), race.DateStart);
-        Assert.AreEqual(new DateTime(), race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.GiantSlalom).First();
         Assert.AreEqual(2U, race.Runs);
-        Assert.AreEqual("20190120_C", race.RaceNumber);
-        Assert.AreEqual("Riesenslalom Bezeichnung 1\r\nRiesenslalom Bezeichnung 2", race.Description);
-        Assert.AreEqual(new DateTime(), race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 20), race.DateResult);
       }
       {
         var race = races.Where(r => r.RaceType == Race.ERaceType.Slalom).First();
         Assert.AreEqual(1U, race.Runs);
-        Assert.AreEqual("20190120_D", race.RaceNumber);
-        Assert.AreEqual(null, race.Description);
-        Assert.AreEqual(new DateTime(2019, 2, 21), race.DateStart);
-        Assert.AreEqual(new DateTime(2019, 1, 21), race.DateResult);
       }
 
       //
@@ -161,6 +270,159 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, races.Where(r => r.RaceType == Race.ERaceType.KOSlalom).Count());
     }
 
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseModifyRaces()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        model = new AppDataModel(db);
+      }
+
+
+      Race.RaceProperties raceProp = new Race.RaceProperties
+      {
+        RaceType = Race.ERaceType.SuperG,
+        Runs = 2
+      };
+
+      model.AddRace(raceProp);
+      DBCacheWorkaround();
+      Assert.IsTrue(checkRace(dbFilename, raceProp, true));
+
+      model.RemoveRace(model.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.SuperG));
+      DBCacheWorkaround();
+      Assert.IsTrue(checkRace(dbFilename, raceProp, false));
+    }
+
+    bool checkRace(string dbFilename, Race.RaceProperties raceProps, bool active)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblDisziplin WHERE dtyp = @dtyp";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@dtyp", (int)raceProps.RaceType));
+
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= ((bool)reader.GetValue(reader.GetOrdinal("aktiv")) == active);
+
+          bRes &= (uint)(byte)reader.GetValue(reader.GetOrdinal("durchgaenge")) == raceProps.Runs;
+        }
+        else
+          bRes = false;
+      }
+
+      conn.Close();
+
+      return bRes;
+    }
+
+
+    /// <summary>
+    /// Modifies different properties and reads them afterwards
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseModifyRaceProperties()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      { 
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+
+        Race r1 = model.GetRace(0);
+
+        // Check initially
+        Assert.AreEqual("MeinBewerb", r1.AdditionalProperties.Description);
+        Assert.AreEqual(new DateTime(2019, 1, 19), r1.AdditionalProperties.DateStartList);
+        Assert.AreEqual(new DateTime(2019, 1, 20), r1.AdditionalProperties.DateResultList);
+        Assert.AreEqual("20190120", r1.AdditionalProperties.RaceNumber);
+
+        // Modify
+        var p1 = r1.AdditionalProperties;
+        p1.Description = "Descr1";
+        p1.DateStartList = new DateTime(2020, 1, 2);
+        p1.DateResultList = new DateTime(2020, 1, 3);
+        p1.RaceNumber = "ABCDEF123456";
+        // Store
+        r1.AdditionalProperties = p1; // Implicitly calls: db.StoreRaceProperties()
+
+        db.Close();
+      }
+
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+        Race r1 = model.GetRace(0);
+
+        Assert.AreEqual("Descr1", r1.AdditionalProperties.Description);
+        Assert.AreEqual(new DateTime(2020, 1, 2), r1.AdditionalProperties.DateStartList);
+        Assert.AreEqual(new DateTime(2020, 1, 3), r1.AdditionalProperties.DateResultList);
+        Assert.AreEqual("ABCDEF123456", r1.AdditionalProperties.RaceNumber);
+      }
+    }
+
+    /// <summary>
+    /// Check reading different race runs
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void DatabaseRaceRuns()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      db.GetParticipants();
+
+      AppDataModel model = new AppDataModel(db);
+
+      Race.RaceProperties rprops = new Race.RaceProperties();
+      rprops.RaceType = Race.ERaceType.GiantSlalom;
+      rprops.Runs = 2;
+      Race race = new Race(db, model, rprops);
+
+      var rr1 = db.GetRaceRun(race, 1);
+      var rr2 = db.GetRaceRun(race, 2);
+
+      Assert.IsTrue(rr1.Count() == 4);
+      Assert.IsTrue(rr2.Count() == 4);
+
+      Assert.IsTrue(rr1.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 3");
+
+      Assert.IsTrue(rr2.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 2");
+
+      Assert.IsTrue(rr2.Where(x => x.Participant.Participant.Name == "Nachname 5").Count() == 0);
+
+      db.Close();
+    }
+
+    #endregion
+
+    #region Participant
+    /// <summary>
+    /// Check different participants per race
+    /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
     public void DatabaseRaceParticipants()
@@ -210,51 +472,6 @@ namespace RaceHorologyLibTest
       }
     }
 
-
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
-    public void DatabaseRaceRuns()
-    {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
-      db.Connect(dbFilename);
-
-      db.GetParticipants();
-
-      AppDataModel model = new AppDataModel(db);
-
-      Race.RaceProperties rprops = new Race.RaceProperties();
-      rprops.RaceType = Race.ERaceType.GiantSlalom;
-      rprops.Runs = 2;
-      Race race = new Race(db, model, rprops);
-
-      var rr1 = db.GetRaceRun(race, 1);
-      var rr2 = db.GetRaceRun(race, 2);
-
-      Assert.IsTrue(rr1.Count() == 4);
-      Assert.IsTrue(rr2.Count() == 4);
-
-      Assert.IsTrue(rr1.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 3");
-
-      Assert.IsTrue(rr2.Where(x => x.GetFinishTime() == null && x.GetStartTime() != null).First().Participant.Participant.Name == "Nachname 2");
-
-      Assert.IsTrue(rr2.Where(x => x.Participant.Participant.Name == "Nachname 5").Count() == 0);
-
-      db.Close();
-    }
-
-
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
-    public void InitializeApplicationModel()
-    {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
-      db.Connect(dbFilename);
-
-      AppDataModel model = new AppDataModel(db);
-    }
-
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
     public void CreateAndUpdateParticipants()
@@ -276,7 +493,7 @@ namespace RaceHorologyLibTest
       {
         Name = "Nachname 6",
         Firstname = "Vorname 6",
-        Sex = "M",
+        Sex = new ParticipantCategory('M'),
         Club = "Verein 6",
         Nation = "GER",
         SvId = "123",
@@ -287,13 +504,13 @@ namespace RaceHorologyLibTest
       db.CreateOrUpdateParticipant(pNew1);
       DBCacheWorkaround();
       Assert.IsTrue(CheckParticipant(dbFilename, pNew1, 1));
-      
+
 
       Participant pNew2 = new Participant
       {
         Name = "Nachname 7",
         Firstname = "Vorname 7",
-        Sex = "M",
+        Sex = new ParticipantCategory('M'),
         Club = "Verein 7",
         Nation = "GER",
         Class = db.GetParticipantClasses()[1],
@@ -309,7 +526,7 @@ namespace RaceHorologyLibTest
       {
         Name = "Nachname 8",
         Firstname = "Vorname 8",
-        Sex = "",
+        Sex = null,
         Club = "",
         Nation = "",
         Class = db.GetParticipantClasses()[2],
@@ -318,13 +535,13 @@ namespace RaceHorologyLibTest
       db.CreateOrUpdateParticipant(pNew3);
       DBCacheWorkaround();
       Assert.IsTrue(CheckParticipant(dbFilename, pNew3, 3));
-      
+
 
       // Update a Participant
       pNew1 = participants.Where(x => x.Name == "Nachname 6").FirstOrDefault();
       pNew1.Name = "Nachname 6.1";
       pNew1.Firstname = "Vorname 6.1";
-      pNew1.Sex = "W";
+      pNew1.Sex = new ParticipantCategory('W');
       pNew1.Club = "Verein 6.1";
       pNew1.Nation = "GDR";
       pNew1.Class = db.GetParticipantClasses()[0];
@@ -337,7 +554,7 @@ namespace RaceHorologyLibTest
       pNew1 = participants.Where(x => x.Name == "Nachname 6.1").FirstOrDefault();
       pNew1.Name = "Nachname 6.2";
       pNew1.Firstname = "Vorname 6.2";
-      pNew1.Sex = "";
+      pNew1.Sex = null;
       pNew1.Club = "";
       pNew1.Nation = "";
       pNew1.Class = db.GetParticipantClasses()[0];
@@ -347,6 +564,33 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(CheckParticipant(dbFilename, pNew1, 1));
 
     }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void DeleteParticipants()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      var participants = db.GetParticipants();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        participants = db.GetParticipants();
+      }
+
+      Participant parDel1 = participants[0];
+      db.RemoveParticipant(parDel1);
+
+      DBCacheWorkaround();
+
+      CheckParticipant(dbFilename, null, int.Parse(parDel1.Id));
+    }
+
+
 
     private bool CheckParticipant(string dbFilename, Participant participant, int id)
     {
@@ -359,33 +603,35 @@ namespace RaceHorologyLibTest
       OleDbCommand command = new OleDbCommand(sql, conn);
       command.Parameters.Add(new OleDbParameter("@id", id));
 
-      bool checkAgainstDB(string value, object vDB)
-      {
-        string sDB = vDB.ToString();
-        if (string.IsNullOrEmpty(value) && (vDB == DBNull.Value))
-          return true;
-
-        return value == sDB;
-      }
-
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
+          string s = reader["nachname"].ToString();
           bRes &= participant.Name == reader["nachname"].ToString();
           bRes &= participant.Firstname == reader["vorname"].ToString();
-          bRes &= participant.Sex == reader["sex"].ToString();
+
+          if (participant.Sex == null)
+            bRes &= reader["sex"] == DBNull.Value;
+          else
+            bRes &= participant.Sex.Name == reader["sex"].ToString()[0];
+
           bRes &= participant.Club == reader["verein"].ToString();
           bRes &= participant.Nation == reader["nation"].ToString();
-          bRes &= checkAgainstDB(participant.SvId, reader["svid"]);
-          bRes &= checkAgainstDB(participant.Code, reader["code"]);
-          bRes &= checkAgainstDB(participant.Class.Id, reader["klasse"]);
+          bRes &= checkStringAgainstDB(participant.SvId, reader["svid"]);
+          bRes &= checkStringAgainstDB(participant.Code, reader["code"]);
+          bRes &= checkStringAgainstDB(participant.Class.Id, reader["klasse"]);
           bRes &= participant.Year == reader.GetInt16(reader.GetOrdinal("jahrgang"));
           //bRes &= participant.StartNumber == GetStartNumber(reader);
         }
         else
+        {
           bRes = false;
+
+          if (participant == null)
+            bRes = true;
+        }
       }
 
       conn.Close();
@@ -393,6 +639,309 @@ namespace RaceHorologyLibTest
       return bRes;
     }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void AppDataModelTest_EditParticipants()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+      }
+
+      AppDataModel model = new AppDataModel(db);
+
+      Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
+      participant1.Name = "Nachname 1.1";
+
+      Participant participant6 = new Participant
+      {
+        Name = "Nachname 6",
+        Firstname = "Vorname 6",
+        Sex = new ParticipantCategory('M'),
+        Club = "Verein 6",
+        Nation = "Nation 6",
+        Class = new ParticipantClass("", null, "dummy", new ParticipantCategory('M'), 2019, 0),
+        Year = 2000,
+      };
+      model.GetParticipants().Add(participant6);
+
+
+      DBCacheWorkaround();
+
+
+      // Test 1: Check whether database is correct
+      CheckParticipant(dbFilename, participant1, 1);
+      CheckParticipant(dbFilename, participant6, 6);
+    }
+
+    #endregion
+
+    #region Categories and Classes and Groups
+
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteGroups()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var groups = db.GetParticipantGroups();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        groups = db.GetParticipantGroups();
+      }
+
+      Assert.AreEqual(6, db.GetParticipantGroups().Count);
+
+      // Edit existing one
+      {
+        var g = groups.FirstOrDefault(v => v.Id == "5");
+        Assert.AreEqual("U10 weiblich", g.Name);
+        g.Name = "U10 modified";
+        db.CreateOrUpdateGroup(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckGroup(dbFilename, g, ulong.Parse(g.Id)));
+        Assert.AreEqual(6, db.GetParticipantGroups().Count);
+      }
+
+      // Create new one
+      {
+        var g = new ParticipantGroup(null, "Group 1", 1);
+        db.CreateOrUpdateGroup(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckGroup(dbFilename, g, ulong.Parse(g.Id)));
+        Assert.AreEqual(7, db.GetParticipantGroups().Count);
+      }
+
+      // Delete one
+      {
+        var g = groups.FirstOrDefault(v => v.Id == "10");
+        db.RemoveGroup(g);
+        DBCacheWorkaround();
+
+        g = groups.FirstOrDefault(v => v.Id == "10");
+        Assert.IsNull(g);
+
+        Assert.AreEqual(6, db.GetParticipantGroups().Count);
+      }
+    }
+    bool CheckGroup(string dbFilename, ParticipantGroup groupShall, ulong id)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblGruppe WHERE id = @id";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@id", id));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= groupShall.Name == reader["grpname"].ToString();
+          bRes &= groupShall.SortPos == (double)reader["sortpos"];
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteCategories()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var categories = db.GetParticipantCategories();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        categories = db.GetParticipantCategories();
+      }
+
+      Assert.AreEqual(14, db.GetParticipantCategories().Count);
+
+      // Edit existing one
+      {
+        var g = categories.FirstOrDefault(v => v.Name == 'M');
+        Assert.AreEqual("Herren", g.PrettyName);
+        Assert.AreEqual(3U, g.SortPos);
+        g.PrettyName = "Herren modified";
+        g.Synonyms = "H";
+        db.CreateOrUpdateCategory(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckCategory(dbFilename, g, g.Name));
+        Assert.AreEqual(14, db.GetParticipantCategories().Count);
+      }
+
+      // Create new one
+      {
+        var g = new ParticipantCategory('X', "XXX", 999);
+        db.CreateOrUpdateCategory(g);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckCategory(dbFilename, g, g.Name));
+        Assert.AreEqual(15, db.GetParticipantCategories().Count);
+      }
+
+      // Delete one
+      {
+        var g = categories.FirstOrDefault(v => v.Name == '0');
+        db.RemoveCategory(g);
+        DBCacheWorkaround();
+        g = categories.FirstOrDefault(v => v.Name == '0');
+        Assert.IsNull(g);
+        Assert.AreEqual(14, db.GetParticipantCategories().Count);
+      }
+    }
+
+    bool CheckCategory(string dbFilename, ParticipantCategory categShall, char name)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblKategorie WHERE kat = @name";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@name", name));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= checkStringAgainstDB(categShall.PrettyName, reader["kname"]);
+          bRes &= checkStringAgainstDB(categShall.Synonyms, reader["RHSynonyms"]);
+          bRes &= categShall.SortPos == (double)reader["sortpos"];
+          
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
+    }
+    
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteClasses()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var classes = db.GetParticipantClasses();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        classes = db.GetParticipantClasses();
+      }
+
+      Assert.AreEqual(12, classes.Count);
+
+      // Edit existing one
+      {
+        var c = classes.FirstOrDefault(v => v.Id == "9");
+        Assert.AreEqual("Mädchen 2010", c.Name);
+        c.Name = "Mädchen 2010 modified";
+        db.CreateOrUpdateClass(c);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
+        Assert.AreEqual(12, classes.Count);
+      }
+
+      {
+        var c = classes.FirstOrDefault(v => v.Id == "9");
+        Assert.IsNotNull(c.Sex);
+        c.Sex = null;
+        db.CreateOrUpdateClass(c);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
+        Assert.AreEqual(12, classes.Count);
+      }
+
+      // Create new one
+      {
+        var c = new ParticipantClass(null, db.GetParticipantGroups()[0], "Class New 1", new ParticipantCategory('M'), 2000, 99);
+        db.CreateOrUpdateClass(c);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckClass(dbFilename, c, ulong.Parse(c.Id)));
+        Assert.AreEqual(13, classes.Count);
+      }
+
+      // Delete one
+      {
+        var c = classes.FirstOrDefault(v => v.Id == "21");
+        db.RemoveClass(c);
+        DBCacheWorkaround();
+
+        c = classes.FirstOrDefault(v => v.Id == "21");
+        Assert.IsNull(c);
+
+        Assert.AreEqual(12, classes.Count);
+      }
+    }
+
+    bool CheckClass(string dbFilename, ParticipantClass classShall, ulong id)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblKlasse WHERE id = @id";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@id", id));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= classShall.Name == reader["klname"].ToString();
+          if (classShall.Sex == null)
+            bRes &= reader["geschlecht"] == DBNull.Value;
+          else
+            bRes &= classShall.Sex.Name == reader["geschlecht"].ToString()[0];
+          bRes &= classShall.Year == Convert.ToUInt32(reader["bis_jahrgang"]);
+          bRes &= classShall.Group.Id == reader["gruppe"].ToString();
+          bRes &= classShall.SortPos == (double)reader["sortpos"];
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
+    }
+
+
+    #endregion
+
+    #region RunResults
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
@@ -604,44 +1153,19 @@ namespace RaceHorologyLibTest
       }
     }
 
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
-    public void AppDataModelTest_EditParticipants()
+    #endregion
+
+
+    #region Utilities
+    bool checkStringAgainstDB(string value, object vDB)
     {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
-      db.Connect(dbFilename);
+      string sDB = vDB.ToString();
+      if (string.IsNullOrEmpty(value) && (vDB == DBNull.Value))
+        return true;
 
-      void DBCacheWorkaround()
-      {
-        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
-        db.Connect(dbFilename);
-      }
-
-      AppDataModel model = new AppDataModel(db);
-
-      Participant participant1 = db.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
-      participant1.Name = "Nachname 1.1";
-
-      Participant participant6 = new Participant
-      {
-        Name = "Nachname 6",
-        Firstname = "Vorname 6",
-        Sex = "M",
-        Club = "Verein 6",
-        Nation = "Nation 6",
-        Class = new ParticipantClass("", null, "dummy", "M", 2019, 0),
-        Year = 2000,
-      };
-      model.GetParticipants().Add(participant6);
-
-
-      DBCacheWorkaround();
-
-
-      // Test 1: Check whether database is correct
-      CheckParticipant(dbFilename, participant1, 1);
-      CheckParticipant(dbFilename, participant6, 6);
+      return value == sDB;
     }
+
+    #endregion
   }
 }

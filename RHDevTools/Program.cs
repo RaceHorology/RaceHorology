@@ -45,8 +45,10 @@ namespace RHDevTools
   {
     static void Main(string[] args)
     {
-      if (args[0] == "-a" && args.Length == 2)
+      if (args.Length == 2 && args[0] == "-a")
         DSVAlpinDBTools.AnonymizeDB(args[1]);
+      else if (args.Length == 2 && args[0] == "-u")
+        DSVAlpinDBTools.UpgradeSchema(args[1]);
       else
         printUsage();
     }
@@ -54,6 +56,7 @@ namespace RHDevTools
     static void printUsage()
     {
       Console.WriteLine("-a <DBPath>     Anonymize Database");
+      Console.WriteLine("-u <DBPath>     Upgrade Schema of Database");
     }
   }
 }

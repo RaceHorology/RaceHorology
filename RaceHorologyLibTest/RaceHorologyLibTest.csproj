@@ -71,17 +71,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ALGETdC8001Tests.cs" />
+    <Compile Include="AppDataModelTest.cs" />
+    <Compile Include="AppDataModelTypesTest.cs" />
     <Compile Include="AppDataModelViewTests.cs" />
+    <Compile Include="AppDataModelCalculationsTest.cs" />
     <Compile Include="DSVAlpin2HTTPServerTest.cs" />
     <Compile Include="DSVAlpinDatabaseTests.cs" />
     <Compile Include="DSVCalculationTests.cs" />
     <Compile Include="DSVExportTest.cs" />
+    <Compile Include="DSVImportTest.cs" />
+    <Compile Include="ImportTest.cs" />
+    <Compile Include="IntegrationTests.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />
+    <Compile Include="StartNumberTest.cs" />
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilitiesTest.cs" />
+    <Compile Include="ValueConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="COPYING" />
@@ -100,6 +108,30 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\1557MRBR.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\DSV\Punktelisten.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_Import_Race.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.tsv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844_comma.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDataBases\TestDB_LessParticipants_LiveTiming_GiantSlalom.config">
@@ -138,7 +170,16 @@
     <Content Include="TestDataBases\FullTestCases\Case2\1554MSBS.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestDataBases\Import\DSV\DSVSA2008.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\Import\Teilnehmer_V1_202001301844.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDataBases\TestDB_Empty.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\TestDB_EmptyManyClasses.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDataBases\TestDB_LessParticipants.mdb">
@@ -150,7 +191,14 @@
     <Content Include="TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestDataBases\TestDB_LessParticipants_MultipleRacesNoStartnumber.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\TestDB_Schema_V0.3.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

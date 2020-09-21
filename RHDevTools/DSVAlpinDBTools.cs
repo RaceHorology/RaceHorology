@@ -71,6 +71,17 @@ namespace RHDevTools
       db.Close();
     }
 
+
+    public static void UpgradeSchema(string path)
+    {
+
+      Database db = new Database();
+      db.Connect(path);
+      db.Close();
+    }
+
+
+
     static string mapClub(Dictionary<string, string> map, string original)
     {
       if (!map.ContainsKey(original))

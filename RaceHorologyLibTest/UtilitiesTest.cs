@@ -111,7 +111,7 @@ namespace RaceHorologyLibTest
     {
       ObservableCollection<TestClass> sc = new ObservableCollection<TestClass>();
 
-      CopyObservableCollection<TestClass> coc = new CopyObservableCollection<TestClass>(sc, item => item.ShallowCopy());
+      CopyObservableCollection<TestClass, TestClass> coc = new CopyObservableCollection<TestClass, TestClass>(sc, item => item.ShallowCopy());
 
       // Test empty
       Assert.AreEqual(0, coc.Count);
@@ -140,7 +140,7 @@ namespace RaceHorologyLibTest
 
       // Test initialize with elements
       {
-        CopyObservableCollection<TestClass> coc2 = new CopyObservableCollection<TestClass>(sc, item => item.ShallowCopy());
+        CopyObservableCollection<TestClass, TestClass> coc2 = new CopyObservableCollection<TestClass, TestClass>(sc, item => item.ShallowCopy());
         Assert.AreEqual(sc.Count, coc2.Count);
         Assert.AreEqual(20, coc2[0].Attr1);
         Assert.AreEqual(30, coc2[1].Attr1);

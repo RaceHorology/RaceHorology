@@ -145,7 +145,7 @@ namespace RaceHorologyLib
       _writer.WriteStartElement("racedescription");
 
       _writer.WriteStartElement("racedate");
-      _writer.WriteValue(race.DateResult.ToString("yyyy-MM-dd"));
+      _writer.WriteValue(race.DateResultList?.ToString("yyyy-MM-dd"));
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("gender");
@@ -153,7 +153,7 @@ namespace RaceHorologyLib
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("season");
-      _writer.WriteValue(race.DateResult.AddMonths(2).ToString("yyyy"));
+      _writer.WriteValue(race.DateResultList?.AddMonths(2).ToString("yyyy"));
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("raceid");
@@ -250,7 +250,9 @@ namespace RaceHorologyLib
       _writer.WriteStartElement("racedata");
 
       _writer.WriteStartElement("useddsvlist");
-      _writer.WriteValue("unknown"); // TODO: needs to be fixed
+
+      string usedDSVList = race.GetDataModel().GetDB().GetKeyValue("DSV_UsedDSVList");
+      _writer.WriteValue(usedDSVList);
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("fvalue");
@@ -259,7 +261,7 @@ namespace RaceHorologyLib
 
       if (false) // TODO: needs to be fixed, btw: optional
       {
-        DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), "W");
+        DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
         // women
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "L");
@@ -275,7 +277,7 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
 
         // men
-        DSVRaceCalculation dsvCalcM = new DSVRaceCalculation(race, race.GetResultViewProvider(), "M");
+        DSVRaceCalculation dsvCalcM = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'M');
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "M");
 
@@ -599,17 +601,17 @@ namespace RaceHorologyLib
 
     static string mapSex(RaceParticipant particpant)
     {
-      switch (particpant.Sex)
+      switch (particpant.Sex.Name)
       {
-        case "M":
-        case "m":
-        case "H":
-        case "h":
+        case 'M':
+        case 'm':
+        case 'H':
+        case 'h':
           return "M";
-        case "W":
-        case "w":
-        case "D":
-        case "d":
+        case 'W':
+        case 'w':
+        case 'D':
+        case 'd':
           return "L";
       }
 

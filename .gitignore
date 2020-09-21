@@ -339,3 +339,5 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 *.ldb
+
+RaceHorologyLibTest/TestDataBases/Import/temp/

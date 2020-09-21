@@ -58,6 +58,9 @@
     <ApplicationIcon>RH-LOGO-FIN-APP.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GongSolutions.WPF.DragDrop, Version=2.0.0.0, Culture=neutral, PublicKeyToken=91f1945125b7a587, processorArchitecture=MSIL">
+      <HintPath>..\packages\gong-wpf-dragdrop.2.2.0\lib\net47\GongSolutions.WPF.DragDrop.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -79,6 +82,7 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Controls.Ribbon" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -112,11 +116,26 @@
     <Compile Include="ChartTestsUC.xaml.cs">
       <DependentUpon>ChartTestsUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ClassesAndGroupsUC.xaml.cs">
+      <DependentUpon>ClassesAndGroupsUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CompetitionUC.xaml.cs">
+      <DependentUpon>CompetitionUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DisqualifyUC.xaml.cs">
       <DependentUpon>DisqualifyUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ImportWizard.xaml.cs">
+      <DependentUpon>ImportWizard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MappingUC.xaml.cs">
+      <DependentUpon>MappingUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MsChart.xaml.cs">
       <DependentUpon>MsChart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RaceTabHeaderUC.xaml.cs">
+      <DependentUpon>RaceTabHeaderUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="RaceUC.xaml.cs">
       <DependentUpon>RaceUC.xaml</DependentUpon>
@@ -125,6 +144,9 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StartNumbersUC.xaml.cs">
+      <DependentUpon>StartNumbersUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="TimerPlus.cs" />
     <Compile Include="UIUtilities.cs" />
@@ -137,7 +159,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ClassesAndGroupsUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CompetitionUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="DisqualifyUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImportWizard.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -153,9 +187,17 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MappingUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MsChart.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RaceTabHeaderUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RaceUC.xaml">
       <SubType>Designer</SubType>
@@ -166,6 +208,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Settings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StartNumbersUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -267,6 +313,7 @@
     <None Include="CREDITS.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Resource Include="Icons\icons8-delete-52.png" />
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

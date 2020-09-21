@@ -17,5 +17,8 @@
     <Setting Name="StartTimeIntervall" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">25</Value>
     </Setting>
+    <Setting Name="StartNumbersNotToBeAssigned" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

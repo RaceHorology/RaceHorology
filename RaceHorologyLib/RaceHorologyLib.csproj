@@ -53,6 +53,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.DataVisualization" />
     <Reference Include="System.Windows.Forms" />
@@ -68,6 +69,7 @@
   <ItemGroup>
     <Compile Include="ALGETdC8001TimeMeasurement.cs" />
     <Compile Include="AppDataModel.cs" />
+    <Compile Include="AppDataModelCalculations.cs" />
     <Compile Include="AppDataModelDB.cs" />
     <Compile Include="AppDataModelViews.cs" />
     <Compile Include="Database.cs" />
@@ -75,12 +77,15 @@
     <Compile Include="DSVAlpin2HTTPServer.cs" />
     <Compile Include="DSVCalculations.cs" />
     <Compile Include="DSVExport.cs" />
+    <Compile Include="DSVImport.cs" />
+    <Compile Include="Import.cs" />
     <Compile Include="JsonConversion.cs" />
     <Compile Include="LiveTimingMeasurement.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="PDFReports.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultCharts.cs" />
+    <Compile Include="StartnumberAssignment.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Compile Include="ViewConfiguration.cs" />
@@ -89,6 +94,12 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ExcelDataReader">
+      <Version>3.6.0</Version>
+    </PackageReference>
+    <PackageReference Include="ExcelDataReader.DataSet">
+      <Version>3.6.0</Version>
+    </PackageReference>
     <PackageReference Include="itext7">
       <Version>7.1.8</Version>
     </PackageReference>
@@ -101,11 +112,17 @@
     <PackageReference Include="PdfSharp">
       <Version>1.50.5147</Version>
     </PackageReference>
+    <PackageReference Include="StringComparison">
+      <Version>1.0.3</Version>
+    </PackageReference>
     <PackageReference Include="WebSocketSharp-netstandard">
       <Version>1.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="dbtemplates\TemplateDB_Standard.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Content Include="resources\pdf\LogoRH.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

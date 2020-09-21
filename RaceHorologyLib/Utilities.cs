@@ -221,13 +221,13 @@ namespace RaceHorologyLib
 
 
 
-  public class CopyObservableCollection<T> : ObservableCollection<T>
+  public class CopyObservableCollection<TC, T> : ObservableCollection<TC> where T : class where TC : class
   {
     protected ObservableCollection<T> _source;
-    protected Cloner<T> _cloner;
+    protected Cloner<TC,T> _cloner;
 
-    public delegate TC Cloner<TC>(TC source);
-    public CopyObservableCollection(ObservableCollection<T> source, Cloner<T> cloner)
+    public delegate TClone Cloner<TClone,TSource>(TSource source);
+    public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC,T> cloner)
     {
       _source = source;
       _cloner = cloner;
@@ -245,8 +245,12 @@ namespace RaceHorologyLib
 
     protected void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      // Clone
-      throw new NotImplementedException();
+      if (sender is T sourceItem)
+      {
+        int index = _source.IndexOf(sourceItem);
+        var clonedItem = _cloner(sourceItem);
+        SetItem(index, clonedItem);
+      }
     }
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -280,7 +284,7 @@ namespace RaceHorologyLib
         case NotifyCollectionChangedAction.Reset:
           Clear();
 
-          List<T> toInsert = new List<T>();
+          List<TC> toInsert = new List<TC>();
           foreach (T item in _source)
             toInsert.Add(_cloner(item));
           this.InsertRange(toInsert);
@@ -292,7 +296,7 @@ namespace RaceHorologyLib
           break;
       }
 
-      // Unhook to PropertyChanged
+      // Hook to PropertyChanged
       if (e.NewItems != null)
         foreach (T item in e.NewItems)
         {
@@ -406,6 +410,37 @@ namespace RaceHorologyLib
       return obj;
     }
 
+    public static bool SetPropertyValue(object obj, string propertyName, object value)
+    {
+      if (propertyName == null || obj == null)
+        return false;
+
+      System.Reflection.PropertyInfo info = null;
+      foreach (string part in propertyName.Split('.'))
+      {
+        if (obj == null) { return false; }
+
+        Type type = obj.GetType();
+        info = type.GetProperty(part);
+        if (info == null) { return false; }
+      }
+
+      if (info == null) 
+        return false;
+  
+      info.SetValue(obj, Convert.ChangeType(value, info.PropertyType));
+      return true;
+    }
+
+    public static object GetPropertyValue(object obj, string propertyName, object defaultValue)
+    {
+      object val = GetPropertyValue(obj, propertyName);
+      if (val == null)
+        val = defaultValue;
+
+      return val;
+    }
+
   }
 
 
@@ -513,6 +548,35 @@ namespace RaceHorologyLib
       return roundedTimeSpan.TimeSpan.ToString(@"m\:ss\,ff");
     }
   }
+
+
+  public class NullEnabledComparer : System.Collections.Generic.IComparer<IComparable>
+  {
+    public int Compare(IComparable x, IComparable y)
+    {
+      if (x == null && y == null)
+        return 0;
+
+      if (x == null && y != null)
+        return 1;
+
+      if (x != null && y == null)
+        return -1;
+
+      return x.CompareTo(y);
+    }
+  }
+
+
+  public class StdComparer : System.Collections.Generic.IComparer<IComparable>
+  {
+    public int Compare(IComparable x, IComparable y)
+    {
+      return x.CompareTo(y);
+    }
+  }
+
+
 
 
 

@@ -55,7 +55,6 @@ namespace RaceHorologyLib
   }
   */
 
-
   /// <summary>
   /// BaseClass for all ViewProvider
   /// </summary>
@@ -175,15 +174,17 @@ namespace RaceHorologyLib
       _groupingPropertyName = propertyName;
     }
 
+
+    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(StartListEntry rrX, StartListEntry rrY)
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
 
       return groupCompare;
     }
@@ -427,7 +428,7 @@ namespace RaceHorologyLib
 
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
-          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+          _viewList.InsertSorted(CreateStartListEntry((StartListEntry)item), _comparer);
     }
 
     private StartListEntry CreateStartListEntry(StartListEntry sleSRC)
@@ -677,7 +678,7 @@ namespace RaceHorologyLib
 
 
       // Create working list
-      _viewList = new CopyObservableCollection<StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
+      _viewList = new CopyObservableCollection<StartListEntry, StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
       foreach (StartListEntry entry in _viewList)
         UpdateStartListEntry(entry);
 
@@ -792,15 +793,17 @@ namespace RaceHorologyLib
       _groupingPropertyName = propertyName;
     }
 
+
+    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(RunResult rrX, RunResult rrY)
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
 
       return groupCompare;
     }
@@ -808,11 +811,11 @@ namespace RaceHorologyLib
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = rrX.Participant.Participant.Class.CompareTo(rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = rrX.Participant.Participant.Group.CompareTo(rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = rrX.Participant.Participant.Sex.CompareTo(rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
 
       return groupCompare;
     }
@@ -1449,8 +1452,8 @@ namespace RaceHorologyLib
 
     public override void Init(Race race, AppDataModel appDataModel)
     {
-      _dsvCalcM = new DSVRaceCalculation(race, this, "M");
-      _dsvCalcW = new DSVRaceCalculation(race, this, "W");
+      _dsvCalcM = new DSVRaceCalculation(race, this, 'M');
+      _dsvCalcW = new DSVRaceCalculation(race, this, 'W');
 
       base.Init(race, appDataModel);
     }
@@ -1473,9 +1476,9 @@ namespace RaceHorologyLib
 
     protected override double calculatePoints(RaceResultItem rri)
     { 
-      if (rri.Participant.Sex == "M")
+      if (rri.Participant.Sex.Name == 'M')
         return _dsvCalcM.CalculatePoints(rri, true);
-      if (rri.Participant.Sex == "W")
+      if (rri.Participant.Sex.Name == 'W')
         return _dsvCalcW.CalculatePoints(rri, true);
 
       return -1.0;
