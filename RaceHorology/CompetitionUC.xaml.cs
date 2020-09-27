@@ -345,7 +345,11 @@ namespace RaceHorology
 
       if (vsDistinct.Count() == 1)
       {
-        control.Text = vsDistinct.First().ToString();
+        var o = vsDistinct.First();
+        if (o == null)
+          control.Text = null;
+        else
+          control.Text = o.ToString();
       }
       else if (vsDistinct.Count() > 1)
       {
