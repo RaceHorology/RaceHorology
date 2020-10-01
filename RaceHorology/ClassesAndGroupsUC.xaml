@@ -30,8 +30,8 @@
     <GridSplitter x:Name="gridSplitter2" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5"/>
 
     <Label Content="Klassen" Margin="0" FontSize="16"/>
-    <Label Content="Gruppen" Grid.Column="2" FontSize="16"/>
-    <Label Content="Kategorien" Grid.Column="4" FontSize="16"/>
+    <Label Content="Gruppen" Grid.Column="2" FontSize="16" Foreground="BlueViolet"/>
+    <Label Content="Kategorien" Grid.Column="4" FontSize="16" Foreground="DarkOliveGreen"/>
 
     <DataGrid x:Name="dgClasses" Grid.Row="1" Grid.Column="0" AutoGenerateColumns="False"
               ItemsSource="{Binding ClassViewModel.Items}"
@@ -39,11 +39,20 @@
               dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" dd:DragDrop.UseDefaultDragAdorner="True" dd:DragDrop.UseDefaultEffectDataTemplate="True" 
               dd:DragDrop.DropHandler="{Binding ElementName=_this, Path=DataContext.ClassViewModel}"
               >
+      <DataGrid.Resources>
+        <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}" x:Key="Group">
+          <Setter Property="Foreground" Value="BlueViolet" />
+        </Style>
+        <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}" x:Key="Category">
+          <Setter Property="Foreground" Value="DarkOliveGreen" />
+        </Style>
+      </DataGrid.Resources>
       <DataGrid.Columns>
         <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
         <DataGridTextColumn Header="ältester Jahrgang" Binding="{Binding Year, Converter={StaticResource AgeToYearInputConverter}}"/>
 
         <DataGridComboBoxColumn Header="Geschlecht" 
+                                HeaderStyle="{StaticResource Category}"
                                 SelectedValueBinding="{Binding Sex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >
           <DataGridComboBoxColumn.ElementStyle>
@@ -61,7 +70,7 @@
         </DataGridComboBoxColumn>
 
 
-        <DataGridComboBoxColumn Header="Gruppe" 
+        <DataGridComboBoxColumn Header="Gruppe" HeaderStyle="{StaticResource Group}"
                                 SelectedValueBinding="{Binding Group, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >
           <DataGridComboBoxColumn.ElementStyle>
