@@ -250,7 +250,7 @@ namespace RaceHorologyLib
         Rectangle areaBanner = new Rectangle(
           pageSize.GetLeft() + _pageMargins.Left, pageSize.GetTop() - _pageMargins.Top - _bannerHeight,
           pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right, _bannerHeight);
-        Canvas canvas = new Canvas(pdfCanvas, pdfDoc, areaBanner).Add(_banner);
+        Canvas canvas = new Canvas(pdfCanvas, areaBanner).Add(_banner);
 
         if (_debugAreas)
           pdfCanvas.SetStrokeColor(ColorConstants.RED)
@@ -270,7 +270,7 @@ namespace RaceHorologyLib
         pageSize.GetLeft() + _pageMargins.Left, pageSize.GetTop() - _pageMargins.Top - _bannerHeight - tableHeight,
         tableWidth, tableHeight);
 
-      new Canvas(pdfCanvas, pdfDoc, rectTable)
+      new Canvas(pdfCanvas, rectTable)
               .Add(tableHeader
                 .SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -495,7 +495,7 @@ namespace RaceHorologyLib
         Rectangle area3 = new Rectangle(
           pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom, 
           pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right, _bannerHeight);
-        Canvas canvas = new Canvas(pdfCanvas, pdfDoc, area3).Add(_banner);
+        Canvas canvas = new Canvas(pdfCanvas, area3).Add(_banner);
 
         if (_debugAreas)
           pdfCanvas.SetStrokeColor(ColorConstants.RED)
@@ -515,7 +515,7 @@ namespace RaceHorologyLib
         pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _bannerHeight,
         tableWidth, tableHeight);
 
-      new Canvas(pdfCanvas, pdfDoc, rectTable)
+      new Canvas(pdfCanvas, rectTable)
               .Add(tableFooter
                 .SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -659,7 +659,7 @@ namespace RaceHorologyLib
       int pageNumber = pdfDoc.GetPageNumber(page);
       Rectangle pageSize = page.GetPageSize();
       PdfCanvas pdfCanvas = new PdfCanvas(page.GetLastContentStream(), page.GetResources(), pdfDoc);
-      Canvas canvas = new Canvas(pdfCanvas, pdfDoc, pageSize);
+      Canvas canvas = new Canvas(pdfCanvas, pageSize);
       Paragraph p = new Paragraph()
           .Add(string.Format("{0}/", pageNumber));
 
@@ -2080,7 +2080,7 @@ public abstract class PDFReport : IPDFReport
         Image imgChart = new Image(pdfFormxObj);
         // Render the image
         PdfCanvas pdfCanvas = new PdfCanvas(page);
-        Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)
+        Canvas canvas = new Canvas(pdfCanvas, areaChart)
           .SetHorizontalAlignment(HorizontalAlignment.CENTER)
           .Add(imgChart.SetAutoScale(true));
       }
@@ -2093,7 +2093,7 @@ public abstract class PDFReport : IPDFReport
         var imgData = new Image(ImageDataFactory.Create(imgStream.ToArray()));
         // Render the image
         PdfCanvas pdfCanvas = new PdfCanvas(page);
-        Canvas canvas = new Canvas(pdfCanvas, pdf, areaChart)
+        Canvas canvas = new Canvas(pdfCanvas, areaChart)
           .SetHorizontalAlignment(HorizontalAlignment.CENTER)
           .Add(imgData.SetAutoScale(true));
       }
