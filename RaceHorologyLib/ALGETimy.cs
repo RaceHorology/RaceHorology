@@ -8,13 +8,7 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
-  public class TimingData
-  {
-    public TimeSpan? Time { get; set; }
-  }
-
-
-  public class ALGETimy
+  public class ALGETimy : IHandTiming
   {
     ALGETdC8001LineParser _parser;
     private SerialPort _serialPort;
