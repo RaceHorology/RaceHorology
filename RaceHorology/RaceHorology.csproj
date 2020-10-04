@@ -134,6 +134,7 @@
     <Compile Include="MsChart.xaml.cs">
       <DependentUpon>MsChart.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RaceHorologyCommands.cs" />
     <Compile Include="RaceTabHeaderUC.xaml.cs">
       <DependentUpon>RaceTabHeaderUC.xaml</DependentUpon>
     </Compile>

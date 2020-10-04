@@ -1,9 +1,10 @@
-﻿<Window x:Class="RaceHorology.MainWindow"
+<Window x:Class="RaceHorology.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RaceHorology"
+        xmlns:rhcmd="clr-namespace:RaceHorology.Commands"
         mc:Ignorable="d"
         Title="Race Horology" Height="1024" Width="1400">
 
@@ -13,6 +14,7 @@
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
     <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.HandTime" Executed="HandTimeCommandBinding_Executed" />
   </Window.CommandBindings>
   <Window.InputBindings>
     <KeyBinding Key="N" Modifiers="Control" Command="New"/>
