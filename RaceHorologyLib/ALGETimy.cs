@@ -43,12 +43,23 @@ namespace RaceHorologyLib
     {
       do
       {
-        string dataLine = _serialPort.ReadLine();
 
         ALGETdC8001LiveTimingData parsedData = null;
         try
         {
+          string dataLine = _serialPort.ReadLine();
+          if (dataLine.StartsWith("  ALGE-TIMING"))
+          {
+            // End of data => read two more lines
+            _serialPort.ReadLine(); // "  TIMY V 1982"
+            _serialPort.ReadLine(); // "20-10-04  16:54"
+            break;
+          }
           parsedData = _parser.Parse(dataLine);
+        }
+        catch (TimeoutException)
+        {
+          break; // no new data
         }
         catch (Exception)
         { }
@@ -64,8 +75,6 @@ namespace RaceHorologyLib
         }
       } while (true);
     }
-
-
-
   }
+
 }
