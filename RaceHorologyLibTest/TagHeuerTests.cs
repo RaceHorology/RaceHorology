@@ -56,6 +56,25 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+
+    [TestMethod]
+    public void Parse()
+    {
+      TagHeuerParser parser = new TagHeuerParser();
+
+      {
+        var r = parser.ParseRR("\nRR 0010 0232   05:27:51.01040\t");
+        Assert.AreEqual(10, r.Rank);
+        Assert.AreEqual(232, r.Number);
+        Assert.AreEqual(new TimeSpan(0, 5, 27, 51, 10).AddMicroseconds(400), r.Time);
+      }
+
+      {
+        var r = parser.ParseSynchroTime("\n!T 08:14:00 01/03/20\t");
+        Assert.AreEqual(new DateTime(2020,3,1,8,14,0), r);
+      }
+    }
+
     [TestMethod]
     public void RetrieveTimingData()
     {
@@ -70,7 +89,6 @@ namespace RaceHorologyLibTest
       {
         TestContext.WriteLine(t.Time.ToString());
       }
-
     }
   }
 }
