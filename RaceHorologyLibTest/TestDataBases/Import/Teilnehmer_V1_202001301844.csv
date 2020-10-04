@@ -1,15 +1,15 @@
 ﻿FIS-Code-Nr.;Name;Vorname;Verband;Verein;Jahrgang;Geschlecht;FIS-Distanzpunkte;FIS-Sprintpunkte;Startnummer;Gruppe;DSV-Id;Startpass;Leer;Nation;Transponder;Melder-Name;Melder-Adresse;Melder-Telefon;Melder-Mobil;Melder-Email;Nachname Vorname
 ;Name 1;Vorname 1;BSV-MU;TSV Vaterstetten;2008;w;;;;;70001;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 1 Vorname 1
-;Name 2;Vorname 2;BSV-MU;TSV Vaterstetten;2009;w;;;;;70002;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 2 Vorname 2
+;Name 2;Vorname 2;BSV-MU;TSV Vaterstetten;2009;W;;;;;70002;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 2 Vorname 2
 ;Name 3;Vorname 3;BSV-MU;TSV Vaterstetten;2012;m;;;;;70003;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 3 Vorname 3
-;Name 4;Vorname 4;BSV-MU;TSV Vaterstetten;2009;m;;;;;70004;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 4 Vorname 4
-;Name 5;Vorname 5;BSV-MU;TSV Vaterstetten;2004;m;;;;;70005;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 5 Vorname 5
+;Name 4;Vorname 4;BSV-MU;TSV Vaterstetten;2009;M;;;;;70004;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 4 Vorname 4
+;Name 5;Vorname 5;BSV-MU;TSV Vaterstetten;2004;h;;;;;70005;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 5 Vorname 5
 ;Name 6;Vorname 6;BSV-MU;TSV Vaterstetten;2004;w;;;;;70006;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 6 Vorname 6
-;Name 7;Vorname 7;BSV-MU;TSV Vaterstetten;2006;m;;;;;70007;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 7 Vorname 7
-;Name 8;Vorname 8;BSV-MU;TSV Vaterstetten;2008;m;;;;;70008;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 8 Vorname 8
+;Name 7;Vorname 7;BSV-MU;TSV Vaterstetten;2006;H;;;;;70007;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 7 Vorname 7
+;Name 8;Vorname 8;BSV-MU;TSV Vaterstetten;2008;x;;;;;70008;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 8 Vorname 8
 ;Name 9;Vorname 9;BSV-MU;TSV Vaterstetten;2011;w;;;;;70009;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 9 Vorname 9
 ;Name 10;Vorname 10;BSV-MU;TSV Vaterstetten;2005;w;;;;;70010;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 10 Vorname 10
-;Name 11;Vorname 11;BSV-MU;TSV Vaterstetten;2008;m;;;;;70011;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 11 Vorname 11
+;Name 11;Vorname 11;BSV-MU;TSV Vaterstetten;2008;X;;;;;70011;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 11 Vorname 11
 ;Name 12;Vorname 12;BSV-MU;TSV Vaterstetten;2005;m;;;;;70012;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 12 Vorname 12
 ;Name 13;Vorname 13;BSV-MU;TSV Vaterstetten;2007;w;;;;;70013;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 13 Vorname 13
 ;Name 14;Vorname 14;BSV-MU;TSV Vaterstetten;2010;m;;;;;70014;;;;;Melder 1;Melder Adresse 1;+49123456789;+49123456789;melder1@melder.de;Name 14 Vorname 14

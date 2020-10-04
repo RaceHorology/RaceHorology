@@ -1,0 +1,369 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="cmpCF9B3A227754E55B2A4622BDADF51333" Guid="*">
+                <File Id="fil244CDAED28510644E512EA1DBCB9390F" KeyPath="yes" Source="$(var.HarvestPath)\BouncyCastle.Crypto.dll" />
+            </Component>
+            <Component Id="cmp7C9D7ECB8AA42F8F89FFDA128508D39E" Guid="*">
+                <File Id="fil537261B9AB04F5C0A27396309F4EA107" KeyPath="yes" Source="$(var.HarvestPath)\Common.Logging.Core.dll" />
+            </Component>
+            <Component Id="cmpCA76E8B104F185E0E175A2C445E8ECE9" Guid="*">
+                <File Id="filC4BB0618E2668775A3D58D7442B8887D" KeyPath="yes" Source="$(var.HarvestPath)\Common.Logging.Core.pdb" />
+            </Component>
+            <Component Id="cmp059A81F557F2A7B3731E3EE81BE97CCD" Guid="*">
+                <File Id="fil0D1D3D4225BB5A570B5EFFD192341BA3" KeyPath="yes" Source="$(var.HarvestPath)\Common.Logging.dll" />
+            </Component>
+            <Component Id="cmp7427D6242735860F3E24583DE0ABB8ED" Guid="*">
+                <File Id="fil4E2860CBBA6090600E7088FAAA18BB8C" KeyPath="yes" Source="$(var.HarvestPath)\Common.Logging.pdb" />
+            </Component>
+            <Component Id="cmp0D59DB24A4AC3B1E609932921AD85F09" Guid="*">
+                <File Id="filB7453955D9891FE2E25E20EEA8196F2D" KeyPath="yes" Source="$(var.HarvestPath)\COPYING" />
+            </Component>
+            <Component Id="cmpF00B7B92C5D3D852291FBD422A883D3E" Guid="*">
+                <File Id="fil9FD3BB4CE3BD1EB80598F349AFF972E3" KeyPath="yes" Source="$(var.HarvestPath)\COPYING_MAIN.txt" />
+            </Component>
+            <Component Id="cmp717D12A2DE576FB488EC1DCDD249B49A" Guid="*">
+                <File Id="fil7F899FF006FD219F40B11C49969B0612" KeyPath="yes" Source="$(var.HarvestPath)\CREDITS.txt" />
+            </Component>
+            <Component Id="cmp657FC5FC3DD7C4BB7C841F2AB5180BD7" Guid="*">
+                <File Id="fil1272FEBA2B0EFB08583E85DA8A78A772" KeyPath="yes" Source="$(var.HarvestPath)\ExcelDataReader.DataSet.dll" />
+            </Component>
+            <Component Id="cmp7174102D2A59DBA4FD9C494ED11F9726" Guid="*">
+                <File Id="fil4DB9952CA0B452B07B94B8B4BD1C60AF" KeyPath="yes" Source="$(var.HarvestPath)\ExcelDataReader.DataSet.pdb" />
+            </Component>
+            <Component Id="cmp228F9964FA008B5F4A4F6E9E7DA92F76" Guid="*">
+                <File Id="filCA9769704A38921CBB73B955E595D1F3" KeyPath="yes" Source="$(var.HarvestPath)\ExcelDataReader.dll" />
+            </Component>
+            <Component Id="cmp8D8377542F77437DB4B78DDD81780979" Guid="*">
+                <File Id="filB7B55D4A8A7753C91564C4B707D0CF1D" KeyPath="yes" Source="$(var.HarvestPath)\ExcelDataReader.pdb" />
+            </Component>
+            <Component Id="cmp292DE057957CFDD6C7B77C751D1355B0" Guid="*">
+                <File Id="fil624A889EB751548F4A095DABF878FCE4" KeyPath="yes" Source="$(var.HarvestPath)\GongSolutions.WPF.DragDrop.dll" />
+            </Component>
+            <Component Id="cmp2BEC704B02780CB5B520E7ED60CFAAFA" Guid="*">
+                <File Id="fil51529EBD2CADFE4713913ACC67B789C2" KeyPath="yes" Source="$(var.HarvestPath)\GongSolutions.WPF.DragDrop.pdb" />
+            </Component>
+            <Component Id="cmpF1B9EA90F660365A72D0DA712E734E1E" Guid="*">
+                <File Id="filFE0D2D114919FAF9CE957C8F29FACB12" KeyPath="yes" Source="$(var.HarvestPath)\GongSolutions.WPF.DragDrop.xml" />
+            </Component>
+            <Component Id="cmp2331F32DFD90A18159E2AF28D876FB6E" Guid="*">
+                <File Id="fil10E06E2AD134760B9089317124219C52" KeyPath="yes" Source="$(var.HarvestPath)\itext.io.dll" />
+            </Component>
+            <Component Id="cmpC898D880A2401AD1520397C34B1F1D1D" Guid="*">
+                <File Id="fil1A0623B9141FA5A582352CD8A91EDF67" KeyPath="yes" Source="$(var.HarvestPath)\itext.kernel.dll" />
+            </Component>
+            <Component Id="cmp8D8B4EF96A670A683B8B382D6EFD0DF9" Guid="*">
+                <File Id="filA816A940F12D52C10FFBD61C58F1D3F8" KeyPath="yes" Source="$(var.HarvestPath)\itext.layout.dll" />
+            </Component>
+            <Component Id="cmp5E716E805A13D547B1010433FE2959FF" Guid="*">
+                <File Id="filA376894C866C87EF28CE18057A2F35A3" KeyPath="yes" Source="$(var.HarvestPath)\LICENSES_THIRD_PARTY.txt" />
+            </Component>
+            <Component Id="cmp6A2EA585B0593441A042D85BCA683555" Guid="*">
+                <File Id="filD87F1755B00146581FF85BD6C29C5952" KeyPath="yes" Source="$(var.HarvestPath)\LiveTimingRM.dll" />
+            </Component>
+            <Component Id="cmp6A4796DC260DD874D64AEF64CBFE9285" Guid="*">
+                <File Id="fil7CEE2CB9F4F970CFFA8DAEF1B6599D6E" KeyPath="yes" Source="$(var.HarvestPath)\LiveTimingRM.pdb" />
+            </Component>
+            <Component Id="cmpBC4FC00A26E7D32479D42D3411317FC5" Guid="*">
+                <File Id="fil90A8AAD9FC612906D405476D61CEA3F4" KeyPath="yes" Source="$(var.HarvestPath)\Newtonsoft.Json.dll" />
+            </Component>
+            <Component Id="cmp125C379E185231EFADA4CB4301BD0A9E" Guid="*">
+                <File Id="fil3A2F44A7730E98D18E0948B3261DFABD" KeyPath="yes" Source="$(var.HarvestPath)\Newtonsoft.Json.xml" />
+            </Component>
+            <Component Id="cmp42CE9AE95732AA34478329FB9DE90B9C" Guid="*">
+                <File Id="filD7AACEE505C0A6D9F0953957C6B91C28" KeyPath="yes" Source="$(var.HarvestPath)\NLog.config" />
+            </Component>
+            <Component Id="cmpB7F1EBE42DCB1051B92D42C1EF84E2F9" Guid="*">
+                <File Id="filA09ADF42C6343B9B7C7780D266455CC4" KeyPath="yes" Source="$(var.HarvestPath)\NLog.dll" />
+            </Component>
+            <Component Id="cmpAF162B14FA6391E4D0D34D9485A3CBEB" Guid="*">
+                <File Id="fil938BF1D1B479C73F0CECCBD51683AA0E" KeyPath="yes" Source="$(var.HarvestPath)\NLog.xml" />
+            </Component>
+            <Component Id="cmpC51538CC7360A884AEC7A84A5923018B" Guid="*">
+                <File Id="filED862600816F963DB3B1E6F508456CF0" KeyPath="yes" Source="$(var.HarvestPath)\QRCoder.dll" />
+            </Component>
+            <Component Id="cmp0E63FA45B7018D54EB8612CCD01CB152" Guid="*">
+                <File Id="fil0899BEEFD8A0DD156CB85C27767C4216" KeyPath="yes" Source="$(var.HarvestPath)\RaceHorology.exe" />
+            </Component>
+            <Component Id="cmp9A0CE181C0AFCA0B69A98B65AA490A77" Guid="*">
+                <File Id="fil484493CADA7B7D19CF50697C1E734A12" KeyPath="yes" Source="$(var.HarvestPath)\RaceHorology.exe.config" />
+            </Component>
+            <Component Id="cmp7B044FC50CC3D931449739F69C29EA67" Guid="*">
+                <File Id="filE0B659F34CE256F461089990463E3BD4" KeyPath="yes" Source="$(var.HarvestPath)\RaceHorology.pdb" />
+            </Component>
+            <Component Id="cmp0315A9AC3FBDC2EDAA96E335478E936C" Guid="*">
+                <File Id="fil0C2AE727393845427C680F8A4D15EBBC" KeyPath="yes" Source="$(var.HarvestPath)\RaceHorologyLib.dll" />
+            </Component>
+            <Component Id="cmp2F71725F3A4F3DF75A9D7155F85F0B61" Guid="*">
+                <File Id="fil81B40BC4B863264852F3A623764678BC" KeyPath="yes" Source="$(var.HarvestPath)\RaceHorologyLib.pdb" />
+            </Component>
+            <Component Id="cmp8B3D6D10669AA6A16503BE28D99392AB" Guid="*">
+                <File Id="fil2052B4B6A417609B35C48B3EC0DFF9D9" KeyPath="yes" Source="$(var.HarvestPath)\rmlt.dll" />
+            </Component>
+            <Component Id="cmp2908649C684833B151228B8BC15C9DAE" Guid="*">
+                <File Id="fil43BE68A1EFA02714AE5AE12EEA060013" KeyPath="yes" Source="$(var.HarvestPath)\StringComparison.dll" />
+            </Component>
+            <Component Id="cmp08EBD8C605FF27A4F0FCEC5A1317087B" Guid="*">
+                <File Id="fil01C46D7B4C6F372B6DD0D0DC961DAE47" KeyPath="yes" Source="$(var.HarvestPath)\System.Drawing.Common.dll" />
+            </Component>
+            <Component Id="cmp017BFB3832A5B110A2B3A350E13F2A5C" Guid="*">
+                <File Id="fil17E34524E8398461D615894C92558FE9" KeyPath="yes" Source="$(var.HarvestPath)\System.Windows.Interactivity.dll" />
+            </Component>
+            <Component Id="cmp7D2A50E4143D4DA7283AF1D716615988" Guid="*">
+                <File Id="fil33D44BE05BB2C3A696465AC1D98B7A34" KeyPath="yes" Source="$(var.HarvestPath)\websocket-sharp.dll" />
+            </Component>
+            <Component Id="cmp16C1BCAA951D19F64A3F49C867F11A4D" Guid="*">
+                <File Id="fil658540A7DF7A8EBC1F4845BE99C3E371" KeyPath="yes" Source="$(var.HarvestPath)\websocket-sharp.xml" />
+            </Component>
+            <Directory Id="dir636058F130D9D2B5F5E67FEF841EE4BC" Name="dbtemplates">
+                <Component Id="cmpEB2A893F73ABC18DA37A5710F061B67A" Guid="*">
+                    <File Id="fil1A62B9EE25172E14D17DBEBC32D598EA" KeyPath="yes" Source="$(var.HarvestPath)\dbtemplates\TemplateDB_Standard.mdb" />
+                </Component>
+            </Directory>
+            <Directory Id="dir242DC17B8DFC53C13CAF172FC08B730A" Name="de">
+                <Component Id="cmpB6C532107EB144C39ABD2F56C39306D7" Guid="*">
+                    <File Id="filB82126AFB787AA36F5EA53128AA09AD6" KeyPath="yes" Source="$(var.HarvestPath)\de\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dir1710C20C4C4513ACEA8627A52788727F" Name="en">
+                <Component Id="cmpBDA498F45CBE57A7E58B97EB43FF456D" Guid="*">
+                    <File Id="fil8247BA0D347E881CD049EEA945490A2D" KeyPath="yes" Source="$(var.HarvestPath)\en\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dir9AE38F4F5CB5E565E774521E138F44FD" Name="es">
+                <Component Id="cmpF764B4878911C9E76FF5841A7C142D5B" Guid="*">
+                    <File Id="filDBA036C5FD580E692829FCEB8187B07B" KeyPath="yes" Source="$(var.HarvestPath)\es\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dirB55DFDA91FEE7CCCBC65CA7493B75748" Name="fr">
+                <Component Id="cmpBAAD9C9143AE7C0B0FDD591C9F1E9C94" Guid="*">
+                    <File Id="fil0A662AF4309B4F02F6D483738F3546DA" KeyPath="yes" Source="$(var.HarvestPath)\fr\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dir45DE18DD71F3E8DD6BE4A0E2B48778C8" Name="it">
+                <Component Id="cmpDDE8AC599B8C0E23E5C8BE3E7214DE22" Guid="*">
+                    <File Id="fil13C2B017904B1016CBDC7DB6A2E3C27B" KeyPath="yes" Source="$(var.HarvestPath)\it\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dir997B58958EFAE06BB705E870622AB899" Name="ja">
+                <Component Id="cmp787B2F46EF38D81FD1CD49F7588076FD" Guid="*">
+                    <File Id="fil7E3C71A6B5B22C8B4C5B815B286585F1" KeyPath="yes" Source="$(var.HarvestPath)\ja\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dirF152986C1E6339E5EF84FD1370841521" Name="ko">
+                <Component Id="cmpCD6B880858C68ABB3F57724B5F04B96F" Guid="*">
+                    <File Id="fil2EF764D0D9E392B8577C36C394ABF0B4" KeyPath="yes" Source="$(var.HarvestPath)\ko\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dir4BAF8AD94C579B2FF2F0C8D52DFC6F26" Name="Manual">
+                <Component Id="cmpECFD29ACE9AB27E71E14EE82D4A8E4AC" Guid="*">
+                    <File Id="filF83FFA0F9FFA96CD4DA4E24566312EF9" KeyPath="yes" Source="$(var.HarvestPath)\Manual\Race Horology - Anleitung.pdf" />
+                </Component>
+            </Directory>
+            <Directory Id="dirDD272902288FFC7D08E93592E91DAA95" Name="raceconfigpresets">
+                <Component Id="cmp8DDA6850E6D9B8FD44A6D5696F0A2B46" Guid="*">
+                    <File Id="fil6A63D213217BC43022AEDED8250E5C27" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\DSV Erwachsene.preset" />
+                </Component>
+                <Component Id="cmpD096FDC3B27D91F97474C4BC816E4767" Guid="*">
+                    <File Id="fil6A70686561FEABD6D3376251763E4A61" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\DSV Schüler U14-U16.preset" />
+                </Component>
+                <Component Id="cmp55165B1640D60C3DDFBE1439817D175C" Guid="*">
+                    <File Id="filD81114C1F9AB4C78768EE6840C5CBC58" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Inline (allgemein).preset" />
+                </Component>
+                <Component Id="cmp9D3EA7846CA86D5131DC13FDB58842DD" Guid="*">
+                    <File Id="fil31A2B97EF80C09CBFDBB8DAFC7FDFC12" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Inline (Punkte).preset" />
+                </Component>
+                <Component Id="cmp0962DBC6A58D89AAA3CEF8D1753413BC" Guid="*">
+                    <File Id="fil4F4AB19328E92000A07F46E7297CD87E" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\KSC Ebersberg -U12.preset" />
+                </Component>
+                <Component Id="cmpBA32D68D2E2D12AF2DE968BD18C9D9FD" Guid="*">
+                    <File Id="fil2C8F3B1EB2E452BEE9AF62A88AC731A8" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\KSC Ebersberg U14-.preset" />
+                </Component>
+                <Component Id="cmpAC23365F8EC4F80D6D5F16D030D9E9C3" Guid="*">
+                    <File Id="fil9850A73FC8A4184D9859D039E220EB2D" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\SVM Schüler U12.preset" />
+                </Component>
+                <Component Id="cmpBB6D677E0C00F6072B5492EF995A422B" Guid="*">
+                    <File Id="fil1021CEA5EC7E005587E1872E187EE0AC" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\SVM Schüler U8-U10.preset" />
+                </Component>
+                <Component Id="cmp94005B61BB414A027D693BB1A83E68DD" Guid="*">
+                    <File Id="fil4FB556604DA7A8654A2FEF68CC45E5A6" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Vereinsrennen - BestOfTwo.preset" />
+                </Component>
+                <Component Id="cmp91BBEE2163B20324C4BF557AB386E2F9" Guid="*">
+                    <File Id="filF56452C58341FDBFD57976DF9B4719D9" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Vereinsrennen - Summe.preset" />
+                </Component>
+            </Directory>
+            <Directory Id="dir09903639A005C2D197EB19C866CDE8EB" Name="resources">
+                <Directory Id="dir26FC5C13EB72429BD2EC64127B101945" Name="pdf">
+                    <Component Id="cmp780E66EB8AEBAAF84D57FCB8ED118B31" Guid="*">
+                        <File Id="filFC79A1B25FF3B220B7930DF5FA541CDF" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRH.png" />
+                    </Component>
+                    <Component Id="cmpC042341FB0857F7C2B92277BD9243117" Guid="*">
+                        <File Id="fil8F54CE7B67D5908BBEA13466D977472A" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.png" />
+                    </Component>
+                    <Component Id="cmp98C834C81A30A6D2468D42308AAC1F11" Guid="*">
+                        <File Id="fil0FCA4A8D013974B273AE85FD21B6FFAD" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.svg" />
+                    </Component>
+                    <Component Id="cmpEF8CFEC3E9D62AC49DF334F5E354B96E" Guid="*">
+                        <File Id="fil91896CE9AE48811E83299050383634AE" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.png" />
+                    </Component>
+                    <Component Id="cmpF496B3C08A251BFC2BCB4FA2CDD68800" Guid="*">
+                        <File Id="fil832282DDD8838608C0E0D7286D355C40" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.svg" />
+                    </Component>
+                </Directory>
+            </Directory>
+            <Directory Id="dirE9205C68F964857267FD3312DBFF9A91" Name="ru">
+                <Component Id="cmp73293AD8C7D9FD73E65D2E412CA7E1A3" Guid="*">
+                    <File Id="fil46122418162C66762372FD8D22B080D0" KeyPath="yes" Source="$(var.HarvestPath)\ru\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dir2149C40F34DEC080F4A9D1894147C416" Name="webroot">
+                <Component Id="cmp0AB3103D396C9FF961C0F43BE5C9A726" Guid="*">
+                    <File Id="fil3FC3AB3C4D00C961A30EF97AC1BA2578" KeyPath="yes" Source="$(var.HarvestPath)\webroot\index.html" />
+                </Component>
+                <Directory Id="dirC8DCFE229DE4DE1A97DA23DD83BD33FE" Name="css">
+                    <Component Id="cmpF67FAD183481C95F9FA93FD1EBC40C30" Guid="*">
+                        <File Id="fil75A0170FDE7026B6BD5E1ACAE56FD1C6" KeyPath="yes" Source="$(var.HarvestPath)\webroot\css\bootstrap-vue.min.css" />
+                    </Component>
+                    <Component Id="cmp6E00057B5E286329F2495B3F54C47BD6" Guid="*">
+                        <File Id="fil20C6AA4B120D8E6D6864DA95A1A95645" KeyPath="yes" Source="$(var.HarvestPath)\webroot\css\bootstrap.min.css" />
+                    </Component>
+                    <Component Id="cmp353832883368654E3869B4706D5985E1" Guid="*">
+                        <File Id="fil9349D20104E9366F2C48084F3F15FD34" KeyPath="yes" Source="$(var.HarvestPath)\webroot\css\styles.css" />
+                    </Component>
+                </Directory>
+                <Directory Id="dir0BF340FB1935763FAAA3CC4A6F6B4E47" Name="img">
+                    <Component Id="cmp5B354D058190514987FF53EE072EC48C" Guid="*">
+                        <File Id="fil83DA03D18620174FCBA5696A3713EB08" KeyPath="yes" Source="$(var.HarvestPath)\webroot\img\RH-LOGO.svg" />
+                    </Component>
+                </Directory>
+                <Directory Id="dir664C00F8011D8D9181AB9994AC08EAAB" Name="Js">
+                    <Component Id="cmpCDC45959AB93AD3F6B848BE8E01A8210" Guid="*">
+                        <File Id="filF1F585D92F8C1D4EB574D56879EA089E" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\bootstrap-vue.min.js" />
+                    </Component>
+                    <Component Id="cmp35E82891191010EA0481010B0FA3F371" Guid="*">
+                        <File Id="filE879310F6E117BBBEC1C07EF114C1371" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\bootstrap.bundle.min.js" />
+                    </Component>
+                    <Component Id="cmp90D8A266BFD2E7AB07A128524CBA7216" Guid="*">
+                        <File Id="fil3449F20CE3F8DF236ECCA03574E4A9BF" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\bootstrap.min.js" />
+                    </Component>
+                    <Component Id="cmp03024CFC632D44B6403CBF028B9885C2" Guid="*">
+                        <File Id="fil74E1B17E876271D2CDEE2BEB2441F9B3" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\DSVAlpin2.js" />
+                    </Component>
+                    <Component Id="cmp1573ADFB2728E8DC63A9A749C9ACD232" Guid="*">
+                        <File Id="fil6D2D9F116CCE030D09851160415FB5B8" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\echotest.js" />
+                    </Component>
+                    <Component Id="cmpF7B59935DAFAC1E573CFBB317B6226CB" Guid="*">
+                        <File Id="fil9625DE2CA7DAC042F7D4BD18E391B7BE" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\jquery-3.4.1.min.js" />
+                    </Component>
+                    <Component Id="cmp4747BACAC70C41E4E39C5BAC61F3304F" Guid="*">
+                        <File Id="filA5860262AAB057EFBE83EBFE1E64252E" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\jquery-3.4.1.slim.min.js" />
+                    </Component>
+                    <Component Id="cmp078664ECED30DC4C8B65F23D5DE491F1" Guid="*">
+                        <File Id="fil18F3EA5EE7BA99CCB2089616484E8717" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\popper.min.js" />
+                    </Component>
+                    <Component Id="cmp53210619A53B18C2C66F00802D0C8A70" Guid="*">
+                        <File Id="filA8F3E3BB62D9772E07B31FA7D3237581" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\vue.js" />
+                    </Component>
+                    <Component Id="cmp445497CE14C75D5351E102F20541046E" Guid="*">
+                        <File Id="filCB0A8090FABD6F671D207B1800753E15" KeyPath="yes" Source="$(var.HarvestPath)\webroot\Js\vue.min.js" />
+                    </Component>
+                </Directory>
+            </Directory>
+            <Directory Id="dir4A8DD77DBC79775EC39CACBC8AA06107" Name="zh-Hans">
+                <Component Id="cmpDFF0AA886ED74AF38A556E1272567BC4" Guid="*">
+                    <File Id="fil444DDAAFA1E48FBB303308C0EDC4DCCB" KeyPath="yes" Source="$(var.HarvestPath)\zh-Hans\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+            <Directory Id="dir083BC4C92455CD933FA93376E7459C85" Name="zh-Hant">
+                <Component Id="cmp4CEAD35821858DFE561EC729EBFF4141" Guid="*">
+                    <File Id="filC9B280E3E65CFFD0F1875043957BC24B" KeyPath="yes" Source="$(var.HarvestPath)\zh-Hant\System.Windows.Interactivity.resources.dll" />
+                </Component>
+            </Directory>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="HeatGeneratedInstallFiles">
+            <ComponentRef Id="cmpCF9B3A227754E55B2A4622BDADF51333" />
+            <ComponentRef Id="cmp7C9D7ECB8AA42F8F89FFDA128508D39E" />
+            <ComponentRef Id="cmpCA76E8B104F185E0E175A2C445E8ECE9" />
+            <ComponentRef Id="cmp059A81F557F2A7B3731E3EE81BE97CCD" />
+            <ComponentRef Id="cmp7427D6242735860F3E24583DE0ABB8ED" />
+            <ComponentRef Id="cmp0D59DB24A4AC3B1E609932921AD85F09" />
+            <ComponentRef Id="cmpF00B7B92C5D3D852291FBD422A883D3E" />
+            <ComponentRef Id="cmp717D12A2DE576FB488EC1DCDD249B49A" />
+            <ComponentRef Id="cmp657FC5FC3DD7C4BB7C841F2AB5180BD7" />
+            <ComponentRef Id="cmp7174102D2A59DBA4FD9C494ED11F9726" />
+            <ComponentRef Id="cmp228F9964FA008B5F4A4F6E9E7DA92F76" />
+            <ComponentRef Id="cmp8D8377542F77437DB4B78DDD81780979" />
+            <ComponentRef Id="cmp292DE057957CFDD6C7B77C751D1355B0" />
+            <ComponentRef Id="cmp2BEC704B02780CB5B520E7ED60CFAAFA" />
+            <ComponentRef Id="cmpF1B9EA90F660365A72D0DA712E734E1E" />
+            <ComponentRef Id="cmp2331F32DFD90A18159E2AF28D876FB6E" />
+            <ComponentRef Id="cmpC898D880A2401AD1520397C34B1F1D1D" />
+            <ComponentRef Id="cmp8D8B4EF96A670A683B8B382D6EFD0DF9" />
+            <ComponentRef Id="cmp5E716E805A13D547B1010433FE2959FF" />
+            <ComponentRef Id="cmp6A2EA585B0593441A042D85BCA683555" />
+            <ComponentRef Id="cmp6A4796DC260DD874D64AEF64CBFE9285" />
+            <ComponentRef Id="cmpBC4FC00A26E7D32479D42D3411317FC5" />
+            <ComponentRef Id="cmp125C379E185231EFADA4CB4301BD0A9E" />
+            <ComponentRef Id="cmp42CE9AE95732AA34478329FB9DE90B9C" />
+            <ComponentRef Id="cmpB7F1EBE42DCB1051B92D42C1EF84E2F9" />
+            <ComponentRef Id="cmpAF162B14FA6391E4D0D34D9485A3CBEB" />
+            <ComponentRef Id="cmpC51538CC7360A884AEC7A84A5923018B" />
+            <ComponentRef Id="cmp0E63FA45B7018D54EB8612CCD01CB152" />
+            <ComponentRef Id="cmp9A0CE181C0AFCA0B69A98B65AA490A77" />
+            <ComponentRef Id="cmp7B044FC50CC3D931449739F69C29EA67" />
+            <ComponentRef Id="cmp0315A9AC3FBDC2EDAA96E335478E936C" />
+            <ComponentRef Id="cmp2F71725F3A4F3DF75A9D7155F85F0B61" />
+            <ComponentRef Id="cmp8B3D6D10669AA6A16503BE28D99392AB" />
+            <ComponentRef Id="cmp2908649C684833B151228B8BC15C9DAE" />
+            <ComponentRef Id="cmp08EBD8C605FF27A4F0FCEC5A1317087B" />
+            <ComponentRef Id="cmp017BFB3832A5B110A2B3A350E13F2A5C" />
+            <ComponentRef Id="cmp7D2A50E4143D4DA7283AF1D716615988" />
+            <ComponentRef Id="cmp16C1BCAA951D19F64A3F49C867F11A4D" />
+            <ComponentRef Id="cmpEB2A893F73ABC18DA37A5710F061B67A" />
+            <ComponentRef Id="cmpB6C532107EB144C39ABD2F56C39306D7" />
+            <ComponentRef Id="cmpBDA498F45CBE57A7E58B97EB43FF456D" />
+            <ComponentRef Id="cmpF764B4878911C9E76FF5841A7C142D5B" />
+            <ComponentRef Id="cmpBAAD9C9143AE7C0B0FDD591C9F1E9C94" />
+            <ComponentRef Id="cmpDDE8AC599B8C0E23E5C8BE3E7214DE22" />
+            <ComponentRef Id="cmp787B2F46EF38D81FD1CD49F7588076FD" />
+            <ComponentRef Id="cmpCD6B880858C68ABB3F57724B5F04B96F" />
+            <ComponentRef Id="cmpECFD29ACE9AB27E71E14EE82D4A8E4AC" />
+            <ComponentRef Id="cmp8DDA6850E6D9B8FD44A6D5696F0A2B46" />
+            <ComponentRef Id="cmpD096FDC3B27D91F97474C4BC816E4767" />
+            <ComponentRef Id="cmp55165B1640D60C3DDFBE1439817D175C" />
+            <ComponentRef Id="cmp9D3EA7846CA86D5131DC13FDB58842DD" />
+            <ComponentRef Id="cmp0962DBC6A58D89AAA3CEF8D1753413BC" />
+            <ComponentRef Id="cmpBA32D68D2E2D12AF2DE968BD18C9D9FD" />
+            <ComponentRef Id="cmpAC23365F8EC4F80D6D5F16D030D9E9C3" />
+            <ComponentRef Id="cmpBB6D677E0C00F6072B5492EF995A422B" />
+            <ComponentRef Id="cmp94005B61BB414A027D693BB1A83E68DD" />
+            <ComponentRef Id="cmp91BBEE2163B20324C4BF557AB386E2F9" />
+            <ComponentRef Id="cmp780E66EB8AEBAAF84D57FCB8ED118B31" />
+            <ComponentRef Id="cmpC042341FB0857F7C2B92277BD9243117" />
+            <ComponentRef Id="cmp98C834C81A30A6D2468D42308AAC1F11" />
+            <ComponentRef Id="cmpEF8CFEC3E9D62AC49DF334F5E354B96E" />
+            <ComponentRef Id="cmpF496B3C08A251BFC2BCB4FA2CDD68800" />
+            <ComponentRef Id="cmp73293AD8C7D9FD73E65D2E412CA7E1A3" />
+            <ComponentRef Id="cmp0AB3103D396C9FF961C0F43BE5C9A726" />
+            <ComponentRef Id="cmpF67FAD183481C95F9FA93FD1EBC40C30" />
+            <ComponentRef Id="cmp6E00057B5E286329F2495B3F54C47BD6" />
+            <ComponentRef Id="cmp353832883368654E3869B4706D5985E1" />
+            <ComponentRef Id="cmp5B354D058190514987FF53EE072EC48C" />
+            <ComponentRef Id="cmpCDC45959AB93AD3F6B848BE8E01A8210" />
+            <ComponentRef Id="cmp35E82891191010EA0481010B0FA3F371" />
+            <ComponentRef Id="cmp90D8A266BFD2E7AB07A128524CBA7216" />
+            <ComponentRef Id="cmp03024CFC632D44B6403CBF028B9885C2" />
+            <ComponentRef Id="cmp1573ADFB2728E8DC63A9A749C9ACD232" />
+            <ComponentRef Id="cmpF7B59935DAFAC1E573CFBB317B6226CB" />
+            <ComponentRef Id="cmp4747BACAC70C41E4E39C5BAC61F3304F" />
+            <ComponentRef Id="cmp078664ECED30DC4C8B65F23D5DE491F1" />
+            <ComponentRef Id="cmp53210619A53B18C2C66F00802D0C8A70" />
+            <ComponentRef Id="cmp445497CE14C75D5351E102F20541046E" />
+            <ComponentRef Id="cmpDFF0AA886ED74AF38A556E1272567BC4" />
+            <ComponentRef Id="cmp4CEAD35821858DFE561EC729EBFF4141" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>

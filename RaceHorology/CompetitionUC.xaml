@@ -53,13 +53,27 @@
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
                   <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}"/>
-                  <DataGridTextColumn Header="Geschlecht" Binding="{Binding Sex}"/>
+                  <DataGridComboBoxColumn Header="Geschlecht" 
+                                SelectedValueBinding="{Binding Sex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                >
+                    <DataGridComboBoxColumn.ElementStyle>
+                      <Style TargetType="ComboBox">
+                        <Setter Property="ItemsSource" Value="{Binding Path=ParticipantCategories, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
+                        <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+                      </Style>
+                    </DataGridComboBoxColumn.ElementStyle>
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                      <Style TargetType="ComboBox">
+                        <Setter Property="ItemsSource" Value="{Binding Path=ParticipantCategories, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
+                        <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+                      </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                  </DataGridComboBoxColumn>
                   <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}"/>
                   <DataGridTextColumn Header="Verein" Binding="{Binding Club}"/>
                   <DataGridTextColumn Header="SvId" Binding="{Binding SvId}"/>
                   <DataGridTextColumn Header="Code" Binding="{Binding Code}"/>
                   <DataGridTextColumn Header="Nation" Binding="{Binding Nation}"/>
-
                   <DataGridComboBoxColumn Header="Klasse" 
                                 SelectedValueBinding="{Binding Class, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >
@@ -76,7 +90,6 @@
                       </Style>
                     </DataGridComboBoxColumn.EditingElementStyle>
                   </DataGridComboBoxColumn>
-
                   <DataGridTextColumn Header="Gruppe" Binding="{Binding Group, Mode=OneWay}"/>
                 </DataGrid.Columns>
               </DataGrid>
@@ -109,7 +122,9 @@
                 <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Geschlecht:" Grid.Row="2" Grid.Column="0"/>
-                <TextBox x:Name="txtSex" Margin="5" Grid.Row="2" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
+                <ComboBox x:Name="cmbSex" Margin="5" Grid.Row="2" Grid.Column="1"
+                            ItemsSource="{Binding Path=ParticipantCategories, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            LostFocus="ParticipantEditControl_LostFocus"/>
 
                 <Label Content="Jahrgang:" Grid.Row="3" Grid.Column="0"/>
                 <TextBox x:Name="txtYear" Margin="5" Grid.Row="3" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>

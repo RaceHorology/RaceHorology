@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="0.3.0" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab='yes'/>
+
+		<Feature Id="MainProgram" Title="Race Horology" Level="1">
+			<ComponentGroupRef Id="RaceHorologyComponents" />
+			<ComponentRef Id="ApplicationShortcut" />   
+		</Feature>
+
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+		<UIRef Id="WixUI_InstallDir" />
+		<UIRef Id="WixUI_ErrorProgressText" />
+		<WixVariable Id="WixUILicenseRtf" Value="RaceHorologyLicense.rtf" />
+
+		<WixVariable Id="WixUIBannerBmp" Value="WixUIBannerBmp.bmp"/>
+		<WixVariable Id="WixUIDialogBmp" Value="WixUIDialogBmp.bmp"/>
+	</Product>
+
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="RaceHorology" />
+			</Directory>
+			<!-- Start Menu -->
+			<Directory Id="ProgramMenuFolder">
+					<Directory Id="ApplicationProgramsFolder" Name="Race Horology"/>
+			</Directory>			
+		</Directory>
+
+		<DirectoryRef Id="ApplicationProgramsFolder">
+				<Component Id="ApplicationShortcut">
+						<Shortcut Id="ApplicationStartMenuShortcut" 
+									Name="Race Horology" 
+								Description="Zeitnahme einfach gemacht"
+								Target="[#fil0899BEEFD8A0DD156CB85C27767C4216]"
+											WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+						<RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+						<RegistryValue Root="HKCU" Key="Software\RaceHorology\RaceHorology" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				</Component>
+		</DirectoryRef>		
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="RaceHorologyComponents" Directory="INSTALLFOLDER">
+		  <ComponentGroupRef Id="HeatGeneratedInstallFiles" />
+		</ComponentGroup>
+	</Fragment>
+</Wix>

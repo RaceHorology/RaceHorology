@@ -326,9 +326,17 @@ namespace RaceHorologyLib
   {
     int _success = 0;
     int _error = 0;
+    List<string> _errors;
 
     public int SuccessCount { get { return _success; } }
     public int ErrorCount { get { return _error; } }
+    public List<string> Errors { get { return _errors; } }
+
+    public ImportResults()
+    {
+      _errors = new List<string>();
+    }
+
 
     public void AddSuccess()
     {
@@ -338,6 +346,12 @@ namespace RaceHorologyLib
     public void AddError()
     {
       _error++;
+    }
+
+    public void AddError(string message)
+    {
+      _error++;
+      _errors.Add(message);
     }
 
   }
@@ -422,11 +436,13 @@ namespace RaceHorologyLib
   {
     DataSet _importDataSet;
     IList<Participant> _particpants;
+    IList<ParticipantCategory> _categories;
 
-    public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
+    public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
     {
       _importDataSet = ds;
       _particpants = particpants;
+      _categories = categories;
     }
 
 
@@ -478,7 +494,7 @@ namespace RaceHorologyLib
       {
         Name = getNameComaSeparated(getValueAsString(row, "Name")),
         Firstname = getFirstNameComaSeparated(getValueAsString(row, "Firstname")),
-        Sex = getValueAsString(row, "Sex"),
+        Sex = importSex(getValueAsString(row, "Sex")),
         Club = getValueAsString(row, "Club"),
         Nation = getValueAsString(row, "Nation"),
         SvId = getValueAsString(row, "SvId"),
@@ -543,6 +559,38 @@ namespace RaceHorologyLib
       
       return partImp;
     }
+
+    ParticipantCategory importSex(string sex)
+    {
+      // Looks in category name first, afterwards in synonyms
+
+      if (string.IsNullOrEmpty(sex))
+        return null;
+
+      char sexInvariant = char.ToLowerInvariant(sex[0]);
+
+      ParticipantCategory category = null;
+      foreach (var c in _categories)
+      {
+        if (char.ToLowerInvariant(c.Name) == sexInvariant)
+        {
+          category = c;
+          break;
+        }
+      }
+
+      if (category == null)
+        foreach (var c in _categories)
+        {
+          if (!string.IsNullOrEmpty(c.Synonyms) && c.Synonyms.ToLowerInvariant().Contains(sexInvariant))
+          {
+            category = c;
+            break;
+          }
+        }
+
+      return category;
+    }
   }
 
 
@@ -563,7 +611,7 @@ namespace RaceHorologyLib
       ImportResults impRes = new ImportResults();
 
       // 1. Normaler Import
-      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping, _classAssignment);
+      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping, _race.GetDataModel().GetParticipantCategories(), _classAssignment);
 
       // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
       var rows = _importDataSet.Tables[0].Rows;
@@ -608,35 +656,40 @@ namespace RaceHorologyLib
     DataSet _importDataSet;
     Race _race;
 
+    Dictionary<string, DataRow> _id2row;
+
 
     public UpdatePointsImport(DataSet ds, Race race, Mapping mapping) : base(mapping, null)
     {
       _importDataSet = ds;
       _race = race;
-    }
 
+      _id2row = new Dictionary<string, DataRow>();
+    }
 
 
     public ImportResults DoImport()
     {
+      buildDictionary();
+
       ImportResults impRes = new ImportResults();
 
-      // 1. Normaler Import
-      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping);
-
-      // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
-      var rows = _importDataSet.Tables[0].Rows;
-      foreach (DataRow row in rows)
+      // Update the points for all participants in the race
+      foreach(var rp in _race.GetParticipants() )
       {
+        string key = rp.SvId;
+
         try
         {
-          RaceParticipant rp = findParticipant(_race.GetParticipants(), row);
-          if (rp != null) // Only update points from known participants
-          {
-            double points = getPoints(row);
-            rp.Points = points;
-            impRes.AddSuccess();
-          }
+          DataRow row = _id2row[key];
+          double points = getPoints(row);
+          rp.Points = points;
+          impRes.AddSuccess();
+        }
+        catch (KeyNotFoundException)
+        {
+          rp.Points = 99999.99;
+          impRes.AddError(string.Format("{0} (SvId: {1}) ist nicht der der Punktedatei. Punkte wurden auf {2:0.00} gesetzt", rp.Fullname, rp.SvId, rp.Points));
         }
         catch (Exception)
         {
@@ -647,20 +700,22 @@ namespace RaceHorologyLib
       return impRes;
     }
 
-    RaceParticipant findParticipant(IList<RaceParticipant> participants, DataRow row)
-    {
-      RaceParticipant rp = null;
-
-      string svId = getValueAsString(row, "SvId");
-      rp = participants.FirstOrDefault(r => r.SvId == svId);
-
-      return rp;
-    }
-
 
     double getPoints(DataRow row)
     {
       return getValueAsDouble(row, "Points", -1);
+    }
+
+
+    protected void buildDictionary()
+    {
+      // Build map for fast and easy access to row
+      var rows = _importDataSet.Tables[0].Rows;
+      foreach (DataRow row in rows)
+      {
+        string key = getValueAsString(row, "SvId");
+        _id2row.Add(key, row);
+      }
     }
 
 

@@ -33,21 +33,21 @@
  * 
  */
 
+using RaceHorologyLib;
 using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RaceHorologyLib;
 
 namespace RaceHorologyLibTest
 {
   /// <summary>
-  /// Summary description for ClassAssignmentTest
+  /// Summary description for AppDataModelTypesTest
   /// </summary>
   [TestClass]
-  public class AppDataModelCalculationsTest
+  public class AppDataModelTypesTest
   {
-    public AppDataModelCalculationsTest()
+    public AppDataModelTypesTest()
     {
     }
 
@@ -92,55 +92,47 @@ namespace RaceHorologyLibTest
     #endregion
 
     [TestMethod]
-    public void ClassAssignmentTest()
+    public void Category()
     {
-      List<ParticipantClass> classes = new List<ParticipantClass>();
-      classes.Add(new ParticipantClass("1M", null, "Class1", new ParticipantCategory('M'), 2009, 1));
-      classes.Add(new ParticipantClass("1W", null, "Class1", new ParticipantCategory('W'), 2009, 2));
-      classes.Add(new ParticipantClass("2M", null, "Class1", new ParticipantCategory('M'), 2011, 3));
-      classes.Add(new ParticipantClass("2W", null, "Class1", new ParticipantCategory('W'), 2011, 4));
+      ParticipantCategory c1 = new ParticipantCategory();
+      Assert.AreEqual(char.MinValue, c1.Name);
+      Assert.IsNull(c1.Synonyms);
+      Assert.AreEqual("", c1.PrettyName);
+      Assert.AreEqual(uint.MaxValue, c1.SortPos);
 
-      Participant p2008M = new Participant { Year = 2008, Sex = new ParticipantCategory('M') };
-      Participant p2008W = new Participant { Year = 2008, Sex = new ParticipantCategory('W') };
-      Participant p2009M = new Participant { Year = 2009, Sex = new ParticipantCategory('M') };
-      Participant p2009W = new Participant { Year = 2009, Sex = new ParticipantCategory('W') };
-      Participant p2010M = new Participant { Year = 2010, Sex = new ParticipantCategory('M') };
-      Participant p2010W = new Participant { Year = 2010, Sex = new ParticipantCategory('W') };
-      Participant p2011M = new Participant { Year = 2011, Sex = new ParticipantCategory('M') };
-      Participant p2011W = new Participant { Year = 2011, Sex = new ParticipantCategory('W') };
-      Participant p2012M = new Participant { Year = 2012, Sex = new ParticipantCategory('M') };
-      Participant p2012W = new Participant { Year = 2012, Sex = new ParticipantCategory('W') };
+      ParticipantCategory c2 = new ParticipantCategory('W');
+      Assert.AreEqual('W', c2.Name);
+      Assert.IsNull(c2.Synonyms);
+      Assert.AreEqual("W", c2.PrettyName);
+      Assert.AreEqual(uint.MaxValue, c2.SortPos);
 
-      ClassAssignment ca = new ClassAssignment(classes);
+      ParticipantCategory c3 = new ParticipantCategory('W', "Weiblich", 1);
+      Assert.AreEqual('W', c3.Name);
+      Assert.IsNull(c3.Synonyms);
+      Assert.AreEqual("Weiblich", c3.PrettyName);
+      Assert.AreEqual(1U, c3.SortPos);
 
-      // Test ClassAssignment.DetermineClass
-      Assert.AreEqual("1M", ca.DetermineClass(p2008M).Id);
-      Assert.AreEqual("1W", ca.DetermineClass(p2008W).Id);
-      Assert.AreEqual("1M", ca.DetermineClass(p2009M).Id);
-      Assert.AreEqual("1W", ca.DetermineClass(p2009W).Id);
-      Assert.AreEqual("2M", ca.DetermineClass(p2010M).Id);
-      Assert.AreEqual("2W", ca.DetermineClass(p2010W).Id);
-      Assert.AreEqual("2M", ca.DetermineClass(p2011M).Id);
-      Assert.AreEqual("2W", ca.DetermineClass(p2011W).Id);
-      Assert.IsNull(ca.DetermineClass(p2012M));
-      Assert.IsNull(ca.DetermineClass(p2012W));
+      ParticipantCategory c4 = new ParticipantCategory('M', "Männlich", 2);
+      Assert.AreEqual('M', c4.Name);
+      Assert.IsNull(c4.Synonyms);
+      Assert.AreEqual("Männlich", c4.PrettyName);
+      Assert.AreEqual(2U, c4.SortPos);
+
+      ParticipantCategory c5 = new ParticipantCategory('M', "Männlich", 2, "mHh");
+      Assert.AreEqual('M', c5.Name);
+      Assert.AreEqual("mHh", c5.Synonyms);
+      Assert.AreEqual("Männlich", c5.PrettyName);
+      Assert.AreEqual(2U, c5.SortPos);
 
 
-      // Test ClassAssignment.Assign
-      List<Participant> participants = new List<Participant>();
-      participants.Add(p2008M);
-      participants.Add(p2008W);
-      participants.Add(p2009M);
-      participants.Add(p2009W);
-      participants.Add(p2010M);
-      participants.Add(p2010W);
-      participants.Add(p2011M);
-      participants.Add(p2011W);
-      participants.Add(p2012M);
-      participants.Add(p2012W);
-      ca.Assign(participants);
-      foreach (var p in participants)
-        Assert.AreEqual(ca.DetermineClass(p), p.Class);
+      Assert.IsTrue(c1 != c2);
+      Assert.IsTrue(c3 == c2);
+      Assert.IsTrue(c3 != c4);
+      Assert.IsTrue(c3.GetHashCode() == c2.GetHashCode());
+
+      Assert.IsTrue(c3.CompareTo(c4) == -1);
+      Assert.IsTrue(c4.CompareTo(c3) ==  1);
+      Assert.IsTrue(c3.CompareTo(c3) ==  0);
     }
   }
 }

@@ -298,11 +298,11 @@ namespace RaceHorologyLibTest
           Assert.AreEqual(rp.Sex, g.Key);
 
       // TEST: Iterating through groups
-      Assert.AreEqual(ps2.CurrentGroup, "M");
+      Assert.AreEqual(((ParticipantCategory)ps2.CurrentGroup).Name, 'W');
       Assert.IsTrue(ps2.SwitchToNextGroup());
-      Assert.AreEqual(ps2.CurrentGroup, "W");
+      Assert.AreEqual(((ParticipantCategory)ps2.CurrentGroup).Name, 'M');
       Assert.IsFalse(ps2.SwitchToNextGroup());
-      Assert.IsNull(ps2.CurrentGroup, "W");
+      Assert.IsNull(ps2.CurrentGroup);
     }
 
 

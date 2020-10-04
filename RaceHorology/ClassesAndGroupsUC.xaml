@@ -22,24 +22,55 @@
       <ColumnDefinition Width="618*"/>
       <ColumnDefinition Width="5"/>
       <ColumnDefinition Width="382*"/>
+      <ColumnDefinition Width="5"/>
+      <ColumnDefinition Width="382*"/>
     </Grid.ColumnDefinitions>
 
-    <GridSplitter x:Name="gridSplitter" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5"/>
+    <GridSplitter x:Name="gridSplitter1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5"/>
+    <GridSplitter x:Name="gridSplitter2" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5"/>
 
     <Label Content="Klassen" Margin="0" FontSize="16"/>
-    <Label Content="Gruppen" Grid.Column="2" FontSize="16"/>
+    <Label Content="Gruppen" Grid.Column="2" FontSize="16" Foreground="BlueViolet"/>
+    <Label Content="Kategorien" Grid.Column="4" FontSize="16" Foreground="DarkOliveGreen"/>
+
     <DataGrid x:Name="dgClasses" Grid.Row="1" Grid.Column="0" AutoGenerateColumns="False"
               ItemsSource="{Binding ClassViewModel.Items}"
               CanUserSortColumns="False" CanUserAddRows="True" CanUserDeleteRows="True"
               dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" dd:DragDrop.UseDefaultDragAdorner="True" dd:DragDrop.UseDefaultEffectDataTemplate="True" 
               dd:DragDrop.DropHandler="{Binding ElementName=_this, Path=DataContext.ClassViewModel}"
               >
+      <DataGrid.Resources>
+        <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}" x:Key="Group">
+          <Setter Property="Foreground" Value="BlueViolet" />
+        </Style>
+        <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}" x:Key="Category">
+          <Setter Property="Foreground" Value="DarkOliveGreen" />
+        </Style>
+      </DataGrid.Resources>
       <DataGrid.Columns>
         <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
         <DataGridTextColumn Header="ältester Jahrgang" Binding="{Binding Year, Converter={StaticResource AgeToYearInputConverter}}"/>
-        <DataGridTextColumn Header="Geschlecht" Binding="{Binding Sex}"/>
 
-        <DataGridComboBoxColumn Header="Gruppe" 
+        <DataGridComboBoxColumn Header="Geschlecht" 
+                                HeaderStyle="{StaticResource Category}"
+                                SelectedValueBinding="{Binding Sex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                >
+          <DataGridComboBoxColumn.ElementStyle>
+            <Style TargetType="ComboBox">
+              <Setter Property="ItemsSource" Value="{Binding Path=DataContext.CategoryViewModel.FilteredItems, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+              <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+            </Style>
+          </DataGridComboBoxColumn.ElementStyle>
+          <DataGridComboBoxColumn.EditingElementStyle>
+            <Style TargetType="ComboBox">
+              <Setter Property="ItemsSource" Value="{Binding Path=DataContext.CategoryViewModel.FilteredItems, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+              <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+            </Style>
+          </DataGridComboBoxColumn.EditingElementStyle>
+        </DataGridComboBoxColumn>
+
+
+        <DataGridComboBoxColumn Header="Gruppe" HeaderStyle="{StaticResource Group}"
                                 SelectedValueBinding="{Binding Group, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >
           <DataGridComboBoxColumn.ElementStyle>
@@ -85,8 +116,30 @@
         </DataGridTemplateColumn>
       </DataGrid.Columns>
     </DataGrid>
+    
+    <DataGrid x:Name="dgCategories" Grid.Row="1" Grid.Column="4" AutoGenerateColumns="False"
+              ItemsSource="{Binding CategoryViewModel.Items}"
+              CanUserSortColumns="False" CanUserAddRows="True" CanUserDeleteRows="True"
+              dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" dd:DragDrop.UseDefaultDragAdorner="True" dd:DragDrop.UseDefaultEffectDataTemplate="True" 
+              dd:DragDrop.DropHandler="{Binding CategoryViewModel}" >
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Kürzel" Binding="{Binding Name}"/>
+        <DataGridTextColumn Header="Name" Binding="{Binding PrettyName}"/>
+        <DataGridTextColumn Header="Alternative Kürzel" Binding="{Binding Synonyms}"/>
+        <DataGridTemplateColumn Header="Löschen">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Button Command="Delete" Background="Transparent" BorderThickness="0" Width="20" Height="20">
+                <Image Source="{StaticResource IconDelete}" Height="20" Width="20"/>
+              </Button>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
 
-    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+    
+    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>

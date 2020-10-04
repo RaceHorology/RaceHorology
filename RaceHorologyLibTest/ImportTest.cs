@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -175,18 +175,26 @@ namespace RaceHorologyLibTest
       ir1.AddSuccess();
       Assert.AreEqual(1, ir1.SuccessCount);
       Assert.AreEqual(1, ir1.ErrorCount);
+
+      ir1.AddError("message 1");
+      Assert.AreEqual(1, ir1.SuccessCount);
+      Assert.AreEqual(2, ir1.ErrorCount);
+      Assert.AreEqual(1, ir1.Errors.Count);
+      Assert.AreEqual("message 1", ir1.Errors[0]);
     }
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
     public void ImportParticpants()
     {
+      TestDataGenerator tg = new TestDataGenerator();
+
       var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
 
       ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
 
       List<Participant> participants = new List<Participant>();
-      ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping);
+      ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping, tg.createCategories());
       var impRes = im.DoImport();
 
       Assert.AreEqual(153, impRes.SuccessCount);
@@ -197,6 +205,17 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(string.Format("Name {0}", i + 1), participants[i].Name);
         Assert.IsNull(participants[i].Class);
       }
+
+      Assert.AreEqual('W', participants[0].Sex.Name);
+      Assert.AreEqual('W', participants[1].Sex.Name);
+      Assert.AreEqual('M', participants[2].Sex.Name);
+      Assert.AreEqual('M', participants[3].Sex.Name);
+
+      // Check synonyms
+      Assert.AreEqual('M', participants[4].Sex.Name);//h
+      Assert.AreEqual('M', participants[6].Sex.Name);//H
+      Assert.AreEqual('M', participants[7].Sex.Name);//x
+      Assert.AreEqual('M', participants[10].Sex.Name);//X
     }
 
 
@@ -369,12 +388,15 @@ namespace RaceHorologyLibTest
     public void ImportPointsForParticpant()
     {
       return;
+
+      TestDataGenerator tg = new TestDataGenerator();
+
       var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
 
       ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
 
       List<Participant> participants = new List<Participant>();
-      ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping);
+      ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping, tg.createCategories());
       var impRes = im.DoImport();
 
       Assert.AreEqual(153, impRes.SuccessCount);

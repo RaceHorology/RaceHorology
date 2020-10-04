@@ -48,14 +48,19 @@ namespace RaceHorologyLib
 
   static public class DSVUpdatePoints
   {
-    static public void UpdatePoints(AppDataModel dm, DSVImportReader dsvImportReader)
+    static public List<ImportResults> UpdatePoints(AppDataModel dm, DSVImportReader dsvImportReader)
     {
+      List<ImportResults> impRes = new List<ImportResults>();
+      
       foreach (Race race in dm.GetRaces())
       {
         UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
-        import.DoImport();
+        var res = import.DoImport();
+        impRes.Add(res);
       }
       dm.GetDB().StoreKeyValue("DSV_UsedDSVList", dsvImportReader.UsedDSVList);
+
+      return impRes;
     }
   }
 
