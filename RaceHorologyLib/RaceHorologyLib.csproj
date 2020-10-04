@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ALGETdC8001TimeMeasurement.cs" />
+    <Compile Include="ALGETimy.cs" />
     <Compile Include="AppDataModel.cs" />
     <Compile Include="AppDataModelCalculations.cs" />
     <Compile Include="AppDataModelDB.cs" />

@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ALGETdC8001Tests.cs" />
+    <Compile Include="ALGETimyTests.cs" />
     <Compile Include="AppDataModelTest.cs" />
     <Compile Include="AppDataModelTypesTest.cs" />
     <Compile Include="AppDataModelViewTests.cs" />
