@@ -1,0 +1,80 @@
+﻿<UserControl x:Class="RaceHorology.HandTimingUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RaceHorology"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Label Content="Handzeit laden" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" FontSize="16"/>
+
+      <Label Content="Gerät:" HorizontalContentAlignment="Right" Grid.Row="1" Grid.Column="0" Margin="5"/>
+      <ComboBox x:Name="cmbDevice" Grid.Row="1" Grid.Column="1" Margin="5"/>
+      <ComboBox x:Name="cmbDevicePort" Grid.Row="1" Grid.Column="2" Margin="5"/>
+      <ComboBox x:Name="cmbDeviceStartOrFinish" Grid.Row="1" Grid.Column="3" Margin="5"/>
+      <Button Content="Laden" Grid.Row="1" Grid.Column="4" Margin="5"/>
+    </Grid>
+    <Grid Grid.Row="1" Margin="0,20,0,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Label Content="Handzeit berechnen" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" FontSize="16"/>
+
+      <Label Content="Durchgang:" Grid.Row="1" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
+      <ComboBox x:Name="cmbCalcRun" Grid.Row="1" Grid.Column="1" Margin="5"/>
+      <Label Content="Start / Ziel:" Grid.Row="1" Grid.Column="2" Margin="5" HorizontalContentAlignment="Right"/>
+      <ComboBox x:Name="cmbCalcDeviceStartOrFinish" Grid.Row="1" Grid.Column="3" Margin="5"/>
+
+      <DataGrid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Margin="5">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="StNr"/>
+          <DataGridTextColumn Header="Startzeit"/>
+          <DataGridTextColumn Header="Zielzeit"/>
+          <DataGridTextColumn Header="Laufzeit"/>
+          <DataGridTextColumn Header="Handzeit"/>
+          <DataGridTextColumn Header="Differenz"/>
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
+        <Label Content="Startnummer:" Grid.Row="3" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="txtCalcStartNumber" Grid.Row="1" Grid.Column="1" Margin="5" Width="50"/>
+        <Button x:Name="btnCalcAssign" Content="Zuordnen" Grid.Row="3" Grid.Column="4" Margin="5" Width="100"/>
+      </StackPanel>
+      <Button x:Name="btnCalcDissolve" Content="Auflösen" Grid.Row="3" Grid.Column="2" Margin="5"  Width="100"/>
+      <Button x:Name="btnCalc" Content="Berechnen und Übernehmen" Grid.Row="3" Grid.Column="4" Margin="5"/>
+      <Label Content="Start / Ziel:" Grid.Row="1" Grid.Column="2" Margin="5" HorizontalContentAlignment="Right"/>
+    </Grid>
+
+  </Grid>
+</UserControl>
