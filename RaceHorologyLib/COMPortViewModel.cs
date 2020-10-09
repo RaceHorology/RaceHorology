@@ -92,6 +92,31 @@ namespace RaceHorologyLib
     }
 
 
+    string getPrettyName3(string port)
+    {
+      return port;
+    }
+
+    string getPrettyName2(string port)
+    {
+      string prettyName = port;
+
+      using (var searcher = new ManagementObjectSearcher
+               ("SELECT * FROM WIN32_SerialPort"))
+      {
+        string[] portnames = { port };// SerialPort.GetPortNames();
+        var ports = searcher.Get().Cast<ManagementBaseObject>().ToList();
+        var tList = (from n in portnames
+                     join p in ports on n equals p["DeviceID"].ToString()
+                     select n + " - " + p["Caption"]).ToList();
+
+        tList.ForEach(Console.WriteLine);
+      }
+
+      return prettyName;
+    }
+
+
     string getPrettyName(string port)
     {
       string prettyName = port;
@@ -103,8 +128,10 @@ namespace RaceHorologyLib
       using (comPortSearcher)
       {
         string caption = null;
+        int i = 0;
         foreach (ManagementObject obj in comPortSearcher.Get())
         {
+          i++;
           if (obj != null)
           {
             object captionObj = obj["Caption"];
