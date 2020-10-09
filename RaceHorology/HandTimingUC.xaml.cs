@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RaceHorologyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,8 @@ namespace RaceHorology
   /// </summary>
   public partial class HandTimingUC : UserControl
   {
+    COMPortViewModel _comPorts;
+
     public HandTimingUC()
     {
       InitializeComponent();
@@ -27,6 +30,9 @@ namespace RaceHorology
       fillComboDevices();
       fillComboStartFinish(cmbDeviceStartOrFinish);
       fillComboStartFinish(cmbCalcDeviceStartOrFinish);
+
+      _comPorts = new COMPortViewModel();
+      cmbDevicePort.ItemsSource = _comPorts.Items;
     }
 
 

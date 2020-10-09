@@ -33,6 +33,7 @@
  * 
  */
 
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -55,11 +56,16 @@ namespace RaceHorology
   /// </summary>
   public partial class SettingsDlg : Window
   {
+    COMPortViewModel _comPorts;
+
     public SettingsDlg()
     {
       InitializeComponent();
 
-      FillCOMPorts(cbTimingDevicePort);
+      _comPorts = new COMPortViewModel();
+      cbTimingDevicePort.ItemsSource = _comPorts.Items;
+      cbTimingDevicePort.SelectedValuePath = "Port";
+      cbTimingDevicePort.SelectedValue = Properties.Settings.Default.TimingDevice_Port;
 
       cbTimingDevice.Items.Add("ALGE TdC8000/8001");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
@@ -110,19 +116,5 @@ namespace RaceHorology
       DialogResult = true;
     }
 
-    protected void FillCOMPorts(ComboBox combo)
-    {
-      // Get a list of serial port names.
-      string[] ports = System.IO.Ports.SerialPort.GetPortNames();
-
-      // Display each port name to the console.
-      foreach (string port in ports)
-      {
-        combo.Items.Add(port);
-      }
-
-      string cfgPort = Properties.Settings.Default.TimingDevice_Port;
-      combo.SelectedValue = cfgPort;
-    }
   }
 }
