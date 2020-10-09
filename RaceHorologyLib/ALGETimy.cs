@@ -12,17 +12,33 @@ namespace RaceHorologyLib
   {
     ALGETdC8001LineParser _parser;
     private SerialPort _serialPort;
+    private string _serialPortName;
 
     public ALGETimy(string serialPortName)
     {
       _parser = new ALGETdC8001LineParser();
+      _serialPortName = serialPortName;
+    }
 
-      _serialPort = new SerialPort(serialPortName, 9600, Parity.None, 8, StopBits.One);
+
+    public void Connect()
+    {
+      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
       _serialPort.NewLine = "\r"; // CR, ASCII(13)
       _serialPort.Handshake = Handshake.RequestToSend;
       _serialPort.ReadTimeout = 1000;
       _serialPort.Open();
+    }
 
+    public void Disconnect()
+    {
+      _serialPort.Close();
+      _serialPort = null;
+    }
+
+    public void Dispose()
+    {
+      Disconnect();
     }
 
 

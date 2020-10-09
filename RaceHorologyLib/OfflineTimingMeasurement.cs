@@ -13,8 +13,13 @@ namespace RaceHorologyLib
   }
 
 
-  interface IHandTiming
+  interface IHandTiming : IDisposable
   {
+
+    void Connect();
+    void Disconnect();
+
+    void StartGetTimingData();
     IEnumerable<TimingData> TimingData();
   }
 
@@ -43,6 +48,12 @@ namespace RaceHorologyLib
     }
 
 
+    public void StartGetTimingData()
+    {
+      return;
+    }
+
+
     public IEnumerable<TimingData> TimingData()
     {
       string line;
@@ -54,7 +65,10 @@ namespace RaceHorologyLib
       }
     }
 
-
+    public void Dispose()
+    {
+      Disconnect();
+    }
   }
 
 

@@ -35,11 +35,22 @@ namespace RaceHorologyLib
       performHandshake();
     }
 
+    public void Disconnect()
+    {
+      _serialPort.Close();
+      _serialPort = null;
+    }
+
+    public void Dispose()
+    {
+      Disconnect();
+    }
+
+
     protected void performHandshake()
     {
       _serialPort.WriteLine("#SN"); // Try to get serial number, 
       string dataLine = _parser.TrimNewEndLine(_serialPort.ReadLine()); 
-
     }
 
 
@@ -99,12 +110,10 @@ namespace RaceHorologyLib
 
   public class TagHeuerParser
   {
-
     public string TrimNewEndLine(string line)
     {
       return line.TrimStart('\n').TrimEnd('\t');
     }
-
 
     // "!T 08:14:00 01/03/20"
     public DateTime ParseSynchroTime(string line)
