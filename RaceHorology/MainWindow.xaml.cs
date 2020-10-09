@@ -136,6 +136,9 @@ namespace RaceHorology
 
     private void HandTimeCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
+      HandTimingDlg dlg = new HandTimingDlg();
+      dlg.Owner = this;
+      dlg.Show();
     }
 
     private void HelpCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
