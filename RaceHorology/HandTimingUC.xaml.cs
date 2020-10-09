@@ -23,6 +23,24 @@ namespace RaceHorology
     public HandTimingUC()
     {
       InitializeComponent();
+
+      fillComboDevices();
+      fillComboStartFinish(cmbDeviceStartOrFinish);
+      fillComboStartFinish(cmbCalcDeviceStartOrFinish);
+    }
+
+
+    private void fillComboDevices()
+    {
+      cmbDevice.Items.Add(new CBItem { Text = "ALGE Timy", Value = "ALGETimy" });
+      cmbDevice.Items.Add(new CBItem { Text = "Tag Heuer (Pocket Pro)", Value = "TagHeuerPPro" });
+      cmbDevice.Items.Add(new CBItem { Text = "Datei", Value = "File" });
+    }
+
+    private void fillComboStartFinish(ComboBox cmb)
+    {
+      cmb.Items.Add(new CBItem { Text = "Start", Value = "Start" });
+      cmb.Items.Add(new CBItem { Text = "Ziel", Value = "Finish" });
     }
   }
 }
