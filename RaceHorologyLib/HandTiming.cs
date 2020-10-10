@@ -118,7 +118,10 @@ namespace RaceHorologyLib
     {
       if (_handTime != null && ATime != null)
       {
-        _handTimeDiff = ((TimeSpan)ATime).Subtract((TimeSpan)_handTime);
+        var t1 = new RoundedTimeSpan((TimeSpan)_handTime, 2, RoundedTimeSpan.ERoundType.Floor);
+        var t2 = new RoundedTimeSpan((TimeSpan)ATime, 2, RoundedTimeSpan.ERoundType.Floor);
+
+        _handTimeDiff = t1.TimeSpan.Subtract(t2.TimeSpan);
       }
       else
         _handTimeDiff = null;
