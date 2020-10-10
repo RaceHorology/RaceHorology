@@ -13,7 +13,7 @@ namespace RaceHorologyLib
   }
 
 
-  interface IHandTiming : IDisposable
+  public interface IHandTiming : IDisposable
   {
 
     void Connect();

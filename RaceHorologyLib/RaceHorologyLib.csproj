@@ -81,6 +81,7 @@
     <Compile Include="DSVCalculations.cs" />
     <Compile Include="DSVExport.cs" />
     <Compile Include="DSVImport.cs" />
+    <Compile Include="HandTiming.cs" />
     <Compile Include="Import.cs" />
     <Compile Include="JsonConversion.cs" />
     <Compile Include="LiveTimingMeasurement.cs" />

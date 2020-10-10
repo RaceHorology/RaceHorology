@@ -81,5 +81,14 @@ namespace RaceHorologyLibTest
         i++;
       }
     }
+
+    [TestMethod]
+    public void CreateHandTiming()
+    {
+      Assert.AreEqual(typeof(FromFileHandTiming), HandTiming.CreateHandTiming("File", "abc").GetType());
+      Assert.AreEqual(typeof(TagHeuer), HandTiming.CreateHandTiming("TagHeuerPPro", "abc").GetType());
+      Assert.AreEqual(typeof(ALGETimy), HandTiming.CreateHandTiming("ALGETimy", "abc").GetType());
+    }
+
   }
 }
