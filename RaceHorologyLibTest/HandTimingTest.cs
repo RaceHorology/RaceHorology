@@ -56,6 +56,29 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\HandTime\--Handzeit-Start.txt")]
+    public void Parser()
+    {
+      FromFileParser parser = new FromFileParser();
+
+      // Period "."
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 500), parser.ParseTime(@"08:48:00.5"));
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 570), parser.ParseTime(@"08:48:00.57"));
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578), parser.ParseTime(@"08:48:00.578"));
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578).AddMicroseconds(900), parser.ParseTime(@"08:48:00.5789"));
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578).AddMicroseconds(910), parser.ParseTime(@"08:48:00.57891"));
+      
+      // Comma ","
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 500), parser.ParseTime(@"08:48:00,5"));
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 570), parser.ParseTime(@"08:48:00,57"));
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578), parser.ParseTime(@"08:48:00,578"));
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578).AddMicroseconds(900), parser.ParseTime(@"08:48:00,5789"));
+      Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578).AddMicroseconds(910), parser.ParseTime(@"08:48:00,57891"));
+    }
+
+
     [TestMethod]
     [DeploymentItem(@"TestDataBases\HandTime\--Handzeit-Start.txt")]
     public void ReadFromFile()
