@@ -105,7 +105,24 @@ namespace RaceHorologyLibTest
 
       // Check ages get years
       Assert.AreEqual(DateTime.Now.AddMonths(3).Year - 10, converter.ConvertBack(10, null, null, null));
+    }
 
+    [TestMethod]
+    public void TimeSpanConverterTest()
+    {
+      var converter = new TimeSpanConverter();
+
+      TimeSpan? t1 = new TimeSpan(0, 0, 0, 30, 126);
+      Assert.AreEqual("30,12", converter.Convert(t1, null, null, null));
+      Assert.AreEqual("0:30,12", converter.Convert(t1, null, "m", null));
+      Assert.AreEqual("00:30,12", converter.Convert(t1, null, "mm", null));
+
+      TimeSpan? t2 = new TimeSpan(0, 0, 1, 30, 126);
+      Assert.AreEqual("1:30,12", converter.Convert(t2, null, null, null));
+      Assert.AreEqual("01:30,12", converter.Convert(t2, null, "mm", null));
+
+      TimeSpan? t3 = new TimeSpan(0, 1, 1, 30, 126);
+      Assert.AreEqual("01:01:30,12", converter.Convert(t3, null, null, null));
     }
   }
 }

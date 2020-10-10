@@ -109,6 +109,34 @@ namespace RaceHorologyLib
   }
 
 
+  public class TimeSpanConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      try
+      {
+        string str = string.Empty;
+        string strParameter = parameter?.ToString();
+
+        if (value is TimeSpan ts)
+          str = ((TimeSpan?)ts).ToRaceTimeString( formatString: strParameter);
+
+        return str;
+      }
+      catch (Exception)
+      {
+        return "";
+      }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
+
   public class ResultCodeWithCommentConverter : IMultiValueConverter
   {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
