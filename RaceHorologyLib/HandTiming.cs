@@ -129,10 +129,28 @@ namespace RaceHorologyLib
   }
 
 
+  internal class HandTimingVMEntrySorter : IComparer<HandTimingVMEntry>
+  {
+    NullEnabledComparer _nullComparer = new NullEnabledComparer();
+
+    public int Compare(HandTimingVMEntry x, HandTimingVMEntry y)
+    {
+      TimeSpan? tX = x.ATime != null ? x.ATime : x.HandTime;
+      TimeSpan? tY = y.ATime != null ? y.ATime : y.HandTime;
+
+      int s = _nullComparer.Compare(tX, tY);
+      if (s != 0)
+        return s;
+
+      return _nullComparer.Compare(x.StartNumber, y.StartNumber);
+    }
+  }
+
   public class HandTimingVM
   {
     HandTimingVMEntry.ETimeModus _timeModus;
     ObservableCollection<HandTimingVMEntry> _handTimings;
+    HandTimingVMEntrySorter _handTimingsSorter;
 
     public ObservableCollection<HandTimingVMEntry> Items { get { return _handTimings; } }
 
@@ -140,6 +158,7 @@ namespace RaceHorologyLib
     {
       _timeModus = timeModus;
       _handTimings = new ObservableCollection<HandTimingVMEntry>();
+      _handTimingsSorter = new HandTimingVMEntrySorter();
     }
 
 
@@ -153,6 +172,8 @@ namespace RaceHorologyLib
           _timeModus = value;
           foreach (var v in _handTimings)
             v.TimeModus = _timeModus;
+
+          _handTimings.Sort(_handTimingsSorter);
         }
       }
 
@@ -170,9 +191,10 @@ namespace RaceHorologyLib
         }
         else
         {
-          _handTimings.Add(new HandTimingVMEntry(_timeModus, rr, null));
+          _handTimings.InsertSorted(new HandTimingVMEntry(_timeModus, rr, null), _handTimingsSorter);
         }
       }
+      _handTimings.Sort(_handTimingsSorter);
     }
 
     public void AddHandTimings(IEnumerable<TimingData> handTimings)
@@ -186,9 +208,10 @@ namespace RaceHorologyLib
         }
         else
         {
-          _handTimings.Add(new HandTimingVMEntry(_timeModus, null, ht.Time));
+          _handTimings.InsertSorted(new HandTimingVMEntry(_timeModus, null, ht.Time), _handTimingsSorter);
         }
       }
+      _handTimings.Sort(_handTimingsSorter);
     }
 
 
