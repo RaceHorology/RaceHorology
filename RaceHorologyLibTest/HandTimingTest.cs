@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -146,6 +146,41 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(typeof(FromFileHandTiming), HandTiming.CreateHandTiming("File", "abc").GetType());
       Assert.AreEqual(typeof(TagHeuer), HandTiming.CreateHandTiming("TagHeuerPPro", "abc").GetType());
       Assert.AreEqual(typeof(ALGETimy), HandTiming.CreateHandTiming("ALGETimy", "abc").GetType());
+    }
+
+
+
+
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case3\1557MRBR_RH.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case3\--Handzeit-Start.txt")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case3\--Handzeit-Ziel.txt")]
+    public void HandTimingsVM()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1557MRBR_RH.mdb");
+      string hsFilename = @"--Handzeit-Start.txt";
+      string hfFilename = @"--Handzeit-Ziel.txt";
+
+      Database db = new Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      FromFileHandTiming hsTiming = new FromFileHandTiming(hsFilename);
+      FromFileHandTiming hfTiming = new FromFileHandTiming(hfFilename);
+
+      hsTiming.Connect();
+      hfTiming.Connect();
+
+      List<TimingData> hsList = new List<TimingData>(hsTiming.TimingData());
+      List<TimingData> hfList = new List<TimingData>(hfTiming.TimingData());
+
+
+      HandTimingVM htVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EStartTime);
+      htVM.AddRunResults(model.GetRace(0).GetRun(0).GetResultList());
+      htVM.AddHandTimings(hsList);
+
     }
 
   }
