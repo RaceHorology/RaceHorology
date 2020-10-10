@@ -51,18 +51,60 @@
       <Label Content="Handzeit berechnen" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" FontSize="16"/>
 
       <Label Content="Durchgang:" Grid.Row="1" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
-      <ComboBox x:Name="cmbCalcRun" Grid.Row="1" Grid.Column="1" Margin="5"/>
+      <ComboBox x:Name="cmbCalcRun" Grid.Row="1" Grid.Column="1" Margin="5" SelectionChanged="cmbCalcRun_SelectionChanged"/>
       <Label Content="Start / Ziel:" Grid.Row="1" Grid.Column="2" Margin="5" HorizontalContentAlignment="Right"/>
-      <ComboBox x:Name="cmbCalcDeviceStartOrFinish" Grid.Row="1" Grid.Column="3" Margin="5"/>
+      <ComboBox x:Name="cmbCalcDeviceStartOrFinish" Grid.Row="1" Grid.Column="3" Margin="5" SelectionChanged="cmbCalcDeviceStartOrFinish_SelectionChanged"/>
 
-      <DataGrid x:Name="dgHandTiming" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Margin="5">
+      <DataGrid x:Name="dgHandTiming" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False">
         <DataGrid.Columns>
-          <DataGridTextColumn Header="StNr"/>
-          <DataGridTextColumn Header="Startzeit"/>
-          <DataGridTextColumn Header="Zielzeit"/>
-          <DataGridTextColumn Header="Laufzeit"/>
-          <DataGridTextColumn Header="Handzeit"/>
-          <DataGridTextColumn Header="Differenz"/>
+          <DataGridTextColumn Header="StNr" Binding="{Binding StartNumber}">
+            <DataGridTextColumn.ElementStyle>
+              <Style TargetType="TextBlock">
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="Margin" Value="5,0,5,0" />
+              </Style>
+            </DataGridTextColumn.ElementStyle>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, StringFormat=\{0:hh\\:mm\\:ss\\\,ff\}}">
+            <DataGridTextColumn.ElementStyle>
+              <Style TargetType="TextBlock">
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="Margin" Value="5,0,5,0" />
+              </Style>
+            </DataGridTextColumn.ElementStyle>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Zielzeit" Binding="{Binding FinishTime, Mode=OneWay, StringFormat=\{0:hh\\:mm\\:ss\\\,ff\}}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Laufzeit" Binding="{Binding RunTime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Handzeit" Binding="{Binding HandTime, Mode=OneWay, StringFormat=\{0:hh\\:mm\\:ss\\\,ff\}}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Differenz" Binding="{Binding HandTimeDiff, Mode=OneWay, StringFormat=\{0:ss\\\,ff\}}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+          </DataGridTextColumn>
         </DataGrid.Columns>
       </DataGrid>
 

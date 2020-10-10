@@ -23,10 +23,18 @@ namespace RaceHorology
   public partial class HandTimingUC : UserControl
   {
     COMPortViewModel _comPorts;
+    HandTimingVM _handTimingVM;
+
+    private AppDataModel _dm;
+    private Race _race;
+
 
     public HandTimingUC()
     {
       InitializeComponent();
+
+      _handTimingVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EStartTime);
+      dgHandTiming.ItemsSource = _handTimingVM.Items;
 
       fillComboDevices();
       fillComboStartFinish(cmbDeviceStartOrFinish);
@@ -41,7 +49,18 @@ namespace RaceHorology
       cmbDevicePort.SelectedValuePath = "Port";
 
       loadLastConfig();
+
     }
+
+
+    public void Init(AppDataModel dm, Race race)
+    {
+      _dm = dm;
+      _race = race;
+
+      fillCmbCalcRun();
+    }
+
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
@@ -75,6 +94,14 @@ namespace RaceHorology
       cmb.Items.Add(new CBItem { Text = "Ziel", Value = "Finish" });
     }
 
+    private void fillCmbCalcRun() 
+    {
+      cmbCalcRun.Items.Clear();
+      cmbCalcRun.SelectedValuePath = "Value";
+      foreach (var r in _race.GetRuns())
+        cmbCalcRun.Items.Add(new CBItem { Text = string.Format("Lauf {0}", r.Run), Value = r });
+    }
+
     private void cmbDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       bool bFile= object.Equals((cmbDevice.SelectedItem as CBItem)?.Value, "File");
@@ -102,12 +129,21 @@ namespace RaceHorology
       IHandTiming handTiming = HandTiming.CreateHandTiming(device, devicePort);
       handTiming.Connect();
       handTiming.StartGetTimingData();
-      foreach (var t in handTiming.TimingData())
-      {
-        dgHandTiming.Items.Add(t);
-      }
 
+      _handTimingVM.AddHandTimings(handTiming.TimingData());
     }
 
+    private void cmbCalcRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      RaceRun rr = cmbCalcRun.SelectedValue as RaceRun;
+
+      _handTimingVM.AddRunResults(rr.GetResultList());
+    }
+
+    private void cmbCalcDeviceStartOrFinish_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      _handTimingVM.TimeModus = (string)(cmbCalcDeviceStartOrFinish.SelectedItem as CBItem).Value == "Start" 
+        ? HandTimingVMEntry.ETimeModus.EStartTime : HandTimingVMEntry.ETimeModus.EFinishTime;
+    }
   }
 }
