@@ -535,17 +535,38 @@ namespace RaceHorologyLib
     }
 
 
-    public static string ToRaceTimeString(this TimeSpan? time, RoundedTimeSpan.ERoundType roundType = RoundedTimeSpan.ERoundType.Floor)
+    public static string ToRaceTimeString(this TimeSpan? time, RoundedTimeSpan.ERoundType roundType = RoundedTimeSpan.ERoundType.Floor, string formatString = null)
     {
       if (time == null)
         return "";
 
-      RoundedTimeSpan roundedTimeSpan = new RoundedTimeSpan((TimeSpan)time, 2, roundType);
+      TimeSpan time2 = (TimeSpan)time;
 
-      if (roundedTimeSpan.TimeSpan < new TimeSpan(0,1,0))
-        return roundedTimeSpan.TimeSpan.ToString(@"s\,ff");
+      bool bNegative = time2 < TimeSpan.Zero;
+      if (bNegative)
+        time2 = new TimeSpan(time2.Ticks * -1);
 
-      return roundedTimeSpan.TimeSpan.ToString(@"m\:ss\,ff");
+      RoundedTimeSpan roundedTimeSpan = new RoundedTimeSpan(time2, 2, roundType);
+
+      string str = string.Empty;
+      if (formatString == "s")
+        str = roundedTimeSpan.TimeSpan.ToString(@"s\,ff");
+      else if (formatString == "m")
+        str = roundedTimeSpan.TimeSpan.ToString(@"m\:ss\,ff");
+      else if (formatString == "mm")
+        str = roundedTimeSpan.TimeSpan.ToString(@"mm\:ss\,ff");
+      
+      else if (roundedTimeSpan.TimeSpan < new TimeSpan(0,1,0))
+        str = roundedTimeSpan.TimeSpan.ToString(@"s\,ff");
+      else if (roundedTimeSpan.TimeSpan < new TimeSpan(1, 0, 0))
+        str = roundedTimeSpan.TimeSpan.ToString(@"m\:ss\,ff");
+      else
+        str = roundedTimeSpan.TimeSpan.ToString(@"hh\:mm\:ss\,ff");
+
+      if (bNegative)
+        return "-"  + str;
+      else
+        return str;
     }
   }
 
