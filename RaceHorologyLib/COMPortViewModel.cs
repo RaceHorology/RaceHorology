@@ -22,20 +22,7 @@ namespace RaceHorologyLib
       }
     }
 
-
-    class COMPortComparer: IComparer<COMPort>
-    {
-      public int Compare(COMPort a, COMPort b)
-      {
-        return a.Port.CompareTo(a.Port);
-      }
-
-    }
-
-
-
-
-    ObservableCollection<COMPort> _comPorts;
+    public ObservableCollection<COMPort> Items { get { return _comPorts; } }
 
     public COMPortViewModel()
     {
@@ -43,7 +30,6 @@ namespace RaceHorologyLib
       fillInitially();
 
       _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-      ComPorts = new ObservableCollection<string>(SerialPort.GetPortNames().OrderBy(s => s));
 
       WqlEventQuery query = new WqlEventQuery("SELECT * FROM Win32_DeviceChangeEvent");
 
@@ -52,15 +38,36 @@ namespace RaceHorologyLib
       _watcher.Start();
     }
 
+
+    #region internal
+    ObservableCollection<COMPort> _comPorts;
+
+    internal class COMPortComparer : IComparer<COMPort>
+    {
+      public int Compare(COMPort a, COMPort b)
+      {
+        return a.Port.CompareTo(b.Port);
+      }
+    }
+
     void fillInitially()
     {
       IEnumerable<string> ports = SerialPort.GetPortNames().OrderBy(s => s);
 
       foreach (var port in ports)
-        AddPort(port);
+        addPort(port);
     }
 
+    private void addPort(string port)
+    {
+      _comPorts.InsertSorted(new COMPort { Text = getPrettyName(port), Port = port }, new COMPortComparer());
+    }
 
+    #endregion
+
+    #region CheckForUpdates
+    private ManagementEventWatcher _watcher;
+    private TaskScheduler _taskScheduler;
 
     private void CheckForNewPorts(EventArrivedEventArgs args)
     {
@@ -82,44 +89,34 @@ namespace RaceHorologyLib
       foreach (var port in ports)
       {
         if (_comPorts.FirstOrDefault(x => x.Port == port) == null)
-          AddPort(port);
+          addPort(port);
       }
     }
 
-    private void AddPort(string port)
+    #endregion
+
+
+    #region Pretty Names
+    string getPrettyName(string port)
     {
-      _comPorts.InsertSorted(new COMPort { Text = getPrettyName(port), Port = port }, new COMPortComparer());
-    }
+      string prettyName = port; // Fallback
 
-
-    string getPrettyName3(string port)
-    {
-      return port;
-    }
-
-    string getPrettyName2(string port)
-    {
-      string prettyName = port;
-
-      using (var searcher = new ManagementObjectSearcher
-               ("SELECT * FROM WIN32_SerialPort"))
-      {
-        string[] portnames = { port };// SerialPort.GetPortNames();
-        var ports = searcher.Get().Cast<ManagementBaseObject>().ToList();
-        var tList = (from n in portnames
-                     join p in ports on n equals p["DeviceID"].ToString()
-                     select n + " - " + p["Caption"]).ToList();
-
-        tList.ForEach(Console.WriteLine);
-      }
+      buildPrettyNameCache(); // Ensure the pretty names are cached
+      _prettyNameCache.TryGetValue(port, out prettyName);
 
       return prettyName;
     }
 
-
-    string getPrettyName(string port)
+    Dictionary<string, string> _prettyNameCache;
+    void buildPrettyNameCache(bool bForce = false)
     {
-      string prettyName = port;
+      if (bForce)
+        _prettyNameCache = null;
+
+      if (_prettyNameCache != null)
+        return;
+
+      _prettyNameCache = new Dictionary<string, string>();
 
       ConnectionOptions options = ProcessConnection.ProcessConnectionOptions();
       ManagementScope connectionScope = ProcessConnection.ConnectionScope(Environment.MachineName, options, @"\root\CIMV2");
@@ -144,41 +141,16 @@ namespace RaceHorologyLib
                 string name = caption.Substring(caption.LastIndexOf("(COM")).Replace("(", string.Empty).Replace(")",
                                                      string.Empty);
 
-                if (name == port)
-                {
-                  prettyName = caption;
-                  break;
-                }
+                _prettyNameCache.Add(name, caption);
               }
             }
           }
         }
       }
-
-      return prettyName;
     }
-
-    public ObservableCollection<string> ComPorts { get; private set; }
-
-    #region IDisposable Members
-
-    public void Dispose()
-    {
-      _watcher.Stop();
-    }
-
-    #endregion
-
-    private ManagementEventWatcher _watcher;
-    private TaskScheduler _taskScheduler;
-
-    public ObservableCollection<COMPort> Items { get { return _comPorts; } }
-
 
     internal class ProcessConnection
     {
-      #region Methods
-
       public static ManagementScope ConnectionScope(string machineName, ConnectionOptions options, string path)
       {
         ManagementScope connectScope = new ManagementScope();
@@ -196,9 +168,21 @@ namespace RaceHorologyLib
         options.EnablePrivileges = true;
         return options;
       }
-
-      #endregion Methods
     }
+
+    #endregion
+
+
+    #region IDisposable
+
+    public void Dispose()
+    {
+      _watcher.Stop();
+    }
+
+    #endregion
+
+
   }
 
 
