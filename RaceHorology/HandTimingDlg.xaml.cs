@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RaceHorologyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,5 +24,11 @@ namespace RaceHorology
     {
       InitializeComponent();
     }
+
+    public void Init(AppDataModel dm, Race race)
+    {
+      ucHandTiming.Init(dm, race);
+    }
+
   }
 }

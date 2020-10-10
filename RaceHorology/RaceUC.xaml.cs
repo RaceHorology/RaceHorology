@@ -1135,9 +1135,15 @@ namespace RaceHorology
           col.Visibility = Visibility.Collapsed;
       }
     }
+
     #endregion
 
-
+    private void btnHandTiming_Click(object sender, RoutedEventArgs e)
+    {
+      HandTimingDlg dlg = new HandTimingDlg { Owner = Window.GetWindow(this) };
+      dlg.Init(_dataModel, _thisRace);
+      dlg.Show();
+    }
   }
 
   #region Utilities
