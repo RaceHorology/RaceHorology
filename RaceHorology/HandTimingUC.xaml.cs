@@ -30,11 +30,35 @@ namespace RaceHorology
 
       fillComboDevices();
       fillComboStartFinish(cmbDeviceStartOrFinish);
+      cmbDeviceStartOrFinish.SelectedIndex = 0;
       fillComboStartFinish(cmbCalcDeviceStartOrFinish);
+      cmbCalcDeviceStartOrFinish.SelectedIndex = 0;
+
+      Unloaded += OnUnloaded;
 
       _comPorts = new COMPortViewModel();
       cmbDevicePort.ItemsSource = _comPorts.Items;
       cmbDevicePort.SelectedValuePath = "Port";
+
+      loadLastConfig();
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+      storeLastConfig();
+    }
+
+
+    private void loadLastConfig()
+    {
+      cmbDevice.SelectCBItem(Properties.Settings.Default.HandTiming_LastDevice);
+      cmbDevicePort.SelectedValue = Properties.Settings.Default.HandTiming_LastDevicePort;
+    }
+
+    private void storeLastConfig()
+    {
+      Properties.Settings.Default.HandTiming_LastDevice = (cmbDevice.SelectedItem as CBItem)?.Value.ToString();
+      Properties.Settings.Default.HandTiming_LastDevicePort = cmbDevicePort.SelectedValue?.ToString();
     }
 
 
