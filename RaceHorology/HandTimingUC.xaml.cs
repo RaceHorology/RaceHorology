@@ -1,4 +1,5 @@
-﻿using RaceHorologyLib;
+﻿using Microsoft.Win32;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,7 @@ namespace RaceHorology
 
       _comPorts = new COMPortViewModel();
       cmbDevicePort.ItemsSource = _comPorts.Items;
+      cmbDevicePort.SelectedValuePath = "Port";
     }
 
 
@@ -48,5 +50,40 @@ namespace RaceHorology
       cmb.Items.Add(new CBItem { Text = "Start", Value = "Start" });
       cmb.Items.Add(new CBItem { Text = "Ziel", Value = "Finish" });
     }
+
+    private void cmbDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      bool bFile= object.Equals((cmbDevice.SelectedItem as CBItem)?.Value, "File");
+
+      cmbDevicePort.IsEnabled = !bFile;
+    }
+
+    private void btnDeviceLoad_Click(object sender, RoutedEventArgs e)
+    {
+      string device = (cmbDevice.SelectedItem as CBItem)?.Value.ToString();
+      string devicePort = cmbDevicePort.SelectedValue?.ToString();
+      string deviceStartOrFinish = (cmbDeviceStartOrFinish.SelectedItem as CBItem)?.Value.ToString();
+
+      if (device=="File")
+      {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.DefaultExt = ".txt";
+        openFileDialog.Filter = "Textdatei|*.txt";
+        if (openFileDialog.ShowDialog() == true)
+          devicePort = openFileDialog.FileName;
+        else
+          return;
+      }
+
+      IHandTiming handTiming = HandTiming.CreateHandTiming(device, devicePort);
+      handTiming.Connect();
+      handTiming.StartGetTimingData();
+      foreach (var t in handTiming.TimingData())
+      {
+        dgHandTiming.Items.Add(t);
+      }
+
+    }
+
   }
 }
