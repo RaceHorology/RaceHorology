@@ -75,7 +75,7 @@ namespace RaceHorologyLibTest
       }
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("HardwareDependent")]
     public void RetrieveTimingData()
     {
       string comport = "COM6";

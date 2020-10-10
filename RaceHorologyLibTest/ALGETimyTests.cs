@@ -57,6 +57,22 @@ namespace RaceHorologyLibTest
     #endregion
 
     [TestMethod]
+    public void Parser()
+    {
+      // Not really tested, because the ALGETdC8001LineParser is tested in ALGETdC8001Tests
+      ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
+      {
+        var pd = parser.Parse(" 0035 C0  21:46:36.3910 00");
+        Assert.AreEqual(' ', pd.Flag);
+        Assert.AreEqual(35U, pd.StartNumber);
+        Assert.AreEqual("C0", pd.Channel);
+        Assert.AreEqual(' ', pd.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 391), pd.Time);
+      }
+    }
+
+
+    [TestMethod, TestCategory("HardwareDependent")]
     public void RetrieveTimingData()
     {
       string comport = "COM4";
