@@ -63,6 +63,7 @@ namespace RaceHorologyLibTest
 
       ALGETimy timy = new ALGETimy(comport);
 
+      timy.Connect();
       timy.StartGetTimingData();
 
       foreach(var t in timy.TimingData())
