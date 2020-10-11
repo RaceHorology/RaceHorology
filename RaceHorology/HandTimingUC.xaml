@@ -14,134 +14,121 @@
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
 
-    <Grid>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
+    <Label Content="Handzeit laden" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" FontSize="16"/>
 
-      <Label Content="Handzeit laden" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" FontSize="16"/>
+    <Label Content="Gerät:" HorizontalContentAlignment="Right" Grid.Row="1" Grid.Column="0" Margin="5"/>
+    <ComboBox x:Name="cmbDevice" Grid.Row="1" Grid.Column="1" Margin="5" SelectionChanged="cmbDevice_SelectionChanged"/>
+    <ComboBox x:Name="cmbDevicePort" Grid.Row="1" Grid.Column="2" Margin="5"/>
+    <Button x:Name="btnDeviceLoad" Content="Laden" Grid.Row="1" Grid.Column="4" Margin="5" Click="btnDeviceLoad_Click"/>
+    <Button x:Name="btnDeviceDelete" Content="Handzeiten löschen" Grid.Row="2" Grid.Column="4" Margin="5" Click="btnDeviceDelete_Click"/>
 
-      <Label Content="Gerät:" HorizontalContentAlignment="Right" Grid.Row="1" Grid.Column="0" Margin="5"/>
-      <ComboBox x:Name="cmbDevice" Grid.Row="1" Grid.Column="1" Margin="5" SelectionChanged="cmbDevice_SelectionChanged"/>
-      <ComboBox x:Name="cmbDevicePort" Grid.Row="1" Grid.Column="2" Margin="5"/>
-      <ComboBox x:Name="cmbDeviceStartOrFinish" Grid.Row="1" Grid.Column="3" Margin="5"/>
-      <Button x:Name="btnDeviceLoad" Content="Laden" Grid.Row="1" Grid.Column="4" Margin="5" Click="btnDeviceLoad_Click"/>
-    </Grid>
-    <Grid Grid.Row="1" Margin="0,20,0,0">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
+      
+    <Label Content="Handzeit berechnen" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" FontSize="16"/>
 
-      <Label Content="Handzeit berechnen" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" FontSize="16"/>
+    <Label Content="Durchgang:" Grid.Row="4" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
+    <ComboBox x:Name="cmbCalcRun" Grid.Row="4" Grid.Column="1" Margin="5" SelectionChanged="cmbCalcRun_SelectionChanged"/>
+    <Label Content="Start / Ziel:" Grid.Row="4" Grid.Column="2" Margin="5" HorizontalContentAlignment="Right"/>
+    <ComboBox x:Name="cmbCalcDeviceStartOrFinish" Grid.Row="4" Grid.Column="3" Margin="5" SelectionChanged="cmbCalcDeviceStartOrFinish_SelectionChanged"/>
 
-      <Label Content="Durchgang:" Grid.Row="1" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
-      <ComboBox x:Name="cmbCalcRun" Grid.Row="1" Grid.Column="1" Margin="5" SelectionChanged="cmbCalcRun_SelectionChanged"/>
-      <Label Content="Start / Ziel:" Grid.Row="1" Grid.Column="2" Margin="5" HorizontalContentAlignment="Right"/>
-      <ComboBox x:Name="cmbCalcDeviceStartOrFinish" Grid.Row="1" Grid.Column="3" Margin="5" SelectionChanged="cmbCalcDeviceStartOrFinish_SelectionChanged"/>
-
-      <DataGrid x:Name="dgHandTiming" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="False" SelectionChanged="dgHandTiming_SelectionChanged">
-        <DataGrid.Columns>
-          <DataGridTextColumn Header="StNr" Binding="{Binding StartNumber}">
-            <DataGridTextColumn.ElementStyle>
-              <Style TargetType="TextBlock">
-                <Setter Property="HorizontalAlignment" Value="Right" />
-                <Setter Property="Margin" Value="5,0,5,0" />
-              </Style>
-            </DataGridTextColumn.ElementStyle>
-          </DataGridTextColumn>
-          <DataGridTextColumn Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
-            <DataGridTextColumn.CellStyle>
-              <Style TargetType="{x:Type DataGridCell}">
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding ManuallyAdjustedStartTime}" Value="true">
-                    <Setter Property="FontWeight" Value="Bold"/>
-                    <Setter Property="Foreground" Value="Blue"/>
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </DataGridTextColumn.CellStyle>
-            <DataGridTextColumn.ElementStyle>
-              <Style TargetType="TextBlock">
-                <Setter Property="HorizontalAlignment" Value="Right" />
-                <Setter Property="Margin" Value="5,0,5,0" />
-              </Style>
-            </DataGridTextColumn.ElementStyle>
-          </DataGridTextColumn>
-          <DataGridTextColumn Header="Zielzeit" Binding="{Binding FinishTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
-            <DataGridTextColumn.CellStyle>
-              <Style TargetType="{x:Type DataGridCell}">
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding ManuallyAdjustedFinishTime}" Value="true">
-                    <Setter Property="FontWeight" Value="Bold"/>
-                    <Setter Property="Foreground" Value="Blue"/>
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </DataGridTextColumn.CellStyle>
-            <DataGridTextColumn.ElementStyle>
-            <Style TargetType="TextBlock">
-              <Setter Property="HorizontalAlignment" Value="Right" />
-              <Setter Property="Margin" Value="5,0,5,0" />
-            </Style>
-          </DataGridTextColumn.ElementStyle>
-          </DataGridTextColumn>
-          <DataGridTextColumn Header="Laufzeit" Binding="{Binding RunTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}, ConverterParameter=m}">
+    <DataGrid x:Name="dgHandTiming" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="False" SelectionChanged="dgHandTiming_SelectionChanged">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="StNr" Binding="{Binding StartNumber}">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
               <Setter Property="Margin" Value="5,0,5,0" />
             </Style>
           </DataGridTextColumn.ElementStyle>
-          </DataGridTextColumn>
-          <DataGridTextColumn Header="Handzeit" Binding="{Binding HandTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+          <DataGridTextColumn.CellStyle>
+            <Style TargetType="{x:Type DataGridCell}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding ManuallyAdjustedStartTime}" Value="true">
+                  <Setter Property="FontWeight" Value="Bold"/>
+                  <Setter Property="Foreground" Value="Blue"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </DataGridTextColumn.CellStyle>
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
               <Setter Property="Margin" Value="5,0,5,0" />
             </Style>
           </DataGridTextColumn.ElementStyle>
-          </DataGridTextColumn>
-          <DataGridTextColumn Header="Differenz" Binding="{Binding HandTimeDiff, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
-          <DataGridTextColumn.ElementStyle>
-            <Style TargetType="TextBlock">
-              <Setter Property="HorizontalAlignment" Value="Right" />
-              <Setter Property="Margin" Value="5,0,5,0" />
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Zielzeit" Binding="{Binding FinishTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+          <DataGridTextColumn.CellStyle>
+            <Style TargetType="{x:Type DataGridCell}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding ManuallyAdjustedFinishTime}" Value="true">
+                  <Setter Property="FontWeight" Value="Bold"/>
+                  <Setter Property="Foreground" Value="Blue"/>
+                </DataTrigger>
+              </Style.Triggers>
             </Style>
-          </DataGridTextColumn.ElementStyle>
-          </DataGridTextColumn>
-        </DataGrid.Columns>
-      </DataGrid>
+          </DataGridTextColumn.CellStyle>
+          <DataGridTextColumn.ElementStyle>
+          <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Margin" Value="5,0,5,0" />
+          </Style>
+        </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Laufzeit" Binding="{Binding RunTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}, ConverterParameter=m}">
+        <DataGridTextColumn.ElementStyle>
+          <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Margin" Value="5,0,5,0" />
+          </Style>
+        </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Handzeit" Binding="{Binding HandTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+        <DataGridTextColumn.ElementStyle>
+          <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Margin" Value="5,0,5,0" />
+          </Style>
+        </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Differenz" Binding="{Binding HandTimeDiff, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+        <DataGridTextColumn.ElementStyle>
+          <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Margin" Value="5,0,5,0" />
+          </Style>
+        </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+      </DataGrid.Columns>
+    </DataGrid>
 
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
-        <Label Content="Startnummer:" Grid.Row="3" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
-        <TextBox x:Name="txtCalcStartNumber" Grid.Row="1" Grid.Column="1" Margin="5" Width="50" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-        <Button x:Name="btnCalcAssign" Content="Zuordnen" Grid.Row="3" Grid.Column="4" Margin="5" Width="100" Click="btnCalcAssign_Click"/>
-      </StackPanel>
-      <Button x:Name="btnCalcDissolve" Content="Auflösen" Grid.Row="3" Grid.Column="2" Margin="5"  Width="100" Click="btnCalcDissolve_Click"/>
-      <Button x:Name="btnCalc" Content="Berechnen und Übernehmen" Grid.Row="3" Grid.Column="4" Margin="5" Click="btnCalc_Click"/>
-      <Label Content="Start / Ziel:" Grid.Row="1" Grid.Column="2" Margin="5" HorizontalContentAlignment="Right"/>
-    </Grid>
-
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3">
+      <Label Content="Startnummer:" Grid.Row="3" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
+      <TextBox x:Name="txtCalcStartNumber" Grid.Row="1" Grid.Column="1" Margin="5" Width="50" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+      <Button x:Name="btnCalcAssign" Content="Zuordnen" Grid.Row="3" Grid.Column="4" Margin="5" Width="100" Click="btnCalcAssign_Click"/>
+    </StackPanel>
+    <Button x:Name="btnCalcDissolve" Content="Auflösen" Grid.Row="6" Grid.Column="2" Margin="5"  Width="100" Click="btnCalcDissolve_Click"/>
+    <Button x:Name="btnCalc" Content="Berechnen" Grid.Row="6" Grid.Column="4" Margin="5" Click="btnCalc_Click"/>
+    
+    <Button x:Name="btnSave" Content="Speichern" Grid.Row="7" Grid.Column="4" Margin="5" Click=""/>
+    <Button x:Name="btnCancel" Content="Abbrechen" Grid.Row="7" Grid.Column="3" Margin="5" Click=""/>
   </Grid>
 </UserControl>

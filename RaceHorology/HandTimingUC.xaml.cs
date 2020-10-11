@@ -1,4 +1,4 @@
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -37,8 +37,6 @@ namespace RaceHorology
       _handTimingVMManager = new HandTimingVMManager(_dm);
 
       fillComboDevices();
-      fillComboStartFinish(cmbDeviceStartOrFinish);
-      cmbDeviceStartOrFinish.SelectedIndex = 0;
       fillComboStartFinish(cmbCalcDeviceStartOrFinish);
       cmbCalcDeviceStartOrFinish.SelectedIndex = 0;
 
@@ -131,7 +129,7 @@ namespace RaceHorology
     {
       string device = (cmbDevice.SelectedItem as CBItem)?.Value.ToString();
       string devicePort = cmbDevicePort.SelectedValue?.ToString();
-      string deviceStartOrFinish = (cmbDeviceStartOrFinish.SelectedItem as CBItem)?.Value.ToString();
+      string deviceStartOrFinish = (cmbCalcDeviceStartOrFinish.SelectedItem as CBItem)?.Value.ToString();
 
       if (device=="File")
       {
