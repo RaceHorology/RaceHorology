@@ -149,7 +149,48 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void HandTimingsVM_Correlation()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
 
+      HandTimingVM htVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EStartTime);
+
+      List<RunResult> rr1 = new List<RunResult>
+      {
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8, 0, 2), new TimeSpan(0, 8, 1, 2)),
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8, 2, 2), new TimeSpan(0, 8, 3, 2)),
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8, 4, 2), null)
+      };
+
+      List<TimingData> hts1 = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8, 0, 2, 301)},
+        new TimingData{Time = new TimeSpan(0, 8, 2, 1, 299)},
+        new TimingData{Time = new TimeSpan(0, 8, 2, 1, 300)},
+        new TimingData{Time = new TimeSpan(0, 8, 4, 2, 1)}
+      };
+
+      htVM.AddRunResults(rr1);
+      htVM.AddHandTimings(hts1);
+
+      Assert.AreEqual(new TimeSpan(0, 8, 0, 2), htVM.Items[0].ATime);
+      Assert.AreEqual(new TimeSpan(0, 8, 0, 2, 301), htVM.Items[0].HandTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 0, 300), htVM.Items[0].HandTimeDiff);
+
+      Assert.IsNull(htVM.Items[1].ATime);
+      Assert.AreEqual(new TimeSpan(0, 8, 2, 1, 300), htVM.Items[1].HandTime);
+      Assert.IsNull(htVM.Items[1].HandTimeDiff);
+
+      Assert.AreEqual(new TimeSpan(0, 8, 2, 2), htVM.Items[2].ATime);
+      Assert.AreEqual(new TimeSpan(0, 8, 2, 1, 299), htVM.Items[2].HandTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 0, -710), htVM.Items[2].HandTimeDiff);
+
+      Assert.AreEqual(new TimeSpan(0, 8, 4, 2), htVM.Items[3].ATime);
+      Assert.AreEqual(new TimeSpan(0, 8, 4, 2, 1), htVM.Items[3].HandTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 0, 0), htVM.Items[3].HandTimeDiff);
+
+    }
 
 
 

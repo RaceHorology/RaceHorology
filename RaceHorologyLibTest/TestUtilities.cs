@@ -253,6 +253,14 @@ namespace RaceHorologyLibTest
       };
     }
 
+    public RunResult createRunResult(RaceParticipant rp, TimeSpan? startTime, TimeSpan? endTime)
+    {
+      RunResult rr = new RunResult(rp);
+      rr.SetStartTime(startTime);
+      rr.SetFinishTime(endTime);
+      return rr;
+    }
+
   }
 
 }
