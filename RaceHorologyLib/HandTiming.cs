@@ -41,6 +41,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using static RaceHorologyLib.HandTimingVMEntry;
 
 namespace RaceHorologyLib
 {
@@ -74,6 +75,8 @@ namespace RaceHorologyLib
   {
     public enum ETimeModus { EStartTime, EFinishTime };
 
+
+    internal RunResult OriginalRunResult { get { return _runResult; } }
 
     public uint? StartNumber 
     { 
@@ -140,6 +143,7 @@ namespace RaceHorologyLib
     }
 
     uint? _startNumber;
+    RunResult _runResult;
     TimeSpan? _startTime;
     TimeSpan? _finishTime;
     TimeSpan? _runTime;
@@ -157,11 +161,19 @@ namespace RaceHorologyLib
 
       _handTime = handTime;
 
+      _runResult = runResult;
       copyFromRunResult(runResult);
+    }
+
+
+    public HandTimingVMEntry ShallowCopy()
+    {
+      return (HandTimingVMEntry)this.MemberwiseClone();
     }
 
     public void SetRunResult(RunResult runResult)
     {
+      _runResult = runResult;
       copyFromRunResult(runResult);
 
       notifyPropertyChanged_RunResult();
@@ -328,7 +340,11 @@ namespace RaceHorologyLib
       foreach(var rr in runResults)
       {
         HandTimingVMEntry e = findEntry(rr);
-        if (e != null && e.ATime == null)
+        if (e != null && e.OriginalRunResult == rr)
+        {
+          // Do nothing
+        }
+        else if (e != null && e.ATime == null)
         {
           e.SetRunResult(rr);
         }
@@ -345,7 +361,11 @@ namespace RaceHorologyLib
       foreach (var ht in handTimings)
       {
         HandTimingVMEntry e = findEntry(ht);
-        if (e != null && e.HandTime == null)
+        if (e != null && e.HandTime == ht.Time)
+        {
+          // Do nothing
+        }
+        else if (e != null && e.HandTime == null)
         {
           e.SetHandTime(ht.Time);
         }
@@ -367,6 +387,9 @@ namespace RaceHorologyLib
     {
       foreach (var e in _handTimings)
       {
+        if (e.OriginalRunResult == rr)
+          return e;
+
         if (e.HandTime == null)
           continue;
 
@@ -387,6 +410,9 @@ namespace RaceHorologyLib
     {
       foreach (var e in _handTimings)
       {
+        if (e.HandTime == td.Time)
+          return e;
+
         if (e.ATime == null)
           continue;
 
@@ -440,7 +466,7 @@ namespace RaceHorologyLib
       while(index >= 0 && _usedEntries.Count < _numberOfEntriesToUse)
       {
         if (entryCanBeUsed(sortedEntries[index]))
-          _usedEntries.Add(sortedEntries[index].Copy()); // make copy to avoid inferrences with upcoming operations
+          _usedEntries.Add(sortedEntries[index].ShallowCopy()); // make copy to avoid inferrences with upcoming operations
 
         index--;
       }
@@ -476,8 +502,39 @@ namespace RaceHorologyLib
         _calculatedTime = handTime.Subtract(correctionValue);
       }
     }
+  }
 
 
+  public class HandTimingVMManager
+  {
+    AppDataModel _dm;
+    Dictionary<string, HandTimingVM> _handTimingVM;
+
+    public HandTimingVMManager(AppDataModel dm)
+    {
+      _dm = dm;
+      _handTimingVM = new Dictionary<string, HandTimingVM>();
+    }
+
+    public HandTimingVM GetHandTimingVM(Race race, RaceRun run, ETimeModus timeModus)
+    {
+      HandTimingVM vm;
+
+      if (!_handTimingVM.TryGetValue(handTimingVMKey(race, run, timeModus), out vm))
+      {
+        vm = new HandTimingVM(timeModus);
+        _handTimingVM.Add(handTimingVMKey(race, run, timeModus), vm);
+      }
+
+      vm.AddRunResults(run.GetResultList());
+
+      return vm;
+    }
+
+    private string handTimingVMKey(Race race, RaceRun run, ETimeModus timeModus)
+    {
+      return string.Format("{0}_{1}_{2}", race.RaceType, run.Run, timeModus);
+    }
 
   }
 }

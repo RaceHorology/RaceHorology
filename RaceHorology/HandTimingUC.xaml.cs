@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,8 @@ namespace RaceHorology
   public partial class HandTimingUC : UserControl
   {
     COMPortViewModel _comPorts;
-    HandTimingVM _handTimingVM;
+    HandTimingVMManager _handTimingVMManager;
+    HandTimingVM _currentHandTimingVM;
 
     private AppDataModel _dm;
     private Race _race;
@@ -33,8 +34,7 @@ namespace RaceHorology
     {
       InitializeComponent();
 
-      _handTimingVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EStartTime);
-      dgHandTiming.ItemsSource = _handTimingVM.Items;
+      _handTimingVMManager = new HandTimingVMManager(_dm);
 
       fillComboDevices();
       fillComboStartFinish(cmbDeviceStartOrFinish);
@@ -49,7 +49,6 @@ namespace RaceHorology
       cmbDevicePort.SelectedValuePath = "Port";
 
       loadLastConfig();
-
     }
 
 
@@ -59,6 +58,8 @@ namespace RaceHorology
       _race = race;
 
       fillCmbCalcRun();
+
+      updateHandTimingVM();
     }
 
 
@@ -100,6 +101,23 @@ namespace RaceHorology
       cmbCalcRun.SelectedValuePath = "Value";
       foreach (var r in _race.GetRuns())
         cmbCalcRun.Items.Add(new CBItem { Text = string.Format("Lauf {0}", r.Run), Value = r });
+      
+      cmbCalcRun.SelectedIndex = 0;
+    }
+
+
+    private void updateHandTimingVM()
+    {
+      RaceRun rr = cmbCalcRun.SelectedValue as RaceRun;
+      var timeModus = (string)(cmbCalcDeviceStartOrFinish.SelectedItem as CBItem).Value == "Start"
+        ? HandTimingVMEntry.ETimeModus.EStartTime : HandTimingVMEntry.ETimeModus.EFinishTime;
+
+      if (_race == null && rr == null)
+        return;
+
+      _currentHandTimingVM = _handTimingVMManager.GetHandTimingVM(_race, rr, timeModus);
+
+      dgHandTiming.ItemsSource = _currentHandTimingVM.Items;
     }
 
     private void cmbDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -130,20 +148,17 @@ namespace RaceHorology
       handTiming.Connect();
       handTiming.StartGetTimingData();
 
-      _handTimingVM.AddHandTimings(handTiming.TimingData());
+      _currentHandTimingVM.AddHandTimings(handTiming.TimingData());
     }
 
     private void cmbCalcRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      RaceRun rr = cmbCalcRun.SelectedValue as RaceRun;
-
-      _handTimingVM.AddRunResults(rr.GetResultList());
+      updateHandTimingVM();
     }
 
     private void cmbCalcDeviceStartOrFinish_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      _handTimingVM.TimeModus = (string)(cmbCalcDeviceStartOrFinish.SelectedItem as CBItem).Value == "Start" 
-        ? HandTimingVMEntry.ETimeModus.EStartTime : HandTimingVMEntry.ETimeModus.EFinishTime;
+      updateHandTimingVM();
     }
 
     private void dgHandTiming_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -158,7 +173,7 @@ namespace RaceHorology
         uint startNumber = 0U;
         try { startNumber = uint.Parse(txtCalcStartNumber.Text); } catch (Exception) { }
         if (startNumber>0)
-          _handTimingVM.AssignStartNumber(selEntry, startNumber);
+          _currentHandTimingVM.AssignStartNumber(selEntry, startNumber);
       }
     }
 
@@ -166,7 +181,7 @@ namespace RaceHorology
     {
       if (dgHandTiming.SelectedItem is HandTimingVMEntry selEntry)
       {
-        _handTimingVM.Dissolve(selEntry);
+        _currentHandTimingVM.Dissolve(selEntry);
       }
     }
 
@@ -174,11 +189,15 @@ namespace RaceHorology
     {
       if (dgHandTiming.SelectedItem is HandTimingVMEntry selEntry)
       {
-        HandTimingCalc calc = new HandTimingCalc(selEntry, _handTimingVM.Items);
+        HandTimingCalc calc = new HandTimingCalc(selEntry, _currentHandTimingVM.Items);
 
         selEntry.SetCalulatedHandTime(calc.CalculatedTime);
       }
     }
 
+    private void btnDeviceDelete_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
   }
 }
