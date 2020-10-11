@@ -158,7 +158,11 @@ namespace RaceHorology
 
     private void btnCalcDissolve_Click(object sender, RoutedEventArgs e)
     {
-
+      HandTimingVMEntry selEntry = dgHandTiming.SelectedItem as HandTimingVMEntry;
+      if (selEntry != null)
+      {
+        _handTimingVM.Dissolve(selEntry);
+      }
     }
 
     private void btnCalc_Click(object sender, RoutedEventArgs e)

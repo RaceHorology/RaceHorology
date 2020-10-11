@@ -200,6 +200,7 @@ namespace RaceHorologyLib
     HandTimingVMEntry.ETimeModus _timeModus;
     ObservableCollection<HandTimingVMEntry> _handTimings;
     HandTimingVMEntrySorter _handTimingsSorter;
+    int _finEntryMaxDifferenceMS = 1000;
 
     public ObservableCollection<HandTimingVMEntry> Items { get { return _handTimings; } }
 
@@ -225,6 +226,24 @@ namespace RaceHorologyLib
           _handTimings.Sort(_handTimingsSorter);
         }
       }
+    }
+
+
+    public void Dissolve(HandTimingVMEntry entry)
+    {
+      // Only split if there is something to split
+      if (entry.HandTime != null && entry.ATime != null)
+      {
+        // Create entry for handtime
+        HandTimingVMEntry entryHT = new HandTimingVMEntry(entry.TimeModus, null, entry.HandTime);
+        entry.SetHandTime(null);
+
+        _handTimings.InsertSorted(entryHT, _handTimingsSorter);
+      }
+    }
+
+    public void AssignStartNumber(HandTimingVMEntry entry, int startNumber)
+    {
 
     }
 
@@ -280,7 +299,7 @@ namespace RaceHorologyLib
         if (aTime == null)
           continue;
 
-        if ( Math.Abs(((TimeSpan)aTime).Subtract((TimeSpan)e.HandTime).TotalMilliseconds) < 1000)
+        if ( Math.Abs(((TimeSpan)aTime).Subtract((TimeSpan)e.HandTime).TotalMilliseconds) < _finEntryMaxDifferenceMS)
         {
           return e;
         }
@@ -300,7 +319,7 @@ namespace RaceHorologyLib
         if (hTime == null)
           continue;
 
-        if (Math.Abs(((TimeSpan)hTime).Subtract((TimeSpan)e.ATime).TotalMilliseconds) < 1000)
+        if (Math.Abs(((TimeSpan)hTime).Subtract((TimeSpan)e.ATime).TotalMilliseconds) < _finEntryMaxDifferenceMS)
         {
           return e;
         }
