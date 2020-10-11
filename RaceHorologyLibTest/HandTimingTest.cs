@@ -304,6 +304,134 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void HandTimingCalc_Test1()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      HandTimingVM htVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EFinishTime);
+
+      List<RunResult> rr1 = new List<RunResult>
+      {
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  0, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  1, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  2, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  3, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  4, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  5, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  6, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  7, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  8, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  9, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, null)
+      };
+
+      List<TimingData> hts1 = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8,  0, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  1, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  2, 0, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  3, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  4, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  5, 0, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  6, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  7, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  8, 0, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  9, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8, 10, 0, 300)}
+      };
+
+      htVM.AddRunResults(rr1);
+      htVM.AddHandTimings(hts1);
+
+      htVM.AssignStartNumber(htVM.Items[10], 11);
+
+      HandTimingCalc hc = new HandTimingCalc(htVM.Items[10], htVM.Items);
+      Assert.AreEqual(new TimeSpan(0, 8, 10, 0, 100), hc.CalculatedTime);
+    }
+
+    [TestMethod]
+    public void HandTimingCalc_Test2()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      HandTimingVM htVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EFinishTime);
+
+      List<RunResult> rr1 = new List<RunResult>
+      {
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  0, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  1, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  2, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  3, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  4, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, null),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  6, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  7, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  8, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  9, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8, 10, 0))
+      };
+
+      List<TimingData> hts1 = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8,  0, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  1, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  2, 0, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  3, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  4, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  5, 0, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  6, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  7, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  8, 0, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  9, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8, 10, 0, 200)}
+      };
+
+      htVM.AddRunResults(rr1);
+      htVM.AddHandTimings(hts1);
+
+      htVM.AssignStartNumber(htVM.Items[5], 6);
+
+      HandTimingCalc hc = new HandTimingCalc(htVM.Items[5], htVM.Items);
+      Assert.AreEqual(new TimeSpan(0, 8, 5, 0, 120), hc.CalculatedTime);
+    }
+
+
+    [TestMethod]
+    public void HandTimingCalc_Test3()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      HandTimingVM htVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EFinishTime);
+
+      List<RunResult> rr1 = new List<RunResult>
+      {
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  0, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  1, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  2, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  3, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  4, 0)),
+        tg.createRunResult(tg.createRaceParticipant(), null, null)
+      };
+
+      List<TimingData> hts1 = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8,  0, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  1, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  2, 0, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  3, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  4, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  5, 0, 300)}
+      };
+
+      htVM.AddRunResults(rr1);
+      htVM.AddHandTimings(hts1);
+
+      htVM.AssignStartNumber(htVM.Items[5], 6);
+
+      HandTimingCalc hc = new HandTimingCalc(htVM.Items[5], htVM.Items);
+      Assert.AreEqual(new TimeSpan(0, 8, 5, 0, 120), hc.CalculatedTime);
+    }
+
+
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case3\1557MRBR_RH.mdb")]

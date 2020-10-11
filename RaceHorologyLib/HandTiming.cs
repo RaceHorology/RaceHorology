@@ -159,6 +159,16 @@ namespace RaceHorologyLib
       updateInternal();
     }
 
+    public void SetCalulatedHandTime(TimeSpan? calcTime)
+    {
+      if (_timeModus == ETimeModus.EStartTime)
+        StartTime = calcTime;
+      else
+        FinishTime = calcTime;
+
+      updateInternal();
+    }
+
     private void copyFromRunResult(RunResult runResult)
     {
       _startNumber = runResult?.StartNumber;
@@ -372,4 +382,79 @@ namespace RaceHorologyLib
   }
 
 
+
+  public class HandTimingCalc
+  {
+    int _numberOfEntriesToUse = 10;
+
+    HandTimingVMEntry _entryToCalculate;
+    List<HandTimingVMEntry> _usedEntries;
+    TimeSpan? _calculatedTime;
+
+    public TimeSpan? CalculatedTime { get { return _calculatedTime; } }
+    public IEnumerable<HandTimingVMEntry> UsedEntries { get { return _usedEntries; } }
+
+    public HandTimingCalc(HandTimingVMEntry entry, IEnumerable<HandTimingVMEntry> sortedEntries)
+    {
+      _usedEntries = new List<HandTimingVMEntry>();
+
+      _entryToCalculate = entry;
+
+      findAndStoreEntriesToUse(new List<HandTimingVMEntry>(sortedEntries));
+      calculateHandTime();
+    }
+
+    private void findAndStoreEntriesToUse(List<HandTimingVMEntry> sortedEntries)
+    {
+      bool entryCanBeUsed(HandTimingVMEntry entry) { return entry.ATime != null && entry.HandTime != null && entry.HandTimeDiff != null; }
+
+      int indexCalc = sortedEntries.IndexOf(_entryToCalculate);
+      if (indexCalc < 0)
+        throw new Exception("entry to calculate cannot be found, internal error");
+
+      // move backwards as far as possible and copy entries to use
+      int index = indexCalc-1;
+      while(index >= 0 && _usedEntries.Count < _numberOfEntriesToUse)
+      {
+        if (entryCanBeUsed(sortedEntries[index]))
+          _usedEntries.Add(sortedEntries[index].Copy()); // make copy to avoid inferrences with upcoming operations
+
+        index--;
+      }
+
+      // move forwards as far as possible and copy entries to use
+      index = indexCalc + 1;
+      while (index < sortedEntries.Count && _usedEntries.Count < _numberOfEntriesToUse)
+      {
+        if (entryCanBeUsed(sortedEntries[index]))
+          _usedEntries.Add(sortedEntries[index].Copy()); // make copy to avoid inferrences with upcoming operations
+
+        index++;
+      }
+    }
+
+    private void calculateHandTime()
+    {
+      _calculatedTime = null;
+
+      if (_usedEntries.Count > 0 && _entryToCalculate?.HandTime != null)
+      {
+        TimeSpan correctionValue = new TimeSpan(0);
+        foreach (var e in _usedEntries)
+        {
+          correctionValue = correctionValue.Add((TimeSpan)e.HandTimeDiff);
+        }
+
+        correctionValue = new TimeSpan(correctionValue.Ticks / _usedEntries.Count);
+        // Round (real rounding)
+        correctionValue = new RoundedTimeSpan(correctionValue, 2, RoundedTimeSpan.ERoundType.Round).TimeSpan;
+
+        TimeSpan handTime = (TimeSpan)_entryToCalculate.HandTime;
+        _calculatedTime = handTime.Subtract(correctionValue);
+      }
+    }
+
+
+
+  }
 }

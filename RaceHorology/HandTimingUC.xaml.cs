@@ -172,7 +172,12 @@ namespace RaceHorology
 
     private void btnCalc_Click(object sender, RoutedEventArgs e)
     {
+      if (dgHandTiming.SelectedItem is HandTimingVMEntry selEntry)
+      {
+        HandTimingCalc calc = new HandTimingCalc(selEntry, _handTimingVM.Items);
 
+        selEntry.SetCalulatedHandTime(calc.CalculatedTime);
+      }
     }
 
   }
