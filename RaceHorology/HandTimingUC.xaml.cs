@@ -145,5 +145,26 @@ namespace RaceHorology
       _handTimingVM.TimeModus = (string)(cmbCalcDeviceStartOrFinish.SelectedItem as CBItem).Value == "Start" 
         ? HandTimingVMEntry.ETimeModus.EStartTime : HandTimingVMEntry.ETimeModus.EFinishTime;
     }
+
+    private void dgHandTiming_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+
+    }
+
+    private void btnCalcAssign_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void btnCalcDissolve_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void btnCalc_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
   }
 }
