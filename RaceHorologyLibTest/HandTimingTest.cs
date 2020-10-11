@@ -231,6 +231,79 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void HandTimingsVM_AssignStartNumber()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      HandTimingVM htVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EStartTime);
+
+      List<RunResult> rr1 = new List<RunResult>
+      {
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8, 1, 2))
+      };
+
+      List<TimingData> hts1 = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8, 0, 2, 301)},
+        new TimingData{Time = new TimeSpan(0, 8, 5, 2, 300)}
+      };
+
+      htVM.AddRunResults(rr1);
+      htVM.AddHandTimings(hts1);
+
+      // ***** Case 1: Merge entries ****
+
+      // Check Pre-Condition
+      Assert.IsNull(htVM.Items[0].ATime);
+      Assert.AreEqual(new TimeSpan(0, 8, 0, 2, 301), htVM.Items[0].HandTime);
+      Assert.IsNull(htVM.Items[0].HandTimeDiff);
+
+      Assert.AreEqual(1U, htVM.Items[2].StartNumber);
+      Assert.IsNull(htVM.Items[2].ATime);
+      Assert.IsNull(htVM.Items[2].HandTime);
+      Assert.IsNull(htVM.Items[2].HandTimeDiff);
+
+      Assert.AreEqual(3, htVM.Items.Count);
+
+      // Operation
+      htVM.AssignStartNumber(htVM.Items[0], 1);
+
+      // Check Post-Condition
+      Assert.AreEqual(1U, htVM.Items[0].StartNumber);
+      Assert.IsNull(htVM.Items[0].ATime);
+      Assert.AreEqual(new TimeSpan(0, 8, 0, 2, 301), htVM.Items[0].HandTime);
+      Assert.IsNull(htVM.Items[0].HandTimeDiff);
+      Assert.IsNull(htVM.Items[0].StartTime);
+      Assert.AreEqual(new TimeSpan(0, 8, 1, 2), htVM.Items[0].FinishTime);
+
+      Assert.AreEqual(2, htVM.Items.Count);
+
+
+
+      // ***** Case 2: Adjust entry ****
+
+      // Check Pre-Condition
+      Assert.IsNull(htVM.Items[1].StartNumber);
+      Assert.IsNull(htVM.Items[1].ATime);
+      Assert.AreEqual(new TimeSpan(0, 8, 5, 2, 300), htVM.Items[1].HandTime);
+      Assert.IsNull(htVM.Items[1].HandTimeDiff);
+
+      // Operation
+      htVM.AssignStartNumber(htVM.Items[1], 2);
+
+      // Check Post-Condition
+      Assert.AreEqual(2U, htVM.Items[1].StartNumber);
+      Assert.IsNull(htVM.Items[1].ATime);
+      Assert.AreEqual(new TimeSpan(0, 8, 5, 2, 300), htVM.Items[1].HandTime);
+      Assert.IsNull(htVM.Items[1].HandTimeDiff);
+      Assert.IsNull(htVM.Items[1].StartTime);
+      Assert.IsNull(htVM.Items[1].FinishTime);
+
+      Assert.AreEqual(2, htVM.Items.Count);
+    }
+
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case3\1557MRBR_RH.mdb")]

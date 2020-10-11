@@ -115,7 +115,7 @@
 
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
         <Label Content="Startnummer:" Grid.Row="3" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
-        <TextBox x:Name="txtCalcStartNumber" Grid.Row="1" Grid.Column="1" Margin="5" Width="50"/>
+        <TextBox x:Name="txtCalcStartNumber" Grid.Row="1" Grid.Column="1" Margin="5" Width="50" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
         <Button x:Name="btnCalcAssign" Content="Zuordnen" Grid.Row="3" Grid.Column="4" Margin="5" Width="100" Click="btnCalcAssign_Click"/>
       </StackPanel>
       <Button x:Name="btnCalcDissolve" Content="Auflösen" Grid.Row="3" Grid.Column="2" Margin="5"  Width="100" Click="btnCalcDissolve_Click"/>

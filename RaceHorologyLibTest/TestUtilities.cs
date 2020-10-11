@@ -236,7 +236,11 @@ namespace RaceHorologyLibTest
 
     public RaceParticipant createRaceParticipant()
     {
-      return _race.AddParticipant(createParticipant());
+      Participant p = createParticipant();
+      RaceParticipant rp = _race.AddParticipant(p);
+
+      rp.StartNumber = uint.Parse(p.Id);
+      return rp;
     }
 
 

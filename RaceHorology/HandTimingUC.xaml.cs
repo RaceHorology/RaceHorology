@@ -153,13 +153,18 @@ namespace RaceHorology
 
     private void btnCalcAssign_Click(object sender, RoutedEventArgs e)
     {
-
+      if (dgHandTiming.SelectedItem is HandTimingVMEntry selEntry)
+      {
+        uint startNumber = 0U;
+        try { startNumber = uint.Parse(txtCalcStartNumber.Text); } catch (Exception) { }
+        if (startNumber>0)
+          _handTimingVM.AssignStartNumber(selEntry, startNumber);
+      }
     }
 
     private void btnCalcDissolve_Click(object sender, RoutedEventArgs e)
     {
-      HandTimingVMEntry selEntry = dgHandTiming.SelectedItem as HandTimingVMEntry;
-      if (selEntry != null)
+      if (dgHandTiming.SelectedItem is HandTimingVMEntry selEntry)
       {
         _handTimingVM.Dissolve(selEntry);
       }

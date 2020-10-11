@@ -75,10 +75,26 @@ namespace RaceHorologyLib
     public enum ETimeModus { EStartTime, EFinishTime };
 
 
-    public uint? StartNumber { get { return _runResult?.StartNumber; } }
-    public TimeSpan? StartTime { get { return _runResult?.GetStartTime(); } }
-    public TimeSpan? FinishTime { get { return _runResult?.GetFinishTime(); } }
-    public TimeSpan? RunTime { get { return _runResult?.GetRunTime(true, false); } }
+    public uint? StartNumber 
+    { 
+      get { return _startNumber; }
+      set { if (_startNumber != value) { _startNumber = value; notifyPropertyChanged(); } }
+    }
+    public TimeSpan? StartTime 
+    { 
+      get { return _startTime; }
+      set { if (_startTime != value) { _startTime = value; notifyPropertyChanged(); } }
+    }
+    public TimeSpan? FinishTime 
+    { 
+      get { return _finishTime; }
+      set { if (_finishTime != value) { _finishTime = value; notifyPropertyChanged(); } }
+    }
+    public TimeSpan? RunTime 
+    { 
+      get { return _runTime; }
+      set { if (_runTime != value) { _runTime = value; notifyPropertyChanged(); } }
+    }
 
     /// Returns either StartTime or FinishTime depending on timeModus
     public TimeSpan? ATime { get { return _timeModus == ETimeModus.EStartTime ? StartTime : FinishTime; } }
@@ -111,7 +127,10 @@ namespace RaceHorologyLib
       }
     }
 
-    RunResult _runResult;
+    uint? _startNumber;
+    TimeSpan? _startTime;
+    TimeSpan? _finishTime;
+    TimeSpan? _runTime;
     TimeSpan? _handTime;
     TimeSpan? _handTimeDiff;
     ETimeModus _timeModus;
@@ -120,12 +139,13 @@ namespace RaceHorologyLib
     {
       _timeModus = timeModus;
       _handTime = handTime;
-      _runResult = runResult;
+
+      copyFromRunResult(runResult);
     }
 
     public void SetRunResult(RunResult runResult)
     {
-      _runResult = runResult;
+      copyFromRunResult(runResult);
 
       notifyPropertyChanged_RunResult();
       updateInternal();
@@ -137,6 +157,14 @@ namespace RaceHorologyLib
 
       notifyPropertyChanged_HandTime();
       updateInternal();
+    }
+
+    private void copyFromRunResult(RunResult runResult)
+    {
+      _startNumber = runResult?.StartNumber;
+      _startTime = runResult?.GetStartTime();
+      _finishTime = runResult?.GetFinishTime();
+      _runTime = runResult?.GetRunTime(true, false);
     }
 
     private void updateInternal()
@@ -232,7 +260,7 @@ namespace RaceHorologyLib
     public void Dissolve(HandTimingVMEntry entry)
     {
       // Only split if there is something to split
-      if (entry.HandTime != null && entry.ATime != null)
+      if (entry.HandTime != null && entry.StartNumber != null)
       {
         // Create entry for handtime
         HandTimingVMEntry entryHT = new HandTimingVMEntry(entry.TimeModus, null, entry.HandTime);
@@ -242,9 +270,23 @@ namespace RaceHorologyLib
       }
     }
 
-    public void AssignStartNumber(HandTimingVMEntry entry, int startNumber)
+    public void AssignStartNumber(HandTimingVMEntry entry, uint startNumber)
     {
+      // Find entry with correct startnumber
+      HandTimingVMEntry entrySN = _handTimings.FirstOrDefault(x => x.StartNumber == startNumber);
 
+      if (entrySN!=null)
+      {
+        // Merge entrys
+        entrySN.SetHandTime(entry.HandTime);
+        _handTimings.Remove(entry);
+      }
+      else
+      {
+        entry.StartNumber = startNumber;
+      }
+
+      _handTimings.Sort(_handTimingsSorter);
     }
 
 
