@@ -96,6 +96,18 @@ namespace RaceHorologyLib
       set { if (_runTime != value) { _runTime = value; notifyPropertyChanged(); } }
     }
 
+    public bool ManuallyAdjustedStartTime
+    {
+      get { return _manuallyAdjustedStartTime; }
+      set { if (_manuallyAdjustedStartTime != value) { _manuallyAdjustedStartTime = value; notifyPropertyChanged(); } }
+    }
+
+    public bool ManuallyAdjustedFinishTime
+    {
+      get { return _manuallyAdjustedFinishTime; }
+      set { if (_manuallyAdjustedFinishTime != value) { _manuallyAdjustedFinishTime = value; notifyPropertyChanged(); } }
+    }
+
     /// Returns either StartTime or FinishTime depending on timeModus
     public TimeSpan? ATime { get { return _timeModus == ETimeModus.EStartTime ? StartTime : FinishTime; } }
 
@@ -134,10 +146,15 @@ namespace RaceHorologyLib
     TimeSpan? _handTime;
     TimeSpan? _handTimeDiff;
     ETimeModus _timeModus;
+    bool _manuallyAdjustedStartTime;
+    bool _manuallyAdjustedFinishTime;
 
     public HandTimingVMEntry(ETimeModus timeModus, RunResult runResult, TimeSpan? handTime)
     {
       _timeModus = timeModus;
+      _manuallyAdjustedStartTime = false;
+      _manuallyAdjustedFinishTime = false;
+
       _handTime = handTime;
 
       copyFromRunResult(runResult);
@@ -162,9 +179,15 @@ namespace RaceHorologyLib
     public void SetCalulatedHandTime(TimeSpan? calcTime)
     {
       if (_timeModus == ETimeModus.EStartTime)
+      {
         StartTime = calcTime;
+        ManuallyAdjustedStartTime = true;
+      }
       else
+      {
         FinishTime = calcTime;
+        ManuallyAdjustedFinishTime = true;
+      }
 
       updateInternal();
     }

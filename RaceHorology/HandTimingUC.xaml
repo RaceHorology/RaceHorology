@@ -71,6 +71,16 @@
             </DataGridTextColumn.ElementStyle>
           </DataGridTextColumn>
           <DataGridTextColumn Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+            <DataGridTextColumn.CellStyle>
+              <Style TargetType="{x:Type DataGridCell}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding ManuallyAdjustedStartTime}" Value="true">
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Foreground" Value="Blue"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </DataGridTextColumn.CellStyle>
             <DataGridTextColumn.ElementStyle>
               <Style TargetType="TextBlock">
                 <Setter Property="HorizontalAlignment" Value="Right" />
@@ -79,7 +89,17 @@
             </DataGridTextColumn.ElementStyle>
           </DataGridTextColumn>
           <DataGridTextColumn Header="Zielzeit" Binding="{Binding FinishTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
-          <DataGridTextColumn.ElementStyle>
+            <DataGridTextColumn.CellStyle>
+              <Style TargetType="{x:Type DataGridCell}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding ManuallyAdjustedFinishTime}" Value="true">
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Foreground" Value="Blue"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </DataGridTextColumn.CellStyle>
+            <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
               <Setter Property="Margin" Value="5,0,5,0" />
