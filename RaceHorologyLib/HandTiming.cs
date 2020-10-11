@@ -36,7 +36,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,7 +70,7 @@ namespace RaceHorologyLib
 
 
 
-  public class HandTimingVMEntry
+  public class HandTimingVMEntry : INotifyPropertyChanged
   {
     public enum ETimeModus { EStartTime, EFinishTime };
 
@@ -82,12 +84,31 @@ namespace RaceHorologyLib
     public TimeSpan? ATime { get { return _timeModus == ETimeModus.EStartTime ? StartTime : FinishTime; } }
 
     public TimeSpan? HandTime { get { return _handTime; } }
-    public TimeSpan? HandTimeDiff { get { return _handTimeDiff; } }
+    public TimeSpan? HandTimeDiff
+    {
+      get { return _handTimeDiff; }
+      private set
+      {
+        if (_handTimeDiff != value)
+        {
+          _handTimeDiff = value;
+          notifyPropertyChanged();
+        }
+      }
+    }
 
     public ETimeModus TimeModus
     {
       get { return _timeModus; }
-      set { if (_timeModus != value) _timeModus = value; }
+      set 
+      {
+        if (_timeModus != value)
+        {
+          _timeModus = value;
+          notifyPropertyChanged();
+          updateInternal();
+        }
+      }
     }
 
     RunResult _runResult;
@@ -105,12 +126,16 @@ namespace RaceHorologyLib
     public void SetRunResult(RunResult runResult)
     {
       _runResult = runResult;
+
+      notifyPropertyChanged_RunResult();
       updateInternal();
     }
 
     public void SetHandTime(TimeSpan? handTime)
     {
       _handTime = handTime;
+
+      notifyPropertyChanged_HandTime();
       updateInternal();
     }
 
@@ -121,11 +146,35 @@ namespace RaceHorologyLib
         var t1 = new RoundedTimeSpan((TimeSpan)_handTime, 2, RoundedTimeSpan.ERoundType.Floor);
         var t2 = new RoundedTimeSpan((TimeSpan)ATime, 2, RoundedTimeSpan.ERoundType.Floor);
 
-        _handTimeDiff = t1.TimeSpan.Subtract(t2.TimeSpan);
+        HandTimeDiff = t1.TimeSpan.Subtract(t2.TimeSpan);
       }
       else
-        _handTimeDiff = null;
+        HandTimeDiff = null;
     }
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void notifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void notifyPropertyChanged_RunResult()
+    {
+      foreach (var p in new string[] { "StartNumber", "StartTime", "FinishTime", "RunTime" })
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(p));
+    }
+
+    private void notifyPropertyChanged_HandTime()
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("HandTime"));
+    }
+
+    #endregion
   }
 
 
