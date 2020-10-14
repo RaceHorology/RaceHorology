@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -515,6 +515,49 @@ namespace RaceHorologyLib
       _dm = dm;
       _handTimingVM = new Dictionary<string, HandTimingVM>();
     }
+
+
+    public void LoadHandTimingFromFile()
+    {
+
+    }
+
+
+    public void SaveHandTimingToFile()
+    {
+      //foreach (var vm in _handTimingVM)
+      //{
+        
+        
+      //  vm.Value.Items[0].HandTime
+
+      //}
+    }
+
+
+    public void SaveToDataModel()
+    {
+      foreach(var vm in _handTimingVM)
+      {
+        var htVM = vm.Value;
+        foreach(var i in htVM.Items)
+        {
+          if (i.ManuallyAdjustedStartTime)
+          {
+            i.OriginalRunResult.SetStartTime(i.StartTime);
+            // Clear any stored runtime to get it calculated
+            i.OriginalRunResult.SetRunTime(null);
+          }
+          if (i.ManuallyAdjustedFinishTime)
+          {
+            i.OriginalRunResult.SetFinishTime(i.FinishTime);
+            // Clear any stored runtime to get it calculated
+            i.OriginalRunResult.SetRunTime(null);
+          }
+        }
+      }
+    }
+
 
     public HandTimingVM GetHandTimingVM(Race race, RaceRun run, ETimeModus timeModus)
     {

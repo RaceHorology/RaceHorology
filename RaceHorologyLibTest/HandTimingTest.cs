@@ -34,6 +34,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -464,8 +465,96 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void HandTimingVMManager_Manage1()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      HandTimingVMManager mgr = new HandTimingVMManager(tg.Model);
+
+      var vm1S = mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EStartTime);
+      var vm1F = mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EFinishTime);
+      var vm2S = mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(1), HandTimingVMEntry.ETimeModus.EStartTime);
+      var vm2F = mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(1), HandTimingVMEntry.ETimeModus.EFinishTime);
+
+      Assert.IsNotNull(vm1S);
+      Assert.IsNotNull(vm1F);
+      Assert.IsNotNull(vm2S);
+      Assert.IsNotNull(vm2F);
+      Assert.AreNotEqual(vm1S, vm1F);
+      Assert.AreNotEqual(vm1S, vm2S);
+      Assert.AreNotEqual(vm2S, vm2F);
+      Assert.AreNotEqual(vm2S, vm2F);
+
+      Assert.AreEqual(vm1S, mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EStartTime));
+      Assert.AreEqual(vm1F, mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EFinishTime));
+      Assert.AreEqual(vm2S, mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(1), HandTimingVMEntry.ETimeModus.EStartTime));
+      Assert.AreEqual(vm2F, mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(1), HandTimingVMEntry.ETimeModus.EFinishTime));
+    }
 
 
+    [TestMethod]
+    public void HandTimingVMManager_StoreAndLoad()
+    {
+
+    }
+
+
+    [TestMethod]
+    public void HandTimingVMManager_SaveBackToDataModel()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      // Participant 1
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 0, 2), new TimeSpan(0, 8, 1, 2));
+
+      // Participant 2
+      var p2 = tg.createRaceParticipant();
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(p2, new TimeSpan(0, 8, 2, 2), new TimeSpan(0, 8, 3, 2));
+      tg.Model.GetRace(0).GetRun(0).SetRunTime(p2, new TimeSpan(0, 0, 1, 0));
+
+      // Participant 3
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 4, 2), null);
+
+
+      HandTimingVMManager mgr = new HandTimingVMManager(tg.Model);
+      HandTimingVM htVMS = mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EStartTime);
+      HandTimingVM htVMF = mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EFinishTime);
+
+
+      // Case 1: Finish Time did not yet exist
+      // a) check on finish time
+      // b) Check on run time
+      htVMF.Items[2].SetCalulatedHandTime(new TimeSpan(0, 8, 5, 2, 0));
+      Assert.IsNull(tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 3).GetFinishTime());
+      mgr.SaveToDataModel();
+      Assert.AreEqual(new TimeSpan(0, 8, 5, 2, 0), tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 3).GetFinishTime());
+      Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 0), tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 3).GetRunTime());
+
+
+      // Case 2: Finish Time did exist and runtime was already calculated which need to be correct after setting finish time
+      // a) check on finish time
+      // b) Check on run time
+      htVMF.Items[1].SetCalulatedHandTime(new TimeSpan(0, 8, 3, 2, 200));
+      Assert.AreEqual(new TimeSpan(0, 8, 3, 2, 0), tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 2).GetFinishTime());
+      mgr.SaveToDataModel();
+      Assert.AreEqual(new TimeSpan(0, 8, 3, 2, 200), tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 2).GetFinishTime());
+      Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 200), tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 2).GetRunTime());
+
+      // Case 3: Test something with StartTime
+      // a) check on finish time
+      // b) Check on run time
+      htVMS.Items[0].SetCalulatedHandTime(new TimeSpan(0, 8, 0, 1, 0));
+      Assert.AreEqual(new TimeSpan(0, 8, 0, 2, 0), tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 1).GetStartTime());
+      mgr.SaveToDataModel();
+      Assert.AreEqual(new TimeSpan(0, 8, 0, 1, 0), tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 1).GetStartTime());
+      Assert.AreEqual(new TimeSpan(0, 0, 1, 1, 0), tg.Model.GetRace(0).GetRun(0).GetResultList().First(p => p.StartNumber == 1).GetRunTime());
+    }
+
+
+
+    /// <summary>
+    /// Full integration test
+    /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case3\1557MRBR_RH.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case3\--Handzeit-Start.txt")]
