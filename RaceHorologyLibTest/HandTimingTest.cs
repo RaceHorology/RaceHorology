@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -42,7 +42,7 @@ using RaceHorologyLib;
 namespace RaceHorologyLibTest
 {
   /// <summary>
-  /// Summary description for HandTimingTest
+  /// Contains all tests related to HandTiming
   /// </summary>
   [TestClass]
   public class HandTimingTest
@@ -92,9 +92,13 @@ namespace RaceHorologyLibTest
     #endregion
 
 
+    /// <summary>
+    /// Tests the FromFileParser
+    /// Simulated input is passed to parser and returned TimeSpan is verified
+    /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestDataBases\HandTime\--Handzeit-Start.txt")]
-    public void Parser()
+    public void FromFileParser()
     {
       FromFileParser parser = new FromFileParser();
 
@@ -114,6 +118,11 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Test the reading from file.
+    /// - Reads all lines, only first parsed lines are verfied.
+    /// - Internally, the FromFileParser is used.
+    /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestDataBases\HandTime\--Handzeit-Start.txt")]
     public void ReadFromFile()
@@ -140,6 +149,9 @@ namespace RaceHorologyLibTest
       }
     }
 
+    /// <summary>
+    /// Tests creation of corresponding IHandTiming object for specific handtiming sources (e.g. File, ALGE, TagHeuer)
+    /// </summary>
     [TestMethod]
     public void CreateHandTiming()
     {
@@ -149,6 +161,9 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests the automatic correlation of hand timestamps with start/finish time stamps
+    /// </summary>
     [TestMethod]
     public void HandTimingsVM_Correlation()
     {
@@ -192,6 +207,9 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests whether dissolving hand timestamps from start/finish time stamps works.
+    /// </summary>
     [TestMethod]
     public void HandTimingsVM_Dissolve()
     {
@@ -231,6 +249,9 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests manual assignment of startnumber to hand time stamps
+    /// </summary>
     [TestMethod]
     public void HandTimingsVM_AssignStartNumber()
     {
@@ -304,6 +325,10 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests hand timing calculation
+    /// - This Test Case: standard case, use the previous 10 hand timings
+    /// </summary>
     [TestMethod]
     public void HandTimingCalc_Test1()
     {
@@ -349,6 +374,10 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(new TimeSpan(0, 8, 10, 0, 100), hc.CalculatedTime);
     }
 
+    /// <summary>
+    /// Tests hand timing calculation
+    /// - This Test Case: special case, there aren't 10 previous hand timings available, use the upcoming hand timings as well
+    /// </summary>
     [TestMethod]
     public void HandTimingCalc_Test2()
     {
@@ -395,6 +424,10 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests hand timing calculation
+    /// - This Test Case: special case, there less than 10 hand timings available, use as most as possible for calculation
+    /// </summary>
     [TestMethod]
     public void HandTimingCalc_Test3()
     {
