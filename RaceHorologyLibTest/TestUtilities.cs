@@ -152,7 +152,7 @@ namespace RaceHorologyLibTest
       _races.Add(new Race.RaceProperties 
       {
         RaceType = Race.ERaceType.GiantSlalom,
-        Runs = 1
+        Runs = 2
       });
     }
 
