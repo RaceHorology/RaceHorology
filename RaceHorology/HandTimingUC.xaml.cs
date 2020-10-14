@@ -30,6 +30,9 @@ namespace RaceHorology
     private Race _race;
 
 
+    public event EventHandler Finished;
+
+
     public HandTimingUC()
     {
       InitializeComponent();
@@ -196,6 +199,18 @@ namespace RaceHorology
     private void btnDeviceDelete_Click(object sender, RoutedEventArgs e)
     {
 
+    }
+
+    private void btnSave_Click(object sender, RoutedEventArgs e)
+    {
+      _handTimingVMManager.SaveToDataModel();
+
+      Finished?.Invoke(this, new EventArgs());
+    }
+
+    private void btnCancel_Click(object sender, RoutedEventArgs e)
+    {
+      Finished?.Invoke(this, new EventArgs());
     }
   }
 }

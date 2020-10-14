@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="RaceHorology.HandTimingUC"
+<UserControl x:Class="RaceHorology.HandTimingUC"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -128,7 +128,7 @@
     <Button x:Name="btnCalcDissolve" Content="Auflösen" Grid.Row="6" Grid.Column="2" Margin="5"  Width="100" Click="btnCalcDissolve_Click"/>
     <Button x:Name="btnCalc" Content="Berechnen" Grid.Row="6" Grid.Column="4" Margin="5" Click="btnCalc_Click"/>
     
-    <Button x:Name="btnSave" Content="Speichern" Grid.Row="7" Grid.Column="4" Margin="5" Click=""/>
-    <Button x:Name="btnCancel" Content="Abbrechen" Grid.Row="7" Grid.Column="3" Margin="5" Click=""/>
+    <Button x:Name="btnSave" Content="Speichern" Grid.Row="7" Grid.Column="4" Margin="5" Click="btnSave_Click"/>
+    <Button x:Name="btnCancel" Content="Abbrechen" Grid.Row="7" Grid.Column="3" Margin="5" Click="btnCancel_Click"/>
   </Grid>
 </UserControl>

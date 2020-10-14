@@ -28,7 +28,13 @@ namespace RaceHorology
     public void Init(AppDataModel dm, Race race)
     {
       ucHandTiming.Init(dm, race);
+
+      ucHandTiming.Finished += UcHandTiming_Finished;
     }
 
+    private void UcHandTiming_Finished(object sender, EventArgs e)
+    {
+      this.Close();
+    }
   }
 }

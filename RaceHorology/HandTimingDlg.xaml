@@ -14,9 +14,5 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <local:HandTimingUC x:Name="ucHandTiming" Grid.Row="0"/>
-    
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" Margin="0,15,0,0">
-      <Button Content="Schließen" Grid.Row="1" Margin="5"/>
-    </StackPanel>
   </Grid>
 </Window>
