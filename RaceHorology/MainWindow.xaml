@@ -36,7 +36,6 @@
         <MenuItem Name="mnuClose" Header="S_chließen" Command="Close" InputGestureText="Ctrl+C"/>
       </MenuItem>
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
-        <MenuItem Name="mnuHandTime"  Header="Handzeit-Korrektur" Command="rhcmd:RaceHorologyCommands.HandTime"/>
         <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
       </MenuItem>
       <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
