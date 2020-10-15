@@ -495,7 +495,54 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void HandTimingVMManager_StoreAndLoad()
     {
+      TestDataGenerator tg = new TestDataGenerator();
 
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 0, 2), new TimeSpan(0, 8, 1, 2));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 2, 2), new TimeSpan(0, 8, 3, 2));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 4, 2), null);
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 6, 2), new TimeSpan(0, 8, 7, 2));
+
+
+      HandTimingVMManager mgr = new HandTimingVMManager(tg.Model);
+      HandTimingVM htVMS = mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EStartTime);
+      HandTimingVM htVMF = mgr.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EFinishTime);
+
+      List<TimingData> hts = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8,  0, 2, 100)},
+        //new TimingData{Time = new TimeSpan(0, 8,  2, 2, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  4, 2, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  6, 2, 400)}
+      };
+      htVMS.AddHandTimings(hts);
+
+      List<TimingData> htf = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8,  1, 2, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  3, 2, 200)},
+        //new TimingData{Time = new TimeSpan(0, 8,  5, 2, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  7, 2, 400)}
+      };
+      htVMF.AddHandTimings(htf);
+
+
+      mgr.SaveHandTimingToFile();
+
+
+
+      HandTimingVMManager mgr2 = new HandTimingVMManager(tg.Model);
+      HandTimingVM htVMS2 = mgr2.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EStartTime);
+      HandTimingVM htVMF2 = mgr2.GetHandTimingVM(tg.Model.GetRace(0), tg.Model.GetRace(0).GetRun(0), HandTimingVMEntry.ETimeModus.EFinishTime);
+      mgr2.LoadHandTimingFromFile();
+
+      for (int i = 0; i < htVMS2.Items.Count; i++)
+      {
+        Assert.AreEqual(htVMS.Items[i].HandTime, htVMS2.Items[i].HandTime);
+      }
+      for (int i=0; i<htVMF2.Items.Count; i++)
+      {
+        Assert.AreEqual(htVMF.Items[i].HandTime, htVMF2.Items[i].HandTime);
+      }
     }
 
 

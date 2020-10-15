@@ -156,9 +156,9 @@ namespace RaceHorologyLibTest
       });
     }
 
-    public string GetDBPath() { return "dummy"; }
-    public string GetDBFileName() { return "dummy"; }
-    public string GetDBPathDirectory() { return "dummy"; }
+    public string GetDBPath() { return "./dummy.mdb"; }
+    public string GetDBFileName() { return "dummy.mdb"; }
+    public string GetDBPathDirectory() { return "."; }
 
 
     public ItemsChangeObservableCollection<Participant> GetParticipants() { return new ItemsChangeObservableCollection<Participant>(); }

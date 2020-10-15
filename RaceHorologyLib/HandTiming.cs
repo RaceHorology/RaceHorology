@@ -33,10 +33,12 @@
  * 
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -519,19 +521,68 @@ namespace RaceHorologyLib
 
     public void LoadHandTimingFromFile()
     {
+      string handTimingFilePath = System.IO.Path.Combine(
+        _dm.GetDB().GetDBPathDirectory(),
+        _dm.GetDB().GetDBFileName() + ".handtiming");
 
+      if (File.Exists(handTimingFilePath))
+      {
+        Dictionary<string, List<TimeSpan>> handTimingData = new Dictionary<string, List<TimeSpan>>();
+        try
+        {
+          string configJSON = System.IO.File.ReadAllText(handTimingFilePath);
+          Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, handTimingData);
+        }
+        catch (Exception e)
+        {
+        }
+
+        foreach(var a in handTimingData)
+        {
+          Race race = null;
+          RaceRun run = null;
+          ETimeModus timeModus;
+
+          if (parseTimingVMKey(a.Key, out race, out run, out timeModus))
+          {
+            var vm = GetHandTimingVM(race, run, timeModus);
+
+            List<TimingData> handTime = new List<TimingData>();
+
+            foreach (var t in a.Value)
+              handTime.Add(new TimingData { Time = t });
+
+            vm.AddHandTimings(handTime);
+          }
+        }
+      }
     }
 
 
     public void SaveHandTimingToFile()
     {
-      //foreach (var vm in _handTimingVM)
-      //{
-        
-        
-      //  vm.Value.Items[0].HandTime
+      Dictionary<string, List<TimeSpan>> handTimingData = new Dictionary<string, List<TimeSpan>>();
+      foreach (var vm in _handTimingVM)
+      {
+        handTimingData[vm.Key] = new List<TimeSpan>();
+        foreach (var t in vm.Value.Items)
+        {
+          if (t.HandTime != null)
+            handTimingData[vm.Key].Add((TimeSpan)t.HandTime);
+        }
+      }
 
-      //}
+      string handTimingFilePath = System.IO.Path.Combine(
+        _dm.GetDB().GetDBPathDirectory(),
+        _dm.GetDB().GetDBFileName() + ".handtiming");
+      using (StreamWriter file = File.CreateText(handTimingFilePath))
+      {
+        using (JsonWriter writer = new JsonTextWriter(file))
+        {
+          JsonSerializer serializer = new JsonSerializer();
+          serializer.Serialize(writer, handTimingData);
+        }
+      }
     }
 
 
@@ -577,6 +628,47 @@ namespace RaceHorologyLib
     private string handTimingVMKey(Race race, RaceRun run, ETimeModus timeModus)
     {
       return string.Format("{0}_{1}_{2}", race.RaceType, run.Run, timeModus);
+    }
+
+    private bool parseTimingVMKey(string key, out Race race, out RaceRun run, out ETimeModus timeModus)
+    {
+      race = null;
+      run = null;
+      timeModus = ETimeModus.EStartTime;
+
+      var keyParts = key.Split('_');
+      if (keyParts.Length != 3)
+        return false;
+      
+      foreach(var r in _dm.GetRaces())
+      {
+        if (r.RaceType.ToString() == keyParts[0])
+        {
+          race = r;
+          break;
+        }
+      }
+
+      if (race == null)
+        return false;
+
+      foreach(var r in race.GetRuns())
+      {
+        if (r.Run.ToString() == keyParts[1])
+        {
+          run = r;
+          break;
+        }
+      }
+
+      if (ETimeModus.EStartTime.ToString() == keyParts[2])
+        timeModus = ETimeModus.EStartTime;
+      else if (ETimeModus.EFinishTime.ToString() == keyParts[2])
+        timeModus = ETimeModus.EFinishTime;
+      else
+        return false;
+
+      return true;
     }
 
   }
