@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -37,7 +37,6 @@ namespace RaceHorology
     {
       InitializeComponent();
 
-      _handTimingVMManager = new HandTimingVMManager(_dm);
 
       fillComboDevices();
       fillComboStartFinish(cmbCalcDeviceStartOrFinish);
@@ -56,6 +55,10 @@ namespace RaceHorology
     public void Init(AppDataModel dm, Race race)
     {
       _dm = dm;
+
+      _handTimingVMManager = new HandTimingVMManager(_dm);
+      _handTimingVMManager.LoadHandTimingFromFile();
+
       _race = race;
 
       fillCmbCalcRun();
