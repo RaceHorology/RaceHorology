@@ -379,6 +379,21 @@ namespace RaceHorologyLib
       _handTimings.Sort(_handTimingsSorter);
     }
 
+    public void DeleteHandTimings()
+    {
+      var ht = _handTimings.ToList();
+      foreach (var t in ht)
+      {
+        if (t.HandTime != null)
+        {
+          if (t.StartTime != null || t.FinishTime != null)
+            t.SetHandTime(null);
+          else
+            _handTimings.Remove(t);
+        }
+      }
+    }
+
 
     private TimeSpan? getATime(RunResult rr)
     {

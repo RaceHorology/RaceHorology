@@ -326,6 +326,36 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void HandTimingsVM_DeleteHandTiming()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      HandTimingVM htVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EStartTime);
+
+      List<RunResult> rr1 = new List<RunResult>
+      {
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8, 0, 2), new TimeSpan(0, 8, 1, 2))
+      };
+
+      List<TimingData> hts1 = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8, 0, 2, 301)},
+        new TimingData{Time = new TimeSpan(0, 8, 5, 2, 300)}
+      };
+
+      htVM.AddRunResults(rr1);
+      htVM.AddHandTimings(hts1);
+
+      Assert.AreEqual(2, htVM.Items.Count);
+
+      htVM.DeleteHandTimings();
+
+      Assert.AreEqual(1, htVM.Items.Count);
+      Assert.IsNull(htVM.Items[0].HandTime);
+      Assert.IsNotNull(htVM.Items[0].StartTime);
+    }
+
+
     /// <summary>
     /// Tests hand timing calculation
     /// - This Test Case: standard case, use the previous 10 hand timings
