@@ -595,6 +595,7 @@ namespace RaceHorologyLib
         using (JsonWriter writer = new JsonTextWriter(file))
         {
           JsonSerializer serializer = new JsonSerializer();
+          serializer.Formatting = Formatting.Indented;
           serializer.Serialize(writer, handTimingData);
         }
       }
