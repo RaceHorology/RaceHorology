@@ -70,6 +70,8 @@ namespace RaceHorology
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
       storeLastConfig();
+
+      _handTimingVMManager.SaveHandTimingToFile();
     }
 
 
