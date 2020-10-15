@@ -1,4 +1,4 @@
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -203,7 +203,7 @@ namespace RaceHorology
 
     private void btnDeviceDelete_Click(object sender, RoutedEventArgs e)
     {
-
+      _currentHandTimingVM.DeleteHandTimings();
     }
 
     private void btnSave_Click(object sender, RoutedEventArgs e)
