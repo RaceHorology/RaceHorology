@@ -38,6 +38,8 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using iText.Kernel.Utils;
+using iText.Kernel.Pdf;
 
 namespace RaceHorologyLibTest
 {
@@ -96,8 +98,33 @@ namespace RaceHorologyLibTest
 
 
 
+    bool generateAndCompareAgainstPdf(IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
+    {
+      string filenameOutput = report.ProposeFilePath();
+      report.Generate(filenameOutput);
+      return compareAgainstPdf(filenameOutput, filenameShall, nAcceptedDifferences);
+    }
+
+
+    bool compareAgainstPdf(string filenameOutput, string filenameShall, int nAcceptedDifferences = 0)
+    {
+
+      PdfReader pdfReaderOutput = new PdfReader(filenameOutput);
+      PdfDocument pdfOutput = new PdfDocument(pdfReaderOutput);
+
+      PdfReader pdfReaderShall = new PdfReader(filenameShall);
+      PdfDocument pdfShall = new PdfDocument(pdfReaderShall);
+
+      CompareTool ct = new CompareTool();
+      var result = ct.CompareByCatalog(pdfOutput, pdfShall);
+
+      return result.GetDifferences().Count <= nAcceptedDifferences;
+    }
+
+
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
+    [DeploymentItem(@"TestOutputs\TestDB_LessParticipants_MultipleRaces - Ergebnis 1. Durchgang.pdf")]
     public void RaceReportTest()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
@@ -107,8 +134,12 @@ namespace RaceHorologyLibTest
       var races = db.GetRaces();
       AppDataModel model = new AppDataModel(db);
 
-      //PDFReport p = new RaceRunResultReport(model.GetRaces()[0].GetRun(0));
-      //p.Generate("test.pdf");
+      PDFReport p = new RaceRunResultReport(model.GetRaces()[0].GetRun(0));
+      
+      Assert.IsTrue(generateAndCompareAgainstPdf(p, @"TestDB_LessParticipants_MultipleRaces - Ergebnis 1. Durchgang.pdf", 1));
     }
+
+
+
   }
 }
