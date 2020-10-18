@@ -734,6 +734,8 @@ namespace RaceHorologyLib
 
     public void Generate(string filePath)
     {
+      determineTableFontAndSize();
+
       var writer = new PdfWriter(filePath);
       var pdf = new PdfDocument(writer);
 
@@ -755,6 +757,79 @@ namespace RaceHorologyLib
 
       //pageXofY.WriteTotal(pdf);
       document.Close();
+    }
+
+
+
+    protected PdfFont _tableFont;
+    protected PdfFont _tableFontHeader;
+    protected float _tableFontSize;
+    protected float _tableFontSizeHeader;
+
+    protected virtual void determineTableFontAndSize()
+    {
+      _tableFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+      _tableFontHeader = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+      _tableFontSize = 9;
+      _tableFontSizeHeader = _tableFontSize + 1;
+    }
+
+    protected Paragraph createCellParagraphForTable(string text)
+    {
+      return new Paragraph(text)
+        .SetFont(_tableFont)
+        .SetFontSize(_tableFontSize)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(0)
+        .SetPaddingRight(0);
+    }
+
+    protected Paragraph createHeaderCellParagraphForTable(string text)
+    {
+      return new Paragraph(text)
+        .SetFont(_tableFontHeader)
+        .SetFontSize(_tableFontSizeHeader);
+    }
+
+
+    protected Cell createCellForTable(TextAlignment? textAlignment = TextAlignment.LEFT)
+    {
+      return new Cell()
+        .SetBorder(Border.NO_BORDER)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(4)
+        .SetPaddingRight(4)
+        .SetTextAlignment(textAlignment);
+    }
+
+    protected Cell createCellForTable(int colspan, TextAlignment? textAlignment = TextAlignment.LEFT)
+    {
+      return new Cell(1, colspan)
+        .SetBorder(Border.NO_BORDER)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(4)
+        .SetPaddingRight(4)
+        .SetTextAlignment(textAlignment);
+    }
+
+    protected string formatPoints(double points)
+    {
+      if (points < 0.0)
+        return "";
+
+      return string.Format("{0:0.00}", points);
+    }
+
+    protected string formatStartNumber(uint startNumber)
+    {
+      if (startNumber < 1)
+        return "---";
+
+      return startNumber.ToString();
     }
   }
 
@@ -1056,12 +1131,7 @@ namespace RaceHorologyLib
         _nOptFields++;
     }
 
-    protected PdfFont _tableFont;
-    protected PdfFont _tableFontHeader;
-    protected float _tableFontSize;
-    protected float _tableFontSizeHeader;
-
-    protected virtual void determineTableFontAndSize()
+    protected override void determineTableFontAndSize()
     {
       _tableFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
       _tableFontHeader = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
@@ -1117,63 +1187,8 @@ namespace RaceHorologyLib
     }
 
 
-    protected Paragraph createCellParagraphForTable(string text)
-    {
-      return new Paragraph(text)
-        .SetFont(_tableFont)
-        .SetFontSize(_tableFontSize)
-        .SetPaddingTop(0)
-        .SetPaddingBottom(0)
-        .SetPaddingLeft(0)
-        .SetPaddingRight(0);
-    }
-
-    protected Paragraph createHeaderCellParagraphForTable(string text)
-    {
-      return new Paragraph(text)
-        .SetFont(_tableFontHeader)
-        .SetFontSize(_tableFontSizeHeader);
-    }
 
 
-    protected Cell createCellForTable(TextAlignment? textAlignment = TextAlignment.LEFT)
-    {
-      return new Cell()
-        .SetBorder(Border.NO_BORDER)
-        .SetPaddingTop(0)
-        .SetPaddingBottom(0)
-        .SetPaddingLeft(4)
-        .SetPaddingRight(4)
-        .SetTextAlignment(textAlignment);
-    }
-
-    protected Cell createCellForTable(int colspan, TextAlignment? textAlignment = TextAlignment.LEFT)
-    {
-      return new Cell(1, colspan)
-        .SetBorder(Border.NO_BORDER)
-        .SetPaddingTop(0)
-        .SetPaddingBottom(0)
-        .SetPaddingLeft(4)
-        .SetPaddingRight(4)
-        .SetTextAlignment(textAlignment);
-    }
-
-
-    protected string formatPoints(double points)
-    {
-      if (points < 0.0)
-        return "";
-
-      return string.Format("{0:0.00}", points);
-    }
-
-    protected string formatStartNumber(uint startNumber)
-    {
-      if (startNumber < 1)
-        return "---";
-
-      return startNumber.ToString();
-    }
   }
 
 
