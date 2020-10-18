@@ -33,6 +33,7 @@
  * 
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -108,6 +109,38 @@ namespace RaceHorologyLibTest
       stopwatch.Stop();
       return stopwatch.Elapsed;
     }
+
+
+
+
+    public static bool GenerateAndCompareAgainstPdf(TestContext testContext, IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
+    {
+      string filenameOutput = report.ProposeFilePath();
+      report.Generate(filenameOutput);
+      return CompareAgainstPdf(testContext, filenameOutput, filenameShall, nAcceptedDifferences);
+    }
+
+
+    public static bool CompareAgainstPdf(TestContext testContext, string filenameOutput, string filenameShall, int nAcceptedDifferences = 0)
+    {
+
+      var pdfReaderOutput = new iText.Kernel.Pdf.PdfReader(filenameOutput);
+      var pdfOutput = new iText.Kernel.Pdf.PdfDocument(pdfReaderOutput);
+
+      var pdfReaderShall = new iText.Kernel.Pdf.PdfReader(filenameShall);
+      var pdfShall = new iText.Kernel.Pdf.PdfDocument(pdfReaderShall);
+
+      var ct = new iText.Kernel.Utils.CompareTool();
+      var result = ct.CompareByCatalog(pdfOutput, pdfShall);
+
+      testContext.WriteLine(string.Format("Diff of {0} <-> {1}", filenameOutput, filenameShall));
+      foreach (var dif in result.GetDifferences())
+      {
+        testContext.WriteLine(dif.Value);
+      }
+      return result.GetDifferences().Count <= nAcceptedDifferences;
+    }
+
 
   }
 

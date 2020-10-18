@@ -100,35 +100,6 @@ namespace RaceHorologyLibTest
 
 
 
-    bool generateAndCompareAgainstPdf(IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
-    {
-      string filenameOutput = report.ProposeFilePath();
-      report.Generate(filenameOutput);
-      return compareAgainstPdf(filenameOutput, filenameShall, nAcceptedDifferences);
-    }
-
-
-    bool compareAgainstPdf(string filenameOutput, string filenameShall, int nAcceptedDifferences = 0)
-    {
-
-      PdfReader pdfReaderOutput = new PdfReader(filenameOutput);
-      PdfDocument pdfOutput = new PdfDocument(pdfReaderOutput);
-
-      PdfReader pdfReaderShall = new PdfReader(filenameShall);
-      PdfDocument pdfShall = new PdfDocument(pdfReaderShall);
-
-      CompareTool ct = new CompareTool();
-      var result = ct.CompareByCatalog(pdfOutput, pdfShall);
-
-      TestContext.WriteLine(string.Format("Diff of {0} <-> {1}", filenameOutput, filenameShall));
-      foreach (var dif in result.GetDifferences())
-      {
-        TestContext.WriteLine(dif.Value);
-      }
-      return result.GetDifferences().Count <= nAcceptedDifferences;
-    }
-
-
 
     internal class DummyRaceReport : PDFRaceReport
     {
@@ -144,7 +115,7 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator(testContextInstance.TestResultsDirectory);
       {
         IPDFReport report = new DummyRaceReport(tg.Model.GetRace(0));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"Base_RaceReport.pdf", 1));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
       }
     }
 
@@ -168,23 +139,23 @@ namespace RaceHorologyLibTest
 
       {
         IPDFReport report = new StartListReport(race.GetRun(0));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Startliste 1. Durchgang.pdf", 4));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 4));
       }
       {
         IPDFReport report = new StartListReport2ndRun(race.GetRun(1));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Startliste 2. Durchgang.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 2. Durchgang.pdf", 3));
       }
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(0));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 5));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 5));
       }
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(1));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 3));
       }
       {
         IPDFReport report = new RaceResultReport(race);
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis Gesamt.pdf", 2));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 2));
       }
     }
   }
