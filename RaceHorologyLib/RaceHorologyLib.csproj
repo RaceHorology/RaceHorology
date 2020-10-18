@@ -129,21 +129,21 @@
     <EmbeddedResource Include="dbtemplates\TemplateDB_Standard.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <Content Include="resources\pdf\LogoRH.png">
+    <EmbeddedResource Include="resources\pdf\LogoRH.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\pdf\LogoRHShort.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="resources\pdf\LogoRHShort.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\pdf\LogoRHShort.svg">
+    </EmbeddedResource>
+    <EmbeddedResource Include="resources\pdf\LogoRHShort.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\pdf\LogoRHShortM.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="resources\pdf\LogoRHShortM.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\pdf\LogoRHShortM.svg">
+    </EmbeddedResource>
+    <EmbeddedResource Include="resources\pdf\LogoRHShortM.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="COPYING" />

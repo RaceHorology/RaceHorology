@@ -38,6 +38,8 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using iText.Kernel.Utils;
+using iText.Kernel.Pdf;
 
 namespace RaceHorologyLibTest
 {
@@ -96,19 +98,72 @@ namespace RaceHorologyLibTest
 
 
 
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
-    public void RaceReportTest()
+    bool generateAndCompareAgainstPdf(IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
     {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
+      string filenameOutput = report.ProposeFilePath();
+      report.Generate(filenameOutput);
+      return compareAgainstPdf(filenameOutput, filenameShall, nAcceptedDifferences);
+    }
+
+
+    bool compareAgainstPdf(string filenameOutput, string filenameShall, int nAcceptedDifferences = 0)
+    {
+
+      PdfReader pdfReaderOutput = new PdfReader(filenameOutput);
+      PdfDocument pdfOutput = new PdfDocument(pdfReaderOutput);
+
+      PdfReader pdfReaderShall = new PdfReader(filenameShall);
+      PdfDocument pdfShall = new PdfDocument(pdfReaderShall);
+
+      CompareTool ct = new CompareTool();
+      var result = ct.CompareByCatalog(pdfOutput, pdfShall);
+
+      TestContext.WriteLine(string.Format("Diff of {0} <-> {1}", filenameOutput, filenameShall));
+      foreach (var dif in result.GetDifferences())
+      {
+        TestContext.WriteLine(dif.Value);
+      }
+      return result.GetDifferences().Count <= nAcceptedDifferences;
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis Gesamt.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 1. Durchgang.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 2. Durchgang.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 1. Durchgang.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 2. Durchgang.pdf")]
+    public void Integration_1554MSBS()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
-
-      var races = db.GetRaces();
       AppDataModel model = new AppDataModel(db);
 
-      //PDFReport p = new RaceRunResultReport(model.GetRaces()[0].GetRun(0));
-      //p.Generate("test.pdf");
+      Race race = model.GetRace(0);
+
+      {
+        IPDFReport report = new StartListReport(race.GetRun(0));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Startliste 1. Durchgang.pdf", 4));
+      }
+      {
+        IPDFReport report = new StartListReport2ndRun(race.GetRun(1));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Startliste 2. Durchgang.pdf", 3));
+      }
+      {
+        IPDFReport report = new RaceRunResultReport(race.GetRun(0));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 5));
+      }
+      {
+        IPDFReport report = new RaceRunResultReport(race.GetRun(1));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 3));
+      }
+      {
+        IPDFReport report = new RaceResultReport(race);
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis Gesamt.pdf", 2));
+      }
     }
   }
 }

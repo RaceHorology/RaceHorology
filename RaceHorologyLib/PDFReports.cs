@@ -102,10 +102,30 @@ namespace RaceHorologyLib
     {
       Image img = null;
 
-      string imgPath = FindImage(filenameWOExt);
-      if (!string.IsNullOrEmpty(imgPath))
-        img = new Image(ImageDataFactory.Create(imgPath));
-      //iText.Svg.Converter.SvgConverter.
+      string foundResource = null;
+      foundResource = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.StartsWith("RaceHorologyLib.resources.pdf." + filenameWOExt));
+      if (foundResource != null)
+      {
+        byte[] ReadFully(Stream input)
+        {
+          using (MemoryStream ms = new MemoryStream())
+          {
+            input.CopyTo(ms);
+            return ms.ToArray();
+          }
+        }
+
+        var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(foundResource);
+        img = new Image(ImageDataFactory.Create(ReadFully(stream)));
+      }
+
+      if (img != null)
+      {
+        string imgPath = FindImage(filenameWOExt);
+        if (!string.IsNullOrEmpty(imgPath))
+          img = new Image(ImageDataFactory.Create(imgPath));
+      }
+
       return img;
     }
 
