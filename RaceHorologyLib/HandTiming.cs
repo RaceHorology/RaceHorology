@@ -208,8 +208,8 @@ namespace RaceHorologyLib
         FinishTime = calcTime;
         ManuallyAdjustedFinishTime = true;
       }
-
       updateInternal();
+      updateRunTime();
     }
 
     private void copyFromRunResult(RunResult runResult)
@@ -231,6 +231,17 @@ namespace RaceHorologyLib
       }
       else
         HandTimeDiff = null;
+    }
+
+    private void updateRunTime()
+    {
+      if (StartTime != null && FinishTime != null)
+      {
+        var s = new RoundedTimeSpan((TimeSpan)StartTime, 2, RoundedTimeSpan.ERoundType.Floor);
+        var f = new RoundedTimeSpan((TimeSpan)FinishTime, 2, RoundedTimeSpan.ERoundType.Floor);
+
+        RunTime = f.TimeSpan - s.TimeSpan;
+      }
     }
 
     #region INotifyPropertyChanged implementation
