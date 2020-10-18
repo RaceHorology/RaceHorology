@@ -411,7 +411,7 @@ namespace RaceHorologyLib
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties.Location ?? ""))));
+        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties?.Location ?? ""))));
 
       return tableHeader;
     }
@@ -699,38 +699,25 @@ namespace RaceHorologyLib
 
 
 
-
-public abstract class PDFReport : IPDFReport
+  public abstract class PDFRaceReport : IPDFReport
   {
     protected Race _race;
-
     protected AppDataModel _dm;
+
     protected PDFHelper _pdfHelper;
 
-    protected PositionConverter _positionConverter = new PositionConverter();
-
-    protected int _nOptFields;
-
-
-    public PDFReport(Race race)
+    public PDFRaceReport(Race race)
     {
       _race = race;
-
       _dm = race.GetDataModel();
-      _pdfHelper = new PDFHelper(_dm);
 
-      _nOptFields = 0;
+      _pdfHelper = new PDFHelper(_dm);
     }
 
     protected abstract string getTitle();
-
-    protected abstract ICollectionView getView();
-    protected abstract float[] getTableColumnsWidths();
-    protected abstract void addHeaderToTable(Table table);
-    protected abstract void addLineToTable(Table table, string group);
-    protected abstract void addCommentLineToTable(Table table, string comment);
-    protected abstract bool addLineToTable(Table table, object data, int i = 0);
     protected abstract string getReportName();
+    protected abstract void addContent(PdfDocument pdf, Document document);
+
 
     public virtual string ProposeFilePath()
     {
@@ -743,6 +730,7 @@ public abstract class PDFReport : IPDFReport
 
       return path;
     }
+
 
     public void Generate(string filePath)
     {
@@ -768,9 +756,32 @@ public abstract class PDFReport : IPDFReport
       //pageXofY.WriteTotal(pdf);
       document.Close();
     }
+  }
 
 
-    protected virtual void addContent(PdfDocument pdf, Document document)
+
+
+  public abstract class PDFReport : PDFRaceReport
+  {
+    protected PositionConverter _positionConverter = new PositionConverter();
+
+    protected int _nOptFields;
+
+
+    public PDFReport(Race race) : base(race)
+    {
+
+      _nOptFields = 0;
+    }
+
+    protected abstract ICollectionView getView();
+    protected abstract float[] getTableColumnsWidths();
+    protected abstract void addHeaderToTable(Table table);
+    protected abstract void addLineToTable(Table table, string group);
+    protected abstract void addCommentLineToTable(Table table, string comment);
+    protected abstract bool addLineToTable(Table table, object data, int i = 0);
+
+    protected override void addContent(PdfDocument pdf, Document document)
     {
       Table raceProperties = getRacePropertyTable();
       if (raceProperties != null)
@@ -1163,9 +1174,6 @@ public abstract class PDFReport : IPDFReport
 
       return startNumber.ToString();
     }
-
-
-
   }
 
 

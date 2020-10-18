@@ -144,9 +144,9 @@ namespace RaceHorologyLibTest
   public class DummyDataBase : IAppDataModelDataBase
   {
     List<Race.RaceProperties> _races;
-    
+    string _basePath;
 
-    public DummyDataBase()
+    public DummyDataBase(string basePath)
     {
       _races = new List<Race.RaceProperties>();
       _races.Add(new Race.RaceProperties 
@@ -154,11 +154,12 @@ namespace RaceHorologyLibTest
         RaceType = Race.ERaceType.GiantSlalom,
         Runs = 2
       });
+      _basePath = basePath;
     }
 
-    public string GetDBPath() { return "./dummy.mdb"; }
+    public string GetDBPath() { return System.IO.Path.Combine(_basePath, GetDBFileName()); }
     public string GetDBFileName() { return "dummy.mdb"; }
-    public string GetDBPathDirectory() { return "."; }
+    public string GetDBPathDirectory() { return _basePath; }
 
 
     public ItemsChangeObservableCollection<Participant> GetParticipants() { return new ItemsChangeObservableCollection<Participant>(); }
@@ -207,9 +208,9 @@ namespace RaceHorologyLibTest
   {
     Race _race;
 
-    public TestDataGenerator()
+    public TestDataGenerator(string path = ".")
     {
-      Model = new AppDataModel(new DummyDataBase());
+      Model = new AppDataModel(new DummyDataBase(path));
       _race = Model.GetRace(0);
     }
 

@@ -40,6 +40,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using iText.Kernel.Utils;
 using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
 
 namespace RaceHorologyLibTest
 {
@@ -124,6 +126,26 @@ namespace RaceHorologyLibTest
         TestContext.WriteLine(dif.Value);
       }
       return result.GetDifferences().Count <= nAcceptedDifferences;
+    }
+
+
+
+    internal class DummyRaceReport : PDFRaceReport
+    {
+      public DummyRaceReport(Race race) : base(race) { }
+      protected override string getReportName() { return "DummyName"; }
+      protected override string getTitle() { return "DummyTitle"; }
+      protected override void addContent(PdfDocument pdf, Document document) { document.Add(new Paragraph("DummyContent")); }
+    }
+    [TestMethod]
+    [DeploymentItem(@"TestOutputs\Base_RaceReport.pdf")]
+    public void Base_RaceReport()
+    {
+      TestDataGenerator tg = new TestDataGenerator(testContextInstance.TestResultsDirectory);
+      {
+        IPDFReport report = new DummyRaceReport(tg.Model.GetRace(0));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"Base_RaceReport.pdf", 1));
+      }
     }
 
 
