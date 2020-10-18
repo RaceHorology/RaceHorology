@@ -42,12 +42,12 @@ using RaceHorologyLib;
 namespace RaceHorologyLibTest
 {
   /// <summary>
-  /// Summary description for ValueConverterTest
+  /// Summary description for ALGETimyTests
   /// </summary>
   [TestClass]
-  public class ValueConverterTest
+  public class ALGETimyTests
   {
-    public ValueConverterTest()
+    public ALGETimyTests()
     {
     }
 
@@ -92,37 +92,36 @@ namespace RaceHorologyLibTest
     #endregion
 
     [TestMethod]
-    public void AgeToYearInputConverterTest()
+    public void Parser()
     {
-      var converter = new AgeToYearInputConverter();
-
-      // Standard forward conversion, no change in object
-      Assert.AreEqual(10, converter.Convert(10, null, null, null));
-
-      // Check years stay years
-      Assert.AreEqual(2010, converter.ConvertBack(2010, null, null, null));
-      Assert.AreEqual(2020, converter.ConvertBack(2020, null, null, null));
-
-      // Check ages get years
-      Assert.AreEqual(DateTime.Now.AddMonths(3).Year - 10, converter.ConvertBack(10, null, null, null));
+      // Not really tested, because the ALGETdC8001LineParser is tested in ALGETdC8001Tests
+      ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
+      {
+        var pd = parser.Parse(" 0035 C0  21:46:36.3910 00");
+        Assert.AreEqual(' ', pd.Flag);
+        Assert.AreEqual(35U, pd.StartNumber);
+        Assert.AreEqual("C0", pd.Channel);
+        Assert.AreEqual(' ', pd.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 391), pd.Time);
+      }
     }
 
-    [TestMethod]
-    public void TimeSpanConverterTest()
+
+    [TestMethod, TestCategory("HardwareDependent")]
+    public void RetrieveTimingData()
     {
-      var converter = new TimeSpanConverter();
+      string comport = "COM4";
 
-      TimeSpan? t1 = new TimeSpan(0, 0, 0, 30, 126);
-      Assert.AreEqual("30,12", converter.Convert(t1, null, null, null));
-      Assert.AreEqual("0:30,12", converter.Convert(t1, null, "m", null));
-      Assert.AreEqual("00:30,12", converter.Convert(t1, null, "mm", null));
+      ALGETimy timy = new ALGETimy(comport);
 
-      TimeSpan? t2 = new TimeSpan(0, 0, 1, 30, 126);
-      Assert.AreEqual("1:30,12", converter.Convert(t2, null, null, null));
-      Assert.AreEqual("01:30,12", converter.Convert(t2, null, "mm", null));
+      timy.Connect();
+      timy.StartGetTimingData();
 
-      TimeSpan? t3 = new TimeSpan(0, 1, 1, 30, 126);
-      Assert.AreEqual("01:01:30,12", converter.Convert(t3, null, null, null));
+      foreach(var t in timy.TimingData())
+      {
+        TestContext.WriteLine(t.Time.ToString());
+      }
+
     }
   }
 }

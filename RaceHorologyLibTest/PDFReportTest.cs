@@ -40,6 +40,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using iText.Kernel.Utils;
 using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
 
 namespace RaceHorologyLibTest
 {
@@ -98,32 +100,23 @@ namespace RaceHorologyLibTest
 
 
 
-    bool generateAndCompareAgainstPdf(IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
+
+    internal class DummyRaceReport : PDFRaceReport
     {
-      string filenameOutput = report.ProposeFilePath();
-      report.Generate(filenameOutput);
-      return compareAgainstPdf(filenameOutput, filenameShall, nAcceptedDifferences);
+      public DummyRaceReport(Race race) : base(race) { }
+      protected override string getReportName() { return "DummyName"; }
+      protected override string getTitle() { return "DummyTitle"; }
+      protected override void addContent(PdfDocument pdf, Document document) { document.Add(new Paragraph("DummyContent")); }
     }
-
-
-    bool compareAgainstPdf(string filenameOutput, string filenameShall, int nAcceptedDifferences = 0)
+    [TestMethod]
+    [DeploymentItem(@"TestOutputs\Base_RaceReport.pdf")]
+    public void Base_RaceReport()
     {
-
-      PdfReader pdfReaderOutput = new PdfReader(filenameOutput);
-      PdfDocument pdfOutput = new PdfDocument(pdfReaderOutput);
-
-      PdfReader pdfReaderShall = new PdfReader(filenameShall);
-      PdfDocument pdfShall = new PdfDocument(pdfReaderShall);
-
-      CompareTool ct = new CompareTool();
-      var result = ct.CompareByCatalog(pdfOutput, pdfShall);
-
-      TestContext.WriteLine(string.Format("Diff of {0} <-> {1}", filenameOutput, filenameShall));
-      foreach (var dif in result.GetDifferences())
+      TestDataGenerator tg = new TestDataGenerator(testContextInstance.TestResultsDirectory);
       {
-        TestContext.WriteLine(dif.Value);
+        IPDFReport report = new DummyRaceReport(tg.Model.GetRace(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
       }
-      return result.GetDifferences().Count <= nAcceptedDifferences;
     }
 
 
@@ -146,23 +139,23 @@ namespace RaceHorologyLibTest
 
       {
         IPDFReport report = new StartListReport(race.GetRun(0));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Startliste 1. Durchgang.pdf", 4));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 4));
       }
       {
         IPDFReport report = new StartListReport2ndRun(race.GetRun(1));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Startliste 2. Durchgang.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 2. Durchgang.pdf", 3));
       }
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(0));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 5));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 5));
       }
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(1));
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 3));
       }
       {
         IPDFReport report = new RaceResultReport(race);
-        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis Gesamt.pdf", 2));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 2));
       }
     }
   }

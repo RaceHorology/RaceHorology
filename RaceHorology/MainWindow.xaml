@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RaceHorology"
+        xmlns:rhcmd="clr-namespace:RaceHorology.Commands"
         mc:Ignorable="d"
         Title="Race Horology" Height="1024" Width="1400">
 
@@ -13,6 +14,7 @@
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
     <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.HandTime" Executed="HandTimeCommandBinding_Executed" />
   </Window.CommandBindings>
   <Window.InputBindings>
     <KeyBinding Key="N" Modifiers="Control" Command="New"/>
@@ -33,7 +35,9 @@
         <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
         <MenuItem Name="mnuClose" Header="S_chließen" Command="Close" InputGestureText="Ctrl+C"/>
       </MenuItem>
-      <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties" />
+      <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
+        <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
+      </MenuItem>
       <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
     </Menu>
     <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffeff5f0">

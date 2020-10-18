@@ -42,12 +42,12 @@ using RaceHorologyLib;
 namespace RaceHorologyLibTest
 {
   /// <summary>
-  /// Summary description for ValueConverterTest
+  /// Summary description for TagHeuerTests
   /// </summary>
   [TestClass]
-  public class ValueConverterTest
+  public class TagHeuerTests
   {
-    public ValueConverterTest()
+    public TagHeuerTests()
     {
     }
 
@@ -91,38 +91,39 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+
     [TestMethod]
-    public void AgeToYearInputConverterTest()
+    public void Parse()
     {
-      var converter = new AgeToYearInputConverter();
+      TagHeuerParser parser = new TagHeuerParser();
 
-      // Standard forward conversion, no change in object
-      Assert.AreEqual(10, converter.Convert(10, null, null, null));
+      {
+        var r = parser.ParseRR("\nRR 0010 0232   05:27:51.01040\t");
+        Assert.AreEqual(10, r.Rank);
+        Assert.AreEqual(232, r.Number);
+        Assert.AreEqual(new TimeSpan(0, 5, 27, 51, 10).AddMicroseconds(400), r.Time);
+      }
 
-      // Check years stay years
-      Assert.AreEqual(2010, converter.ConvertBack(2010, null, null, null));
-      Assert.AreEqual(2020, converter.ConvertBack(2020, null, null, null));
-
-      // Check ages get years
-      Assert.AreEqual(DateTime.Now.AddMonths(3).Year - 10, converter.ConvertBack(10, null, null, null));
+      {
+        var r = parser.ParseSynchroTime("\n!T 08:14:00 01/03/20\t");
+        Assert.AreEqual(new DateTime(2020,3,1,8,14,0), r);
+      }
     }
 
-    [TestMethod]
-    public void TimeSpanConverterTest()
+    [TestMethod, TestCategory("HardwareDependent")]
+    public void RetrieveTimingData()
     {
-      var converter = new TimeSpanConverter();
+      string comport = "COM6";
 
-      TimeSpan? t1 = new TimeSpan(0, 0, 0, 30, 126);
-      Assert.AreEqual("30,12", converter.Convert(t1, null, null, null));
-      Assert.AreEqual("0:30,12", converter.Convert(t1, null, "m", null));
-      Assert.AreEqual("00:30,12", converter.Convert(t1, null, "mm", null));
+      TagHeuer tagHeuer = new TagHeuer(comport);
 
-      TimeSpan? t2 = new TimeSpan(0, 0, 1, 30, 126);
-      Assert.AreEqual("1:30,12", converter.Convert(t2, null, null, null));
-      Assert.AreEqual("01:30,12", converter.Convert(t2, null, "mm", null));
+      tagHeuer.Connect();
+      tagHeuer.StartGetTimingData();
 
-      TimeSpan? t3 = new TimeSpan(0, 1, 1, 30, 126);
-      Assert.AreEqual("01:01:30,12", converter.Convert(t3, null, null, null));
+      foreach (var t in tagHeuer.TimingData())
+      {
+        TestContext.WriteLine(t.Time.ToString());
+      }
     }
   }
 }

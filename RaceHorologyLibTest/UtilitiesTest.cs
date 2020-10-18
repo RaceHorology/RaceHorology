@@ -163,5 +163,28 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, sc.Count);
       Assert.AreEqual(0, coc.Count);
     }
+
+    [TestMethod]
+    public void ToRaceTimeStringTest()
+    {
+      TimeSpan? t1 = new TimeSpan(0, 0, 0, 30, 126);
+      Assert.AreEqual("30,12", t1.ToRaceTimeString());
+      Assert.AreEqual("30,13", t1.ToRaceTimeString(roundType: RoundedTimeSpan.ERoundType.Round));
+      Assert.AreEqual("0:30,12", t1.ToRaceTimeString(formatString: "m"));
+      Assert.AreEqual("00:30,12", t1.ToRaceTimeString(formatString: "mm"));
+
+      TimeSpan? t1n = new TimeSpan(((TimeSpan)t1).Ticks * -1);
+      Assert.AreEqual("-30,12", t1n.ToRaceTimeString());
+      Assert.AreEqual("-30,13", t1n.ToRaceTimeString(roundType: RoundedTimeSpan.ERoundType.Round));
+
+
+      TimeSpan? t2 = new TimeSpan(0, 0, 1, 30, 126);
+      Assert.AreEqual("1:30,12", t2.ToRaceTimeString());
+      Assert.AreEqual("01:30,12", t2.ToRaceTimeString(formatString: "mm"));
+
+      TimeSpan? t3 = new TimeSpan(0, 1, 1, 30, 126);
+      Assert.AreEqual("01:01:30,12", t3.ToRaceTimeString());
+
+    }
   }
 }

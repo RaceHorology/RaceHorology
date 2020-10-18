@@ -569,7 +569,8 @@
                 </Grid.ColumnDefinitions>
 
                 <Label x:Name="lblManualMode" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Content="Manuelle Erfassung (&lt;CTRL&gt;-&lt;M&gt;)" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12"/>
-                <ComboBox x:Name="cmbManualMode" Grid.Row="1" Grid.Column="7" Grid.ColumnSpan="1" Margin="5,0,5,0" SelectionChanged="CmbManualMode_SelectionChanged"/>
+                <ComboBox x:Name="cmbManualMode" Grid.Row="1" Grid.Column="7" Grid.ColumnSpan="1" Margin="5,5,5,5" SelectionChanged="CmbManualMode_SelectionChanged"/>
+                <Button x:Name="btnHandTiming" Content="Handzeit" Margin="5" Grid.Row="0" Grid.Column="7" Click="btnHandTiming_Click"/>
 
                 <Label x:Name="lblStartNumber" Content="StNr" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" HorizontalAlignment="Left" Margin="5,0,5,0"  VerticalAlignment="Center" FontSize="12"/>
                 <TextBox x:Name="txtStartNumber" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Margin="5,0,5,0" Width="80" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Right" TextChanged="TxtStartNumber_TextChanged" GotFocus="TxtManualTime_GotFocus"/>

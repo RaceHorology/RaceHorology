@@ -125,6 +125,12 @@
     <Compile Include="DisqualifyUC.xaml.cs">
       <DependentUpon>DisqualifyUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HandTimingDlg.xaml.cs">
+      <DependentUpon>HandTimingDlg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="HandTimingUC.xaml.cs">
+      <DependentUpon>HandTimingUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ImportWizard.xaml.cs">
       <DependentUpon>ImportWizard.xaml</DependentUpon>
     </Compile>
@@ -134,6 +140,7 @@
     <Compile Include="MsChart.xaml.cs">
       <DependentUpon>MsChart.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RaceHorologyCommands.cs" />
     <Compile Include="RaceTabHeaderUC.xaml.cs">
       <DependentUpon>RaceTabHeaderUC.xaml</DependentUpon>
     </Compile>
@@ -168,6 +175,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="DisqualifyUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HandTimingDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HandTimingUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

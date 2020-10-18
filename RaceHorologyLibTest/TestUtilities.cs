@@ -33,6 +33,7 @@
  * 
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -109,6 +110,38 @@ namespace RaceHorologyLibTest
       return stopwatch.Elapsed;
     }
 
+
+
+
+    public static bool GenerateAndCompareAgainstPdf(TestContext testContext, IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
+    {
+      string filenameOutput = report.ProposeFilePath();
+      report.Generate(filenameOutput);
+      return CompareAgainstPdf(testContext, filenameOutput, filenameShall, nAcceptedDifferences);
+    }
+
+
+    public static bool CompareAgainstPdf(TestContext testContext, string filenameOutput, string filenameShall, int nAcceptedDifferences = 0)
+    {
+
+      var pdfReaderOutput = new iText.Kernel.Pdf.PdfReader(filenameOutput);
+      var pdfOutput = new iText.Kernel.Pdf.PdfDocument(pdfReaderOutput);
+
+      var pdfReaderShall = new iText.Kernel.Pdf.PdfReader(filenameShall);
+      var pdfShall = new iText.Kernel.Pdf.PdfDocument(pdfReaderShall);
+
+      var ct = new iText.Kernel.Utils.CompareTool();
+      var result = ct.CompareByCatalog(pdfOutput, pdfShall);
+
+      testContext.WriteLine(string.Format("Diff of {0} <-> {1}", filenameOutput, filenameShall));
+      foreach (var dif in result.GetDifferences())
+      {
+        testContext.WriteLine(dif.Value);
+      }
+      return result.GetDifferences().Count <= nAcceptedDifferences;
+    }
+
+
   }
 
   public class DBTestUtilities
@@ -144,21 +177,22 @@ namespace RaceHorologyLibTest
   public class DummyDataBase : IAppDataModelDataBase
   {
     List<Race.RaceProperties> _races;
-    
+    string _basePath;
 
-    public DummyDataBase()
+    public DummyDataBase(string basePath)
     {
       _races = new List<Race.RaceProperties>();
       _races.Add(new Race.RaceProperties 
       {
         RaceType = Race.ERaceType.GiantSlalom,
-        Runs = 1
+        Runs = 2
       });
+      _basePath = basePath;
     }
 
-    public string GetDBPath() { return "dummy"; }
-    public string GetDBFileName() { return "dummy"; }
-    public string GetDBPathDirectory() { return "dummy"; }
+    public string GetDBPath() { return System.IO.Path.Combine(_basePath, GetDBFileName()); }
+    public string GetDBFileName() { return "dummy.mdb"; }
+    public string GetDBPathDirectory() { return _basePath; }
 
 
     public ItemsChangeObservableCollection<Participant> GetParticipants() { return new ItemsChangeObservableCollection<Participant>(); }
@@ -207,9 +241,9 @@ namespace RaceHorologyLibTest
   {
     Race _race;
 
-    public TestDataGenerator()
+    public TestDataGenerator(string path = ".")
     {
-      Model = new AppDataModel(new DummyDataBase());
+      Model = new AppDataModel(new DummyDataBase(path));
       _race = Model.GetRace(0);
     }
 
@@ -236,7 +270,11 @@ namespace RaceHorologyLibTest
 
     public RaceParticipant createRaceParticipant()
     {
-      return _race.AddParticipant(createParticipant());
+      Participant p = createParticipant();
+      RaceParticipant rp = _race.AddParticipant(p);
+
+      rp.StartNumber = uint.Parse(p.Id);
+      return rp;
     }
 
 
@@ -251,6 +289,14 @@ namespace RaceHorologyLibTest
         Firstname = string.Format("Firstname {0}", _participantSerial),
         Id = _participantSerial.ToString()
       };
+    }
+
+    public RunResult createRunResult(RaceParticipant rp, TimeSpan? startTime, TimeSpan? endTime)
+    {
+      RunResult rr = new RunResult(rp);
+      rr.SetStartTime(startTime);
+      rr.SetFinishTime(endTime);
+      return rr;
     }
 
   }

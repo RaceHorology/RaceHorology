@@ -411,7 +411,7 @@ namespace RaceHorologyLib
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties.Location ?? ""))));
+        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties?.Location ?? ""))));
 
       return tableHeader;
     }
@@ -699,38 +699,25 @@ namespace RaceHorologyLib
 
 
 
-
-public abstract class PDFReport : IPDFReport
+  public abstract class PDFRaceReport : IPDFReport
   {
     protected Race _race;
-
     protected AppDataModel _dm;
+
     protected PDFHelper _pdfHelper;
 
-    protected PositionConverter _positionConverter = new PositionConverter();
-
-    protected int _nOptFields;
-
-
-    public PDFReport(Race race)
+    public PDFRaceReport(Race race)
     {
       _race = race;
-
       _dm = race.GetDataModel();
-      _pdfHelper = new PDFHelper(_dm);
 
-      _nOptFields = 0;
+      _pdfHelper = new PDFHelper(_dm);
     }
 
     protected abstract string getTitle();
-
-    protected abstract ICollectionView getView();
-    protected abstract float[] getTableColumnsWidths();
-    protected abstract void addHeaderToTable(Table table);
-    protected abstract void addLineToTable(Table table, string group);
-    protected abstract void addCommentLineToTable(Table table, string comment);
-    protected abstract bool addLineToTable(Table table, object data, int i = 0);
     protected abstract string getReportName();
+    protected abstract void addContent(PdfDocument pdf, Document document);
+
 
     public virtual string ProposeFilePath()
     {
@@ -744,8 +731,11 @@ public abstract class PDFReport : IPDFReport
       return path;
     }
 
+
     public void Generate(string filePath)
     {
+      determineTableFontAndSize();
+
       var writer = new PdfWriter(filePath);
       var pdf = new PdfDocument(writer);
 
@@ -770,7 +760,103 @@ public abstract class PDFReport : IPDFReport
     }
 
 
-    protected virtual void addContent(PdfDocument pdf, Document document)
+
+    protected PdfFont _tableFont;
+    protected PdfFont _tableFontHeader;
+    protected float _tableFontSize;
+    protected float _tableFontSizeHeader;
+
+    protected virtual void determineTableFontAndSize()
+    {
+      _tableFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+      _tableFontHeader = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+      _tableFontSize = 9;
+      _tableFontSizeHeader = _tableFontSize + 1;
+    }
+
+    protected Paragraph createCellParagraphForTable(string text)
+    {
+      return new Paragraph(text)
+        .SetFont(_tableFont)
+        .SetFontSize(_tableFontSize)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(0)
+        .SetPaddingRight(0);
+    }
+
+    protected Paragraph createHeaderCellParagraphForTable(string text)
+    {
+      return new Paragraph(text)
+        .SetFont(_tableFontHeader)
+        .SetFontSize(_tableFontSizeHeader);
+    }
+
+
+    protected Cell createCellForTable(TextAlignment? textAlignment = TextAlignment.LEFT)
+    {
+      return new Cell()
+        .SetBorder(Border.NO_BORDER)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(4)
+        .SetPaddingRight(4)
+        .SetTextAlignment(textAlignment);
+    }
+
+    protected Cell createCellForTable(int colspan, TextAlignment? textAlignment = TextAlignment.LEFT)
+    {
+      return new Cell(1, colspan)
+        .SetBorder(Border.NO_BORDER)
+        .SetPaddingTop(0)
+        .SetPaddingBottom(0)
+        .SetPaddingLeft(4)
+        .SetPaddingRight(4)
+        .SetTextAlignment(textAlignment);
+    }
+
+    protected string formatPoints(double points)
+    {
+      if (points < 0.0)
+        return "";
+
+      return string.Format("{0:0.00}", points);
+    }
+
+    protected string formatStartNumber(uint startNumber)
+    {
+      if (startNumber < 1)
+        return "---";
+
+      return startNumber.ToString();
+    }
+  }
+
+
+
+
+  public abstract class PDFReport : PDFRaceReport
+  {
+    protected PositionConverter _positionConverter = new PositionConverter();
+
+    protected int _nOptFields;
+
+
+    public PDFReport(Race race) : base(race)
+    {
+
+      _nOptFields = 0;
+    }
+
+    protected abstract ICollectionView getView();
+    protected abstract float[] getTableColumnsWidths();
+    protected abstract void addHeaderToTable(Table table);
+    protected abstract void addLineToTable(Table table, string group);
+    protected abstract void addCommentLineToTable(Table table, string comment);
+    protected abstract bool addLineToTable(Table table, object data, int i = 0);
+
+    protected override void addContent(PdfDocument pdf, Document document)
     {
       Table raceProperties = getRacePropertyTable();
       if (raceProperties != null)
@@ -1045,12 +1131,7 @@ public abstract class PDFReport : IPDFReport
         _nOptFields++;
     }
 
-    protected PdfFont _tableFont;
-    protected PdfFont _tableFontHeader;
-    protected float _tableFontSize;
-    protected float _tableFontSizeHeader;
-
-    protected virtual void determineTableFontAndSize()
+    protected override void determineTableFontAndSize()
     {
       _tableFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
       _tableFontHeader = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
@@ -1105,64 +1186,6 @@ public abstract class PDFReport : IPDFReport
       return table;
     }
 
-
-    protected Paragraph createCellParagraphForTable(string text)
-    {
-      return new Paragraph(text)
-        .SetFont(_tableFont)
-        .SetFontSize(_tableFontSize)
-        .SetPaddingTop(0)
-        .SetPaddingBottom(0)
-        .SetPaddingLeft(0)
-        .SetPaddingRight(0);
-    }
-
-    protected Paragraph createHeaderCellParagraphForTable(string text)
-    {
-      return new Paragraph(text)
-        .SetFont(_tableFontHeader)
-        .SetFontSize(_tableFontSizeHeader);
-    }
-
-
-    protected Cell createCellForTable(TextAlignment? textAlignment = TextAlignment.LEFT)
-    {
-      return new Cell()
-        .SetBorder(Border.NO_BORDER)
-        .SetPaddingTop(0)
-        .SetPaddingBottom(0)
-        .SetPaddingLeft(4)
-        .SetPaddingRight(4)
-        .SetTextAlignment(textAlignment);
-    }
-
-    protected Cell createCellForTable(int colspan, TextAlignment? textAlignment = TextAlignment.LEFT)
-    {
-      return new Cell(1, colspan)
-        .SetBorder(Border.NO_BORDER)
-        .SetPaddingTop(0)
-        .SetPaddingBottom(0)
-        .SetPaddingLeft(4)
-        .SetPaddingRight(4)
-        .SetTextAlignment(textAlignment);
-    }
-
-
-    protected string formatPoints(double points)
-    {
-      if (points < 0.0)
-        return "";
-
-      return string.Format("{0:0.00}", points);
-    }
-
-    protected string formatStartNumber(uint startNumber)
-    {
-      if (startNumber < 1)
-        return "---";
-
-      return startNumber.ToString();
-    }
 
 
 
