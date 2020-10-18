@@ -438,8 +438,8 @@ namespace RaceHorologyLib
 
 
     public ERaceType RaceType { get { return _properties.RaceType;  } }
-    public string RaceNumber {  get { return _addProperties.RaceNumber; } }
-    public string Description { get { return _addProperties.Description; } }
+    public string RaceNumber {  get { return _addProperties?.RaceNumber; } }
+    public string Description { get { return _addProperties?.Description; } }
     public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
     public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
 
