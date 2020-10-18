@@ -198,6 +198,9 @@
     <None Include="TestOutputs\Base_RaceReport.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestOutputs\HandTimingCalc_Report.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RaceHorologyLib\RaceHorologyLib.csproj">

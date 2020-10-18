@@ -500,6 +500,7 @@ namespace RaceHorologyLibTest
     /// - This Test Case: special case, there less than 10 hand timings available, use as most as possible for calculation
     /// </summary>
     [TestMethod]
+    [DeploymentItem(@"TestOutputs\HandTimingCalc_Report.pdf")]
     public void HandTimingCalc_Report()
     {
       TestDataGenerator tg = new TestDataGenerator();
@@ -512,7 +513,7 @@ namespace RaceHorologyLibTest
         tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8,  2, 0), new TimeSpan(0, 8,  2, 30)),
         tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8,  3, 0), new TimeSpan(0, 8,  3, 40)),
         tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8,  4, 0), new TimeSpan(0, 8,  4, 50)),
-        tg.createRunResult(tg.createRaceParticipant(), null, null)
+        tg.createRunResult(tg.createRaceParticipant(), null, new TimeSpan(0, 8,  5, 45))
       };
 
       List<TimingData> hts1 = new List<TimingData>
@@ -532,10 +533,8 @@ namespace RaceHorologyLibTest
 
       HandTimingCalc hc = new HandTimingCalc(htVM.Items[5], htVM.Items);
 
-      HandTimingCalcReport report = new HandTimingCalcReport(hc, tg.Model.GetRace(0));
-      string filePath = report.ProposeFilePath();
-      report.Generate(filePath);
-      System.Diagnostics.Process.Start(filePath);
+      IPDFReport report = new HandTimingCalcReport(hc, tg.Model.GetRace(0));
+      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 1));
     }
 
 
