@@ -495,6 +495,50 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests hand timing calculation
+    /// - This Test Case: special case, there less than 10 hand timings available, use as most as possible for calculation
+    /// </summary>
+    [TestMethod]
+    public void HandTimingCalc_Report()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      HandTimingVM htVM = new HandTimingVM(HandTimingVMEntry.ETimeModus.EStartTime);
+
+      List<RunResult> rr1 = new List<RunResult>
+      {
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8,  0, 0), new TimeSpan(0, 8,  0, 10)),
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8,  1, 0), new TimeSpan(0, 8,  1, 20)),
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8,  2, 0), new TimeSpan(0, 8,  2, 30)),
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8,  3, 0), new TimeSpan(0, 8,  3, 40)),
+        tg.createRunResult(tg.createRaceParticipant(), new TimeSpan(0, 8,  4, 0), new TimeSpan(0, 8,  4, 50)),
+        tg.createRunResult(tg.createRaceParticipant(), null, null)
+      };
+
+      List<TimingData> hts1 = new List<TimingData>
+      {
+        new TimingData{Time = new TimeSpan(0, 8,  0, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  1, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  2, 0, 300)},
+        new TimingData{Time = new TimeSpan(0, 8,  3, 0, 100)},
+        new TimingData{Time = new TimeSpan(0, 8,  4, 0, 200)},
+        new TimingData{Time = new TimeSpan(0, 8,  5, 0, 300)}
+      };
+
+      htVM.AddRunResults(rr1);
+      htVM.AddHandTimings(hts1);
+
+      htVM.AssignStartNumber(htVM.Items[5], 6);
+
+      HandTimingCalc hc = new HandTimingCalc(htVM.Items[5], htVM.Items);
+
+      HandTimingCalcReport report = new HandTimingCalcReport(hc, tg.Model.GetRace(0));
+      string filePath = report.ProposeFilePath();
+      report.Generate(filePath);
+      System.Diagnostics.Process.Start(filePath);
+    }
+
+
     [TestMethod]
     public void HandTimingVMManager_Manage1()
     {

@@ -455,10 +455,15 @@ namespace RaceHorologyLib
 
     HandTimingVMEntry _entryToCalculate;
     List<HandTimingVMEntry> _usedEntries;
+    List<HandTimingVMEntry> _calculatedEntries;
     TimeSpan? _calculatedTime;
 
     public TimeSpan? CalculatedTime { get { return _calculatedTime; } }
+    public HandTimingVMEntry EntryToCalculate { get { return _entryToCalculate; } }
+
     public IEnumerable<HandTimingVMEntry> UsedEntries { get { return _usedEntries; } }
+    public IEnumerable<HandTimingVMEntry> CalculatedEntries { get { return _calculatedEntries; } }
+
 
     public HandTimingCalc(HandTimingVMEntry entry, IEnumerable<HandTimingVMEntry> sortedEntries)
     {
@@ -483,7 +488,7 @@ namespace RaceHorologyLib
       while(index >= 0 && _usedEntries.Count < _numberOfEntriesToUse)
       {
         if (entryCanBeUsed(sortedEntries[index]))
-          _usedEntries.Add(sortedEntries[index].ShallowCopy()); // make copy to avoid inferrences with upcoming operations
+          _usedEntries.Insert(0, sortedEntries[index].ShallowCopy()); // make copy to avoid inferrences with upcoming operations
 
         index--;
       }
@@ -493,7 +498,7 @@ namespace RaceHorologyLib
       while (index < sortedEntries.Count && _usedEntries.Count < _numberOfEntriesToUse)
       {
         if (entryCanBeUsed(sortedEntries[index]))
-          _usedEntries.Add(sortedEntries[index].Copy()); // make copy to avoid inferrences with upcoming operations
+          _usedEntries.Add(sortedEntries[index].ShallowCopy()); // make copy to avoid inferrences with upcoming operations
 
         index++;
       }
@@ -517,6 +522,17 @@ namespace RaceHorologyLib
 
         TimeSpan handTime = (TimeSpan)_entryToCalculate.HandTime;
         _calculatedTime = handTime.Subtract(correctionValue);
+
+        _calculatedEntries = new List<HandTimingVMEntry>();
+        // Make a clean list of all entries
+        foreach (var item in _usedEntries)
+        {
+          _calculatedEntries.Add(item.ShallowCopy());
+        }
+        var calculatedItem = _entryToCalculate.ShallowCopy();
+        calculatedItem.SetCalulatedHandTime(_calculatedTime);
+        _calculatedEntries.Add(calculatedItem);
+        _calculatedEntries.Sort(new HandTimingVMEntrySorter());
       }
     }
   }
@@ -687,5 +703,133 @@ namespace RaceHorologyLib
       return true;
     }
 
+  }
+
+  public class HandTimingCalcReport : PDFRaceReport
+  {
+    HandTimingCalc _calculation;
+
+    public HandTimingCalcReport(HandTimingCalc calculation, Race race) : base(race)
+    {
+      _calculation = calculation;
+
+    }
+
+    protected override string getReportName()
+    {
+      return string.Format("Handzeitberechnung - StNr {0} - {1}", 
+        _calculation.EntryToCalculate.StartNumber, _calculation.EntryToCalculate.TimeModus);
+    }
+
+
+    protected override string getTitle()
+    {
+      return string.Format("Handzeitberechnung\nfür Startnummer {0} ({1})",
+        _calculation.EntryToCalculate.StartNumber, _calculation.EntryToCalculate.TimeModus==ETimeModus.EStartTime?"Start":"Ziel");
+    }
+
+
+    protected override void addContent(PdfDocument pdf, Document document)
+    {
+
+      Table table = generateHandTimingTable();
+      addHeaderToTable(table);
+
+      int i = 0;
+      foreach(var item in _calculation.CalculatedEntries)
+      {
+        addLineToTable(table, item, i++);
+      }
+
+      document.Add(table);
+    }
+
+    protected Table generateHandTimingTable()
+    {
+
+      float[] cols = { 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F };
+      var table = new Table(cols);
+
+      table.SetWidth(UnitValue.CreatePercentValue(100));
+      table.SetBorder(Border.NO_BORDER);
+
+      return table;
+    }
+
+    protected void addHeaderToTable(Table table)
+    {
+      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Start-Nr.")));
+
+      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Startzeit")));
+      
+      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Zielzeit")));
+      
+      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Laufzeit")));
+      
+      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Handzeit")));
+      
+      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Differenz")));
+    }
+
+    protected void addLineToTable(Table table, HandTimingVMEntry data, int i)
+    {
+      Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
+      if (i % 2 == 1)
+        bgColor = PDFHelper.ColorRHBG1;
+
+      bool bManuallyAdjustedEntry = data.ManuallyAdjustedFinishTime || data.ManuallyAdjustedStartTime;
+
+      // Startnumber
+      var pStNr = createCellParagraphForTable(formatStartNumber((uint)data.StartNumber));
+      if (bManuallyAdjustedEntry)
+        pStNr.SetItalic();
+      table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor).Add(pStNr));
+
+      // StartTime
+      var pStartTime = createCellParagraphForTable(data.StartTime.ToRaceTimeString());
+      if (bManuallyAdjustedEntry)
+        pStartTime.SetItalic();
+      if (data.ManuallyAdjustedStartTime)
+        pStartTime.SetBold();
+      table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor).Add(pStartTime));
+
+      // FinishTime
+      var pFinishTime = createCellParagraphForTable(data.FinishTime.ToRaceTimeString());
+      if (bManuallyAdjustedEntry)
+        pFinishTime.SetItalic();
+      if (data.ManuallyAdjustedFinishTime)
+        pFinishTime.SetBold();
+      table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor).Add(pFinishTime));
+
+      // RunTime
+      var pRunTime = createCellParagraphForTable(data.RunTime.ToRaceTimeString());
+      if (bManuallyAdjustedEntry)
+        pRunTime.SetItalic().SetBold();
+      table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor).Add(pRunTime));
+
+      // HandTime
+      var pHandTime = createCellParagraphForTable(data.HandTime.ToRaceTimeString());
+      if (bManuallyAdjustedEntry)
+        pHandTime.SetItalic();
+      table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor).Add(pHandTime));
+
+      // Difference
+      var pHandDiff = createCellParagraphForTable(data.HandTimeDiff.ToRaceTimeString());
+      if (bManuallyAdjustedEntry)
+        pHandDiff.SetItalic().SetBold();
+      table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor).Add(pHandDiff));
+    }
   }
 }
