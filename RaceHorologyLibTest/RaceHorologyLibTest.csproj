@@ -177,6 +177,21 @@
     <Content Include="TestOutputs\TestDB_LessParticipants_MultipleRaces - Ergebnis 1. Durchgang.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Ergebnis 1. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Ergebnis 2. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Ergebnis Gesamt.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Startliste 1. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Startliste 2. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RaceHorologyLib\RaceHorologyLib.csproj">

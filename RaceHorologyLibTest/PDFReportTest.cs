@@ -118,28 +118,52 @@ namespace RaceHorologyLibTest
       CompareTool ct = new CompareTool();
       var result = ct.CompareByCatalog(pdfOutput, pdfShall);
 
+      TestContext.WriteLine(string.Format("Diff of {0} <-> {1}", filenameOutput, filenameShall));
+      foreach (var dif in result.GetDifferences())
+      {
+        TestContext.WriteLine(dif.Value);
+      }
       return result.GetDifferences().Count <= nAcceptedDifferences;
     }
 
 
     [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
-    [DeploymentItem(@"TestOutputs\TestDB_LessParticipants_MultipleRaces - Ergebnis 1. Durchgang.pdf")]
-    public void RaceReportTest()
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis Gesamt.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 1. Durchgang.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 2. Durchgang.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 1. Durchgang.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 2. Durchgang.pdf")]
+    public void Integration_1554MSBS()
     {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
-
-      var races = db.GetRaces();
       AppDataModel model = new AppDataModel(db);
 
-      PDFReport p = new RaceRunResultReport(model.GetRaces()[0].GetRun(0));
-      
-      Assert.IsTrue(generateAndCompareAgainstPdf(p, @"TestDB_LessParticipants_MultipleRaces - Ergebnis 1. Durchgang.pdf", 1));
+      Race race = model.GetRace(0);
+
+      {
+        IPDFReport report = new StartListReport(race.GetRun(0));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Startliste 1. Durchgang.pdf", 4));
+      }
+      {
+        IPDFReport report = new StartListReport2ndRun(race.GetRun(1));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Startliste 2. Durchgang.pdf", 3));
+      }
+      {
+        IPDFReport report = new RaceRunResultReport(race.GetRun(0));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 5));
+      }
+      {
+        IPDFReport report = new RaceRunResultReport(race.GetRun(1));
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 3));
+      }
+      {
+        IPDFReport report = new RaceResultReport(race);
+        Assert.IsTrue(generateAndCompareAgainstPdf(report, @"1554MSBS - Ergebnis Gesamt.pdf", 2));
+      }
     }
-
-
-
   }
 }
