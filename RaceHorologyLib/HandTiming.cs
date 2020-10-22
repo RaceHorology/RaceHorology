@@ -49,6 +49,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using static RaceHorologyLib.HandTimingVMEntry;
 
 namespace RaceHorologyLib
@@ -291,6 +292,8 @@ namespace RaceHorologyLib
   {
     HandTimingVMEntry.ETimeModus _timeModus;
     ObservableCollection<HandTimingVMEntry> _handTimings;
+    object _handTimingsLock;
+
     HandTimingVMEntrySorter _handTimingsSorter;
     int _finEntryMaxDifferenceMS = 1000;
 
@@ -300,6 +303,8 @@ namespace RaceHorologyLib
     {
       _timeModus = timeModus;
       _handTimings = new ObservableCollection<HandTimingVMEntry>();
+      _handTimingsLock = new object();
+      BindingOperations.EnableCollectionSynchronization(_handTimings, _handTimingsLock);
       _handTimingsSorter = new HandTimingVMEntrySorter();
     }
 

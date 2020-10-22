@@ -47,8 +47,7 @@ namespace RaceHorologyLib
     public TimeSpan? Time { get; set; }
   }
 
-
-  public interface IHandTiming : IDisposable
+  public interface IHandTiming : IDisposable, IHasProgress<StdProgress>
   {
 
     void Connect();
@@ -96,14 +95,34 @@ namespace RaceHorologyLib
       {
         var time = _parser.ParseTime(line);
 
+        reportProgress(line);
+
         yield return new TimingData { Time = time };
       }
+
+      _progress?.Report(new StdProgress { Finished = true });
     }
 
     public void Dispose()
     {
       Disconnect();
     }
+
+
+    #region IHasProgress implementation
+    
+    IProgress<StdProgress> _progress;
+    public void DoProgressReport(IProgress<StdProgress> progress)
+    {
+      _progress = progress;
+    }
+
+    private void reportProgress(string current)
+    {
+      _progress?.Report(new StdProgress { CurrentStatus = current });
+    }
+
+    #endregion
   }
 
 

@@ -155,6 +155,12 @@
     <Compile Include="StartNumbersUC.xaml.cs">
       <DependentUpon>StartNumbersUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StdProgressDlg.xaml.cs">
+      <DependentUpon>StdProgressDlg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StdProgressUC.xaml.cs">
+      <DependentUpon>StdProgressUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TimerPlus.cs" />
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
@@ -227,6 +233,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="StartNumbersUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StdProgressDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StdProgressUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

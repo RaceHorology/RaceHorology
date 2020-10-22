@@ -132,6 +132,13 @@ namespace RaceHorologyLibTest
       FromFileHandTiming ht = new FromFileHandTiming(@"--Handzeit-Start.txt");
       ht.Connect();
 
+      var progress = new Progress<StdProgress>();
+      ht.DoProgressReport(progress);
+
+      StdProgress lastProgress = null;
+      int progressCounter = 0;
+      progress.ProgressChanged += (s, e) => { lastProgress = e; progressCounter++; };
+
       TimeSpan[] shallTime =
       {
         new TimeSpan(0, 8, 48, 0, 570),
@@ -141,13 +148,19 @@ namespace RaceHorologyLibTest
       int i = 0;
       foreach (var t in ht.TimingData())
       {
+
         if (i < shallTime.Length)
           Assert.AreEqual(shallTime[i], t.Time);
+
+        Assert.IsFalse(lastProgress.Finished);
 
         TestContext.WriteLine(t.Time.ToString());
 
         i++;
       }
+
+      Assert.IsTrue(progressCounter > 2);
+      Assert.IsTrue(lastProgress.Finished);
     }
 
     /// <summary>

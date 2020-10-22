@@ -114,14 +114,24 @@ namespace RaceHorologyLibTest
 
       ALGETimy timy = new ALGETimy(comport);
 
+      var progress = new Progress<StdProgress>();
+      timy.DoProgressReport(progress);
+
+      StdProgress lastProgress = null;
+      int progressCounter = 0;
+      progress.ProgressChanged += (s, e) => { lastProgress = e; progressCounter++; };
+
       timy.Connect();
       timy.StartGetTimingData();
 
       foreach(var t in timy.TimingData())
       {
+        Assert.IsFalse(lastProgress.Finished);
         TestContext.WriteLine(t.Time.ToString());
       }
 
+      Assert.IsTrue(progressCounter > 0);
+      Assert.IsTrue(lastProgress.Finished);
     }
   }
 }

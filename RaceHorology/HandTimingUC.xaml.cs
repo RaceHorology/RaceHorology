@@ -151,10 +151,20 @@ namespace RaceHorology
       }
 
       IHandTiming handTiming = HandTiming.CreateHandTiming(device, devicePort);
-      handTiming.Connect();
-      handTiming.StartGetTimingData();
 
-      _currentHandTimingVM.AddHandTimings(handTiming.TimingData());
+      Progress<StdProgress> progress = new Progress<StdProgress>();
+      StdProgressDlg dlgProgress = new StdProgressDlg();
+      dlgProgress.ShowAndClose(progress);
+
+      handTiming.DoProgressReport(progress);
+
+      Task.Run(() =>
+      {
+        handTiming.Connect();
+        handTiming.StartGetTimingData();
+        _currentHandTimingVM.AddHandTimings(handTiming.TimingData());
+      });
+
     }
 
     private void cmbCalcRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
