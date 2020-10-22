@@ -116,10 +116,32 @@ namespace RaceHorologyLib
             Time = parsedData.Time
           };
 
+          reportProgress(td.Time.ToString());
+
           yield return td;
         }
       } while (true);
+
+      _progress?.Report(new StdProgress { Finished = true });
     }
+
+
+
+    #region IHasProgress implementation
+
+    IProgress<StdProgress> _progress;
+    public void DoProgressReport(IProgress<StdProgress> progress)
+    {
+      _progress = progress;
+    }
+
+    private void reportProgress(string current)
+    {
+      _progress?.Report(new StdProgress { CurrentStatus = current });
+    }
+
+    #endregion
+
   }
 
 }

@@ -88,6 +88,7 @@
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="OfflineTimingMeasurement.cs" />
     <Compile Include="PDFReports.cs" />
+    <Compile Include="Progress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultCharts.cs" />
     <Compile Include="StartnumberAssignment.cs" />

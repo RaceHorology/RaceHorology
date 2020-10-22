@@ -117,13 +117,24 @@ namespace RaceHorologyLibTest
 
       TagHeuer tagHeuer = new TagHeuer(comport);
 
+      var progress = new Progress<StdProgress>();
+      tagHeuer.DoProgressReport(progress);
+
+      StdProgress lastProgress = null;
+      int progressCounter = 0;
+      progress.ProgressChanged += (s, e) => { lastProgress = e; progressCounter++; };
+
       tagHeuer.Connect();
       tagHeuer.StartGetTimingData();
 
       foreach (var t in tagHeuer.TimingData())
       {
+        Assert.IsFalse(lastProgress.Finished);
         TestContext.WriteLine(t.Time.ToString());
       }
+
+      Assert.IsTrue(progressCounter > 0);
+      Assert.IsTrue(lastProgress.Finished);
     }
   }
 }
