@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -77,7 +77,7 @@ namespace RaceHorology
 
       // Last recently used files in menu
       _mruList = new MruList("RaceHorology", mnuRecentFiles, 10);
-      _mruList.FileSelected += OpenDatabase;
+      _mruList.FileSelected += openDatabase;
 
       StartDSVAlpinServer();
     }
@@ -100,7 +100,7 @@ namespace RaceHorology
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
-        OpenDatabase(new Database().CreateDatabase(dbPath));
+        openDatabase(new Database().CreateDatabase(dbPath));
       }
     }
 
@@ -115,7 +115,7 @@ namespace RaceHorology
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
-        OpenDatabase(dbPath);
+        openDatabase(dbPath);
       }
     }
 
@@ -153,25 +153,35 @@ namespace RaceHorology
     /// Opens the database and does all jobs to work with the application (connect DatagRids, start web server, ...)
     /// </summary>
     /// <param name="dbPath">Path to the database (Access File)</param>
-    private void OpenDatabase(string dbPath)
+    private void openDatabase(string dbPath)
     {
-      //try
+      // Open the database ...
+      Database db = new Database();
+      db.Connect(dbPath);
+
+      openDatabase(db);
+    }
+
+    /// <summary>
+    /// Uses the database and does all jobs to work with the application (connect DatagRids, start web server, ...)
+    /// </summary>
+    /// <param name="dbPath">Path to the database (Access File)</param>
+    private void openDatabase(IAppDataModelDataBase db)
+    {
+      try
       {
-        Logger.Info("Open DSVAlpin database: {dbpath}", dbPath);
+        Logger.Info("Open DSVAlpin database: {dbpath}", db.GetDBPath());
 
         // Close database if it was already open
         if (_dataModel != null)
           CloseDatabase();
 
-        // Open the database ...
-        Database db = new Database();
-        db.Connect(dbPath);
 
         // ... and create the corresponding data model
         _dataModel = new AppDataModel(db);
 
         // Change the Application Window to contain the opened DataBase
-        this.Title = _appTitle + " - " + System.IO.Path.GetFileName(dbPath);
+        this.Title = _appTitle + " - " + db.GetDBFileName();
 
         InitializeTiming();
 
@@ -181,13 +191,13 @@ namespace RaceHorology
         // Restart DSVALpinServer (for having the lists on mobile devices)
         _alpinServer.UseDataModel(_dataModel);
 
-        _mruList.AddFile(dbPath);
+        _mruList.AddFile(db.GetDBPath());
       }
-      //catch (Exception ex)
-      //{
-      //  Logger.Error(ex, "during database loading");
-      //  throw;
-      //}
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "during database loading");
+        throw;
+      }
     }
 
     /// <summary>
@@ -404,6 +414,5 @@ namespace RaceHorology
     {
       System.Diagnostics.Process.Start("http://www.race-horology.com");
     }
-
   }
 }
