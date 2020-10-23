@@ -34,6 +34,7 @@
         <MenuItem Name="mnuOpen" Header="Datei _öffnen" Command="Open" InputGestureText="Ctrl+O"/>
         <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
         <MenuItem Name="mnuClose" Header="S_chließen" Command="Close" InputGestureText="Ctrl+C"/>
+        <MenuItem Name="mnuOpenDummy" Header="Open Dummy DB" Click="mnuOpenDummy_Click" InputGestureText="Ctrl+C"/>
       </MenuItem>
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
         <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />

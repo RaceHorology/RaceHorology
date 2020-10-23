@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -125,6 +125,12 @@ namespace RaceHorology
     private void CloseCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       CloseDatabase();
+    }
+
+    private void mnuOpenDummy_Click(object sender, RoutedEventArgs e)
+    {
+      var db = new DatabaseDummy("./");
+      openDatabase(db);
     }
 
     private void OptionsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
