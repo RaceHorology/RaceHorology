@@ -160,9 +160,17 @@ namespace RaceHorology
 
       Task.Run(() =>
       {
-        handTiming.Connect();
-        handTiming.StartGetTimingData();
-        _currentHandTimingVM.AddHandTimings(handTiming.TimingData());
+        using (handTiming)
+        {
+          try
+          {
+            handTiming.Connect();
+            handTiming.StartGetTimingData();
+            _currentHandTimingVM.AddHandTimings(handTiming.TimingData());
+          }
+          catch(Exception)
+          { }
+        }
       });
 
     }
