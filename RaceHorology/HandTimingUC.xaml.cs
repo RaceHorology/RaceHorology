@@ -32,6 +32,8 @@ namespace RaceHorology
 
     public event EventHandler Finished;
 
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
 
     public HandTimingUC()
     {
@@ -160,11 +162,30 @@ namespace RaceHorology
 
       Task.Run(() =>
       {
-        handTiming.Connect();
-        handTiming.StartGetTimingData();
-        _currentHandTimingVM.AddHandTimings(handTiming.TimingData());
-      });
-
+        using (handTiming)
+        {
+          try
+          {
+            handTiming.Connect();
+            handTiming.StartGetTimingData();
+            _currentHandTimingVM.AddHandTimings(handTiming.TimingData());
+          }
+          catch(Exception)
+          { throw; }
+        }
+      }).ContinueWith((t) =>
+      {
+        if (t.IsFaulted)
+        {
+          MessageBox.Show(
+            string.Format("Daten konnten nicht geladen werden.\n({0}).\nWeitere Details im Logfile.", t.Exception?.InnerException?.Message), 
+            "Fehler", 
+            MessageBoxButton.OK, 
+            MessageBoxImage.Error
+          );
+          Logger.Error(t.Exception, "loading handtime failed");
+        }
+      }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 
     private void cmbCalcRun_SelectionChanged(object sender, SelectionChangedEventArgs e)

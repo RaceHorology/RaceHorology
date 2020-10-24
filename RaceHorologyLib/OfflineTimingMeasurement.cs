@@ -78,7 +78,12 @@ namespace RaceHorologyLib
 
     public void Disconnect()
     {
-      _file.Close();
+      if (_file != null)
+      {
+        _file.Close();
+        _file.Dispose();
+        _file = null;
+      }
     }
 
 
@@ -100,18 +105,15 @@ namespace RaceHorologyLib
         yield return new TimingData { Time = time };
       }
 
-      _progress?.Report(new StdProgress { Finished = true });
+      reportFinal();
     }
 
-    public void Dispose()
-    {
-      Disconnect();
-    }
 
 
     #region IHasProgress implementation
     
     IProgress<StdProgress> _progress;
+
     public void DoProgressReport(IProgress<StdProgress> progress)
     {
       _progress = progress;
@@ -120,6 +122,42 @@ namespace RaceHorologyLib
     private void reportProgress(string current)
     {
       _progress?.Report(new StdProgress { CurrentStatus = current });
+    }
+    private void reportFinal()
+    {
+      _progress?.Report(new StdProgress { Finished = true });
+    }
+    #endregion
+
+    #region IDispose
+    private bool disposedValue;
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          // Dispose managed state (managed objects)
+          reportFinal();
+          Disconnect();
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~FromFileHandTiming()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
     }
 
     #endregion

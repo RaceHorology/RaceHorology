@@ -112,26 +112,35 @@ namespace RaceHorologyLibTest
     {
       string comport = "COM4";
 
-      ALGETimy timy = new ALGETimy(comport);
-
-      var progress = new Progress<StdProgress>();
-      timy.DoProgressReport(progress);
-
-      StdProgress lastProgress = null;
-      int progressCounter = 0;
-      progress.ProgressChanged += (s, e) => { lastProgress = e; progressCounter++; };
-
-      timy.Connect();
-      timy.StartGetTimingData();
-
-      foreach(var t in timy.TimingData())
+      using (ALGETimy timy = new ALGETimy(comport))
       {
-        Assert.IsFalse(lastProgress.Finished);
-        TestContext.WriteLine(t.Time.ToString());
+
+        var progress = new Progress<StdProgress>();
+        timy.DoProgressReport(progress);
+
+        StdProgress lastProgress = null;
+        int progressCounter = 0;
+        progress.ProgressChanged += (s, e) => { lastProgress = e; progressCounter++; };
+
+        timy.Connect();
+        timy.StartGetTimingData();
+
+        foreach (var t in timy.TimingData())
+        {
+          Assert.IsFalse(lastProgress.Finished);
+          TestContext.WriteLine(t.Time.ToString());
+        }
+
+        Assert.IsTrue(progressCounter > 0);
+        Assert.IsTrue(lastProgress.Finished);
       }
 
-      Assert.IsTrue(progressCounter > 0);
-      Assert.IsTrue(lastProgress.Finished);
+      // Check Dispose => no exception should occure
+      using (ALGETimy timy = new ALGETimy(comport))
+      {
+        timy.Connect();
+        timy.Disconnect();
+      }
     }
   }
 }
