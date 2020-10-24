@@ -223,7 +223,7 @@ namespace RaceHorologyLib
         case "Firstname":
           return "Vorname";
         case "Sex":
-          return "Geschlecht";
+          return "Kategorie";
         case "Year":
           return "Jahrgang";
         case "Club":

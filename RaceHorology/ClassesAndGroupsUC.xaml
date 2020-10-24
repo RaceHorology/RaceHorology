@@ -51,7 +51,7 @@
         <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
         <DataGridTextColumn Header="ältester Jahrgang" Binding="{Binding Year, Converter={StaticResource AgeToYearInputConverter}}"/>
 
-        <DataGridComboBoxColumn Header="Geschlecht" 
+        <DataGridComboBoxColumn Header="Kategorie" 
                                 HeaderStyle="{StaticResource Category}"
                                 SelectedValueBinding="{Binding Sex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >

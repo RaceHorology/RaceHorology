@@ -184,7 +184,7 @@ Vue.component('dsv-livedatalists', {
         <th class="cell-centered">StNr</th>
         <th>Name</th>
         <th>Vorname</th>
-        <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+        <th v-if="datafields.includes('Sex')" class="cell-centered">Kategorie</th>
         <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
         <th v-if="datafields.includes('Club')">Verein</th>
         <th v-if="datafields.includes('Class')">Klasse</th>
@@ -318,7 +318,7 @@ Vue.component('dsv-livedatalists', {
         <th class="cell-centered">StNr</th>
         <th>Name</th>
         <th>Vorname</th>
-        <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+        <th v-if="datafields.includes('Sex')" class="cell-centered">Kategorie</th>
         <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
         <th v-if="datafields.includes('Club')">Verein</th>
         <th v-if="datafields.includes('Class')">Klasse</th>
@@ -361,7 +361,7 @@ Vue.component('dsv-startlist', {
           <th class="cell-centered">StNr</th>
           <th>Name</th>
           <th>Vorname</th>
-          <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+          <th v-if="datafields.includes('Sex')" class="cell-centered">Kategorie</th>
           <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
           <th v-if="datafields.includes('Club')">Verein</th>
           <th v-if="datafields.includes('Class')">Klasse</th>
@@ -416,7 +416,7 @@ Vue.component('dsv-ontracklist', {
           <th class="cell-centered">StNr</th>
           <th>Name</th>
           <th>Vorname</th>
-          <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+          <th v-if="datafields.includes('Sex')" class="cell-centered">Kategorie</th>
           <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
           <th v-if="datafields.includes('Club')">Verein</th>
           <th v-if="datafields.includes('Class')">Klasse</th>
@@ -458,7 +458,7 @@ Vue.component('dsv-runresultslist', {
           <th class="cell-centered">StNr</th>
           <th>Name</th>
           <th>Vorname</th>
-          <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+          <th v-if="datafields.includes('Sex')" class="cell-centered">Kategorie</th>
           <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
           <th v-if="datafields.includes('Club')">Verein</th>
           <th v-if="datafields.includes('Class')">Klasse</th>
@@ -516,7 +516,7 @@ Vue.component('dsv-raceresultslist', {
           <th class="cell-centered">StNr</th>
           <th>Name</th>
           <th>Vorname</th>
-          <th v-if="datafields.includes('Sex')" class="cell-centered">Geschlecht</th>
+          <th v-if="datafields.includes('Sex')" class="cell-centered">Kategorie</th>
           <th v-if="datafields.includes('Year')" class="cell-centered">Jahrgang</th>
           <th v-if="datafields.includes('Club')">Verein</th>
           <th v-if="datafields.includes('Class')">Klasse</th>

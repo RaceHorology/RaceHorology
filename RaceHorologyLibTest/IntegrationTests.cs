@@ -96,9 +96,11 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
     public void ImportRace()
     {
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      var db = new RaceHorologyLib.Database();
       string dbFilename = db.CreateDatabase("new.mdb");
       db.Connect(dbFilename);
+
+      //RaceHorologyLib.IAppDataModelDataBase db = new RaceHorologyLib.DatabaseDummy("./");
 
       AppDataModel dm = new AppDataModel(db);
 
@@ -125,7 +127,7 @@ namespace RaceHorologyLibTest
       TestContext.WriteLine(string.Format("Import took: {0:0.00} sec", time.TotalSeconds));
       Assert.IsTrue(time.TotalSeconds < 4);
 
-      db.Close();
+      //db.Close();
 
     }
   }

@@ -53,7 +53,7 @@
                 <DataGrid.Columns>
                   <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
                   <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}"/>
-                  <DataGridComboBoxColumn Header="Geschlecht" 
+                  <DataGridComboBoxColumn Header="Kategorie" 
                                 SelectedValueBinding="{Binding Sex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >
                     <DataGridComboBoxColumn.ElementStyle>
@@ -121,7 +121,7 @@
                 <Label Content="Vorname:" Grid.Row="1" Grid.Column="0"/>
                 <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1" LostFocus="ParticipantEditControl_LostFocus"/>
 
-                <Label Content="Geschlecht:" Grid.Row="2" Grid.Column="0"/>
+                <Label Content="Kategorie:" Grid.Row="2" Grid.Column="0"/>
                 <ComboBox x:Name="cmbSex" Margin="5" Grid.Row="2" Grid.Column="1"
                             ItemsSource="{Binding Path=ParticipantCategories, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                             LostFocus="ParticipantEditControl_LostFocus"/>
