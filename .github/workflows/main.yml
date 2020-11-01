@@ -34,4 +34,4 @@ jobs:
            .\MSBuild.exe $Env:GITHUB_WORKSPACE\RaceHorology
 
       - name: VSTest
-        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\Debug\RaceHorologyLibTest.dll /logger:trx
+        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /logger:trx
