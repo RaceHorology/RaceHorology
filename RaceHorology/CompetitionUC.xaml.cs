@@ -246,15 +246,26 @@ namespace RaceHorology
 
       dgParticipants.ItemsSource = _viewParticipants.View;
 
-      CreateParticipantOfRaceColumns();
-      CreateParticipantOfRaceCheckboxes();
+      createParticipantOfRaceColumns();
+      createParticipantOfRaceCheckboxes();
+    }
+
+
+    private void btnReset_Click(object sender, RoutedEventArgs e)
+    {
+      updatePartcipantEditFields();
+    }
+
+    private void btnApply_Click(object sender, RoutedEventArgs e)
+    {
+      storeParticipant();
     }
 
 
     /// <summary>
     /// (Re-)Creates the columns for adding/removing the participants to an race
     /// </summary>
-    private void CreateParticipantOfRaceColumns()
+    private void createParticipantOfRaceColumns()
     {
       // Delete previous race columns
       while (dgParticipants.Columns.Count > 10)
@@ -274,7 +285,7 @@ namespace RaceHorology
     /// <summary>
     /// (Re-)Creates the checkboxes for adding/removing the participants to an race
     /// </summary>
-    private void CreateParticipantOfRaceCheckboxes()
+    private void createParticipantOfRaceCheckboxes()
     {
       // Delete previous check boxes
       spRaces.Children.Clear();
@@ -290,7 +301,6 @@ namespace RaceHorology
           Margin = new Thickness(0, 0, 0, 5),
           IsThreeState = true
         };
-        cb.LostFocus += ParticipantEditControl_LostFocus;
 
         spRaces.Children.Add(cb);
       }
@@ -407,46 +417,32 @@ namespace RaceHorology
     }
 
 
-    private void ParticipantEditControl_LostFocus(object sender, RoutedEventArgs e)
+    private void storeParticipant()
     {
       IList<ParticipantEdit> items = dgParticipants.SelectedItems.Cast<ParticipantEdit>().ToList();
 
-      if (sender == txtName)
-        storePartcipantEditField(txtName, items, "Name");
-      if (sender == txtFirstname)
-        storePartcipantEditField(txtFirstname, items, "Firstname");
-      if (sender == cmbSex)
-        storePartcipantComboBox(cmbSex, items, "Sex");
-      if (sender == txtYear)
-        storePartcipantEditField(txtYear, items, "Year");
-      if (sender == txtClub)
-        storePartcipantEditField(txtClub, items, "Club");
-      if (sender == txtSvId)
-        storePartcipantEditField(txtSvId, items, "SvId");
-      if (sender == txtCode)
-        storePartcipantEditField(txtCode, items, "Code");
-      if (sender == txtNation)
-        storePartcipantEditField(txtNation, items, "Nation");
-      if (sender == cmbClass)
-        storePartcipantComboBox(cmbClass, items, "Class");
+      storePartcipantEditField(txtName, items, "Name");
+      storePartcipantEditField(txtFirstname, items, "Firstname");
+      storePartcipantComboBox(cmbSex, items, "Sex");
+      storePartcipantEditField(txtYear, items, "Year");
+      storePartcipantEditField(txtClub, items, "Club");
+      storePartcipantEditField(txtSvId, items, "SvId");
+      storePartcipantEditField(txtCode, items, "Code");
+      storePartcipantEditField(txtNation, items, "Nation");
+      storePartcipantComboBox(cmbClass, items, "Class");
 
       for (int i = 0; i < spRaces.Children.Count; i++)
       {
         CheckBox cb = (CheckBox)spRaces.Children[i];
-        if (sender == cb)
+        if (cb.IsChecked != null) // Either true or false, but not "third state"
         {
-          if (cb.IsChecked != null) // Either true or false, but not "third state"
+          bool bVal = (bool)cb.IsChecked;
+          foreach (var item in items.Cast<ParticipantEdit>())
           {
-            bool bVal = (bool)cb.IsChecked;
-            foreach (var item in items.Cast<ParticipantEdit>())
-            {
-              item.ParticipantOfRace[i] = bVal;
-            }
+            item.ParticipantOfRace[i] = bVal;
           }
         }
       }
-
-
     }
 
 
@@ -468,7 +464,6 @@ namespace RaceHorology
       foreach (var item in items.Cast<ParticipantEdit>())
         PropertyUtilities.SetPropertyValue(item, propertyName, value);
     }
-
 
     #endregion
 
@@ -624,7 +619,6 @@ namespace RaceHorology
         }
       }
     }
-
   }
 
 
