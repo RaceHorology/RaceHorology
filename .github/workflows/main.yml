@@ -32,7 +32,7 @@ jobs:
         uses: darenm/Setup-VSTest@v1
       
       - name: NuGet to restore dependencies as well as project-specific tools that are specified in the project file
-        if: steps.cache.outputs.cache-hit != 'true'
+#        if: steps.cache.outputs.cache-hit != 'true'
         run: nuget restore
 
       - name: Build DotNET
