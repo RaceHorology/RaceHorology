@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -62,6 +63,8 @@ namespace RaceHorology
       ConnectGUIToDataModel();
       ConnectGUIToParticipants();
 
+      initDSVAddToList();
+
       ucClassesAndGroups.Init(_dm);
     }
 
@@ -96,11 +99,11 @@ namespace RaceHorology
         tabHeader.btnClose.Click += BtnClose_Click;
       }
 
-      public Race Race {  get { return _race; } }
+      public Race Race { get { return _race; } }
 
       private void BtnClose_Click(object sender, RoutedEventArgs e)
       {
-        if (MessageBox.Show(string.Format("Rennen \"{0}\" wirklich löschen?", _race.RaceType), "Rennen löschen?", MessageBoxButton.YesNo,MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
+        if (MessageBox.Show(string.Format("Rennen \"{0}\" wirklich löschen?", _race.RaceType), "Rennen löschen?", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
           _race.GetDataModel().RemoveRace(_race);
       }
     }
@@ -316,7 +319,7 @@ namespace RaceHorology
     private IList<object> GetPropertyValues(IList<object> objects, string propertyName)
     {
       List<object> values = new List<object>();
-      foreach(var o in objects)
+      foreach (var o in objects)
       {
         object value = PropertyUtilities.GetPropertyValue(o, propertyName);
         values.Add(value);
@@ -338,7 +341,7 @@ namespace RaceHorology
       updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
       updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
 
-      for (int i=0; i< spRaces.Children.Count; i++)
+      for (int i = 0; i < spRaces.Children.Count; i++)
       {
         List<object> values = new List<object>();
         foreach (var item in items)
@@ -574,23 +577,23 @@ namespace RaceHorology
           "Zusammenfassung für das Rennen \"{0}\":\n" +
           "- Punkte erfolgreich aktualisiert: {1}\n",
           race.ToString(), i.SuccessCount);
-        
+
         if (i.ErrorCount > 0)
         {
           messageTextDetails += string.Format("\n" +
-            "- Teilnehmer nicht gefunden: {0}\n"+
-            "{1}", 
+            "- Teilnehmer nicht gefunden: {0}\n" +
+            "{1}",
             i.ErrorCount, notFoundParticipants);
         }
 
         messageTextDetails += "\n";
       }
-      
+
       MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
 
-  private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
+    private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
     {
       Participant participant = new Participant();
       _dm.GetParticipants().Add(participant);
@@ -619,6 +622,36 @@ namespace RaceHorology
         }
       }
     }
+
+
+    #region DSVAddToList
+
+    DSVImportReader _dsvImportReader;
+    void initDSVAddToList()
+    {
+      _dsvImportReader = new DSVImportReaderOnline();
+
+      dgDSVList.ItemsSource = _dsvImportReader.Data.Tables[0].DefaultView;
+    }
+
+    private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
+    {
+      foreach (var item in dgDSVList.SelectedItems)
+      {
+        if (item is DataRowView rowView)
+        {
+          DataRow row = rowView.Row;
+          foreach (var r in _dm.GetRaces())
+          {
+            RaceImport imp = new RaceImport(r, _dsvImportReader.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
+            
+            RaceParticipant rp = imp.ImportRow(row);
+          }
+        }
+      }
+    }
+
+    #endregion
   }
 
 
