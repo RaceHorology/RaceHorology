@@ -54,8 +54,8 @@ namespace RaceHorologyLib
       
       foreach (Race race in dm.GetRaces())
       {
-        UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
-        var res = import.DoImport();
+        UpdatePointsImport import = new UpdatePointsImport(race, dsvImportReader.Mapping);
+        var res = import.DoImport(dsvImportReader.Data);
         impRes.Add(res);
       }
       dm.GetDB().StoreKeyValue("DSV_UsedDSVList", dsvImportReader.UsedDSVList);

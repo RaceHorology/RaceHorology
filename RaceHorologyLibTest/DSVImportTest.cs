@@ -222,8 +222,8 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
       Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
 
-      UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
-      ImportResults impRes = import.DoImport();
+      UpdatePointsImport import = new UpdatePointsImport(race, dsvImportReader.Mapping);
+      ImportResults impRes = import.DoImport(dsvImportReader.Data);
 
       Assert.AreEqual(125, impRes.SuccessCount);
       Assert.AreEqual(2, impRes.ErrorCount);
