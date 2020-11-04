@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -627,11 +628,22 @@ namespace RaceHorology
     #region DSVAddToList
 
     DSVImportReader _dsvImportReader;
+    CollectionViewSource _viewDSVList;
+
     void initDSVAddToList()
     {
       _dsvImportReader = new DSVImportReaderOnline();
 
-      dgDSVList.ItemsSource = _dsvImportReader.Data.Tables[0].DefaultView;
+      _viewDSVList = new CollectionViewSource();
+
+      _viewDSVList.Source = _dsvImportReader.Data.Tables[0].DefaultView;
+
+      dgDSVList.ItemsSource = _viewDSVList.View;
+
+      txtDSVSearch.TextChanged += new DelayedEventHandler(
+          TimeSpan.FromMilliseconds(300),
+          txtDSVSearch_TextChanged
+      ).Delayed;
     }
 
     private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
@@ -651,6 +663,28 @@ namespace RaceHorology
       }
     }
 
+
+    private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        string sFilterText = txtDSVSearch.Text;
+        if (string.IsNullOrEmpty(sFilterText))
+          _dsvImportReader.Data.Tables[0].DefaultView.RowFilter = string.Empty;
+        else
+        {
+          StringBuilder sb = new StringBuilder();
+          foreach (DataColumn column in _dsvImportReader.Data.Tables[0].Columns)
+          {
+            sb.AppendFormat("CONVERT({0}, System.String) Like '%{1}%' OR ", column.ColumnName, sFilterText);
+          }
+
+          sb.Remove(sb.Length - 3, 3); // Remove "OR "
+          _dsvImportReader.Data.Tables[0].DefaultView.RowFilter = sb.ToString();
+        }
+        _viewDSVList.View.Refresh();
+      });
+    }
     #endregion
   }
 
