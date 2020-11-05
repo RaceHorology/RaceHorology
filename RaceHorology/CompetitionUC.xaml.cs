@@ -535,32 +535,6 @@ namespace RaceHorology
       ca.Assign(participants);
     }
 
-
-    private void btnImportDSVOnline_Click(object sender, RoutedEventArgs e)
-    {
-      DSVImportReader dsvImportReader = new DSVImportReaderOnline();
-      var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-      showImportResult(impRes, dsvImportReader.UsedDSVList);
-    }
-
-
-    private void btnImportDSVFile_Click(object sender, RoutedEventArgs e)
-    {
-      OpenFileDialog openFileDialog = new OpenFileDialog();
-      if (openFileDialog.ShowDialog() == true)
-      {
-        string path = openFileDialog.FileName;
-        DSVImportReader dsvImportReader;
-        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
-          dsvImportReader = new DSVImportReaderZip(path);
-        else
-          dsvImportReader = new DSVImportReaderFile(path);
-
-        var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-        showImportResult(impRes, dsvImportReader.UsedDSVList);
-      }
-    }
-
     private void showImportResult(List<ImportResults> impRes, string usedDSVLists)
     {
       string messageTextDetails = "";
@@ -646,23 +620,6 @@ namespace RaceHorology
       ).Delayed;
     }
 
-    private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
-    {
-      foreach (var item in dgDSVList.SelectedItems)
-      {
-        if (item is DataRowView rowView)
-        {
-          DataRow row = rowView.Row;
-          foreach (var r in _dm.GetRaces())
-          {
-            RaceImport imp = new RaceImport(r, _dsvImportReader.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
-            
-            RaceParticipant rp = imp.ImportRow(row);
-          }
-        }
-      }
-    }
-
 
     private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -685,6 +642,59 @@ namespace RaceHorology
         _viewDSVList.View.Refresh();
       });
     }
+
+
+    private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
+    {
+      foreach (var item in dgDSVList.SelectedItems)
+      {
+        if (item is DataRowView rowView)
+        {
+          DataRow row = rowView.Row;
+          foreach (var r in _dm.GetRaces())
+          {
+            RaceImport imp = new RaceImport(r, _dsvImportReader.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
+            
+            RaceParticipant rp = imp.ImportRow(row);
+          }
+        }
+      }
+    }
+
+
+
+    private void btnDSVImportOnline_Click(object sender, RoutedEventArgs e)
+    {
+      DSVImportReader dsvImportReader = new DSVImportReaderOnline();
+      var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+      showImportResult(impRes, dsvImportReader.UsedDSVList);
+    }
+
+
+    private void btnDSVImportFile_Click(object sender, RoutedEventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      if (openFileDialog.ShowDialog() == true)
+      {
+        string path = openFileDialog.FileName;
+        DSVImportReader dsvImportReader;
+        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
+          dsvImportReader = new DSVImportReaderZip(path);
+        else
+          dsvImportReader = new DSVImportReaderFile(path);
+
+        var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
+        showImportResult(impRes, dsvImportReader.UsedDSVList);
+      }
+    }
+
+
+    private void btnDSVUpdatePoints_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+
     #endregion
   }
 

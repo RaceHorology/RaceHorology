@@ -96,9 +96,9 @@
 
               <Label x:Name="lblEditParticipant" Content="Teilnehmer ändern" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
 
-              <TabControl Grid.Row="1" Grid.Column="2">
-                <TabItem Header="Manuell">
-                  <Grid Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" x:Name="gridParticpant">
+              <TabControl Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" >
+                <TabItem Header="Teilnehmer ändern" >
+                  <Grid Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" x:Name="gridParticpant" >
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="*"/>
@@ -169,7 +169,7 @@
                   </Grid>
                 </TabItem>
 
-                <TabItem Header="DSV - Experimental">
+                <TabItem Header="DSV">
                   <Grid>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>
@@ -184,8 +184,19 @@
 
                     <DataGrid x:Name="dgDSVList" Grid.Row="1"/>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                      <Button x:Name="btnDSVAdd" Content="Hinzufügen" Margin="5" Padding="5" Click="btnDSVAdd_Click"/>
+                    <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
+                      <RibbonMenuButton x:Name="mbtnDsvImport" Label="DSV Daten importieren" Margin="5" Background="#FFDDDDDD" BorderBrush="#FF707070" BorderThickness="1">
+                        <RibbonMenuItem x:Name="mbtnDsvImportOnline" Header="Online" Click="btnDSVImportOnline_Click"/>
+                        <RibbonMenuItem x:Name="mbtnDsvImportFile" Header="Datei" Click="btnDSVImportFile_Click" />
+                      </RibbonMenuButton>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                      <Button x:Name="btnDSVUpdatePoints" Content="Punkte aller Teilnehmer aktualisieren" Margin="5" Padding="5" Click="btnDSVUpdatePoints_Click"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                      <Button x:Name="btnDSVAdd" Content="Teilnehmer hinzufügen" Margin="5" Padding="5" Click="btnDSVAdd_Click"/>
                     </StackPanel>
 
                   </Grid>
@@ -201,11 +212,7 @@
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <RibbonMenuButton x:Name="mbtnImport" Label="Import" Margin="5" Background="#FFDDDDDD" BorderBrush="#FF707070" BorderThickness="1">
-                  <RibbonMenuItem x:Name="mbtnImportParticipants" Header="Teilnehmer Importieren" Click="btnImport_Click"/>
-                  <RibbonMenuItem x:Name="mbtnImportDSVOnline" Header="DSV Punkte aktualisieren (online)" Click="btnImportDSVOnline_Click"/>
-                  <RibbonMenuItem x:Name="mbtnImportDSVFile" Header="DSV Punkte aktualisieren (Datei)" Click="btnImportDSVFile_Click" />
-                </RibbonMenuButton>
+                <Button x:Name="mbtnImportParticipants" Content="Teilnehmer importieren" Click="btnImport_Click"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="2">
                   <Button x:Name="btnAssignClasses" Content="Alle Klassen neu zuweisen" Padding="5" Margin="5" Click="btnAssignClasses_Click"/>
