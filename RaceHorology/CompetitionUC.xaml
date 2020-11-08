@@ -23,7 +23,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
+              </Grid.RowDefinitions> 
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="618*"/>
                 <!-- Golden Cut 618:382 -->
