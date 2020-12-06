@@ -97,9 +97,11 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\Import\DSV\DSVSA2008.txt")]
     public void ImportPointList()
     {
-      DSVImportReader reader = new DSVImportReaderFile(@"DSVSA2008.txt");
+      IDSVImportReaderFile fileReader = new DSVImportReaderFile(@"DSVSA2008.txt");
+      DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.AreEqual("DSVSA2008", reader.UsedDSVList);
+      Assert.AreEqual(new DateTime(2020, 2, 23), reader.Date);
 
       Assert.IsNotNull(reader.Mapping);
       
@@ -141,10 +143,11 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
     public void ImportPointListViaZIP()
     {
-
-      DSVImportReader reader = new DSVImportReaderZip(@"Punktelisten.zip");
+      IDSVImportReaderFile fileReader = new DSVImportReaderZip(@"Punktelisten.zip");
+      DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.AreEqual("DSVSA20end", reader.UsedDSVList);
+      Assert.AreEqual(new DateTime(2020, 4, 15), reader.Date);
 
       Assert.IsNotNull(reader.Mapping);
 
@@ -184,7 +187,8 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void ImportPointListViaWeb()
     {
-      DSVImportReader reader = new DSVImportReaderOnline();
+      IDSVImportReaderFile fileReader = new DSVImportReaderOnline();
+      DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.IsTrue(reader.UsedDSVList.StartsWith("DSVSA"));
 
@@ -216,14 +220,14 @@ namespace RaceHorologyLibTest
       Race race = model.GetRace(0);
 
       // Import DSV Point List
-      DSVImportReader dsvImportReader = new DSVImportReaderZip(@"Punktelisten.zip");
+      DSVImportReader dsvImportReader = new DSVImportReader(new DSVImportReaderZip(@"Punktelisten.zip"));
 
       // Check two prior
       Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
       Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
 
-      UpdatePointsImport import = new UpdatePointsImport(dsvImportReader.Data, race, dsvImportReader.Mapping);
-      ImportResults impRes = import.DoImport();
+      UpdatePointsImport import = new UpdatePointsImport(race, dsvImportReader.Mapping);
+      ImportResults impRes = import.DoImport(dsvImportReader.Data);
 
       Assert.AreEqual(125, impRes.SuccessCount);
       Assert.AreEqual(2, impRes.ErrorCount);
@@ -247,13 +251,13 @@ namespace RaceHorologyLibTest
       Race race = model.GetRace(0);
 
       // Import DSV Point List
-      DSVImportReader dsvImportReader = new DSVImportReaderZip(@"Punktelisten.zip");
+      DSVImportReader dsvImportReader = new DSVImportReader(new DSVImportReaderZip(@"Punktelisten.zip"));
 
       // Check two prior
       Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
       Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
 
-      var impRes = DSVUpdatePoints.UpdatePoints(model, dsvImportReader);
+      var impRes = DSVUpdatePoints.UpdatePoints(model, dsvImportReader.Data, dsvImportReader.Mapping, dsvImportReader.UsedDSVList);
 
       Assert.AreEqual(1, impRes.Count);
       Assert.AreEqual(125, impRes[0].SuccessCount);
@@ -263,6 +267,40 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(100.33, race.GetParticipants().First(r => r.SvId == "25399").Points);
 
       Assert.AreEqual("DSVSA20end", model.GetDB().GetKeyValue("DSV_UsedDSVList"));
+    }
+
+
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
+    public void DSVInterfaceModel_Test1()
+    {
+      // Setup Data Model & Co
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      Database db = new Database();
+      db.Connect(dbFilename);
+      AppDataModel dm = new AppDataModel(db);
+
+      {
+        // Initially, there aren't any data available
+        DSVInterfaceModel dsvIF = new DSVInterfaceModel(dm);
+        Assert.IsNull(dsvIF.Data, "Is null initially");
+        Assert.IsNull(dsvIF.Date, "Is null initially");
+
+        var reader = new DSVImportReader(new DSVImportReaderZip("Punktelisten.zip"));
+
+        dsvIF.UpdateDSVList(new DSVImportReaderZip("Punktelisten.zip"));
+
+        Assert.IsNotNull(dsvIF.Data, "Is null initially");
+        Assert.IsNotNull(dsvIF.Date, "Is null initially");
+
+        Assert.AreEqual(reader.Date, dsvIF.Date);
+        Assert.AreEqual(reader.UsedDSVList, dsvIF.UsedDSVList);
+      }
+
     }
 
   }

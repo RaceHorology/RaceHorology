@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -62,6 +64,8 @@ namespace RaceHorology
       ConnectGUIToDataModel();
       ConnectGUIToParticipants();
 
+      initDSVAddToList();
+
       ucClassesAndGroups.Init(_dm);
     }
 
@@ -96,11 +100,11 @@ namespace RaceHorology
         tabHeader.btnClose.Click += BtnClose_Click;
       }
 
-      public Race Race {  get { return _race; } }
+      public Race Race { get { return _race; } }
 
       private void BtnClose_Click(object sender, RoutedEventArgs e)
       {
-        if (MessageBox.Show(string.Format("Rennen \"{0}\" wirklich löschen?", _race.RaceType), "Rennen löschen?", MessageBoxButton.YesNo,MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
+        if (MessageBox.Show(string.Format("Rennen \"{0}\" wirklich löschen?", _race.RaceType), "Rennen löschen?", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
           _race.GetDataModel().RemoveRace(_race);
       }
     }
@@ -316,7 +320,7 @@ namespace RaceHorology
     private IList<object> GetPropertyValues(IList<object> objects, string propertyName)
     {
       List<object> values = new List<object>();
-      foreach(var o in objects)
+      foreach (var o in objects)
       {
         object value = PropertyUtilities.GetPropertyValue(o, propertyName);
         values.Add(value);
@@ -338,7 +342,7 @@ namespace RaceHorology
       updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
       updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
 
-      for (int i=0; i< spRaces.Children.Count; i++)
+      for (int i = 0; i < spRaces.Children.Count; i++)
       {
         List<object> values = new List<object>();
         foreach (var item in items)
@@ -477,27 +481,32 @@ namespace RaceHorology
         string sFilter = txtSearch.Text;
 
         _viewParticipantsFilterHandler = null;
-        _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
+        if (!string.IsNullOrEmpty(sFilter))
         {
-          bool contains(string bigString, string part)
+          _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
           {
-            return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
-          }
+            bool contains(string bigString, string part)
+            {
+              if (string.IsNullOrEmpty(bigString))
+                return false;
 
-          ParticipantEdit p = (ParticipantEdit)ea.Item;
+              return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
+            }
 
-          ea.Accepted =
-               contains(p.Name, sFilter)
-            || contains(p.Firstname, sFilter)
-            || contains(p.Club, sFilter)
-            || contains(p.Nation, sFilter)
-            || contains(p.Year.ToString(), sFilter)
-            || contains(p.Code, sFilter)
-            || contains(p.SvId, sFilter)
-            || contains(p.Class.ToString(), sFilter)
-            || contains(p.Group.ToString(), sFilter);
-        });
+            ParticipantEdit p = (ParticipantEdit)ea.Item;
 
+            ea.Accepted =
+                 contains(p.Name, sFilter)
+              || contains(p.Firstname, sFilter)
+              || contains(p.Club, sFilter)
+              || contains(p.Nation, sFilter)
+              || contains(p.Year.ToString(), sFilter)
+              || contains(p.Code, sFilter)
+              || contains(p.SvId, sFilter)
+              || contains(p.Class?.ToString(), sFilter)
+              || contains(p.Group?.ToString(), sFilter);
+          });
+        }
         if (_viewParticipantsFilterHandler != null)
           _viewParticipants.Filter += _viewParticipantsFilterHandler;
 
@@ -531,32 +540,6 @@ namespace RaceHorology
       ca.Assign(participants);
     }
 
-
-    private void btnImportDSVOnline_Click(object sender, RoutedEventArgs e)
-    {
-      DSVImportReader dsvImportReader = new DSVImportReaderOnline();
-      var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-      showImportResult(impRes, dsvImportReader.UsedDSVList);
-    }
-
-
-    private void btnImportDSVFile_Click(object sender, RoutedEventArgs e)
-    {
-      OpenFileDialog openFileDialog = new OpenFileDialog();
-      if (openFileDialog.ShowDialog() == true)
-      {
-        string path = openFileDialog.FileName;
-        DSVImportReader dsvImportReader;
-        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
-          dsvImportReader = new DSVImportReaderZip(path);
-        else
-          dsvImportReader = new DSVImportReaderFile(path);
-
-        var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-        showImportResult(impRes, dsvImportReader.UsedDSVList);
-      }
-    }
-
     private void showImportResult(List<ImportResults> impRes, string usedDSVLists)
     {
       string messageTextDetails = "";
@@ -574,23 +557,23 @@ namespace RaceHorology
           "Zusammenfassung für das Rennen \"{0}\":\n" +
           "- Punkte erfolgreich aktualisiert: {1}\n",
           race.ToString(), i.SuccessCount);
-        
+
         if (i.ErrorCount > 0)
         {
           messageTextDetails += string.Format("\n" +
-            "- Teilnehmer nicht gefunden: {0}\n"+
-            "{1}", 
+            "- Teilnehmer nicht gefunden: {0}\n" +
+            "{1}",
             i.ErrorCount, notFoundParticipants);
         }
 
         messageTextDetails += "\n";
       }
-      
+
       MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
 
-  private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
+    private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
     {
       Participant participant = new Participant();
       _dm.GetParticipants().Add(participant);
@@ -619,6 +602,117 @@ namespace RaceHorology
         }
       }
     }
+
+
+    #region DSVAddToList
+
+    DSVInterfaceModel _dsvData;
+    CollectionViewSource _viewDSVList;
+
+    void initDSVAddToList()
+    {
+      _dsvData = new DSVInterfaceModel(_dm);
+
+      updateDSVGrid();
+
+      txtDSVSearch.TextChanged += new DelayedEventHandler(
+          TimeSpan.FromMilliseconds(300),
+          txtDSVSearch_TextChanged
+      ).Delayed;
+    }
+
+    void updateDSVGrid()
+    {
+      if (_dsvData.Data != null)
+      {
+        _viewDSVList = new CollectionViewSource();
+        _viewDSVList.Source = _dsvData.Data.Tables[0].DefaultView;
+        dgDSVList.ItemsSource = _viewDSVList.View;
+
+        lblVersion.Content = string.Format("Version: {0} ({1})", _dsvData?.UsedDSVList, _dsvData.Date?.ToString("d"));
+      }
+    }
+
+
+    private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        if (_dsvData?.Data != null)
+        {
+          DataTable table = _dsvData.Data.Tables[0];
+
+          string sFilterText = txtDSVSearch.Text;
+          if (string.IsNullOrEmpty(sFilterText))
+            table.DefaultView.RowFilter = string.Empty;
+          else
+          {
+            StringBuilder sb = new StringBuilder();
+            foreach (DataColumn column in table.Columns)
+            {
+              sb.AppendFormat("CONVERT({0}, System.String) Like '%{1}%' OR ", column.ColumnName, sFilterText);
+            }
+
+            sb.Remove(sb.Length - 3, 3); // Remove "OR "
+            table.DefaultView.RowFilter = sb.ToString();
+          }
+          _viewDSVList.View.Refresh();
+        }
+      });
+    }
+
+
+    private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
+    {
+      foreach (var item in dgDSVList.SelectedItems)
+      {
+        if (item is DataRowView rowView)
+        {
+          DataRow row = rowView.Row;
+          foreach (var r in _dm.GetRaces())
+          {
+            RaceImport imp = new RaceImport(r, _dsvData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
+            
+            RaceParticipant rp = imp.ImportRow(row);
+          }
+        }
+      }
+    }
+
+
+
+    private void btnDSVImportOnline_Click(object sender, RoutedEventArgs e)
+    {
+      _dsvData.UpdateDSVList(new DSVImportReaderOnline());
+      updateDSVGrid();
+    }
+
+
+    private void btnDSVImportFile_Click(object sender, RoutedEventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      if (openFileDialog.ShowDialog() == true)
+      {
+        string path = openFileDialog.FileName;
+        IDSVImportReaderFile dsvImportReader;
+        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
+          dsvImportReader = new DSVImportReaderZip(path);
+        else
+          dsvImportReader = new DSVImportReaderFile(path);
+
+        _dsvData.UpdateDSVList(dsvImportReader);
+        updateDSVGrid();
+      }
+    }
+
+
+    private void btnDSVUpdatePoints_Click(object sender, RoutedEventArgs e)
+    {
+      DSVUpdatePoints.UpdatePoints(_dm, _dsvData.Data, _dsvData.Mapping, _dsvData.UsedDSVList);
+    }
+
+
+    #endregion
   }
 
 

@@ -152,8 +152,6 @@ namespace RaceHorologyLibTest
         if (i < shallTime.Length)
           Assert.AreEqual(shallTime[i], t.Time);
 
-        Assert.IsFalse(lastProgress.Finished);
-
         TestContext.WriteLine(t.Time.ToString());
 
         i++;

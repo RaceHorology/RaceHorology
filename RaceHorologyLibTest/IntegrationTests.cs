@@ -114,8 +114,8 @@ namespace RaceHorologyLibTest
         var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
         RaceMapping mapping = new RaceMapping(ir.Columns);
 
-        RaceImport im = new RaceImport(ir.Data, dm.GetRace(0), mapping);
-        impRes = im.DoImport();
+        RaceImport im = new RaceImport(dm.GetRace(0), mapping);
+        impRes = im.DoImport(ir.Data);
       });
 
       Assert.AreEqual(153, impRes.SuccessCount);

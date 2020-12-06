@@ -586,7 +586,7 @@ namespace RaceHorologyLib
           string configJSON = System.IO.File.ReadAllText(handTimingFilePath);
           Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, handTimingData);
         }
-        catch (Exception e)
+        catch (Exception)
         {
         }
 

@@ -94,8 +94,8 @@ namespace RaceHorology
           Race race = r as Race;
           if (race != null)
           {
-            RaceImport imp = new RaceImport(_importReader.Data, race, _importMapping, new ClassAssignment(_dm.GetParticipantClasses()));
-            ImportResults results = imp.DoImport();
+            RaceImport imp = new RaceImport(race, _importMapping, new ClassAssignment(_dm.GetParticipantClasses()));
+            ImportResults results = imp.DoImport(_importReader.Data);
 
             messageTextDetails += string.Format(
               "Zusammenfassung für das Rennen {0}:\n" +
@@ -107,8 +107,8 @@ namespace RaceHorology
       }
       else
       {
-        ParticipantImport imp = new ParticipantImport(_importReader.Data, _dm.GetParticipants(), _importMapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
-        ImportResults results = imp.DoImport();
+        ParticipantImport imp = new ParticipantImport(_dm.GetParticipants(), _importMapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
+        ImportResults results = imp.DoImport(_importReader.Data);
 
         messageTextDetails += string.Format(
           "Zusammenfassung für den allgemeinen Teilnehmerimport:\n" +
