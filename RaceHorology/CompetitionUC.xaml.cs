@@ -493,13 +493,13 @@ namespace RaceHorology
               return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
             }
 
-          ParticipantEdit p = (ParticipantEdit)ea.Item;
+            ParticipantEdit p = (ParticipantEdit)ea.Item;
 
-          ea.Accepted =
-               contains(p.Name, sFilter)
-            || contains(p.Firstname, sFilter)
-            || contains(p.Club, sFilter)
-            || contains(p.Nation, sFilter)
+            ea.Accepted =
+                 contains(p.Name, sFilter)
+              || contains(p.Firstname, sFilter)
+              || contains(p.Club, sFilter)
+              || contains(p.Nation, sFilter)
               || contains(p.Year.ToString(), sFilter)
               || contains(p.Code, sFilter)
               || contains(p.SvId, sFilter)
@@ -606,18 +606,14 @@ namespace RaceHorology
 
     #region DSVAddToList
 
-    DSVImportReader _dsvImportReader;
+    DSVInterfaceModel _dsvData;
     CollectionViewSource _viewDSVList;
 
     void initDSVAddToList()
     {
-      _dsvImportReader = new DSVImportReaderOnline();
+      _dsvData = new DSVInterfaceModel(_dm);
 
-      _viewDSVList = new CollectionViewSource();
-
-      _viewDSVList.Source = _dsvImportReader.Data.Tables[0].DefaultView;
-
-      dgDSVList.ItemsSource = _viewDSVList.View;
+      updateDSVGrid();
 
       txtDSVSearch.TextChanged += new DelayedEventHandler(
           TimeSpan.FromMilliseconds(300),
@@ -625,26 +621,43 @@ namespace RaceHorology
       ).Delayed;
     }
 
+    void updateDSVGrid()
+    {
+      if (_dsvData.Data != null)
+      {
+        _viewDSVList = new CollectionViewSource();
+        _viewDSVList.Source = _dsvData.Data.Tables[0].DefaultView;
+        dgDSVList.ItemsSource = _viewDSVList.View;
+
+        lblVersion.Content = string.Format("Version: {0} ({1})", _dsvData?.UsedDSVList, _dsvData.Date?.ToString("d"));
+      }
+    }
+
 
     private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        string sFilterText = txtDSVSearch.Text;
-        if (string.IsNullOrEmpty(sFilterText))
-          _dsvImportReader.Data.Tables[0].DefaultView.RowFilter = string.Empty;
-        else
+        if (_dsvData?.Data != null)
         {
-          StringBuilder sb = new StringBuilder();
-          foreach (DataColumn column in _dsvImportReader.Data.Tables[0].Columns)
-          {
-            sb.AppendFormat("CONVERT({0}, System.String) Like '%{1}%' OR ", column.ColumnName, sFilterText);
-          }
+          DataTable table = _dsvData.Data.Tables[0];
 
-          sb.Remove(sb.Length - 3, 3); // Remove "OR "
-          _dsvImportReader.Data.Tables[0].DefaultView.RowFilter = sb.ToString();
+          string sFilterText = txtDSVSearch.Text;
+          if (string.IsNullOrEmpty(sFilterText))
+            table.DefaultView.RowFilter = string.Empty;
+          else
+          {
+            StringBuilder sb = new StringBuilder();
+            foreach (DataColumn column in table.Columns)
+            {
+              sb.AppendFormat("CONVERT({0}, System.String) Like '%{1}%' OR ", column.ColumnName, sFilterText);
+            }
+
+            sb.Remove(sb.Length - 3, 3); // Remove "OR "
+            table.DefaultView.RowFilter = sb.ToString();
+          }
+          _viewDSVList.View.Refresh();
         }
-        _viewDSVList.View.Refresh();
       });
     }
 
@@ -658,7 +671,7 @@ namespace RaceHorology
           DataRow row = rowView.Row;
           foreach (var r in _dm.GetRaces())
           {
-            RaceImport imp = new RaceImport(r, _dsvImportReader.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
+            RaceImport imp = new RaceImport(r, _dsvData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
             
             RaceParticipant rp = imp.ImportRow(row);
           }
@@ -670,9 +683,8 @@ namespace RaceHorology
 
     private void btnDSVImportOnline_Click(object sender, RoutedEventArgs e)
     {
-      DSVImportReader dsvImportReader = new DSVImportReaderOnline();
-      var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-      showImportResult(impRes, dsvImportReader.UsedDSVList);
+      _dsvData.UpdateDSVList(new DSVImportReaderOnline());
+      updateDSVGrid();
     }
 
 
@@ -682,21 +694,21 @@ namespace RaceHorology
       if (openFileDialog.ShowDialog() == true)
       {
         string path = openFileDialog.FileName;
-        DSVImportReader dsvImportReader;
+        IDSVImportReaderFile dsvImportReader;
         if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
           dsvImportReader = new DSVImportReaderZip(path);
         else
           dsvImportReader = new DSVImportReaderFile(path);
 
-        var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-        showImportResult(impRes, dsvImportReader.UsedDSVList);
+        _dsvData.UpdateDSVList(dsvImportReader);
+        updateDSVGrid();
       }
     }
 
 
     private void btnDSVUpdatePoints_Click(object sender, RoutedEventArgs e)
     {
-
+      DSVUpdatePoints.UpdatePoints(_dm, _dsvData.Data, _dsvData.Mapping, _dsvData.UsedDSVList);
     }
 
 

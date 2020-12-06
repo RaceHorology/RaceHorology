@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -267,6 +267,40 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(100.33, race.GetParticipants().First(r => r.SvId == "25399").Points);
 
       Assert.AreEqual("DSVSA20end", model.GetDB().GetKeyValue("DSV_UsedDSVList"));
+    }
+
+
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
+    public void DSVInterfaceModel_Test1()
+    {
+      // Setup Data Model & Co
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      Database db = new Database();
+      db.Connect(dbFilename);
+      AppDataModel dm = new AppDataModel(db);
+
+      {
+        // Initially, there aren't any data available
+        DSVInterfaceModel dsvIF = new DSVInterfaceModel(dm);
+        Assert.IsNull(dsvIF.Data, "Is null initially");
+        Assert.IsNull(dsvIF.Date, "Is null initially");
+
+        var reader = new DSVImportReader(new DSVImportReaderZip("Punktelisten.zip"));
+
+        dsvIF.UpdateDSVList(new DSVImportReaderZip("Punktelisten.zip"));
+
+        Assert.IsNotNull(dsvIF.Data, "Is null initially");
+        Assert.IsNotNull(dsvIF.Date, "Is null initially");
+
+        Assert.AreEqual(reader.Date, dsvIF.Date);
+        Assert.AreEqual(reader.UsedDSVList, dsvIF.UsedDSVList);
+      }
+
     }
 
   }
