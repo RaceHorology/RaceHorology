@@ -411,7 +411,6 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
-    [DeploymentItem(@"TestDataBases\Import\DSV\DSVA2008.txt")]
     public void ReadDSVPoints()
     {
 

@@ -39,10 +39,4 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="3rdparty\DSValpinX.liz">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

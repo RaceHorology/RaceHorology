@@ -97,7 +97,6 @@ namespace RaceHorologyLibTest
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming.mdb")]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming_GiantSlalom.config")]
-    [DeploymentItem(@"3rdparty\DSVAlpinX.liz", "3rdparty")]
     public void TestSerialization()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_LiveTiming.mdb");
@@ -158,7 +157,6 @@ namespace RaceHorologyLibTest
     //[Ignore]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming.mdb")]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming_GiantSlalom.config")]
-    [DeploymentItem(@"3rdparty\DSVAlpinX.liz", "3rdparty")]
     public void TestOnline()
     {
       //string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_LiveTiming.mdb");

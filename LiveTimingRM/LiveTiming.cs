@@ -520,7 +520,7 @@ public class LiveTimingRM : ILiveTiming
       {
         if (r.Runtime != null)
         {
-          time = r.Runtime?.ToString(@"hhmmss\,ff");
+          time = r.Runtime?.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture);
           eCode = 0;
         }
         else if (r.GetStartTime() != null)
