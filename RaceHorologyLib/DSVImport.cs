@@ -246,6 +246,28 @@ namespace RaceHorologyLib
   }
 
 
+  public class DSVImportReaderStream : IDSVImportReaderFile
+  {
+    Stream _stream;
+    string _dsvListName;
+    public DSVImportReaderStream(Stream stream, string dsvListName)
+    {
+      _stream = stream;
+      _dsvListName = dsvListName;
+    }
+
+    public Stream GetStream()
+    {
+      return _stream;
+    }
+
+    public string GetDSVListname()
+    {
+      return _dsvListName;
+    }
+  }
+
+
   public class DSVImportReaderZipBase : IDSVImportReaderFile
   {
     string _dsvList;

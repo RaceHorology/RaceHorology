@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -30,11 +31,19 @@ namespace RaceHorologyLib
 
     public void UpdateDSVList(IDSVImportReaderFile fileReader)
     {
-      // Copy data from stream locally
-      using (FileStream file = new FileStream(_pathLocalDSV, FileMode.Create, System.IO.FileAccess.Write))
+      // Store File in JSON
+      Dictionary<string, string> dic = new Dictionary<string, string>();
+      dic["Data"] = (new StreamReader(fileReader.GetStream())).ReadToEnd();
+      dic["UsedDSVList"] = fileReader.GetDSVListname();
+
+      using (StreamWriter file = File.CreateText(_pathLocalDSV))
       {
-        fileReader.GetStream().CopyTo(file);
-        file.Close();
+        using (JsonWriter writer = new JsonTextWriter(file))
+        {
+          JsonSerializer serializer = new JsonSerializer();
+          serializer.Formatting = Formatting.Indented;
+          serializer.Serialize(writer, dic);
+        }
       }
 
       loadLocal();
@@ -43,12 +52,29 @@ namespace RaceHorologyLib
 
     private void loadLocal()
     {
+      Dictionary<string, string> dic = new Dictionary<string, string>();
       try
       {
-        _localReader = new DSVImportReader(new DSVImportReaderFile(_pathLocalDSV));
+        string configJSON = System.IO.File.ReadAllText(_pathLocalDSV);
+        Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, dic);
+
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(dic["Data"]);
+        writer.Flush();
+        stream.Position = 0;
+
+        try
+        {
+          _localReader = new DSVImportReader(new DSVImportReaderStream(stream, dic["UsedDSVList"]));
+        }
+        catch (System.IO.IOException)
+        {
+          _localReader = null;
+        }
       }
-      catch(System.IO.IOException)
-      { 
+      catch (Exception e)
+      {
         _localReader = null;
       }
     }
