@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -97,9 +97,11 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\Import\DSV\DSVSA2008.txt")]
     public void ImportPointList()
     {
-      DSVImportReader reader = new DSVImportReaderFile(@"DSVSA2008.txt");
+      IDSVImportReaderFile fileReader = new DSVImportReaderFile(@"DSVSA2008.txt");
+      DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.AreEqual("DSVSA2008", reader.UsedDSVList);
+      Assert.AreEqual(new DateTime(2020, 2, 23), reader.Date);
 
       Assert.IsNotNull(reader.Mapping);
       
@@ -141,10 +143,11 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
     public void ImportPointListViaZIP()
     {
-
-      DSVImportReader reader = new DSVImportReaderZip(@"Punktelisten.zip");
+      IDSVImportReaderFile fileReader = new DSVImportReaderZip(@"Punktelisten.zip");
+      DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.AreEqual("DSVSA20end", reader.UsedDSVList);
+      Assert.AreEqual(new DateTime(2020, 4, 15), reader.Date);
 
       Assert.IsNotNull(reader.Mapping);
 
@@ -184,7 +187,8 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void ImportPointListViaWeb()
     {
-      DSVImportReader reader = new DSVImportReaderOnline();
+      IDSVImportReaderFile fileReader = new DSVImportReaderOnline();
+      DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.IsTrue(reader.UsedDSVList.StartsWith("DSVSA"));
 
@@ -216,7 +220,7 @@ namespace RaceHorologyLibTest
       Race race = model.GetRace(0);
 
       // Import DSV Point List
-      DSVImportReader dsvImportReader = new DSVImportReaderZip(@"Punktelisten.zip");
+      DSVImportReader dsvImportReader = new DSVImportReader(new DSVImportReaderZip(@"Punktelisten.zip"));
 
       // Check two prior
       Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
@@ -247,13 +251,13 @@ namespace RaceHorologyLibTest
       Race race = model.GetRace(0);
 
       // Import DSV Point List
-      DSVImportReader dsvImportReader = new DSVImportReaderZip(@"Punktelisten.zip");
+      DSVImportReader dsvImportReader = new DSVImportReader(new DSVImportReaderZip(@"Punktelisten.zip"));
 
       // Check two prior
       Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
       Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
 
-      var impRes = DSVUpdatePoints.UpdatePoints(model, dsvImportReader);
+      var impRes = DSVUpdatePoints.UpdatePoints(model, dsvImportReader.Data, dsvImportReader.Mapping, dsvImportReader.UsedDSVList);
 
       Assert.AreEqual(1, impRes.Count);
       Assert.AreEqual(125, impRes[0].SuccessCount);
