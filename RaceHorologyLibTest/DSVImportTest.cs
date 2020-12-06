@@ -294,14 +294,10 @@ namespace RaceHorologyLibTest
 
         dsvIF.UpdateDSVList(new DSVImportReaderZip("Punktelisten.zip"));
 
-        Assert.IsNotNull(dsvIF.Data, "Is null initially");
-        Assert.IsNotNull(dsvIF.Date, "Is null initially");
-
+        Assert.AreEqual(reader.Data.Tables[0].Rows.Count, dsvIF.Data.Tables[0].Rows.Count);
         Assert.AreEqual(reader.Date, dsvIF.Date);
         Assert.AreEqual(reader.UsedDSVList, dsvIF.UsedDSVList);
       }
-
     }
-
   }
 }
