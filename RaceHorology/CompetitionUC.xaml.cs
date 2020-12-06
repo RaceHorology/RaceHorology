@@ -481,12 +481,17 @@ namespace RaceHorology
         string sFilter = txtSearch.Text;
 
         _viewParticipantsFilterHandler = null;
-        _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
+        if (!string.IsNullOrEmpty(sFilter))
         {
-          bool contains(string bigString, string part)
+          _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
           {
-            return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
-          }
+            bool contains(string bigString, string part)
+            {
+              if (string.IsNullOrEmpty(bigString))
+                return false;
+
+              return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
+            }
 
           ParticipantEdit p = (ParticipantEdit)ea.Item;
 
@@ -495,13 +500,13 @@ namespace RaceHorology
             || contains(p.Firstname, sFilter)
             || contains(p.Club, sFilter)
             || contains(p.Nation, sFilter)
-            || contains(p.Year.ToString(), sFilter)
-            || contains(p.Code, sFilter)
-            || contains(p.SvId, sFilter)
-            || contains(p.Class.ToString(), sFilter)
-            || contains(p.Group.ToString(), sFilter);
-        });
-
+              || contains(p.Year.ToString(), sFilter)
+              || contains(p.Code, sFilter)
+              || contains(p.SvId, sFilter)
+              || contains(p.Class?.ToString(), sFilter)
+              || contains(p.Group?.ToString(), sFilter);
+          });
+        }
         if (_viewParticipantsFilterHandler != null)
           _viewParticipants.Filter += _viewParticipantsFilterHandler;
 
