@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RaceHorology"
         mc:Ignorable="d"
         Background="#e6eee5"
-        Title="About" 
+        Title="Info" 
         WindowStartupLocation="CenterOwner"
         Height="450" Width="800">
   <Grid>
