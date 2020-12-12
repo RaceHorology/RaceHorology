@@ -163,7 +163,7 @@ namespace RaceHorology
       for (int i = 0; i < FileInfos.Count; i++)
       {
         MenuItem subMenu = new MenuItem();
-        subMenu.Header = string.Format("{0} {1}", i + 1, FileInfos[i].Name);
+        subMenu.Header = string.Format("{0} {1}", i + 1, FileInfos[i].FullName);
         subMenu.Tag = FileInfos[i];
         subMenu.Click += File_Click;
         MyMenu.Items.Add(subMenu);
