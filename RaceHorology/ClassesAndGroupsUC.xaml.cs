@@ -53,7 +53,7 @@ namespace RaceHorology
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.Filter =
-        "Bewerbsdateien (*.mdb)|*.mdb";
+        "Race Horology Daten|*.mdb|DSValpin Daten|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         Database importDB = new Database();
@@ -67,7 +67,7 @@ namespace RaceHorology
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.Filter =
-        "Bewerbsdateien (*.mdb)|*.mdb";
+        "Race Horology Daten|*.mdb|DSValpin Daten|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         Database importDB = new Database();

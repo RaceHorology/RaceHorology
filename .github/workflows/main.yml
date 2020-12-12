@@ -28,11 +28,8 @@ jobs:
         with:
           nuget-version: ${{ env.NUGET_VERSION}}
 
-      - name: Setup VSTest Path
-        uses: darenm/Setup-VSTest@v1
-      
       - name: NuGet to restore dependencies as well as project-specific tools that are specified in the project file
-#        if: steps.cache.outputs.cache-hit != 'true'
+        #if: steps.cache.outputs.cache-hit != 'true'
         run: nuget restore
 
       - name: Build DotNET
@@ -40,5 +37,32 @@ jobs:
            cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
            .\MSBuild.exe /p:Configuration=Debug /p:Platform=x86 $Env:GITHUB_WORKSPACE
 
-#      - name: VSTest
-#        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /logger:trx
+      - name: Upload Test Programm
+        uses: actions/upload-artifact@v2
+        with:
+          name: unittest_RaceHorologyLibTest
+          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86\Debug
+          retention-days: 2
+
+
+  run_test:
+    needs: build
+    runs-on: [windows-latest]
+    steps:
+      - name: Download Test Programm
+        uses: actions/download-artifact@v2
+        with:
+          name: unittest_RaceHorologyLibTest
+          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86\Debug
+
+      - name: Setup VSTest Path
+        uses: darenm/Setup-VSTest@v1
+      
+      - name: VSTest
+        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory!=HardwareDependent" /logger:trx
+
+      - name: Upload Test Programm
+        uses: actions/upload-artifact@v2
+        with:
+          name: unittest_RaceHorologyLibTest_Results
+          path: ${{ github.workspace }}\TestResults\**\*.trx 
