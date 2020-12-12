@@ -56,6 +56,8 @@ namespace RaceHorologyLibTest
       //
       // TODO: Add constructor logic here
       //
+
+      System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
     }
 
     private TestContext testContextInstance;
