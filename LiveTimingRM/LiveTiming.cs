@@ -418,7 +418,12 @@ public class LiveTimingRM : ILiveTiming
     // Punkte leer/ Punkte des Teilnehmers(mit Komma und 2 Nachkommastellen) 
     string item;
 
-    item = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}"
+    var customFormat = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
+    customFormat.NumberFormat.NumberDecimalSeparator = ",";
+
+    item = string.Format(
+      customFormat,
+      "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10:0.00}"
       , particpant.Sex.Name
       , particpant.Class.Group.Id
       , particpant.Class.Id
@@ -429,7 +434,8 @@ public class LiveTimingRM : ILiveTiming
       , particpant.Year
       , particpant.Nation   // TODO: set to empty if not used
       , particpant.Club
-      , particpant.Points); // TODO: set to empty if not used
+      , particpant.Points
+      );
 
     return item;
   }
