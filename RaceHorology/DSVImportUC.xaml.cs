@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -102,6 +102,8 @@ namespace RaceHorology
         dgDSVList.ItemsSource = _viewDSVList.View;
 
         lblVersion.Content = string.Format("Version: {0} ({1})", _dsvData?.UsedDSVList, _dsvData.Date?.ToString("d"));
+
+        dgDSVList_SelectionChanged(null, null); // Update button status
       }
     }
 
@@ -183,5 +185,9 @@ namespace RaceHorology
       DSVUpdatePoints.UpdatePoints(_dm, _dsvData.Data, _dsvData.Mapping, _dsvData.UsedDSVList);
     }
 
+    private void dgDSVList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      btnDSVAdd.IsEnabled = dgDSVList.SelectedItems.Count > 0;
+    }
   }
 }
