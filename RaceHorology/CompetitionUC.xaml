@@ -170,46 +170,7 @@
                 </TabItem>
 
                 <TabItem Header="DSV Liste">
-                  <Grid>
-                    <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto"/>
-                      <RowDefinition Height="*"/>
-                      <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*"/>
-                      </Grid.ColumnDefinitions>
-                      <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                        <Label x:Name="lblVersion" Content="Version: XXX" HorizontalAlignment="Left" Margin="0,0,0,0" />
-                      </StackPanel>
-
-                      <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Label Content="Filter (&lt;Ctrl&gt;-F):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
-                        <TextBox x:Name="txtDSVSearch" Width="100" Margin="5" Grid.Column="3" />
-                      </StackPanel>
-                    </Grid>
-
-                    <DataGrid x:Name="dgDSVList" Grid.Row="1"/>
-
-                    <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
-                      <RibbonMenuButton x:Name="mbtnDsvImport" Label="DSV Daten importieren" Margin="5" Background="#FFDDDDDD" BorderBrush="#FF707070" BorderThickness="1">
-                        <RibbonMenuItem x:Name="mbtnDsvImportOnline" Header="Online" Click="btnDSVImportOnline_Click"/>
-                        <RibbonMenuItem x:Name="mbtnDsvImportFile" Header="Datei" Click="btnDSVImportFile_Click" />
-                      </RibbonMenuButton>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                      <Button x:Name="btnDSVUpdatePoints" Content="Punkte aller Teilnehmer aktualisieren" Margin="5" Padding="5" Click="btnDSVUpdatePoints_Click"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                      <Button x:Name="btnDSVAdd" Content="Teilnehmer hinzufügen" Margin="5" Padding="5" Click="btnDSVAdd_Click"/>
-                    </StackPanel>
-
-                  </Grid>
+                  <local:DSVImportUC x:Name="ucDSVImport"/>
                 </TabItem>
               </TabControl>
 
