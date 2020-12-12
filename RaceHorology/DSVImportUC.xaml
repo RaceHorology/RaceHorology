@@ -28,7 +28,18 @@
       </StackPanel>
     </Grid>
 
-    <DataGrid x:Name="dgDSVList" Grid.Row="1"/>
+    <DataGrid x:Name="dgDSVList" Grid.Row="1" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Id" Binding="{Binding SvId, Mode=OneWay}" />
+        <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+        <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+        <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+        <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+        <DataGridTextColumn Header="Verband" Binding="{Binding Verband, Mode=OneWay}" />
+        <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
+        <DataGridTextColumn Header="Geschlecht" Binding="{Binding Sex, Mode=OneWay}" />
+      </DataGrid.Columns>
+    </DataGrid>
 
     <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
       <RibbonMenuButton x:Name="mbtnDsvImport" Label="DSV Daten importieren" Margin="5" Background="#FFDDDDDD" BorderBrush="#FF707070" BorderThickness="1">
