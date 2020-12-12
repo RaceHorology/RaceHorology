@@ -155,7 +155,7 @@ namespace RaceHorology
     /// <param name="dbPath">Path to the database (Access File)</param>
     private void OpenDatabase(string dbPath)
     {
-      //try
+      try
       {
         Logger.Info("Open DSVAlpin database: {dbpath}", dbPath);
 
@@ -183,11 +183,11 @@ namespace RaceHorology
 
         _mruList.AddFile(dbPath);
       }
-      //catch (Exception ex)
-      //{
-      //  Logger.Error(ex, "during database loading");
-      //  throw;
-      //}
+      catch (Exception ex)
+      {
+        MessageBox.Show(string.Format("Die Datei konnte nicht geöffnet werden.\n\n{0}", ex.Message), "Fehler beim Öffnen", MessageBoxButton.OK, MessageBoxImage.Error);
+        Logger.Error(ex, "during database loading");
+      }
     }
 
     /// <summary>
