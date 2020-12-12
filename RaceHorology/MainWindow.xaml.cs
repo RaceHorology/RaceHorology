@@ -95,7 +95,7 @@ namespace RaceHorology
     {
       SaveFileDialog openFileDialog = new SaveFileDialog();
       openFileDialog.DefaultExt = ".mdb";
-      openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
+      openFileDialog.Filter = "Race Horology Daten|*.mdb";
       openFileDialog.OverwritePrompt = true;
       if (openFileDialog.ShowDialog() == true)
       {
@@ -111,7 +111,7 @@ namespace RaceHorology
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.DefaultExt = ".mdb";
-      openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
+      openFileDialog.Filter = "Race Horology Daten|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
