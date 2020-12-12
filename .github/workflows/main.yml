@@ -41,7 +41,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: unittest_RaceHorologyLibTest
-          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86\Debug 
+          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86\Debug
+          retention-days: 2
 
 
   run_test:
@@ -63,5 +64,5 @@ jobs:
       - name: Upload Test Programm
         uses: actions/upload-artifact@v2
         with:
-          name: unittest_RaceHorologyLibTest
+          name: unittest_RaceHorologyLibTest_Results
           path: ${{ github.workspace }}\TestResults\**\*.trx 
