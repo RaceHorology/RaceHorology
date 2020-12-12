@@ -157,6 +157,8 @@ namespace RaceHorologyLibTest
         i++;
       }
 
+      System.Threading.Thread.Sleep(200);
+
       TestContext.WriteLine(string.Format("progressCounter {0}", progressCounter));
       Assert.IsTrue(progressCounter > 2);
       Assert.IsTrue(lastProgress.Finished);
