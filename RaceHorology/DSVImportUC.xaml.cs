@@ -144,11 +144,18 @@ namespace RaceHorology
         if (item is DataRowView rowView)
         {
           DataRow row = rowView.Row;
-          foreach (var r in _dm.GetRaces())
+          if (_dm.GetRaces().Count > 0)
           {
-            RaceImport imp = new RaceImport(r, _dsvData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
-
-            RaceParticipant rp = imp.ImportRow(row);
+            foreach (var r in _dm.GetRaces())
+            {
+              RaceImport imp = new RaceImport(r, _dsvData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
+              RaceParticipant rp = imp.ImportRow(row);
+            }
+          }
+          else
+          {
+            ParticipantImport partImp = new ParticipantImport(_dm.GetParticipants(), _dsvData.Mapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
+            partImp.ImportRow(row);
           }
         }
       }
