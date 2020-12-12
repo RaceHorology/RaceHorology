@@ -99,9 +99,8 @@ namespace RaceHorology
       ConnectGUIToDataModel();
       ConnectGUIToParticipants();
 
-      initDSVAddToList();
-
       ucClassesAndGroups.Init(_dm);
+      ucDSVImport.Init(_dm);
     }
 
     #region RaceTabs
@@ -504,8 +503,6 @@ namespace RaceHorology
         PropertyUtilities.SetPropertyValue(item, propertyName, value);
     }
 
-    #endregion
-
     private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
       Application.Current.Dispatcher.Invoke(() =>
@@ -575,39 +572,6 @@ namespace RaceHorology
       ca.Assign(participants);
     }
 
-    private void showImportResult(List<ImportResults> impRes, string usedDSVLists)
-    {
-      string messageTextDetails = "";
-
-      messageTextDetails += string.Format("Benutzte DSV Liste: {0}\n\n", usedDSVLists);
-
-      int nRace = 0;
-      foreach (var i in impRes)
-      {
-        Race race = _dm.GetRace(nRace);
-
-        string notFoundParticipants = string.Join("\n", i.Errors);
-
-        messageTextDetails += string.Format(
-          "Zusammenfassung für das Rennen \"{0}\":\n" +
-          "- Punkte erfolgreich aktualisiert: {1}\n",
-          race.ToString(), i.SuccessCount);
-
-        if (i.ErrorCount > 0)
-        {
-          messageTextDetails += string.Format("\n" +
-            "- Teilnehmer nicht gefunden: {0}\n" +
-            "{1}",
-            i.ErrorCount, notFoundParticipants);
-        }
-
-        messageTextDetails += "\n";
-      }
-
-      MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
-    }
-
-
     private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
     {
       Participant participant = new Participant();
@@ -639,115 +603,39 @@ namespace RaceHorology
     }
 
 
-    #region DSVAddToList
-
-    DSVInterfaceModel _dsvData;
-    CollectionViewSource _viewDSVList;
-
-    void initDSVAddToList()
-    {
-      _dsvData = new DSVInterfaceModel(_dm);
-
-      updateDSVGrid();
-
-      txtDSVSearch.TextChanged += new DelayedEventHandler(
-          TimeSpan.FromMilliseconds(300),
-          txtDSVSearch_TextChanged
-      ).Delayed;
-    }
-
-    void updateDSVGrid()
-    {
-      if (_dsvData.Data != null)
-      {
-        _viewDSVList = new CollectionViewSource();
-        _viewDSVList.Source = _dsvData.Data.Tables[0].DefaultView;
-        dgDSVList.ItemsSource = _viewDSVList.View;
-
-        lblVersion.Content = string.Format("Version: {0} ({1})", _dsvData?.UsedDSVList, _dsvData.Date?.ToString("d"));
-      }
-    }
-
-
-    private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
-    {
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        if (_dsvData?.Data != null)
-        {
-          DataTable table = _dsvData.Data.Tables[0];
-
-          string sFilterText = txtDSVSearch.Text;
-          if (string.IsNullOrEmpty(sFilterText))
-            table.DefaultView.RowFilter = string.Empty;
-          else
-          {
-            StringBuilder sb = new StringBuilder();
-            foreach (DataColumn column in table.Columns)
-            {
-              sb.AppendFormat("CONVERT({0}, System.String) Like '%{1}%' OR ", column.ColumnName, sFilterText);
-            }
-
-            sb.Remove(sb.Length - 3, 3); // Remove "OR "
-            table.DefaultView.RowFilter = sb.ToString();
-          }
-          _viewDSVList.View.Refresh();
-        }
-      });
-    }
-
-
-    private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
-    {
-      foreach (var item in dgDSVList.SelectedItems)
-      {
-        if (item is DataRowView rowView)
-        {
-          DataRow row = rowView.Row;
-          foreach (var r in _dm.GetRaces())
-          {
-            RaceImport imp = new RaceImport(r, _dsvData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
-            
-            RaceParticipant rp = imp.ImportRow(row);
-          }
-        }
-      }
-    }
-
-
-
-    private void btnDSVImportOnline_Click(object sender, RoutedEventArgs e)
-    {
-      _dsvData.UpdateDSVList(new DSVImportReaderOnline());
-      updateDSVGrid();
-    }
-
-
-    private void btnDSVImportFile_Click(object sender, RoutedEventArgs e)
-    {
-      OpenFileDialog openFileDialog = new OpenFileDialog();
-      if (openFileDialog.ShowDialog() == true)
-      {
-        string path = openFileDialog.FileName;
-        IDSVImportReaderFile dsvImportReader;
-        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
-          dsvImportReader = new DSVImportReaderZip(path);
-        else
-          dsvImportReader = new DSVImportReaderFile(path);
-
-        _dsvData.UpdateDSVList(dsvImportReader);
-        updateDSVGrid();
-      }
-    }
-
-
-    private void btnDSVUpdatePoints_Click(object sender, RoutedEventArgs e)
-    {
-      DSVUpdatePoints.UpdatePoints(_dm, _dsvData.Data, _dsvData.Mapping, _dsvData.UsedDSVList);
-    }
-
-
     #endregion
+
+    private void showImportResult(List<ImportResults> impRes, string usedDSVLists)
+    {
+      string messageTextDetails = "";
+
+      messageTextDetails += string.Format("Benutzte DSV Liste: {0}\n\n", usedDSVLists);
+
+      int nRace = 0;
+      foreach (var i in impRes)
+      {
+        Race race = _dm.GetRace(nRace);
+
+        string notFoundParticipants = string.Join("\n", i.Errors);
+
+        messageTextDetails += string.Format(
+          "Zusammenfassung für das Rennen \"{0}\":\n" +
+          "- Punkte erfolgreich aktualisiert: {1}\n",
+          race.ToString(), i.SuccessCount);
+
+        if (i.ErrorCount > 0)
+        {
+          messageTextDetails += string.Format("\n" +
+            "- Teilnehmer nicht gefunden: {0}\n" +
+            "{1}",
+            i.ErrorCount, notFoundParticipants);
+        }
+
+        messageTextDetails += "\n";
+      }
+
+      MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
   }
 
 
