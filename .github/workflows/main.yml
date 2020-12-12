@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: unittest_RaceHorologyLibTest
-          path: $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug 
+          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86\Debug 
 
 
   run_test:
