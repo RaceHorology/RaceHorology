@@ -53,7 +53,7 @@
     </StackPanel>
 
     <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-      <Button x:Name="btnDSVAdd" Content="Teilnehmer hinzufügen" Margin="5" Padding="5" Click="btnDSVAdd_Click"/>
+      <Button x:Name="btnDSVAdd" Content="Teilnehmer übernehmen" Margin="5" Padding="5" Click="btnDSVAdd_Click"/>
     </StackPanel>
 
   </Grid>
