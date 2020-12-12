@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -103,6 +103,7 @@ namespace RaceHorology
 
         lblVersion.Content = string.Format("Version: {0} ({1})", _dsvData?.UsedDSVList, _dsvData.Date?.ToString("d"));
 
+        txtDSVSearch_TextChanged(null, null); // Update search
         dgDSVList_SelectionChanged(null, null); // Update button status
       }
     }
