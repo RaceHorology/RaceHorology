@@ -59,3 +59,9 @@ jobs:
       
       - name: VSTest
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory!=HardwareDependent" /logger:trx
+
+      - name: Upload Test Programm
+        uses: actions/upload-artifact@v2
+        with:
+          name: unittest_RaceHorologyLibTest
+          path: ${{ github.workspace }}\TestResults\**\*.trx 
