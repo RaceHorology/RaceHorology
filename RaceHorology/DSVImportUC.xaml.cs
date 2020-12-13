@@ -76,6 +76,8 @@ namespace RaceHorology
     {
       _dm = dm;
 
+      this.KeyDown += new KeyEventHandler(KeyDownHandler);
+
       initDSVAddToList();
     }
 
@@ -208,6 +210,16 @@ namespace RaceHorology
     private void dgDSVList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       btnDSVAdd.IsEnabled = dgDSVList.SelectedItems.Count > 0;
+    }
+
+
+    private void KeyDownHandler(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.D && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+      {
+        txtDSVSearch.Focus();
+        txtDSVSearch.SelectAll();
+      }
     }
   }
 }
