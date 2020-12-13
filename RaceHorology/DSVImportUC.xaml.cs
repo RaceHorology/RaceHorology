@@ -163,9 +163,21 @@ namespace RaceHorology
 
 
 
-    private void btnDSVImportOnline_Click(object sender, RoutedEventArgs e)
+    private void btnDSVImportOnlineU12_Click(object sender, RoutedEventArgs e)
+    {
+      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger));
+      updateDSVGrid();
+    }
+
+    private void btnDSVImportOnlineU14_Click(object sender, RoutedEventArgs e)
     {
       _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
+      updateDSVGrid();
+    }
+
+    private void btnDSVImportOnlineU18_Click(object sender, RoutedEventArgs e)
+    {
+      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder));
       updateDSVGrid();
     }
 
@@ -178,7 +190,7 @@ namespace RaceHorology
         string path = openFileDialog.FileName;
         IDSVImportReaderFile dsvImportReader;
         if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
-          dsvImportReader = new DSVImportReaderZip(path);
+          dsvImportReader = new DSVImportReaderZip(path, DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
         else
           dsvImportReader = new DSVImportReaderFile(path);
 
