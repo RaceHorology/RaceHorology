@@ -76,6 +76,8 @@ namespace RaceHorology
     {
       _dm = dm;
 
+      this.KeyDown += new KeyEventHandler(KeyDownHandler);
+
       initDSVAddToList();
     }
 
@@ -163,9 +165,21 @@ namespace RaceHorology
 
 
 
-    private void btnDSVImportOnline_Click(object sender, RoutedEventArgs e)
+    private void btnDSVImportOnlineU12_Click(object sender, RoutedEventArgs e)
     {
-      _dsvData.UpdateDSVList(new DSVImportReaderOnline());
+      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger));
+      updateDSVGrid();
+    }
+
+    private void btnDSVImportOnlineU14_Click(object sender, RoutedEventArgs e)
+    {
+      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
+      updateDSVGrid();
+    }
+
+    private void btnDSVImportOnlineU18_Click(object sender, RoutedEventArgs e)
+    {
+      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder));
       updateDSVGrid();
     }
 
@@ -178,7 +192,7 @@ namespace RaceHorology
         string path = openFileDialog.FileName;
         IDSVImportReaderFile dsvImportReader;
         if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
-          dsvImportReader = new DSVImportReaderZip(path);
+          dsvImportReader = new DSVImportReaderZip(path, DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
         else
           dsvImportReader = new DSVImportReaderFile(path);
 
@@ -196,6 +210,16 @@ namespace RaceHorology
     private void dgDSVList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       btnDSVAdd.IsEnabled = dgDSVList.SelectedItems.Count > 0;
+    }
+
+
+    private void KeyDownHandler(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.D && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+      {
+        txtDSVSearch.Focus();
+        txtDSVSearch.SelectAll();
+      }
     }
   }
 }

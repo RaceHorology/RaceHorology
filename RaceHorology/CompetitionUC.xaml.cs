@@ -381,7 +381,11 @@ namespace RaceHorology
         List<object> values = new List<object>();
         foreach (var item in items)
         {
-          values.Add(_dm.GetRace(i).GetParticipants().FirstOrDefault(rp => rp.Participant == ((ParticipantEdit)item).Participant) != null);
+          Race race = _dm.GetRace(i);
+          if (race != null)
+            values.Add(race.GetParticipants().FirstOrDefault(rp => rp.Participant == ((ParticipantEdit)item).Participant) != null);
+          else
+            values.Add(false);
         }
         updatePartcipantCheckbox(spRaces.Children[i] as CheckBox, values);
       }
