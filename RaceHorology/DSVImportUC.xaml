@@ -47,7 +47,7 @@
         <RibbonMenuItem x:Name="mbtnDsvImportOnline" Header="Online" >
           <RibbonMenuItem  x:Name="mbtnDsvImportOnlineU12" Header="Kinderliste (U12 und jünger)" Click="btnDSVImportOnlineU12_Click" />
           <RibbonMenuItem  x:Name="mbtnDsvImportOnlineU14" Header="Schüler (U14 und U16)" Click="btnDSVImportOnlineU14_Click" />
-          <RibbonMenuItem  x:Name="mbtnDsvImportOnlineU18" Header="Kinderliste (U18 und älter)" Click="btnDSVImportOnlineU18_Click" />
+          <RibbonMenuItem  x:Name="mbtnDsvImportOnlineU18" Header="Jugend und Aktive (U18 und älter)" Click="btnDSVImportOnlineU18_Click" />
         </RibbonMenuItem>
       
         <RibbonMenuItem x:Name="mbtnDsvImportFile" Header="Datei" Click="btnDSVImportFile_Click" />
