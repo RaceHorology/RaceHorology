@@ -73,7 +73,7 @@ namespace RaceHorologyLib
           _localReader = null;
         }
       }
-      catch (Exception e)
+      catch (Exception)
       {
         _localReader = null;
       }
