@@ -113,6 +113,7 @@
     <Compile Include="AppDataModelTypesTest.cs" />
     <Compile Include="AppDataModelViewTests.cs" />
     <Compile Include="AppDataModelCalculationsTest.cs" />
+    <Compile Include="ClassesGroupsCategoriesTest.cs" />
     <Compile Include="DSVAlpin2HTTPServerTest.cs" />
     <Compile Include="DSVAlpinDatabaseTests.cs" />
     <Compile Include="DSVCalculationTests.cs" />

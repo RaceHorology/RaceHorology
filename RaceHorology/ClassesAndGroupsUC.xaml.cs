@@ -217,13 +217,19 @@ namespace RaceHorology
 
       foreach (var c1 in srcClasses)
       {
-        var c2 = new ParticipantClass(c1.Id, c1.Group == null ? null : group2Group[c1.Group], c1.Name, category2Category[c1.Sex], c1.Year, c1.SortPos);
+        var c2 = new ParticipantClass(
+          c1.Id, 
+          c1.Group == null ? null : group2Group[c1.Group], 
+          c1.Name,
+          c1.Sex == null ? null : category2Category[c1.Sex], 
+          c1.Year, 
+          c1.SortPos);
         dstClasses.Add(c2);
       }
 
-      GroupViewModel.Assign(dstGroups, false);
-      ClassViewModel.Assign(dstClasses, false);
-      CategoryViewModel.Assign(dstCategories, true);
+      GroupViewModel.Assign(dstGroups, replace);
+      ClassViewModel.Assign(dstClasses, replace);
+      CategoryViewModel.Assign(dstCategories, replace);
     }
 
 
@@ -419,29 +425,10 @@ namespace RaceHorology
   }
 
 
-  public class CategoryViewModel : IDropTarget
+  public class CategoryViewModel : CategoryVM, IDropTarget
   {
-
-    public ObservableCollection<ParticipantCategory> Items { get; }
-
-    CollectionViewSource _itemsWONewItem; //!< Just there to fill the comboboxes in the DataGrid for the classes, otherwise the "new items placeholder" will appear
-    public System.ComponentModel.ICollectionView FilteredItems { get { return _itemsWONewItem.View; } }
-
-    public CategoryViewModel()
-    {
-      Items = new ObservableCollection<ParticipantCategory>();
-
-      _itemsWONewItem = new CollectionViewSource();
-      _itemsWONewItem.Source = Items;
-    }
-
-    public void Assign(IList<ParticipantCategory> categories, bool delete)
-    {
-      if (delete)
-        Items.Clear();
-      Items.InsertRange(categories);
-      Items.Sort(new StdComparer());
-    }
+    public CategoryViewModel() : base()
+    {}
 
     void IDropTarget.DragOver(IDropInfo dropInfo)
     {
