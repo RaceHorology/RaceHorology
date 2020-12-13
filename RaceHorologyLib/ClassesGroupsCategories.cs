@@ -24,11 +24,32 @@ namespace RaceHorologyLib
       _itemsWONewItem.Source = Items;
     }
 
-    public void Assign(IList<ParticipantCategory> categories, bool delete)
+
+    public void Clear()
     {
-      if (delete)
-        Items.Clear();
+      Items.Clear();
+    }
+
+    public void Assign(IList<ParticipantCategory> categories)
+    {
+      Items.Clear();
       Items.InsertRange(categories);
+      Items.Sort(new StdComparer());
+    }
+
+    public void Add(IList<ParticipantCategory> categories)
+    {
+      Items.InsertRange(categories);
+      Items.Sort(new StdComparer());
+    }
+
+    public void Merge(IList<ParticipantCategory> categories)
+    {
+      foreach(var c in categories)
+      {
+        if (!Items.Contains(c))
+          Items.Add(c);
+      }
       Items.Sort(new StdComparer());
     }
   }

@@ -79,23 +79,32 @@ namespace RaceHorologyLibTest
       };
 
 
-      c1.Assign(l1, true);
+      c1.Assign(l1);
       Assert.AreEqual(1, c1.Items.Count);
       Assert.AreEqual('M', c1.Items[0].Name);
 
-      c1.Assign(l2, false);
+      c1.Add(l2);
       Assert.AreEqual(2, c1.Items.Count);
       Assert.AreEqual('M', c1.Items[0].Name);
       Assert.AreEqual('W', c1.Items[1].Name);
 
-      c1.Assign(l1, true);
+      c1.Assign(l1);
       Assert.AreEqual(1, c1.Items.Count);
       Assert.AreEqual('M', c1.Items[0].Name);
 
-      c1.Assign(l12, true);
+      c1.Assign(l12);
       Assert.AreEqual(2, c1.Items.Count);
       Assert.AreEqual('M', c1.Items[0].Name);
       Assert.AreEqual('W', c1.Items[1].Name);
+
+      c1.Assign(l2);
+      c1.Merge(l12);
+      Assert.AreEqual(2, c1.Items.Count);
+      Assert.AreEqual('M', c1.Items[0].Name);
+      Assert.AreEqual('W', c1.Items[1].Name);
+
+      c1.Clear();
+      Assert.AreEqual(0, c1.Items.Count);
     }
   }
 }
