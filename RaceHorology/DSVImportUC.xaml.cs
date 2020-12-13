@@ -165,7 +165,7 @@ namespace RaceHorology
 
     private void btnDSVImportOnline_Click(object sender, RoutedEventArgs e)
     {
-      _dsvData.UpdateDSVList(new DSVImportReaderOnline());
+      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
       updateDSVGrid();
     }
 

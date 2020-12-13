@@ -183,7 +183,10 @@ namespace RaceHorologyLib
           row["Year"] = uint.Parse(year);
           row["Club"] = club;
           row["Verband"] = region;
-          row["Points"] = double.Parse(points, System.Globalization.CultureInfo.InvariantCulture);
+          if (string.IsNullOrWhiteSpace(points))
+            row["Points"] = -1;
+          else
+            row["Points"] = double.Parse(points, System.Globalization.CultureInfo.InvariantCulture);
           row["Sex"] = sex;
 
           table.Rows.Add(row);
@@ -270,6 +273,20 @@ namespace RaceHorologyLib
 
   public class DSVImportReaderZipBase : IDSVImportReaderFile
   {
+    public enum EDSVListType
+    { 
+      Kids_U12AndYounger,
+      Pupils_U14U16,
+      Youth_U18AndOlder
+    }
+
+    static Dictionary<EDSVListType, string> listTypeToPrefix = new Dictionary<EDSVListType, string>
+    {
+      {EDSVListType.Kids_U12AndYounger, "DSVKA" },
+      {EDSVListType.Pupils_U14U16, "DSVSA" },
+      {EDSVListType.Youth_U18AndOlder, "DSVA" }
+    };
+
     string _dsvList;
     Stream _stream;
 
@@ -290,15 +307,16 @@ namespace RaceHorologyLib
     }
 
 
-    protected void parseZip(Stream zipStream)
+    protected void parseZip(Stream zipStream, EDSVListType listType)
     {
       ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
       {
         foreach (ZipArchiveEntry entry in archive.Entries)
         {
-          if (entry.FullName.StartsWith("DSVSA") && entry.FullName.EndsWith(".txt"))
+          if ( entry.FullName.StartsWith(listTypeToPrefix[listType], System.StringComparison.InvariantCultureIgnoreCase) 
+            && entry.FullName.EndsWith(".txt"))
           {
-            _dsvList = System.IO.Path.GetFileNameWithoutExtension(entry.FullName);
+            _dsvList = System.IO.Path.GetFileNameWithoutExtension(entry.FullName).ToUpper();
             _stream = entry.Open();
             return;
           }
@@ -311,11 +329,11 @@ namespace RaceHorologyLib
   {
     string _zipPath;
 
-    public DSVImportReaderZip(string path)
+    public DSVImportReaderZip(string path, EDSVListType listType)
     {
       _zipPath = path;
 
-      parseZip(new FileStream(_zipPath, FileMode.Open, FileAccess.Read, FileShare.Read));
+      parseZip(new FileStream(_zipPath, FileMode.Open, FileAccess.Read, FileShare.Read), listType);
     }
   }
 
@@ -324,9 +342,9 @@ namespace RaceHorologyLib
   public class DSVImportReaderOnline : DSVImportReaderZipBase
   {
 
-    public DSVImportReaderOnline()
+    public DSVImportReaderOnline(EDSVListType listType)
     {
-      parseZip(getZipOnlineStream());
+      parseZip(getZipOnlineStream(), listType);
     }
 
 
