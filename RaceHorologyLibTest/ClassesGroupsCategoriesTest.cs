@@ -14,9 +14,6 @@ namespace RaceHorologyLibTest
   {
     public ClassesGroupsCategoriesTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
     }
 
     private TestContext testContextInstance;
