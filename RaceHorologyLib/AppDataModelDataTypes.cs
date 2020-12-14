@@ -175,7 +175,7 @@ namespace RaceHorologyLib
   /// Represents the participant's class
   /// Defines a relation via IComparable based on its sortkey
   /// </summary>
-  public class ParticipantClass : INotifyPropertyChanged, IComparable<ParticipantClass>, IComparable
+  public class ParticipantClass : INotifyPropertyChanged, IComparable<ParticipantClass>, IComparable, IEquatable<ParticipantClass>
   {
     private string _id;
     private ParticipantGroup _group;
@@ -294,6 +294,37 @@ namespace RaceHorologyLib
 
       return -1;
     }
+
+
+    #region Equality
+    public bool Equals(ParticipantClass other)
+    {
+      return _name == other._name && _year == other._year && _group == other._group && _sex == other._sex;
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (obj is ParticipantClass other)
+        return Equals(other);
+
+      return false;
+    }
+
+    public static bool operator ==(ParticipantClass obj1, ParticipantClass obj2)
+    {
+      return object.Equals(obj1, obj2);
+    }
+
+    public static bool operator !=(ParticipantClass obj1, ParticipantClass obj2)
+    {
+      return !object.Equals(obj1, obj2);
+    }
+
+    public override int GetHashCode()
+    {
+      return _name.GetHashCode() + _year.GetHashCode() + _group.GetHashCode() + _sex.GetHashCode();
+    }
+    #endregion
 
     #region INotifyPropertyChanged implementation
 

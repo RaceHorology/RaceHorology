@@ -375,27 +375,8 @@ namespace RaceHorology
 
   public class GroupViewModel : GroupVM, IDropTarget
   {
-    
-    public ObservableCollection<ParticipantGroup> Items { get; }
-
-    CollectionViewSource _itemsWONewItem; //!< Just there to fill the comboboxes in the DataGrid for the classes, otherwise the "new items placeholder" will appear
-    public System.ComponentModel.ICollectionView FilteredItems { get { return _itemsWONewItem.View; } }
-
     public GroupViewModel()
-    {
-      Items = new ObservableCollection<ParticipantGroup>();
-
-      _itemsWONewItem = new CollectionViewSource();
-      _itemsWONewItem.Source = Items;
-    }
-
-    public void Assign(IList<ParticipantGroup> groups, bool delete)
-    {
-      if (delete)
-        Items.Clear();
-      Items.InsertRange(groups);
-      Items.Sort(new StdComparer());
-    }
+    {}
 
     void IDropTarget.DragOver(IDropInfo dropInfo)
     {

@@ -152,5 +152,56 @@ namespace RaceHorologyLibTest
       g1.Clear();
       Assert.AreEqual(0, g1.Items.Count);
     }
+
+
+
+
+    [TestMethod]
+    public void ClassVMTest()
+    {
+      ClassVM c1 = new ClassVM();
+
+      List<ParticipantClass> l1 = new List<ParticipantClass>
+      {
+        new ParticipantClass("1", null, "U10", null, 2010, 0)
+      };
+      List<ParticipantClass> l2 = new List<ParticipantClass>
+      {
+        new ParticipantClass("2", null, "U12", null, 2008, 0)
+      };
+      List<ParticipantClass> l12 = new List<ParticipantClass>
+      {
+        new ParticipantClass("1", null, "U10", null, 2010, 0),
+        new ParticipantClass("2", null, "U12", null, 2008, 1)
+      };
+
+
+      c1.Assign(l1);
+      Assert.AreEqual(1, c1.Items.Count);
+      Assert.AreEqual("U10", c1.Items[0].Name);
+
+      c1.Add(l2);
+      Assert.AreEqual(2, c1.Items.Count);
+      Assert.AreEqual("U10", c1.Items[0].Name);
+      Assert.AreEqual("U12", c1.Items[1].Name);
+
+      c1.Assign(l1);
+      Assert.AreEqual(1, c1.Items.Count);
+      Assert.AreEqual("U10", c1.Items[0].Name);
+
+      c1.Assign(l12);
+      Assert.AreEqual(2, c1.Items.Count);
+      Assert.AreEqual("U10", c1.Items[0].Name);
+      Assert.AreEqual("U12", c1.Items[1].Name);
+
+      c1.Assign(l2);
+      c1.Merge(l12);
+      Assert.AreEqual(2, c1.Items.Count);
+      Assert.AreEqual("U10", c1.Items[0].Name);
+      Assert.AreEqual("U12", c1.Items[1].Name);
+
+      c1.Clear();
+      Assert.AreEqual(0, c1.Items.Count);
+    }
   }
 }

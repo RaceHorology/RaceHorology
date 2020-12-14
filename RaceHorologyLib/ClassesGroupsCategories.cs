@@ -46,7 +46,7 @@ namespace RaceHorologyLib
 
     public void Merge(IList<ParticipantCategory> categories)
     {
-      foreach(var c in categories)
+      foreach (var c in categories)
       {
         if (!Items.Contains(c))
           Items.Add(c);
@@ -55,7 +55,7 @@ namespace RaceHorologyLib
     }
   }
 
-  public class GroupVM 
+  public class GroupVM
   {
     public ObservableCollection<ParticipantGroup> Items { get; }
 
@@ -104,4 +104,47 @@ namespace RaceHorologyLib
 
   }
 
+
+  public class ClassVM
+  {
+    public ObservableCollection<ParticipantClass> Items { get; }
+
+    public ClassVM()
+    {
+      Items = new ObservableCollection<ParticipantClass>();
+    }
+
+
+
+    public void Clear()
+    {
+      Items.Clear();
+    }
+
+
+    public void Assign(IList<ParticipantClass> groups)
+    {
+      Items.Clear();
+      Items.InsertRange(groups);
+      Items.Sort(new StdComparer());
+    }
+
+
+    public void Add(IList<ParticipantClass> groups)
+    {
+      Items.InsertRange(groups);
+      Items.Sort(new StdComparer());
+    }
+
+
+    public void Merge(IList<ParticipantClass> groups)
+    {
+      foreach (var g in groups)
+      {
+        if (!Items.Contains(g))
+          Items.Add(g);
+      }
+      Items.Sort(new StdComparer());
+    }
+  }
 }
