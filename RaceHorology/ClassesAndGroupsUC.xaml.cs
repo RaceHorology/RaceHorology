@@ -94,7 +94,8 @@ namespace RaceHorology
         Database importDB = new Database();
         importDB.Connect(openFileDialog.FileName);
         AppDataModel importModel = new AppDataModel(importDB);
-        _cgVM.Import(importModel, true);
+        _cgVM.Clear();
+        _cgVM.Import(importModel);
       }
     }
 
@@ -108,275 +109,37 @@ namespace RaceHorology
         Database importDB = new Database();
         importDB.Connect(openFileDialog.FileName);
         AppDataModel importModel = new AppDataModel(importDB);
-        _cgVM.Import(importModel, false);
+        _cgVM.Import(importModel);
       }
     }
   }
 
 
 
-  public class ClassesAndGroupsEditViewModel
+  public class ClassesAndGroupsEditViewModel : ClassesGroupsCategoriesEditVM
   {
-    private AppDataModel _dm;
-    Dictionary<ParticipantGroup, ParticipantGroup> _group2Group;
-    Dictionary<ParticipantClass, ParticipantClass> _class2Class;
-    Dictionary<ParticipantCategory, ParticipantCategory> _category2Category;
+
+    public GroupViewModelDD GroupViewModelDD { get; }
+    public ClassViewModelDD ClassViewModelDD { get; }
+    public CategoryViewModelDD CategoryViewModelDD { get; }
 
 
-    public GroupViewModel GroupViewModel { get; }
-    public ClassViewModel ClassViewModel { get; }
-    public CategoryViewModel CategoryViewModel { get; }
-
-
-    public ClassesAndGroupsEditViewModel(AppDataModel dm)
+    public ClassesAndGroupsEditViewModel(AppDataModel dm) : base(dm)
     {
-      _dm = dm;
-      _group2Group = new Dictionary<ParticipantGroup, ParticipantGroup>();
-      _class2Class = new Dictionary<ParticipantClass, ParticipantClass>();
-      _category2Category = new Dictionary<ParticipantCategory, ParticipantCategory>();
-
-      GroupViewModel = new GroupViewModel();
-      ClassViewModel = new ClassViewModel();
-      CategoryViewModel = new CategoryViewModel();
-
-      initialize();
-    }
-
-    private void initialize()
-    {
-      _group2Group.Clear();
-      _class2Class.Clear();
-      _category2Category.Clear();
-
-      var srcGroups = _dm.GetParticipantGroups();
-      var srcClasses = _dm.GetParticipantClasses();
-      var srcCategories = _dm.GetParticipantCategories();
-
-      List<ParticipantGroup> dstGroups = new List<ParticipantGroup>();
-      List<ParticipantClass> dstClasses = new List<ParticipantClass>();
-      List<ParticipantCategory> dstCategories = new List<ParticipantCategory>();
-
-      foreach (var g1 in srcGroups)
-      {
-        var g2 = new ParticipantGroup(g1.Id, g1.Name, g1.SortPos);
-        dstGroups.Add(g2);
-        _group2Group.Add(g1, g2);
-      }
-
-      foreach (var cat1 in srcCategories)
-      {
-        var cat2 = new ParticipantCategory(cat1.Name, cat1.PrettyName, cat1.SortPos, cat1.Synonyms);
-        dstCategories.Add(cat2);
-        _category2Category.Add(cat1, cat2);
-      }
-
-      foreach (var c1 in srcClasses)
-      {
-        var c2 = new ParticipantClass(
-          c1.Id, 
-          c1.Group == null ? null : _group2Group[c1.Group], c1.Name,
-          c1.Sex == null   ? null   : _category2Category[c1.Sex], 
-          c1.Year, 
-          c1.SortPos);
-        dstClasses.Add(c2);
-        _class2Class.Add(c1, c2);
-      }
-
-      GroupViewModel.Assign(dstGroups, true);
-      ClassViewModel.Assign(dstClasses, true);
-      CategoryViewModel.Assign(dstCategories, true);
-    }
-
-
-    public void Import(AppDataModel srcModel, bool replace)
-    {
-      var srcGroups = srcModel.GetParticipantGroups();
-      var srcClasses = srcModel.GetParticipantClasses();
-      var srcCategories = srcModel.GetParticipantCategories();
-
-      List<ParticipantGroup> dstGroups = new List<ParticipantGroup>();
-      List<ParticipantClass> dstClasses = new List<ParticipantClass>();
-      List<ParticipantCategory> dstCategories = new List<ParticipantCategory>();
-      Dictionary<ParticipantGroup, ParticipantGroup> group2Group = new Dictionary<ParticipantGroup, ParticipantGroup>();
-      Dictionary<ParticipantCategory, ParticipantCategory> category2Category = new Dictionary<ParticipantCategory, ParticipantCategory>();
-
-
-      foreach (var g1 in srcGroups)
-      {
-        var g2 = new ParticipantGroup(g1.Id, g1.Name, g1.SortPos);
-        dstGroups.Add(g2);
-        group2Group.Add(g1, g2);
-      }
-
-      foreach (var cat1 in srcCategories)
-      {
-        var cat2 = new ParticipantCategory(cat1.Name, cat1.PrettyName, cat1.SortPos, cat1.Synonyms);
-        dstCategories.Add(cat2);
-        category2Category.Add(cat1, cat2);
-      }
-
-      foreach (var c1 in srcClasses)
-      {
-        var c2 = new ParticipantClass(
-          c1.Id, 
-          c1.Group == null ? null : group2Group[c1.Group], 
-          c1.Name,
-          c1.Sex == null ? null : category2Category[c1.Sex], 
-          c1.Year, 
-          c1.SortPos);
-        dstClasses.Add(c2);
-      }
-
-      GroupViewModel.Assign(dstGroups, replace);
-      ClassViewModel.Assign(dstClasses, replace);
-      CategoryViewModel.Assign(dstCategories, replace);
-    }
-
-
-    public void Reset()
-    {
-      initialize();
-    }
-
-
-    public void Store()
-    {
-      storeGroups();
-      storeCategories();
-      storeClasses();
-      Reset();
-    }
-
-    private void storeGroups()
-    {
-      // Delete removed one
-      List<ParticipantGroup> toDelete = new List<ParticipantGroup>();
-      foreach (var g2 in _dm.GetParticipantGroups())
-      {
-        var g1 = _group2Group[g2];
-
-        if (GroupViewModel.Items.FirstOrDefault(i => i == g1) == null)
-          toDelete.Add(g2);
-      }
-      foreach (var g in toDelete)
-        _dm.GetParticipantGroups().Remove(g);
-
-      // Update & create new ones
-      uint curSortPos = 1;
-      foreach (var g1 in GroupViewModel.Items)
-      {
-        var g2 = _group2Group.FirstOrDefault(i => i.Value == g1);
-
-        if (g2.Key != null)
-        {
-          // Update existing one
-          g2.Key.Name = g1.Name;
-          g2.Key.SortPos = curSortPos;
-        }
-        else
-        {
-          // Create new one
-          var gNew = new ParticipantGroup(null, g1.Name, curSortPos);
-          _dm.GetParticipantGroups().Add(gNew);
-          _group2Group.Add(gNew, g1);
-        }
-
-        curSortPos++;
-      }
-    }
-
-
-    private void storeCategories()
-    {
-      // Delete removed one
-      List<ParticipantCategory> toDelete = new List<ParticipantCategory>();
-      foreach (var cat2 in _dm.GetParticipantCategories())
-      {
-        var cat1 = _category2Category[cat2];
-
-        if (CategoryViewModel.Items.FirstOrDefault(i => i == cat1) == null)
-          toDelete.Add(cat2);
-      }
-      foreach (var cat in toDelete)
-        _dm.GetParticipantCategories().Remove(cat);
-
-      // Update & create new ones
-      uint curSortPos = 1;
-      foreach (var cat1 in CategoryViewModel.Items)
-      {
-        var cat2 = _category2Category.FirstOrDefault(i => i.Value == cat1);
-
-        if (cat2.Key != null)
-        {
-          // Update existing one
-          cat2.Key.Name = cat1.Name;
-          cat2.Key.PrettyName = cat1.PrettyName;
-          cat2.Key.Synonyms = cat1.Synonyms;
-          cat2.Key.SortPos = curSortPos;
-        }
-        else
-        {
-          // Create new one
-          var catNew = new ParticipantCategory(cat1.Name, cat1.PrettyName, curSortPos, cat1.Synonyms);
-          _dm.GetParticipantCategories().Add(catNew);
-          _category2Category.Add(catNew, cat1);
-        }
-
-        curSortPos++;
-      }
-    }
-
-
-    private void storeClasses()
-    {
-      // Delete removed one
-      List<ParticipantClass> toDelete = new List<ParticipantClass>();
-      foreach (var c2 in _dm.GetParticipantClasses())
-      {
-        var c1 = _class2Class[c2];
-
-        if (ClassViewModel.Items.FirstOrDefault(i => i == c1) == null)
-          toDelete.Add(c2);
-      }
-      foreach (var c in toDelete)
-        _dm.GetParticipantClasses().Remove(c);
-
-      // Update & create new ones
-      uint curSortPos = 1;
-      foreach (var c1 in ClassViewModel.Items)
-      {
-        var c2 = _class2Class.FirstOrDefault(i => i.Value == c1);
-        var g2 = _group2Group.FirstOrDefault(i => i.Value == c1.Group);
-        var cat2 = _category2Category.FirstOrDefault(i => i.Value == c1.Sex);
-
-        if (c2.Key != null)
-        {
-
-          // Update existing one
-          c2.Key.Name = c1.Name;
-          c2.Key.Group = g2.Key;
-          c2.Key.Sex = cat2.Key;
-          c2.Key.Year = c1.Year;
-          c2.Key.SortPos = curSortPos;
-        }
-        else
-        {
-          // Create new one
-          var cNew = new ParticipantClass(null, g2.Key, c1.Name, cat2.Key, c1.Year, curSortPos);
-          _dm.GetParticipantClasses().Add(cNew);
-          _class2Class.Add(cNew, c1);
-        }
-
-        curSortPos++;
-      }
+      GroupViewModelDD = new GroupViewModelDD(GroupViewModel);
+      ClassViewModelDD = new ClassViewModelDD(ClassViewModel);
+      CategoryViewModelDD = new CategoryViewModelDD(CategoryViewModel);
     }
   }
 
 
-  public class GroupViewModel : GroupVM, IDropTarget
+  public class GroupViewModelDD : IDropTarget
   {
-    public GroupViewModel()
-    {}
+    GroupVM _viewModel;
+    public GroupViewModelDD(GroupVM viewModel)
+    {
+      _viewModel = viewModel;
+    }
 
     void IDropTarget.DragOver(IDropInfo dropInfo)
     {
@@ -396,20 +159,23 @@ namespace RaceHorology
 
       if (source != null && target != null)
       {
-        var iSource = Items.IndexOf(source);
-        var iTarget = Items.IndexOf(target);
+        var iSource = _viewModel.Items.IndexOf(source);
+        var iTarget = _viewModel.Items.IndexOf(target);
 
         if (iSource != iTarget)
-          Items.Move(iSource, iTarget);
+          _viewModel.Items.Move(iSource, iTarget);
       }
     }
   }
 
 
-  public class CategoryViewModel : CategoryVM, IDropTarget
+  public class CategoryViewModelDD : IDropTarget
   {
-    public CategoryViewModel() : base()
-    {}
+    CategoryVM _viewModel;
+    public CategoryViewModelDD(CategoryVM viewModel) : base()
+    {
+      _viewModel = viewModel;
+    }
 
     void IDropTarget.DragOver(IDropInfo dropInfo)
     {
@@ -429,32 +195,23 @@ namespace RaceHorology
 
       if (source != null && target != null)
       {
-        var iSource = Items.IndexOf(source);
-        var iTarget = Items.IndexOf(target);
+        var iSource = _viewModel.Items.IndexOf(source);
+        var iTarget = _viewModel.Items.IndexOf(target);
 
         if (iSource != iTarget)
-          Items.Move(iSource, iTarget);
+          _viewModel.Items.Move(iSource, iTarget);
       }
     }
   }
 
 
 
-  public class ClassViewModel : IDropTarget
+  public class ClassViewModelDD : IDropTarget
   {
-    public ObservableCollection<ParticipantClass> Items { get; }
-
-    public ClassViewModel()
+    ClassVM _viewModel;
+    public ClassViewModelDD(ClassVM viewModel) : base()
     {
-      Items = new ObservableCollection<ParticipantClass>();
-    }
-
-    public void Assign(IList<ParticipantClass> classes, bool delete)
-    {
-      if (delete)
-        Items.Clear();
-      Items.InsertRange(classes);
-      Items.Sort(new StdComparer());
+      _viewModel = viewModel;
     }
 
     void IDropTarget.DragOver(IDropInfo dropInfo)
@@ -475,11 +232,11 @@ namespace RaceHorology
 
       if (source != null && target != null)
       {
-        var iSource = Items.IndexOf(source);
-        var iTarget = Items.IndexOf(target);
+        var iSource = _viewModel.Items.IndexOf(source);
+        var iTarget = _viewModel.Items.IndexOf(target);
 
         if (iSource != iTarget)
-          Items.Move(iSource, iTarget);
+          _viewModel.Items.Move(iSource, iTarget);
       }
     }
   }
