@@ -322,7 +322,10 @@ namespace RaceHorologyLib
 
     public override int GetHashCode()
     {
-      return _name.GetHashCode() + _year.GetHashCode() + _group.GetHashCode() + _sex.GetHashCode();
+      return _name.GetHashCode() 
+        + _year.GetHashCode() 
+        + (_group == null ? 0 : _group.GetHashCode()) 
+        + (_sex == null ? 0 : _sex.GetHashCode());
     }
     #endregion
 
