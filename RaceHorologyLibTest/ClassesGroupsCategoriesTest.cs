@@ -217,6 +217,45 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
+    public void CgcTest_Store()
+    {
+      AppDataModel dm = createTestDataModel1();
+
+      ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
+
+      // Per XXX add, modify, delete
+      cge.CategoryViewModel.Items.Add(new ParticipantCategory('U', "Unbekannt", 2));
+      cge.CategoryViewModel.Items.RemoveAt(0);
+      cge.CategoryViewModel.Items[0].PrettyName = "WEIBLICH";
+
+      cge.GroupViewModel.Items.Add(new ParticipantGroup("xxx", "G_U14", 2));
+      cge.GroupViewModel.Items.RemoveAt(0);
+      cge.GroupViewModel.Items[0].Name = "B_U12";
+
+      cge.ClassViewModel.Items.Add(new ParticipantClass("xxx", cge.GroupViewModel.Items[1], "U14", cge.CategoryViewModel.Items[0], 2006, 0));
+      cge.ClassViewModel.Items.RemoveAt(0);
+      cge.ClassViewModel.Items[0].Name = "u10";
+
+      cge.Store();
+
+      // Verify Data Model
+      Assert.AreEqual(dm.GetParticipantCategories().Count, 2);
+      Assert.AreEqual(dm.GetParticipantCategories()[0].PrettyName, "WEIBLICH");
+      Assert.AreEqual(dm.GetParticipantCategories()[1].PrettyName, "Unbekannt");
+
+      Assert.AreEqual(dm.GetParticipantGroups().Count, 2);
+      Assert.AreEqual(dm.GetParticipantGroups()[0].Name, "B_U12");
+      Assert.AreEqual(dm.GetParticipantGroups()[1].Name, "G_U14");
+
+      Assert.AreEqual(dm.GetParticipantClasses().Count, 4);
+      Assert.AreEqual(dm.GetParticipantClasses()[0].Name, "u10");
+      Assert.AreEqual(dm.GetParticipantClasses()[1].Name, "U12");
+      Assert.AreEqual(dm.GetParticipantClasses()[2].Name, "U12");
+      Assert.AreEqual(dm.GetParticipantClasses()[3].Name, "U14");
+    }
+
+
+    [TestMethod]
     public void CgcTest_ClearAndReset()
     {
       AppDataModel dm = createTestDataModel1();
