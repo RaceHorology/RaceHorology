@@ -43,6 +43,7 @@ namespace RaceHorologyLib
       Items.Sort(new StdComparer());
     }
 
+
     public void Merge(IList<ParticipantCategory> categories)
     {
       foreach(var c in categories)
@@ -54,5 +55,53 @@ namespace RaceHorologyLib
     }
   }
 
+  public class GroupVM 
+  {
+    public ObservableCollection<ParticipantGroup> Items { get; }
+
+    CollectionViewSource _itemsWONewItem; //!< Just there to fill the comboboxes in the DataGrid for the classes, otherwise the "new items placeholder" will appear
+    public System.ComponentModel.ICollectionView FilteredItems { get { return _itemsWONewItem.View; } }
+
+    public GroupVM()
+    {
+      Items = new ObservableCollection<ParticipantGroup>();
+
+      _itemsWONewItem = new CollectionViewSource();
+      _itemsWONewItem.Source = Items;
+    }
+
+
+    public void Clear()
+    {
+      Items.Clear();
+    }
+
+
+    public void Assign(IList<ParticipantGroup> groups)
+    {
+      Items.Clear();
+      Items.InsertRange(groups);
+      Items.Sort(new StdComparer());
+    }
+
+
+    public void Add(IList<ParticipantGroup> groups)
+    {
+      Items.InsertRange(groups);
+      Items.Sort(new StdComparer());
+    }
+
+
+    public void Merge(IList<ParticipantGroup> groups)
+    {
+      foreach (var g in groups)
+      {
+        if (!Items.Contains(g))
+          Items.Add(g);
+      }
+      Items.Sort(new StdComparer());
+    }
+
+  }
 
 }

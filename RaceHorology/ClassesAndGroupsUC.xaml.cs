@@ -373,7 +373,7 @@ namespace RaceHorology
   }
 
 
-  public class GroupViewModel : IDropTarget
+  public class GroupViewModel : GroupVM, IDropTarget
   {
     
     public ObservableCollection<ParticipantGroup> Items { get; }

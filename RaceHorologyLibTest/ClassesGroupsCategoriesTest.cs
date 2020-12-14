@@ -103,5 +103,54 @@ namespace RaceHorologyLibTest
       c1.Clear();
       Assert.AreEqual(0, c1.Items.Count);
     }
+
+
+    [TestMethod]
+    public void GroupVMTest()
+    {
+      GroupVM g1 = new GroupVM();
+
+      List<ParticipantGroup> l1 = new List<ParticipantGroup>
+      {
+        new ParticipantGroup("1", "G_U10", 0)
+      };
+      List<ParticipantGroup> l2 = new List<ParticipantGroup>
+      {
+        new ParticipantGroup("2", "G_U12", 0)
+      };
+      List<ParticipantGroup> l12 = new List<ParticipantGroup>
+      {
+        new ParticipantGroup("1", "G_U10", 0),
+        new ParticipantGroup("2", "G_U12", 1)
+      };
+
+
+      g1.Assign(l1);
+      Assert.AreEqual(1, g1.Items.Count);
+      Assert.AreEqual("G_U10", g1.Items[0].Name);
+
+      g1.Add(l2);
+      Assert.AreEqual(2, g1.Items.Count);
+      Assert.AreEqual("G_U10", g1.Items[0].Name);
+      Assert.AreEqual("G_U12", g1.Items[1].Name);
+
+      g1.Assign(l1);
+      Assert.AreEqual(1, g1.Items.Count);
+      Assert.AreEqual("G_U10", g1.Items[0].Name);
+
+      g1.Assign(l12);
+      Assert.AreEqual(2, g1.Items.Count);
+      Assert.AreEqual("G_U10", g1.Items[0].Name);
+      Assert.AreEqual("G_U12", g1.Items[1].Name);
+
+      g1.Assign(l2);
+      g1.Merge(l12);
+      Assert.AreEqual(2, g1.Items.Count);
+      Assert.AreEqual("G_U10", g1.Items[0].Name);
+      Assert.AreEqual("G_U12", g1.Items[1].Name);
+
+      g1.Clear();
+      Assert.AreEqual(0, g1.Items.Count);
+    }
   }
 }

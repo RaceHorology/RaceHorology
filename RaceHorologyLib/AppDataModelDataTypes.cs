@@ -45,7 +45,7 @@ namespace RaceHorologyLib
 {
 
 
-  public class ParticipantGroup : INotifyPropertyChanged, IComparable<ParticipantGroup>, IComparable
+  public class ParticipantGroup : INotifyPropertyChanged, IComparable<ParticipantGroup>, IComparable, IEquatable<ParticipantGroup>
   {
     private string _id;
     private string _name;
@@ -126,6 +126,35 @@ namespace RaceHorologyLib
       return -1;
     }
 
+    #region Equality
+    public bool Equals(ParticipantGroup other)
+    {
+      return _name == other._name;
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (obj is ParticipantGroup other)
+        return Equals(other);
+
+      return false;
+    }
+
+    public static bool operator ==(ParticipantGroup obj1, ParticipantGroup obj2)
+    {
+      return object.Equals(obj1, obj2);
+    }
+
+    public static bool operator !=(ParticipantGroup obj1, ParticipantGroup obj2)
+    {
+      return !object.Equals(obj1, obj2);
+    }
+
+    public override int GetHashCode()
+    {
+      return _name.GetHashCode();
+    }
+    #endregion
 
     #region INotifyPropertyChanged implementation
 
