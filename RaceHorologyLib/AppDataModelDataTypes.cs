@@ -126,7 +126,6 @@ namespace RaceHorologyLib
       return -1;
     }
 
-
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -265,6 +264,7 @@ namespace RaceHorologyLib
 
       return -1;
     }
+
 
     #region INotifyPropertyChanged implementation
 
