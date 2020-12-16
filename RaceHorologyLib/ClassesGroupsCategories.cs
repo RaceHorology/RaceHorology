@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace RaceHorologyLib
@@ -44,14 +41,29 @@ namespace RaceHorologyLib
     }
 
 
+    public bool ContainsSimilar(ParticipantCategory c)
+    {
+      return Items.Contains(c);
+    }
+
+
+    public bool Merge(ParticipantCategory c)
+    {
+      if (!ContainsSimilar(c))
+      {
+        Items.Add(c);
+        Items.Sort(new StdComparer());
+        return true;
+      }
+
+      return false;
+    }
+
+
     public void Merge(IList<ParticipantCategory> categories)
     {
       foreach (var c in categories)
-      {
-        if (!Items.Contains(c))
-          Items.Add(c);
-      }
-      Items.Sort(new StdComparer());
+        Merge(c);
     }
   }
 
@@ -92,14 +104,28 @@ namespace RaceHorologyLib
     }
 
 
+    public bool ContainsSimilar(ParticipantGroup g)
+    {
+      return Items.FirstOrDefault(i => i.Name == g.Name) != null;
+    }
+
+
+    public bool Merge(ParticipantGroup g)
+    {
+      if (!ContainsSimilar(g))
+      {
+        Items.Add(g);
+        Items.Sort(new StdComparer());
+        return true;
+      }
+
+      return false;
+    }
+
     public void Merge(IList<ParticipantGroup> groups)
     {
       foreach (var g in groups)
-      {
-        if (!Items.Contains(g))
-          Items.Add(g);
-      }
-      Items.Sort(new StdComparer());
+        Merge(g);
     }
 
   }
@@ -122,29 +148,44 @@ namespace RaceHorologyLib
     }
 
 
-    public void Assign(IList<ParticipantClass> groups)
+    public void Assign(IList<ParticipantClass> classes)
     {
       Items.Clear();
-      Items.InsertRange(groups);
+      Items.InsertRange(classes);
       Items.Sort(new StdComparer());
     }
 
 
-    public void Add(IList<ParticipantClass> groups)
+    public void Add(IList<ParticipantClass> classes)
     {
-      Items.InsertRange(groups);
+      Items.InsertRange(classes);
       Items.Sort(new StdComparer());
     }
 
 
-    public void Merge(IList<ParticipantClass> groups)
+    public bool ContainsSimilar(ParticipantClass c)
     {
-      foreach (var g in groups)
-      {
-        if (!Items.Contains(g))
-          Items.Add(g);
+      return Items.FirstOrDefault(i => (i.Name == c.Name && i.Year == c.Year && i.Sex == c.Sex)) != null;
+    }
+
+
+    public bool Merge(ParticipantClass c)
+    {
+      if (!ContainsSimilar(c))
+      { 
+        Items.Add(c);
+        Items.Sort(new StdComparer());
+        return true;
       }
-      Items.Sort(new StdComparer());
+
+      return false;
+    }
+
+
+    public void Merge(IList<ParticipantClass> classes)
+    {
+      foreach (var c in classes)
+        Merge(c);
     }
   }
 
@@ -210,52 +251,62 @@ namespace RaceHorologyLib
       var srcClasses = srcModel.GetParticipantClasses();
       var srcCategories = srcModel.GetParticipantCategories();
 
-      List<ParticipantGroup> dstGroups = new List<ParticipantGroup>();
-      List<ParticipantClass> dstClasses = new List<ParticipantClass>();
-      List<ParticipantCategory> dstCategories = new List<ParticipantCategory>();
+
+      // TODO: only really added items are allowed to be in _x2x maps otherwise, class becomes inconsistent or points to a wrong group/category
 
       foreach (var g1 in srcGroups)
       {
-        ParticipantGroup g2 = null;
-        if (!_group2Group.TryGetValue(g1, out g2))
+        if (!GroupViewModel.ContainsSimilar(g1))
         {
-          g2 = new ParticipantGroup(g1.Id, g1.Name, g1.SortPos);
-          _group2Group.Add(g1, g2);
-          dstGroups.Add(g2);
+          ParticipantGroup g2 = null;
+          if (!_group2Group.TryGetValue(g1, out g2))
+          {
+            g2 = new ParticipantGroup(g1.Id, g1.Name, g1.SortPos);
+            _group2Group.Add(g1, g2);
+            GroupViewModel.Merge(g2);
+          }
+          else
+            System.Diagnostics.Debug.Assert(false);
         }
       }
 
       foreach (var cat1 in srcCategories)
       {
-        ParticipantCategory cat2 = null;
-        if (!_category2Category.TryGetValue(cat1, out cat2))
+        if (!CategoryViewModel.ContainsSimilar(cat1))
         {
-          cat2 = new ParticipantCategory(cat1.Name, cat1.PrettyName, cat1.SortPos, cat1.Synonyms);
-          _category2Category.Add(cat1, cat2);
-          dstCategories.Add(cat2);
+          ParticipantCategory cat2 = null;
+          if (!_category2Category.TryGetValue(cat1, out cat2))
+          {
+            cat2 = new ParticipantCategory(cat1.Name, cat1.PrettyName, cat1.SortPos, cat1.Synonyms);
+            _category2Category.Add(cat1, cat2);
+            CategoryViewModel.Merge(cat2);
+          }
+          else
+            System.Diagnostics.Debug.Assert(false);
         }
       }
 
       foreach (var c1 in srcClasses)
       {
-        ParticipantClass c2 = null;
-        if (!_class2Class.TryGetValue(c1, out c2))
+        if (!ClassViewModel.ContainsSimilar(c1))
         {
-          c2 = new ParticipantClass(
-            c1.Id,
-            c1.Group == null ? null : _group2Group[c1.Group],
-            c1.Name,
-            c1.Sex == null ? null : _category2Category[c1.Sex],
-            c1.Year,
-            c1.SortPos);
-          _class2Class.Add(c1, c2);
-          dstClasses.Add(c2);
+          ParticipantClass c2 = null;
+          if (!_class2Class.TryGetValue(c1, out c2))
+          {
+            c2 = new ParticipantClass(
+              c1.Id,
+              c1.Group == null ? null : _group2Group[c1.Group],
+              c1.Name,
+              c1.Sex == null ? null : _category2Category[c1.Sex],
+              c1.Year,
+              c1.SortPos);
+            _class2Class.Add(c1, c2);
+            ClassViewModel.Merge(c2);
+          }
+          else
+            System.Diagnostics.Debug.Assert(false);
         }
       }
-
-      GroupViewModel.Add(dstGroups);
-      ClassViewModel.Add(dstClasses);
-      CategoryViewModel.Add(dstCategories);
     }
 
 
@@ -270,35 +321,40 @@ namespace RaceHorologyLib
 
     private void storeGroups()
     {
-      // Delete removed one
+      // *** Delete removed one
       List<ParticipantGroup> toDelete = new List<ParticipantGroup>();
       foreach (var g2 in _dm.GetParticipantGroups())
       {
-        var g1 = _group2Group[g2];
-
-        if (GroupViewModel.Items.FirstOrDefault(i => i == g1) == null)
+        ParticipantGroup g1 = null;
+        _group2Group.TryGetValue(g2, out g1);
+        if (g1 == null || GroupViewModel.Items.FirstOrDefault(i => i == g1) == null)
           toDelete.Add(g2);
       }
       foreach (var g in toDelete)
+      {
         _dm.GetParticipantGroups().Remove(g);
+        _group2Group.Remove(g);
+      }
 
-      // Update & create new ones
+      // *** Update & create new ones
       uint curSortPos = 1;
       foreach (var g1 in GroupViewModel.Items)
       {
-        var g2 = _group2Group.FirstOrDefault(i => i.Value == g1);
+        var found = _group2Group.FirstOrDefault(i => i.Value == g1); // Find original
+        var g2 = found.Key;
+        g2 = _dm.GetParticipantGroups().FirstOrDefault(i => i == g2); // Check if already in DataModel
 
-        if (g2.Key != null)
-        {
-          // Update existing one
-          g2.Key.Name = g1.Name;
-          g2.Key.SortPos = curSortPos;
+        if (g2 != null)
+        { // Update existing one
+          g2.Name = g1.Name;
+          g2.SortPos = curSortPos;
         }
         else
-        {
-          // Create new one
+        { // Create new one
           var gNew = new ParticipantGroup(null, g1.Name, curSortPos);
           _dm.GetParticipantGroups().Add(gNew);
+          // Remove any old reference and replace with new one
+          if (found.Key != null) _group2Group.Remove(found.Key);
           _group2Group.Add(gNew, g1);
         }
 
@@ -309,37 +365,42 @@ namespace RaceHorologyLib
 
     private void storeCategories()
     {
-      // Delete removed one
+      // *** Delete removed one
       List<ParticipantCategory> toDelete = new List<ParticipantCategory>();
       foreach (var cat2 in _dm.GetParticipantCategories())
       {
-        var cat1 = _category2Category[cat2];
-
-        if (CategoryViewModel.Items.FirstOrDefault(i => i == cat1) == null)
+        ParticipantCategory cat1 = null;
+         _category2Category.TryGetValue(cat2, out cat1);
+        if (cat1 == null || CategoryViewModel.Items.FirstOrDefault(i => i == cat1) == null)
           toDelete.Add(cat2);
       }
       foreach (var cat in toDelete)
+      {
         _dm.GetParticipantCategories().Remove(cat);
+        _category2Category.Remove(cat);
+      }
 
-      // Update & create new ones
+      // *** Update & create new ones
       uint curSortPos = 1;
       foreach (var cat1 in CategoryViewModel.Items)
       {
-        var cat2 = _category2Category.FirstOrDefault(i => i.Value == cat1);
+        var found = _category2Category.FirstOrDefault(i => i.Value == cat1);  // Find original
+        var cat2 = found.Key;
+        cat2 = _dm.GetParticipantCategories().FirstOrDefault(i => i == cat2); // Check if already in DataModel
 
-        if (cat2.Key != null)
-        {
-          // Update existing one
-          cat2.Key.Name = cat1.Name;
-          cat2.Key.PrettyName = cat1.PrettyName;
-          cat2.Key.Synonyms = cat1.Synonyms;
-          cat2.Key.SortPos = curSortPos;
+        if (cat2 != null)
+        { // Update existing one
+          cat2.Name = cat1.Name;
+          cat2.PrettyName = cat1.PrettyName;
+          cat2.Synonyms = cat1.Synonyms;
+          cat2.SortPos = curSortPos;
         }
         else
-        {
-          // Create new one
+        { // Create new one
           var catNew = new ParticipantCategory(cat1.Name, cat1.PrettyName, curSortPos, cat1.Synonyms);
           _dm.GetParticipantCategories().Add(catNew);
+          // Remove any old reference and replace with new one
+          if (found.Key != null) _category2Category.Remove(found.Key);
           _category2Category.Add(catNew, cat1);
         }
 
@@ -354,9 +415,9 @@ namespace RaceHorologyLib
       List<ParticipantClass> toDelete = new List<ParticipantClass>();
       foreach (var c2 in _dm.GetParticipantClasses())
       {
-        var c1 = _class2Class[c2];
-
-        if (ClassViewModel.Items.FirstOrDefault(i => i == c1) == null)
+        ParticipantClass c1 = null;
+        _class2Class.TryGetValue(c2, out c1);
+        if (c1 == null || ClassViewModel.Items.FirstOrDefault(i => i == c1) == null)
           toDelete.Add(c2);
       }
       foreach (var c in toDelete)
@@ -366,25 +427,27 @@ namespace RaceHorologyLib
       uint curSortPos = 1;
       foreach (var c1 in ClassViewModel.Items)
       {
-        var c2 = _class2Class.FirstOrDefault(i => i.Value == c1);
+        var found = _class2Class.FirstOrDefault(i => i.Value == c1);
+        var c2 = found.Key;
+        c2 = _dm.GetParticipantClasses().FirstOrDefault(i => i == c2);
+
         var g2 = _group2Group.FirstOrDefault(i => i.Value == c1.Group);
         var cat2 = _category2Category.FirstOrDefault(i => i.Value == c1.Sex);
 
-        if (c2.Key != null)
-        {
-
-          // Update existing one
-          c2.Key.Name = c1.Name;
-          c2.Key.Group = g2.Key;
-          c2.Key.Sex = cat2.Key;
-          c2.Key.Year = c1.Year;
-          c2.Key.SortPos = curSortPos;
+        if (c2 != null)
+        { // Update existing one
+          c2.Name = c1.Name;
+          c2.Group = g2.Key;
+          c2.Sex = cat2.Key;
+          c2.Year = c1.Year;
+          c2.SortPos = curSortPos;
         }
         else
-        {
-          // Create new one
+        { // Create new one
           var cNew = new ParticipantClass(null, g2.Key, c1.Name, cat2.Key, c1.Year, curSortPos);
           _dm.GetParticipantClasses().Add(cNew);
+          // Remove any old reference and replace with new one
+          if (found.Key != null) _class2Class.Remove(found.Key);
           _class2Class.Add(cNew, c1);
         }
 

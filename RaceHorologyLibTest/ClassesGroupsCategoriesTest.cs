@@ -210,14 +210,14 @@ namespace RaceHorologyLibTest
       AppDataModel dm = createTestDataModel1();
 
       ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 2);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(4, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(2, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
     }
 
 
     [TestMethod]
-    public void CgcTest_Store()
+    public void CgcTest_Store_ManualEdit()
     {
       AppDataModel dm = createTestDataModel1();
 
@@ -240,19 +240,81 @@ namespace RaceHorologyLibTest
 
       // Verify Data Model
       Assert.AreEqual(dm.GetParticipantCategories().Count, 2);
-      Assert.AreEqual(dm.GetParticipantCategories()[0].PrettyName, "WEIBLICH");
-      Assert.AreEqual(dm.GetParticipantCategories()[1].PrettyName, "Unbekannt");
+      Assert.AreEqual("WEIBLICH", dm.GetParticipantCategories()[0].PrettyName);
+      Assert.AreEqual("Unbekannt", dm.GetParticipantCategories()[1].PrettyName);
 
-      Assert.AreEqual(dm.GetParticipantGroups().Count, 2);
-      Assert.AreEqual(dm.GetParticipantGroups()[0].Name, "B_U12");
-      Assert.AreEqual(dm.GetParticipantGroups()[1].Name, "G_U14");
+      Assert.AreEqual(2, dm.GetParticipantGroups().Count);
+      Assert.AreEqual("B_U12", dm.GetParticipantGroups()[0].Name);
+      Assert.AreEqual("G_U14", dm.GetParticipantGroups()[1].Name);
 
-      Assert.AreEqual(dm.GetParticipantClasses().Count, 4);
-      Assert.AreEqual(dm.GetParticipantClasses()[0].Name, "u10");
-      Assert.AreEqual(dm.GetParticipantClasses()[1].Name, "U12");
-      Assert.AreEqual(dm.GetParticipantClasses()[2].Name, "U12");
-      Assert.AreEqual(dm.GetParticipantClasses()[3].Name, "U14");
+      Assert.AreEqual(4, dm.GetParticipantClasses().Count);
+      Assert.AreEqual("u10", dm.GetParticipantClasses()[0].Name);
+      Assert.AreEqual("U12", dm.GetParticipantClasses()[1].Name);
+      Assert.AreEqual("U12", dm.GetParticipantClasses()[2].Name);
+      Assert.AreEqual("U14", dm.GetParticipantClasses()[3].Name);
     }
+
+    [TestMethod]
+    public void CgcTest_Store_Import()
+    {
+      AppDataModel dm = createTestDataModel1();
+
+      ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
+
+      cge.Import(createTestDataModel12());
+
+      cge.Store();
+
+      // Verify Data Model
+      Assert.AreEqual(2, dm.GetParticipantCategories().Count);
+      Assert.AreEqual("Männlich", dm.GetParticipantCategories()[0].PrettyName);
+      Assert.AreEqual("Weiblich", dm.GetParticipantCategories()[1].PrettyName);
+
+      Assert.AreEqual(4, dm.GetParticipantGroups().Count);
+      Assert.AreEqual("G_U10", dm.GetParticipantGroups()[0].Name);
+      Assert.AreEqual("G_U12", dm.GetParticipantGroups()[1].Name);
+      Assert.AreEqual("G_U14", dm.GetParticipantGroups()[2].Name);
+      Assert.AreEqual("G_U16", dm.GetParticipantGroups()[3].Name);
+
+      Assert.AreEqual(8, dm.GetParticipantClasses().Count);
+      Assert.AreEqual("U10", dm.GetParticipantClasses()[0].Name);
+      Assert.AreEqual("U10", dm.GetParticipantClasses()[1].Name);
+      Assert.AreEqual("U12", dm.GetParticipantClasses()[2].Name);
+      Assert.AreEqual("U12", dm.GetParticipantClasses()[3].Name);
+      Assert.AreEqual("U14", dm.GetParticipantClasses()[4].Name);
+      Assert.AreEqual("U14", dm.GetParticipantClasses()[5].Name);
+      Assert.AreEqual("U16", dm.GetParticipantClasses()[6].Name);
+      Assert.AreEqual("U16", dm.GetParticipantClasses()[7].Name);
+    }
+
+    [TestMethod]
+    public void CgcTest_Store_ImportReplace()
+    {
+      AppDataModel dm = createTestDataModel12();
+
+      ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
+
+      cge.Clear();
+      cge.Import(createTestDataModel1());
+
+      cge.Store();
+
+      // Verify Data Model
+      Assert.AreEqual(2, dm.GetParticipantCategories().Count);
+      Assert.AreEqual("Männlich", dm.GetParticipantCategories()[0].PrettyName);
+      Assert.AreEqual("Weiblich", dm.GetParticipantCategories()[1].PrettyName);
+
+      Assert.AreEqual(2, dm.GetParticipantGroups().Count);
+      Assert.AreEqual("G_U10", dm.GetParticipantGroups()[0].Name);
+      Assert.AreEqual("G_U12", dm.GetParticipantGroups()[1].Name);
+
+      Assert.AreEqual(4, dm.GetParticipantClasses().Count);
+      Assert.AreEqual("U10", dm.GetParticipantClasses()[0].Name);
+      Assert.AreEqual("U10", dm.GetParticipantClasses()[1].Name);
+      Assert.AreEqual("U12", dm.GetParticipantClasses()[2].Name);
+      Assert.AreEqual("U12", dm.GetParticipantClasses()[3].Name);
+    }
+
 
 
     [TestMethod]
@@ -261,19 +323,19 @@ namespace RaceHorologyLibTest
       AppDataModel dm = createTestDataModel1();
 
       ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 2);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(4, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(2, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
 
       cge.Clear();
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 0);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 0);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 0);
+      Assert.AreEqual(0, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(0, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(0, cge.CategoryViewModel.Items.Count);
 
       cge.Reset();
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 2);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(4, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(2, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
     }
 
 
@@ -283,19 +345,19 @@ namespace RaceHorologyLibTest
       AppDataModel dm = createTestDataModelEmpty();
 
       ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 0);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 0);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 0);
+      Assert.AreEqual(0, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(0, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(0, cge.CategoryViewModel.Items.Count);
 
       cge.Import(createTestDataModel1());
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 2);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(4, cge.ClassViewModel.Items.Count, 4);
+      Assert.AreEqual(2, cge.GroupViewModel.Items.Count, 2);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count, 2);
 
       cge.Reset();
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 0);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 0);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 0);
+      Assert.AreEqual(0, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(0, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(0, cge.CategoryViewModel.Items.Count);
     }
 
 
@@ -305,19 +367,19 @@ namespace RaceHorologyLibTest
       AppDataModel dm = createTestDataModel1();
 
       ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 2);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(4, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(2, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
 
       cge.Import(createTestDataModel2());
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 8);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(8, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(4, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
 
       cge.Reset();
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 2);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(4, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(2, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
     }
 
 
@@ -328,19 +390,19 @@ namespace RaceHorologyLibTest
       AppDataModel dm = createTestDataModel1();
 
       ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 2);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(4, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(2, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
 
       cge.Import(createTestDataModel12());
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 8);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(8, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(4, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
 
       cge.Reset();
-      Assert.AreEqual(cge.ClassViewModel.Items.Count, 4);
-      Assert.AreEqual(cge.GroupViewModel.Items.Count, 2);
-      Assert.AreEqual(cge.CategoryViewModel.Items.Count, 2);
+      Assert.AreEqual(4, cge.ClassViewModel.Items.Count);
+      Assert.AreEqual(2, cge.GroupViewModel.Items.Count);
+      Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
     }
 
 
