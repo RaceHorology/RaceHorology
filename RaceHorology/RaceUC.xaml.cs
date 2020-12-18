@@ -88,6 +88,8 @@ namespace RaceHorology
       
       InitializeConfiguration();
 
+      InitializeRaceParticipants();
+
       InitializeRaceProperties();
 
       InitializeLiveTiming();
@@ -261,6 +263,18 @@ namespace RaceHorology
 
 
     #endregion
+
+
+    #region RaceParticipants
+
+    void InitializeRaceParticipants()
+    {
+      dgRaceParticipants.ItemsSource = _thisRace.GetParticipants();
+    }
+
+
+    #endregion
+
 
     #region Race Properties
 
