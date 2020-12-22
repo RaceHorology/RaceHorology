@@ -240,7 +240,8 @@ namespace RaceHorology
 
       Race.RaceProperties raceProps = new Race.RaceProperties
       {
-        RaceType = rt
+        RaceType = rt,
+        Runs = 2
       };
 
       _dm.AddRace(raceProps);

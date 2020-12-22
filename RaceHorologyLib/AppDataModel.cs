@@ -488,7 +488,7 @@ namespace RaceHorologyLib
       _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
 
       // TODO: Assuming 2 runs for now
-      CreateRaceRuns(2);
+      CreateRaceRuns((int)properties.Runs);
 
       ViewConfigurator viewConfigurator = new ViewConfigurator(this);
       viewConfigurator.ConfigureRace(this);
