@@ -179,14 +179,17 @@ namespace RaceHorologyLibTest
     List<Race.RaceProperties> _races;
     string _basePath;
 
-    public DummyDataBase(string basePath)
+    public DummyDataBase(string basePath, bool createRace = false)
     {
       _races = new List<Race.RaceProperties>();
-      _races.Add(new Race.RaceProperties 
+      if (createRace)
       {
-        RaceType = Race.ERaceType.GiantSlalom,
-        Runs = 2
-      });
+        _races.Add(new Race.RaceProperties
+        {
+          RaceType = Race.ERaceType.GiantSlalom,
+          Runs = 2
+        });
+      }
       _basePath = basePath;
     }
 
@@ -243,7 +246,7 @@ namespace RaceHorologyLibTest
 
     public TestDataGenerator(string path = ".")
     {
-      Model = new AppDataModel(new DummyDataBase(path));
+      Model = new AppDataModel(new DummyDataBase(path, true));
       _race = Model.GetRace(0);
     }
 
