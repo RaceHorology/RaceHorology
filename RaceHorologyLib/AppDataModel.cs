@@ -361,6 +361,8 @@ namespace RaceHorologyLib
     {
       public string Name { get; set; }
       public string Club { get; set; }
+
+      public bool IsEmpty() { return string.IsNullOrEmpty(Name); }
     }
 
     public class RaceRunProperties

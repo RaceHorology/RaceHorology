@@ -119,5 +119,75 @@ namespace RaceHorologyLibTest
       StreamReader reader = new StreamReader(xmlData);
       string s = reader.ReadToEnd();
     }
+
+
+    [TestMethod]
+    public void BasicExceptions()
+    {
+      var model = createTestDataModel1Race1Run();
+
+      DSVExport dsvExport = new DSVExport();
+      MemoryStream xmlData = new MemoryStream();
+
+
+      var raceProps = new AdditionalRaceProperties();
+      model.GetRace(0).AdditionalProperties = raceProps;
+      Assert.AreEqual("missing coarsename", 
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.CoarseName = "Kurs 1";
+
+      Assert.AreEqual("missing number_of_gates", 
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.RaceRun1.Gates = 10;
+
+      Assert.AreEqual("missing number_of_turninggates",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.RaceRun1.Turns = 9;
+
+      Assert.AreEqual("missing startaltitude",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.StartHeight = 1000;
+
+      Assert.AreEqual("missing finishaltitude",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.FinishHeight = 100;
+
+      Assert.AreEqual("missing courselength",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.CoarseLength = 1000;
+
+      Assert.AreEqual("missing coursesetter",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.RaceRun1.CoarseSetter = new AdditionalRaceProperties.Person { Name = null, Club = null };
+    }
+
+
+
+
+    [TestMethod]
+    public void VerifyRaceDescription()
+    {
+      var model = createTestDataModel1Race1Run();
+
+      DSVExport dsvExport = new DSVExport();
+      MemoryStream xmlData = new MemoryStream();
+      dsvExport.ExportXML(xmlData, model.GetRace(0));
+
+      xmlData.Position = 0;
+      StreamReader reader = new StreamReader(xmlData);
+      string s = reader.ReadToEnd();
+
+    }
+
+
+    private AppDataModel createTestDataModel1Race1Run()
+    {
+      AppDataModel dm = new AppDataModel(new DummyDataBase("dummy"));
+
+      dm.AddRace(new Race.RaceProperties { RaceType = Race.ERaceType.GiantSlalom, Runs = 1 });
+
+      return dm;
+    }
+
   }
 }

@@ -48,6 +48,14 @@ using System.Xml;
 
 namespace RaceHorologyLib
 {
+
+  public class DSVExportException : Exception
+  {
+    public DSVExportException(string message) : base(message)
+    { }
+  }
+
+
   public class DSVExport
   {
     protected XmlWriterSettings _xmlSettings;
@@ -161,7 +169,7 @@ namespace RaceHorologyLib
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("raceorganizer");
-      _writer.WriteValue(race.AdditionalProperties.Organizer);
+      _writer.WriteValue(race.AdditionalProperties?.Organizer);
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("discipline");
@@ -177,17 +185,17 @@ namespace RaceHorologyLib
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("raceplace");
-      _writer.WriteValue(race.AdditionalProperties.Location);
+      _writer.WriteValue(race.AdditionalProperties?.Location);
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("timing");
       _writer.WriteValue("Alge TdC8001"); // TODO: make variable
       _writer.WriteEndElement();
 
-      if (!string.IsNullOrEmpty(race.AdditionalProperties.Analyzer))
+      if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer))
       {
         _writer.WriteStartElement("dataprocessing_by");
-        _writer.WriteValue(race.AdditionalProperties.Analyzer);
+        _writer.WriteValue(race.AdditionalProperties?.Analyzer);
         _writer.WriteEndElement();
       }
 
@@ -292,13 +300,13 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
       }
 
-      writeJuryPerson(_writer, "ChiefRace", race.AdditionalProperties.RaceManager);
-      writeJuryPerson(_writer, "Referee", race.AdditionalProperties.RaceReferee);
-      writeJuryPerson(_writer, "RepresentativeTrainer", race.AdditionalProperties.TrainerRepresentative);
+      writeJuryPerson(_writer, "ChiefRace", race.AdditionalProperties?.RaceManager);
+      writeJuryPerson(_writer, "Referee", race.AdditionalProperties?.RaceReferee);
+      writeJuryPerson(_writer, "RepresentativeTrainer", race.AdditionalProperties?.TrainerRepresentative);
 
-      writeRunData(race.GetRun(0), race.AdditionalProperties.RaceRun1);
+      writeRunData(race.GetRun(0), race.AdditionalProperties?.RaceRun1);
       if (race.GetMaxRun() > 1)
-        writeRunData(race.GetRun(1), race.AdditionalProperties.RaceRun2);
+        writeRunData(race.GetRun(1), race.AdditionalProperties?.RaceRun2);
 
       _writer.WriteEndElement();
     }
@@ -316,6 +324,8 @@ namespace RaceHorologyLib
 
     static void writeCourseSetterPerson(XmlWriter writer, AdditionalRaceProperties.Person person)
     {
+      if (person == null || person.IsEmpty())
+        throw new DSVExportException("missing coursesetter");
       writer.WriteStartElement("coursesetter");
       writePersonData(writer, person);
       writer.WriteEndElement();
@@ -334,11 +344,17 @@ namespace RaceHorologyLib
     static void writePersonData(XmlWriter writer, AdditionalRaceProperties.Person person)
     {
       writer.WriteStartElement("lastname");
-      writer.WriteValue(person.Name);
+      if (string.IsNullOrEmpty(person?.Name))
+        writer.WriteValue("unknown");
+      else
+        writer.WriteValue(person.Name);
       writer.WriteEndElement();
 
       writer.WriteStartElement("club");
-      writer.WriteValue(person.Club);
+      if (string.IsNullOrEmpty(person?.Club))
+        writer.WriteValue("unknown");
+      else
+        writer.WriteValue(person.Club);
       writer.WriteEndElement();
     }
 
@@ -351,33 +367,45 @@ namespace RaceHorologyLib
       {
         _writer.WriteStartElement("coursedata");
 
+        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties?.CoarseName))
+          throw new DSVExportException("missing coarsename");
         _writer.WriteStartElement("coursename");
-        _writer.WriteValue(raceRun.GetRace().AdditionalProperties.CoarseName);
+        _writer.WriteValue(raceRun.GetRace().AdditionalProperties?.CoarseName);
         _writer.WriteEndElement();
 
-        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.CoarseHomologNo))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties?.CoarseHomologNo))
         {
           _writer.WriteStartElement("homologationnumber");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.CoarseHomologNo);
           _writer.WriteEndElement();
         }
 
+        if (raceRunProperties.Gates <= 0)
+          throw new DSVExportException("missing number_of_gates");
         _writer.WriteStartElement("number_of_gates");
         _writer.WriteValue(raceRunProperties.Gates.ToString());
         _writer.WriteEndElement();
 
+        if (raceRunProperties.Turns <= 0)
+          throw new DSVExportException("missing number_of_turninggates");
         _writer.WriteStartElement("number_of_turninggates");
         _writer.WriteValue(raceRunProperties.Turns.ToString());
         _writer.WriteEndElement();
 
+        if (raceRun.GetRace().AdditionalProperties?.StartHeight <= 0)
+          throw new DSVExportException("missing startaltitude");
         _writer.WriteStartElement("startaltitude");
-        _writer.WriteValue(raceRun.GetRace().AdditionalProperties.StartHeight.ToString());
+        _writer.WriteValue(raceRun.GetRace().AdditionalProperties?.StartHeight.ToString());
         _writer.WriteEndElement();
 
+        if (raceRun.GetRace().AdditionalProperties?.FinishHeight <= 0)
+          throw new DSVExportException("missing finishaltitude");
         _writer.WriteStartElement("finishaltitude");
-        _writer.WriteValue(raceRun.GetRace().AdditionalProperties.StartHeight.ToString());
+        _writer.WriteValue(raceRun.GetRace().AdditionalProperties?.FinishHeight.ToString());
         _writer.WriteEndElement();
 
+        if (raceRun.GetRace().AdditionalProperties?.CoarseLength <= 0)
+          throw new DSVExportException("missing courselength");
         _writer.WriteStartElement("courselength");
         _writer.WriteValue(raceRun.GetRace().AdditionalProperties.CoarseLength.ToString());
         _writer.WriteEndElement();
