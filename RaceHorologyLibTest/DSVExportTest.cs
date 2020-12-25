@@ -165,6 +165,14 @@ namespace RaceHorologyLibTest
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       model.GetDB().StoreKeyValue("DSV_UsedDSVList", "123");
 
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing racejury ChiefRace",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetRace(0).AdditionalProperties.
+
+
+
       xmlData = new MemoryStream();
       Assert.AreEqual("missing coarsename", 
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
