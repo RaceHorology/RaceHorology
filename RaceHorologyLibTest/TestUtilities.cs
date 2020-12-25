@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -234,8 +234,19 @@ namespace RaceHorologyLibTest
     public void CreateOrUpdateCategory(ParticipantCategory c) { }
     public void RemoveCategory(ParticipantCategory c) { }
 
-    public void StoreKeyValue(string key, string value) { }
-    public string GetKeyValue(string key) { return null; }
+
+    Dictionary<string, string> _keyValueStore = new Dictionary<string, string>();
+    public void StoreKeyValue(string key, string value) 
+    {
+      _keyValueStore[key] = value;
+    }
+
+    public string GetKeyValue(string key) 
+    {
+      string value = null;
+      _keyValueStore.TryGetValue(key, out value);
+      return value; 
+    }
   };
 
 

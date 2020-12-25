@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -152,22 +152,28 @@ namespace RaceHorologyLib
     {
       _writer.WriteStartElement("racedescription");
 
+      if (race.DateResultList == null)
+        throw new DSVExportException("missing racedate");
       _writer.WriteStartElement("racedate");
       _writer.WriteValue(race.DateResultList?.ToString("yyyy-MM-dd"));
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("gender");
-      _writer.WriteValue("A"); // TODO: get real gender
+      _writer.WriteValue("A"); // Not supported, always use "Gemischt"
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("season");
-      _writer.WriteValue(race.DateResultList?.AddMonths(2).ToString("yyyy"));
+      _writer.WriteValue(race.DateResultList?.AddMonths(3).ToString("yyyy"));
       _writer.WriteEndElement();
 
+      if (string.IsNullOrWhiteSpace(race.RaceNumber))
+        throw new DSVExportException("missing raceid");
       _writer.WriteStartElement("raceid");
       _writer.WriteValue(race.RaceNumber);
       _writer.WriteEndElement();
 
+      if (string.IsNullOrWhiteSpace(race.AdditionalProperties?.Organizer))
+        throw new DSVExportException("missing raceorganizer");
       _writer.WriteStartElement("raceorganizer");
       _writer.WriteValue(race.AdditionalProperties?.Organizer);
       _writer.WriteEndElement();
@@ -180,10 +186,14 @@ namespace RaceHorologyLib
       _writer.WriteValue(getDSVCategory(race));
       _writer.WriteEndElement();
 
+      if (string.IsNullOrWhiteSpace(race.Description))
+        throw new DSVExportException("missing racename");
       _writer.WriteStartElement("racename");
       _writer.WriteValue(race.Description);
       _writer.WriteEndElement();
 
+      if (string.IsNullOrWhiteSpace(race.AdditionalProperties?.Location))
+        throw new DSVExportException("missing raceplace");
       _writer.WriteStartElement("raceplace");
       _writer.WriteValue(race.AdditionalProperties?.Location);
       _writer.WriteEndElement();
@@ -223,15 +233,12 @@ namespace RaceHorologyLib
       if (race.RaceType == Race.ERaceType.SuperG)
         return "SG";
 
-      if (race.RaceType == Race.ERaceType.KOSlalom)
-        return "unknown";
-
-      return "unknown";
+      throw new DSVExportException("not supported racetype");
     }
 
     string getDSVCategory(Race race)
     {
-      return "unknown";
+      return "SO";
     }
 
 
@@ -257,19 +264,21 @@ namespace RaceHorologyLib
     {
       _writer.WriteStartElement("racedata");
 
-      _writer.WriteStartElement("useddsvlist");
-
       string usedDSVList = race.GetDataModel().GetDB().GetKeyValue("DSV_UsedDSVList");
+      if (string.IsNullOrWhiteSpace(usedDSVList))
+        throw new DSVExportException("missing useddsvlist");
+      _writer.WriteStartElement("useddsvlist");
       _writer.WriteValue(usedDSVList);
-      _writer.WriteEndElement();
-
-      _writer.WriteStartElement("fvalue");
-      _writer.WriteValue(race.RaceConfiguration.ValueF);
       _writer.WriteEndElement();
 
       if (false) // TODO: needs to be fixed, btw: optional
       {
+        _writer.WriteStartElement("fvalue");
+        _writer.WriteValue(race.RaceConfiguration.ValueF);
+        _writer.WriteEndElement();
+
         DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
+
         // women
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "L");
@@ -300,8 +309,16 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
       }
 
+      if (race.AdditionalProperties?.RaceManager == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceManager).IsEmpty())
+        throw new DSVExportException("missing racejury ChiefRace");
       writeJuryPerson(_writer, "ChiefRace", race.AdditionalProperties?.RaceManager);
+      
+      if (race.AdditionalProperties?.RaceManager == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceManager).IsEmpty())
+        throw new DSVExportException("missing racejury Referee");
       writeJuryPerson(_writer, "Referee", race.AdditionalProperties?.RaceReferee);
+      
+      if (race.AdditionalProperties?.RaceManager == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceManager).IsEmpty())
+        throw new DSVExportException("missing racejury RepresentativeTrainer");
       writeJuryPerson(_writer, "RepresentativeTrainer", race.AdditionalProperties?.TrainerRepresentative);
 
       writeRunData(race.GetRun(0), race.AdditionalProperties?.RaceRun1);
@@ -414,6 +431,8 @@ namespace RaceHorologyLib
 
         if (!string.IsNullOrWhiteSpace(raceRunProperties.Forerunner1.Name))
           writeForeRunnerPerson(_writer, 1, raceRunProperties.Forerunner1);
+        else 
+          throw new DSVExportException("missing forerunner");
         if (!string.IsNullOrWhiteSpace(raceRunProperties.Forerunner2.Name))
           writeForeRunnerPerson(_writer, 2, raceRunProperties.Forerunner2);
         if (!string.IsNullOrWhiteSpace(raceRunProperties.Forerunner3.Name))

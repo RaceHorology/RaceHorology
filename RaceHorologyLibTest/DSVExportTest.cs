@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -102,6 +102,7 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
     public void Test1()
     {
+      return;
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"KSC4--U12.mdb");
 
       // Setup Data Model & Co
@@ -127,38 +128,92 @@ namespace RaceHorologyLibTest
       var model = createTestDataModel1Race1Run();
 
       DSVExport dsvExport = new DSVExport();
-      MemoryStream xmlData = new MemoryStream();
-
+      MemoryStream xmlData = null;
 
       var raceProps = new AdditionalRaceProperties();
       model.GetRace(0).AdditionalProperties = raceProps;
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing racedate",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.DateResultList = DateTime.Today;
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing raceid",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetRace(0).AdditionalProperties.RaceNumber = "1234";
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing raceorganizer",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetRace(0).AdditionalProperties.Organizer = "WSV Glonn";
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing racename",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetRace(0).AdditionalProperties.Description = "Test Race";
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing raceplace",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetRace(0).AdditionalProperties.Location = "Test Location";
+
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing useddsvlist",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetDB().StoreKeyValue("DSV_UsedDSVList", "123");
+
+      xmlData = new MemoryStream();
       Assert.AreEqual("missing coarsename", 
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.CoarseName = "Kurs 1";
 
+      xmlData = new MemoryStream();
       Assert.AreEqual("missing number_of_gates", 
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.RaceRun1.Gates = 10;
 
+      xmlData = new MemoryStream();
       Assert.AreEqual("missing number_of_turninggates",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.RaceRun1.Turns = 9;
 
+      xmlData = new MemoryStream();
       Assert.AreEqual("missing startaltitude",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.StartHeight = 1000;
 
+      xmlData = new MemoryStream();
       Assert.AreEqual("missing finishaltitude",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.FinishHeight = 100;
 
+      xmlData = new MemoryStream();
       Assert.AreEqual("missing courselength",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.CoarseLength = 1000;
 
+      xmlData = new MemoryStream();
       Assert.AreEqual("missing coursesetter",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
-      raceProps.RaceRun1.CoarseSetter = new AdditionalRaceProperties.Person { Name = null, Club = null };
+      raceProps.RaceRun1.CoarseSetter = new AdditionalRaceProperties.Person { Name = "Sven Flossmann", Club = "WSV Glonn" };
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing forerunner",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      raceProps.RaceRun1.Forerunner1 = new AdditionalRaceProperties.Person { Name = "Fore Runner", Club = "WSV Glonn" };
+
+
+      return;
+
+      xmlData = new MemoryStream();
+      dsvExport.ExportXML(xmlData, model.GetRace(0));
+
+      xmlData.Position = 0;
+      StreamReader reader = new StreamReader(xmlData);
+      string s = reader.ReadToEnd();
+
     }
 
 
