@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System.IO;
+using XmlUnit.Xunit;
 
 namespace RaceHorologyLibTest
 {
@@ -213,6 +214,10 @@ namespace RaceHorologyLibTest
       xmlData.Position = 0;
       StreamReader reader = new StreamReader(xmlData);
       string s = reader.ReadToEnd();
+
+
+      XmlAssertion.AssertXmlEquals("<test/>", "<test/>");
+
 
     }
 
