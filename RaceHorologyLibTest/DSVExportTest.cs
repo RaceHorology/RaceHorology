@@ -96,35 +96,13 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+
+
+    /// <summary>
+    /// Tests for exception on cases a mandatory field is not specified
+    /// </summary>
     [TestMethod]
-    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12.mdb")]
-    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_GiantSlalom.config")]
-    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
-    [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12_ALGE_Run1.txt")]
-    public void Test1()
-    {
-      return;
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"KSC4--U12.mdb");
-
-      // Setup Data Model & Co
-      Database db = new Database();
-      db.Connect(dbFilename);
-
-      AppDataModel model = new AppDataModel(db);
-
-      DSVExport dsvExport = new DSVExport();
-
-      MemoryStream xmlData = new MemoryStream();
-      dsvExport.ExportXML(xmlData, model.GetRace(0));
-
-      xmlData.Position = 0;
-      StreamReader reader = new StreamReader(xmlData);
-      string s = reader.ReadToEnd();
-    }
-
-
-    [TestMethod]
-    public void BasicExceptions()
+    public void BasicExceptions_MandatoryFields()
     {
       var model = createTestDataModel1Race1Run();
 
@@ -160,26 +138,38 @@ namespace RaceHorologyLibTest
       model.GetRace(0).AdditionalProperties.Location = "Test Location";
 
 
+
       xmlData = new MemoryStream();
       Assert.AreEqual("missing useddsvlist",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       model.GetDB().StoreKeyValue("DSV_UsedDSVList", "123");
 
 
+
       xmlData = new MemoryStream();
       Assert.AreEqual("missing racejury ChiefRace",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
-      model.GetRace(0).AdditionalProperties.
+      model.GetRace(0).AdditionalProperties.RaceManager = new AdditionalRaceProperties.Person { Name = "Race Manager", Club = "Club" };
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing racejury Referee",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetRace(0).AdditionalProperties.RaceReferee = new AdditionalRaceProperties.Person { Name = "Race Referee", Club = "Club" };
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing racejury RepresentativeTrainer",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetRace(0).AdditionalProperties.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "Trainer Rep", Club = "Club" };
 
 
 
       xmlData = new MemoryStream();
-      Assert.AreEqual("missing coarsename", 
+      Assert.AreEqual("missing coarsename",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.CoarseName = "Kurs 1";
 
       xmlData = new MemoryStream();
-      Assert.AreEqual("missing number_of_gates", 
+      Assert.AreEqual("missing number_of_gates",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.RaceRun1.Gates = 10;
 
@@ -213,38 +203,57 @@ namespace RaceHorologyLibTest
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       raceProps.RaceRun1.Forerunner1 = new AdditionalRaceProperties.Person { Name = "Fore Runner", Club = "WSV Glonn" };
 
-
-      return;
-
+      // No exception is allow to occur here
       xmlData = new MemoryStream();
       dsvExport.ExportXML(xmlData, model.GetRace(0));
+    }
 
-      xmlData.Position = 0;
-      StreamReader reader = new StreamReader(xmlData);
-      string s = reader.ReadToEnd();
+    [TestMethod]
+    public void VerifyXML_MandatoryFields()
+    {
+      var model = createTestDataModel1Race1Run();
+      fillMandatoryFields(model);
 
+      string s = exportToXML(model.GetRace(0));
 
-      XmlAssertion.AssertXmlEquals("<test/>", "<test/>");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/racedate", s, DateTime.Today.ToString("yyyy-MM-dd"));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/gender", s, "A");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/raceid", s, "1234");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/raceorganizer", s, "WSV Glonn");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/discipline", s, "RS");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/category", s, "SO");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/racename", s, "Test Race");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/raceplace", s, "Test Location");
 
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/useddsvlist", s, "123");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='ChiefRace']/lastname", s, "Race Manager");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/lastname", s, "Race Referee");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/lastname", s, "Trainer Rep");
 
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursename", s, "Kurs 1");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/number_of_gates", s, "10");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/number_of_turninggates", s, "9");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/startaltitude", s, "1000");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/finishaltitude", s, "100");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/courselength", s, "1000");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursesetter/lastname", s, "Sven Flossmann");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursesetter/club", s, "WSV Glonn");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/forerunner[1]/lastname", s, "Fore Runner");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/forerunner[1]/club", s, "WSV Glonn");
     }
 
 
 
-
-    [TestMethod]
-    public void VerifyRaceDescription()
+    string exportToXML(Race race)
     {
-      var model = createTestDataModel1Race1Run();
-
       DSVExport dsvExport = new DSVExport();
       MemoryStream xmlData = new MemoryStream();
-      dsvExport.ExportXML(xmlData, model.GetRace(0));
+      dsvExport.ExportXML(xmlData, race);
 
+      // Convert to string
       xmlData.Position = 0;
       StreamReader reader = new StreamReader(xmlData);
-      string s = reader.ReadToEnd();
-
+      return reader.ReadToEnd();
     }
 
 
@@ -255,6 +264,33 @@ namespace RaceHorologyLibTest
       dm.AddRace(new Race.RaceProperties { RaceType = Race.ERaceType.GiantSlalom, Runs = 1 });
 
       return dm;
+    }
+
+
+    void fillMandatoryFields(AppDataModel model)
+    {
+      var raceProps = new AdditionalRaceProperties();
+      model.GetRace(0).AdditionalProperties = raceProps;
+      raceProps.DateResultList = DateTime.Today;
+      model.GetRace(0).AdditionalProperties.RaceNumber = "1234";
+      model.GetRace(0).AdditionalProperties.Organizer = "WSV Glonn";
+      model.GetRace(0).AdditionalProperties.Description = "Test Race";
+      model.GetRace(0).AdditionalProperties.Location = "Test Location";
+
+      model.GetDB().StoreKeyValue("DSV_UsedDSVList", "123");
+
+      model.GetRace(0).AdditionalProperties.RaceManager = new AdditionalRaceProperties.Person { Name = "Race Manager", Club = "Club" };
+      model.GetRace(0).AdditionalProperties.RaceReferee = new AdditionalRaceProperties.Person { Name = "Race Referee", Club = "Club" };
+      model.GetRace(0).AdditionalProperties.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "Trainer Rep", Club = "Club" };
+
+      raceProps.CoarseName = "Kurs 1";
+      raceProps.RaceRun1.Gates = 10;
+      raceProps.RaceRun1.Turns = 9;
+      raceProps.StartHeight = 1000;
+      raceProps.FinishHeight = 100;
+      raceProps.CoarseLength = 1000;
+      raceProps.RaceRun1.CoarseSetter = new AdditionalRaceProperties.Person { Name = "Sven Flossmann", Club = "WSV Glonn" };
+      raceProps.RaceRun1.Forerunner1 = new AdditionalRaceProperties.Person { Name = "Fore Runner", Club = "WSV Glonn" };
     }
 
   }
