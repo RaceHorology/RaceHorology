@@ -243,6 +243,39 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void VerifyXML_MeteoData()
+    {
+      var model = createTestDataModel1Race1Run();
+      fillMandatoryFields(model);
+
+      // no eather set, check if weather is absent
+      string s = exportToXML(model.GetRace(0));
+
+      Assert.ThrowsException<Xunit.Sdk.TrueException>(()=> XmlAssertion.AssertXPathExists("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata", s));
+
+      model.GetRace(0).AdditionalProperties.Weather = "sunny";
+      s = exportToXML(model.GetRace(0));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata/weather", s, "sunny");
+
+
+      Assert.ThrowsException<Xunit.Sdk.TrueException>(() => XmlAssertion.AssertXPathExists("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata/snowtexture", s));
+      model.GetRace(0).AdditionalProperties.Snow = "griffig";
+      s = exportToXML(model.GetRace(0));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata/snowtexture", s, "griffig");
+
+
+      Assert.ThrowsException<Xunit.Sdk.TrueException>(() => XmlAssertion.AssertXPathExists("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata/temperature_startaltitude", s));
+      model.GetRace(0).AdditionalProperties.TempStart = "-2";
+      s = exportToXML(model.GetRace(0));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata/temperature_startaltitude", s, "-2");
+
+
+      Assert.ThrowsException<Xunit.Sdk.TrueException>(() => XmlAssertion.AssertXPathExists("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata/temperature_finishaltitude", s));
+      model.GetRace(0).AdditionalProperties.TempFinish = "-1";
+      s = exportToXML(model.GetRace(0));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata/temperature_finishaltitude", s, "-1");
+    }
 
     string exportToXML(Race race)
     {

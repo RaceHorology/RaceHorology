@@ -441,28 +441,33 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
       }
 
+
+      if ( !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Weather)
+        || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Snow)
+        || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempStart)
+        || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempFinish))
       {
         _writer.WriteStartElement("meteodata");
 
-        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Weather))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Weather))
         {
           _writer.WriteStartElement("weather");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.Weather);
           _writer.WriteEndElement();
         }
-        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Snow))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Snow))
         {
           _writer.WriteStartElement("snowtexture");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.Snow);
           _writer.WriteEndElement();
         }
-        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempStart))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempStart))
         {
           _writer.WriteStartElement("temperature_startaltitude");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.TempStart);
           _writer.WriteEndElement();
         }
-        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempFinish))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempFinish))
         {
           _writer.WriteStartElement("temperature_finishaltitude");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.TempFinish);
