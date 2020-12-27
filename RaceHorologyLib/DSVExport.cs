@@ -313,11 +313,11 @@ namespace RaceHorologyLib
         throw new DSVExportException("missing racejury ChiefRace");
       writeJuryPerson(_writer, "ChiefRace", race.AdditionalProperties?.RaceManager);
       
-      if (race.AdditionalProperties?.RaceManager == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceManager).IsEmpty())
+      if (race.AdditionalProperties?.RaceReferee == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceReferee).IsEmpty())
         throw new DSVExportException("missing racejury Referee");
       writeJuryPerson(_writer, "Referee", race.AdditionalProperties?.RaceReferee);
       
-      if (race.AdditionalProperties?.RaceManager == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceManager).IsEmpty())
+      if (race.AdditionalProperties?.TrainerRepresentative == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.TrainerRepresentative).IsEmpty())
         throw new DSVExportException("missing racejury RepresentativeTrainer");
       writeJuryPerson(_writer, "RepresentativeTrainer", race.AdditionalProperties?.TrainerRepresentative);
 
