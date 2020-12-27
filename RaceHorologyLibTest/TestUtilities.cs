@@ -263,9 +263,9 @@ namespace RaceHorologyLibTest
 
     public AppDataModel Model { get; private set; }
 
-    public List<ParticipantCategory> createCategories()
+    public IList<ParticipantCategory> createCategories()
     {
-      List<ParticipantCategory> cats = new List<ParticipantCategory>();
+      IList<ParticipantCategory> cats = Model.GetParticipantCategories();
       cats.Add(new ParticipantCategory('M', "Männlich", 0, "hx"));
       cats.Add(new ParticipantCategory('W'));
       return cats;
@@ -301,6 +301,7 @@ namespace RaceHorologyLibTest
       {
         Name = string.Format("Name {0}", _participantSerial),
         Firstname = string.Format("Firstname {0}", _participantSerial),
+        Sex = Model.GetParticipantCategories()[0],
         Id = _participantSerial.ToString()
       };
     }
