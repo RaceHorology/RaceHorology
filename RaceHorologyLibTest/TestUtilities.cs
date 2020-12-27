@@ -259,6 +259,7 @@ namespace RaceHorologyLibTest
     {
       Model = new AppDataModel(new DummyDataBase(path, true));
       _race = Model.GetRace(0);
+      createCategories();
     }
 
     public AppDataModel Model { get; private set; }
