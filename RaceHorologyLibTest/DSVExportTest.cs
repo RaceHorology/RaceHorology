@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -317,13 +317,22 @@ namespace RaceHorologyLibTest
       model.GetRace(0).AdditionalProperties.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "Trainer Rep", Club = "Club" };
 
       raceProps.CoarseName = "Kurs 1";
-      raceProps.RaceRun1.Gates = 10;
-      raceProps.RaceRun1.Turns = 9;
       raceProps.StartHeight = 1000;
       raceProps.FinishHeight = 100;
       raceProps.CoarseLength = 1000;
+
+      raceProps.RaceRun1.Gates = 10;
+      raceProps.RaceRun1.Turns = 9;
       raceProps.RaceRun1.CoarseSetter = new AdditionalRaceProperties.Person { Name = "Sven Flossmann", Club = "WSV Glonn" };
       raceProps.RaceRun1.Forerunner1 = new AdditionalRaceProperties.Person { Name = "Fore Runner", Club = "WSV Glonn" };
+
+      if (model.GetRace(0).GetMaxRun() > 1)
+      {
+        raceProps.RaceRun2.Gates = 10;
+        raceProps.RaceRun2.Turns = 9;
+        raceProps.RaceRun2.CoarseSetter = new AdditionalRaceProperties.Person { Name = "Sven Flossmann", Club = "WSV Glonn" };
+        raceProps.RaceRun2.Forerunner1 = new AdditionalRaceProperties.Person { Name = "Fore Runner", Club = "WSV Glonn" };
+      }
     }
 
   }
