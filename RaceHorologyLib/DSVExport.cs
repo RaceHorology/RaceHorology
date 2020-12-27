@@ -500,7 +500,7 @@ namespace RaceHorologyLib
       {
         RaceResultItem item = result as RaceResultItem;
 
-        if (item.ResultCode == RunResult.EResultCode.Normal)
+        if (item.ResultCode == RunResult.EResultCode.Normal && item.TotalTime != null)
           classified.Add(item);
         else
           notClassified.Add(item);
