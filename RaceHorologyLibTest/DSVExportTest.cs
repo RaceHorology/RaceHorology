@@ -315,11 +315,22 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/raceresult/runtime[@runnumber='1']", s, "00:02.00");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/raceresult/runtime[@runnumber='2']", s, "00:03.00");
 
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='2']/@status", s, "DNF");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='3']/@status", s, "DSQ");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='4']/@status", s, "DNF");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='5']/@status", s, "DNS");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='6']/@status", s, "DSQ");
+      if (true) // Test more specific status
+      {
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='2']/@status", s, "DNF2");
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='3']/@status", s, "DSQ2");
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='4']/@status", s, "DNF1");
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='5']/@status", s, "DNS1");
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='6']/@status", s, "DSQ1");
+      }
+      else
+      {
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='2']/@status", s, "DNF");
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='3']/@status", s, "DSQ");
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='4']/@status", s, "DNF");
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='5']/@status", s, "DNS");
+        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='6']/@status", s, "DSQ");
+      }
     }
 
 

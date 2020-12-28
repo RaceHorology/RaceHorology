@@ -544,7 +544,7 @@ namespace RaceHorologyLib
         _writer.WriteStartElement("notranked");
         _writer.WriteAttributeString("gender", mapSex(rri.Participant));
         _writer.WriteAttributeString("bib", rri.Participant.StartNumber.ToString());
-        _writer.WriteAttributeString("status", mapResultCode(rri.ResultCode));
+        _writer.WriteAttributeString("status", mapResultCode(rri));
 
         if (!string.IsNullOrWhiteSpace(rri.DisqualText))
         {
@@ -649,6 +649,26 @@ namespace RaceHorologyLib
 
       return "UNKNOWN";
     }
+
+    static string mapResultCode(RaceResultItem rri)
+    {
+      string resultCode = "UNKNOWN";
+
+      foreach (KeyValuePair<uint, RaceResultItem.SubResult> kvp in rri.SubResults.OrderBy(k => k.Key))
+      {
+        if (kvp.Value.RunResultCode != RunResult.EResultCode.Normal)
+        {
+          resultCode = mapResultCode(kvp.Value.RunResultCode);
+          if (kvp.Key == 1)
+            resultCode += "1";
+          else if (kvp.Key == 2)
+            resultCode += "2";
+          break;
+        }
+      }
+      return resultCode;
+    }
+
 
 
     static string mapSex(RaceParticipant particpant)
