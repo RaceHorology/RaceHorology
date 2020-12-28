@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2020 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -276,6 +276,52 @@ namespace RaceHorologyLibTest
       s = exportToXML(model.GetRace(0));
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata/temperature_finishaltitude", s, "-1");
     }
+
+
+
+    [TestMethod]
+    public void VerifyXML_Run1()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      
+      fillMandatoryFields(tg.Model);
+
+      // Configure to use sum
+      var rvp = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
+      rvp.Init(tg.Model.GetRace(0), tg.Model);
+      tg.Model.GetRace(0).SetResultViewProvider(rvp);
+
+      // Run 1
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 0, 0), new TimeSpan(0, 8, 0, 2));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 1, 0), new TimeSpan(0, 8, 1, 4));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 2, 0), new TimeSpan(0, 8, 2, 3));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 2, 0), null);
+      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.Model.GetRace(0).GetParticipant(4), RunResult.EResultCode.NiZ);
+      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(), RunResult.EResultCode.NaS);
+      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(), RunResult.EResultCode.DIS, "Tor 2");
+
+      // Run 2
+      tg.Model.GetRace(0).GetRun(1).SetStartFinishTime(tg.Model.GetRace(0).GetParticipant(1), new TimeSpan(0, 9, 0, 0), new TimeSpan(0, 9, 0, 3));
+      tg.Model.GetRace(0).GetRun(1).SetStartFinishTime(tg.Model.GetRace(0).GetParticipant(2), new TimeSpan(0, 9, 1, 0), null);
+      tg.Model.GetRace(0).GetRun(1).SetResultCode(tg.Model.GetRace(0).GetParticipant(2), RunResult.EResultCode.NiZ);
+      tg.Model.GetRace(0).GetRun(1).SetResultCode(tg.Model.GetRace(0).GetParticipant(3), RunResult.EResultCode.DIS, "Tor 1");
+
+      // no eather set, check if weather is absent
+      string s = exportToXML(tg.Model.GetRace(0));
+
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/competitor/lastname", s, "Name 1");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/@bib", s, "1");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/raceresult/totaltime", s, "00:05.00");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/raceresult/runtime[@runnumber='1']", s, "00:02.00");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/raceresult/runtime[@runnumber='2']", s, "00:03.00");
+
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='2']/@status", s, "DNF");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='3']/@status", s, "DSQ");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='4']/@status", s, "DNF");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='5']/@status", s, "DNS");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='6']/@status", s, "DSQ");
+    }
+
 
     string exportToXML(Race race)
     {
