@@ -226,9 +226,12 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/raceplace", s, "Test Location");
 
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/useddsvlist", s, "123");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='ChiefRace']/lastname", s, "Race Manager");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/lastname", s, "Race Referee");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/lastname", s, "Trainer Rep");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='ChiefRace']/lastname", s, "Manager");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='ChiefRace']/firstname", s, "Race");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/lastname", s, "Referee");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/firstname", s, "Race");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/lastname", s, "Rep");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/firstname", s, "Trainer");
 
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursename", s, "Kurs 1");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/number_of_gates", s, "10");
@@ -236,9 +239,11 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/startaltitude", s, "1000");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/finishaltitude", s, "100");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/courselength", s, "1000");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursesetter/lastname", s, "Sven Flossmann");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursesetter/lastname", s, "Flossmann");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursesetter/firstname", s, "Sven");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursesetter/club", s, "WSV Glonn");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/forerunner[1]/lastname", s, "Fore Runner");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/forerunner[1]/lastname", s, "Runner");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/forerunner[1]/firstname", s, "F.");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/forerunner[1]/club", s, "WSV Glonn");
     }
 
@@ -370,7 +375,7 @@ namespace RaceHorologyLibTest
       model.GetDB().StoreKeyValue("DSV_UsedDSVList", "123");
 
       model.GetRace(0).AdditionalProperties.RaceManager = new AdditionalRaceProperties.Person { Name = "Race Manager", Club = "Club" };
-      model.GetRace(0).AdditionalProperties.RaceReferee = new AdditionalRaceProperties.Person { Name = "Race Referee", Club = "Club" };
+      model.GetRace(0).AdditionalProperties.RaceReferee = new AdditionalRaceProperties.Person { Name = "Referee, Race", Club = "Club" };
       model.GetRace(0).AdditionalProperties.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "Trainer Rep", Club = "Club" };
 
       raceProps.CoarseName = "Kurs 1";
@@ -381,14 +386,14 @@ namespace RaceHorologyLibTest
       raceProps.RaceRun1.Gates = 10;
       raceProps.RaceRun1.Turns = 9;
       raceProps.RaceRun1.CoarseSetter = new AdditionalRaceProperties.Person { Name = "Sven Flossmann", Club = "WSV Glonn" };
-      raceProps.RaceRun1.Forerunner1 = new AdditionalRaceProperties.Person { Name = "Fore Runner", Club = "WSV Glonn" };
+      raceProps.RaceRun1.Forerunner1 = new AdditionalRaceProperties.Person { Name = "F. Runner", Club = "WSV Glonn" };
 
       if (model.GetRace(0).GetMaxRun() > 1)
       {
         raceProps.RaceRun2.Gates = 10;
         raceProps.RaceRun2.Turns = 9;
         raceProps.RaceRun2.CoarseSetter = new AdditionalRaceProperties.Person { Name = "Sven Flossmann", Club = "WSV Glonn" };
-        raceProps.RaceRun2.Forerunner1 = new AdditionalRaceProperties.Person { Name = "Fore Runner", Club = "WSV Glonn" };
+        raceProps.RaceRun2.Forerunner1 = new AdditionalRaceProperties.Person { Name = "F. Runner", Club = "WSV Glonn" };
       }
     }
 
