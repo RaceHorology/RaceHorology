@@ -405,12 +405,25 @@ namespace RaceHorologyLib
 
     static void writePersonData(XmlWriter writer, AdditionalRaceProperties.Person person)
     {
-      writer.WriteStartElement("lastname");
-      if (string.IsNullOrEmpty(person?.Name))
-        writer.WriteValue("unknown");
+      string lastname, firstname;
+
+      guessLastAndFirstname(person?.Name, out lastname, out firstname);
+
+      if (!string.IsNullOrEmpty(lastname))
+      {
+        writer.WriteStartElement("lastname");
+        writer.WriteValue(lastname);
+        writer.WriteEndElement();
+      }
       else
-        writer.WriteValue(person.Name);
-      writer.WriteEndElement();
+        throw new DSVExportException("name not specified");
+
+      if (!string.IsNullOrEmpty(firstname))
+      {
+        writer.WriteStartElement("firstname");
+        writer.WriteValue(firstname);
+        writer.WriteEndElement();
+      }
 
       writer.WriteStartElement("club");
       if (string.IsNullOrEmpty(person?.Club))
@@ -418,6 +431,44 @@ namespace RaceHorologyLib
       else
         writer.WriteValue(person.Club);
       writer.WriteEndElement();
+    }
+
+
+    static void guessLastAndFirstname(string name, out string lastname, out string firstname)
+    {
+      lastname = string.Empty;
+      firstname = string.Empty;
+
+      if (string.IsNullOrEmpty(name))
+        return;
+
+      if (name.Contains(",")) // Assume: Name, Firstname
+      {
+        var nameParts = new List<string>();
+        foreach (var n in name.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+          nameParts.Add(n.Trim());
+
+        if (nameParts.Count > 0)
+          lastname = nameParts[0];
+
+        if (nameParts.Count > 1)
+          firstname = nameParts[1];
+      }
+      else // Assume: "Firstname Name" or "First Second Name" or "F. Name" or "Name"
+      {
+        var nameParts = name.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var n in nameParts) n.Trim();
+
+        if (nameParts.Length == 0)
+          return;
+
+        lastname = nameParts[nameParts.Length - 1];
+
+        var firstNames = nameParts.ToList<string>();
+        firstNames.RemoveAt(firstNames.Count - 1);
+
+        firstname = string.Join(" ", firstNames);
+      }
     }
 
 
