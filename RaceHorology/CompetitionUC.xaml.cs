@@ -607,40 +607,8 @@ namespace RaceHorology
       }
     }
 
-
     #endregion
 
-    private void showImportResult(List<ImportResults> impRes, string usedDSVLists)
-    {
-      string messageTextDetails = "";
-
-      messageTextDetails += string.Format("Benutzte DSV Liste: {0}\n\n", usedDSVLists);
-
-      int nRace = 0;
-      foreach (var i in impRes)
-      {
-        Race race = _dm.GetRace(nRace);
-
-        string notFoundParticipants = string.Join("\n", i.Errors);
-
-        messageTextDetails += string.Format(
-          "Zusammenfassung für das Rennen \"{0}\":\n" +
-          "- Punkte erfolgreich aktualisiert: {1}\n",
-          race.ToString(), i.SuccessCount);
-
-        if (i.ErrorCount > 0)
-        {
-          messageTextDetails += string.Format("\n" +
-            "- Teilnehmer nicht gefunden: {0}\n" +
-            "{1}",
-            i.ErrorCount, notFoundParticipants);
-        }
-
-        messageTextDetails += "\n";
-      }
-
-      MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
-    }
   }
 
 
