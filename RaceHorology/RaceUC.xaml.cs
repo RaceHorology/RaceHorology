@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -87,6 +87,8 @@ namespace RaceHorology
       ucDisqualify.Init(_dataModel, _thisRace);
       
       InitializeConfiguration();
+
+      InitializeRaceParticipants();
 
       InitializeRaceProperties();
 
@@ -261,6 +263,18 @@ namespace RaceHorology
 
 
     #endregion
+
+
+    #region RaceParticipants
+
+    void InitializeRaceParticipants()
+    {
+      dgRaceParticipants.ItemsSource = _thisRace.GetParticipants();
+    }
+
+
+    #endregion
+
 
     #region Race Properties
 
@@ -1069,6 +1083,13 @@ namespace RaceHorology
           DSVExport dsvExport = new DSVExport();
           dsvExport.Export(filePath, _thisRace);
         }
+      }
+      catch (DSVExportException ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\nFehlermeldung: " + ex.GetHumanReadableError(),
+          "Fehler",
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
       }
       catch (Exception ex)
       {

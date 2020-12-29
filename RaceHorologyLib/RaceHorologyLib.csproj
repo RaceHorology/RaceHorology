@@ -74,6 +74,7 @@
     <Compile Include="AppDataModelCalculations.cs" />
     <Compile Include="AppDataModelDB.cs" />
     <Compile Include="AppDataModelViews.cs" />
+    <Compile Include="ClassesGroupsCategories.cs" />
     <Compile Include="COMPortViewModel.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="AppDataModelDataTypes.cs" />
