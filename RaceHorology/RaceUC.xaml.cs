@@ -1084,6 +1084,13 @@ namespace RaceHorology
           dsvExport.Export(filePath, _thisRace);
         }
       }
+      catch (DSVExportException ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\nFehlermeldung: " + ex.GetHumanReadableError(),
+          "Fehler",
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+      }
       catch (Exception ex)
       {
         System.Windows.MessageBox.Show(

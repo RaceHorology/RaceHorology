@@ -53,6 +53,51 @@ namespace RaceHorologyLib
   {
     public DSVExportException(string message) : base(message)
     { }
+
+    public string GetHumanReadableError()
+    {
+      switch(Message)
+      {
+        case "missing racedate":
+          return "Renndatum fehlt";
+        case "missing raceid":
+          return "Rennnummer fehlt";
+        case "missing raceorganizer":
+          return "Rennoriganisator fehlt";
+        case "missing racename":
+          return "Renndatum fehlt";
+        case "missing raceplace":
+          return "Rennort fehlt";
+        case "not supported racetype":
+          return "Renntyp nicht unterstützt";
+        case "missing useddsvlist":
+          return "verwendete DSV-Punkte-Liste ist unbekannt";
+        case "missing racejury ChiefRace":
+          return "Rennleiter fehlt";
+        case "missing racejury Referee":
+          return "Schiedrichter fehlt";
+        case "missing racejury RepresentativeTrainer":
+          return "Trainervertreter fehlt";
+        case "missing coursesetter":
+          return "Kurssetzer fehlt";
+        case "missing coarsename":
+          return "Kursname fehlt";
+        case "missing number_of_gates":
+          return "Anzahl der Tore fehlt";
+        case "missing number_of_turninggates":
+          return "Anzahl der Richtungsänderungen fehlt";
+        case "missing startaltitude":
+          return "Starthöhe fehlt";
+        case "missing finishaltitude":
+          return "Zielhöhe fehlt";
+        case "missing courselength":
+          return "Kurslänge fehlt";
+        case "missing forerunner":
+          return "Vorläufer fehlt";
+        default:
+          return Message;
+      }
+    }
   }
 
 
