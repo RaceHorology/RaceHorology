@@ -342,27 +342,20 @@ namespace RaceHorologyLib
 
     }
 
-
     public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer)
     {
-      int n = collection.Count();
-      bool swapped;
-      do
+      for (int n = collection.Count(); n > 1; --n)
       {
-        swapped = false;
         for (int i = 0; i < n - 1; ++i)
         {
           if (comparer.Compare(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
           {
             TC temp = collection.ElementAt(i);
             collection.RemoveAt(i);
-            collection.Insert(i + 1, temp);
-            swapped = true;
+            collection.Insert(i+1, temp);
           }
         }
-        n--;
       }
-      while (swapped);
     }
 
 
