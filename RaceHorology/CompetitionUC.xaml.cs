@@ -283,7 +283,7 @@ namespace RaceHorology
 
       _dsvData = new DSVInterfaceModel(_dm);
 
-      _editParticipants = new ParticipantList(participants, _dm, _dsvData.Data);
+      _editParticipants = new ParticipantList(participants, _dm, _dsvData);
 
       _viewParticipants = new CollectionViewSource();
       _viewParticipants.Source = _editParticipants;
@@ -687,9 +687,9 @@ namespace RaceHorology
     ParticpantOfRace _participantOfRace;
     bool _existsInImportList;
 
-    DataSet _importList;
+    IImportListProvider _importList;
 
-    public ParticipantEdit(Participant p, IList<Race> races, DataSet importList)
+    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider importList)
     {
       _participant = p;
       _participant.PropertyChanged += OnParticpantPropertyChanged;
@@ -711,16 +711,7 @@ namespace RaceHorology
     bool checkInImport()
     {
       // No list, assume existing
-      if (_importList == null || _importList.Tables.Count == 0)
-        return true;
-
-      foreach(DataRow r in _importList.Tables[0].Rows)
-      {
-        if (r["SvId"]?.ToString() == _participant.CodeOrSvId)
-          return true;
-      }
-
-      return false;
+      return _importList == null || _importList.containsParticipant(_participant);
     }
 
 
@@ -829,7 +820,7 @@ namespace RaceHorology
   /// </summary>
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
-    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, DataSet importList) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList))
+    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider importList) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList))
     { }
 
   }
