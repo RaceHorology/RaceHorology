@@ -9,7 +9,25 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
-  public class DSVInterfaceModel
+  /// <summary>
+  /// Interface for providing import lists (e.g. DSV, FIS)
+  /// </summary>
+  public interface IImportListProvider
+  {
+    /// <summary>
+    /// Contains the import list to display in the UI
+    /// </summary>
+    DataSet Data { get; }
+
+    /// <summary>
+    /// Checks whether the specified participant is in the import list
+    /// </summary>
+    bool containsParticipant(Participant p);
+
+  }
+
+
+  public class DSVInterfaceModel : IImportListProvider
   {
     AppDataModel _dm;
 
@@ -78,6 +96,22 @@ namespace RaceHorologyLib
         _localReader = null;
       }
     }
+
+
+    public bool containsParticipant(Participant p)
+    {
+      if (_localReader?.Data == null || _localReader?.Data.Tables.Count == 0)
+        return true;
+
+      foreach (DataRow r in _localReader?.Data.Tables[0].Rows)
+      {
+        if (r["SvId"]?.ToString() == p.CodeOrSvId)
+          return true;
+      }
+
+      return false;
+    }
+
 
 
     public DataSet Data
