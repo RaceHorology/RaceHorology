@@ -274,11 +274,16 @@ namespace RaceHorology
     /// Connects the GUI (e.g. Data Grids, ...) to the data model
     /// </summary>
 
+
+    DSVInterfaceModel _dsvData;
     private void ConnectGUIToParticipants()
     {
       // Connect with GUI DataGrids
       ObservableCollection<Participant> participants = _dm.GetParticipants();
-      _editParticipants = new ParticipantList(participants, _dm);
+
+      _dsvData = new DSVInterfaceModel(_dm);
+
+      _editParticipants = new ParticipantList(participants, _dm, _dsvData);
 
       _viewParticipants = new CollectionViewSource();
       _viewParticipants.Source = _editParticipants;
@@ -680,14 +685,33 @@ namespace RaceHorology
   {
     Participant _participant;
     ParticpantOfRace _participantOfRace;
+    bool _existsInImportList;
 
-    public ParticipantEdit(Participant p, IList<Race> races)
+    IImportListProvider _importList;
+
+    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider importList)
     {
       _participant = p;
       _participant.PropertyChanged += OnParticpantPropertyChanged;
 
+      _importList = importList;
+      updateExistsInImport();
+
       _participantOfRace = new ParticpantOfRace(p, races);
       _participantOfRace.PropertyChanged += OnParticpantOfRaceChanged;
+    }
+
+
+    void updateExistsInImport()
+    {
+      ExistsInImportList = checkInImport();
+    }
+
+
+    bool checkInImport()
+    {
+      // No list, assume existing
+      return _importList == null || _importList.containsParticipant(_participant);
     }
 
 
@@ -758,6 +782,13 @@ namespace RaceHorology
       get => _participantOfRace; 
     }
 
+
+    public bool ExistsInImportList
+    {
+      private set { if (_existsInImportList != value) { _existsInImportList = value; NotifyPropertyChanged(); } }
+      get => _existsInImportList;
+    }
+
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -771,6 +802,7 @@ namespace RaceHorology
 
     private void OnParticpantPropertyChanged(object source, PropertyChangedEventArgs eargs)
     {
+      updateExistsInImport();
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(eargs.PropertyName));
     }
 
@@ -788,7 +820,7 @@ namespace RaceHorology
   /// </summary>
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
-    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces()))
+    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider importList) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList))
     { }
 
   }
