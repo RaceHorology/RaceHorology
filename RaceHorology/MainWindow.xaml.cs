@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -95,7 +95,7 @@ namespace RaceHorology
     {
       SaveFileDialog openFileDialog = new SaveFileDialog();
       openFileDialog.DefaultExt = ".mdb";
-      openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
+      openFileDialog.Filter = "Race Horology Daten|*.mdb";
       openFileDialog.OverwritePrompt = true;
       if (openFileDialog.ShowDialog() == true)
       {
@@ -111,7 +111,7 @@ namespace RaceHorology
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.DefaultExt = ".mdb";
-      openFileDialog.Filter = "DSVAlpin Daten|*.mdb";
+      openFileDialog.Filter = "Race Horology Daten|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
@@ -201,8 +201,8 @@ namespace RaceHorology
       }
       catch (Exception ex)
       {
+        MessageBox.Show(string.Format("Die Datei konnte nicht geöffnet werden.\n\n{0}", ex.Message), "Fehler beim Öffnen", MessageBoxButton.OK, MessageBoxImage.Error);
         Logger.Error(ex, "during database loading");
-        throw;
       }
     }
 

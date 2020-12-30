@@ -1,3 +1,38 @@
+/*
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
 using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
@@ -5,11 +40,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -63,6 +100,7 @@ namespace RaceHorology
       ConnectGUIToParticipants();
 
       ucClassesAndGroups.Init(_dm);
+      ucDSVImport.Init(_dm);
     }
 
     #region RaceTabs
@@ -96,11 +134,11 @@ namespace RaceHorology
         tabHeader.btnClose.Click += BtnClose_Click;
       }
 
-      public Race Race {  get { return _race; } }
+      public Race Race { get { return _race; } }
 
       private void BtnClose_Click(object sender, RoutedEventArgs e)
       {
-        if (MessageBox.Show(string.Format("Rennen \"{0}\" wirklich löschen?", _race.RaceType), "Rennen löschen?", MessageBoxButton.YesNo,MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
+        if (MessageBox.Show(string.Format("Rennen \"{0}\" wirklich löschen?", _race.RaceType), "Rennen löschen?", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
           _race.GetDataModel().RemoveRace(_race);
       }
     }
@@ -202,7 +240,8 @@ namespace RaceHorology
 
       Race.RaceProperties raceProps = new Race.RaceProperties
       {
-        RaceType = rt
+        RaceType = rt,
+        Runs = 2
       };
 
       _dm.AddRace(raceProps);
@@ -235,26 +274,42 @@ namespace RaceHorology
     /// Connects the GUI (e.g. Data Grids, ...) to the data model
     /// </summary>
 
+
+    DSVInterfaceModel _dsvData;
     private void ConnectGUIToParticipants()
     {
       // Connect with GUI DataGrids
       ObservableCollection<Participant> participants = _dm.GetParticipants();
-      _editParticipants = new ParticipantList(participants, _dm);
+
+      _dsvData = new DSVInterfaceModel(_dm);
+
+      _editParticipants = new ParticipantList(participants, _dm, _dsvData);
 
       _viewParticipants = new CollectionViewSource();
       _viewParticipants.Source = _editParticipants;
 
       dgParticipants.ItemsSource = _viewParticipants.View;
 
-      CreateParticipantOfRaceColumns();
-      CreateParticipantOfRaceCheckboxes();
+      createParticipantOfRaceColumns();
+      createParticipantOfRaceCheckboxes();
+    }
+
+
+    private void btnReset_Click(object sender, RoutedEventArgs e)
+    {
+      updatePartcipantEditFields();
+    }
+
+    private void btnApply_Click(object sender, RoutedEventArgs e)
+    {
+      storeParticipant();
     }
 
 
     /// <summary>
     /// (Re-)Creates the columns for adding/removing the participants to an race
     /// </summary>
-    private void CreateParticipantOfRaceColumns()
+    private void createParticipantOfRaceColumns()
     {
       // Delete previous race columns
       while (dgParticipants.Columns.Count > 10)
@@ -274,7 +329,7 @@ namespace RaceHorology
     /// <summary>
     /// (Re-)Creates the checkboxes for adding/removing the participants to an race
     /// </summary>
-    private void CreateParticipantOfRaceCheckboxes()
+    private void createParticipantOfRaceCheckboxes()
     {
       // Delete previous check boxes
       spRaces.Children.Clear();
@@ -290,7 +345,6 @@ namespace RaceHorology
           Margin = new Thickness(0, 0, 0, 5),
           IsThreeState = true
         };
-        cb.LostFocus += ParticipantEditControl_LostFocus;
 
         spRaces.Children.Add(cb);
       }
@@ -306,7 +360,7 @@ namespace RaceHorology
     private IList<object> GetPropertyValues(IList<object> objects, string propertyName)
     {
       List<object> values = new List<object>();
-      foreach(var o in objects)
+      foreach (var o in objects)
       {
         object value = PropertyUtilities.GetPropertyValue(o, propertyName);
         values.Add(value);
@@ -328,12 +382,16 @@ namespace RaceHorology
       updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
       updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
 
-      for (int i=0; i< spRaces.Children.Count; i++)
+      for (int i = 0; i < spRaces.Children.Count; i++)
       {
         List<object> values = new List<object>();
         foreach (var item in items)
         {
-          values.Add(_dm.GetRace(i).GetParticipants().FirstOrDefault(rp => rp.Participant == ((ParticipantEdit)item).Participant) != null);
+          Race race = _dm.GetRace(i);
+          if (race != null)
+            values.Add(race.GetParticipants().FirstOrDefault(rp => rp.Participant == ((ParticipantEdit)item).Participant) != null);
+          else
+            values.Add(false);
         }
         updatePartcipantCheckbox(spRaces.Children[i] as CheckBox, values);
       }
@@ -407,46 +465,32 @@ namespace RaceHorology
     }
 
 
-    private void ParticipantEditControl_LostFocus(object sender, RoutedEventArgs e)
+    private void storeParticipant()
     {
       IList<ParticipantEdit> items = dgParticipants.SelectedItems.Cast<ParticipantEdit>().ToList();
 
-      if (sender == txtName)
-        storePartcipantEditField(txtName, items, "Name");
-      if (sender == txtFirstname)
-        storePartcipantEditField(txtFirstname, items, "Firstname");
-      if (sender == cmbSex)
-        storePartcipantComboBox(cmbSex, items, "Sex");
-      if (sender == txtYear)
-        storePartcipantEditField(txtYear, items, "Year");
-      if (sender == txtClub)
-        storePartcipantEditField(txtClub, items, "Club");
-      if (sender == txtSvId)
-        storePartcipantEditField(txtSvId, items, "SvId");
-      if (sender == txtCode)
-        storePartcipantEditField(txtCode, items, "Code");
-      if (sender == txtNation)
-        storePartcipantEditField(txtNation, items, "Nation");
-      if (sender == cmbClass)
-        storePartcipantComboBox(cmbClass, items, "Class");
+      storePartcipantEditField(txtName, items, "Name");
+      storePartcipantEditField(txtFirstname, items, "Firstname");
+      storePartcipantComboBox(cmbSex, items, "Sex");
+      storePartcipantEditField(txtYear, items, "Year");
+      storePartcipantEditField(txtClub, items, "Club");
+      storePartcipantEditField(txtSvId, items, "SvId");
+      storePartcipantEditField(txtCode, items, "Code");
+      storePartcipantEditField(txtNation, items, "Nation");
+      storePartcipantComboBox(cmbClass, items, "Class");
 
       for (int i = 0; i < spRaces.Children.Count; i++)
       {
         CheckBox cb = (CheckBox)spRaces.Children[i];
-        if (sender == cb)
+        if (cb.IsChecked != null) // Either true or false, but not "third state"
         {
-          if (cb.IsChecked != null) // Either true or false, but not "third state"
+          bool bVal = (bool)cb.IsChecked;
+          foreach (var item in items.Cast<ParticipantEdit>())
           {
-            bool bVal = (bool)cb.IsChecked;
-            foreach (var item in items.Cast<ParticipantEdit>())
-            {
-              item.ParticipantOfRace[i] = bVal;
-            }
+            item.ParticipantOfRace[i] = bVal;
           }
         }
       }
-
-
     }
 
 
@@ -469,9 +513,6 @@ namespace RaceHorology
         PropertyUtilities.SetPropertyValue(item, propertyName, value);
     }
 
-
-    #endregion
-
     private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
       Application.Current.Dispatcher.Invoke(() =>
@@ -482,27 +523,32 @@ namespace RaceHorology
         string sFilter = txtSearch.Text;
 
         _viewParticipantsFilterHandler = null;
-        _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
+        if (!string.IsNullOrEmpty(sFilter))
         {
-          bool contains(string bigString, string part)
+          _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
           {
-            return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
-          }
+            bool contains(string bigString, string part)
+            {
+              if (string.IsNullOrEmpty(bigString))
+                return false;
 
-          ParticipantEdit p = (ParticipantEdit)ea.Item;
+              return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
+            }
 
-          ea.Accepted =
-               contains(p.Name, sFilter)
-            || contains(p.Firstname, sFilter)
-            || contains(p.Club, sFilter)
-            || contains(p.Nation, sFilter)
-            || contains(p.Year.ToString(), sFilter)
-            || contains(p.Code, sFilter)
-            || contains(p.SvId, sFilter)
-            || contains(p.Class.ToString(), sFilter)
-            || contains(p.Group.ToString(), sFilter);
-        });
+            ParticipantEdit p = (ParticipantEdit)ea.Item;
 
+            ea.Accepted =
+                 contains(p.Name, sFilter)
+              || contains(p.Firstname, sFilter)
+              || contains(p.Club, sFilter)
+              || contains(p.Nation, sFilter)
+              || contains(p.Year.ToString(), sFilter)
+              || contains(p.Code, sFilter)
+              || contains(p.SvId, sFilter)
+              || contains(p.Class?.ToString(), sFilter)
+              || contains(p.Group?.ToString(), sFilter);
+          });
+        }
         if (_viewParticipantsFilterHandler != null)
           _viewParticipants.Filter += _viewParticipantsFilterHandler;
 
@@ -536,66 +582,7 @@ namespace RaceHorology
       ca.Assign(participants);
     }
 
-
-    private void btnImportDSVOnline_Click(object sender, RoutedEventArgs e)
-    {
-      DSVImportReader dsvImportReader = new DSVImportReaderOnline();
-      var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-      showImportResult(impRes, dsvImportReader.UsedDSVList);
-    }
-
-
-    private void btnImportDSVFile_Click(object sender, RoutedEventArgs e)
-    {
-      OpenFileDialog openFileDialog = new OpenFileDialog();
-      if (openFileDialog.ShowDialog() == true)
-      {
-        string path = openFileDialog.FileName;
-        DSVImportReader dsvImportReader;
-        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
-          dsvImportReader = new DSVImportReaderZip(path);
-        else
-          dsvImportReader = new DSVImportReaderFile(path);
-
-        var impRes = DSVUpdatePoints.UpdatePoints(_dm, dsvImportReader);
-        showImportResult(impRes, dsvImportReader.UsedDSVList);
-      }
-    }
-
-    private void showImportResult(List<ImportResults> impRes, string usedDSVLists)
-    {
-      string messageTextDetails = "";
-
-      messageTextDetails += string.Format("Benutzte DSV Liste: {0}\n\n", usedDSVLists);
-
-      int nRace = 0;
-      foreach (var i in impRes)
-      {
-        Race race = _dm.GetRace(nRace);
-
-        string notFoundParticipants = string.Join("\n", i.Errors);
-
-        messageTextDetails += string.Format(
-          "Zusammenfassung für das Rennen \"{0}\":\n" +
-          "- Punkte erfolgreich aktualisiert: {1}\n",
-          race.ToString(), i.SuccessCount);
-        
-        if (i.ErrorCount > 0)
-        {
-          messageTextDetails += string.Format("\n" +
-            "- Teilnehmer nicht gefunden: {0}\n"+
-            "{1}", 
-            i.ErrorCount, notFoundParticipants);
-        }
-
-        messageTextDetails += "\n";
-      }
-      
-      MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
-    }
-
-
-  private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
+    private void btnAddParticipant_Click(object sender, RoutedEventArgs e)
     {
       Participant participant = new Participant();
       _dm.GetParticipants().Add(participant);
@@ -624,6 +611,8 @@ namespace RaceHorology
         }
       }
     }
+
+    #endregion
 
   }
 
@@ -696,14 +685,33 @@ namespace RaceHorology
   {
     Participant _participant;
     ParticpantOfRace _participantOfRace;
+    bool _existsInImportList;
 
-    public ParticipantEdit(Participant p, IList<Race> races)
+    IImportListProvider _importList;
+
+    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider importList)
     {
       _participant = p;
       _participant.PropertyChanged += OnParticpantPropertyChanged;
 
+      _importList = importList;
+      updateExistsInImport();
+
       _participantOfRace = new ParticpantOfRace(p, races);
       _participantOfRace.PropertyChanged += OnParticpantOfRaceChanged;
+    }
+
+
+    void updateExistsInImport()
+    {
+      ExistsInImportList = checkInImport();
+    }
+
+
+    bool checkInImport()
+    {
+      // No list, assume existing
+      return _importList == null || _importList.containsParticipant(_participant);
     }
 
 
@@ -774,6 +782,13 @@ namespace RaceHorology
       get => _participantOfRace; 
     }
 
+
+    public bool ExistsInImportList
+    {
+      private set { if (_existsInImportList != value) { _existsInImportList = value; NotifyPropertyChanged(); } }
+      get => _existsInImportList;
+    }
+
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -787,6 +802,7 @@ namespace RaceHorology
 
     private void OnParticpantPropertyChanged(object source, PropertyChangedEventArgs eargs)
     {
+      updateExistsInImport();
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(eargs.PropertyName));
     }
 
@@ -804,7 +820,7 @@ namespace RaceHorology
   /// </summary>
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
-    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces()))
+    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider importList) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList))
     { }
 
   }

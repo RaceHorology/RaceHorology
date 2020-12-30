@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -67,13 +67,12 @@ namespace RaceHorologyLib
 
     public void Disconnect()
     {
-      _serialPort.Close();
-      _serialPort = null;
-    }
-
-    public void Dispose()
-    {
-      Disconnect();
+      if (_serialPort != null)
+      {
+        _serialPort.Close();
+        _serialPort.Dispose();
+        _serialPort = null;
+      }
     }
 
 
@@ -122,7 +121,7 @@ namespace RaceHorologyLib
         }
       } while (true);
 
-      _progress?.Report(new StdProgress { Finished = true });
+      reportFinal();
     }
 
 
@@ -130,6 +129,7 @@ namespace RaceHorologyLib
     #region IHasProgress implementation
 
     IProgress<StdProgress> _progress;
+
     public void DoProgressReport(IProgress<StdProgress> progress)
     {
       _progress = progress;
@@ -138,6 +138,43 @@ namespace RaceHorologyLib
     private void reportProgress(string current)
     {
       _progress?.Report(new StdProgress { CurrentStatus = current });
+    }
+    private void reportFinal()
+    {
+      _progress?.Report(new StdProgress { Finished = true });
+    }
+    #endregion
+
+
+    #region IDispose
+
+    private bool disposedValue;
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          reportFinal();
+          Disconnect();
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~ALGETimy()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
     }
 
     #endregion

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RaceHorology"
         mc:Ignorable="d"
         Background="#e6eee5"
-        Title="About" 
+        Title="Info" 
         WindowStartupLocation="CenterOwner"
         Height="450" Width="800">
   <Grid>
@@ -20,7 +20,7 @@
 
     <Image x:Name="LogoRH_png" Height="80" Source="LogoRH.png" Stretch="Uniform" Margin="10,20,10,20" />
     <Label x:Name="lblVersion" Grid.Row="1" Content="Version x.y" HorizontalContentAlignment="Center" FontFamily="Ubuntu" Foreground="#FF3F434B" />
-    <Label x:Name="lblCopyright" Grid.Row="2" Content="(c) 2019-2020 by Sven Flossmann" HorizontalContentAlignment="Center" FontFamily="Ubuntu" Foreground="#FF3F434B" />
+    <Label x:Name="lblCopyright" Grid.Row="2" Content="(c) 2019-2021 by Sven Flossmann" HorizontalContentAlignment="Center" FontFamily="Ubuntu" Foreground="#FF3F434B" />
 
     <TabControl x:Name="tabControl" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="10,10,10,10" Grid.Row="3" VerticalAlignment="Stretch" >
       <TabItem Header="Lizenz">

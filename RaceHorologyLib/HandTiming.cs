@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -586,7 +586,7 @@ namespace RaceHorologyLib
           string configJSON = System.IO.File.ReadAllText(handTimingFilePath);
           Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, handTimingData);
         }
-        catch (Exception e)
+        catch (Exception)
         {
         }
 

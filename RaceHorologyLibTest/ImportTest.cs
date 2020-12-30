@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -194,8 +194,8 @@ namespace RaceHorologyLibTest
       ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
 
       List<Participant> participants = new List<Participant>();
-      ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping, tg.createCategories());
-      var impRes = im.DoImport();
+      ParticipantImport im = new ParticipantImport(participants, mapping, tg.createCategories());
+      var impRes = im.DoImport(ir.Data);
 
       Assert.AreEqual(153, impRes.SuccessCount);
       Assert.AreEqual(0, impRes.ErrorCount);
@@ -229,8 +229,8 @@ namespace RaceHorologyLibTest
 
       RaceMapping mapping = new RaceMapping(ir.Columns);
 
-      RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
-      var impRes = im.DoImport();
+      RaceImport im = new RaceImport(tg.Model.GetRace(0), mapping);
+      var impRes = im.DoImport(ir.Data);
 
       Assert.AreEqual(153, impRes.SuccessCount);
       Assert.AreEqual(0, impRes.ErrorCount);
@@ -262,8 +262,8 @@ namespace RaceHorologyLibTest
       RaceMapping mapping = new RaceMapping(ir.Columns);
 
       ClassAssignment cla = new ClassAssignment(dm.GetParticipantClasses());
-      RaceImport im = new RaceImport(ir.Data, dm.GetRace(0), mapping, cla);
-      var impRes = im.DoImport();
+      RaceImport im = new RaceImport(dm.GetRace(0), mapping, cla);
+      var impRes = im.DoImport(ir.Data);
 
       Assert.AreEqual(153, impRes.SuccessCount);
       Assert.AreEqual(0, impRes.ErrorCount);
@@ -315,8 +315,8 @@ namespace RaceHorologyLibTest
 
       RaceMapping mapping = new RaceMapping(ir.Columns);
 
-      RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
-      var impRes = im.DoImport();
+      RaceImport im = new RaceImport(tg.Model.GetRace(0), mapping);
+      var impRes = im.DoImport(ir.Data);
 
       Assert.AreEqual(3, impRes.SuccessCount);
       Assert.AreEqual(0, impRes.ErrorCount);
@@ -345,8 +345,8 @@ namespace RaceHorologyLibTest
 
       RaceMapping mapping = new RaceMapping(ir.Columns);
 
-      RaceImport im = new RaceImport(ir.Data, tg.Model.GetRace(0), mapping);
-      var impRes = im.DoImport();
+      RaceImport im = new RaceImport(tg.Model.GetRace(0), mapping);
+      var impRes = im.DoImport(ir.Data);
 
       Assert.AreEqual(20, impRes.SuccessCount);
       Assert.AreEqual(0, impRes.ErrorCount);
@@ -396,8 +396,8 @@ namespace RaceHorologyLibTest
       ParticipantMapping mapping = new ParticipantMapping(ir.Columns);
 
       List<Participant> participants = new List<Participant>();
-      ParticipantImport im = new ParticipantImport(ir.Data, participants, mapping, tg.createCategories());
-      var impRes = im.DoImport();
+      ParticipantImport im = new ParticipantImport(participants, mapping, tg.createCategories());
+      var impRes = im.DoImport(ir.Data);
 
       Assert.AreEqual(153, impRes.SuccessCount);
       Assert.AreEqual(0, impRes.ErrorCount);
@@ -411,7 +411,6 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
-    [DeploymentItem(@"TestDataBases\Import\DSV\DSVA2008.txt")]
     public void ReadDSVPoints()
     {
 

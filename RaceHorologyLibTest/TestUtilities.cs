@@ -1,5 +1,5 @@
-﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+/*
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -179,14 +179,17 @@ namespace RaceHorologyLibTest
     List<Race.RaceProperties> _races;
     string _basePath;
 
-    public DummyDataBase(string basePath)
+    public DummyDataBase(string basePath, bool createRace = false)
     {
       _races = new List<Race.RaceProperties>();
-      _races.Add(new Race.RaceProperties 
+      if (createRace)
       {
-        RaceType = Race.ERaceType.GiantSlalom,
-        Runs = 2
-      });
+        _races.Add(new Race.RaceProperties
+        {
+          RaceType = Race.ERaceType.GiantSlalom,
+          Runs = 2
+        });
+      }
       _basePath = basePath;
     }
 
@@ -231,8 +234,19 @@ namespace RaceHorologyLibTest
     public void CreateOrUpdateCategory(ParticipantCategory c) { }
     public void RemoveCategory(ParticipantCategory c) { }
 
-    public void StoreKeyValue(string key, string value) { }
-    public string GetKeyValue(string key) { return null; }
+
+    Dictionary<string, string> _keyValueStore = new Dictionary<string, string>();
+    public void StoreKeyValue(string key, string value) 
+    {
+      _keyValueStore[key] = value;
+    }
+
+    public string GetKeyValue(string key) 
+    {
+      string value = null;
+      _keyValueStore.TryGetValue(key, out value);
+      return value; 
+    }
   };
 
 
@@ -243,15 +257,16 @@ namespace RaceHorologyLibTest
 
     public TestDataGenerator(string path = ".")
     {
-      Model = new AppDataModel(new DummyDataBase(path));
+      Model = new AppDataModel(new DummyDataBase(path, true));
       _race = Model.GetRace(0);
+      createCategories();
     }
 
     public AppDataModel Model { get; private set; }
 
-    public List<ParticipantCategory> createCategories()
+    public IList<ParticipantCategory> createCategories()
     {
-      List<ParticipantCategory> cats = new List<ParticipantCategory>();
+      IList<ParticipantCategory> cats = Model.GetParticipantCategories();
       cats.Add(new ParticipantCategory('M', "Männlich", 0, "hx"));
       cats.Add(new ParticipantCategory('W'));
       return cats;
@@ -287,6 +302,7 @@ namespace RaceHorologyLibTest
       {
         Name = string.Format("Name {0}", _participantSerial),
         Firstname = string.Format("Firstname {0}", _participantSerial),
+        Sex = Model.GetParticipantCategories()[0],
         Id = _participantSerial.ToString()
       };
     }

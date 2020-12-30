@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -48,6 +48,59 @@ using System.Xml;
 
 namespace RaceHorologyLib
 {
+
+  public class DSVExportException : Exception
+  {
+    public DSVExportException(string message) : base(message)
+    { }
+
+    public string GetHumanReadableError()
+    {
+      switch(Message)
+      {
+        case "missing racedate":
+          return "Renndatum fehlt";
+        case "missing raceid":
+          return "Rennnummer fehlt";
+        case "missing raceorganizer":
+          return "Rennoriganisator fehlt";
+        case "missing racename":
+          return "Renndatum fehlt";
+        case "missing raceplace":
+          return "Rennort fehlt";
+        case "not supported racetype":
+          return "Renntyp nicht unterstützt";
+        case "missing useddsvlist":
+          return "verwendete DSV-Punkte-Liste ist unbekannt";
+        case "missing racejury ChiefRace":
+          return "Rennleiter fehlt";
+        case "missing racejury Referee":
+          return "Schiedrichter fehlt";
+        case "missing racejury RepresentativeTrainer":
+          return "Trainervertreter fehlt";
+        case "missing coursesetter":
+          return "Kurssetzer fehlt";
+        case "missing coarsename":
+          return "Kursname fehlt";
+        case "missing number_of_gates":
+          return "Anzahl der Tore fehlt";
+        case "missing number_of_turninggates":
+          return "Anzahl der Richtungsänderungen fehlt";
+        case "missing startaltitude":
+          return "Starthöhe fehlt";
+        case "missing finishaltitude":
+          return "Zielhöhe fehlt";
+        case "missing courselength":
+          return "Kurslänge fehlt";
+        case "missing forerunner":
+          return "Vorläufer fehlt";
+        default:
+          return Message;
+      }
+    }
+  }
+
+
   public class DSVExport
   {
     protected XmlWriterSettings _xmlSettings;
@@ -144,24 +197,30 @@ namespace RaceHorologyLib
     {
       _writer.WriteStartElement("racedescription");
 
+      if (race.DateResultList == null)
+        throw new DSVExportException("missing racedate");
       _writer.WriteStartElement("racedate");
       _writer.WriteValue(race.DateResultList?.ToString("yyyy-MM-dd"));
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("gender");
-      _writer.WriteValue("A"); // TODO: get real gender
+      _writer.WriteValue("A"); // Not supported, always use "Gemischt"
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("season");
-      _writer.WriteValue(race.DateResultList?.AddMonths(2).ToString("yyyy"));
+      _writer.WriteValue(race.DateResultList?.AddMonths(3).ToString("yyyy"));
       _writer.WriteEndElement();
 
+      if (string.IsNullOrWhiteSpace(race.RaceNumber))
+        throw new DSVExportException("missing raceid");
       _writer.WriteStartElement("raceid");
       _writer.WriteValue(race.RaceNumber);
       _writer.WriteEndElement();
 
+      if (string.IsNullOrWhiteSpace(race.AdditionalProperties?.Organizer))
+        throw new DSVExportException("missing raceorganizer");
       _writer.WriteStartElement("raceorganizer");
-      _writer.WriteValue(race.AdditionalProperties.Organizer);
+      _writer.WriteValue(race.AdditionalProperties?.Organizer);
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("discipline");
@@ -172,22 +231,26 @@ namespace RaceHorologyLib
       _writer.WriteValue(getDSVCategory(race));
       _writer.WriteEndElement();
 
+      if (string.IsNullOrWhiteSpace(race.Description))
+        throw new DSVExportException("missing racename");
       _writer.WriteStartElement("racename");
       _writer.WriteValue(race.Description);
       _writer.WriteEndElement();
 
+      if (string.IsNullOrWhiteSpace(race.AdditionalProperties?.Location))
+        throw new DSVExportException("missing raceplace");
       _writer.WriteStartElement("raceplace");
-      _writer.WriteValue(race.AdditionalProperties.Location);
+      _writer.WriteValue(race.AdditionalProperties?.Location);
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("timing");
       _writer.WriteValue("Alge TdC8001"); // TODO: make variable
       _writer.WriteEndElement();
 
-      if (!string.IsNullOrEmpty(race.AdditionalProperties.Analyzer))
+      if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer))
       {
         _writer.WriteStartElement("dataprocessing_by");
-        _writer.WriteValue(race.AdditionalProperties.Analyzer);
+        _writer.WriteValue(race.AdditionalProperties?.Analyzer);
         _writer.WriteEndElement();
       }
 
@@ -215,15 +278,12 @@ namespace RaceHorologyLib
       if (race.RaceType == Race.ERaceType.SuperG)
         return "SG";
 
-      if (race.RaceType == Race.ERaceType.KOSlalom)
-        return "unknown";
-
-      return "unknown";
+      throw new DSVExportException("not supported racetype");
     }
 
     string getDSVCategory(Race race)
     {
-      return "unknown";
+      return "SO";
     }
 
 
@@ -249,19 +309,21 @@ namespace RaceHorologyLib
     {
       _writer.WriteStartElement("racedata");
 
-      _writer.WriteStartElement("useddsvlist");
-
       string usedDSVList = race.GetDataModel().GetDB().GetKeyValue("DSV_UsedDSVList");
+      if (string.IsNullOrWhiteSpace(usedDSVList))
+        throw new DSVExportException("missing useddsvlist");
+      _writer.WriteStartElement("useddsvlist");
       _writer.WriteValue(usedDSVList);
-      _writer.WriteEndElement();
-
-      _writer.WriteStartElement("fvalue");
-      _writer.WriteValue(race.RaceConfiguration.ValueF);
       _writer.WriteEndElement();
 
       if (false) // TODO: needs to be fixed, btw: optional
       {
+        _writer.WriteStartElement("fvalue");
+        _writer.WriteValue(race.RaceConfiguration.ValueF);
+        _writer.WriteEndElement();
+
         DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
+
         // women
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "L");
@@ -292,13 +354,21 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
       }
 
-      writeJuryPerson(_writer, "ChiefRace", race.AdditionalProperties.RaceManager);
-      writeJuryPerson(_writer, "Referee", race.AdditionalProperties.RaceReferee);
-      writeJuryPerson(_writer, "RepresentativeTrainer", race.AdditionalProperties.TrainerRepresentative);
+      if (race.AdditionalProperties?.RaceManager == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceManager).IsEmpty())
+        throw new DSVExportException("missing racejury ChiefRace");
+      writeJuryPerson(_writer, "ChiefRace", race.AdditionalProperties?.RaceManager);
+      
+      if (race.AdditionalProperties?.RaceReferee == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceReferee).IsEmpty())
+        throw new DSVExportException("missing racejury Referee");
+      writeJuryPerson(_writer, "Referee", race.AdditionalProperties?.RaceReferee);
+      
+      if (race.AdditionalProperties?.TrainerRepresentative == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.TrainerRepresentative).IsEmpty())
+        throw new DSVExportException("missing racejury RepresentativeTrainer");
+      writeJuryPerson(_writer, "RepresentativeTrainer", race.AdditionalProperties?.TrainerRepresentative);
 
-      writeRunData(race.GetRun(0), race.AdditionalProperties.RaceRun1);
+      writeRunData(race.GetRun(0), race.AdditionalProperties?.RaceRun1);
       if (race.GetMaxRun() > 1)
-        writeRunData(race.GetRun(1), race.AdditionalProperties.RaceRun2);
+        writeRunData(race.GetRun(1), race.AdditionalProperties?.RaceRun2);
 
       _writer.WriteEndElement();
     }
@@ -316,6 +386,8 @@ namespace RaceHorologyLib
 
     static void writeCourseSetterPerson(XmlWriter writer, AdditionalRaceProperties.Person person)
     {
+      if (person == null || person.IsEmpty())
+        throw new DSVExportException("missing coursesetter");
       writer.WriteStartElement("coursesetter");
       writePersonData(writer, person);
       writer.WriteEndElement();
@@ -333,13 +405,70 @@ namespace RaceHorologyLib
 
     static void writePersonData(XmlWriter writer, AdditionalRaceProperties.Person person)
     {
-      writer.WriteStartElement("lastname");
-      writer.WriteValue(person.Name);
-      writer.WriteEndElement();
+      string lastname, firstname;
+
+      guessLastAndFirstname(person?.Name, out lastname, out firstname);
+
+      if (!string.IsNullOrEmpty(lastname))
+      {
+        writer.WriteStartElement("lastname");
+        writer.WriteValue(lastname);
+        writer.WriteEndElement();
+      }
+      else
+        throw new DSVExportException("name not specified");
+
+      if (!string.IsNullOrEmpty(firstname))
+      {
+        writer.WriteStartElement("firstname");
+        writer.WriteValue(firstname);
+        writer.WriteEndElement();
+      }
 
       writer.WriteStartElement("club");
-      writer.WriteValue(person.Club);
+      if (string.IsNullOrEmpty(person?.Club))
+        writer.WriteValue("unknown");
+      else
+        writer.WriteValue(person.Club);
       writer.WriteEndElement();
+    }
+
+
+    static void guessLastAndFirstname(string name, out string lastname, out string firstname)
+    {
+      lastname = string.Empty;
+      firstname = string.Empty;
+
+      if (string.IsNullOrEmpty(name))
+        return;
+
+      if (name.Contains(",")) // Assume: Name, Firstname
+      {
+        var nameParts = new List<string>();
+        foreach (var n in name.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+          nameParts.Add(n.Trim());
+
+        if (nameParts.Count > 0)
+          lastname = nameParts[0];
+
+        if (nameParts.Count > 1)
+          firstname = nameParts[1];
+      }
+      else // Assume: "Firstname Name" or "First Second Name" or "F. Name" or "Name"
+      {
+        var nameParts = name.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var n in nameParts) n.Trim();
+
+        if (nameParts.Length == 0)
+          return;
+
+        lastname = nameParts[nameParts.Length - 1];
+
+        var firstNames = nameParts.ToList<string>();
+        firstNames.RemoveAt(firstNames.Count - 1);
+
+        firstname = string.Join(" ", firstNames);
+      }
     }
 
 
@@ -351,33 +480,45 @@ namespace RaceHorologyLib
       {
         _writer.WriteStartElement("coursedata");
 
+        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties?.CoarseName))
+          throw new DSVExportException("missing coarsename");
         _writer.WriteStartElement("coursename");
-        _writer.WriteValue(raceRun.GetRace().AdditionalProperties.CoarseName);
+        _writer.WriteValue(raceRun.GetRace().AdditionalProperties?.CoarseName);
         _writer.WriteEndElement();
 
-        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.CoarseHomologNo))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties?.CoarseHomologNo))
         {
           _writer.WriteStartElement("homologationnumber");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.CoarseHomologNo);
           _writer.WriteEndElement();
         }
 
+        if (raceRunProperties.Gates <= 0)
+          throw new DSVExportException("missing number_of_gates");
         _writer.WriteStartElement("number_of_gates");
         _writer.WriteValue(raceRunProperties.Gates.ToString());
         _writer.WriteEndElement();
 
+        if (raceRunProperties.Turns <= 0)
+          throw new DSVExportException("missing number_of_turninggates");
         _writer.WriteStartElement("number_of_turninggates");
         _writer.WriteValue(raceRunProperties.Turns.ToString());
         _writer.WriteEndElement();
 
+        if (raceRun.GetRace().AdditionalProperties?.StartHeight <= 0)
+          throw new DSVExportException("missing startaltitude");
         _writer.WriteStartElement("startaltitude");
-        _writer.WriteValue(raceRun.GetRace().AdditionalProperties.StartHeight.ToString());
+        _writer.WriteValue(raceRun.GetRace().AdditionalProperties?.StartHeight.ToString());
         _writer.WriteEndElement();
 
+        if (raceRun.GetRace().AdditionalProperties?.FinishHeight <= 0)
+          throw new DSVExportException("missing finishaltitude");
         _writer.WriteStartElement("finishaltitude");
-        _writer.WriteValue(raceRun.GetRace().AdditionalProperties.StartHeight.ToString());
+        _writer.WriteValue(raceRun.GetRace().AdditionalProperties?.FinishHeight.ToString());
         _writer.WriteEndElement();
 
+        if (raceRun.GetRace().AdditionalProperties?.CoarseLength <= 0)
+          throw new DSVExportException("missing courselength");
         _writer.WriteStartElement("courselength");
         _writer.WriteValue(raceRun.GetRace().AdditionalProperties.CoarseLength.ToString());
         _writer.WriteEndElement();
@@ -386,6 +527,8 @@ namespace RaceHorologyLib
 
         if (!string.IsNullOrWhiteSpace(raceRunProperties.Forerunner1.Name))
           writeForeRunnerPerson(_writer, 1, raceRunProperties.Forerunner1);
+        else 
+          throw new DSVExportException("missing forerunner");
         if (!string.IsNullOrWhiteSpace(raceRunProperties.Forerunner2.Name))
           writeForeRunnerPerson(_writer, 2, raceRunProperties.Forerunner2);
         if (!string.IsNullOrWhiteSpace(raceRunProperties.Forerunner3.Name))
@@ -394,28 +537,33 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
       }
 
+
+      if ( !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Weather)
+        || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Snow)
+        || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempStart)
+        || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempFinish))
       {
         _writer.WriteStartElement("meteodata");
 
-        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Weather))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Weather))
         {
           _writer.WriteStartElement("weather");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.Weather);
           _writer.WriteEndElement();
         }
-        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Snow))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Snow))
         {
           _writer.WriteStartElement("snowtexture");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.Snow);
           _writer.WriteEndElement();
         }
-        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempStart))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempStart))
         {
           _writer.WriteStartElement("temperature_startaltitude");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.TempStart);
           _writer.WriteEndElement();
         }
-        if (string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempFinish))
+        if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempFinish))
         {
           _writer.WriteStartElement("temperature_finishaltitude");
           _writer.WriteValue(raceRun.GetRace().AdditionalProperties.TempFinish);
@@ -448,7 +596,7 @@ namespace RaceHorologyLib
       {
         RaceResultItem item = result as RaceResultItem;
 
-        if (item.ResultCode == RunResult.EResultCode.Normal)
+        if (item.ResultCode == RunResult.EResultCode.Normal && item.TotalTime != null)
           classified.Add(item);
         else
           notClassified.Add(item);
@@ -492,7 +640,7 @@ namespace RaceHorologyLib
         _writer.WriteStartElement("notranked");
         _writer.WriteAttributeString("gender", mapSex(rri.Participant));
         _writer.WriteAttributeString("bib", rri.Participant.StartNumber.ToString());
-        _writer.WriteAttributeString("status", mapResultCode(rri.ResultCode));
+        _writer.WriteAttributeString("status", mapResultCode(rri));
 
         if (!string.IsNullOrWhiteSpace(rri.DisqualText))
         {
@@ -597,6 +745,26 @@ namespace RaceHorologyLib
 
       return "UNKNOWN";
     }
+
+    static string mapResultCode(RaceResultItem rri)
+    {
+      string resultCode = "UNKNOWN";
+
+      foreach (KeyValuePair<uint, RaceResultItem.SubResult> kvp in rri.SubResults.OrderBy(k => k.Key))
+      {
+        if (kvp.Value.RunResultCode != RunResult.EResultCode.Normal)
+        {
+          resultCode = mapResultCode(kvp.Value.RunResultCode);
+          if (kvp.Key == 1)
+            resultCode += "1";
+          else if (kvp.Key == 2)
+            resultCode += "2";
+          break;
+        }
+      }
+      return resultCode;
+    }
+
 
 
     static string mapSex(RaceParticipant particpant)

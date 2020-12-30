@@ -1,4 +1,39 @@
-﻿using RaceHorologyLib;
+﻿/*
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -418,7 +453,12 @@ public class LiveTimingRM : ILiveTiming
     // Punkte leer/ Punkte des Teilnehmers(mit Komma und 2 Nachkommastellen) 
     string item;
 
-    item = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}"
+    var customFormat = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
+    customFormat.NumberFormat.NumberDecimalSeparator = ",";
+
+    item = string.Format(
+      customFormat,
+      "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10:0.00}"
       , particpant.Sex.Name
       , particpant.Class.Group.Id
       , particpant.Class.Id
@@ -429,7 +469,8 @@ public class LiveTimingRM : ILiveTiming
       , particpant.Year
       , particpant.Nation   // TODO: set to empty if not used
       , particpant.Club
-      , particpant.Points); // TODO: set to empty if not used
+      , particpant.Points
+      );
 
     return item;
   }
@@ -520,7 +561,7 @@ public class LiveTimingRM : ILiveTiming
       {
         if (r.Runtime != null)
         {
-          time = r.Runtime?.ToString(@"hhmmss\,ff");
+          time = r.Runtime?.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture);
           eCode = 0;
         }
         else if (r.GetStartTime() != null)

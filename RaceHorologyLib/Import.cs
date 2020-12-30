@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -194,8 +194,8 @@ namespace RaceHorologyLib
 
     public string MappedField(string requiredField)
     {
-      var mapEntry = _mapping.First(m => m.Key == requiredField);
-      return mapEntry.Value;
+      var mapEntry = _mapping.FirstOrDefault(m => m.Key == requiredField);
+      return mapEntry?.Value;
     }
 
     /// <summary>
@@ -358,7 +358,7 @@ namespace RaceHorologyLib
 
   public interface IImport
   {
-    ImportResults DoImport();
+    ImportResults DoImport(DataSet ds);
   }
 
   public class BaseImport
@@ -434,29 +434,27 @@ namespace RaceHorologyLib
 
   public class ParticipantImport : BaseImport, IImport
   {
-    DataSet _importDataSet;
     IList<Participant> _particpants;
     IList<ParticipantCategory> _categories;
 
-    public ParticipantImport(DataSet ds, IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
+    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
     {
-      _importDataSet = ds;
       _particpants = particpants;
       _categories = categories;
     }
 
 
-    public  ImportResults DoImport()
+    public  ImportResults DoImport(DataSet ds)
     {
       ImportResults impRes = new ImportResults();
 
-      var rows = _importDataSet.Tables[0].Rows;
+      var rows = ds.Tables[0].Rows;
 
       foreach(DataRow row in rows)
       {
         try
         {
-          importRow(row);
+          ImportRow(row);
           impRes.AddSuccess();
         }
         catch (Exception)
@@ -469,7 +467,7 @@ namespace RaceHorologyLib
     }
 
 
-    public Participant importRow(DataRow row) 
+    public Participant ImportRow(DataRow row) 
     {
       Participant partImported = null;
 
@@ -596,36 +594,28 @@ namespace RaceHorologyLib
 
   public class RaceImport : BaseImport, IImport
   {
-    DataSet _importDataSet;
     Race _race;
 
-    public RaceImport(DataSet ds, Race race, Mapping mapping, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
+    ParticipantImport _particpantImport;
+
+    public RaceImport(Race race, Mapping mapping, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
     {
-      _importDataSet = ds;
       _race = race;
+
+      _particpantImport = new ParticipantImport(_race.GetDataModel().GetParticipants(), _mapping, _race.GetDataModel().GetParticipantCategories(), _classAssignment);
     }
 
 
-    public ImportResults DoImport()
+    public ImportResults DoImport(DataSet ds)
     {
       ImportResults impRes = new ImportResults();
 
-      // 1. Normaler Import
-      ParticipantImport particpantImport = new ParticipantImport(_importDataSet, _race.GetDataModel().GetParticipants(), _mapping, _race.GetDataModel().GetParticipantCategories(), _classAssignment);
-
-      // 2. Punkteabgleich für ein Rennen (eg DSV Liste) 
-      var rows = _importDataSet.Tables[0].Rows;
+      var rows = ds.Tables[0].Rows;
       foreach (DataRow row in rows)
       {
         try
         {
-          Participant importedParticipant = particpantImport.importRow(row);
-
-          double points = getPoints(row);
-          uint sn = getStartNumber(row);
-
-          _race.AddParticipant(importedParticipant, sn, points);
-
+          RaceParticipant rp = ImportRow(row);
           impRes.AddSuccess();
         }
         catch (Exception)
@@ -635,6 +625,19 @@ namespace RaceHorologyLib
       }
 
       return impRes;
+    }
+
+
+    public RaceParticipant ImportRow(DataRow row)
+    {
+      Participant importedParticipant = _particpantImport.ImportRow(row);
+
+      double points = getPoints(row);
+      uint sn = getStartNumber(row);
+
+      RaceParticipant rp = _race.AddParticipant(importedParticipant, sn, points);
+
+      return rp;
     }
 
 
@@ -653,24 +656,22 @@ namespace RaceHorologyLib
 
   public class UpdatePointsImport : BaseImport, IImport
   {
-    DataSet _importDataSet;
     Race _race;
 
     Dictionary<string, DataRow> _id2row;
 
 
-    public UpdatePointsImport(DataSet ds, Race race, Mapping mapping) : base(mapping, null)
+    public UpdatePointsImport(Race race, Mapping mapping) : base(mapping, null)
     {
-      _importDataSet = ds;
       _race = race;
 
       _id2row = new Dictionary<string, DataRow>();
     }
 
 
-    public ImportResults DoImport()
+    public ImportResults DoImport(DataSet ds)
     {
-      buildDictionary();
+      buildDictionary(ds);
 
       ImportResults impRes = new ImportResults();
 
@@ -707,10 +708,10 @@ namespace RaceHorologyLib
     }
 
 
-    protected void buildDictionary()
+    protected void buildDictionary(DataSet ds)
     {
       // Build map for fast and easy access to row
-      var rows = _importDataSet.Tables[0].Rows;
+      var rows = ds.Tables[0].Rows;
       foreach (DataRow row in rows)
       {
         string key = getValueAsString(row, "SvId");

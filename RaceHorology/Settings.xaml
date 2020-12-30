@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RaceHorology"
         mc:Ignorable="d"
-        Title="Settings" 
+        Title="Einstellungen" 
         WindowStartupLocation="CenterOwner"
         Height="450" Width="800">
   <Grid>
@@ -72,7 +72,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <Label Content="Nicht zu vergebene Startnummern:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
+          <Label Content="Nicht zu vergebene Startnummern:&#xD;&#xA;(durch Komma getrennt)" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
           <TextBox x:Name="txtNotToBeAssigned" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="50" />
           
         </Grid>
@@ -83,8 +83,8 @@
     </Grid>
     -->
     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-      <Button x:Name="btnOk" Content="Ok" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,10,0" IsDefault="True" Click="BtnOk_Click"/>
-      <Button x:Name="btnCancel" Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" IsCancel="True" Click="BtnCancel_Click"/>
+      <Button x:Name="btnOk" Content="Speichern" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,10,0" IsDefault="True" Click="BtnOk_Click"/>
+      <Button x:Name="btnCancel" Content="Abbrechen" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" IsCancel="True" Click="BtnCancel_Click"/>
     </StackPanel>
   </Grid>
 </Window>

@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -96,9 +96,11 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844.csv")]
     public void ImportRace()
     {
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      var db = new RaceHorologyLib.Database();
       string dbFilename = db.CreateDatabase("new.mdb");
       db.Connect(dbFilename);
+
+      //RaceHorologyLib.IAppDataModelDataBase db = new RaceHorologyLib.DatabaseDummy("./");
 
       AppDataModel dm = new AppDataModel(db);
 
@@ -112,8 +114,8 @@ namespace RaceHorologyLibTest
         var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
         RaceMapping mapping = new RaceMapping(ir.Columns);
 
-        RaceImport im = new RaceImport(ir.Data, dm.GetRace(0), mapping);
-        impRes = im.DoImport();
+        RaceImport im = new RaceImport(dm.GetRace(0), mapping);
+        impRes = im.DoImport(ir.Data);
       });
 
       Assert.AreEqual(153, impRes.SuccessCount);
@@ -125,7 +127,7 @@ namespace RaceHorologyLibTest
       TestContext.WriteLine(string.Format("Import took: {0:0.00} sec", time.TotalSeconds));
       Assert.IsTrue(time.TotalSeconds < 4);
 
-      db.Close();
+      //db.Close();
 
     }
   }

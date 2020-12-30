@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -56,6 +56,8 @@ namespace RaceHorologyLibTest
       //
       // TODO: Add constructor logic here
       //
+
+      System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
     }
 
     private TestContext testContextInstance;

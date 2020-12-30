@@ -74,6 +74,7 @@
     <Compile Include="AppDataModelCalculations.cs" />
     <Compile Include="AppDataModelDB.cs" />
     <Compile Include="AppDataModelViews.cs" />
+    <Compile Include="ClassesGroupsCategories.cs" />
     <Compile Include="COMPortViewModel.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="AppDataModelDataTypes.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="DSVCalculations.cs" />
     <Compile Include="DSVExport.cs" />
     <Compile Include="DSVImport.cs" />
+    <Compile Include="DSVInterfaceModel.cs" />
     <Compile Include="HandTiming.cs" />
     <Compile Include="Import.cs" />
     <Compile Include="JsonConversion.cs" />

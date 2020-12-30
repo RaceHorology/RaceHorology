@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -421,7 +421,7 @@ namespace RaceHorologyLib
         { "StartNumber", "Startnummer" },
         { "Name", "Nachname" },
         { "Firstname", "Vorname" },
-        { "Sex", "Geschlecht" },
+        { "Sex", "Kategorie" },
         { "Year", "Jahr" },
         { "Club", "Verein" },
         { "Nation", "Nation" },
@@ -463,7 +463,7 @@ namespace RaceHorologyLib
         { "StartNumber", "Startnummer" },
         { "Name", "Nachname" },
         { "Firstname", "Vorname" },
-        { "Sex", "Geschlecht" },
+        { "Sex", "Kategorie" },
         { "Year", "Jahr" },
         { "Club", "Verein" },
         { "Nation", "Nation" },

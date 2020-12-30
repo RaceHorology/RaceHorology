@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2020 by Sven Flossmann
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -361,6 +361,8 @@ namespace RaceHorologyLib
     {
       public string Name { get; set; }
       public string Club { get; set; }
+
+      public bool IsEmpty() { return string.IsNullOrEmpty(Name); }
     }
 
     public class RaceRunProperties
@@ -485,8 +487,7 @@ namespace RaceHorologyLib
 
       _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
 
-      // TODO: Assuming 2 runs for now
-      CreateRaceRuns(2);
+      CreateRaceRuns((int)properties.Runs);
 
       ViewConfigurator viewConfigurator = new ViewConfigurator(this);
       viewConfigurator.ConfigureRace(this);
