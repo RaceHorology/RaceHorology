@@ -225,12 +225,14 @@ namespace RaceHorologyLib
   {
     protected ObservableCollection<T> _source;
     protected Cloner<TC,T> _cloner;
+    protected bool _cloneOnPropertyChanged;
 
     public delegate TClone Cloner<TClone,TSource>(TSource source);
-    public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC,T> cloner)
+    public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC,T> cloner, bool cloneOnPropertyChanged)
     {
       _source = source;
       _cloner = cloner;
+      _cloneOnPropertyChanged = cloneOnPropertyChanged;
 
       _source.CollectionChanged += OnCollectionChanged;
 
@@ -245,7 +247,7 @@ namespace RaceHorologyLib
 
     protected void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (sender is T sourceItem)
+      if (_cloneOnPropertyChanged && (sender is T sourceItem))
       {
         int index = _source.IndexOf(sourceItem);
         var clonedItem = _cloner(sourceItem);

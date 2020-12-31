@@ -678,7 +678,7 @@ namespace RaceHorologyLib
 
 
       // Create working list
-      _viewList = new CopyObservableCollection<StartListEntry, StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
+      _viewList = new CopyObservableCollection<StartListEntry, StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy(), true);
       foreach (StartListEntry entry in _viewList)
         UpdateStartListEntry(entry);
 

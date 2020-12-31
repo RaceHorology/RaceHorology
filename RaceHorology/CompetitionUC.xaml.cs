@@ -826,7 +826,8 @@ namespace RaceHorology
   /// </summary>
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
-    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider importList) : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList))
+    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider importList) 
+      : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList), false)
     { }
 
   }
