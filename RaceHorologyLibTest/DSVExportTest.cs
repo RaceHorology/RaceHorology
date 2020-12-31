@@ -231,7 +231,7 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/lastname", s, "Referee");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/firstname", s, "Race");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/lastname", s, "Rep");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/firstname", s, "Trainer");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/firstname", s, "T.");
 
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursename", s, "Kurs 1");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/number_of_gates", s, "10");
@@ -376,7 +376,7 @@ namespace RaceHorologyLibTest
 
       model.GetRace(0).AdditionalProperties.RaceManager = new AdditionalRaceProperties.Person { Name = "Race Manager", Club = "Club" };
       model.GetRace(0).AdditionalProperties.RaceReferee = new AdditionalRaceProperties.Person { Name = "Referee, Race", Club = "Club" };
-      model.GetRace(0).AdditionalProperties.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "Trainer Rep", Club = "Club" };
+      model.GetRace(0).AdditionalProperties.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "T.Rep", Club = "Club" };
 
       raceProps.CoarseName = "Kurs 1";
       raceProps.StartHeight = 1000;
