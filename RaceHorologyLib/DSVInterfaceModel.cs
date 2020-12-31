@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
+  public delegate void DataChangedHandler(object sender, EventArgs e);
+  
+  
   /// <summary>
   /// Interface for providing import lists (e.g. DSV, FIS)
   /// </summary>
@@ -18,6 +21,8 @@ namespace RaceHorologyLib
     /// Contains the import list to display in the UI
     /// </summary>
     DataSet Data { get; }
+
+    event DataChangedHandler DataChanged;
 
     /// <summary>
     /// Checks whether the specified participant is in the import list
@@ -95,6 +100,9 @@ namespace RaceHorologyLib
       {
         _localReader = null;
       }
+
+      var handler = DataChanged;
+      handler?.Invoke(this, new EventArgs());
     }
 
 
@@ -112,6 +120,8 @@ namespace RaceHorologyLib
       return false;
     }
 
+
+    public event DataChangedHandler DataChanged;
 
 
     public DataSet Data

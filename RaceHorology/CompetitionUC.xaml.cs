@@ -67,6 +67,8 @@ namespace RaceHorology
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     AppDataModel _dm;
+    DSVInterfaceModel _dsvData;
+
     LiveTimingMeasurement _liveTimingMeasurement;
     TextBox _txtLiveTimingStatus;
 
@@ -76,6 +78,7 @@ namespace RaceHorology
     public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
       _dm = dm;
+      _dsvData = new DSVInterfaceModel(_dm);
 
       ParticipantClasses = _dm.GetParticipantClasses();
       ParticipantCategories = _dm.GetParticipantCategories();
@@ -100,7 +103,7 @@ namespace RaceHorology
       ConnectGUIToParticipants();
 
       ucClassesAndGroups.Init(_dm);
-      ucDSVImport.Init(_dm);
+      ucDSVImport.Init(_dm, _dsvData);
     }
 
     #region RaceTabs
@@ -275,13 +278,10 @@ namespace RaceHorology
     /// </summary>
 
 
-    DSVInterfaceModel _dsvData;
     private void ConnectGUIToParticipants()
     {
       // Connect with GUI DataGrids
       ObservableCollection<Participant> participants = _dm.GetParticipants();
-
-      _dsvData = new DSVInterfaceModel(_dm);
 
       _editParticipants = new ParticipantList(participants, _dm, _dsvData);
 
@@ -695,12 +695,18 @@ namespace RaceHorology
       _participant.PropertyChanged += OnParticpantPropertyChanged;
 
       _importList = importList;
+      _importList.DataChanged += onDataChangedImportList;
       updateExistsInImport();
 
       _participantOfRace = new ParticpantOfRace(p, races);
       _participantOfRace.PropertyChanged += OnParticpantOfRaceChanged;
     }
 
+
+    void onDataChangedImportList(object sender, EventArgs e)
+    {
+      updateExistsInImport();
+    }
 
     void updateExistsInImport()
     {

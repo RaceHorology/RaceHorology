@@ -72,9 +72,10 @@ namespace RaceHorology
     }
 
 
-    public void Init(AppDataModel dm)
+    public void Init(AppDataModel dm, DSVInterfaceModel dsvData)
     {
       _dm = dm;
+      _dsvData = dsvData;
 
       this.KeyDown += new KeyEventHandler(KeyDownHandler);
 
@@ -85,8 +86,6 @@ namespace RaceHorology
 
     void initDSVAddToList()
     {
-      _dsvData = new DSVInterfaceModel(_dm);
-
       updateDSVGrid();
 
       txtDSVSearch.TextChanged += new DelayedEventHandler(
