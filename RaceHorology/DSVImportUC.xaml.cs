@@ -140,6 +140,18 @@ namespace RaceHorology
 
     private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
     {
+      addSelectedItemsToDataModel();
+    }
+
+
+    private void dgDSVList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+      addSelectedItemsToDataModel();
+    }
+
+
+    private void addSelectedItemsToDataModel()
+    {
       foreach (var item in dgDSVList.SelectedItems)
       {
         if (item is DataRowView rowView)
@@ -161,7 +173,6 @@ namespace RaceHorology
         }
       }
     }
-
 
 
     private void btnDSVImportOnlineU12_Click(object sender, RoutedEventArgs e)
