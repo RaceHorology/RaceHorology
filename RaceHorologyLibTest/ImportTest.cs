@@ -388,7 +388,7 @@ namespace RaceHorologyLibTest
     public void ImportPointsForParticpant()
     {
       return;
-
+      /*
       TestDataGenerator tg = new TestDataGenerator();
 
       var ir = new ImportReader(@"Teilnehmer_V1_202001301844.csv");
@@ -406,7 +406,7 @@ namespace RaceHorologyLibTest
       {
         Assert.AreEqual(string.Format("Name {0}", i + 1), participants[i].Name);
       }
-
+      */
     }
 
 
