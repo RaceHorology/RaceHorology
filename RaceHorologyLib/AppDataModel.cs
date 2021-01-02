@@ -818,7 +818,6 @@ namespace RaceHorologyLib
 
       // Ensure the results always are in sync with participants
       _race.GetParticipants().CollectionChanged += onParticipantsChanged;
-      findOrCreateRunResults(_race.GetParticipants());
     }
 
 
@@ -991,13 +990,6 @@ namespace RaceHorologyLib
     }
 
 
-    private void findOrCreateRunResults(IEnumerable<RaceParticipant> participants)
-    {
-      foreach (RaceParticipant rp in participants)
-        findOrCreateRunResult(rp);
-    }
-
-
     public RunResult DeleteRunResult(RaceParticipant participant)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
@@ -1005,6 +997,8 @@ namespace RaceHorologyLib
       {
         _results.Remove(result);
       }
+
+      _UpdateInternals();
 
       return result;
     }
@@ -1014,15 +1008,13 @@ namespace RaceHorologyLib
     {
       while (_results.Count > 0)
         _results.RemoveAt(0);
+
+      _UpdateInternals();
     }
 
 
     protected void onParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      if (e.NewItems != null)
-        foreach (RaceParticipant rp in e.NewItems)
-          findOrCreateRunResult(rp);
-
       if (e.OldItems != null)
         foreach (RaceParticipant rp in e.OldItems)
           DeleteRunResult(rp);
@@ -1044,7 +1036,7 @@ namespace RaceHorologyLib
 
 
     // Helper definition for a participant is on track
-    public bool IsOnTrack(RunResult r)
+    private bool IsOnTrack(RunResult r)
     {
       return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
     }
