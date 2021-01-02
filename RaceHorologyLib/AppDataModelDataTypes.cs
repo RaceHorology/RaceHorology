@@ -825,7 +825,6 @@ namespace RaceHorologyLib
   /// <summary>
   /// Represents a run result (a pass / ein durchgang)
   /// </summary>
-  /// <remarks>not yet final</remarks>
   public class RunResult : INotifyPropertyChanged
   {
     public enum EResultCode { Normal = 0, NaS = 1, NiZ = 2, DIS = 3, NQ = 4, NotSet = -1 }; // 0;"Normal";1;"Nicht am Start";2;"Nicht im Ziel";3;"Disqualifiziert";4;"Nicht qualifiziert"
