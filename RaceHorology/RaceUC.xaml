@@ -642,6 +642,8 @@
                   <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="StartTime" Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, StringFormat=\{0:hh\\:mm\\:ss\\\,ff\}}"/>
+                  <DataGridTextColumn local:DataGridUtil.Name="FinishTime" Header="Zielzeit" Binding="{Binding FinishTime, Mode=OneWay, StringFormat=\{0:hh\\:mm\\:ss\\\,ff\}}"/>
                   <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}"/>
                   <DataGridTextColumn local:DataGridUtil.Name="Description" Header="Anmerkung">
                     <DataGridTextColumn.Binding>

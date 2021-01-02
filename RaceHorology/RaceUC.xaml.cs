@@ -36,6 +36,7 @@
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Media;
 using System.Text;
@@ -620,6 +621,7 @@ namespace RaceHorology
     }
 
 
+    CollectionViewSource _finishView;
     private void ConnectUiToRaceRun(RaceRun raceRun)
     {
       if (raceRun != null)
@@ -631,7 +633,19 @@ namespace RaceHorology
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         EnableOrDisableColumns(_thisRace, dgRunning);
 
-        dgFinish.ItemsSource = raceRun.GetResultList();
+
+        _finishView = new CollectionViewSource();
+        _finishView.Source = raceRun.GetResultList();
+
+        _finishView.SortDescriptions.Add(new SortDescription("FinishTime", ListSortDirection.Descending));
+        _finishView.IsLiveSortingRequested = true;
+        _finishView.LiveSortingProperties.Add("FinishTime");
+        _finishView.Filter += _finishView_Filter;
+        _finishView.IsLiveFilteringRequested = true;
+        _finishView.LiveFilteringProperties.Add("ResultCode");
+        _finishView.LiveFilteringProperties.Add("FinishTime");
+
+        dgFinish.ItemsSource = _finishView.View;
         EnableOrDisableColumns(_thisRace, dgFinish);
         //dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
       }
@@ -642,6 +656,15 @@ namespace RaceHorology
         dgFinish.ItemsSource = null;
         dgResultsScrollBehavior = null;
       }
+    }
+
+    private void _finishView_Filter(object sender, FilterEventArgs e)
+    {
+      RunResult rr = (RunResult)e.Item;
+
+      e.Accepted = 
+        (rr.ResultCode != RunResult.EResultCode.NotSet && rr.ResultCode != RunResult.EResultCode.Normal) 
+        || (rr.ResultCode == RunResult.EResultCode.Normal && (rr.StartTime != null && rr.FinishTime != null));
     }
 
 
