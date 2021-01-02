@@ -298,13 +298,17 @@ namespace RaceHorologyLibTest
     {
       _participantSerial++;
 
-      return new Participant
+      var p = new Participant
       {
         Name = string.Format("Name {0}", _participantSerial),
         Firstname = string.Format("Firstname {0}", _participantSerial),
         Sex = Model.GetParticipantCategories()[0],
         Id = _participantSerial.ToString()
       };
+
+      Model.GetParticipants().Add(p);
+
+      return p;
     }
 
     public RunResult createRunResult(RaceParticipant rp, TimeSpan? startTime, TimeSpan? endTime)
