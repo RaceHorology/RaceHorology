@@ -687,7 +687,29 @@ namespace RaceHorologyLib
 
     public override string ToString()
     {
-      return RaceType.ToString();
+      switch(RaceType)
+      {
+        case ERaceType.DownHill:
+          return "Abfahrt";
+
+        case ERaceType.SuperG:
+          return "Super G";
+
+        case ERaceType.GiantSlalom:
+          return "Riesenslalom";
+
+        case ERaceType.Slalom:
+          return "Slalom";
+
+        case ERaceType.KOSlalom:
+          return "KO Slalom";
+
+        case ERaceType.ParallelSlalom:
+          return "Parallel-Slalom";
+        
+        default:
+          return RaceType.ToString();
+      }
     }
 
   }
