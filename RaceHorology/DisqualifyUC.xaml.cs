@@ -93,6 +93,11 @@ namespace RaceHorology
 
       cmbDisqualify.ItemsSource = ListOfResultCodes;
 
+      cmbDisqualifyReason.Items.Add("Vorbei am Tor");
+      cmbDisqualifyReason.Items.Add("Eingefädelt am Tor");
+      cmbDisqualifyReason.Items.Add("Nicht weit Genug zurückgestiegen am Tor");
+      cmbDisqualifyReason.Items.Add("Hilfe durch fremde Person am Tor");
+
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
     }
 
@@ -197,7 +202,8 @@ namespace RaceHorology
         RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
         if (rr != null)
         {
-          txtDisqualify.Text = rr.DisqualText;
+          cmbDisqualifyReason.Text = rr.GetDisqualifyText();
+          txtDisqualify.Text = rr.GetDisqualifyGoal();
           cmbDisqualify.SelectedValue = rr.ResultCode;
         }
         else
@@ -225,14 +231,17 @@ namespace RaceHorology
 
       RaceParticipant participant = _race.GetParticipant(startNumber);
 
+
+      string disqualifyText = RunResultExtension.JoinDisqualifyText(cmbDisqualifyReason.Text, txtDisqualify.Text);
+
       if (participant != null)
-        _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
+        _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, disqualifyText);
       else
       {
         foreach( object item in dgDisqualifications.SelectedItems)
         {
           if (item is RunResult rr)
-            _currentRaceRun.SetResultCode(rr.Participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
+            _currentRaceRun.SetResultCode(rr.Participant, (EResultCode)cmbDisqualify.SelectedValue, disqualifyText);
         }
       }
 
