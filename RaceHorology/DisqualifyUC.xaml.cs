@@ -95,7 +95,7 @@ namespace RaceHorology
 
       cmbDisqualifyReason.Items.Add("Vorbei am Tor");
       cmbDisqualifyReason.Items.Add("Eingefädelt am Tor");
-      cmbDisqualifyReason.Items.Add("Nicht weit Genug zurückgestiegen am Tor");
+      cmbDisqualifyReason.Items.Add("Nicht weit genug zurückgestiegen am Tor");
       cmbDisqualifyReason.Items.Add("Hilfe durch fremde Person am Tor");
 
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
