@@ -538,9 +538,6 @@ namespace RaceHorology
     {
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
 
-      UiUtilities.FillGrouping(cmbStartListGrouping, _currentRaceRun.GetStartListProvider().ActiveGrouping);
-      UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
-
       cmbManualMode.Items.Add(new CBItem { Text = "Laufzeit", Value = "Absolut" });
       cmbManualMode.Items.Add(new CBItem { Text = "Differenz", Value = "Difference" });
       cmbManualMode.SelectedIndex = 0;
@@ -632,19 +629,17 @@ namespace RaceHorology
         EnableOrDisableColumns(_thisRace, dgRemainingStarters);
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
-        dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
         EnableOrDisableColumns(_thisRace, dgRunning);
-        EnableOrDisableColumns(_thisRace, dgResults);
-        dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
 
-        cmbStartListGrouping.SelectCBItem(_rslVP.ActiveGrouping);
-        cmbResultGrouping.SelectCBItem(raceRun.GetResultViewProvider().ActiveGrouping);
+        dgFinish.ItemsSource = raceRun.GetResultList();
+        EnableOrDisableColumns(_thisRace, dgFinish);
+        //dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
       }
       else
       {
         dgRemainingStarters.ItemsSource = null;
         dgRunning.ItemsSource = null;
-        dgResults.ItemsSource = null;
+        dgFinish.ItemsSource = null;
         dgResultsScrollBehavior = null;
       }
     }
@@ -830,19 +825,6 @@ namespace RaceHorology
       }
 
       txtStartNumber.Focus();
-    }
-
-
-    private void CmbStartListGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (cmbStartListGrouping.SelectedValue is CBItem grouping)
-        _rslVP.ChangeGrouping((string)grouping.Value);
-    }
-
-    private void CmbResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (cmbResultGrouping.SelectedValue is CBItem grouping)
-        _currentRaceRun.GetResultViewProvider().ChangeGrouping((string)grouping.Value);
     }
 
     #endregion
