@@ -54,6 +54,7 @@ namespace RaceHorology
     private Race _race;
     private RaceRun _currentRaceRun;
 
+    DiqualifyVM _disqualificationsVM;
     CollectionViewSource _viewDisqualifications;
     FilterEventHandler _viewDisqualificationsFilterHandler;
 
@@ -156,7 +157,9 @@ namespace RaceHorology
           _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
           _viewDisqualifications.IsLiveFilteringRequested = true;
         }
-        _viewDisqualifications.Source = raceRun.GetResultList();
+
+        _disqualificationsVM = new DiqualifyVM(raceRun);
+        _viewDisqualifications.Source = _disqualificationsVM.GetGridView();
 
         dgDisqualifications.ItemsSource = _viewDisqualifications.View;
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
@@ -165,6 +168,7 @@ namespace RaceHorology
       }
       else
       {
+        _disqualificationsVM = null;
         dgDisqualifications.ItemsSource = null;
         dgResults.ItemsSource = null;
       }

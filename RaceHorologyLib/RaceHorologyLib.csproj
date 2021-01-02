@@ -95,6 +95,7 @@
     <Compile Include="ResultCharts.cs" />
     <Compile Include="StartnumberAssignment.cs" />
     <Compile Include="TagHeuer.cs" />
+    <Compile Include="UserInterfaceViewModels.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Compile Include="ViewConfiguration.cs" />

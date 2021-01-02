@@ -140,6 +140,7 @@
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserInterfaceViewModelsTest.cs" />
     <Compile Include="UtilitiesTest.cs" />
     <Compile Include="ValueConverterTest.cs" />
   </ItemGroup>
