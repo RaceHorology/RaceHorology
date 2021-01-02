@@ -864,6 +864,9 @@ namespace RaceHorologyLib
     public EResultCode ResultCode { get { return _resultCode; } set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } }
     public string DisqualText { get { return _disqualText; } set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } }
 
+    public TimeSpan? FinishTime { get { return _finishTime; } }
+    public TimeSpan? StartTime { get { return _startTime; } }
+
 
     public RunResult(RaceParticipant particpant)
     {
@@ -897,6 +900,8 @@ namespace RaceHorologyLib
       _disqualText = original._disqualText;
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
+      NotifyPropertyChanged(propertyName: nameof(StartTime));
+      NotifyPropertyChanged(propertyName: nameof(FinishTime));
       NotifyPropertyChanged(propertyName: nameof(ResultCode));
       NotifyPropertyChanged(propertyName: nameof(DisqualText));
     }
@@ -943,6 +948,7 @@ namespace RaceHorologyLib
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
 
+      NotifyPropertyChanged(propertyName: nameof(StartTime));
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
@@ -957,6 +963,7 @@ namespace RaceHorologyLib
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
 
+      NotifyPropertyChanged(propertyName: nameof(FinishTime));
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
