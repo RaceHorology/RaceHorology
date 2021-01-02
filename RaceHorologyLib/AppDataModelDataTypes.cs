@@ -993,6 +993,58 @@ namespace RaceHorologyLib
   }
 
 
+  public static class RunResultExtension
+  {
+    public static string JoinDisqualifyText(string reason, string goalNumber)
+    {
+      string result = reason;
+
+      if (!string.IsNullOrWhiteSpace(goalNumber))
+        result += " " + goalNumber;
+
+      return result;
+    }
+
+    public static void SplitDisqualifyText(string disqualifyText, out string reason, out string goalNumber)
+    {
+      goalNumber = reason = string.Empty;
+
+      if (string.IsNullOrEmpty(disqualifyText))
+        return;
+
+      // If the string ends with a number, this returns that number
+      string number = new string(disqualifyText
+                          .Reverse()
+                          .TakeWhile(c => char.IsDigit(c))
+                          .Reverse()
+                          .ToArray());
+
+      if (!string.IsNullOrWhiteSpace(number))
+      {
+        goalNumber = number.Trim();
+        reason = disqualifyText.Substring(0, disqualifyText.LastIndexOf(number)).Trim();
+      }
+      else
+        reason = disqualifyText;
+    }
+
+
+    public static string GetDisqualifyText(this RunResult rr)
+    {
+      string r, g;
+      SplitDisqualifyText(rr.DisqualText, out r, out g);
+      return r;
+    }
+
+
+    public static string GetDisqualifyGoal(this RunResult rr)
+    {
+      string r, g;
+      SplitDisqualifyText(rr.DisqualText, out r, out g);
+      return g;
+    }
+  }
+
   /// <summary>
   /// Represents a RunResult with position (for a run result list)
   /// </summary>
