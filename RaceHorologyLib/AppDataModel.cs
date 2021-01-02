@@ -976,7 +976,7 @@ namespace RaceHorologyLib
     }
 
 
-    private RunResult deleteRunResult(RaceParticipant participant)
+    public RunResult DeleteRunResult(RaceParticipant participant)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
       if (result != null)
@@ -988,6 +988,13 @@ namespace RaceHorologyLib
     }
 
 
+    public void DeleteRunResults()
+    {
+      while (_results.Count > 0)
+        _results.RemoveAt(0);
+    }
+
+
     protected void onParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.NewItems != null)
@@ -996,7 +1003,7 @@ namespace RaceHorologyLib
 
       if (e.OldItems != null)
         foreach (RaceParticipant rp in e.OldItems)
-          deleteRunResult(rp);
+          DeleteRunResult(rp);
     }
 
 
