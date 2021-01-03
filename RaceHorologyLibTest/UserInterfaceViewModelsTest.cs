@@ -72,11 +72,12 @@ namespace RaceHorologyLibTest
 
       var disqualifyVM = new DiqualifyVM(run);
 
+      // Test whether all participants are part of disqualify
       Assert.AreEqual(10, disqualifyVM.GetGridView().Count);
-
       foreach (var rr in disqualifyVM.GetGridView())
         Assert.IsNull(rr.Runtime);
 
+      // Test for updating RunResult
       {
         run.SetRunTime(race.GetParticipant(3), new TimeSpan(0, 1, 3));
         var rr = disqualifyVM.GetGridView().First(r => r.StartNumber == 3);
@@ -84,6 +85,12 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 1, 3), rr.Runtime);
       }
 
+      // Test for delete RunResult
+      {
+        run.DeleteRunResult(race.GetParticipant(3));
+        var rr = disqualifyVM.GetGridView().First(r => r.StartNumber == 3);
+        Assert.IsNull(rr.Runtime);
+      }
     }
   }
 }

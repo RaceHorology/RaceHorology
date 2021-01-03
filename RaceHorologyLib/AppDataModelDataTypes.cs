@@ -890,13 +890,24 @@ namespace RaceHorologyLib
 
     public void UpdateRunResult(RunResult original)
     {
-      System.Diagnostics.Debug.Assert(_participant == original._participant);
+      if (original != null)
+      {
+        System.Diagnostics.Debug.Assert(_participant == original._participant);
 
-      _startTime = original._startTime;
-      _runTime = original._runTime;
-      _finishTime = original._finishTime;
-      _resultCode = original._resultCode;
-      _disqualText = original._disqualText;
+        _startTime = original._startTime;
+        _runTime = original._runTime;
+        _finishTime = original._finishTime;
+        _resultCode = original._resultCode;
+        _disqualText = original._disqualText;
+      }
+      else
+      {
+        _startTime = null;
+        _runTime = null;
+        _finishTime = null;
+        _resultCode = EResultCode.NotSet;
+        _disqualText = null;
+      }
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
       NotifyPropertyChanged(propertyName: nameof(StartTime));
