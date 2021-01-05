@@ -267,7 +267,7 @@ namespace RaceHorologyLibTest
 
     public void createCatsClassesGroups()
     {
-      createCategories();
+      //createCategories(); done in consructor
       createGroups();
       createClasses();
     }
@@ -279,11 +279,11 @@ namespace RaceHorologyLibTest
     }
     public ParticipantClass findClass(string name)
     {
-      return Model.GetParticipantClasses().FirstOrDefault(c => c.Name == name);
+      return Model.GetParticipantClasses().FirstOrDefault(c => c.Name.Contains(name));
     }
     public ParticipantGroup findGroup(string name)
     {
-      return Model.GetParticipantGroups().FirstOrDefault(c => c.Name == name);
+      return Model.GetParticipantGroups().FirstOrDefault(c => c.Name .Contains(name));
     }
 
 
