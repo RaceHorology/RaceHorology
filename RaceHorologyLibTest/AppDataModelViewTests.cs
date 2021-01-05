@@ -196,32 +196,5 @@ namespace RaceHorologyLibTest
 
     }
 
-
-
-    private static void FillTestRaceParticipants(ObservableCollection<RaceParticipant> participants)
-    {
-      // Constraint: Startnumber = Firstname
-      {
-        Participant p1 = new Participant { Name = "Name 1", Firstname="2" };
-        RaceParticipant r1 = new RaceParticipant(null, p1, 2, 0.0);
-        participants.Add(r1);
-      }
-
-      {
-        Participant p1 = new Participant { Name = "Name 2", Firstname = "1" };
-        RaceParticipant r1 = new RaceParticipant(null, p1, 1, 0.0);
-        participants.Add(r1);
-      }
-
-      {
-        Participant p1 = new Participant { Name = "Name 4", Firstname = "4" };
-        RaceParticipant r1 = new RaceParticipant(null, p1, 4, 0.0);
-        participants.Add(r1);
-      }
-
-    }
-
-
-    // TODO: Add tests for RaceRun.OnTrackChangedHandler
   }
 }
