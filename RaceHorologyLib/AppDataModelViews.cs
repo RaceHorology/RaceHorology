@@ -723,7 +723,8 @@ namespace RaceHorologyLib
         {
           // Remove from _results
           RunResult result = (RunResult)item;
-          UpdateStartListEntry(result);
+          SetStartListEntryStartedFalse(result); // Site note: UpdateStartListEntry(result) doesn't work, because result is actually not valid anymore
+
         }
 
       if (e.NewItems != null)
@@ -764,6 +765,13 @@ namespace RaceHorologyLib
     {
       StartListEntry sle = (StartListEntry)sender;
       UpdateStartListEntry(sle);
+    }
+
+    private void SetStartListEntryStartedFalse(RunResult result)
+    {
+      StartListEntry se = _viewList.Where(r => r.Participant == result.Participant).FirstOrDefault();
+      if (se != null)
+        se.Started = false;
     }
 
     private void UpdateStartListEntry(RunResult result)
