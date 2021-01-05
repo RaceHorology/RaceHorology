@@ -264,6 +264,29 @@ namespace RaceHorologyLibTest
 
     public AppDataModel Model { get; private set; }
 
+
+    public void createCatsClassesGroups()
+    {
+      createCategories();
+      createGroups();
+      createClasses();
+    }
+
+
+    public ParticipantCategory findCat(char name)
+    {
+      return Model.GetParticipantCategories().FirstOrDefault(c => c.Name == name);
+    }
+    public ParticipantClass findClass(string name)
+    {
+      return Model.GetParticipantClasses().FirstOrDefault(c => c.Name == name);
+    }
+    public ParticipantGroup findGroup(string name)
+    {
+      return Model.GetParticipantGroups().FirstOrDefault(c => c.Name == name);
+    }
+
+
     public IList<ParticipantCategory> createCategories()
     {
       IList<ParticipantCategory> cats = Model.GetParticipantCategories();
@@ -272,20 +295,46 @@ namespace RaceHorologyLibTest
       return cats;
     }
 
+    public IList<ParticipantGroup> createGroups()
+    {
+      var groups = Model.GetParticipantGroups();
+      groups.Add(new ParticipantGroup("1", "Group 2M", 0));
+      groups.Add(new ParticipantGroup("2", "Group 2W", 0));
+      groups.Add(new ParticipantGroup("3", "Group 1M", 0));
+      groups.Add(new ParticipantGroup("4", "Group 1W", 0));
+      return groups;
+    }
 
-    public List<RaceParticipant> createRaceParticipants(int n)
+    public IList<ParticipantClass> createClasses()
+    {
+      var groups = Model.GetParticipantGroups();
+
+      var classes = Model.GetParticipantClasses();
+      classes.Add(new ParticipantClass("1", findGroup("2M"), "Class 2M (2010)", new ParticipantCategory('M'), 2010, 0));
+      classes.Add(new ParticipantClass("2", findGroup("2W"), "Class 2W (2010)", new ParticipantCategory('W'), 2010, 0));
+      classes.Add(new ParticipantClass("3", findGroup("2M"), "Class 2M (2011)", new ParticipantCategory('M'), 2011, 0));
+      classes.Add(new ParticipantClass("4", findGroup("2W"), "Class 2W (2011)", new ParticipantCategory('W'), 2011, 0));
+      classes.Add(new ParticipantClass("5", findGroup("1M"), "Class 1M (2012)", new ParticipantCategory('M'), 2012, 0));
+      classes.Add(new ParticipantClass("6", findGroup("1W"), "Class 1W (2012)", new ParticipantCategory('W'), 2012, 0));
+      classes.Add(new ParticipantClass("7", findGroup("1M"), "Class 1M (2013)", new ParticipantCategory('M'), 2013, 0));
+      classes.Add(new ParticipantClass("8", findGroup("1W"), "Class 1W (2013)", new ParticipantCategory('W'), 2013, 0));
+      return classes;
+    }
+
+
+    public List<RaceParticipant> createRaceParticipants(int n, ParticipantClass cla = null, ParticipantCategory cat = null)
     {
       List<RaceParticipant> participants = new List<RaceParticipant>();
 
       for (int i = 0; i < n; i++)
-        participants.Add(createRaceParticipant());
+        participants.Add(createRaceParticipant(cla: cla, cat: cat));
 
       return participants;
     }
 
-    public RaceParticipant createRaceParticipant()
+    public RaceParticipant createRaceParticipant(ParticipantClass cla = null, ParticipantCategory cat = null)
     {
-      Participant p = createParticipant();
+      Participant p = createParticipant(cla: cla, cat: cat);
       RaceParticipant rp = _race.AddParticipant(p);
 
       rp.StartNumber = uint.Parse(p.Id);
@@ -294,7 +343,7 @@ namespace RaceHorologyLibTest
 
 
     uint _participantSerial = 0;
-    public Participant createParticipant()
+    public Participant createParticipant(ParticipantClass cla = null, ParticipantCategory cat = null)
     {
       _participantSerial++;
 
@@ -302,8 +351,9 @@ namespace RaceHorologyLibTest
       {
         Name = string.Format("Name {0}", _participantSerial),
         Firstname = string.Format("Firstname {0}", _participantSerial),
-        Sex = Model.GetParticipantCategories()[0],
-        Id = _participantSerial.ToString()
+        Sex = cat,
+        Id = _participantSerial.ToString(),
+        Class = cla
       };
 
       Model.GetParticipants().Add(p);
