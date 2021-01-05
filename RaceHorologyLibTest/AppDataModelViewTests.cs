@@ -175,26 +175,5 @@ namespace RaceHorologyLibTest
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    [TestMethod]
-    public void StartListViewProviderTest()
-    {
-
-
-    }
-
   }
 }
