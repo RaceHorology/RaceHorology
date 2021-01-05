@@ -92,43 +92,108 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
-    [TestMethod]
-    public void StartListViewProviderTest()
-    {
 
-      ObservableCollection<RaceParticipant> participants = new ObservableCollection<RaceParticipant> ();
-      FillTestRaceParticipants(participants);
+
+    //     (StartListViewProvider)
+    // [X] FirstRunStartListViewProvider
+    // [ ] DSVFirstRunStartListViewProvider
+    //     (SecondRunStartListViewProvider)
+    // [ ] - SimpleSecondRunStartListViewProvider
+    // [ ] - BasedOnResultsFirstRunStartListViewProvider
+    // [ ] RemainingStartListViewProvider
+
+    /// <summary>
+    /// FirstRunStartListViewProvider compares the StartNumber based on Sorting and Grouping
+    /// </summary>
+    [TestMethod]
+    public void FirstRunStartListViewProvider_Test()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
 
       FirstRunStartListViewProvider provider = new FirstRunStartListViewProvider();
       provider.Init(participants);
 
-      // Test initial order
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 1", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[2].Name);
+      provider.ChangeGrouping(null);
 
-      // Test Update when inserting
-      {
-        Participant p = new Participant { Name = "Name 3", Firstname = "3" };
-        RaceParticipant r = new RaceParticipant(null, p, 3, 0.0);
-        participants.Add(r);
-      }
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 1", provider.GetViewList()[1].Name);
+      // Test initial order
+      Assert.AreEqual(6, provider.GetViewList().Count);
+      Assert.AreEqual("Name 1", provider.GetViewList()[0].Name);
+      Assert.AreEqual("Name 2", provider.GetViewList()[1].Name);
       Assert.AreEqual("Name 3", provider.GetViewList()[2].Name);
       Assert.AreEqual("Name 4", provider.GetViewList()[3].Name);
+      Assert.AreEqual("Name 5", provider.GetViewList()[4].Name);
+      Assert.AreEqual("Name 6", provider.GetViewList()[5].Name);
 
-      // Test Update when deleting
-      participants.RemoveAt(0); // Name 1
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[1].Name);
+      // Test Update when inserting
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      Assert.AreEqual(7, provider.GetViewList().Count);
+      Assert.AreEqual("Name 7", provider.GetViewList()[6].Name);
+
+      // Change the start numbers
+      tg.Model.GetRace(0).GetParticipants()[0].StartNumber = 3; // Name 1
+      tg.Model.GetRace(0).GetParticipants()[1].StartNumber = 2; // Name 2
+      tg.Model.GetRace(0).GetParticipants()[2].StartNumber = 1; // Name 3
+      Assert.AreEqual(7, provider.GetViewList().Count);
+      Assert.AreEqual("Name 3", provider.GetViewList()[0].Name);
+      Assert.AreEqual("Name 2", provider.GetViewList()[1].Name);
+      Assert.AreEqual("Name 1", provider.GetViewList()[2].Name);
+      Assert.AreEqual("Name 4", provider.GetViewList()[3].Name);
+      Assert.AreEqual("Name 5", provider.GetViewList()[4].Name);
+      Assert.AreEqual("Name 6", provider.GetViewList()[5].Name);
+      Assert.AreEqual("Name 7", provider.GetViewList()[6].Name);
+
+
+      // Delete RaceParticipants
+      tg.Model.GetRace(0).GetParticipants().RemoveAt(0);
+      Assert.AreEqual(6, provider.GetViewList().Count);
+      Assert.AreEqual("Name 3", provider.GetViewList()[0].Name);
+      Assert.AreEqual("Name 2", provider.GetViewList()[1].Name);
       Assert.AreEqual("Name 4", provider.GetViewList()[2].Name);
+      Assert.AreEqual("Name 5", provider.GetViewList()[3].Name);
+      Assert.AreEqual("Name 6", provider.GetViewList()[4].Name);
+      Assert.AreEqual("Name 7", provider.GetViewList()[5].Name);
 
-      // Test Update when startnumber changes
-      participants[1].StartNumber = 2; // Name 4 => StNr 2
-      Assert.AreEqual("Name 2", provider.GetViewList()[0].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[1].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[2].Name);
+      // Change Grouping
+      provider.ChangeGrouping("Participant.Class");
+      Assert.AreEqual("Name 3", provider.GetViewList()[0].Name);
+      Assert.AreEqual("Name 2", provider.GetViewList()[1].Name);
+      Assert.AreEqual("Name 7", provider.GetViewList()[2].Name);
+      Assert.AreEqual("Name 4", provider.GetViewList()[3].Name);
+      Assert.AreEqual("Name 5", provider.GetViewList()[4].Name);
+      Assert.AreEqual("Name 6", provider.GetViewList()[5].Name);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    [TestMethod]
+    public void StartListViewProviderTest()
+    {
+
+
     }
 
 
