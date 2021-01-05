@@ -223,6 +223,9 @@ namespace RaceHorologyLib
   }
 
 
+  /// <summary>
+  /// Creates a start list by comparing the start number taking into account the Sorting and Grouping
+  /// </summary>
   public class FirstRunStartListViewProvider :  StartListViewProvider
   {
     protected ObservableCollection<RaceParticipant> _participants;
@@ -606,6 +609,11 @@ namespace RaceHorologyLib
 
 
 
+  /// <summary>
+  /// Proxies a start list (see Init())
+  /// If the starter already started, the flag Started of the StartListEntry is set to true.
+  /// The view provided by GetView() is filtered to only contain entries with the flag Started set to false.
+  /// </summary>
   public class RemainingStartListViewProvider : IStartListViewProvider
   {
     StartListViewProvider _srcStartListProvider;
@@ -623,6 +631,39 @@ namespace RaceHorologyLib
       _view = new CollectionViewSource();
     }
 
+    /// <summary>
+    /// Initializes the view provider
+    /// </summary>
+    /// <param name="startListProvider">A StartListViewProvider that is the source to proxy.</param>
+    /// <param name="raceRun">The corresonding race run to consider whether a specific starter already started.</param>
+    public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
+    {
+      // Remember the source
+      _srcStartListProvider = startListProvider;
+      _raceRun = raceRun;
+
+
+      // Create working list
+      _viewList = new CopyObservableCollection<StartListEntry, StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy(), true);
+      foreach (StartListEntry entry in _viewList)
+        UpdateStartListEntry(entry);
+
+      // Observe the results
+      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
+      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
+
+      // Observe StartList 
+      _viewList.CollectionChanged += OnStartListEntriesChanged;
+      //_viewList.ItemChanged += OnStartListEntryItemChanged;
+
+      // Create View with filtered items
+      ObservableCollection<StartListEntry> startList = _viewList;
+      _view.Source = startList;
+      _view.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
+      _view.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
+      _view.IsLiveFilteringRequested = true;
+    }
+
 
     public void SetDefaultGrouping(string propertyName)
     {
@@ -630,7 +671,6 @@ namespace RaceHorologyLib
       _defaultGrouping = propertyName;
       ResetToDefaultGrouping();
     }
-
 
     public void ChangeGrouping(string propertyName)
     {
@@ -668,43 +708,13 @@ namespace RaceHorologyLib
     public string ActiveGrouping { get { return _activeGrouping; } }
 
 
-
-    // Input: StartListViewProvider or List<StartListEntry>
-    public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
-    {
-      // Remember the source
-      _srcStartListProvider = startListProvider;
-      _raceRun = raceRun;
-
-
-      // Create working list
-      _viewList = new CopyObservableCollection<StartListEntry, StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy(), true);
-      foreach (StartListEntry entry in _viewList)
-        UpdateStartListEntry(entry);
-
-      // Observe the results
-      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
-      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
-
-      // Observe StartList 
-      _viewList.CollectionChanged += OnStartListEntriesChanged;
-      //_viewList.ItemChanged += OnStartListEntryItemChanged;
-
-      // Create View with filtered items
-      ObservableCollection<StartListEntry> startList = _viewList;
-      _view.Source = startList;
-      _view.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
-      _view.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
-      _view.IsLiveFilteringRequested = true;
-    }
-
-
     // Output: List<StartListEntry> same way sorted as input StartList
     public ICollectionView GetView()
     {
       return _view.View;
     }
 
+    #region implementation details
 
     private void OnResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -771,7 +781,7 @@ namespace RaceHorologyLib
         se.Started = _raceRun.IsOrWasOnTrack(result);
     }
 
-
+    #endregion
 
   }
 
