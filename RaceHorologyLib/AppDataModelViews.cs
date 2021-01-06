@@ -986,7 +986,7 @@ namespace RaceHorologyLib
         {
           // Remove from _results
           RunResult result = (RunResult)item;
-          var itemsToRemove = _viewList.Where(r => r == result).ToList();
+          var itemsToRemove = _viewList.Where(r => r.Participant == result.Participant).ToList();
           foreach (var itemToRemove in itemsToRemove)
             _viewList.Remove(itemToRemove);
         }
