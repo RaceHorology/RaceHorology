@@ -100,7 +100,7 @@ namespace RaceHorologyLibTest
     //     (SecondRunStartListViewProvider)
     // [ ] - SimpleSecondRunStartListViewProvider
     // [ ] - BasedOnResultsFirstRunStartListViewProvider
-    // [ ] RemainingStartListViewProvider
+    // [X] RemainingStartListViewProvider
 
     /// <summary>
     /// FirstRunStartListViewProvider compares the StartNumber based on Sorting and Grouping
@@ -252,7 +252,8 @@ namespace RaceHorologyLibTest
     }
 
     /// <summary>
-    /// RemainingStartListViewProvider compares the StartNumber based on Sorting and Grouping
+    /// RemainingStartListViewProvider proxies a start list
+    /// If the starter already started, the flag Started of the StartListEntry is set to true.
     /// </summary>
     [TestMethod]
     public void RemainingStartListViewProvider_Test_AdaptToRunResults()
@@ -376,8 +377,6 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(false, provider.GetView().ViewToList<StartListEntry>()[++i].Started);
       Assert.AreEqual(false, provider.GetView().ViewToList<StartListEntry>()[++i].Started);
       Assert.AreEqual(false, provider.GetView().ViewToList<StartListEntry>()[++i].Started);
-
-
     }
 
 
