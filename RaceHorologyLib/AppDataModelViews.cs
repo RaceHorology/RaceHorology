@@ -334,7 +334,15 @@ namespace RaceHorologyLib
 
 
 
-  // First n (15) per grouping are always kept constant
+  /// <summary>
+  /// Provides a start list based on startnumber and points following the criterias:
+  /// - Best first firstNStartnumbers (15) based on the points are randomized
+  /// - Succeeding start list entries are sorted based on the points
+  /// 
+  /// Use case: 
+  /// - Define start numbers based on DSV rules (15 random, remaining points descending)
+  /// - Late registration: shall not influence first 15, however it shall be in the correct order after the first 15 starters.
+  /// </summary>
   public class DSVFirstRunStartListViewProvider : FirstRunStartListViewProvider
   {
     int _firstNStartnumbers;
