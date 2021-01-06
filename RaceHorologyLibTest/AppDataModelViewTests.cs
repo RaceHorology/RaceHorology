@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -561,5 +561,106 @@ namespace RaceHorologyLibTest
     }
 
 
+
+
+    /// Overview of ResultViewProvider
+    /// 
+    /// (ResultViewProvider)
+    /// [ ] RaceRunResultViewProvider
+    /// [ ] RaceResultViewProvider 
+    /// [ ] DSVSchoolRaceResultViewProvider <- RaceResultViewProvider
+    /// 
+    /// Basis of all:
+    /// [ ] RuntimeSorter
+    /// [ ] TotalTimeSorter
+
+    /// <summary>
+    /// Test for RuntimeSorter
+    /// 
+    /// Compares two RunResults, taking into account:
+    /// - Group (Class, Group, Category)
+    /// - Runtime
+    /// - ResultCode
+    /// - StartNumber
+    /// </summary>
+    [TestMethod]
+    public void RuntimeSorterTest()
+    {
+      int i;
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+
+      var rr1 = tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0));
+      var rr2 = tg.createRunResult(race.GetParticipant(2), new TimeSpan(8, 1, 0), new TimeSpan(8, 2, 1));
+      var rr3 = tg.createRunResult(race.GetParticipant(3), new TimeSpan(8, 2, 0), new TimeSpan(8, 2, 59));
+      var rr4 = tg.createRunResult(race.GetParticipant(4), new TimeSpan(8, 3, 0), new TimeSpan(8, 4, 0));
+
+      var rr1w = tg.createRunResult(race.GetParticipant(5), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0));
+      var rr2w = tg.createRunResult(race.GetParticipant(6), new TimeSpan(8, 1, 0), new TimeSpan(8, 2, 1));
+      var rr3w = tg.createRunResult(race.GetParticipant(7), new TimeSpan(8, 2, 0), new TimeSpan(8, 2, 59));
+      var rr4w = tg.createRunResult(race.GetParticipant(8), new TimeSpan(8, 3, 0), new TimeSpan(8, 4, 0));
+
+      RuntimeSorter rs = new RuntimeSorter();
+
+      // Standard order 
+      Assert.AreEqual(-1, rs.Compare(rr1, rr2));
+      Assert.AreEqual(1, rs.Compare(rr2, rr1));
+
+      // ... including transitivity: rr3 < rr1 < rr2 => rr3 < rr2
+      Assert.AreEqual(-1, rs.Compare(rr3, rr1));
+      Assert.AreEqual(-1, rs.Compare(rr1, rr2));
+      Assert.AreEqual(-1, rs.Compare(rr3, rr2));
+
+      // Equality (same time, same startnumber)
+      Assert.AreEqual(0, rs.Compare(rr1, rr1));
+
+      // Same time, different startnumber
+      Assert.AreEqual(rr1.Runtime, rr4.Runtime);
+      Assert.AreEqual(-1, rs.Compare(rr1, rr4));
+
+
+      // Some Flags
+      var rrF1 = tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0));
+      var rrF1e1 = tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)); rrF1e1.ResultCode = RunResult.EResultCode.NaS;
+      var rrF1e2 = tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)); rrF1e2.ResultCode = RunResult.EResultCode.NiZ;
+      var rrF1e3 = tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)); rrF1e3.ResultCode = RunResult.EResultCode.DIS;
+      var rrF1e4 = tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)); rrF1e4.ResultCode = RunResult.EResultCode.NQ;
+      var rrF1e5 = tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)); rrF1e5.ResultCode = RunResult.EResultCode.NotSet;
+      var rrF2e1 = tg.createRunResult(race.GetParticipant(2), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)); rrF2e1.ResultCode = RunResult.EResultCode.NaS;
+      Assert.AreEqual(-1, rs.Compare(rrF1, rrF1e1));
+      Assert.AreEqual(-1, rs.Compare(rrF1, rrF1e2));
+      Assert.AreEqual(-1, rs.Compare(rrF1, rrF1e3));
+      Assert.AreEqual(-1, rs.Compare(rrF1, rrF1e4));
+      Assert.AreEqual(-1, rs.Compare(rrF1, rrF1e5));
+
+      // No time, same startnumber
+      Assert.AreEqual(0, rs.Compare(rrF1e1, rrF1e5));
+      // No time, different startnumber
+      Assert.IsNull(rrF1e1.Runtime);
+      Assert.IsNull(rrF2e1.Runtime);
+      Assert.AreEqual(-1, rs.Compare(rrF1e1, rrF2e1));
+
+      // Grouping
+      Assert.AreEqual(-1, rs.Compare(rr3w, rr1));
+      rs.SetGrouping("Participant.Class");
+      Assert.AreEqual(1, rs.Compare(rr3w, rr1));
+    }
   }
 }

@@ -816,7 +816,11 @@ namespace RaceHorologyLib
   }
 
 
-
+  /// <summary>
+  /// BaseClass for RuntimeSorter and TotalTimeSorter
+  ///
+  /// Provides convenience methods for comparing by group.
+  /// </summary>
   public abstract class ResultSorter<T> : IComparer<T>
   {
     string _groupingPropertyName;
@@ -857,7 +861,13 @@ namespace RaceHorologyLib
   }
 
 
-  //Propagate class to sorter
+  /// <summary>
+  /// Compares two RunResults, taking into account:
+  /// - Group (Class, Group, Category)
+  /// - Runtime
+  /// - ResultCode
+  /// - StartNumber
+  /// </summary>
   public class RuntimeSorter : ResultSorter<RunResult>
   {
 
