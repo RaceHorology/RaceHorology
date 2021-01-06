@@ -361,7 +361,9 @@ namespace RaceHorologyLib
 
 
 
-
+  /// <summary>
+  /// Base class for start list providers using results from a previous run
+  /// </summary>
   public abstract class SecondRunStartListViewProvider : StartListViewProvider
   {
     // Input: List<StartListEntry> (1st run),
@@ -369,12 +371,16 @@ namespace RaceHorologyLib
 
     public abstract void Init(RaceRun previousRun);
 
-    // Output: sorted List<StartListEntry> according to StartNumber
+    // Output: sorted List<StartListEntry>
 
   }
 
 
-  // wie 1. DG, 1. DG rückwärts
+  /// <summary>
+  /// Simplest form of a start list provider for 2nd run. Supports:
+  /// - Based startnumber ascending
+  /// - Based startnumber descending
+  /// </summary>
   public class SimpleSecondRunStartListViewProvider : SecondRunStartListViewProvider
   {
     // Input
