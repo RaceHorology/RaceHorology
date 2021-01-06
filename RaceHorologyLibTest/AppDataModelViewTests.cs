@@ -571,8 +571,10 @@ namespace RaceHorologyLibTest
     /// [ ] DSVSchoolRaceResultViewProvider <- RaceResultViewProvider
     /// 
     /// Basis of all:
-    /// [ ] RuntimeSorter
+    /// [X] RuntimeSorter
     /// [ ] TotalTimeSorter
+
+
 
     /// <summary>
     /// Test for RuntimeSorter
@@ -586,7 +588,6 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void RuntimeSorterTest()
     {
-      int i;
       TestDataGenerator tg = new TestDataGenerator();
       tg.createCatsClassesGroups();
 
