@@ -361,12 +361,15 @@ namespace RaceHorologyLibTest
       return participants;
     }
 
-    public RaceParticipant createRaceParticipant(ParticipantClass cla = null, ParticipantCategory cat = null)
+    public RaceParticipant createRaceParticipant(ParticipantClass cla = null, ParticipantCategory cat = null, double points = -1.0)
     {
       Participant p = createParticipant(cla: cla, cat: cat);
       RaceParticipant rp = _race.AddParticipant(p);
 
+      if (points > 0)
+        rp.Points = points;
       rp.StartNumber = uint.Parse(p.Id);
+
       return rp;
     }
 
