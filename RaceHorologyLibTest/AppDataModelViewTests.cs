@@ -663,5 +663,129 @@ namespace RaceHorologyLibTest
       rs.SetGrouping("Participant.Class");
       Assert.AreEqual(1, rs.Compare(rr3w, rr1));
     }
+
+
+    /// <summary>
+    /// Test for RaceRunResultViewProvider
+    /// 
+    /// What it does:
+    /// - ...
+    /// </summary>
+    [TestMethod]
+    public void RaceRunResultViewProviderTest()
+    {
+      int i = 0;
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+
+
+      RaceRunResultViewProvider vp = new RaceRunResultViewProvider();
+      vp.Init(rr, tg.Model);
+      vp.ChangeGrouping("Participant.Class");
+
+      // All race participants shall be in the view, even if no results are existing
+      Assert.AreEqual(12, vp.GetView().ViewToList<RunResultWithPosition>().Count);
+
+
+      // Class 2M...
+      rr.SetStartFinishTime(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0));  // 1:00,00
+      rr.SetStartFinishTime(race.GetParticipant(2), new TimeSpan(8, 1, 0), new TimeSpan(8, 2, 1));  // 1:01,00
+      rr.SetStartFinishTime(race.GetParticipant(3), new TimeSpan(8, 2, 0), new TimeSpan(8, 2, 59)); // 0:59,00
+      rr.SetResultCode(race.GetParticipant(4), RunResult.EResultCode.NaS);
+      rr.SetStartFinishTime(race.GetParticipant(5), new TimeSpan(8, 3, 0), new TimeSpan(0, 8, 3, 59, 990));  // 0:59,99
+      rr.SetStartFinishTime(race.GetParticipant(6), new TimeSpan(8, 4, 0), new TimeSpan(8, 5, 0));  // 1:00,00
+
+      // Class 2W...
+      rr.SetStartFinishTime(race.GetParticipant(7), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0));  // 1:00,00
+      rr.SetStartFinishTime(race.GetParticipant(8), new TimeSpan(8, 1, 0), new TimeSpan(8, 2, 1));  // 1:01,00
+      rr.SetStartFinishTime(race.GetParticipant(9), new TimeSpan(8, 2, 0), new TimeSpan(8, 2, 59)); // 0:59,00
+      rr.SetResultCode(race.GetParticipant(10), RunResult.EResultCode.NaS);
+      rr.SetStartFinishTime(race.GetParticipant(11), new TimeSpan(8, 3, 0), new TimeSpan(0, 8, 3, 59, 990));  // 0:59,99
+      rr.SetStartFinishTime(race.GetParticipant(12), new TimeSpan(8, 4, 0), new TimeSpan(8, 5, 0));  // 1:00,00
+
+
+      Assert.AreEqual(12, vp.GetView().ViewToList<RunResultWithPosition>().Count);
+      
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+
+      Assert.AreEqual(9U , vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(11U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(7U , vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(12U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(8U , vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(10U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+
+      // Activities:
+
+      // Update of RunResult
+      rr.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 2));  // 1:02,00
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+
+      // Disqualify
+      rr.SetResultCode(race.GetParticipant(5), RunResult.EResultCode.DIS, "Test");
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+
+      // Add Participant
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)")); // StNr 13
+      rr.SetStartFinishTime(race.GetParticipant(13), new TimeSpan(8, 13, 0), new TimeSpan(8, 13, 10));  // 0:10,00
+      Assert.AreEqual(13, vp.GetView().ViewToList<RunResultWithPosition>().Count);
+      Assert.AreEqual(13U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+
+      // Delete of RunResult(s)
+      rr.DeleteRunResult(race.GetParticipant(3));
+      Assert.AreEqual(12, vp.GetView().ViewToList<RunResultWithPosition>().Count);
+      Assert.AreEqual(13U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+    }
+
+
+
   }
 }
