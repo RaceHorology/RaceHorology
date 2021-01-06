@@ -886,8 +886,9 @@ namespace RaceHorologyLib
       if (tX == null && tY == null)
         return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
-      // If equal, consider startnumber as well
+      // Main comparison: based on time
       int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
+      // If equal, consider startnumber as well
       if (timeComp == 0)
         return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
