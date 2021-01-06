@@ -93,14 +93,14 @@ namespace RaceHorologyLibTest
     #endregion
 
 
-
-    //     (StartListViewProvider)
-    // [X] FirstRunStartListViewProvider
-    // [ ] DSVFirstRunStartListViewProvider
-    //     (SecondRunStartListViewProvider)
-    // [ ] - SimpleSecondRunStartListViewProvider
-    // [ ] - BasedOnResultsFirstRunStartListViewProvider
-    // [X] RemainingStartListViewProvider
+    /// Overview of Start List Providers
+    /// (StartListViewProvider)
+    /// [X] FirstRunStartListViewProvider
+    /// [X] DSVFirstRunStartListViewProvider
+    /// (SecondRunStartListViewProvider)
+    /// [ ] - SimpleSecondRunStartListViewProvider
+    /// [ ] - BasedOnResultsFirstRunStartListViewProvider
+    /// [X] RemainingStartListViewProvider
 
     /// <summary>
     /// FirstRunStartListViewProvider compares the StartNumber based on Sorting and Grouping
@@ -173,6 +173,69 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("Name 5", provider.GetViewList()[4].Name);
       Assert.AreEqual("Name 6", provider.GetViewList()[5].Name);
     }
+
+
+    /// <summary>
+    /// Test for DSVFirstRunStartListViewProvider
+    /// 
+    /// Which provides a start list based on startnumber and points following the criterias:
+    /// - Best first firstNStartnumbers (15) based on the points are randomized
+    /// - Succeeding start list entries are sorted based on the points
+    /// </summary>
+    [TestMethod]
+    public void DSVFirstRunStartListViewProvider_Test()
+    {
+      int i;
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      double points = 1.0;
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++); // points: 1.0
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++); // points: 10.0
+
+      DSVFirstRunStartListViewProvider provider = new DSVFirstRunStartListViewProvider(5);
+      provider.Init(participants);
+
+      provider.ChangeGrouping(null);
+
+      Assert.AreEqual("Name 1", provider.GetViewList()[i = 0].Name);
+      Assert.AreEqual("Name 2", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 3", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 4", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 5", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 6", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 7", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 8", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 9", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 10", provider.GetViewList()[++i].Name);
+
+      // Add two additional starter, one below first 5, one within the remaining 
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 2.0); // StNr 11 => Pos 6
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 8.1); // StNr 12 => Pos 10
+      Assert.AreEqual("Name 1",  provider.GetViewList()[i = 0].Name);
+      Assert.AreEqual("Name 2",  provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 3",  provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 4",  provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 5",  provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 11", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 6",  provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 7",  provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 8",  provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 12", provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 9",  provider.GetViewList()[++i].Name);
+      Assert.AreEqual("Name 10", provider.GetViewList()[++i].Name);
+    }
+
 
 
     /// <summary>
