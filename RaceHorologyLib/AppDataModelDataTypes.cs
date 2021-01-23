@@ -1071,6 +1071,10 @@ namespace RaceHorologyLib
     {
     }
 
+    public RunResultWithPosition(RaceParticipant rp) : base(rp)
+    {
+    }
+
     /// <summary>
     /// The position within the classement
     /// </summary>
