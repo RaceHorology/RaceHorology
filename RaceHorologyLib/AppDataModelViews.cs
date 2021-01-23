@@ -952,6 +952,7 @@ namespace RaceHorologyLib
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
 
+      UpdatePositions();
       FinalizeInit();
     }
 
