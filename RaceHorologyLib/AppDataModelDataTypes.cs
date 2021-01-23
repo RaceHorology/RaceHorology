@@ -985,7 +985,7 @@ namespace RaceHorologyLib
     {
       return 
         _participant.ToString() + 
-        ", T: " + _runTime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
+        ", T: " + Runtime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
     }
 
 
@@ -1100,7 +1100,7 @@ namespace RaceHorologyLib
     {
       return
         _participant.ToString() +
-        ", P:" + _position + ", T: " + _runTime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
+        ", P:" + _position + ", T: " + Runtime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
     }
 
   }
