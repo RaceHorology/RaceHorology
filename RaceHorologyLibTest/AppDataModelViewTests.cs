@@ -726,63 +726,101 @@ namespace RaceHorologyLibTest
 
 
       Assert.AreEqual(12, vp.GetView().ViewToList<RunResultWithPosition>().Count);
-      
+
       Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
 
       Assert.AreEqual(9U , vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(11U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(7U , vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(12U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(8U , vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(10U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
 
       // Activities:
 
       // Update of RunResult
       rr.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 2));  // 1:02,00
       Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
 
       // Disqualify
       rr.SetResultCode(race.GetParticipant(5), RunResult.EResultCode.DIS, "Test");
       Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
 
       // Add Participant
       tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)")); // StNr 13
       rr.SetStartFinishTime(race.GetParticipant(13), new TimeSpan(8, 13, 0), new TimeSpan(8, 13, 10));  // 0:10,00
       Assert.AreEqual(13, vp.GetView().ViewToList<RunResultWithPosition>().Count);
       Assert.AreEqual(13U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
 
       // Delete of RunResult(s)
       rr.DeleteRunResult(race.GetParticipant(3));
       Assert.AreEqual(13, vp.GetView().ViewToList<RunResultWithPosition>().Count);
       Assert.AreEqual(13U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
+      Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(1U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(3U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(4U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
+      Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
     }
 
 
