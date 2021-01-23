@@ -676,7 +676,10 @@ namespace RaceHorologyLibTest
     /// Test for RaceRunResultViewProvider
     /// 
     /// What it does:
-    /// - ...
+    /// - Checks the RunResultWithPosition of RaceRunResultViewProvider
+    /// - Based on simulated race data
+    /// - Check correct handling of changing participant as well as RunResult
+    /// - Checks DeleteRunResult
     /// </summary>
     [TestMethod]
     public void RaceRunResultViewProviderTest_Dynamic()
@@ -834,7 +837,7 @@ namespace RaceHorologyLibTest
     /// Test for RaceRunResultViewProvider
     /// 
     /// What it does:
-    /// - ...
+    /// - Check correct handling directly after Init() based on simulated data
     /// </summary>
     [TestMethod]
     public void RaceRunResultViewProviderTest_Init()
