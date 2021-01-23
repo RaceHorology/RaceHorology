@@ -983,7 +983,9 @@ namespace RaceHorologyLib
 
     public override string ToString()
     {
-      return "T: " + _runTime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
+      return 
+        _participant.ToString() + 
+        ", T: " + _runTime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
     }
 
 
@@ -1092,7 +1094,9 @@ namespace RaceHorologyLib
 
     public override string ToString()
     {
-      return "P:" + _position + " " + base.ToString();
+      return
+        _participant.ToString() +
+        ", P:" + _position + ", T: " + _runTime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
     }
 
   }
