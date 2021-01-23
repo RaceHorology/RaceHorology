@@ -979,7 +979,7 @@ namespace RaceHorologyLib
 
     private RunResult findOrCreateRunResult(RaceParticipant participant)
     {
-      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      RunResult result = GetRunResult(participant);
       if (result == null)
       {
         result = new RunResult(participant);
@@ -988,6 +988,14 @@ namespace RaceHorologyLib
 
       return result;
     }
+
+
+    public RunResult GetRunResult(RaceParticipant participant)
+    {
+      RunResult result = _results.SingleOrDefault(r => r.Participant == participant);
+      return result;
+    }
+
 
 
     public RunResult DeleteRunResult(RaceParticipant participant)
