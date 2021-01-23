@@ -910,6 +910,8 @@ namespace RaceHorologyLib
   public class RaceRunResultViewProvider : ResultViewProvider
   {
     // Input Data
+    RaceRun _raceRun;
+    ItemsChangeObservableCollection<RaceParticipant> _participants;
     ItemsChangeObservableCollection<RunResult> _originalResults;
     AppDataModel _appDataModel;
 
@@ -933,14 +935,20 @@ namespace RaceHorologyLib
     // Input: RaceRun
     public virtual void Init(RaceRun raceRun, AppDataModel appDataModel)
     {
+      _raceRun = raceRun;
       _originalResults = raceRun.GetResultList();
       _appDataModel = appDataModel;
 
       _viewList = new ItemsChangeObservableCollection<RunResultWithPosition>();
 
       // Initialize and observe source list
-      PopulateInitially<RunResultWithPosition, RunResult>(_viewList, _originalResults, _comparer, CreateRunResultWithPosition);
-      UpdatePositions();
+      _participants = raceRun.GetRace().GetParticipants();
+      PopulateInitially<RunResultWithPosition, RaceParticipant>(_viewList, _participants, _comparer, CreateRunResultWithPosition);
+
+      // Trigger Updates on Participant Changes
+      _participants.CollectionChanged += Participants_CollectionChanged;
+      _participants.ItemChanged += Participants_ItemChanged;
+      // Trigger Updates in RunResult changes
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
 
@@ -979,43 +987,98 @@ namespace RaceHorologyLib
     }
 
 
+    private RunResultWithPosition CreateRunResultWithPosition(RaceParticipant r)
+    {
+      // Find RunResult
+      var rr = _raceRun.GetRunResult(r);
+      if (rr != null)
+      {
+        return CreateRunResultWithPosition(rr);
+      }
+      else
+      {
+        // Create empty run result
+        return new RunResultWithPosition(r);
+      }
+    }
+
+
+    private void Participants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+      {
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RaceParticipant rp = (RaceParticipant)item;
+          var itemsToRemove = _viewList.Where(r => r.Participant == rp).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _viewList.Remove(itemToRemove);
+        }
+        UpdatePositions();
+      }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          RaceParticipant rp = (RaceParticipant)item;
+          updateRunResult(rp, _raceRun.GetRunResult(rp));
+        }
+    }
+
+    private void Participants_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RaceParticipant rp = (RaceParticipant)sender;
+      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == rp);
+
+      updateRunResult(rp, _raceRun.GetRunResult(rp));
+    }
+
+
     void OnOriginalResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
-          // Remove from _results
-          RunResult result = (RunResult)item;
-          var itemsToRemove = _viewList.Where(r => r.Participant == result.Participant).ToList();
-          foreach (var itemToRemove in itemsToRemove)
-            _viewList.Remove(itemToRemove);
+          RunResult rr = (RunResult)item;
+          updateRunResult(rr.Participant, null); // Delete run result
         }
 
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
-          _viewList.InsertSorted(CreateRunResultWithPosition((RunResult)item), _comparer);
+          RunResult rr = (RunResult)item;
+          updateRunResult(rr.Participant, rr);
         }
-
-      UpdatePositions();
     }
 
 
     void OnOriginalResultItemChanged(object sender, PropertyChangedEventArgs e)
     {
-      RunResult result = (RunResult)sender;
-      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == result.Participant);
+      RunResult rr = (RunResult)sender;
+      updateRunResult(rr.Participant, rr);
+    }
 
-      if (rrWP == null)
-        _viewList.InsertSorted(CreateRunResultWithPosition(result), _comparer);
+
+    void updateRunResult(RaceParticipant rp, RunResult rr)
+    {
+      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == rp);
+      if (rrWP != null)
+      {
+        rrWP.UpdateRunResult(rr);
+        _viewList.Sort(_comparer);
+      }
       else
       {
-        rrWP.UpdateRunResult(result);
-        _viewList.Sort(_comparer);
+        if (rr != null)
+          _viewList.InsertSorted(CreateRunResultWithPosition(rr), _comparer);
+        else
+          _viewList.InsertSorted(CreateRunResultWithPosition(rp), _comparer);
       }
 
       UpdatePositions();
     }
+
 
     void UpdatePositions()
     {

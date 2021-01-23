@@ -775,7 +775,7 @@ namespace RaceHorologyLibTest
 
       // Delete of RunResult(s)
       rr.DeleteRunResult(race.GetParticipant(3));
-      Assert.AreEqual(12, vp.GetView().ViewToList<RunResultWithPosition>().Count);
+      Assert.AreEqual(13, vp.GetView().ViewToList<RunResultWithPosition>().Count);
       Assert.AreEqual(13U, vp.GetView().ViewToList<RunResultWithPosition>()[i = 0].StartNumber);
       Assert.AreEqual(6U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
       Assert.AreEqual(2U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
