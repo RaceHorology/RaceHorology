@@ -579,7 +579,7 @@ namespace RaceHorologyLibTest
     /// 
     /// Basis of all:
     /// [X] RuntimeSorter
-    /// [ ] TotalTimeSorter
+    /// [X] TotalTimeSorter
 
 
 
@@ -916,6 +916,100 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(10U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
       Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
     }
+
+
+
+
+
+    /// <summary>
+    /// Test for TotalTimeSorter
+    /// 
+    /// Compares two RunResults, taking into account:
+    /// - Group (Class, Group, Category)
+    /// - Runtime
+    /// - ResultCode
+    /// - StartNumber
+    /// </summary>
+    [TestMethod]
+    public void TotalTimeSorterTest()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+
+      var rr1 = new RaceResultItem(race.GetParticipant(1));
+      rr1.TotalTime = new TimeSpan(0, 1, 0);
+      var rr2 = new RaceResultItem(race.GetParticipant(2));
+      rr2.TotalTime = new TimeSpan(0, 1, 1);
+      var rr3 = new RaceResultItem(race.GetParticipant(3));
+      rr3.TotalTime = new TimeSpan(0, 0, 59);
+      var rr4 = new RaceResultItem(race.GetParticipant(4));
+      rr4.TotalTime = new TimeSpan(0, 1, 0);
+
+      var rr1w = new RaceResultItem(race.GetParticipant(5));
+      rr1w.TotalTime = new TimeSpan(0, 1, 0);
+      var rr2w = new RaceResultItem(race.GetParticipant(6));
+      rr2w.TotalTime = new TimeSpan(0, 1, 1);
+      var rr3w = new RaceResultItem(race.GetParticipant(7));
+      rr3w.TotalTime = new TimeSpan(0, 0, 59);
+      var rr4w = new RaceResultItem(race.GetParticipant(8));
+      rr4w.TotalTime = new TimeSpan(0, 1, 0);
+
+      TotalTimeSorter ts = new TotalTimeSorter();
+
+      // Standard order 
+      Assert.AreEqual(-1, ts.Compare(rr1, rr2));
+      Assert.AreEqual(1, ts.Compare(rr2, rr1));
+
+      // ... including transitivity: rr3 < rr1 < rr2 => rr3 < rr2
+      Assert.AreEqual(-1, ts.Compare(rr3, rr1));
+      Assert.AreEqual(-1, ts.Compare(rr1, rr2));
+      Assert.AreEqual(-1, ts.Compare(rr3, rr2));
+
+      // Equality (same time, same startnumber)
+      Assert.AreEqual(0, ts.Compare(rr1, rr1));
+
+      // Same time, different startnumber
+      Assert.AreEqual(rr1.TotalTime, rr4.TotalTime);
+      Assert.AreEqual(-1, ts.Compare(rr1, rr4));
+
+      // Grouping
+      Assert.AreEqual(-1, ts.Compare(rr3w, rr1));
+      ts.SetGrouping("Participant.Class");
+      Assert.AreEqual(1, ts.Compare(rr3w, rr1));
+
+
+      // No time, same startnumber
+      rr1.TotalTime = null;
+      Assert.IsNull(rr1.TotalTime);
+      Assert.AreEqual(0, ts.Compare(rr1, rr1));
+
+      // No time, different startnumber
+      rr2.TotalTime = null;
+      Assert.IsNull(rr1.TotalTime);
+      Assert.IsNull(rr2.TotalTime);
+      Assert.AreEqual(-1, ts.Compare(rr1, rr2));
+    }
+
+
+
+
 
 
     /// <summary>
