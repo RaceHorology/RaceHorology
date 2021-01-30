@@ -586,7 +586,7 @@ namespace RaceHorologyLib
       if (0 <= run && run < GetMaxRun())
         return _runs.ElementAt(run).Item1;
       
-      return null;
+      throw new Exception("invalid race run in GetRun()");
     }
 
     public RaceRun[] GetRuns()
