@@ -573,7 +573,7 @@ namespace RaceHorologyLibTest
     /// Overview of ResultViewProvider
     /// 
     /// (ResultViewProvider)
-    /// [ ] RaceRunResultViewProvider
+    /// [X] RaceRunResultViewProvider
     /// [ ] RaceResultViewProvider 
     /// [ ] DSVSchoolRaceResultViewProvider <- RaceResultViewProvider
     /// 
@@ -711,8 +711,8 @@ namespace RaceHorologyLibTest
 
 
       RaceRunResultViewProvider vp = new RaceRunResultViewProvider();
-      vp.Init(rr, tg.Model);
       vp.ChangeGrouping("Participant.Class");
+      vp.Init(rr, tg.Model);
 
       // All race participants shall be in the view, even if no results are existing
       Assert.AreEqual(12, vp.GetView().ViewToList<RunResultWithPosition>().Count);
