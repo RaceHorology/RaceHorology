@@ -1457,7 +1457,7 @@ namespace RaceHorologyLib
     }
 
 
-    TimeSpan? MinimumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? MinimumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? minTime = null;
       RunResult.EResultCode bestCode = RunResult.EResultCode.NQ;
@@ -1480,6 +1480,8 @@ namespace RaceHorologyLib
         if (res.Value.ResultCode != RunResult.EResultCode.Normal)
         {
           resCode = res.Value.ResultCode;
+          if (!string.IsNullOrEmpty(disqualText))
+            disqualText += ", ";
           disqualText += res.Value.DisqualText;
         }
       }
@@ -1494,7 +1496,7 @@ namespace RaceHorologyLib
       return minTime;
     }
 
-    TimeSpan? SumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? SumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? sumTime = new TimeSpan(0);
       resCode = RunResult.EResultCode.Normal;

@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -915,6 +915,146 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(5U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
       Assert.AreEqual(10U, vp.GetView().ViewToList<RunResultWithPosition>()[++i].StartNumber);
       Assert.AreEqual(0U, vp.GetView().ViewToList<RunResultWithPosition>()[i].Position);
+    }
+
+
+    /// <summary>
+    /// Test for 
+    /// - RaceResultViewProvider.MinimumTime
+    /// - RaceResultViewProvider.SumTime
+    /// 
+    /// What it does:
+    /// - TODO
+    /// </summary>
+    [TestMethod]
+    public void RaceResultViewProviderTest_CombineTime()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+
+      var rr1m00 = new RunResultWithPosition(tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)));
+      var rr0m59 = new RunResultWithPosition(tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 0, 59)));
+      var rr1m01 = new RunResultWithPosition(tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 1)));
+
+      var rr1m00NIZ = new RunResultWithPosition(tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)));
+      rr1m00NIZ.ResultCode = RunResult.EResultCode.NiZ;
+      var rr1m00NAS = new RunResultWithPosition(tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)));
+      rr1m00NAS.ResultCode = RunResult.EResultCode.NaS;
+      var rr1m00DIS1 = new RunResultWithPosition(tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)));
+      rr1m00DIS1.ResultCode = RunResult.EResultCode.DIS;
+      rr1m00DIS1.DisqualText = "Tor 1";
+      var rr1m00DIS2 = new RunResultWithPosition(tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0)));
+      rr1m00DIS2.ResultCode = RunResult.EResultCode.DIS;
+      rr1m00DIS2.DisqualText = "Tor 2";
+
+
+      Dictionary<uint, RunResultWithPosition> results = new Dictionary<uint, RunResultWithPosition>();
+      RunResult.EResultCode resCode = RunResult.EResultCode.NotSet;
+      string disqualText = string.Empty;
+
+      {
+        results.Clear();
+        results.Add(1, rr1m00);
+        results.Add(2, rr0m59);
+        {
+          var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+          Assert.AreEqual(new TimeSpan(0, 0, 59), tM);
+
+          var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+          Assert.AreEqual(new TimeSpan(0, 1, 59), tS);
+        }
+        results.Add(3, rr1m01);
+        {
+          var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+          Assert.AreEqual(new TimeSpan(0, 0, 59), tM);
+
+          var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+          Assert.AreEqual(new TimeSpan(0, 3, 00), tS);
+        }
+      }
+
+      {
+        results.Clear();
+        results.Add(1, rr1m00);
+        results.Add(2, rr1m00NIZ);
+
+        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(new TimeSpan(0, 1, 00), tM);
+
+        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(null, tS);
+        Assert.AreEqual(RunResult.EResultCode.NiZ, resCode);
+        Assert.IsTrue(string.IsNullOrEmpty(disqualText));
+      }
+
+      {
+        results.Clear();
+        results.Add(1, rr1m00NAS);
+        results.Add(2, rr1m00NIZ);
+
+        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(null, tM);
+
+        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(null, tS);
+        Assert.AreEqual(RunResult.EResultCode.NaS, resCode);  // First run rules
+        Assert.IsTrue(string.IsNullOrEmpty(disqualText));
+      }
+
+      {
+        results.Clear();
+        results.Add(1, rr1m00);
+        results.Add(2, rr0m59);
+        results.Add(3, rr1m00NIZ);
+
+        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(new TimeSpan(0, 0, 59), tM);
+
+        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(null, tS);
+        Assert.AreEqual(RunResult.EResultCode.NiZ, resCode);
+        Assert.IsTrue(string.IsNullOrEmpty(disqualText));
+      }
+
+      {
+        results.Clear();
+        results.Add(1, rr1m00);
+        results.Add(2, rr1m00DIS1);
+        results.Add(3, rr1m01);
+
+        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(new TimeSpan(0, 1, 0), tM);
+
+        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(null, tS);
+        Assert.AreEqual(RunResult.EResultCode.DIS, resCode);
+        Assert.AreEqual("Tor 1", disqualText);
+      }
+
+      {
+        results.Clear();
+        results.Add(1, rr1m00DIS2);
+        results.Add(2, rr1m00DIS1);
+
+        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(null, tM);
+        Assert.AreEqual(RunResult.EResultCode.DIS, resCode);
+        Assert.AreEqual("Tor 2, Tor 1", disqualText);
+
+        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        Assert.AreEqual(null, tS);
+        Assert.AreEqual(RunResult.EResultCode.DIS, resCode);
+        Assert.AreEqual("Tor 2", disqualText);
+      }
+
     }
 
   }
