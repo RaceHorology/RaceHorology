@@ -790,7 +790,6 @@ namespace RaceHorologyLib
     private AppDataModel _appDataModel;
 
     private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
-    private bool _hasRealResults;
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
 
@@ -814,7 +813,6 @@ namespace RaceHorologyLib
 
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
-      _hasRealResults = false;
 
       // Ensure the results always are in sync with participants
       _race.GetParticipants().CollectionChanged += onParticipantsChanged;
@@ -1066,7 +1064,13 @@ namespace RaceHorologyLib
 
     public bool HasResults()
     {
-      return _hasRealResults;
+      if (_results.Count == 0)
+        return false;
+
+      if (_results.FirstOrDefault(r => r.ResultCode != RunResult.EResultCode.NotSet) != null)
+        return true;
+
+      return false;
     }
 
 
@@ -1081,9 +1085,6 @@ namespace RaceHorologyLib
     private void _UpdateInternals()
     {
       var results = _results.ToArray();
-
-      var firstResult = results.FirstOrDefault(r => r.ResultCode != RunResult.EResultCode.NotSet);
-      _hasRealResults = results.Length > 0 && firstResult != null;
 
       // Remove from onTrack list if a result is available (= not on track anymore)
       var itemsToRemove = _onTrack.Where(r => !IsOnTrack(r.OriginalResult)).ToList();
