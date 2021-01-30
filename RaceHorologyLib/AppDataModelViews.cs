@@ -1316,6 +1316,15 @@ namespace RaceHorologyLib
             _lastConsideredRuns.Add(run);
           }
         }
+        else
+        {
+          if (_lastConsideredRuns.Contains(run))
+          {
+            updateAll = true;
+            _lastConsideredRuns.Remove(run);
+          }
+
+        }
       }
 
       if (updateAll)
