@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -574,13 +574,12 @@ namespace RaceHorologyLibTest
     /// 
     /// (ResultViewProvider)
     /// [X] RaceRunResultViewProvider
-    /// [ ] RaceResultViewProvider 
+    /// [X] RaceResultViewProvider 
     /// [ ] DSVSchoolRaceResultViewProvider <- RaceResultViewProvider
     /// 
     /// Basis of all:
     /// [X] RuntimeSorter
     /// [X] TotalTimeSorter
-
 
 
     /// <summary>
@@ -918,9 +917,6 @@ namespace RaceHorologyLibTest
     }
 
 
-
-
-
     /// <summary>
     /// Test for TotalTimeSorter
     /// 
@@ -1008,17 +1004,13 @@ namespace RaceHorologyLibTest
     }
 
 
-
-
-
-
     /// <summary>
     /// Test for 
     /// - RaceResultViewProvider.MinimumTime
     /// - RaceResultViewProvider.SumTime
     /// 
     /// What it does:
-    /// - TODO
+    /// - Combines different scenarios of run times
     /// </summary>
     [TestMethod]
     public void RaceResultViewProviderTest_CombineTime()
@@ -1150,6 +1142,299 @@ namespace RaceHorologyLibTest
       }
 
     }
+
+    /// <summary>
+    /// Test for RaceResultViewProvider
+    /// 
+    /// What it does:
+    /// - Checks the RunResultWithPosition of RaceRunResultViewProvider
+    /// - Based on simulated race data
+    /// - Check correct handling of changing participant as well as RunResult
+    /// - Checks DeleteRunResult
+    /// </summary>
+    [TestMethod]
+    public void RaceResultViewProviderTest_Dynamic()
+    {
+      int i = 0;
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr1 = tg.Model.GetCurrentRace().GetRun(0);
+      RaceRun rr2 = tg.Model.GetCurrentRace().GetRun(1);
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+
+      // Setup some initial values
+      rr1.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 1, 2));
+      rr1.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 1, 0));
+
+      rr2.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 0, 57)); // 1:59; 0:57
+      rr2.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 0, 58)); // 1:58; 0:58
+
+      RaceResultViewProvider vpB = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
+      vpB.ChangeGrouping(null);
+      //vpB.ChangeGrouping("Participant.Class");
+      vpB.Init(race, tg.Model);
+      RaceResultViewProvider vpS = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
+      //vpS.ChangeGrouping("Participant.Class");
+      vpS.ChangeGrouping(null);
+      vpS.Init(race, tg.Model);
+
+      Assert.AreEqual(4, vpB.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 1", vpB.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 57), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 58), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      Assert.AreEqual(4, vpS.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 2", vpS.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 58), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 1", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 59), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      // Start Nr3 Run1
+      rr1.SetRunTime(race.GetParticipant(3), new TimeSpan(0, 0, 56));
+
+      Assert.AreEqual(4, vpB.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 3", vpB.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 56), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 1", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 57), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(3U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 58), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 2), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      Assert.AreEqual(4, vpS.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 2", vpS.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 58), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 1", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 59), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      // Start Nr3 Run2
+      rr2.SetRunTime(race.GetParticipant(3), new TimeSpan(0, 1, 10)); // 2:06
+
+      Assert.AreEqual(4, vpB.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 3", vpB.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 56), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 1", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 57), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(3U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 58), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 2), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      Assert.AreEqual(4, vpS.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 2", vpS.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 58), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 1", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 59), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(3U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 2, 6), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 8), vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      rr1.SetResultCode(race.GetParticipant(1), RunResult.EResultCode.DIS, "Tor 1");
+
+      Assert.AreEqual(4, vpB.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 3", vpB.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 56), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 1", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 57), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(3U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 58), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 2), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      Assert.AreEqual(4, vpS.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 2", vpS.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 58), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 2, 6), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 8), vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 1", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      vpB.ChangeGrouping("Participant.Class");
+      Assert.AreEqual(4, vpB.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 1", vpB.GetView().ViewToList<RaceResultItem>()[i=0].Participant.Name);
+      Assert.AreEqual(1U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 57), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 58), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(1U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 56), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      rr1.DeleteRunResults();
+      Assert.AreEqual(4, vpB.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 1", vpB.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 57), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 58), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(1U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 10), vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      // If all particpants do not have a result in run 2, run 2 will be ignored, resulting in order of run 1 only
+      Assert.AreEqual(4, vpS.GetView().ViewToList<RaceResultItem>().Count);
+      Assert.AreEqual("Name 1", vpS.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(1U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 57), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(2U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 0, 58), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(3U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(new TimeSpan(0, 1, 10), vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 13), vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      rr2.DeleteRunResults();
+      Assert.AreEqual("Name 1", vpB.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpB.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpB.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpB.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      Assert.AreEqual("Name 1", vpS.GetView().ViewToList<RaceResultItem>()[i = 0].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 2", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+    }
+
+
 
   }
 }
