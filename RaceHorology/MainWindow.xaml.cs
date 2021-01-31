@@ -44,6 +44,8 @@ using Microsoft.Win32;
 using RaceHorologyLib;
 using System.Collections.ObjectModel;
 using QRCoder;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace RaceHorology
 {
@@ -57,6 +59,7 @@ namespace RaceHorology
 
     // Private data structures
     AppDataModel _dataModel;
+    MainWindowMenuVM _menuVM;
 
     MruList _mruList;
     DSVAlpin2HTTPServer _alpinServer;
@@ -70,6 +73,7 @@ namespace RaceHorology
     {
       Logger.Info("Application started");
 
+
       InitializeComponent();
 
       // Remember the Application Name
@@ -78,6 +82,9 @@ namespace RaceHorology
       // Last recently used files in menu
       _mruList = new MruList("RaceHorology", mnuRecentFiles, 10);
       _mruList.FileSelected += OpenDatabase;
+
+      _menuVM = new MainWindowMenuVM();
+      mnuMain.DataContext = _menuVM;
 
       StartDSVAlpinServer();
     }
@@ -134,12 +141,42 @@ namespace RaceHorology
       dlg.ShowDialog();
     }
 
+
     private void HandTimeCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
+      var race = _dataModel.GetCurrentRace();
+
+      if (race == null)
+        return;
+
       HandTimingDlg dlg = new HandTimingDlg();
+      dlg.Init(_dataModel, race);
       dlg.Owner = this;
       dlg.Show();
     }
+    
+
+    private void DeleteRunResultsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      var race = _dataModel.GetCurrentRace();
+
+      if (race == null)
+        return;
+
+      var res = MessageBox.Show(
+        string.Format("Sollen wirklich alle Zeiten des Rennens {0} gelöscht werden?", race.ToString()), 
+        "Zeiten löschen?", 
+        MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+
+      if (res == MessageBoxResult.No)
+        return;
+
+      foreach (var rr in race.GetRuns())
+      {
+        rr.DeleteRunResults();
+      }
+    }
+
 
     private void HelpCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
@@ -181,6 +218,8 @@ namespace RaceHorology
         // Restart DSVALpinServer (for having the lists on mobile devices)
         _alpinServer.UseDataModel(_dataModel);
 
+        _menuVM.SetDataModel(_dataModel);
+
         _mruList.AddFile(dbPath);
       }
       catch (Exception ex)
@@ -195,6 +234,8 @@ namespace RaceHorology
     /// </summary>
     private void CloseDatabase()
     {
+      _menuVM.SetDataModel(null);
+
       _alpinServer.UseDataModel(null);
 
       DisconnectGUIFromDataModel();
@@ -405,5 +446,51 @@ namespace RaceHorology
       System.Diagnostics.Process.Start("http://www.race-horology.com");
     }
 
+  }
+
+
+  public class MainWindowMenuVM : INotifyPropertyChanged
+  {
+    AppDataModel _dm;
+
+    bool _hasActiveRace = false;
+
+    public void SetDataModel(AppDataModel dm)
+    {
+      if (_dm != null)
+      {
+        _dm.CurrentRaceChanged -= onCurrentRaceChanged;
+      }
+
+      _dm = dm;
+
+      if (_dm != null)
+      {
+        _dm.CurrentRaceChanged += onCurrentRaceChanged;
+      }
+
+      onCurrentRaceChanged(null, null);
+    }
+
+
+    private void onCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      HasActiveRace = _dm?.GetCurrentRace() != null;
+    }
+
+    public bool HasActiveRace
+    {
+      get { return _hasActiveRace; }
+      private set { _hasActiveRace = value; NotifyPropertyChanged(); }
+    } 
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
   }
 }

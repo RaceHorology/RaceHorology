@@ -131,5 +131,91 @@ namespace RaceHorologyLibTest
       Assert.IsNotNull(model2.GetRace(0).GetParticipants().FirstOrDefault(p => p.Name == "Nachname 7"));
       return;
     }
+
+
+    /// <summary>
+    /// Tests RaceRun with some sample scenarios.
+    /// Main focus are the lists:
+    /// - GetResultList()
+    /// - GetOnTrackList()
+    /// </summary>
+    [TestMethod]
+    public void RaceRun_RunResult()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      tg.createRaceParticipants(10);
+
+      var race = tg.Model.GetRace(0);
+      var run = race.GetRun(0);
+
+      // Initially, there aren't any results
+      Assert.AreEqual(0, run.GetResultList().Count);
+      Assert.IsFalse(run.IsOrWasOnTrack(race.GetParticipant(1)));
+      Assert.IsFalse(run.HasResults());
+
+      run.SetStartTime(race.GetParticipant(1), new TimeSpan(8, 0, 0));
+      Assert.AreEqual(1, run.GetResultList().Count);
+      Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
+      
+      Assert.IsTrue(run.HasResults());
+
+      run.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 1));
+      Assert.AreEqual(1, run.GetResultList().Count);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+
+      run.SetFinishTime(race.GetParticipant(1), null);
+      Assert.AreEqual(1, run.GetResultList().Count);
+      Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
+
+      run.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 1));
+      Assert.AreEqual(1, run.GetResultList().Count);
+      Assert.AreEqual(new TimeSpan(0, 1, 1), run.GetResultList()[0].Runtime);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsTrue(run.IsOrWasOnTrack(race.GetParticipant(1)));
+
+      Assert.IsFalse(run.IsOrWasOnTrack(race.GetParticipant(2)));
+      run.SetStartFinishTime(race.GetParticipant(2), new TimeSpan(8, 2, 0), new TimeSpan(8, 3, 2));
+      Assert.AreEqual(2, run.GetResultList().Count);
+      Assert.AreEqual(new TimeSpan(0, 1, 2), run.GetResultList()[1].Runtime);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsTrue(run.IsOrWasOnTrack(race.GetParticipant(2)));
+
+
+      run.SetRunTime(race.GetParticipant(3), new TimeSpan(0, 1, 3));
+      Assert.AreEqual(3, run.GetResultList().Count);
+      Assert.AreEqual(new TimeSpan(0, 1, 3), run.GetResultList()[2].Runtime);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+
+
+      run.SetResultCode(race.GetParticipant(4), RunResult.EResultCode.NaS);
+      Assert.AreEqual(4, run.GetResultList().Count);
+      Assert.AreEqual(null, run.GetResultList()[3].Runtime);
+      Assert.AreEqual(RunResult.EResultCode.NaS, run.GetResultList()[3].ResultCode);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+
+      run.SetResultCode(race.GetParticipant(5), RunResult.EResultCode.DIS, "Tor 5");
+      Assert.AreEqual(5, run.GetResultList().Count);
+      Assert.AreEqual(null, run.GetResultList()[4].Runtime);
+      Assert.AreEqual(RunResult.EResultCode.DIS, run.GetResultList()[4].ResultCode);
+      Assert.AreEqual("Tor 5", run.GetResultList()[4].DisqualText);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+
+
+      var tmp1 = run.DeleteRunResult(race.GetParticipant(1));
+      Assert.AreEqual(1U, tmp1.StartNumber);
+      Assert.AreEqual(4, run.GetResultList().Count);
+      Assert.AreNotEqual(1U, run.GetResultList()[0].StartNumber);
+      Assert.AreEqual(2U, run.GetResultList()[0].StartNumber);
+
+
+      Assert.IsTrue(run.HasResults());
+      run.DeleteRunResults();
+      Assert.IsFalse(run.HasResults());
+      Assert.AreEqual(0, run.GetResultList().Count);
+
+    }
+
+
   }
 }

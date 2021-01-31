@@ -133,7 +133,7 @@ namespace RaceHorology
         RaceTabHeaderUC tabHeader = new RaceTabHeaderUC();
         Header = tabHeader;
         Name = r.RaceType.ToString();
-        tabHeader.lblName.Content = r.RaceType.ToString();
+        tabHeader.lblName.Content = r.ToString();
         tabHeader.btnClose.Click += BtnClose_Click;
       }
 

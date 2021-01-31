@@ -1015,6 +1015,11 @@ namespace RaceHorologyLibTest
       DBCacheWorkaround();
       rr5r2._participant = participant5 = race.GetParticipants().Where(x => x.Name == "Nachname 5").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr5r2, 5, 2));
+
+      // Delete
+      db.DeleteRunResult(race, rr2, rr5r2);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckRunResult(dbFilename, null, 5, 2));
     }
 
 
@@ -1055,7 +1060,12 @@ namespace RaceHorologyLibTest
             bRes &= runResult.DisqualText == reader["disqualtext"].ToString();
         }
         else
-          bRes = false;
+        {
+          if (runResult == null)
+            bRes = true;
+          else
+            bRes = false;
+        }
       }
 
       conn.Close();

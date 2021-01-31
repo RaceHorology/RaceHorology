@@ -297,13 +297,13 @@ namespace RaceHorologyLibTest
       tg.Model.GetRace(0).SetResultViewProvider(rvp);
 
       // Run 1
-      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 0, 0), new TimeSpan(0, 8, 0, 2));
-      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 1, 0), new TimeSpan(0, 8, 1, 4));
-      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 2, 0), new TimeSpan(0, 8, 2, 3));
-      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 2, 0), null);
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 0, 0), new TimeSpan(0, 8, 0, 2));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 1, 0), new TimeSpan(0, 8, 1, 4));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 2, 0), new TimeSpan(0, 8, 2, 3));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 2, 0), null);
       tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.Model.GetRace(0).GetParticipant(4), RunResult.EResultCode.NiZ);
-      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(), RunResult.EResultCode.NaS);
-      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(), RunResult.EResultCode.DIS, "Tor 2");
+      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(cat: tg.findCat('M')), RunResult.EResultCode.NaS);
+      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(cat: tg.findCat('M')), RunResult.EResultCode.DIS, "Tor 2");
 
       // Run 2
       tg.Model.GetRace(0).GetRun(1).SetStartFinishTime(tg.Model.GetRace(0).GetParticipant(1), new TimeSpan(0, 9, 0, 0), new TimeSpan(0, 9, 0, 3));

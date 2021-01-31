@@ -89,12 +89,15 @@ namespace RaceHorologyLib
               _db.CreateOrUpdateRunResult(_race, _rr, v);
           }
           break;
+
         case NotifyCollectionChangedAction.Remove:
+          foreach (RunResult v in e.OldItems)
+              _db.DeleteRunResult(_race, _rr, v);
           break;
 
+        case NotifyCollectionChangedAction.Reset:
         case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Replace:
-        case NotifyCollectionChangedAction.Reset:
           throw new Exception("not implemented");
       }
     }
