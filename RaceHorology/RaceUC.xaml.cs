@@ -550,6 +550,14 @@ namespace RaceHorology
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
 
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
+
+      _thisRace.RunsChanged += OnRaceRunsChanged;
+    }
+
+
+    private void OnRaceRunsChanged(object sender, EventArgs e)
+    {
+      UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
     }
 
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -599,7 +607,7 @@ namespace RaceHorology
     private void ConfigureTimingHelper()
     {
       // Start any helper
-      if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
+      if (Properties.Settings.Default.AutomaticNiZTimeout > 0 && _currentRaceRun != null)
         _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
       else if (_liveTimingAutoNiZ != null)
       {
@@ -609,9 +617,10 @@ namespace RaceHorology
 
       if (_liveTimingAutoNaS != null)
         _liveTimingAutoNaS.Dispose();
-      _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+      if (_currentRaceRun != null)
+        _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
 
-      if (Properties.Settings.Default.StartTimeIntervall > 0)
+      if (Properties.Settings.Default.StartTimeIntervall > 0 && _currentRaceRun != null)
       {
         lblStartCountDown.Visibility = Visibility.Visible;
         _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);

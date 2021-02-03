@@ -71,6 +71,7 @@ namespace RaceHorology
     {
       if (!(bool)e.OldValue && (bool)e.NewValue)
       {
+        UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
         setRaceRun(_dm.GetCurrentRaceRun());
         _viewDisqualifications.View.Refresh();
       }
@@ -80,6 +81,8 @@ namespace RaceHorology
     {
       _dm = dm;
       _race = race;
+
+      _race.RunsChanged += OnRaceRunsChanged;
 
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
       UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
@@ -99,6 +102,12 @@ namespace RaceHorology
       cmbDisqualifyReason.Items.Add("Hilfe durch fremde Person am Tor");
 
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
+    }
+
+
+    private void OnRaceRunsChanged(object sender, EventArgs e)
+    {
+      UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
     }
 
 
