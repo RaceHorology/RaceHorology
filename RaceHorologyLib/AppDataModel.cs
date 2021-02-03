@@ -448,7 +448,7 @@ namespace RaceHorologyLib
     public RaceConfiguration RaceConfiguration
     {
       get { return _raceConfiguration; }
-      set { _raceConfiguration = value.Copy(); StoreRaceConfig(); }
+      set { _raceConfiguration = value.Copy(); UpdateNumberOfRuns((uint)_raceConfiguration.Runs);  StoreRaceConfig(); }
     }
 
 
