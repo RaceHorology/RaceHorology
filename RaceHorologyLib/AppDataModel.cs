@@ -433,6 +433,7 @@ namespace RaceHorologyLib
     
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
+    private DatabaseDelegatorRace _raceDBDelegator;
     private DatabaseDelegatorRaceParticipant _raceParticipantDBDelegator;
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
@@ -485,10 +486,12 @@ namespace RaceHorologyLib
       //// RaceRuns ////
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
 
-      _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
-
       createRaceRuns((int)properties.Runs);
 
+      _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
+      // Store and Race related things
+      _raceDBDelegator = new DatabaseDelegatorRace(this, db);
+      
       ViewConfigurator viewConfigurator = new ViewConfigurator(this);
       viewConfigurator.ConfigureRace(this);
     }
@@ -573,6 +576,8 @@ namespace RaceHorologyLib
       // Get notification if a result got modified and trigger storage in DB
       DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
       _runs.Add((rr, ddrr));
+
+      RunsChanged?.Invoke(this, null);
     }
 
     /// <summary>
@@ -594,6 +599,8 @@ namespace RaceHorologyLib
       //ddrr.Dispose();
 
       _runs.RemoveAt(_runs.Count - 1);
+
+      RunsChanged?.Invoke(this, null);
     }
 
 
@@ -635,6 +642,8 @@ namespace RaceHorologyLib
 
       return runs;
     }
+
+    public event EventHandler RunsChanged;
 
 
     /// <summary>
