@@ -487,7 +487,7 @@ namespace RaceHorologyLib
 
       _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
 
-      CreateRaceRuns((int)properties.Runs);
+      createRaceRuns((int)properties.Runs);
 
       ViewConfigurator viewConfigurator = new ViewConfigurator(this);
       viewConfigurator.ConfigureRace(this);
@@ -548,26 +548,64 @@ namespace RaceHorologyLib
     /// </summary>
     /// <param name="numRuns">Number of runs</param>
     /// <seealso cref="GetRun()"/>
-    public void CreateRaceRuns(int numRuns)
+    private void createRaceRuns(int numRuns)
     {
       if (_runs.Count() > 0)
         throw new Exception("Runs already existing");
 
-      RaceRun[] raceRunsArr = new RaceRun[numRuns];
       for (uint i = 0; i < numRuns; i++)
-      {
-        RaceRun rr = new RaceRun(i + 1, this, _appDataModel);
-
-        // Fill the data from the DB initially (TODO: to be done better)
-        rr.InsertResults(_db.GetRaceRun(this, i + 1));
-
-        // Get notification if a result got modified and trigger storage in DB
-        DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
-        _runs.Add((rr, ddrr));
-
-        raceRunsArr[i] = rr;
-      }
+        AddRaceRun();
     }
+
+
+    /// <summary>
+    /// Creates a new RaceRun structure. 
+    /// </summary>
+    /// <seealso cref="GetRun()"/>
+    public void AddRaceRun()
+    {
+      uint run = (uint)GetMaxRun() + 1;
+      RaceRun rr = new RaceRun(run, this, _appDataModel);
+
+      // Fill the data from the DB initially (TODO: to be done better)
+      rr.InsertResults(_db.GetRaceRun(this, run));
+
+      // Get notification if a result got modified and trigger storage in DB
+      DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
+      _runs.Add((rr, ddrr));
+    }
+
+    /// <summary>
+    /// Deletes the RaceRun with highest run number. 
+    /// </summary>
+    /// <seealso cref="GetRun()"/>
+    public void DeleteRaceRun()
+    {
+      if (_runs.Count == 0)
+        return;
+
+      (RaceRun, DatabaseDelegatorRaceRun) runItem = _runs[_runs.Count - 1];
+
+      RaceRun rr = runItem.Item1;
+      DatabaseDelegatorRaceRun ddrr = runItem.Item2;
+
+      // TODO
+      //rr.Dispose();
+      //ddrr.Dispose();
+
+      _runs.RemoveAt(_runs.Count - 1);
+    }
+
+
+    public void UpdateNumberOfRuns(uint numberOfRuns)
+    {
+      while (GetMaxRun() < numberOfRuns)
+        AddRaceRun();
+
+      while (GetMaxRun() > numberOfRuns)
+        DeleteRaceRun();
+    }
+
 
     /// <summary>
     /// Returns the number of race runs.

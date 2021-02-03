@@ -217,5 +217,91 @@ namespace RaceHorologyLibTest
     }
 
 
+
+    [TestMethod]
+    public void Race_ManageRun()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      var dm = new AppDataModel(new DummyDataBase(".", false)); // Create empty model
+
+      Assert.AreEqual(0, dm.GetRaces().Count);
+
+      dm.AddRace(new Race.RaceProperties { RaceType = Race.ERaceType.GiantSlalom, Runs = 1 });
+
+      Assert.AreEqual(1, dm.GetRaces().Count);
+
+      Race race = dm.GetRace(0);
+      Assert.AreEqual(1, race.GetMaxRun());
+
+      race.AddRaceRun();
+      Assert.AreEqual(2, race.GetMaxRun());
+
+      race.DeleteRaceRun();
+      Assert.AreEqual(1, race.GetMaxRun());
+
+      race.UpdateNumberOfRuns(3);
+      Assert.AreEqual(3, race.GetMaxRun());
+
+      race.UpdateNumberOfRuns(2);
+      Assert.AreEqual(2, race.GetMaxRun());
+    }
+
+
+    /// <summary>
+    /// Removing and adding a run shall preserve any run data (RunResult) which has been stored in the DB
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_MultipleRaces.mdb")]
+    public void Race_ManageRun_DataHandling()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants_MultipleRaces.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel dm= new AppDataModel(db);
+      var race = dm.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.GiantSlalom);
+
+      // Check correct initial assumptions
+      Assert.AreEqual(4, dm.GetRaces().Count); 
+      Assert.AreEqual(2, race.GetMaxRun());
+
+      RaceParticipant p1 = race.GetParticipant(1);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 22, 850), race.GetRun(0).GetRunResult(p1).GetRunTime());
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 21, 950), race.GetRun(1).GetRunResult(p1).GetRunTime());
+
+      race.DeleteRaceRun();
+      Assert.AreEqual(1, race.GetMaxRun());
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 22, 850), race.GetRun(0).GetRunResult(p1).GetRunTime());
+
+
+      race.AddRaceRun();
+      Assert.AreEqual(2, race.GetMaxRun());
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 22, 850), race.GetRun(0).GetRunResult(p1).GetRunTime());
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 21, 950), race.GetRun(1).GetRunResult(p1).GetRunTime());
+
+
+      // Perform Modification and Check again
+      race.GetRun(1).SetRunTime(p1, new TimeSpan(0, 0, 0, 10, 110));
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 10, 110), race.GetRun(1).GetRunResult(p1).GetRunTime());
+
+      race.DeleteRaceRun();
+      Assert.AreEqual(1, race.GetMaxRun());
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 22, 850), race.GetRun(0).GetRunResult(p1).GetRunTime());
+
+      race.AddRaceRun();
+      Assert.AreEqual(2, race.GetMaxRun());
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 22, 850), race.GetRun(0).GetRunResult(p1).GetRunTime());
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 10, 110), race.GetRun(1).GetRunResult(p1).GetRunTime());
+
+      //race.UpdateNumberOfRuns(3);
+      //Assert.AreEqual(3, race.GetMaxRun());
+
+      //race.UpdateNumberOfRuns(2);
+      //Assert.AreEqual(2, race.GetMaxRun());
+    }
+
+
+
   }
 }
