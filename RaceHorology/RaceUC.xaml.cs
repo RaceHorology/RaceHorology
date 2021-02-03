@@ -125,6 +125,10 @@ namespace RaceHorology
       // Configuration Screen
       cmbRuns.Items.Add(new CBItem { Text = "1", Value = 1 });
       cmbRuns.Items.Add(new CBItem { Text = "2", Value = 2 });
+      cmbRuns.Items.Add(new CBItem { Text = "3", Value = 3 });
+      cmbRuns.Items.Add(new CBItem { Text = "4", Value = 4 });
+      cmbRuns.Items.Add(new CBItem { Text = "5", Value = 5 });
+      cmbRuns.Items.Add(new CBItem { Text = "6", Value = 6 });
 
       // Result
       UiUtilities.FillGrouping(cmbConfigErgebnisGrouping);
