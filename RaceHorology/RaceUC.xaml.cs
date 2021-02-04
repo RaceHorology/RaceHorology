@@ -1026,10 +1026,10 @@ namespace RaceHorology
       // Total Results
       else if (_totalResultsVP is RaceResultViewProvider)
       {
-        for (int i = 0; i < 2; i++)
+        foreach(var r in _thisRace.GetRuns())
         {
-          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", i + 1), string.Format("SubResults[{0}].Runtime", i + 1), string.Format("SubResults[{0}].RunResultCode ", i + 1)));
-          dgTotalResults.Columns.Add(createColumnSubPosition(string.Format("SubResults[{0}].Position", i+1)));
+          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
+          dgTotalResults.Columns.Add(createColumnSubPosition(string.Format("SubResults[{0}].Position", r.Run)));
         }
 
         dgTotalResults.Columns.Add(createTimeColumn("Total", "TotalTime", "ResultCode"));
