@@ -1573,8 +1573,11 @@ namespace RaceHorologyLib
           }
         }
 
-        bestN.Add(bestKey, bestNIn[bestKey]);
-        bestNIn.Remove(bestKey);
+        if (bestNIn.ContainsKey(bestKey))
+        {
+          bestN.Add(bestKey, bestNIn[bestKey]);
+          bestNIn.Remove(bestKey);
+        }
       }
 
       return SumTime(bestN, out resCode, out disqualText);
