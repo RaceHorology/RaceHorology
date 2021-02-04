@@ -119,7 +119,7 @@ namespace RaceHorologyLib
         img = new Image(ImageDataFactory.Create(ReadFully(stream)));
       }
 
-      if (img != null)
+      if (img == null)
       {
         string imgPath = FindImage(filenameWOExt);
         if (!string.IsNullOrEmpty(imgPath))
