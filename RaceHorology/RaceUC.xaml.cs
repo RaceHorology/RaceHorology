@@ -972,7 +972,7 @@ namespace RaceHorology
         return dgc;
       }
 
-      DataGridTextColumn createColumnSubPosition(string property)
+      DataGridTextColumn createColumnPosition(string property)
       {
         DataGridTextColumn dgc = new DataGridTextColumn
         {
@@ -987,6 +987,43 @@ namespace RaceHorology
         dgc.Binding = b;
         dgc.CellStyle = new Style();
         dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        return dgc;
+      }
+
+      DataGridTextColumn createColumnDiffInPercentage(string header, string property)
+      {
+        DataGridTextColumn dgc = new DataGridTextColumn
+        {
+          Header = header
+        };
+        Binding b = new Binding(property)
+        {
+          Mode = BindingMode.OneWay,
+        };
+
+        b.Converter = new PercentageConverter(false);
+        dgc.Binding = b;
+        dgc.CellStyle = new Style();
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        return dgc;
+      }
+
+      DataGridTextColumn createColumnDiff(string header, string property)
+      {
+        DataGridTextColumn dgc = new DataGridTextColumn
+        {
+          Header = header
+        };
+
+        Binding b1 = new Binding(property)
+        {
+          Mode = BindingMode.OneWay,
+        };
+        b1.Converter = new RaceHorologyLib.TimeSpanConverter();
+        dgc.Binding = b1;
+        dgc.CellStyle = new Style();
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.MarginProperty, Value = new Thickness(15, 0, 0, 0) });
         return dgc;
       }
 
@@ -1023,6 +1060,8 @@ namespace RaceHorology
       if (_totalResultsVP is RaceRunResultViewProvider)
       {
         dgTotalResults.Columns.Add(createTimeColumn("Zeit", "Runtime", "ResultCode"));
+        dgTotalResults.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
+        dgTotalResults.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
         dgTotalResults.Columns.Add(createColumnAnmerkung());
       }
 
@@ -1032,7 +1071,9 @@ namespace RaceHorology
         foreach(var r in _thisRace.GetRuns())
         {
           dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
-          dgTotalResults.Columns.Add(createColumnSubPosition(string.Format("SubResults[{0}].Position", r.Run)));
+          dgTotalResults.Columns.Add(createColumnDiff(string.Format("Diff {0}", r.Run), string.Format("SubResults[{0}].DiffToFirst", r.Run)));
+          dgTotalResults.Columns.Add(createColumnDiffInPercentage(string.Format("[%] {0}", r.Run), string.Format("SubResults[{0}].DiffToFirstPercentage", r.Run)));
+          dgTotalResults.Columns.Add(createColumnPosition(string.Format("SubResults[{0}].Position", r.Run)));
         }
 
         dgTotalResults.Columns.Add(createTimeColumn("Total", "TotalTime", "ResultCode"));

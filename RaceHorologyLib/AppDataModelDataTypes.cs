@@ -1066,6 +1066,7 @@ namespace RaceHorologyLib
     private uint _position;
     private bool _justModified;
     private TimeSpan? _diffToFirst;
+    private double _diffToFirstPercentage;
 
     public RunResultWithPosition(RunResult result) : base(result)
     {
@@ -1088,6 +1089,12 @@ namespace RaceHorologyLib
     {
       get { return _diffToFirst; }
       set { if (_diffToFirst != value) { _diffToFirst = value; NotifyPropertyChanged(); } }
+    }
+
+    public double DiffToFirstPercentage
+    {
+      get { return _diffToFirstPercentage; }
+      set { if (_diffToFirstPercentage != value) { _diffToFirstPercentage = value; NotifyPropertyChanged(); } }
     }
 
     public bool JustModified
@@ -1135,6 +1142,8 @@ namespace RaceHorologyLib
         }
 
         Position = rr.Position;
+        DiffToFirst = rr.DiffToFirst;
+        DiffToFirstPercentage = rr.DiffToFirstPercentage;
 
         return significantChange;
       }
@@ -1142,6 +1151,8 @@ namespace RaceHorologyLib
       public TimeSpan? Runtime { get; set; }
       public RunResult.EResultCode RunResultCode { get; set; }
       public uint Position { get; set; }
+      public TimeSpan? DiffToFirst { get; set; }
+      public double DiffToFirstPercentage { get; set; }
 
       public override string ToString()
       {
@@ -1158,6 +1169,7 @@ namespace RaceHorologyLib
     protected string _disqualText;
     protected uint _position;
     protected TimeSpan? _diffToFirst;
+    protected double _diffToFirstPercentage;
     protected double _points;
     protected bool _justModified;
 
@@ -1178,6 +1190,7 @@ namespace RaceHorologyLib
       _disqualText = null;
       _position = 0;
       _diffToFirst = null;
+      _diffToFirstPercentage = 0.0;
       _points = -1.0;
       _justModified = false;
     }
@@ -1222,6 +1235,12 @@ namespace RaceHorologyLib
     {
       get { return _diffToFirst; }
       set { if (_diffToFirst != value) { _diffToFirst = value; NotifyPropertyChanged(); } }
+    }
+
+    public double DiffToFirstPercentage
+    {
+      get { return _diffToFirstPercentage; }
+      set { if (_diffToFirstPercentage != value) { _diffToFirstPercentage = value; NotifyPropertyChanged(); } }
     }
 
 
