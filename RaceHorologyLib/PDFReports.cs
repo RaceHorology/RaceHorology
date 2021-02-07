@@ -777,6 +777,9 @@ namespace RaceHorologyLib
 
     protected Paragraph createCellParagraphForTable(string text)
     {
+      if (text == null)
+        text = string.Empty;
+
       return new Paragraph(text)
         .SetFont(_tableFont)
         .SetFontSize(_tableFontSize)
@@ -788,6 +791,9 @@ namespace RaceHorologyLib
 
     protected Paragraph createHeaderCellParagraphForTable(string text)
     {
+      if (text == null)
+        text = string.Empty;
+
       return new Paragraph(text)
         .SetFont(_tableFontHeader)
         .SetFontSize(_tableFontSizeHeader);
