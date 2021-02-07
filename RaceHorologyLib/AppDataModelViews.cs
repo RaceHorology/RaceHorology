@@ -1193,7 +1193,7 @@ namespace RaceHorologyLib
       return -1.0;
     }
 
-    public enum TimeCombination { BestRun, Sum };
+    public enum TimeCombination { BestRun, Sum, SumBest2 };
     public RaceResultViewProvider(TimeCombination timeCombination)
     {
       _comparer = new TotalTimeSorter();
@@ -1206,6 +1206,9 @@ namespace RaceHorologyLib
           break;
         case TimeCombination.Sum:
           _combineTime = SumTime;
+          break;
+        case TimeCombination.SumBest2:
+          _combineTime = SumTimeOfBest2;
           break;
       }
 
@@ -1539,6 +1542,45 @@ namespace RaceHorologyLib
         sumTime = null;
 
       return sumTime;
+    }
+
+    internal static TimeSpan? SumTimeOfBest2(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    {
+      int numberN = 2;
+
+      TimeSpan? sumTime = new TimeSpan(0);
+      resCode = RunResult.EResultCode.Normal;
+      disqualText = "";
+
+      // Find best N
+      Dictionary<uint, RunResultWithPosition> bestNIn = new Dictionary<uint, RunResultWithPosition>();
+      Dictionary<uint, RunResultWithPosition> bestN = new Dictionary<uint, RunResultWithPosition>();
+      foreach (var res in results)
+        bestNIn.Add(res.Key, res.Value);
+
+      for (int i = 0; i < numberN; i++)
+      {
+        uint bestKey = 0;
+        TimeSpan? bestTime = null;
+        foreach (var res in bestNIn)
+        {
+          TimeSpan? time = res.Value?.Runtime;
+
+          if (bestTime == null || bestTime > time)
+          {
+            bestTime = time;
+            bestKey = res.Key;
+          }
+        }
+
+        if (bestNIn.ContainsKey(bestKey))
+        {
+          bestN.Add(bestKey, bestNIn[bestKey]);
+          bestNIn.Remove(bestKey);
+        }
+      }
+
+      return SumTime(bestN, out resCode, out disqualText);
     }
 
 

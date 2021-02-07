@@ -239,13 +239,13 @@ namespace RaceHorologyLib
 
 
       Race race = null;
-      if (raceNo == -1)
+      if (raceNo < 0)
         race = _dataModel?.GetCurrentRace();
       else
         race = _dataModel?.GetRace(raceNo);
 
       RaceRun raceRun = null;
-      if (runNo == -1)
+      if (runNo < 0)
         raceRun = _dataModel?.GetCurrentRaceRun();
       else
         raceRun = race?.GetRun(runNo);

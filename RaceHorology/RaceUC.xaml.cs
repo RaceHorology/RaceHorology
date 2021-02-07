@@ -125,11 +125,16 @@ namespace RaceHorology
       // Configuration Screen
       cmbRuns.Items.Add(new CBItem { Text = "1", Value = 1 });
       cmbRuns.Items.Add(new CBItem { Text = "2", Value = 2 });
+      cmbRuns.Items.Add(new CBItem { Text = "3", Value = 3 });
+      cmbRuns.Items.Add(new CBItem { Text = "4", Value = 4 });
+      cmbRuns.Items.Add(new CBItem { Text = "5", Value = 5 });
+      cmbRuns.Items.Add(new CBItem { Text = "6", Value = 6 });
 
       // Result
       UiUtilities.FillGrouping(cmbConfigErgebnisGrouping);
 
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe der besten 2 Durchgänge", Value = "RaceResult_SumBest2" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach DSV Schülerreglement", Value = "RaceResult_SumDSVPointsSchool" });
 
@@ -546,6 +551,14 @@ namespace RaceHorology
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
 
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
+
+      _thisRace.RunsChanged += OnRaceRunsChanged;
+    }
+
+
+    private void OnRaceRunsChanged(object sender, EventArgs e)
+    {
+      UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
     }
 
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -595,7 +608,7 @@ namespace RaceHorology
     private void ConfigureTimingHelper()
     {
       // Start any helper
-      if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
+      if (Properties.Settings.Default.AutomaticNiZTimeout > 0 && _currentRaceRun != null)
         _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
       else if (_liveTimingAutoNiZ != null)
       {
@@ -605,9 +618,10 @@ namespace RaceHorology
 
       if (_liveTimingAutoNaS != null)
         _liveTimingAutoNaS.Dispose();
-      _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+      if (_currentRaceRun != null)
+        _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
 
-      if (Properties.Settings.Default.StartTimeIntervall > 0)
+      if (Properties.Settings.Default.StartTimeIntervall > 0 && _currentRaceRun != null)
       {
         lblStartCountDown.Visibility = Visibility.Visible;
         _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
@@ -638,12 +652,14 @@ namespace RaceHorology
         _finishView.Source = raceRun.GetResultList();
 
         _finishView.SortDescriptions.Add(new SortDescription("FinishTime", ListSortDirection.Descending));
+        _finishView.SortDescriptions.Add(new SortDescription("StartNumber", ListSortDirection.Descending));
         _finishView.IsLiveSortingRequested = true;
         _finishView.LiveSortingProperties.Add("FinishTime");
         _finishView.Filter += _finishView_Filter;
         _finishView.IsLiveFilteringRequested = true;
         _finishView.LiveFilteringProperties.Add("ResultCode");
         _finishView.LiveFilteringProperties.Add("FinishTime");
+        _finishView.LiveFilteringProperties.Add("Runtime");
 
         dgFinish.ItemsSource = _finishView.View;
         EnableOrDisableColumns(_thisRace, dgFinish);
@@ -664,7 +680,7 @@ namespace RaceHorology
 
       e.Accepted = 
         (rr.ResultCode != RunResult.EResultCode.NotSet && rr.ResultCode != RunResult.EResultCode.Normal) 
-        || (rr.ResultCode == RunResult.EResultCode.Normal && (rr.StartTime != null && rr.FinishTime != null));
+        || (rr.ResultCode == RunResult.EResultCode.Normal && ((rr.StartTime != null && rr.FinishTime != null)|| rr.RuntimeIntern != null ));
     }
 
 
@@ -1013,10 +1029,10 @@ namespace RaceHorology
       // Total Results
       else if (_totalResultsVP is RaceResultViewProvider)
       {
-        for (int i = 0; i < 2; i++)
+        foreach(var r in _thisRace.GetRuns())
         {
-          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", i + 1), string.Format("SubResults[{0}].Runtime", i + 1), string.Format("SubResults[{0}].RunResultCode ", i + 1)));
-          dgTotalResults.Columns.Add(createColumnSubPosition(string.Format("SubResults[{0}].Position", i+1)));
+          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
+          dgTotalResults.Columns.Add(createColumnSubPosition(string.Format("SubResults[{0}].Position", r.Run)));
         }
 
         dgTotalResults.Columns.Add(createTimeColumn("Total", "TotalTime", "ResultCode"));

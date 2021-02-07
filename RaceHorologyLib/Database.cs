@@ -381,7 +381,7 @@ namespace RaceHorologyLib
             r.SetStartTime(startTime);
             r.SetFinishTime(finishTime);
           }
-          else if (runTime != null)
+          if (runTime != null)
             r.SetRunTime(runTime);
 
           if (!reader.IsDBNull(reader.GetOrdinal("ergcode")))

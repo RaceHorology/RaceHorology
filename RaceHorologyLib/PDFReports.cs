@@ -119,7 +119,7 @@ namespace RaceHorologyLib
         img = new Image(ImageDataFactory.Create(ReadFully(stream)));
       }
 
-      if (img != null)
+      if (img == null)
       {
         string imgPath = FindImage(filenameWOExt);
         if (!string.IsNullOrEmpty(imgPath))
@@ -777,6 +777,9 @@ namespace RaceHorologyLib
 
     protected Paragraph createCellParagraphForTable(string text)
     {
+      if (text == null)
+        text = string.Empty;
+
       return new Paragraph(text)
         .SetFont(_tableFont)
         .SetFontSize(_tableFontSize)
@@ -788,6 +791,9 @@ namespace RaceHorologyLib
 
     protected Paragraph createHeaderCellParagraphForTable(string text)
     {
+      if (text == null)
+        text = string.Empty;
+
       return new Paragraph(text)
         .SetFont(_tableFontHeader)
         .SetFontSize(_tableFontSizeHeader);
