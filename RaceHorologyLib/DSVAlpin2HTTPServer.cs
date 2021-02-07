@@ -1154,8 +1154,8 @@ namespace RaceHorologyLib
       RaceRun rr = _dm.GetCurrentRaceRun();
 
       Dictionary<string, string> data = new Dictionary<string, string>();
-      data["type"] = r.RaceType.ToString();
-      data["run"] = rr.Run.ToString();
+      data["type"] = r?.RaceType.ToString();
+      data["run"] = rr?.Run.ToString();
 
       string output = null;
       Application.Current.Dispatcher.Invoke(() =>
