@@ -457,8 +457,14 @@ namespace RaceHorologyLib
     public static string ConvertRaceResults(ICollectionView results, uint runs)
     {
 
+      var fieldsRuns = new Dictionary<string, string>();
+
+      for (uint i = 1; i <= runs; i++)
+        fieldsRuns.Add(string.Format("Runtime{0}", i), string.Format("Zeit {0}", i));
+
       var fields = new Dictionary<string, object> 
-      { { "Id", "Id" },
+      { 
+        { "Id", "Id" },
         { "Position", "Platz" },
         { "StartNumber", "Startnummer" },
         { "Name", "Nachname" },
@@ -470,7 +476,7 @@ namespace RaceHorologyLib
         { "Class", "Klasse" },
         { "Group", "Gruppe" },
         { "Totaltime", "Zeit" },
-        { "Runtimes", new Dictionary<string,string> { { "Runtime1", "Zeit 1" }, { "Runtime2", "Zeit 2" } } },
+        { "Runtimes", fieldsRuns },
         { "DiffToFirst", "Diff" },
         { "DisqualText", "Bemerkung" }
       };
