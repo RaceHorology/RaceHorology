@@ -133,6 +133,20 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void Race_ParticpantDeleted()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipants(2);
+
+      Assert.AreEqual(2, tg.Model.GetRace(0).GetParticipants().Count);
+
+      tg.Model.GetParticipants().RemoveAt(0);
+      Assert.AreEqual(1, tg.Model.GetRace(0).GetParticipants().Count);
+    }
+
+
+
     /// <summary>
     /// Tests RaceRun with some sample scenarios.
     /// Main focus are the lists:
