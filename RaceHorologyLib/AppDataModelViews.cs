@@ -1186,6 +1186,7 @@ namespace RaceHorologyLib
     protected ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
     protected List<RaceRun> _lastConsideredRuns;
+    //protected List<ItemsChangedNotifier> _runResultsNotifier;
 
 
     protected virtual double calculatePoints(RaceResultItem rri)
@@ -1213,6 +1214,7 @@ namespace RaceHorologyLib
       }
 
       _lastConsideredRuns = new List<RaceRun>();
+      //_runResultsNotifier = new List<ItemsChangedNotifier>();
     }
 
 
@@ -1235,6 +1237,12 @@ namespace RaceHorologyLib
       {
         RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
         rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
+
+        //var notifier = new ItemsChangedNotifier(rrVP.GetViewList());
+        //_runResultsNotifier.Add(notifier);
+        //notifier.CollectionChanged += OnResultListCollectionChanged;
+        //notifier.ItemChanged += OnResultListItemChanged;
+
         OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
 
@@ -1302,6 +1310,14 @@ namespace RaceHorologyLib
 
       if (bSomethingChanged)
         ResortResults();
+    }
+
+
+    private void OnResultListItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is RunResultWithPosition rr)
+        if (UpdateResultsFor(rr?.Participant))
+          ResortResults();
     }
 
 
@@ -1374,6 +1390,13 @@ namespace RaceHorologyLib
         bool sigCh = rri.SetRunResult(res.Key, res.Value);
         //significantChange = significantChange || sigCh;
       }
+
+      // It may happen, that caused by _lastConsideredRuns a race gets removed resulting in not-updated SubResults
+      // In this casethe corresponding SubResult has to be removed 
+      List<uint> toDelete = new List<uint>();
+      foreach(var t in rri.SubResults) if (!results.ContainsKey(t.Key)) toDelete.Add(t.Key);
+      foreach(var k in toDelete) rri.SubResults.Remove(k);
+
       
       RunResult.EResultCode code;
       string disqualText;
