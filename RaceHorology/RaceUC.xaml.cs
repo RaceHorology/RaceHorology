@@ -869,6 +869,39 @@ namespace RaceHorology
       txtStartNumber.Focus();
     }
 
+
+    private void btnHandTiming_Click(object sender, RoutedEventArgs e)
+    {
+      HandTimingDlg dlg = new HandTimingDlg { Owner = Window.GetWindow(this) };
+      dlg.Init(_dataModel, _thisRace);
+      dlg.Show();
+    }
+
+    private void btnManualTimingNaS_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCode(RunResult.EResultCode.NaS);
+    }
+
+    private void btnManualTimingNiZ_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCode(RunResult.EResultCode.NiZ);
+    }
+
+    private void btnManualTimingDIS_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCode(RunResult.EResultCode.DIS);
+    }
+
+    private void storeResultCode(RunResult.EResultCode code)
+    {
+      uint startNumber = 0U;
+      try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+      RaceParticipant participant = _thisRace.GetParticipant(startNumber);
+      if (participant!= null)
+        _currentRaceRun.SetResultCode(participant, code);
+    }
+
+
     #endregion
 
 
@@ -1182,13 +1215,6 @@ namespace RaceHorology
     }
 
     #endregion
-
-    private void btnHandTiming_Click(object sender, RoutedEventArgs e)
-    {
-      HandTimingDlg dlg = new HandTimingDlg { Owner = Window.GetWindow(this) };
-      dlg.Init(_dataModel, _thisRace);
-      dlg.Show();
-    }
   }
 
   #region Utilities
