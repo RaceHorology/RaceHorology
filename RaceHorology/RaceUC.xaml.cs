@@ -757,7 +757,7 @@ namespace RaceHorology
     private void CheckTime(TextBox txtbox)
     {
       TimeSpan? ts = TimeSpanExtensions.ParseTimeSpan(txtbox.Text);
-      if (ts == null && txtbox.IsEnabled)
+      if (ts == null && !string.IsNullOrWhiteSpace(txtbox.Text) && txtbox.IsEnabled)
         txtbox.Background = Brushes.Orange;
       else
         txtbox.Background = Brushes.White;
@@ -792,7 +792,6 @@ namespace RaceHorology
           txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtRun.Text = rr.GetRunTime()?.ToString(@"mm\:ss\,ff");
-          return;
         }
         else
         {
@@ -808,6 +807,10 @@ namespace RaceHorology
         txtFinish.Text = "";
         txtRun.Text = "";
       }
+
+      CheckTime(txtStart);
+      CheckTime(txtFinish);
+      CheckTime(txtRun);
     }
 
 
