@@ -901,6 +901,14 @@ namespace RaceHorology
         _currentRaceRun.SetResultCode(participant, code);
     }
 
+    private void dgRemainingStarters_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (dgRemainingStarters.SelectedItem is StartListEntry entry)
+      {
+        txtStartNumber.Text = entry.StartNumber.ToString();
+      }
+
+    }
 
     #endregion
 
@@ -1215,6 +1223,7 @@ namespace RaceHorology
     }
 
     #endregion
+
   }
 
   #region Utilities
