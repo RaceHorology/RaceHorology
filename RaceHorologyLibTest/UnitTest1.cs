@@ -87,7 +87,8 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("02,21"), new TimeSpan(0, 0, 0, 2, 210));
       Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("02,3"), new TimeSpan(0, 0, 0, 2, 300));
       Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("1:01,111"), new TimeSpan(0, 0, 1, 1, 111));
-      //Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("99.111"), new TimeSpan(0, 0, 0, 1, 211));
+      Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("61.111"), new TimeSpan(0, 0, 1, 1, 111));
+      Assert.AreEqual(TimeSpanExtensions.ParseTimeSpan("121,11"), new TimeSpan(0, 0, 2, 1, 110));
     }
 
 
