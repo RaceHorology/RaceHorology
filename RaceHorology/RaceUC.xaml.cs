@@ -866,7 +866,7 @@ namespace RaceHorology
 
       }
 
-      txtStartNumber.Focus();
+      selectNextParticipant(participant);
     }
 
 
@@ -879,26 +879,51 @@ namespace RaceHorology
 
     private void btnManualTimingNaS_Click(object sender, RoutedEventArgs e)
     {
-      storeResultCode(RunResult.EResultCode.NaS);
+      storeResultCodeAndSelectNext(RunResult.EResultCode.NaS);
     }
 
     private void btnManualTimingNiZ_Click(object sender, RoutedEventArgs e)
     {
-      storeResultCode(RunResult.EResultCode.NiZ);
+      storeResultCodeAndSelectNext(RunResult.EResultCode.NiZ);
     }
 
     private void btnManualTimingDIS_Click(object sender, RoutedEventArgs e)
     {
-      storeResultCode(RunResult.EResultCode.DIS);
+      storeResultCodeAndSelectNext(RunResult.EResultCode.DIS);
     }
 
-    private void storeResultCode(RunResult.EResultCode code)
+    private void storeResultCodeAndSelectNext(RunResult.EResultCode code)
     {
       uint startNumber = 0U;
       try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
       RaceParticipant participant = _thisRace.GetParticipant(startNumber);
       if (participant!= null)
         _currentRaceRun.SetResultCode(participant, code);
+
+      selectNextParticipant(participant);
+    }
+
+    private void selectNextParticipant(RaceParticipant currentParticipant)
+    {
+      RaceParticipant nextParticipant = null;
+      bool useNext = false;
+      foreach(var sle in _rslVP.GetView().SourceCollection.OfType<StartListEntry>())
+      {
+        if (useNext)
+        {
+          nextParticipant = sle.Participant;
+          break;
+        }
+        if (sle.Participant == currentParticipant)
+          useNext = true;
+      }
+
+      if (nextParticipant!= null)
+      {
+        txtStartNumber.Text = nextParticipant.StartNumber.ToString();
+      }
+
+      txtStartNumber.Focus();
     }
 
     private void dgRemainingStarters_SelectionChanged(object sender, SelectionChangedEventArgs e)
