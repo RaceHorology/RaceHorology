@@ -133,6 +133,41 @@ namespace RaceHorologyLibTest
     }
 
 
+    class TestEventFired
+    {
+      RaceParticipant firedAdd, firedRemove;
+      public TestEventFired(RaceRun rr, Action<RaceRun, RaceRun.OnTrackChangedHandler> register)
+      {
+        register(rr, OnFiredHandler);
+        firedAdd = null;
+        firedRemove = null;
+      }
+
+      void OnFiredHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+      {
+        firedAdd = participantEnteredTrack;
+        firedRemove = participantLeftTrack;
+      }
+
+      public RaceParticipant HasFiredAdd(bool reset = true)
+      {
+        RaceParticipant b = firedAdd;
+        if (reset)
+          firedAdd = null;
+        return b;
+      }
+
+      public RaceParticipant HasFiredRemove(bool reset = true)
+      {
+        RaceParticipant b = firedRemove;
+        if (reset)
+          firedRemove = null;
+        return b;
+      }
+
+    }
+
+
     /// <summary>
     /// Tests RaceRun SetXXXTime() methods which are typically called by
     /// (a) Time computer (e.g. @see LiveTimingMeasurement)
@@ -148,11 +183,17 @@ namespace RaceHorologyLibTest
       var race = tg.Model.GetRace(0);
       var run = race.GetRun(0);
 
+      TestEventFired eventTesterOnTrack = new TestEventFired(run, (r, h) => r.OnTrackChanged += h);
+      TestEventFired eventTesterInFinish = new TestEventFired(run, (r, h) => r.InFinishChanged += h);
+
       // Initially, there aren't any results
       Assert.AreEqual(0, run.GetResultList().Count);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
       Assert.IsFalse(run.IsOrWasOnTrack(race.GetParticipant(1)));
       Assert.IsFalse(run.HasResults());
+      Assert.IsNull(eventTesterOnTrack.HasFiredAdd());
+      Assert.IsNull(eventTesterInFinish.HasFiredAdd());
+
 
       // Scenario A: Start / FinishTime
       run.SetStartTime(race.GetParticipant(1), new TimeSpan(8, 0, 0));
@@ -160,11 +201,19 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
       Assert.AreEqual(1, run.GetOnTrackList().Count);
       Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
+      Assert.AreEqual(1U, eventTesterOnTrack.HasFiredAdd().StartNumber);
+      Assert.AreEqual(0, run.GetInFinishList().Count);
+      Assert.IsNull(eventTesterInFinish.HasFiredAdd());
 
       run.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 0));
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsNull(eventTesterOnTrack.HasFiredAdd());
+      Assert.AreEqual(1U, eventTesterOnTrack.HasFiredRemove().StartNumber);
+      Assert.AreEqual(1, run.GetInFinishList().Count);
+      Assert.AreEqual(1U, eventTesterInFinish.HasFiredAdd().StartNumber);
+      Assert.IsNull(eventTesterInFinish.HasFiredRemove());
 
       // Scenario B: Runtime
       run.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 2, 0));
@@ -172,6 +221,12 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
       Assert.AreEqual(2U, run.GetResultList()[1].StartNumber);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.AreEqual(2, run.GetInFinishList().Count);
+
+      Assert.IsNull(eventTesterOnTrack.HasFiredAdd());
+      Assert.IsNull(eventTesterOnTrack.HasFiredRemove());
+      Assert.AreEqual(2U, eventTesterInFinish.HasFiredAdd().StartNumber);
+      Assert.IsNull(eventTesterInFinish.HasFiredRemove());
     }
 
 
