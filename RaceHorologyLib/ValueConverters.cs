@@ -82,6 +82,39 @@ namespace RaceHorologyLib
     }
   }
 
+  /// <summary>
+  /// Converts a position number into a string. Position 0 is transferred into "./."
+  /// </summary>
+  public class PercentageConverter : IValueConverter
+  {
+    private bool _bPrintZero;
+    public PercentageConverter()
+    {
+      _bPrintZero = false;
+    }
+
+
+    public PercentageConverter(bool bPrintZero)
+    {
+      _bPrintZero = bPrintZero;
+    }
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      double percentage = (double)value;
+
+      if (!_bPrintZero && percentage == 0)
+        return "";
+
+      return string.Format("{0:0.0}", percentage);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
 
   public class ResultCodeConverter : IValueConverter
   {

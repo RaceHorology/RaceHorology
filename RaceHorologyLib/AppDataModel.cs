@@ -483,6 +483,9 @@ namespace RaceHorologyLib
       foreach (var p in particpants)
         _participants.Add(p);
 
+      // Watch for changes on main particpants => react accordingly
+      _appDataModel.GetParticipants().CollectionChanged += onParticipants_CollectionChanged;
+
       //// RaceRuns ////
       _runs = new List<(RaceRun, DatabaseDelegatorRaceRun)>();
 
@@ -494,6 +497,13 @@ namespace RaceHorologyLib
       
       ViewConfigurator viewConfigurator = new ViewConfigurator(this);
       viewConfigurator.ConfigureRace(this);
+    }
+
+    private void onParticipants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+        foreach (Participant p in e.OldItems)
+          RemoveParticipant(p);
     }
 
 

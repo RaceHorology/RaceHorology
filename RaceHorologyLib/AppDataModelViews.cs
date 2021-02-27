@@ -1115,9 +1115,15 @@ namespace RaceHorologyLib
             System.Diagnostics.Debug.Assert(curPosition == 1);
             firstTime = item.Runtime;
             item.DiffToFirst = null;
+            item.DiffToFirstPercentage = 0;
           }
           else
+          {
             item.DiffToFirst = item.Runtime - firstTime;
+          }
+
+          if (item.DiffToFirst != null)
+            item.DiffToFirstPercentage = ((double)((TimeSpan)item.DiffToFirst).TotalMilliseconds) / (double)((TimeSpan)firstTime).TotalMilliseconds * 100.0;
 
           item.Position = curPosition;
           lastTime = item.Runtime;
@@ -1126,6 +1132,7 @@ namespace RaceHorologyLib
         {
           item.Position = 0;
           item.DiffToFirst = null;
+          item.DiffToFirstPercentage = 0.0;
         }
 
         // Set the JustModified flag to highlight new results
@@ -1470,9 +1477,13 @@ namespace RaceHorologyLib
             System.Diagnostics.Debug.Assert(curPosition == 1);
             firstTime = sortedItem.TotalTime;
             sortedItem.DiffToFirst = null;
+            sortedItem.DiffToFirstPercentage = 0;
           }
           else
             sortedItem.DiffToFirst = sortedItem.TotalTime - firstTime;
+
+          if (sortedItem.DiffToFirst != null)
+            sortedItem.DiffToFirstPercentage = ((double)((TimeSpan)sortedItem.DiffToFirst).TotalMilliseconds) / (double)((TimeSpan)firstTime).TotalMilliseconds * 100.0;
 
           sortedItem.Position = curPosition;
 
@@ -1484,6 +1495,7 @@ namespace RaceHorologyLib
         {
           sortedItem.Position = 0;
           sortedItem.DiffToFirst = null;
+          sortedItem.DiffToFirstPercentage = 0.0;
         }
 
         // Set the JustModified flag to highlight new results

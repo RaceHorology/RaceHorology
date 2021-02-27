@@ -84,13 +84,14 @@
               <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigFields" Margin="5" Content="Eingabefelder:" Grid.Column="0"/>
+            <Label x:Name="lblConfigFields" Margin="5" Content="Felder:" Grid.Column="0"/>
             <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch">
               <CheckBox x:Name="chkConfigFieldsYear" Content="Jahrgang" Margin="5"/>
               <CheckBox x:Name="chkConfigFieldsClub" Content="Verein" Margin="5"/>
               <CheckBox x:Name="chkConfigFieldsNation" Content="Nation/Verband" Margin="5"/>
               <CheckBox x:Name="chkConfigFieldsCode" Content="Code/SV-Id" Margin="5"/>
               <CheckBox x:Name="chkConfigFieldsPoints" Content="Punkte" Margin="5"/>
+              <CheckBox x:Name="chkConfigFieldsPercentage" Content="Diff [%]" Margin="5"/>
             </WrapPanel>
           </Grid>
 

@@ -505,6 +505,9 @@ namespace RaceHorologyLib
         Logger.Debug("RemoveParticipant(), SQL: {0}", GetDebugSqlString(cmd));
         int temp = cmd.ExecuteNonQuery();
         Logger.Debug("... affected rows: {0}", temp);
+
+        // Successfully deleted, remove participant from key list
+        _id2Participant.Remove(id); 
       }
       catch (Exception e)
       {
@@ -586,12 +589,8 @@ namespace RaceHorologyLib
       // Test whether the participant exists
       uint id = GetParticipantId(raceParticipant.Participant);
 
-      if (id == 0) // Store first
-      {
-        Debug.Assert(false, "just for testing whether this happens");
-        CreateOrUpdateParticipant(raceParticipant.Participant);
-        id = GetParticipantId(raceParticipant.Participant);
-      }
+      if (id == 0) // Particpant not existing => no updates 
+        return;
 
       string sql = @"UPDATE tblTeilnehmer SET ";
       switch (raceParticipant.Race.RaceType)
