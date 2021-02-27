@@ -839,6 +839,7 @@ namespace RaceHorologyLib
     private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
+    private ItemsChangeObservableCollection<RunResult> _inFinish;  // This list represents the particpants in finish.
 
     private StartListViewProvider _slVP;
     private ResultViewProvider _rvp;
@@ -859,6 +860,7 @@ namespace RaceHorologyLib
       _appDataModel = appDataModel;
 
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
+      _inFinish = new ItemsChangeObservableCollection<RunResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
 
       // Ensure the results always are in sync with participants
@@ -890,6 +892,11 @@ namespace RaceHorologyLib
     public ItemsChangeObservableCollection<LiveResult> GetOnTrackList()
     {
       return _onTrack;
+    }
+
+    public ItemsChangeObservableCollection<RunResult> GetInFinishList()
+    {
+      return _inFinish;
     }
 
     /// <summary>
@@ -1100,6 +1107,11 @@ namespace RaceHorologyLib
       return r.GetStartTime() != null || r.GetRunTime() != null || (r.ResultCode != RunResult.EResultCode.NotSet && r.ResultCode != RunResult.EResultCode.Normal);
     }
 
+    public bool WasOnTrack(RunResult r)
+    {
+      return r.GetRunTime() != null || (r.ResultCode != RunResult.EResultCode.NotSet && r.ResultCode != RunResult.EResultCode.Normal);
+    }
+
     public bool IsOrWasOnTrack(RaceParticipant rp)
     {
       RunResult result = _results.SingleOrDefault(r => r.Participant == rp);
@@ -1124,12 +1136,18 @@ namespace RaceHorologyLib
 
     public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult);
     public event OnTrackChangedHandler OnTrackChanged;
-
+    public event OnTrackChangedHandler InFinishChanged;
 
     /// <summary>
     /// Updates internal strucutures based on _results
     /// </summary>
     private void _UpdateInternals()
+    {
+      _UpdateOnTrack();
+      _UpdateInFinish();
+    }
+
+    private void _UpdateOnTrack()
     {
       var results = _results.ToArray();
 
@@ -1153,6 +1171,36 @@ namespace RaceHorologyLib
           _onTrack.Add(new LiveResult(r, _appDataModel));
 
           OnTrackChangedHandler handler = OnTrackChanged;
+          handler?.Invoke(this, r.Participant, null, r);
+        }
+      }
+    }
+
+
+    private void _UpdateInFinish()
+    {
+      var results = _results.ToArray();
+
+      // Remove from inFinish list if a result is available (= not on track anymore)
+      var itemsToRemove = _inFinish.Where(r => !IsOrWasOnTrack(r)).ToList();
+      foreach (var itemToRemove in itemsToRemove)
+      {
+        _inFinish.Remove(itemToRemove);
+
+        OnTrackChangedHandler handler = InFinishChanged;
+        handler?.Invoke(this, null, itemToRemove.Participant, itemToRemove);
+      }
+
+      // Add to onTrack list if run result is not yet available (= is on track)
+      var shallBeOnTrack = results.Where(r => WasOnTrack(r)).ToList();
+
+      foreach (var r in shallBeOnTrack)
+      {
+        if (_inFinish.SingleOrDefault(o => o.Participant == r.Participant) == null)
+        {
+          _inFinish.Add(new LiveResult(r, _appDataModel));
+
+          OnTrackChangedHandler handler = InFinishChanged;
           handler?.Invoke(this, r.Participant, null, r);
         }
       }
