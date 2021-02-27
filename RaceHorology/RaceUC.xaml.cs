@@ -191,6 +191,7 @@ namespace RaceHorology
       chkConfigFieldsNation.IsChecked = cfg.ActiveFields.Contains("Nation");
       chkConfigFieldsCode.IsChecked = cfg.ActiveFields.Contains("Code");
       chkConfigFieldsPoints.IsChecked = cfg.ActiveFields.Contains("Points");
+      chkConfigFieldsPercentage.IsChecked = cfg.ActiveFields.Contains("Percentage");
 
     }
 
@@ -237,6 +238,7 @@ namespace RaceHorology
       enableField(cfg.ActiveFields, "Nation", chkConfigFieldsNation.IsChecked);
       enableField(cfg.ActiveFields, "Code", chkConfigFieldsCode.IsChecked);
       enableField(cfg.ActiveFields, "Points", chkConfigFieldsPoints.IsChecked);
+      enableField(cfg.ActiveFields, "Percentage", chkConfigFieldsPercentage.IsChecked);
 
       return true;
     }
@@ -1204,6 +1206,7 @@ namespace RaceHorology
       EnableOrDisableColumn(race, dg, "Nation");
       EnableOrDisableColumn(race, dg, "Code");
       EnableOrDisableColumn(race, dg, "Points");
+      EnableOrDisableColumn(race, dg, "Percentage");
     }
 
 
