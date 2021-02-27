@@ -302,23 +302,36 @@ namespace RaceHorologyLib
       _raceRun = raceRun;
       _startersTillAutoNaS = startersTillAutoNaS;
 
-      _raceRun.OnTrackChanged += OnSomethingChanged;
+      _raceRun.OnTrackChanged += OnTrackChanged;
+
+      _raceRun.InFinishChanged += OnFinishChanged;
     }
 
 
-    private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    private void OnFinishChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    {
+      processStartListTill(participantEnteredTrack);
+    }
+
+
+    private void OnTrackChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    {
+      processStartListTill(participantEnteredTrack);
+    }
+
+    private void processStartListTill(RaceParticipant participant)
     {
       // Copy starters (copy to avoid any side effects)
       StartListEntry[] starters = _raceRun.GetStartListProvider().GetViewList().ToArray();
 
       // Participant enters track
-      if (participantEnteredTrack != null)
+      if (participant != null)
       {
         // Loop over StartList until the starter has been found, remember all not started participants
         List<StartListEntry> toPurge = new List<StartListEntry>();
         foreach (StartListEntry se in starters)
         {
-          if (se.Participant == participantEnteredTrack)
+          if (se.Participant == participant)
             break;
 
           toPurge.Add(se);
@@ -335,6 +348,7 @@ namespace RaceHorologyLib
     }
 
 
+
     #region IDisposable Support
     private bool disposedValue = false; // To detect redundant calls
 
@@ -345,7 +359,8 @@ namespace RaceHorologyLib
         if (disposing)
         {
           // TODO: dispose managed state (managed objects).
-          _raceRun.OnTrackChanged -= OnSomethingChanged;
+          _raceRun.OnTrackChanged -= OnTrackChanged;
+          _raceRun.InFinishChanged -= OnFinishChanged;
         }
 
         disposedValue = true;
