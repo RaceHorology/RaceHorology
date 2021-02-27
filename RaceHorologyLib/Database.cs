@@ -441,19 +441,16 @@ namespace RaceHorologyLib
         cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
-      if (string.IsNullOrEmpty(participant.SvId))
-        cmd.Parameters.Add(new OleDbParameter("@svid", DBNull.Value));
+      long svid = 0;
+      if (long.TryParse(participant.SvId, out svid))
+        cmd.Parameters.Add(new OleDbParameter("@svid", svid));
       else
-      {
-        long svid = 0;
-        if (long.TryParse(participant.SvId, out svid))
-          cmd.Parameters.Add(new OleDbParameter("@svid", svid));
-      }
+        cmd.Parameters.Add(new OleDbParameter("@svid", DBNull.Value));
+
       if (string.IsNullOrEmpty(participant.Code))
         cmd.Parameters.Add(new OleDbParameter("@code", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@code", participant.Code));
-
 
       cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class))); 
       cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
