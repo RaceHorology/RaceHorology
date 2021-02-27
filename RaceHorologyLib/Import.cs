@@ -268,7 +268,7 @@ namespace RaceHorologyLib
     {
       { "Name", new List<string>{ "Name", "Nachname" } },
       { "Firstname", new List<string>{"Vorname"} },
-      { "Sex", new List<string>{"Geschlecht", "Kategorie"} },
+      { "Sex", new List<string>{"Geschlecht", "Kategorie", "Sex", "m/w" } },
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG" } },
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
@@ -300,7 +300,7 @@ namespace RaceHorologyLib
     {
       { "Name", new List<string>{ "Name", "Nachname" } },
       { "Firstname", new List<string>{"Vorname", "Firstname"} },
-      { "Sex", new List<string>{"Geschlecht", "Kategorie", "Sex"} },
+      { "Sex", new List<string>{"Geschlecht", "Kategorie", "Sex", "m/w"} },
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG", "Year" } },
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },

@@ -1435,6 +1435,44 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void RaceResultViewProviderTest_Integration_Issue48()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      var vpRace = model.GetRace(0).GetTotalResultView();
+      var vpRun1 = model.GetRace(0).GetRun(0).GetResultView();
+      var vpRun2 = model.GetRace(0).GetRun(1).GetResultView();
+      foreach (var rr in model.GetRace(0).GetRuns())
+        rr.DeleteRunResults();
+
+
+      for (int i = 0; i < model.GetParticipants().Count; i++)
+      {
+        Assert.AreEqual(null, vpRun1.ViewToList<RunResultWithPosition>()[i].Runtime);
+
+        Assert.AreEqual(null, vpRun2.ViewToList<RunResultWithPosition>()[i].Runtime);
+
+        Assert.AreEqual(0U, vpRace.ViewToList<RaceResultItem>()[i].Position);
+        Assert.AreEqual(null, vpRace.ViewToList<RaceResultItem>()[i].TotalTime);
+        Assert.AreEqual(null, vpRace.ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+        foreach (var sr in vpRace.ViewToList<RaceResultItem>()[i].SubResults)
+        {
+          Assert.AreEqual(0U, sr.Value.Position);
+          Assert.AreEqual(null, sr.Value.Runtime);
+          //Assert.AreEqual(null, sr.Value.DiffToFirst);
+        }
+      }
+
+
+    }
+
 
   }
 }

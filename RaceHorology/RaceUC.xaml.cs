@@ -759,7 +759,7 @@ namespace RaceHorology
     private void CheckTime(TextBox txtbox)
     {
       TimeSpan? ts = TimeSpanExtensions.ParseTimeSpan(txtbox.Text);
-      if (ts == null && txtbox.IsEnabled)
+      if (ts == null && !string.IsNullOrWhiteSpace(txtbox.Text) && txtbox.IsEnabled)
         txtbox.Background = Brushes.Orange;
       else
         txtbox.Background = Brushes.White;
@@ -794,7 +794,6 @@ namespace RaceHorology
           txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtRun.Text = rr.GetRunTime()?.ToString(@"mm\:ss\,ff");
-          return;
         }
         else
         {
@@ -810,6 +809,10 @@ namespace RaceHorology
         txtFinish.Text = "";
         txtRun.Text = "";
       }
+
+      CheckTime(txtStart);
+      CheckTime(txtFinish);
+      CheckTime(txtRun);
     }
 
 
@@ -865,7 +868,73 @@ namespace RaceHorology
 
       }
 
+      selectNextParticipant(participant);
+    }
+
+
+    private void btnHandTiming_Click(object sender, RoutedEventArgs e)
+    {
+      HandTimingDlg dlg = new HandTimingDlg { Owner = Window.GetWindow(this) };
+      dlg.Init(_dataModel, _thisRace);
+      dlg.Show();
+    }
+
+    private void btnManualTimingNaS_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCodeAndSelectNext(RunResult.EResultCode.NaS);
+    }
+
+    private void btnManualTimingNiZ_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCodeAndSelectNext(RunResult.EResultCode.NiZ);
+    }
+
+    private void btnManualTimingDIS_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCodeAndSelectNext(RunResult.EResultCode.DIS);
+    }
+
+    private void storeResultCodeAndSelectNext(RunResult.EResultCode code)
+    {
+      uint startNumber = 0U;
+      try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+      RaceParticipant participant = _thisRace.GetParticipant(startNumber);
+      if (participant!= null)
+        _currentRaceRun.SetResultCode(participant, code);
+
+      selectNextParticipant(participant);
+    }
+
+    private void selectNextParticipant(RaceParticipant currentParticipant)
+    {
+      RaceParticipant nextParticipant = null;
+      bool useNext = false;
+      foreach(var sle in _rslVP.GetView().SourceCollection.OfType<StartListEntry>())
+      {
+        if (useNext)
+        {
+          nextParticipant = sle.Participant;
+          break;
+        }
+        if (sle.Participant == currentParticipant)
+          useNext = true;
+      }
+
+      if (nextParticipant!= null)
+      {
+        txtStartNumber.Text = nextParticipant.StartNumber.ToString();
+      }
+
       txtStartNumber.Focus();
+    }
+
+    private void dgRemainingStarters_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (dgRemainingStarters.SelectedItem is StartListEntry entry)
+      {
+        txtStartNumber.Text = entry.StartNumber.ToString();
+      }
+
     }
 
     #endregion
@@ -1224,12 +1293,6 @@ namespace RaceHorology
 
     #endregion
 
-    private void btnHandTiming_Click(object sender, RoutedEventArgs e)
-    {
-      HandTimingDlg dlg = new HandTimingDlg { Owner = Window.GetWindow(this) };
-      dlg.Init(_dataModel, _thisRace);
-      dlg.Show();
-    }
   }
 
   #region Utilities

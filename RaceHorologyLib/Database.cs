@@ -378,11 +378,11 @@ namespace RaceHorologyLib
 
           if (startTime != null || finishTime != null)
           {
-            r.SetStartTime(startTime);
-            r.SetFinishTime(finishTime);
+            r.SetStartTime(startTime, false);
+            r.SetFinishTime(finishTime, false);
           }
           if (runTime != null)
-            r.SetRunTime(runTime);
+            r.SetRunTime(runTime, false);
 
           if (!reader.IsDBNull(reader.GetOrdinal("ergcode")))
             r.ResultCode = (RunResult.EResultCode)(byte)reader.GetValue(reader.GetOrdinal("ergcode"));

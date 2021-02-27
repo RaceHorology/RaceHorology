@@ -922,13 +922,16 @@ namespace RaceHorologyLib
     }
 
 
-    public void SetRunTime(TimeSpan? t)
+    public void SetRunTime(TimeSpan? t, bool resetResultCode = true)
     {
       _runTime = t;
 
+      if (resetResultCode)
+        _resultCode = EResultCode.Normal;
+
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
-      
+
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
@@ -947,13 +950,20 @@ namespace RaceHorologyLib
     }
 
 
-    public void SetStartTime(TimeSpan? startTime)
+    public void SetStartTime(TimeSpan? startTime, bool resetResultCode = true)
     {
       _startTime = startTime;
 
-      // Reset result code if it was related to the start time
-      if (ResultCode == EResultCode.NaS)
+      if (resetResultCode)
+      {
         ResultCode = EResultCode.Normal;
+        // Reset FinishTime as well if start time is newer than finishtime
+        if (_startTime > _finishTime)
+        {
+          _finishTime = null;
+          NotifyPropertyChanged(propertyName: nameof(FinishTime));
+        }
+      }
 
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
@@ -962,12 +972,11 @@ namespace RaceHorologyLib
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public void SetFinishTime(TimeSpan? finishTime)
+    public void SetFinishTime(TimeSpan? finishTime, bool resetResultCode = true)
     {
       _finishTime = finishTime;
 
-      // Reset result code if it was related to the finish time
-      if (ResultCode == EResultCode.NiZ)
+      if (resetResultCode)
         ResultCode = EResultCode.Normal;
 
       if (_resultCode == EResultCode.NotSet)

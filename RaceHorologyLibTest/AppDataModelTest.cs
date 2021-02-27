@@ -133,6 +133,41 @@ namespace RaceHorologyLibTest
     }
 
 
+    class TestEventFired
+    {
+      RaceParticipant firedAdd, firedRemove;
+      public TestEventFired(RaceRun rr, Action<RaceRun, RaceRun.OnTrackChangedHandler> register)
+      {
+        register(rr, OnFiredHandler);
+        firedAdd = null;
+        firedRemove = null;
+      }
+
+      void OnFiredHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+      {
+        firedAdd = participantEnteredTrack;
+        firedRemove = participantLeftTrack;
+      }
+
+      public RaceParticipant HasFiredAdd(bool reset = true)
+      {
+        RaceParticipant b = firedAdd;
+        if (reset)
+          firedAdd = null;
+        return b;
+      }
+
+      public RaceParticipant HasFiredRemove(bool reset = true)
+      {
+        RaceParticipant b = firedRemove;
+        if (reset)
+          firedRemove = null;
+        return b;
+      }
+
+    }
+
+
     [TestMethod]
     public void Race_ParticpantDeleted()
     {
@@ -145,6 +180,132 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1, tg.Model.GetRace(0).GetParticipants().Count);
     }
 
+
+
+    /// <summary>
+    /// Tests RaceRun SetXXXTime() methods which are typically called by
+    /// (a) Time computer (e.g. @see LiveTimingMeasurement)
+    /// (b) Interactive entering timing
+    /// </summary>
+    [TestMethod]
+    public void RaceRun_Timing_Scenario()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      tg.createRaceParticipants(2);
+
+      var race = tg.Model.GetRace(0);
+      var run = race.GetRun(0);
+
+      TestEventFired eventTesterOnTrack = new TestEventFired(run, (r, h) => r.OnTrackChanged += h);
+      TestEventFired eventTesterInFinish = new TestEventFired(run, (r, h) => r.InFinishChanged += h);
+
+      // Initially, there aren't any results
+      Assert.AreEqual(0, run.GetResultList().Count);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsFalse(run.IsOrWasOnTrack(race.GetParticipant(1)));
+      Assert.IsFalse(run.HasResults());
+      Assert.IsNull(eventTesterOnTrack.HasFiredAdd());
+      Assert.IsNull(eventTesterInFinish.HasFiredAdd());
+
+
+      // Scenario A: Start / FinishTime
+      run.SetStartTime(race.GetParticipant(1), new TimeSpan(8, 0, 0));
+      Assert.AreEqual(1, run.GetResultList().Count);
+      Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
+      Assert.AreEqual(1, run.GetOnTrackList().Count);
+      Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
+      Assert.AreEqual(1U, eventTesterOnTrack.HasFiredAdd().StartNumber);
+      Assert.AreEqual(0, run.GetInFinishList().Count);
+      Assert.IsNull(eventTesterInFinish.HasFiredAdd());
+
+      run.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 0));
+      Assert.AreEqual(1, run.GetResultList().Count);
+      Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsNull(eventTesterOnTrack.HasFiredAdd());
+      Assert.AreEqual(1U, eventTesterOnTrack.HasFiredRemove().StartNumber);
+      Assert.AreEqual(1, run.GetInFinishList().Count);
+      Assert.AreEqual(1U, eventTesterInFinish.HasFiredAdd().StartNumber);
+      Assert.IsNull(eventTesterInFinish.HasFiredRemove());
+
+      // Scenario B: Runtime
+      run.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 2, 0));
+      Assert.AreEqual(2, run.GetResultList().Count);
+      Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
+      Assert.AreEqual(2U, run.GetResultList()[1].StartNumber);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.AreEqual(2, run.GetInFinishList().Count);
+
+      Assert.IsNull(eventTesterOnTrack.HasFiredAdd());
+      Assert.IsNull(eventTesterOnTrack.HasFiredRemove());
+      Assert.AreEqual(2U, eventTesterInFinish.HasFiredAdd().StartNumber);
+      Assert.IsNull(eventTesterInFinish.HasFiredRemove());
+    }
+
+
+    /// <summary>
+    /// Special handling of ResultCode in case a new time arrives
+    /// </summary>
+    [TestMethod]
+    public void RaceRun_Timing_SpecialHandling_ResultCode()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      tg.createRaceParticipants(2);
+
+      var race = tg.Model.GetRace(0);
+      var run = race.GetRun(0);
+
+      // Initially, there aren't any results
+      Assert.AreEqual(0, run.GetResultList().Count);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsFalse(run.IsOrWasOnTrack(race.GetParticipant(1)));
+      Assert.IsFalse(run.HasResults());
+
+      // NiZ
+      run.SetStartTime(race.GetParticipant(1), new TimeSpan(8, 0, 0));
+      Assert.AreEqual(1, run.GetResultList().Count);
+      Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
+      Assert.AreEqual(1, run.GetOnTrackList().Count);
+      Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
+
+      run.SetResultCode(race.GetParticipant(1), RunResult.EResultCode.NiZ);
+      Assert.AreEqual(1, run.GetResultList().Count);
+      Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+
+      // ... and came later to the finish
+      Assert.AreEqual(RunResult.EResultCode.NiZ, run.GetResultList().FirstOrDefault(p => p.StartNumber == 1).ResultCode);
+      run.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 0));
+      Assert.AreEqual(RunResult.EResultCode.Normal, run.GetResultList().FirstOrDefault(p => p.StartNumber == 1).ResultCode);
+      // Set NiZ again for later test
+      run.SetResultCode(race.GetParticipant(1), RunResult.EResultCode.NiZ);
+      Assert.AreEqual(RunResult.EResultCode.NiZ, run.GetResultList().FirstOrDefault(p => p.StartNumber == 1).ResultCode);
+
+
+      // NaS
+      run.SetResultCode(race.GetParticipant(2), RunResult.EResultCode.NaS);
+      Assert.AreEqual(2, run.GetResultList().Count);
+      Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
+      Assert.AreEqual(2U, run.GetResultList()[1].StartNumber);
+      Assert.AreEqual(0, run.GetOnTrackList().Count);
+
+
+      // Special handling: Participant is allowed to restart and gets a new time => ResultCode shall be deleted
+      Assert.AreEqual(RunResult.EResultCode.NiZ, run.GetResultList().FirstOrDefault(p => p.StartNumber == 1).ResultCode);
+      run.SetStartTime(race.GetParticipant(1), new TimeSpan(9, 0, 0));
+      Assert.IsNotNull(run.GetResultList().FirstOrDefault(p => p.StartNumber == 1));
+      Assert.AreEqual(RunResult.EResultCode.Normal, run.GetResultList().FirstOrDefault(p => p.StartNumber == 1).ResultCode);
+      Assert.IsNotNull(run.GetOnTrackList().FirstOrDefault(p => p.StartNumber == 1));
+      run.SetFinishTime(race.GetParticipant(1), new TimeSpan(9, 1, 0));
+      Assert.IsNotNull(run.GetResultList().FirstOrDefault(p => p.StartNumber == 1));
+      Assert.IsNull(run.GetOnTrackList().FirstOrDefault(p => p.StartNumber == 1));
+
+      Assert.AreEqual(RunResult.EResultCode.NaS, run.GetResultList().FirstOrDefault(p => p.StartNumber == 2).ResultCode);
+      run.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 1, 0));
+      Assert.AreEqual(RunResult.EResultCode.Normal, run.GetResultList().FirstOrDefault(p => p.StartNumber == 2).ResultCode);
+    }
 
 
     /// <summary>

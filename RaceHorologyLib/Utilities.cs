@@ -540,6 +540,21 @@ namespace RaceHorologyLib
       catch (FormatException)
       { }
 
+
+      if (time == null) // treat as seconds
+      {
+        try
+        {
+          double value = 0.0;
+          text = text.Replace(',', '.');
+          value = double.Parse(text, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+          long ticks = (long)(value * 10000000);
+          time = new TimeSpan(ticks);
+        }
+        catch (Exception)
+        { }
+      }
+
       return time;
     }
 
