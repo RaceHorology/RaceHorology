@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="0.3.0" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
+	<Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="0.4.0" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
