@@ -59,7 +59,7 @@ namespace RaceHorology
         _importMapping = new RaceMapping(_importReader.Columns);
         mappingUC.Mapping = _importMapping;
 
-        dgImport.ItemsSource = _importReader.Data.Tables[0].DefaultView;
+        bindDataGrid(_importReader.Data.Tables[0].DefaultView);
 
         FillRaceList(lbRaces, _dm);
 
@@ -67,6 +67,33 @@ namespace RaceHorology
       }
 
       return false;
+    }
+
+    void bindDataGrid(System.Data.DataView source)
+    {
+      dgImport.AutoGenerateColumns = false;
+      dgImport.Columns.Clear();
+      dgImport.ItemsSource = source;
+
+      // Create columns
+      foreach (var col in source.Table.Columns)
+      {
+        DataGridTextColumn dgc = new DataGridTextColumn
+        {
+          Header = col.ToString()
+        };
+
+        Binding b = new Binding()
+        {
+          Mode = BindingMode.OneWay,
+          Path = new PropertyPath(string.Format("[{0}]", col.ToString()))
+        };
+
+        dgc.Binding = b;
+
+        dgImport.Columns.Add(dgc);
+      }
+
     }
 
 
