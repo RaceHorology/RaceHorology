@@ -654,6 +654,8 @@ namespace RaceHorologyLib
     {
       // Remember the source
       _srcStartListProvider = startListProvider;
+      SetDefaultGrouping(_srcStartListProvider.ActiveGrouping);
+
       _raceRun = raceRun;
 
 
