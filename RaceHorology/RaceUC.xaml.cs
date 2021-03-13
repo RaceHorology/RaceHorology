@@ -1234,6 +1234,73 @@ namespace RaceHorology
     }
 
 
+
+    private void BtnExportCsv_Click(object sender, RoutedEventArgs e)
+    {
+      string filePath = System.IO.Path.Combine(
+        _dataModel.GetDB().GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + ".csv");
+
+      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
+      openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
+      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
+      openFileDialog.DefaultExt = ".csv";
+      openFileDialog.Filter = "Comma Separated Text File (.csv)|*.csv";
+      try
+      {
+        if (openFileDialog.ShowDialog() == true)
+        {
+          filePath = openFileDialog.FileName;
+
+          Export exp = new Export(_thisRace);
+
+          CsvExport csvExp = new CsvExport();
+          csvExp.Export(filePath, exp.ExportToDataSet());
+        }
+      }
+      catch (Exception ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
+          "Fehler",
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+      }
+    }
+
+    private void BtnExportXlsx_Click(object sender, RoutedEventArgs e)
+    {
+      string filePath = System.IO.Path.Combine(
+        _dataModel.GetDB().GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + ".xlsx");
+
+      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
+      openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
+      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
+      openFileDialog.DefaultExt = ".csv";
+      openFileDialog.Filter = "Microsoft Excel (.xlsx)|*.xslx";
+      try
+      {
+        if (openFileDialog.ShowDialog() == true)
+        {
+          filePath = openFileDialog.FileName;
+
+          Export exp = new Export(_thisRace);
+
+          ExcelExport csvExp = new ExcelExport();
+          csvExp.Export(filePath, exp.ExportToDataSet());
+        }
+      }
+      catch (Exception ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
+          "Fehler",
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+      }
+    }
+
+
+
     public static void CreateAndOpenReport(IPDFReport report)
     {
       if (report == null)
@@ -1292,7 +1359,6 @@ namespace RaceHorology
     }
 
     #endregion
-
   }
 
   #region Utilities
