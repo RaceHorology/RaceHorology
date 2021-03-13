@@ -122,6 +122,9 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("Firstname 1", ds.Tables[0].Rows[0]["Firstname"]);
       Assert.AreEqual(1.0, ds.Tables[0].Rows[0]["Points"]);
 
+
+      var excelExport = new ExcelExport();
+      excelExport.Export(@"c:\trash\test.xlsx", ds);
     }
   }
 }

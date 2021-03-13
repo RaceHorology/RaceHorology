@@ -33,6 +33,7 @@
  * 
  */
 
+using ClosedXML.Excel;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -110,4 +111,18 @@ namespace RaceHorologyLib
 
 
   }
+
+
+  public class ExcelExport
+  {
+    public void Export(string path, DataSet ds)
+    {
+      var excelWb = new XLWorkbook();
+      excelWb.Worksheets.Add(ds);
+
+      excelWb.SaveAs(path);
+    }
+
+  }
+
 }
