@@ -141,10 +141,10 @@ namespace RaceHorologyLib
         RunResult runRes = rr.GetRunResult(rp);
         if (runRes != null)
         {
-          if (runRes.Runtime != null)
+          if (runRes.RuntimeWOResultCode != null)
           {
-            row[string.Format("Runtime_{0}", rr.Run)] = runRes.Runtime;
-            row[string.Format("RuntimeSeconds_{0}", rr.Run)] = ((TimeSpan)runRes.Runtime).TotalSeconds;
+            row[string.Format("Runtime_{0}", rr.Run)] = runRes.RuntimeWOResultCode;
+            row[string.Format("RuntimeSeconds_{0}", rr.Run)] = ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds;
           }
           if (runRes.ResultCode != RunResult.EResultCode.NotSet)
             row[string.Format("Resultcode_{0}", rr.Run)] = runRes.ResultCode;
