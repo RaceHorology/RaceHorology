@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -164,6 +164,15 @@ namespace RaceHorologyLib
     {
       var excelWb = new XLWorkbook();
       excelWb.Worksheets.Add(ds);
+
+      // Make the columns with time the right format
+      var ws = excelWb.Worksheets.First();
+      for(int colIdx=0; colIdx < ds.Tables[0].Columns.Count; colIdx++)
+      {
+        var col = ds.Tables[0].Columns[colIdx];
+        if (col.DataType == typeof(TimeSpan))
+          ws.Range(1, colIdx+1, ds.Tables[0].Rows.Count + 1, colIdx+1).Style.DateFormat.Format = "mm:ss.00";
+      }
 
       excelWb.SaveAs(path);
     }
