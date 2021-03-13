@@ -105,6 +105,9 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ClosedXML">
+      <Version>0.95.4</Version>
+    </PackageReference>
     <PackageReference Include="ExcelDataReader">
       <Version>3.6.0</Version>
     </PackageReference>
