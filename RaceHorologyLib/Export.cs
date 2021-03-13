@@ -47,15 +47,25 @@ namespace RaceHorologyLib
 {
   public class Export
   {
-    public DataSet ExportToDataSet(Race race)
+    Race _race;
+
+    public Export(Race race)
+    {
+      _race = race;
+    }
+
+
+    public DataSet ExportToDataSet()
     {
       DataSet ds = new DataSet();
 
       DataTable table = createTable(ds);
+      table = addColumnsPerRun(table);
 
-      foreach(var rp in race.GetParticipants())
+      foreach(var rp in _race.GetParticipants())
       {
         DataRow row = createDataRow(table, rp);
+        row = addDataPerRun(row, rp);
         table.Rows.Add(row);
       }
 
@@ -87,6 +97,19 @@ namespace RaceHorologyLib
       return table;
     }
 
+    protected DataTable addColumnsPerRun(DataTable table)
+    {
+      foreach(RaceRun rr in _race.GetRuns())
+      {
+        table.Columns.Add(string.Format("Runtime_{0}", rr.Run), typeof(TimeSpan));
+        table.Columns.Add(string.Format("RuntimeSeconds_{0}", rr.Run), typeof(double));
+        
+        table.Columns.Add(string.Format("Resultcode_{0}", rr.Run));
+      }
+
+      return table;
+    }
+
     protected DataRow createDataRow(DataTable table, RaceParticipant rp)
     {
       DataRow row = table.NewRow();
@@ -107,6 +130,26 @@ namespace RaceHorologyLib
 
       row["StartNumber"] = rp.StartNumber;
       row["Points"] = rp.Points;
+
+      return row;
+    }
+
+    protected DataRow addDataPerRun(DataRow row, RaceParticipant rp)
+    {
+      foreach (RaceRun rr in _race.GetRuns())
+      {
+        RunResult runRes = rr.GetRunResult(rp);
+        if (runRes != null)
+        {
+          if (runRes.Runtime != null)
+          {
+            row[string.Format("Runtime_{0}", rr.Run)] = runRes.Runtime;
+            row[string.Format("RuntimeSeconds_{0}", rr.Run)] = ((TimeSpan)runRes.Runtime).TotalSeconds;
+          }
+          if (runRes.ResultCode != RunResult.EResultCode.NotSet)
+            row[string.Format("Resultcode_{0}", rr.Run)] = runRes.ResultCode;
+        }
+      }
 
       return row;
     }

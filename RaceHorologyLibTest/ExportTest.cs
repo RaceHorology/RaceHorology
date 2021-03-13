@@ -100,17 +100,26 @@ namespace RaceHorologyLibTest
     {
       TestDataGenerator tg = new TestDataGenerator();
       tg.createCatsClassesGroups();
+      Race race = tg.Model.GetRace(0);
 
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 1.0);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 1.0); // 1
       tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 2.0);
       tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 3.0);
 
-      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: 1.5);
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: 1.5); // 4
       tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: 2.5);
-      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: 3.5);
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: 3.5); // 6
 
-      Export export = new Export();
-      DataSet ds = export.ExportToDataSet(tg.Model.GetRace(0));
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
+      rr1.SetStartFinishTime(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 0));
+      rr2.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 0, 2, 0, 123));
+
+      rr1.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 1, 1));
+      rr1.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);
+
+      Export export = new Export(tg.Model.GetRace(0));
+      DataSet ds = export.ExportToDataSet();
 
       Assert.AreEqual("Name 1", ds.Tables[0].Rows[0]["Name"]);
       Assert.AreEqual("Name 2", ds.Tables[0].Rows[1]["Name"]);
@@ -121,6 +130,11 @@ namespace RaceHorologyLibTest
 
       Assert.AreEqual("Firstname 1", ds.Tables[0].Rows[0]["Firstname"]);
       Assert.AreEqual(1.0, ds.Tables[0].Rows[0]["Points"]);
+      Assert.AreEqual(new TimeSpan(0, 1, 0), ds.Tables[0].Rows[0]["Runtime_1"]);
+      Assert.AreEqual("Normal", ds.Tables[0].Rows[0]["Resultcode_1"]);
+      Assert.AreEqual(new TimeSpan(0, 0, 2, 0, 120), ds.Tables[0].Rows[0]["Runtime_2"]);
+      Assert.AreEqual("Normal", ds.Tables[0].Rows[0]["Resultcode_2"]);
+      Assert.AreEqual("NiZ", ds.Tables[0].Rows[2]["Resultcode_1"]);
 
 
       var excelExport = new ExcelExport();
