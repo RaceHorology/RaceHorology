@@ -1276,7 +1276,7 @@ namespace RaceHorology
       Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
       openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
       openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
-      openFileDialog.DefaultExt = ".csv";
+      openFileDialog.DefaultExt = ".xlsx";
       openFileDialog.Filter = "Microsoft Excel (.xlsx)|*.xslx";
       try
       {
