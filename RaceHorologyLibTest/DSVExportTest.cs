@@ -327,6 +327,47 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='6']/@status", s, "DSQ1");
     }
 
+    [TestMethod]
+    public void Verify_guessLastAndFirstname()
+    {
+      string lastname, firstname;
+
+      lastname = firstname = string.Empty;
+      DSVExport.guessLastAndFirstname("Sven Flossmann", out lastname, out firstname);
+      Assert.AreEqual("Sven", firstname);
+      Assert.AreEqual("Flossmann", lastname);
+
+      lastname = firstname = string.Empty;
+      DSVExport.guessLastAndFirstname("S.Flossmann", out lastname, out firstname);
+      Assert.AreEqual("S.", firstname);
+      Assert.AreEqual("Flossmann", lastname);
+
+      lastname = firstname = string.Empty;
+      DSVExport.guessLastAndFirstname("Flossmann, Sven", out lastname, out firstname);
+      Assert.AreEqual("Sven", firstname);
+      Assert.AreEqual("Flossmann", lastname);
+
+      lastname = firstname = string.Empty;
+      DSVExport.guessLastAndFirstname("Flossmann", out lastname, out firstname);
+      Assert.AreEqual(string.Empty, firstname);
+      Assert.AreEqual("Flossmann", lastname);
+
+      lastname = firstname = string.Empty;
+      DSVExport.guessLastAndFirstname("Flossmann, Sven Theo", out lastname, out firstname);
+      Assert.AreEqual("Sven Theo", firstname);
+      Assert.AreEqual("Flossmann", lastname);
+
+      lastname = firstname = string.Empty;
+      DSVExport.guessLastAndFirstname("Sven Theo Flossmann", out lastname, out firstname);
+      Assert.AreEqual("Sven Theo", firstname);
+      Assert.AreEqual("Flossmann", lastname);
+
+      lastname = firstname = string.Empty;
+      DSVExport.guessLastAndFirstname("S. Flossmann / Z. Zweigelt", out lastname, out firstname);
+      Assert.AreEqual(string.Empty, firstname);
+      Assert.AreEqual("S. Flossmann / Z. Zweigelt", lastname);
+    }
+
 
     string exportToXML(Race race)
     {
