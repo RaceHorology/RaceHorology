@@ -434,7 +434,7 @@ namespace RaceHorologyLib
     }
 
 
-    static void guessLastAndFirstname(string name, out string lastname, out string firstname)
+    internal static void guessLastAndFirstname(string name, out string lastname, out string firstname)
     {
       lastname = string.Empty;
       firstname = string.Empty;
@@ -442,7 +442,7 @@ namespace RaceHorologyLib
       if (string.IsNullOrEmpty(name))
         return;
 
-      if (name.Contains(",")) // Assume: Name, Firstname
+      if (name.Count(f => f == ',') == 1) // Assume: Name, Firstname
       {
         var nameParts = new List<string>();
         foreach (var n in name.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries))
@@ -454,7 +454,7 @@ namespace RaceHorologyLib
         if (nameParts.Count > 1)
           firstname = nameParts[1];
       }
-      else if (name.Contains(".")) // Assume: F.Name
+      else if (name.Count(f => f == '.') == 1) // Assume: F.Name
       {
         var nameParts = new List<string>();
         foreach (var n in name.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries))
@@ -465,6 +465,10 @@ namespace RaceHorologyLib
 
         if (nameParts.Count > 1)
           lastname = nameParts[1];
+      }
+      else if (name.Count(f => f == '.' || f == ',') >= 1) // Special formatted case, treat all as lastname
+      {
+        lastname = name;
       }
       else // Assume: "Firstname Name" or "First Second Name" or "F. Name" or "Name"
       {
