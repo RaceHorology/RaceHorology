@@ -223,6 +223,9 @@ namespace RaceHorologyLib
   }
 
 
+  /// <summary>
+  /// Creates a start list by comparing the start number taking into account the Sorting and Grouping
+  /// </summary>
   public class FirstRunStartListViewProvider :  StartListViewProvider
   {
     protected ObservableCollection<RaceParticipant> _participants;
@@ -331,7 +334,15 @@ namespace RaceHorologyLib
 
 
 
-  // First n (15) per grouping are always kept constant
+  /// <summary>
+  /// Provides a start list based on startnumber and points following the criterias:
+  /// - Best first firstNStartnumbers (15) based on the points are randomized
+  /// - Succeeding start list entries are sorted based on the points
+  /// 
+  /// Use case: 
+  /// - Define start numbers based on DSV rules (15 random, remaining points descending)
+  /// - Late registration: shall not influence first 15, however it shall be in the correct order after the first 15 starters.
+  /// </summary>
   public class DSVFirstRunStartListViewProvider : FirstRunStartListViewProvider
   {
     int _firstNStartnumbers;
@@ -350,7 +361,9 @@ namespace RaceHorologyLib
 
 
 
-
+  /// <summary>
+  /// Base class for start list providers using results from a previous run
+  /// </summary>
   public abstract class SecondRunStartListViewProvider : StartListViewProvider
   {
     // Input: List<StartListEntry> (1st run),
@@ -358,12 +371,16 @@ namespace RaceHorologyLib
 
     public abstract void Init(RaceRun previousRun);
 
-    // Output: sorted List<StartListEntry> according to StartNumber
+    // Output: sorted List<StartListEntry>
 
   }
 
 
-  // wie 1. DG, 1. DG rückwärts
+  /// <summary>
+  /// Simplest form of a start list provider for 2nd run. Supports:
+  /// - Based startnumber ascending
+  /// - Based startnumber descending
+  /// </summary>
   public class SimpleSecondRunStartListViewProvider : SecondRunStartListViewProvider
   {
     // Input
@@ -606,6 +623,11 @@ namespace RaceHorologyLib
 
 
 
+  /// <summary>
+  /// Proxies a start list (see Init())
+  /// If the starter already started, the flag Started of the StartListEntry is set to true.
+  /// The view provided by GetView() is filtered to only contain entries with the flag Started set to false.
+  /// </summary>
   public class RemainingStartListViewProvider : IStartListViewProvider
   {
     StartListViewProvider _srcStartListProvider;
@@ -623,6 +645,41 @@ namespace RaceHorologyLib
       _view = new CollectionViewSource();
     }
 
+    /// <summary>
+    /// Initializes the view provider
+    /// </summary>
+    /// <param name="startListProvider">A StartListViewProvider that is the source to proxy.</param>
+    /// <param name="raceRun">The corresonding race run to consider whether a specific starter already started.</param>
+    public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
+    {
+      // Remember the source
+      _srcStartListProvider = startListProvider;
+      SetDefaultGrouping(_srcStartListProvider.ActiveGrouping);
+
+      _raceRun = raceRun;
+
+
+      // Create working list
+      _viewList = new CopyObservableCollection<StartListEntry, StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy(), true);
+      foreach (StartListEntry entry in _viewList)
+        UpdateStartListEntry(entry);
+
+      // Observe the results
+      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
+      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
+
+      // Observe StartList 
+      _viewList.CollectionChanged += OnStartListEntriesChanged;
+      //_viewList.ItemChanged += OnStartListEntryItemChanged;
+
+      // Create View with filtered items
+      ObservableCollection<StartListEntry> startList = _viewList;
+      _view.Source = startList;
+      _view.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
+      _view.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
+      _view.IsLiveFilteringRequested = true;
+    }
+
 
     public void SetDefaultGrouping(string propertyName)
     {
@@ -630,7 +687,6 @@ namespace RaceHorologyLib
       _defaultGrouping = propertyName;
       ResetToDefaultGrouping();
     }
-
 
     public void ChangeGrouping(string propertyName)
     {
@@ -668,43 +724,13 @@ namespace RaceHorologyLib
     public string ActiveGrouping { get { return _activeGrouping; } }
 
 
-
-    // Input: StartListViewProvider or List<StartListEntry>
-    public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
-    {
-      // Remember the source
-      _srcStartListProvider = startListProvider;
-      _raceRun = raceRun;
-
-
-      // Create working list
-      _viewList = new CopyObservableCollection<StartListEntry, StartListEntry>(_srcStartListProvider.GetViewList(), sle => sle.ShallowCopy());
-      foreach (StartListEntry entry in _viewList)
-        UpdateStartListEntry(entry);
-
-      // Observe the results
-      _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
-      _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
-
-      // Observe StartList 
-      _viewList.CollectionChanged += OnStartListEntriesChanged;
-      //_viewList.ItemChanged += OnStartListEntryItemChanged;
-
-      // Create View with filtered items
-      ObservableCollection<StartListEntry> startList = _viewList;
-      _view.Source = startList;
-      _view.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
-      _view.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
-      _view.IsLiveFilteringRequested = true;
-    }
-
-
     // Output: List<StartListEntry> same way sorted as input StartList
     public ICollectionView GetView()
     {
       return _view.View;
     }
 
+    #region implementation details
 
     private void OnResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -713,7 +739,8 @@ namespace RaceHorologyLib
         {
           // Remove from _results
           RunResult result = (RunResult)item;
-          UpdateStartListEntry(result);
+          SetStartListEntryStartedFalse(result); // Site note: UpdateStartListEntry(result) doesn't work, because result is actually not valid anymore
+
         }
 
       if (e.NewItems != null)
@@ -756,6 +783,13 @@ namespace RaceHorologyLib
       UpdateStartListEntry(sle);
     }
 
+    private void SetStartListEntryStartedFalse(RunResult result)
+    {
+      StartListEntry se = _viewList.Where(r => r.Participant == result.Participant).FirstOrDefault();
+      if (se != null)
+        se.Started = false;
+    }
+
     private void UpdateStartListEntry(RunResult result)
     {
       StartListEntry se = _viewList.Where(r => r.Participant == result.Participant).FirstOrDefault();
@@ -771,7 +805,7 @@ namespace RaceHorologyLib
         se.Started = _raceRun.IsOrWasOnTrack(result);
     }
 
-
+    #endregion
 
   }
 
@@ -784,7 +818,11 @@ namespace RaceHorologyLib
   }
 
 
-
+  /// <summary>
+  /// BaseClass for RuntimeSorter and TotalTimeSorter
+  ///
+  /// Provides convenience methods for comparing by group.
+  /// </summary>
   public abstract class ResultSorter<T> : IComparer<T>
   {
     string _groupingPropertyName;
@@ -825,7 +863,13 @@ namespace RaceHorologyLib
   }
 
 
-  //Propagate class to sorter
+  /// <summary>
+  /// Compares two RunResults, taking into account:
+  /// - Group (Class, Group, Category)
+  /// - Runtime
+  /// - ResultCode
+  /// - StartNumber
+  /// </summary>
   public class RuntimeSorter : ResultSorter<RunResult>
   {
 
@@ -854,8 +898,9 @@ namespace RaceHorologyLib
       if (tX == null && tY == null)
         return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
-      // If equal, consider startnumber as well
+      // Main comparison: based on time
       int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
+      // If equal, consider startnumber as well
       if (timeComp == 0)
         return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
@@ -867,6 +912,8 @@ namespace RaceHorologyLib
   public class RaceRunResultViewProvider : ResultViewProvider
   {
     // Input Data
+    RaceRun _raceRun;
+    ItemsChangeObservableCollection<RaceParticipant> _participants;
     ItemsChangeObservableCollection<RunResult> _originalResults;
     AppDataModel _appDataModel;
 
@@ -890,17 +937,24 @@ namespace RaceHorologyLib
     // Input: RaceRun
     public virtual void Init(RaceRun raceRun, AppDataModel appDataModel)
     {
+      _raceRun = raceRun;
       _originalResults = raceRun.GetResultList();
       _appDataModel = appDataModel;
 
       _viewList = new ItemsChangeObservableCollection<RunResultWithPosition>();
 
       // Initialize and observe source list
-      PopulateInitially<RunResultWithPosition, RunResult>(_viewList, _originalResults, _comparer, CreateRunResultWithPosition);
-      UpdatePositions();
+      _participants = raceRun.GetRace().GetParticipants();
+      PopulateInitially<RunResultWithPosition, RaceParticipant>(_viewList, _participants, _comparer, CreateRunResultWithPosition);
+
+      // Trigger Updates on Participant Changes
+      _participants.CollectionChanged += Participants_CollectionChanged;
+      _participants.ItemChanged += Participants_ItemChanged;
+      // Trigger Updates in RunResult changes
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
 
+      UpdatePositions();
       FinalizeInit();
     }
 
@@ -936,43 +990,98 @@ namespace RaceHorologyLib
     }
 
 
+    private RunResultWithPosition CreateRunResultWithPosition(RaceParticipant r)
+    {
+      // Find RunResult
+      var rr = _raceRun.GetRunResult(r);
+      if (rr != null)
+      {
+        return CreateRunResultWithPosition(rr);
+      }
+      else
+      {
+        // Create empty run result
+        return new RunResultWithPosition(r);
+      }
+    }
+
+
+    private void Participants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems != null)
+      {
+        foreach (INotifyPropertyChanged item in e.OldItems)
+        {
+          // Remove from _results
+          RaceParticipant rp = (RaceParticipant)item;
+          var itemsToRemove = _viewList.Where(r => r.Participant == rp).ToList();
+          foreach (var itemToRemove in itemsToRemove)
+            _viewList.Remove(itemToRemove);
+        }
+        UpdatePositions();
+      }
+
+      if (e.NewItems != null)
+        foreach (INotifyPropertyChanged item in e.NewItems)
+        {
+          RaceParticipant rp = (RaceParticipant)item;
+          updateRunResult(rp, _raceRun.GetRunResult(rp));
+        }
+    }
+
+    private void Participants_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      RaceParticipant rp = (RaceParticipant)sender;
+      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == rp);
+
+      updateRunResult(rp, _raceRun.GetRunResult(rp));
+    }
+
+
     void OnOriginalResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
-          // Remove from _results
-          RunResult result = (RunResult)item;
-          var itemsToRemove = _viewList.Where(r => r == result).ToList();
-          foreach (var itemToRemove in itemsToRemove)
-            _viewList.Remove(itemToRemove);
+          RunResult rr = (RunResult)item;
+          updateRunResult(rr.Participant, null); // Delete run result
         }
 
       if (e.NewItems != null)
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
-          _viewList.InsertSorted(CreateRunResultWithPosition((RunResult)item), _comparer);
+          RunResult rr = (RunResult)item;
+          updateRunResult(rr.Participant, rr);
         }
-
-      UpdatePositions();
     }
 
 
     void OnOriginalResultItemChanged(object sender, PropertyChangedEventArgs e)
     {
-      RunResult result = (RunResult)sender;
-      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == result.Participant);
+      RunResult rr = (RunResult)sender;
+      updateRunResult(rr.Participant, rr);
+    }
 
-      if (rrWP == null)
-        _viewList.InsertSorted(CreateRunResultWithPosition(result), _comparer);
+
+    void updateRunResult(RaceParticipant rp, RunResult rr)
+    {
+      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == rp);
+      if (rrWP != null)
+      {
+        rrWP.UpdateRunResult(rr);
+        _viewList.Sort(_comparer);
+      }
       else
       {
-        rrWP.UpdateRunResult(result);
-        _viewList.Sort(_comparer);
+        if (rr != null)
+          _viewList.InsertSorted(CreateRunResultWithPosition(rr), _comparer);
+        else
+          _viewList.InsertSorted(CreateRunResultWithPosition(rp), _comparer);
       }
 
       UpdatePositions();
     }
+
 
     void UpdatePositions()
     {
@@ -1008,9 +1117,15 @@ namespace RaceHorologyLib
             System.Diagnostics.Debug.Assert(curPosition == 1);
             firstTime = item.Runtime;
             item.DiffToFirst = null;
+            item.DiffToFirstPercentage = 0;
           }
           else
+          {
             item.DiffToFirst = item.Runtime - firstTime;
+          }
+
+          if (item.DiffToFirst != null)
+            item.DiffToFirstPercentage = ((double)((TimeSpan)item.DiffToFirst).TotalMilliseconds) / (double)((TimeSpan)firstTime).TotalMilliseconds * 100.0;
 
           item.Position = curPosition;
           lastTime = item.Runtime;
@@ -1019,6 +1134,7 @@ namespace RaceHorologyLib
         {
           item.Position = 0;
           item.DiffToFirst = null;
+          item.DiffToFirstPercentage = 0.0;
         }
 
         // Set the JustModified flag to highlight new results
@@ -1079,6 +1195,7 @@ namespace RaceHorologyLib
     protected ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
     protected List<RaceRun> _lastConsideredRuns;
+    //protected List<ItemsChangedNotifier> _runResultsNotifier;
 
 
     protected virtual double calculatePoints(RaceResultItem rri)
@@ -1086,7 +1203,7 @@ namespace RaceHorologyLib
       return -1.0;
     }
 
-    public enum TimeCombination { BestRun, Sum };
+    public enum TimeCombination { BestRun, Sum, SumBest2 };
     public RaceResultViewProvider(TimeCombination timeCombination)
     {
       _comparer = new TotalTimeSorter();
@@ -1100,9 +1217,13 @@ namespace RaceHorologyLib
         case TimeCombination.Sum:
           _combineTime = SumTime;
           break;
+        case TimeCombination.SumBest2:
+          _combineTime = SumTimeOfBest2;
+          break;
       }
 
       _lastConsideredRuns = new List<RaceRun>();
+      //_runResultsNotifier = new List<ItemsChangedNotifier>();
     }
 
 
@@ -1125,6 +1246,12 @@ namespace RaceHorologyLib
       {
         RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
         rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
+
+        //var notifier = new ItemsChangedNotifier(rrVP.GetViewList());
+        //_runResultsNotifier.Add(notifier);
+        //notifier.CollectionChanged += OnResultListCollectionChanged;
+        //notifier.ItemChanged += OnResultListItemChanged;
+
         OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
 
@@ -1195,6 +1322,14 @@ namespace RaceHorologyLib
     }
 
 
+    private void OnResultListItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is RunResultWithPosition rr)
+        if (UpdateResultsFor(rr?.Participant))
+          ResortResults();
+    }
+
+
     private void CheckRunConsideration()
     {
       bool updateAll = false;
@@ -1208,6 +1343,15 @@ namespace RaceHorologyLib
             updateAll = true;
             _lastConsideredRuns.Add(run);
           }
+        }
+        else
+        {
+          if (_lastConsideredRuns.Contains(run))
+          {
+            updateAll = true;
+            _lastConsideredRuns.Remove(run);
+          }
+
         }
       }
 
@@ -1255,6 +1399,13 @@ namespace RaceHorologyLib
         bool sigCh = rri.SetRunResult(res.Key, res.Value);
         //significantChange = significantChange || sigCh;
       }
+
+      // It may happen, that caused by _lastConsideredRuns a race gets removed resulting in not-updated SubResults
+      // In this casethe corresponding SubResult has to be removed 
+      List<uint> toDelete = new List<uint>();
+      foreach(var t in rri.SubResults) if (!results.ContainsKey(t.Key)) toDelete.Add(t.Key);
+      foreach(var k in toDelete) rri.SubResults.Remove(k);
+
       
       RunResult.EResultCode code;
       string disqualText;
@@ -1328,9 +1479,13 @@ namespace RaceHorologyLib
             System.Diagnostics.Debug.Assert(curPosition == 1);
             firstTime = sortedItem.TotalTime;
             sortedItem.DiffToFirst = null;
+            sortedItem.DiffToFirstPercentage = 0;
           }
           else
             sortedItem.DiffToFirst = sortedItem.TotalTime - firstTime;
+
+          if (sortedItem.DiffToFirst != null)
+            sortedItem.DiffToFirstPercentage = ((double)((TimeSpan)sortedItem.DiffToFirst).TotalMilliseconds) / (double)((TimeSpan)firstTime).TotalMilliseconds * 100.0;
 
           sortedItem.Position = curPosition;
 
@@ -1342,6 +1497,7 @@ namespace RaceHorologyLib
         {
           sortedItem.Position = 0;
           sortedItem.DiffToFirst = null;
+          sortedItem.DiffToFirstPercentage = 0.0;
         }
 
         // Set the JustModified flag to highlight new results
@@ -1350,7 +1506,7 @@ namespace RaceHorologyLib
     }
 
 
-    TimeSpan? MinimumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? MinimumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? minTime = null;
       RunResult.EResultCode bestCode = RunResult.EResultCode.NQ;
@@ -1373,6 +1529,8 @@ namespace RaceHorologyLib
         if (res.Value.ResultCode != RunResult.EResultCode.Normal)
         {
           resCode = res.Value.ResultCode;
+          if (!string.IsNullOrEmpty(disqualText))
+            disqualText += ", ";
           disqualText += res.Value.DisqualText;
         }
       }
@@ -1387,7 +1545,7 @@ namespace RaceHorologyLib
       return minTime;
     }
 
-    TimeSpan? SumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? SumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? sumTime = new TimeSpan(0);
       resCode = RunResult.EResultCode.Normal;
@@ -1421,6 +1579,45 @@ namespace RaceHorologyLib
         sumTime = null;
 
       return sumTime;
+    }
+
+    internal static TimeSpan? SumTimeOfBest2(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    {
+      int numberN = 2;
+
+      TimeSpan? sumTime = new TimeSpan(0);
+      resCode = RunResult.EResultCode.Normal;
+      disqualText = "";
+
+      // Find best N
+      Dictionary<uint, RunResultWithPosition> bestNIn = new Dictionary<uint, RunResultWithPosition>();
+      Dictionary<uint, RunResultWithPosition> bestN = new Dictionary<uint, RunResultWithPosition>();
+      foreach (var res in results)
+        bestNIn.Add(res.Key, res.Value);
+
+      for (int i = 0; i < numberN; i++)
+      {
+        uint bestKey = 0;
+        TimeSpan? bestTime = null;
+        foreach (var res in bestNIn)
+        {
+          TimeSpan? time = res.Value?.Runtime;
+
+          if (bestTime == null || bestTime > time)
+          {
+            bestTime = time;
+            bestKey = res.Key;
+          }
+        }
+
+        if (bestNIn.ContainsKey(bestKey))
+        {
+          bestN.Add(bestKey, bestNIn[bestKey]);
+          bestNIn.Remove(bestKey);
+        }
+      }
+
+      return SumTime(bestN, out resCode, out disqualText);
     }
 
 

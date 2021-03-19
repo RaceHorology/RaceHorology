@@ -28,7 +28,7 @@
       </StackPanel>
     </Grid>
 
-    <DataGrid x:Name="dgDSVList" Grid.Row="1" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionChanged="dgDSVList_SelectionChanged">
+    <DataGrid x:Name="dgDSVList" Grid.Row="1" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionChanged="dgDSVList_SelectionChanged" MouseDoubleClick="dgDSVList_MouseDoubleClick">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Id" Binding="{Binding SvId, Mode=OneWay}" />
         <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />

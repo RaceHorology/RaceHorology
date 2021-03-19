@@ -36,6 +36,7 @@
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Media;
 using System.Text;
@@ -124,11 +125,16 @@ namespace RaceHorology
       // Configuration Screen
       cmbRuns.Items.Add(new CBItem { Text = "1", Value = 1 });
       cmbRuns.Items.Add(new CBItem { Text = "2", Value = 2 });
+      cmbRuns.Items.Add(new CBItem { Text = "3", Value = 3 });
+      cmbRuns.Items.Add(new CBItem { Text = "4", Value = 4 });
+      cmbRuns.Items.Add(new CBItem { Text = "5", Value = 5 });
+      cmbRuns.Items.Add(new CBItem { Text = "6", Value = 6 });
 
       // Result
       UiUtilities.FillGrouping(cmbConfigErgebnisGrouping);
 
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe der besten 2 Durchgänge", Value = "RaceResult_SumBest2" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach DSV Schülerreglement", Value = "RaceResult_SumDSVPointsSchool" });
 
@@ -185,6 +191,7 @@ namespace RaceHorology
       chkConfigFieldsNation.IsChecked = cfg.ActiveFields.Contains("Nation");
       chkConfigFieldsCode.IsChecked = cfg.ActiveFields.Contains("Code");
       chkConfigFieldsPoints.IsChecked = cfg.ActiveFields.Contains("Points");
+      chkConfigFieldsPercentage.IsChecked = cfg.ActiveFields.Contains("Percentage");
 
     }
 
@@ -231,6 +238,7 @@ namespace RaceHorology
       enableField(cfg.ActiveFields, "Nation", chkConfigFieldsNation.IsChecked);
       enableField(cfg.ActiveFields, "Code", chkConfigFieldsCode.IsChecked);
       enableField(cfg.ActiveFields, "Points", chkConfigFieldsPoints.IsChecked);
+      enableField(cfg.ActiveFields, "Percentage", chkConfigFieldsPercentage.IsChecked);
 
       return true;
     }
@@ -538,9 +546,6 @@ namespace RaceHorology
     {
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
 
-      UiUtilities.FillGrouping(cmbStartListGrouping, _currentRaceRun.GetStartListProvider().ActiveGrouping);
-      UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
-
       cmbManualMode.Items.Add(new CBItem { Text = "Laufzeit", Value = "Absolut" });
       cmbManualMode.Items.Add(new CBItem { Text = "Differenz", Value = "Difference" });
       cmbManualMode.SelectedIndex = 0;
@@ -548,6 +553,14 @@ namespace RaceHorology
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
 
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
+
+      _thisRace.RunsChanged += OnRaceRunsChanged;
+    }
+
+
+    private void OnRaceRunsChanged(object sender, EventArgs e)
+    {
+      UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
     }
 
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -597,7 +610,7 @@ namespace RaceHorology
     private void ConfigureTimingHelper()
     {
       // Start any helper
-      if (Properties.Settings.Default.AutomaticNiZTimeout > 0)
+      if (Properties.Settings.Default.AutomaticNiZTimeout > 0 && _currentRaceRun != null)
         _liveTimingAutoNiZ = new LiveTimingAutoNiZ(Properties.Settings.Default.AutomaticNiZTimeout, _currentRaceRun);
       else if (_liveTimingAutoNiZ != null)
       {
@@ -607,9 +620,10 @@ namespace RaceHorology
 
       if (_liveTimingAutoNaS != null)
         _liveTimingAutoNaS.Dispose();
-      _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
+      if (_currentRaceRun != null)
+        _liveTimingAutoNaS = new LiveTimingAutoNaS(Properties.Settings.Default.AutomaticNaSStarters, _currentRaceRun);
 
-      if (Properties.Settings.Default.StartTimeIntervall > 0)
+      if (Properties.Settings.Default.StartTimeIntervall > 0 && _currentRaceRun != null)
       {
         lblStartCountDown.Visibility = Visibility.Visible;
         _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
@@ -623,6 +637,7 @@ namespace RaceHorology
     }
 
 
+    CollectionViewSource _finishView;
     private void ConnectUiToRaceRun(RaceRun raceRun)
     {
       if (raceRun != null)
@@ -632,21 +647,42 @@ namespace RaceHorology
         EnableOrDisableColumns(_thisRace, dgRemainingStarters);
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
-        dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
         EnableOrDisableColumns(_thisRace, dgRunning);
-        EnableOrDisableColumns(_thisRace, dgResults);
-        dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgResults, _dataModel);
 
-        cmbStartListGrouping.SelectCBItem(_rslVP.ActiveGrouping);
-        cmbResultGrouping.SelectCBItem(raceRun.GetResultViewProvider().ActiveGrouping);
+
+        _finishView = new CollectionViewSource();
+        _finishView.Source = raceRun.GetResultList();
+
+        _finishView.SortDescriptions.Add(new SortDescription("FinishTime", ListSortDirection.Descending));
+        _finishView.SortDescriptions.Add(new SortDescription("StartNumber", ListSortDirection.Descending));
+        _finishView.IsLiveSortingRequested = true;
+        _finishView.LiveSortingProperties.Add("FinishTime");
+        _finishView.Filter += _finishView_Filter;
+        _finishView.IsLiveFilteringRequested = true;
+        _finishView.LiveFilteringProperties.Add("ResultCode");
+        _finishView.LiveFilteringProperties.Add("FinishTime");
+        _finishView.LiveFilteringProperties.Add("Runtime");
+
+        dgFinish.ItemsSource = _finishView.View;
+        EnableOrDisableColumns(_thisRace, dgFinish);
+        //dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
       }
       else
       {
         dgRemainingStarters.ItemsSource = null;
         dgRunning.ItemsSource = null;
-        dgResults.ItemsSource = null;
+        dgFinish.ItemsSource = null;
         dgResultsScrollBehavior = null;
       }
+    }
+
+    private void _finishView_Filter(object sender, FilterEventArgs e)
+    {
+      RunResult rr = (RunResult)e.Item;
+
+      e.Accepted = 
+        (rr.ResultCode != RunResult.EResultCode.NotSet && rr.ResultCode != RunResult.EResultCode.Normal) 
+        || (rr.ResultCode == RunResult.EResultCode.Normal && ((rr.StartTime != null && rr.FinishTime != null)|| rr.RuntimeIntern != null ));
     }
 
 
@@ -723,7 +759,7 @@ namespace RaceHorology
     private void CheckTime(TextBox txtbox)
     {
       TimeSpan? ts = TimeSpanExtensions.ParseTimeSpan(txtbox.Text);
-      if (ts == null && txtbox.IsEnabled)
+      if (ts == null && !string.IsNullOrWhiteSpace(txtbox.Text) && txtbox.IsEnabled)
         txtbox.Background = Brushes.Orange;
       else
         txtbox.Background = Brushes.White;
@@ -758,7 +794,6 @@ namespace RaceHorology
           txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ff");
           txtRun.Text = rr.GetRunTime()?.ToString(@"mm\:ss\,ff");
-          return;
         }
         else
         {
@@ -774,6 +809,10 @@ namespace RaceHorology
         txtFinish.Text = "";
         txtRun.Text = "";
       }
+
+      CheckTime(txtStart);
+      CheckTime(txtFinish);
+      CheckTime(txtRun);
     }
 
 
@@ -829,20 +868,73 @@ namespace RaceHorology
 
       }
 
+      selectNextParticipant(participant);
+    }
+
+
+    private void btnHandTiming_Click(object sender, RoutedEventArgs e)
+    {
+      HandTimingDlg dlg = new HandTimingDlg { Owner = Window.GetWindow(this) };
+      dlg.Init(_dataModel, _thisRace);
+      dlg.Show();
+    }
+
+    private void btnManualTimingNaS_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCodeAndSelectNext(RunResult.EResultCode.NaS);
+    }
+
+    private void btnManualTimingNiZ_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCodeAndSelectNext(RunResult.EResultCode.NiZ);
+    }
+
+    private void btnManualTimingDIS_Click(object sender, RoutedEventArgs e)
+    {
+      storeResultCodeAndSelectNext(RunResult.EResultCode.DIS);
+    }
+
+    private void storeResultCodeAndSelectNext(RunResult.EResultCode code)
+    {
+      uint startNumber = 0U;
+      try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
+      RaceParticipant participant = _thisRace.GetParticipant(startNumber);
+      if (participant!= null)
+        _currentRaceRun.SetResultCode(participant, code);
+
+      selectNextParticipant(participant);
+    }
+
+    private void selectNextParticipant(RaceParticipant currentParticipant)
+    {
+      RaceParticipant nextParticipant = null;
+      bool useNext = false;
+      foreach(var sle in _rslVP.GetView().SourceCollection.OfType<StartListEntry>())
+      {
+        if (useNext)
+        {
+          nextParticipant = sle.Participant;
+          break;
+        }
+        if (sle.Participant == currentParticipant)
+          useNext = true;
+      }
+
+      if (nextParticipant!= null)
+      {
+        txtStartNumber.Text = nextParticipant.StartNumber.ToString();
+      }
+
       txtStartNumber.Focus();
     }
 
-
-    private void CmbStartListGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void dgRemainingStarters_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      if (cmbStartListGrouping.SelectedValue is CBItem grouping)
-        _rslVP.ChangeGrouping((string)grouping.Value);
-    }
+      if (dgRemainingStarters.SelectedItem is StartListEntry entry)
+      {
+        txtStartNumber.Text = entry.StartNumber.ToString();
+      }
 
-    private void CmbResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (cmbResultGrouping.SelectedValue is CBItem grouping)
-        _currentRaceRun.GetResultViewProvider().ChangeGrouping((string)grouping.Value);
     }
 
     #endregion
@@ -951,7 +1043,7 @@ namespace RaceHorology
         return dgc;
       }
 
-      DataGridTextColumn createColumnSubPosition(string property)
+      DataGridTextColumn createColumnPosition(string property)
       {
         DataGridTextColumn dgc = new DataGridTextColumn
         {
@@ -966,6 +1058,43 @@ namespace RaceHorology
         dgc.Binding = b;
         dgc.CellStyle = new Style();
         dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        return dgc;
+      }
+
+      DataGridTextColumn createColumnDiffInPercentage(string header, string property)
+      {
+        DataGridTextColumn dgc = new DataGridTextColumn
+        {
+          Header = header
+        };
+        Binding b = new Binding(property)
+        {
+          Mode = BindingMode.OneWay,
+        };
+
+        b.Converter = new PercentageConverter(false);
+        dgc.Binding = b;
+        dgc.CellStyle = new Style();
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        return dgc;
+      }
+
+      DataGridTextColumn createColumnDiff(string header, string property)
+      {
+        DataGridTextColumn dgc = new DataGridTextColumn
+        {
+          Header = header
+        };
+
+        Binding b1 = new Binding(property)
+        {
+          Mode = BindingMode.OneWay,
+        };
+        b1.Converter = new RaceHorologyLib.TimeSpanConverter();
+        dgc.Binding = b1;
+        dgc.CellStyle = new Style();
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.MarginProperty, Value = new Thickness(15, 0, 0, 0) });
         return dgc;
       }
 
@@ -1002,16 +1131,20 @@ namespace RaceHorology
       if (_totalResultsVP is RaceRunResultViewProvider)
       {
         dgTotalResults.Columns.Add(createTimeColumn("Zeit", "Runtime", "ResultCode"));
+        dgTotalResults.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
+        dgTotalResults.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
         dgTotalResults.Columns.Add(createColumnAnmerkung());
       }
 
       // Total Results
       else if (_totalResultsVP is RaceResultViewProvider)
       {
-        for (int i = 0; i < 2; i++)
+        foreach(var r in _thisRace.GetRuns())
         {
-          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", i + 1), string.Format("SubResults[{0}].Runtime", i + 1), string.Format("SubResults[{0}].RunResultCode ", i + 1)));
-          dgTotalResults.Columns.Add(createColumnSubPosition(string.Format("SubResults[{0}].Position", i+1)));
+          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
+          dgTotalResults.Columns.Add(createColumnDiff(string.Format("Diff {0}", r.Run), string.Format("SubResults[{0}].DiffToFirst", r.Run)));
+          dgTotalResults.Columns.Add(createColumnDiffInPercentage(string.Format("[%] {0}", r.Run), string.Format("SubResults[{0}].DiffToFirstPercentage", r.Run)));
+          dgTotalResults.Columns.Add(createColumnPosition(string.Format("SubResults[{0}].Position", r.Run)));
         }
 
         dgTotalResults.Columns.Add(createTimeColumn("Total", "TotalTime", "ResultCode"));
@@ -1142,6 +1275,7 @@ namespace RaceHorology
       EnableOrDisableColumn(race, dg, "Nation");
       EnableOrDisableColumn(race, dg, "Code");
       EnableOrDisableColumn(race, dg, "Points");
+      EnableOrDisableColumn(race, dg, "Percentage");
     }
 
 
@@ -1159,12 +1293,6 @@ namespace RaceHorology
 
     #endregion
 
-    private void btnHandTiming_Click(object sender, RoutedEventArgs e)
-    {
-      HandTimingDlg dlg = new HandTimingDlg { Owner = Window.GetWindow(this) };
-      dlg.Init(_dataModel, _thisRace);
-      dlg.Show();
-    }
   }
 
   #region Utilities

@@ -54,6 +54,7 @@ namespace RaceHorology
     private Race _race;
     private RaceRun _currentRaceRun;
 
+    DiqualifyVM _disqualificationsVM;
     CollectionViewSource _viewDisqualifications;
     FilterEventHandler _viewDisqualificationsFilterHandler;
 
@@ -70,6 +71,7 @@ namespace RaceHorology
     {
       if (!(bool)e.OldValue && (bool)e.NewValue)
       {
+        UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
         setRaceRun(_dm.GetCurrentRaceRun());
         _viewDisqualifications.View.Refresh();
       }
@@ -79,6 +81,8 @@ namespace RaceHorology
     {
       _dm = dm;
       _race = race;
+
+      _race.RunsChanged += OnRaceRunsChanged;
 
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
       UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
@@ -92,7 +96,18 @@ namespace RaceHorology
 
       cmbDisqualify.ItemsSource = ListOfResultCodes;
 
+      cmbDisqualifyReason.Items.Add("Vorbei am Tor");
+      cmbDisqualifyReason.Items.Add("Eingefädelt am Tor");
+      cmbDisqualifyReason.Items.Add("Nicht weit genug zurückgestiegen am Tor");
+      cmbDisqualifyReason.Items.Add("Hilfe durch fremde Person am Tor");
+
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
+    }
+
+
+    private void OnRaceRunsChanged(object sender, EventArgs e)
+    {
+      UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
     }
 
 
@@ -156,7 +171,9 @@ namespace RaceHorology
           _viewDisqualifications.LiveFilteringProperties.Add(nameof(RunResult.ResultCode));
           _viewDisqualifications.IsLiveFilteringRequested = true;
         }
-        _viewDisqualifications.Source = raceRun.GetResultList();
+
+        _disqualificationsVM = new DiqualifyVM(raceRun);
+        _viewDisqualifications.Source = _disqualificationsVM.GetGridView();
 
         dgDisqualifications.ItemsSource = _viewDisqualifications.View;
         dgResults.ItemsSource = raceRun.GetResultViewProvider().GetView();
@@ -165,6 +182,7 @@ namespace RaceHorology
       }
       else
       {
+        _disqualificationsVM = null;
         dgDisqualifications.ItemsSource = null;
         dgResults.ItemsSource = null;
       }
@@ -193,7 +211,8 @@ namespace RaceHorology
         RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
         if (rr != null)
         {
-          txtDisqualify.Text = rr.DisqualText;
+          cmbDisqualifyReason.Text = rr.GetDisqualifyText();
+          txtDisqualify.Text = rr.GetDisqualifyGoal();
           cmbDisqualify.SelectedValue = rr.ResultCode;
         }
         else
@@ -221,14 +240,17 @@ namespace RaceHorology
 
       RaceParticipant participant = _race.GetParticipant(startNumber);
 
+
+      string disqualifyText = RunResultExtension.JoinDisqualifyText(cmbDisqualifyReason.Text, txtDisqualify.Text);
+
       if (participant != null)
-        _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
+        _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, disqualifyText);
       else
       {
         foreach( object item in dgDisqualifications.SelectedItems)
         {
           if (item is RunResult rr)
-            _currentRaceRun.SetResultCode(rr.Participant, (EResultCode)cmbDisqualify.SelectedValue, txtDisqualify.Text);
+            _currentRaceRun.SetResultCode(rr.Participant, (EResultCode)cmbDisqualify.SelectedValue, disqualifyText);
         }
       }
 

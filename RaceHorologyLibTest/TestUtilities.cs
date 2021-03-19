@@ -173,6 +173,35 @@ namespace RaceHorologyLibTest
   }
 
 
+  public static class ViewTestUtilities
+  {
+
+    /// <summary>
+    /// Extension method to convert a ICollectionView to a List
+    /// </summary>
+    public static IList<T> ViewToList<T>(this System.ComponentModel.ICollectionView view)
+    {
+      IList<T> resList = new List<T>();
+
+      var lr = view as System.Windows.Data.ListCollectionView;
+      if (view.Groups != null)
+      {
+        foreach (var group in view.Groups)
+        {
+          System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
+          // Group(Name) would be: cvGroup.Name.ToString()
+
+          foreach (var item in cvGroup.Items)
+            resList.Add((T)item);
+        }
+      }
+      else
+        foreach (var item in view.SourceCollection)
+          resList.Add((T)item);
+
+      return resList;
+    }
+  }
 
   public class DummyDataBase : IAppDataModelDataBase
   {
@@ -264,6 +293,29 @@ namespace RaceHorologyLibTest
 
     public AppDataModel Model { get; private set; }
 
+
+    public void createCatsClassesGroups()
+    {
+      //createCategories(); done in consructor
+      createGroups();
+      createClasses();
+    }
+
+
+    public ParticipantCategory findCat(char name)
+    {
+      return Model.GetParticipantCategories().FirstOrDefault(c => c.Name == name);
+    }
+    public ParticipantClass findClass(string name)
+    {
+      return Model.GetParticipantClasses().FirstOrDefault(c => c.Name.Contains(name));
+    }
+    public ParticipantGroup findGroup(string name)
+    {
+      return Model.GetParticipantGroups().FirstOrDefault(c => c.Name .Contains(name));
+    }
+
+
     public IList<ParticipantCategory> createCategories()
     {
       IList<ParticipantCategory> cats = Model.GetParticipantCategories();
@@ -272,39 +324,73 @@ namespace RaceHorologyLibTest
       return cats;
     }
 
+    public IList<ParticipantGroup> createGroups()
+    {
+      var groups = Model.GetParticipantGroups();
+      groups.Add(new ParticipantGroup("1", "Group 2M", 0));
+      groups.Add(new ParticipantGroup("2", "Group 2W", 0));
+      groups.Add(new ParticipantGroup("3", "Group 1M", 0));
+      groups.Add(new ParticipantGroup("4", "Group 1W", 0));
+      return groups;
+    }
 
-    public List<RaceParticipant> createRaceParticipants(int n)
+    public IList<ParticipantClass> createClasses()
+    {
+      var groups = Model.GetParticipantGroups();
+
+      var classes = Model.GetParticipantClasses();
+      classes.Add(new ParticipantClass("1", findGroup("2M"), "Class 2M (2010)", new ParticipantCategory('M'), 2010, 0));
+      classes.Add(new ParticipantClass("2", findGroup("2W"), "Class 2W (2010)", new ParticipantCategory('W'), 2010, 0));
+      classes.Add(new ParticipantClass("3", findGroup("2M"), "Class 2M (2011)", new ParticipantCategory('M'), 2011, 0));
+      classes.Add(new ParticipantClass("4", findGroup("2W"), "Class 2W (2011)", new ParticipantCategory('W'), 2011, 0));
+      classes.Add(new ParticipantClass("5", findGroup("1M"), "Class 1M (2012)", new ParticipantCategory('M'), 2012, 0));
+      classes.Add(new ParticipantClass("6", findGroup("1W"), "Class 1W (2012)", new ParticipantCategory('W'), 2012, 0));
+      classes.Add(new ParticipantClass("7", findGroup("1M"), "Class 1M (2013)", new ParticipantCategory('M'), 2013, 0));
+      classes.Add(new ParticipantClass("8", findGroup("1W"), "Class 1W (2013)", new ParticipantCategory('W'), 2013, 0));
+      return classes;
+    }
+
+
+    public List<RaceParticipant> createRaceParticipants(int n, ParticipantClass cla = null, ParticipantCategory cat = null)
     {
       List<RaceParticipant> participants = new List<RaceParticipant>();
 
       for (int i = 0; i < n; i++)
-        participants.Add(createRaceParticipant());
+        participants.Add(createRaceParticipant(cla: cla, cat: cat));
 
       return participants;
     }
 
-    public RaceParticipant createRaceParticipant()
+    public RaceParticipant createRaceParticipant(ParticipantClass cla = null, ParticipantCategory cat = null, double points = -1.0)
     {
-      Participant p = createParticipant();
+      Participant p = createParticipant(cla: cla, cat: cat);
       RaceParticipant rp = _race.AddParticipant(p);
 
+      if (points > 0)
+        rp.Points = points;
       rp.StartNumber = uint.Parse(p.Id);
+
       return rp;
     }
 
 
     uint _participantSerial = 0;
-    public Participant createParticipant()
+    public Participant createParticipant(ParticipantClass cla = null, ParticipantCategory cat = null)
     {
       _participantSerial++;
 
-      return new Participant
+      var p = new Participant
       {
         Name = string.Format("Name {0}", _participantSerial),
         Firstname = string.Format("Firstname {0}", _participantSerial),
-        Sex = Model.GetParticipantCategories()[0],
-        Id = _participantSerial.ToString()
+        Sex = cat,
+        Id = _participantSerial.ToString(),
+        Class = cla
       };
+
+      Model.GetParticipants().Add(p);
+
+      return p;
     }
 
     public RunResult createRunResult(RaceParticipant rp, TimeSpan? startTime, TimeSpan? endTime)

@@ -378,11 +378,11 @@ namespace RaceHorologyLib
 
           if (startTime != null || finishTime != null)
           {
-            r.SetStartTime(startTime);
-            r.SetFinishTime(finishTime);
+            r.SetStartTime(startTime, false);
+            r.SetFinishTime(finishTime, false);
           }
-          else if (runTime != null)
-            r.SetRunTime(runTime);
+          if (runTime != null)
+            r.SetRunTime(runTime, false);
 
           if (!reader.IsDBNull(reader.GetOrdinal("ergcode")))
             r.ResultCode = (RunResult.EResultCode)(byte)reader.GetValue(reader.GetOrdinal("ergcode"));
@@ -441,19 +441,16 @@ namespace RaceHorologyLib
         cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
-      if (string.IsNullOrEmpty(participant.SvId))
-        cmd.Parameters.Add(new OleDbParameter("@svid", DBNull.Value));
+      long svid = 0;
+      if (long.TryParse(participant.SvId, out svid))
+        cmd.Parameters.Add(new OleDbParameter("@svid", svid));
       else
-      {
-        long svid = 0;
-        if (long.TryParse(participant.SvId, out svid))
-          cmd.Parameters.Add(new OleDbParameter("@svid", svid));
-      }
+        cmd.Parameters.Add(new OleDbParameter("@svid", DBNull.Value));
+
       if (string.IsNullOrEmpty(participant.Code))
         cmd.Parameters.Add(new OleDbParameter("@code", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@code", participant.Code));
-
 
       cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class))); 
       cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
@@ -505,6 +502,9 @@ namespace RaceHorologyLib
         Logger.Debug("RemoveParticipant(), SQL: {0}", GetDebugSqlString(cmd));
         int temp = cmd.ExecuteNonQuery();
         Logger.Debug("... affected rows: {0}", temp);
+
+        // Successfully deleted, remove participant from key list
+        _id2Participant.Remove(id); 
       }
       catch (Exception e)
       {
@@ -586,12 +586,8 @@ namespace RaceHorologyLib
       // Test whether the participant exists
       uint id = GetParticipantId(raceParticipant.Participant);
 
-      if (id == 0) // Store first
-      {
-        Debug.Assert(false, "just for testing whether this happens");
-        CreateOrUpdateParticipant(raceParticipant.Participant);
-        id = GetParticipantId(raceParticipant.Participant);
-      }
+      if (id == 0) // Particpant not existing => no updates 
+        return;
 
       string sql = @"UPDATE tblTeilnehmer SET ";
       switch (raceParticipant.Race.RaceType)

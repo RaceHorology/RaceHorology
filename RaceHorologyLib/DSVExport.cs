@@ -454,6 +454,18 @@ namespace RaceHorologyLib
         if (nameParts.Count > 1)
           firstname = nameParts[1];
       }
+      else if (name.Contains(".")) // Assume: F.Name
+      {
+        var nameParts = new List<string>();
+        foreach (var n in name.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries))
+          nameParts.Add(n.Trim());
+
+        if (nameParts.Count > 0)
+          firstname = nameParts[0] + ".";
+
+        if (nameParts.Count > 1)
+          lastname = nameParts[1];
+      }
       else // Assume: "Firstname Name" or "First Second Name" or "F. Name" or "Name"
       {
         var nameParts = name.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);

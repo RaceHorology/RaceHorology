@@ -134,5 +134,62 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(c4.CompareTo(c3) ==  1);
       Assert.IsTrue(c3.CompareTo(c3) ==  0);
     }
+
+
+
+
+    [TestMethod]
+    public void RunResultExtension()
+    {
+      string s1 = RaceHorologyLib.RunResultExtension.JoinDisqualifyText("Vorbei am Tor", "12");
+      Assert.AreEqual("Vorbei am Tor 12", s1);
+
+      {
+        string r, g;
+        RaceHorologyLib.RunResultExtension.SplitDisqualifyText("Vorbei am Tor 12", out r, out g);
+        Assert.AreEqual("Vorbei am Tor", r);
+        Assert.AreEqual("12", g);
+      }
+      {
+        string r, g;
+        RaceHorologyLib.RunResultExtension.SplitDisqualifyText("Vorbei am Tor 12 aaa", out r, out g);
+        Assert.AreEqual("Vorbei am Tor 12 aaa", r);
+        Assert.AreEqual("", g);
+      }
+      {
+        string r, g;
+        RaceHorologyLib.RunResultExtension.SplitDisqualifyText("12", out r, out g);
+        Assert.AreEqual("", r);
+        Assert.AreEqual("12", g);
+      }
+      {
+        string r, g;
+        RaceHorologyLib.RunResultExtension.SplitDisqualifyText("Vorbei am Tor 12 aaa 13", out r, out g);
+        Assert.AreEqual("Vorbei am Tor 12 aaa", r);
+        Assert.AreEqual("13", g);
+      }
+
+      RunResult rr = new RunResult(null);
+      rr.DisqualText = "Vorbei am Tor 12";
+      Assert.AreEqual("Vorbei am Tor", rr.GetDisqualifyText());
+      Assert.AreEqual("12", rr.GetDisqualifyGoal());
+
+      // Error Conditions
+      {
+        string r, g;
+        RaceHorologyLib.RunResultExtension.SplitDisqualifyText("", out r, out g);
+        Assert.AreEqual("", r);
+        Assert.AreEqual("", g);
+      }
+      {
+        string r, g;
+        RaceHorologyLib.RunResultExtension.SplitDisqualifyText(null, out r, out g);
+        Assert.AreEqual("", r);
+        Assert.AreEqual("", g);
+      }
+
+
+    }
+
   }
 }

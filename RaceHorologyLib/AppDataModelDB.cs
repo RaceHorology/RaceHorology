@@ -89,12 +89,15 @@ namespace RaceHorologyLib
               _db.CreateOrUpdateRunResult(_race, _rr, v);
           }
           break;
+
         case NotifyCollectionChangedAction.Remove:
+          foreach (RunResult v in e.OldItems)
+              _db.DeleteRunResult(_race, _rr, v);
           break;
 
+        case NotifyCollectionChangedAction.Reset:
         case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Replace:
-        case NotifyCollectionChangedAction.Reset:
           throw new Exception("not implemented");
       }
     }
@@ -221,8 +224,28 @@ namespace RaceHorologyLib
           if (item is Race race)
             _db.UpdateRace(race, false);
     }
-
   }
+
+
+  internal class DatabaseDelegatorRace
+  {
+    private IAppDataModelDataBase _db;
+    Race _race;
+
+    public DatabaseDelegatorRace(Race race, IAppDataModelDataBase db)
+    {
+      _race = race;
+      _db = db;
+
+      _race.RunsChanged += OnRaceRunsChanged;
+    }
+
+    private void OnRaceRunsChanged(object source, EventArgs args)
+    {
+      _db.UpdateRace(_race, true); // Update the race run number; assume to be active (true)
+    }
+  }
+
 
 
   internal class DatabaseDelegatorClasses

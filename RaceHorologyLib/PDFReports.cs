@@ -119,7 +119,7 @@ namespace RaceHorologyLib
         img = new Image(ImageDataFactory.Create(ReadFully(stream)));
       }
 
-      if (img != null)
+      if (img == null)
       {
         string imgPath = FindImage(filenameWOExt);
         if (!string.IsNullOrEmpty(imgPath))
@@ -777,6 +777,9 @@ namespace RaceHorologyLib
 
     protected Paragraph createCellParagraphForTable(string text)
     {
+      if (text == null)
+        text = string.Empty;
+
       return new Paragraph(text)
         .SetFont(_tableFont)
         .SetFontSize(_tableFontSize)
@@ -788,6 +791,9 @@ namespace RaceHorologyLib
 
     protected Paragraph createHeaderCellParagraphForTable(string text)
     {
+      if (text == null)
+        text = string.Empty;
+
       return new Paragraph(text)
         .SetFont(_tableFontHeader)
         .SetFontSize(_tableFontSizeHeader);
@@ -1128,6 +1134,8 @@ namespace RaceHorologyLib
       if (_race.IsFieldActive("Club"))
         _nOptFields++;
       if (_race.IsFieldActive("Points"))
+        _nOptFields++;
+      if (_race.IsFieldActive("Percentage"))
         _nOptFields++;
     }
 
@@ -1601,6 +1609,8 @@ namespace RaceHorologyLib
     RaceRun _raceRun;
 
     ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+    PercentageConverter _percentageConverter = new PercentageConverter(false);
+
 
     public RaceRunResultReport(RaceRun rr) : base(rr.GetRace())
     {
@@ -1666,7 +1676,11 @@ namespace RaceHorologyLib
         .Add(createHeaderCellParagraphForTable("Laufzeit")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Diff")));
+        .Add(createHeaderCellParagraphForTable("Diff [s]")));
+      if (_race.IsFieldActive("Percentage"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable("Diff [%]")));
       if (_race.IsFieldActive("Points"))
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
@@ -1754,6 +1768,9 @@ namespace RaceHorologyLib
         .Add(createCellParagraphForTable((string)_timeConverter.Convert(new object[] { rrwp.Runtime, rrwp.ResultCode }, typeof(string), null, null))));
       // Diff
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.DiffToFirst.ToRaceTimeString()))));
+      if (_race.IsFieldActive("Percentage"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
+        (string)_percentageConverter.Convert(rrwp.DiffToFirstPercentage, typeof(string), null, null))));
 
       // Points
       if (_race.IsFieldActive("Points"))
@@ -1789,6 +1806,8 @@ namespace RaceHorologyLib
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
 
       int colSpan = 2;
+      if (_race.IsFieldActive("Percentage"))
+        colSpan++;
       if (_race.IsFieldActive("Points"))
         colSpan++;
 
@@ -1815,6 +1834,7 @@ namespace RaceHorologyLib
   {
 
     ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+    PercentageConverter _percentageConverter = new PercentageConverter(false);
 
 
     public RaceResultReport(Race race) : base(race)
@@ -1887,7 +1907,11 @@ namespace RaceHorologyLib
         .Add(createHeaderCellParagraphForTable("Laufzeit")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Diff")));
+        .Add(createHeaderCellParagraphForTable("Diff [s]")));
+      if (_race.IsFieldActive("Percentage"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable("Diff [%]")));
       if (_race.IsFieldActive("Points"))
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
@@ -1987,6 +2011,9 @@ namespace RaceHorologyLib
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
       // Diff
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
+      if (_race.IsFieldActive("Percentage"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
+          (string)_percentageConverter.Convert(item.DiffToFirstPercentage, typeof(string), null, null))));
 
       // Points
       if (_race.IsFieldActive("Points"))
@@ -2022,6 +2049,8 @@ namespace RaceHorologyLib
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Club)));
 
       int colSpan = 2 + _race.GetMaxRun();
+      if (_race.IsFieldActive("Percentage"))
+        colSpan++;
       if (_race.IsFieldActive("Points"))
         colSpan++;
 

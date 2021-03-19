@@ -239,13 +239,13 @@ namespace RaceHorologyLib
 
 
       Race race = null;
-      if (raceNo == -1)
+      if (raceNo < 0)
         race = _dataModel?.GetCurrentRace();
       else
         race = _dataModel?.GetRace(raceNo);
 
       RaceRun raceRun = null;
-      if (runNo == -1)
+      if (runNo < 0)
         raceRun = _dataModel?.GetCurrentRaceRun();
       else
         raceRun = race?.GetRun(runNo);
@@ -1154,8 +1154,8 @@ namespace RaceHorologyLib
       RaceRun rr = _dm.GetCurrentRaceRun();
 
       Dictionary<string, string> data = new Dictionary<string, string>();
-      data["type"] = r.RaceType.ToString();
-      data["run"] = rr.Run.ToString();
+      data["type"] = r?.RaceType.ToString();
+      data["run"] = rr?.Run.ToString();
 
       string output = null;
       Application.Current.Dispatcher.Invoke(() =>

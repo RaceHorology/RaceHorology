@@ -1015,6 +1015,11 @@ namespace RaceHorologyLibTest
       DBCacheWorkaround();
       rr5r2._participant = participant5 = race.GetParticipants().Where(x => x.Name == "Nachname 5").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr5r2, 5, 2));
+
+      // Delete
+      db.DeleteRunResult(race, rr2, rr5r2);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckRunResult(dbFilename, null, 5, 2));
     }
 
 
@@ -1055,7 +1060,12 @@ namespace RaceHorologyLibTest
             bRes &= runResult.DisqualText == reader["disqualtext"].ToString();
         }
         else
-          bRes = false;
+        {
+          if (runResult == null)
+            bRes = true;
+          else
+            bRes = false;
+        }
       }
 
       conn.Close();
@@ -1088,19 +1098,23 @@ namespace RaceHorologyLibTest
         RaceRun rr2 = model.GetCurrentRace().GetRun(1);
 
         RaceParticipant participant1 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 1").FirstOrDefault();
+        rr1.SetRunTime(participant1, null);
         rr1.SetStartTime(participant1, new TimeSpan(0, 12, 0, 0, 0)); // Start
         rr1.SetFinishTime(participant1, new TimeSpan(0, 12, 1, 0, 0)); // Finish
 
 
         RaceParticipant participant2 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 2").FirstOrDefault();
+        rr1.SetRunTime(participant2, null);
         rr1.SetStartTime(participant2, new TimeSpan(0, 12, 2, 0, 0)); // Start
         rr1.SetFinishTime(participant2, null); // No Finish
                                                // TODO: Set to NiZ
 
         RaceParticipant participant3 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 3").FirstOrDefault();
+        rr1.SetRunTime(participant3, null);
         rr1.SetStartFinishTime(participant3, null, null); // NaS
 
         RaceParticipant participant4 = race.GetParticipants().Where(x => x.Participant.Name == "Nachname 4").FirstOrDefault();
+        rr1.SetRunTime(participant4, null);
         rr1.SetStartTime(participant4, new TimeSpan(0, 12, 4, 0, 0)); // Start
         rr1.SetFinishTime(participant4, new TimeSpan(0, 12, 4, 30, 0)); // Finish
         // TODO: Set to Disqualify

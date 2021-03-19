@@ -72,9 +72,10 @@ namespace RaceHorology
     }
 
 
-    public void Init(AppDataModel dm)
+    public void Init(AppDataModel dm, DSVInterfaceModel dsvData)
     {
       _dm = dm;
+      _dsvData = dsvData;
 
       this.KeyDown += new KeyEventHandler(KeyDownHandler);
 
@@ -85,8 +86,6 @@ namespace RaceHorology
 
     void initDSVAddToList()
     {
-      _dsvData = new DSVInterfaceModel(_dm);
-
       updateDSVGrid();
 
       txtDSVSearch.TextChanged += new DelayedEventHandler(
@@ -141,6 +140,18 @@ namespace RaceHorology
 
     private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
     {
+      addSelectedItemsToDataModel();
+    }
+
+
+    private void dgDSVList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+      addSelectedItemsToDataModel();
+    }
+
+
+    private void addSelectedItemsToDataModel()
+    {
       foreach (var item in dgDSVList.SelectedItems)
       {
         if (item is DataRowView rowView)
@@ -162,7 +173,6 @@ namespace RaceHorology
         }
       }
     }
-
 
 
     private void btnDSVImportOnlineU12_Click(object sender, RoutedEventArgs e)

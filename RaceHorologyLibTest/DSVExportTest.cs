@@ -231,7 +231,7 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/lastname", s, "Referee");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/firstname", s, "Race");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/lastname", s, "Rep");
-      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/firstname", s, "Trainer");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='RepresentativeTrainer']/firstname", s, "T.");
 
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/coursename", s, "Kurs 1");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/number_of_gates", s, "10");
@@ -297,13 +297,13 @@ namespace RaceHorologyLibTest
       tg.Model.GetRace(0).SetResultViewProvider(rvp);
 
       // Run 1
-      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 0, 0), new TimeSpan(0, 8, 0, 2));
-      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 1, 0), new TimeSpan(0, 8, 1, 4));
-      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 2, 0), new TimeSpan(0, 8, 2, 3));
-      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(), new TimeSpan(0, 8, 2, 0), null);
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 0, 0), new TimeSpan(0, 8, 0, 2));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 1, 0), new TimeSpan(0, 8, 1, 4));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 2, 0), new TimeSpan(0, 8, 2, 3));
+      tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 2, 0), null);
       tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.Model.GetRace(0).GetParticipant(4), RunResult.EResultCode.NiZ);
-      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(), RunResult.EResultCode.NaS);
-      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(), RunResult.EResultCode.DIS, "Tor 2");
+      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(cat: tg.findCat('M')), RunResult.EResultCode.NaS);
+      tg.Model.GetRace(0).GetRun(0).SetResultCode(tg.createRaceParticipant(cat: tg.findCat('M')), RunResult.EResultCode.DIS, "Tor 2");
 
       // Run 2
       tg.Model.GetRace(0).GetRun(1).SetStartFinishTime(tg.Model.GetRace(0).GetParticipant(1), new TimeSpan(0, 9, 0, 0), new TimeSpan(0, 9, 0, 3));
@@ -320,22 +320,11 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/raceresult/runtime[@runnumber='1']", s, "00:02.00");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/classified_competitors/ranked[@bib='1']/raceresult/runtime[@runnumber='2']", s, "00:03.00");
 
-      if (true) // Test more specific status
-      {
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='2']/@status", s, "DNF2");
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='3']/@status", s, "DSQ2");
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='4']/@status", s, "DNF1");
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='5']/@status", s, "DNS1");
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='6']/@status", s, "DSQ1");
-      }
-      else
-      {
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='2']/@status", s, "DNF");
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='3']/@status", s, "DSQ");
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='4']/@status", s, "DNF");
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='5']/@status", s, "DNS");
-        XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='6']/@status", s, "DSQ");
-      }
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='2']/@status", s, "DNF2");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='3']/@status", s, "DSQ2");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='4']/@status", s, "DNF1");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='5']/@status", s, "DNS1");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/raceresults/not_classified_competitiors/notranked[@bib='6']/@status", s, "DSQ1");
     }
 
 
@@ -376,7 +365,7 @@ namespace RaceHorologyLibTest
 
       model.GetRace(0).AdditionalProperties.RaceManager = new AdditionalRaceProperties.Person { Name = "Race Manager", Club = "Club" };
       model.GetRace(0).AdditionalProperties.RaceReferee = new AdditionalRaceProperties.Person { Name = "Referee, Race", Club = "Club" };
-      model.GetRace(0).AdditionalProperties.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "Trainer Rep", Club = "Club" };
+      model.GetRace(0).AdditionalProperties.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "T.Rep", Club = "Club" };
 
       raceProps.CoarseName = "Kurs 1";
       raceProps.StartHeight = 1000;

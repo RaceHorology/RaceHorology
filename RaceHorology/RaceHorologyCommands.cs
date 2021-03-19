@@ -26,6 +26,13 @@ namespace RaceHorology.Commands
 				typeof(RaceHorologyCommands)
 			);
 
+		public static readonly RoutedUICommand DeleteRunResults = new RoutedUICommand
+			(
+				"DeleteRunResults",
+				"DeleteRunResults",
+				typeof(RaceHorologyCommands)
+			);
+
 		//Define more commands here, just like the one above
 	}
 }

@@ -825,7 +825,6 @@ namespace RaceHorologyLib
   /// <summary>
   /// Represents a run result (a pass / ein durchgang)
   /// </summary>
-  /// <remarks>not yet final</remarks>
   public class RunResult : INotifyPropertyChanged
   {
     public enum EResultCode { Normal = 0, NaS = 1, NiZ = 2, DIS = 3, NQ = 4, NotSet = -1 }; // 0;"Normal";1;"Nicht am Start";2;"Nicht im Ziel";3;"Disqualifiziert";4;"Nicht qualifiziert"
@@ -864,6 +863,9 @@ namespace RaceHorologyLib
     public EResultCode ResultCode { get { return _resultCode; } set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } }
     public string DisqualText { get { return _disqualText; } set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } }
 
+    public TimeSpan? FinishTime { get { return _finishTime; } }
+    public TimeSpan? StartTime { get { return _startTime; } }
+
 
     public RunResult(RaceParticipant particpant)
     {
@@ -888,15 +890,28 @@ namespace RaceHorologyLib
 
     public void UpdateRunResult(RunResult original)
     {
-      System.Diagnostics.Debug.Assert(_participant == original._participant);
+      if (original != null)
+      {
+        System.Diagnostics.Debug.Assert(_participant == original._participant);
 
-      _startTime = original._startTime;
-      _runTime = original._runTime;
-      _finishTime = original._finishTime;
-      _resultCode = original._resultCode;
-      _disqualText = original._disqualText;
+        _startTime = original._startTime;
+        _runTime = original._runTime;
+        _finishTime = original._finishTime;
+        _resultCode = original._resultCode;
+        _disqualText = original._disqualText;
+      }
+      else
+      {
+        _startTime = null;
+        _runTime = null;
+        _finishTime = null;
+        _resultCode = EResultCode.NotSet;
+        _disqualText = null;
+      }
 
       NotifyPropertyChanged(propertyName: nameof(Runtime));
+      NotifyPropertyChanged(propertyName: nameof(StartTime));
+      NotifyPropertyChanged(propertyName: nameof(FinishTime));
       NotifyPropertyChanged(propertyName: nameof(ResultCode));
       NotifyPropertyChanged(propertyName: nameof(DisqualText));
     }
@@ -907,13 +922,16 @@ namespace RaceHorologyLib
     }
 
 
-    public void SetRunTime(TimeSpan? t)
+    public void SetRunTime(TimeSpan? t, bool resetResultCode = true)
     {
       _runTime = t;
 
+      if (resetResultCode)
+        _resultCode = EResultCode.Normal;
+
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
-      
+
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
@@ -932,31 +950,39 @@ namespace RaceHorologyLib
     }
 
 
-    public void SetStartTime(TimeSpan? startTime)
+    public void SetStartTime(TimeSpan? startTime, bool resetResultCode = true)
     {
       _startTime = startTime;
 
-      // Reset result code if it was related to the start time
-      if (ResultCode == EResultCode.NaS)
+      if (resetResultCode)
+      {
         ResultCode = EResultCode.Normal;
+        // Reset FinishTime as well if start time is newer than finishtime
+        if (_startTime > _finishTime)
+        {
+          _finishTime = null;
+          NotifyPropertyChanged(propertyName: nameof(FinishTime));
+        }
+      }
 
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
 
+      NotifyPropertyChanged(propertyName: nameof(StartTime));
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public void SetFinishTime(TimeSpan? finishTime)
+    public void SetFinishTime(TimeSpan? finishTime, bool resetResultCode = true)
     {
       _finishTime = finishTime;
 
-      // Reset result code if it was related to the finish time
-      if (ResultCode == EResultCode.NiZ)
+      if (resetResultCode)
         ResultCode = EResultCode.Normal;
 
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
 
+      NotifyPropertyChanged(propertyName: nameof(FinishTime));
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
@@ -966,7 +992,9 @@ namespace RaceHorologyLib
 
     public override string ToString()
     {
-      return "T: " + _runTime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
+      return 
+        _participant.ToString() + 
+        ", T: " + Runtime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
     }
 
 
@@ -987,6 +1015,58 @@ namespace RaceHorologyLib
   }
 
 
+  public static class RunResultExtension
+  {
+    public static string JoinDisqualifyText(string reason, string goalNumber)
+    {
+      string result = reason;
+
+      if (!string.IsNullOrWhiteSpace(goalNumber))
+        result += " " + goalNumber;
+
+      return result;
+    }
+
+    public static void SplitDisqualifyText(string disqualifyText, out string reason, out string goalNumber)
+    {
+      goalNumber = reason = string.Empty;
+
+      if (string.IsNullOrEmpty(disqualifyText))
+        return;
+
+      // If the string ends with a number, this returns that number
+      string number = new string(disqualifyText
+                          .Reverse()
+                          .TakeWhile(c => char.IsDigit(c))
+                          .Reverse()
+                          .ToArray());
+
+      if (!string.IsNullOrWhiteSpace(number))
+      {
+        goalNumber = number.Trim();
+        reason = disqualifyText.Substring(0, disqualifyText.LastIndexOf(number)).Trim();
+      }
+      else
+        reason = disqualifyText;
+    }
+
+
+    public static string GetDisqualifyText(this RunResult rr)
+    {
+      string r, g;
+      SplitDisqualifyText(rr.DisqualText, out r, out g);
+      return r;
+    }
+
+
+    public static string GetDisqualifyGoal(this RunResult rr)
+    {
+      string r, g;
+      SplitDisqualifyText(rr.DisqualText, out r, out g);
+      return g;
+    }
+  }
+
   /// <summary>
   /// Represents a RunResult with position (for a run result list)
   /// </summary>
@@ -995,8 +1075,13 @@ namespace RaceHorologyLib
     private uint _position;
     private bool _justModified;
     private TimeSpan? _diffToFirst;
+    private double _diffToFirstPercentage;
 
     public RunResultWithPosition(RunResult result) : base(result)
+    {
+    }
+
+    public RunResultWithPosition(RaceParticipant rp) : base(rp)
     {
     }
 
@@ -1015,6 +1100,12 @@ namespace RaceHorologyLib
       set { if (_diffToFirst != value) { _diffToFirst = value; NotifyPropertyChanged(); } }
     }
 
+    public double DiffToFirstPercentage
+    {
+      get { return _diffToFirstPercentage; }
+      set { if (_diffToFirstPercentage != value) { _diffToFirstPercentage = value; NotifyPropertyChanged(); } }
+    }
+
     public bool JustModified
     {
       get { return _justModified; }
@@ -1023,7 +1114,9 @@ namespace RaceHorologyLib
 
     public override string ToString()
     {
-      return "P:" + _position + " " + base.ToString();
+      return
+        _participant.ToString() +
+        ", P:" + _position + ", T: " + Runtime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
     }
 
   }
@@ -1058,6 +1151,8 @@ namespace RaceHorologyLib
         }
 
         Position = rr.Position;
+        DiffToFirst = rr.DiffToFirst;
+        DiffToFirstPercentage = rr.DiffToFirstPercentage;
 
         return significantChange;
       }
@@ -1065,6 +1160,8 @@ namespace RaceHorologyLib
       public TimeSpan? Runtime { get; set; }
       public RunResult.EResultCode RunResultCode { get; set; }
       public uint Position { get; set; }
+      public TimeSpan? DiffToFirst { get; set; }
+      public double DiffToFirstPercentage { get; set; }
 
       public override string ToString()
       {
@@ -1081,6 +1178,7 @@ namespace RaceHorologyLib
     protected string _disqualText;
     protected uint _position;
     protected TimeSpan? _diffToFirst;
+    protected double _diffToFirstPercentage;
     protected double _points;
     protected bool _justModified;
 
@@ -1101,6 +1199,7 @@ namespace RaceHorologyLib
       _disqualText = null;
       _position = 0;
       _diffToFirst = null;
+      _diffToFirstPercentage = 0.0;
       _points = -1.0;
       _justModified = false;
     }
@@ -1145,6 +1244,12 @@ namespace RaceHorologyLib
     {
       get { return _diffToFirst; }
       set { if (_diffToFirst != value) { _diffToFirst = value; NotifyPropertyChanged(); } }
+    }
+
+    public double DiffToFirstPercentage
+    {
+      get { return _diffToFirstPercentage; }
+      set { if (_diffToFirstPercentage != value) { _diffToFirstPercentage = value; NotifyPropertyChanged(); } }
     }
 
 

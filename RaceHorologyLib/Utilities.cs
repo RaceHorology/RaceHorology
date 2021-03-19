@@ -225,12 +225,14 @@ namespace RaceHorologyLib
   {
     protected ObservableCollection<T> _source;
     protected Cloner<TC,T> _cloner;
+    protected bool _cloneOnPropertyChanged;
 
     public delegate TClone Cloner<TClone,TSource>(TSource source);
-    public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC,T> cloner)
+    public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC,T> cloner, bool cloneOnPropertyChanged)
     {
       _source = source;
       _cloner = cloner;
+      _cloneOnPropertyChanged = cloneOnPropertyChanged;
 
       _source.CollectionChanged += OnCollectionChanged;
 
@@ -245,7 +247,7 @@ namespace RaceHorologyLib
 
     protected void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (sender is T sourceItem)
+      if (_cloneOnPropertyChanged && (sender is T sourceItem))
       {
         int index = _source.IndexOf(sourceItem);
         var clonedItem = _cloner(sourceItem);
@@ -342,20 +344,27 @@ namespace RaceHorologyLib
 
     }
 
+
     public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer)
     {
-      for (int n = collection.Count(); n > 1; --n)
+      int n = collection.Count();
+      bool swapped;
+      do
       {
+        swapped = false;
         for (int i = 0; i < n - 1; ++i)
         {
           if (comparer.Compare(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
           {
             TC temp = collection.ElementAt(i);
             collection.RemoveAt(i);
-            collection.Insert(i+1, temp);
+            collection.Insert(i + 1, temp);
+            swapped = true;
           }
         }
+        n--;
       }
+      while (swapped);
     }
 
 
@@ -530,6 +539,21 @@ namespace RaceHorologyLib
       }
       catch (FormatException)
       { }
+
+
+      if (time == null) // treat as seconds
+      {
+        try
+        {
+          double value = 0.0;
+          text = text.Replace(',', '.');
+          value = double.Parse(text, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+          long ticks = (long)(value * 10000000);
+          time = new TimeSpan(ticks);
+        }
+        catch (Exception)
+        { }
+      }
 
       return time;
     }
