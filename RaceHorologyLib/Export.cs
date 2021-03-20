@@ -60,12 +60,10 @@ namespace RaceHorologyLib
       DataSet ds = new DataSet();
 
       DataTable table = createTable(ds);
-      table = addColumnsPerRun(table);
 
       foreach(var rp in _race.GetParticipants())
       {
         DataRow row = createDataRow(table, rp);
-        row = addDataPerRun(row, rp);
         table.Rows.Add(row);
       }
 
@@ -76,7 +74,14 @@ namespace RaceHorologyLib
     protected DataTable createTable(DataSet ds)
     {
       DataTable table = ds.Tables.Add();
+      
+      addColumns(table);
 
+      return table;
+    }
+
+    protected DataTable addColumns(DataTable table)
+    {
       table.Columns.Add("Id");
       table.Columns.Add("CodeOrId");
 
@@ -93,6 +98,8 @@ namespace RaceHorologyLib
 
       table.Columns.Add("StartNumber", typeof(uint));
       table.Columns.Add("Points", typeof(double));
+
+      addColumnsPerRun(table);
 
       return table;
     }
@@ -130,6 +137,8 @@ namespace RaceHorologyLib
 
       row["StartNumber"] = rp.StartNumber;
       row["Points"] = rp.Points;
+
+      addDataPerRun(row, rp);
 
       return row;
     }
