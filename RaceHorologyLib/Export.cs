@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -45,13 +45,67 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
-  public class Export
-  {
-    Race _race;
 
-    public Export(Race race)
+  public class ExportBase
+  {
+    public delegate object GetterFunc(Race race, RaceParticipant rp);
+
+    class ExportField
+    {
+      public string Name;
+
+      public Type @Type;
+
+      public GetterFunc Getter;
+    }
+
+    List<ExportField> _exportField;
+    protected Race _race;
+
+
+    protected ExportBase(Race race)
     {
       _race = race;
+
+      _exportField = new List<ExportField>();
+    }
+
+
+    public void AddField(string name, Type type, GetterFunc getter)
+    {
+      _exportField.Add(new ExportField { Name = name, Type = type, Getter = getter });
+    }
+
+
+    virtual protected DataTable createTable(DataSet ds)
+    {
+      DataTable table = ds.Tables.Add();
+      addColumns(table);
+      return table;
+    }
+
+    virtual protected void addColumns(DataTable table)
+    {
+      foreach( var ef in _exportField)
+      {
+        table.Columns.Add(ef.Name, ef.Type);
+      }
+    }
+
+    virtual protected DataRow createDataRow(DataTable table, RaceParticipant rp)
+    {
+      DataRow row = table.NewRow();
+
+      foreach (var ef in _exportField)
+      {
+        var val = ef.Getter(_race, rp);
+        if (val != null)
+          row[ef.Name] = val;
+        else
+          row[ef.Name] = DBNull.Value;
+      }
+
+      return row;
     }
 
 
@@ -61,7 +115,7 @@ namespace RaceHorologyLib
 
       DataTable table = createTable(ds);
 
-      foreach(var rp in _race.GetParticipants())
+      foreach (var rp in _race.GetParticipants())
       {
         DataRow row = createDataRow(table, rp);
         table.Rows.Add(row);
@@ -70,99 +124,134 @@ namespace RaceHorologyLib
       return ds;
     }
 
+  }
 
-    protected DataTable createTable(DataSet ds)
+
+
+
+  public class Export : ExportBase
+  {
+    public Export(Race race)
+      : base(race)
     {
-      DataTable table = ds.Tables.Add();
-      
-      addColumns(table);
-
-      return table;
+      addColumns();
     }
 
-    protected DataTable addColumns(DataTable table)
+
+    void addColumns()
     {
-      table.Columns.Add("Id");
-      table.Columns.Add("CodeOrId");
+      AddField("Id", typeof(string), (Race race, RaceParticipant rp) => { return rp.Id; });
+      AddField("CodeOrId", typeof(string), (Race race, RaceParticipant rp) => { return rp.Participant.CodeOrSvId; });
 
-      table.Columns.Add("Name");
-      table.Columns.Add("Firstname");
-      table.Columns.Add("Fullname");
-      table.Columns.Add("Category");
-      table.Columns.Add("Year", typeof(uint));
-      table.Columns.Add("Club");
-      table.Columns.Add("Nation");
+      AddField("Name", typeof(string), (Race race, RaceParticipant rp) => { return rp.Name; });
+      AddField("Firstname", typeof(string), (Race race, RaceParticipant rp) => { return rp.Firstname; });
+      AddField("Fullname", typeof(string), (Race race, RaceParticipant rp) => { return rp.Fullname; });
+      AddField("Category", typeof(string), (Race race, RaceParticipant rp) => { return rp.Sex; });
+      AddField("Year", typeof(uint), (Race race, RaceParticipant rp) => { return rp.Year; });
+      AddField("Club", typeof(string), (Race race, RaceParticipant rp) => { return rp.Club; });
+      AddField("Nation", typeof(string), (Race race, RaceParticipant rp) => { return rp.Nation; });
 
-      table.Columns.Add("Class");
-      table.Columns.Add("Group");
+      AddField("Class", typeof(string), (Race race, RaceParticipant rp) => { return rp.Class; });
+      AddField("Group", typeof(string), (Race race, RaceParticipant rp) => { return rp.Group; });
 
-      table.Columns.Add("StartNumber", typeof(uint));
-      table.Columns.Add("Points", typeof(double));
+      AddField("StartNumber", typeof(uint), (Race race, RaceParticipant rp) => { return rp.StartNumber; });
+      AddField("Points", typeof(double), (Race race, RaceParticipant rp) => { return rp.Points; });
 
-      addColumnsPerRun(table);
-
-      return table;
+      addColumnsPerRun();
     }
 
-    protected DataTable addColumnsPerRun(DataTable table)
-    {
-      foreach(RaceRun rr in _race.GetRuns())
-      {
-        table.Columns.Add(string.Format("Runtime_{0}", rr.Run), typeof(TimeSpan));
-        table.Columns.Add(string.Format("RuntimeSeconds_{0}", rr.Run), typeof(double));
-        
-        table.Columns.Add(string.Format("Resultcode_{0}", rr.Run));
-      }
-
-      return table;
-    }
-
-    protected DataRow createDataRow(DataTable table, RaceParticipant rp)
-    {
-      DataRow row = table.NewRow();
-
-      row["Id"] = rp.Id;
-      row["CodeOrId"] = rp.Participant.CodeOrSvId;
-
-      row["Name"] = rp.Name;
-      row["Firstname"] = rp.Firstname;
-      row["Fullname"] = rp.Fullname;
-      row["Category"] = rp.Sex;
-      row["Year"] = rp.Year;
-      row["Club"] = rp.Club;
-      row["Nation"] = rp.Nation;
-
-      row["Class"] = rp.Class;
-      row["Group"] = rp.Group;
-
-      row["StartNumber"] = rp.StartNumber;
-      row["Points"] = rp.Points;
-
-      addDataPerRun(row, rp);
-
-      return row;
-    }
-
-    protected DataRow addDataPerRun(DataRow row, RaceParticipant rp)
+    void addColumnsPerRun()
     {
       foreach (RaceRun rr in _race.GetRuns())
       {
-        RunResult runRes = rr.GetRunResult(rp);
-        if (runRes != null)
-        {
-          if (runRes.RuntimeWOResultCode != null)
+        AddField(
+          string.Format("Runtime_{0}", rr.Run), 
+          typeof(TimeSpan), 
+          (Race race, RaceParticipant rp) => 
           {
-            row[string.Format("Runtime_{0}", rr.Run)] = runRes.RuntimeWOResultCode;
-            row[string.Format("RuntimeSeconds_{0}", rr.Run)] = ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds;
+            if (rr.GetRunResult(rp) is RunResult runRes)
+              return runRes.RuntimeWOResultCode;
+            return null;
           }
-          if (runRes.ResultCode != RunResult.EResultCode.NotSet)
-            row[string.Format("Resultcode_{0}", rr.Run)] = runRes.ResultCode;
-        }
-      }
+        );
 
-      return row;
+        AddField(
+          string.Format("RuntimeSeconds_{0}", rr.Run),
+          typeof(double),
+          (Race race, RaceParticipant rp) =>
+          {
+            if (rr.GetRunResult(rp) is RunResult runRes && runRes.RuntimeWOResultCode != null)
+              return ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds;
+            return null;
+          }
+        );
+
+        AddField(
+          string.Format("Resultcode_{0}", rr.Run),
+          typeof(string),
+          (Race race, RaceParticipant rp) =>
+          {
+            if (rr.GetRunResult(rp) is RunResult runRes && runRes.ResultCode != RunResult.EResultCode.NotSet)
+              return runRes.ResultCode;
+            return null;
+          }
+        );
+      }
     }
   }
+
+
+  public class DSVAlpinExport : ExportBase
+  {
+    public DSVAlpinExport(Race race)
+      : base(race)
+    {
+      addColumns();
+    }
+
+    void addColumns()
+    {
+      AddField("Idnr", typeof(string), (Race race, RaceParticipant rp) => { return rp.Id; });
+      AddField("Stnr", typeof(uint), (Race race, RaceParticipant rp) => { return rp.StartNumber; });
+      AddField("DSV-Id", typeof(string), (Race race, RaceParticipant rp) => { return rp.Participant.CodeOrSvId; });
+
+      AddField("Name", typeof(string), (Race race, RaceParticipant rp) => { return rp.Fullname; });
+      AddField("Category", typeof(string), (Race race, RaceParticipant rp) => { return rp.Sex; });
+      AddField("JG", typeof(uint), (Race race, RaceParticipant rp) => { return rp.Year; });
+
+      AddField("V/G", typeof(string), (Race race, RaceParticipant rp) => { return rp.Nation; });
+      AddField("Verein", typeof(string), (Race race, RaceParticipant rp) => { return rp.Club; });
+      AddField("LPkte", typeof(double), (Race race, RaceParticipant rp) => { return rp.Points; });
+
+      AddField("Total", typeof(double), (Race race, RaceParticipant rp) => { return 0.0; });
+
+      addColumnsPerRun();
+
+      AddField("Klasse", typeof(string), (Race race, RaceParticipant rp) => { return rp.Class; });
+      AddField("Gruppe", typeof(string), (Race race, RaceParticipant rp) => { return rp.Group; });
+
+      AddField("RPkte", typeof(double), (Race race, RaceParticipant rp) => { return 0.0; });
+    }
+
+
+    void addColumnsPerRun()
+    {
+      foreach (RaceRun rr in _race.GetRuns())
+      {
+        AddField(
+          string.Format("Zeit {0}", rr.Run),
+          typeof(double),
+          (Race race, RaceParticipant rp) =>
+          {
+            if (rr.GetRunResult(rp) is RunResult runRes)
+              return ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds;
+            return null;
+          }
+        );
+      }
+    }
+  }
+
 
 
   public class ExcelExport
