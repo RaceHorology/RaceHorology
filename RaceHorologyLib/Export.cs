@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -213,10 +213,10 @@ namespace RaceHorologyLib
     {
       AddField("Idnr", typeof(string), (Race race, RaceParticipant rp) => { return rp.Id; });
       AddField("Stnr", typeof(uint), (Race race, RaceParticipant rp) => { return rp.StartNumber; });
-      AddField("DSV-Id", typeof(string), (Race race, RaceParticipant rp) => { return rp.Participant.CodeOrSvId; });
+      AddField("DSV-ID", typeof(string), (Race race, RaceParticipant rp) => { return rp.Participant.CodeOrSvId; });
 
       AddField("Name", typeof(string), (Race race, RaceParticipant rp) => { return rp.Fullname; });
-      AddField("Category", typeof(string), (Race race, RaceParticipant rp) => { return rp.Sex; });
+      AddField("Kateg", typeof(string), (Race race, RaceParticipant rp) => { return rp.Sex.Name.ToString(); });
       AddField("JG", typeof(uint), (Race race, RaceParticipant rp) => { return rp.Year; });
 
       AddField("V/G", typeof(string), (Race race, RaceParticipant rp) => { return rp.Nation; });
@@ -243,7 +243,7 @@ namespace RaceHorologyLib
           typeof(double),
           (Race race, RaceParticipant rp) =>
           {
-            if (rr.GetRunResult(rp) is RunResult runRes)
+            if (rr.GetRunResult(rp) is RunResult runRes && runRes.RuntimeWOResultCode != null)
               return ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds;
             return null;
           }
