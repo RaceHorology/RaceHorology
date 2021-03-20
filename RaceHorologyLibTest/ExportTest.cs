@@ -206,12 +206,12 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("Nation", ds.Tables[0].Rows[0]["V/G"]);
       Assert.AreEqual("Verein", ds.Tables[0].Rows[0]["Verein"]);
       Assert.AreEqual(1.0, ds.Tables[0].Rows[0]["LPkte"]);
-      //Assert.AreEqual(1.0, ds.Tables[0].Rows[0]["Total"]);
+      Assert.AreEqual(60.0, (double)ds.Tables[0].Rows[0]["Total"], 0.0001); // BestRun
       Assert.AreEqual(60.0, (double)ds.Tables[0].Rows[0]["Zeit 1"], 0.0001);
       Assert.AreEqual(120.12, (double)ds.Tables[0].Rows[0]["Zeit 2"], 0.0001);
       Assert.AreEqual("Class 2M (2010)", ds.Tables[0].Rows[0]["Klasse"]);
       Assert.AreEqual("Group 2M", ds.Tables[0].Rows[0]["Gruppe"]);
-      //Assert.AreEqual(1.0, ds.Tables[0].Rows[0]["RPkte"]);
+      Assert.AreEqual(DBNull.Value, ds.Tables[0].Rows[0]["RPkte"]);
 
       var excelExport = new ExcelExport();
       excelExport.Export(@"c:\trash\DSVAlpinExport.xlsx", ds);

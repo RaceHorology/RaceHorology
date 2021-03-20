@@ -223,14 +223,42 @@ namespace RaceHorologyLib
       AddField("Verein", typeof(string), (Race race, RaceParticipant rp) => { return rp.Club; });
       AddField("LPkte", typeof(double), (Race race, RaceParticipant rp) => { return rp.Points; });
 
-      AddField("Total", typeof(double), (Race race, RaceParticipant rp) => { return 0.0; });
+      AddField(
+        "Total", 
+        typeof(double), 
+        (Race race, RaceParticipant rp) => 
+        {
+          var vp = race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          if (raceResult != null)
+          {
+            if (raceResult.TotalTime != null)
+              return ((TimeSpan)raceResult.TotalTime).TotalSeconds;
+          }
+          return null; 
+        }
+      );
 
       addColumnsPerRun();
 
       AddField("Klasse", typeof(string), (Race race, RaceParticipant rp) => { return rp.Class; });
       AddField("Gruppe", typeof(string), (Race race, RaceParticipant rp) => { return rp.Group; });
 
-      AddField("RPkte", typeof(double), (Race race, RaceParticipant rp) => { return 0.0; });
+      AddField(
+        "RPkte",
+        typeof(double),
+        (Race race, RaceParticipant rp) =>
+        {
+          var vp = race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          if (raceResult != null)
+          {
+            if (raceResult.Points >= 0.0)
+              return raceResult.Points;
+          }
+          return null;
+        }
+      );
     }
 
 
