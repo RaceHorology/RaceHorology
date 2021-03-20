@@ -162,8 +162,6 @@ namespace RaceHorologyLib
 
       return row;
     }
-
-
   }
 
 
@@ -213,6 +211,44 @@ namespace RaceHorologyLib
             csv.WriteField(row[i]);
           }
           csv.NextRecord();
+        }
+      }
+    }
+  }
+
+
+
+  public class TsvExport
+  {
+    public void Export(string path, DataSet ds)
+    {
+      using (var textWriter = File.CreateText(path))
+      {
+        CsvHelper.Configuration.CsvConfiguration csvConfig = new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture);
+        csvConfig.Delimiter = "\t";
+        csvConfig.Encoding = Encoding.UTF8;
+
+        using (var csv = new CsvWriter(textWriter, csvConfig))
+        {
+
+          var dt = ds.Tables[0];
+
+          // Write columns
+          foreach (DataColumn column in dt.Columns)
+          {
+            csv.WriteField(column.ColumnName);
+          }
+          csv.NextRecord();
+
+          // Write row values
+          foreach (DataRow row in dt.Rows)
+          {
+            for (var i = 0; i < dt.Columns.Count; i++)
+            {
+              csv.WriteField(row[i]);
+            }
+            csv.NextRecord();
+          }
         }
       }
     }

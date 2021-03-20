@@ -142,6 +142,9 @@ namespace RaceHorologyLibTest
 
       var csvExport = new CsvExport();
       csvExport.Export(@"c:\trash\test.csv", ds);
+
+      var tsvExport = new TsvExport();
+      tsvExport.Export(@"c:\trash\test.txt", ds);
     }
   }
 }
