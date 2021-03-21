@@ -89,6 +89,12 @@ namespace RaceHorologyLibTest
       processLine(dataLine);
       return true;
     }
+
+
+    public void SimulteProcessLine(string line)
+    {
+      processLine(line);
+    }
   }
 
 
@@ -186,6 +192,8 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(), pd.Time);
       }
 
+      // Uncommon input for parser
+      Assert.ThrowsException<FormatException>(() => { parser.Parse("                                "); });
 
       #region Different Time Accuracy
       {
@@ -216,8 +224,15 @@ namespace RaceHorologyLibTest
         Assert.AreEqual((new TimeSpan(0, 16, 01, 56, 658)).AddMicroseconds(500), pd.Time);
       }
       #endregion
+    }
 
 
+    [TestMethod]
+    public void HandleUncommonInput()
+    {
+      ALGETdC8001TimeMeasurementSimulate alge = new ALGETdC8001TimeMeasurementSimulate(string.Empty);
+
+      alge.SimulteProcessLine("                                ");
     }
 
     [TestMethod]
