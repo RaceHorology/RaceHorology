@@ -626,6 +626,20 @@
                   <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Aktuelle Zeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\}}" />
+                  <DataGridTemplateColumn Header="">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <Button Click="BtnRowNiZ" Content="NIZ" />
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <Button Click="BtnRowDIS" Content="DIS" />
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
                 </DataGrid.Columns>
               </DataGrid>
             </Grid>

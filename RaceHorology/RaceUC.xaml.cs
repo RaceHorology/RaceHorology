@@ -879,6 +879,22 @@ namespace RaceHorology
       storeResultCodeAndSelectNext(RunResult.EResultCode.DIS);
     }
 
+    private void BtnRowNiZ(object sender, RoutedEventArgs e)
+    {
+      for (var vis = sender as Visual; vis != null; vis = VisualTreeHelper.GetParent(vis) as Visual)
+        if (vis is DataGridRow dataRow)
+          if (dataRow.Item is RunResult rr)
+            _currentRaceRun.SetResultCode(rr.Participant, RunResult.EResultCode.NiZ);
+    }
+
+    private void BtnRowDIS(object sender, RoutedEventArgs e)
+    {
+      for (var vis = sender as Visual; vis != null; vis = VisualTreeHelper.GetParent(vis) as Visual)
+        if (vis is DataGridRow dataRow)
+          if (dataRow.Item is RunResult rr)
+            _currentRaceRun.SetResultCode(rr.Participant, RunResult.EResultCode.DIS);
+    }
+
     private void storeResultCodeAndSelectNext(RunResult.EResultCode code)
     {
       uint startNumber = 0U;
