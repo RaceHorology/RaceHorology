@@ -117,14 +117,17 @@ namespace RaceHorologyLib
     ILiveTimeMeasurement _liveTimer;
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
+    bool _autoAddParticipants;
 
-    public LiveTimingMeasurement(AppDataModel dm)
+    public LiveTimingMeasurement(AppDataModel dm, bool autoAddParticipants = false)
     {
       _dm = dm;
       _syncContext = System.Threading.SynchronizationContext.Current;
       _isRunning = false;
+      _autoAddParticipants = autoAddParticipants;
     }
 
+    public bool AutoAddParticipants { get { return _autoAddParticipants; } set { _autoAddParticipants = value; } }
 
     #region Public Interface
 
@@ -215,6 +218,9 @@ namespace RaceHorologyLib
 
     private RaceParticipant createParticipantIfDesired(Race race, uint startNumber)
     {
+      if (!_autoAddParticipants)
+        return null;
+
       Participant p = new Participant
       {
         Name = "Automatisch",
