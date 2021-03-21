@@ -117,14 +117,17 @@ namespace RaceHorologyLib
     ILiveTimeMeasurement _liveTimer;
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
+    bool _autoAddParticipants;
 
-    public LiveTimingMeasurement(AppDataModel dm)
+    public LiveTimingMeasurement(AppDataModel dm, bool autoAddParticipants = false)
     {
       _dm = dm;
       _syncContext = System.Threading.SynchronizationContext.Current;
       _isRunning = false;
+      _autoAddParticipants = autoAddParticipants;
     }
 
+    public bool AutoAddParticipants { get { return _autoAddParticipants; } set { _autoAddParticipants = value; } }
 
     #region Public Interface
 
@@ -179,12 +182,16 @@ namespace RaceHorologyLib
       if (!_isRunning)
         return;
 
-      Race currentRace = _dm.GetCurrentRace();
-      RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
-      RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
-
-      _syncContext.Send(delegate 
+      _syncContext.Send(delegate
       {
+        Race currentRace = _dm.GetCurrentRace();
+        RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
+        RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
+
+        // Create participant if desired
+        if (participant == null)
+          participant = createParticipantIfDesired(currentRace, e.StartNumber);
+
         if (participant != null)
         {
 
@@ -207,6 +214,25 @@ namespace RaceHorologyLib
 
       _dm.SetCurrentDayTime(e.CurrentDayTime);
     }
+
+
+    private RaceParticipant createParticipantIfDesired(Race race, uint startNumber)
+    {
+      if (!_autoAddParticipants)
+        return null;
+
+      Participant p = new Participant
+      {
+        Name = "Automatisch",
+        Firstname = "Erzeugt"
+      };
+
+      _dm.GetParticipants().Add(p);
+
+      return race.AddParticipant(p, startNumber);
+    }
+
+
     #endregion
 
   }

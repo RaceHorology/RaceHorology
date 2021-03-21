@@ -69,9 +69,11 @@ namespace RaceHorology
 
       cbTimingDevice.Items.Add("ALGE TdC8000/8001");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
+
       txtAutomaticNiZTimeout.Text = Properties.Settings.Default.AutomaticNiZTimeout.ToString();
       txtAutomaticNaSStarters.Text = Properties.Settings.Default.AutomaticNaSStarters.ToString();
       txtStartTimeIntervall.Text = Properties.Settings.Default.StartTimeIntervall.ToString();
+      chkAutoAddParticipant.IsChecked = Properties.Settings.Default.AutoAddParticipants;
 
       txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
     }
@@ -108,6 +110,8 @@ namespace RaceHorology
           Properties.Settings.Default.StartTimeIntervall = uint.Parse(txtStartTimeIntervall.Text); 
       }
       catch (Exception) { }
+
+      Properties.Settings.Default.AutoAddParticipants = chkAutoAddParticipant.IsChecked == true;
 
       Properties.Settings.Default.StartNumbersNotToBeAssigned = txtNotToBeAssigned.Text;
 

@@ -54,6 +54,9 @@
 
           <Label Content="Startintervall (Sekunden bis &#34;Start Frei&#34; in der Zeitnahme erscheint) [s]:" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
           <TextBox x:Name="txtStartTimeIntervall" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Right" MinWidth="50" />
+
+          <Label Content="Unbekannte Teilnehmer:" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
+          <CheckBox x:Name="chkAutoAddParticipant" Content="Automatisch auf Basis der Startnummer hinzufügen" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center"/>
         </Grid>
       </TabItem>
       <TabItem Header="Standardwerte">

@@ -366,7 +366,7 @@ namespace RaceHorology
 
     private void InitializeTiming()
     {
-      _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel);
+      _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
       _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port);
@@ -379,6 +379,8 @@ namespace RaceHorology
       _liveTimingStatusTimer.AutoReset = true;
       _liveTimingStatusTimer.Enabled = true;
 
+      Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
+
       _alge.Start();
     }
 
@@ -388,6 +390,8 @@ namespace RaceHorology
         return;
 
       _alge.Stop();
+
+      Properties.Settings.Default.PropertyChanged -= SettingChangingHandler;
 
       _liveTimingStatusTimer.Elapsed -= UpdateLiveTimingDeviceStatus;
       _liveTimingStatusTimer = null;
@@ -400,8 +404,22 @@ namespace RaceHorology
     }
 
 
+    private void SettingChangingHandler(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+      switch (e.PropertyName)
+      {
+        case "AutoAddParticipants":
+          _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
+          break;
+        default:
+          break;
+      }
+    }
+
+
     private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
     {
+      _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
       _liveTimingMeasurement.Start();
     }
 
