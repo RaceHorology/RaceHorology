@@ -929,6 +929,8 @@ namespace RaceHorologyLib
     public void SetStartListProvider(StartListViewProvider slp)
     {
       _slVP = slp;
+      
+      sortInFinish();
     }
     public StartListViewProvider GetStartListProvider()
     {
@@ -1208,11 +1210,47 @@ namespace RaceHorologyLib
       {
         if (_inFinish.SingleOrDefault(o => o.Participant == r.Participant) == null)
         {
-          _inFinish.Add(new LiveResult(r, _appDataModel));
+          _inFinish.Add(r);
 
           OnTrackChangedHandler handler = InFinishChanged;
           handler?.Invoke(this, r.Participant, null, r);
         }
+      }
+
+      sortInFinish();
+    }
+
+
+    /// <summary>
+    /// Adapts order of finishlist according to the startlist
+    /// </summary>
+    private void sortInFinish()
+    {
+      var vpStart = GetStartListProvider();
+      if (vpStart == null)
+        return;
+
+      var startList = vpStart.GetViewList();
+      if (startList == null)
+        return;
+
+      int idxFinishDst = 0;
+      for(int idxStart = startList.Count-1; idxStart>0; idxStart--)
+      {
+        var entryStartList = startList[idxStart];
+
+        int idxFinishSrc = idxFinishDst+1; 
+        while (idxFinishSrc < _inFinish.Count)
+        {
+          if (_inFinish[idxFinishSrc].Participant == entryStartList.Participant)
+            break;
+          idxFinishSrc++;
+        }
+        
+        if (idxFinishSrc < _inFinish.Count && idxFinishDst < _inFinish.Count)
+          _inFinish.Move(idxFinishSrc, idxFinishDst);
+
+        idxFinishDst++;
       }
     }
 
