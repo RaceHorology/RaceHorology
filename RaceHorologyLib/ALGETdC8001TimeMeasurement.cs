@@ -90,6 +90,9 @@ namespace RaceHorologyLib
       catch (Exception)
       {}
 
+      if (parsedData == null)
+        return;
+
       try
       {
         UpdateLiveDayTime(parsedData);
