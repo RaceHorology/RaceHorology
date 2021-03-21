@@ -650,7 +650,7 @@ namespace RaceHorology
 
         dgFinish.ItemsSource = raceRun.GetInFinishList();
         EnableOrDisableColumns(_thisRace, dgFinish);
-        //dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
+        dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
       }
       else
       {
