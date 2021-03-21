@@ -205,22 +205,18 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(2010u, ds.Tables[0].Rows[0]["JG"]);
       Assert.AreEqual("Nation", ds.Tables[0].Rows[0]["V/G"]);
       Assert.AreEqual("Verein", ds.Tables[0].Rows[0]["Verein"]);
-      Assert.AreEqual(1.0, ds.Tables[0].Rows[0]["LPkte"]);
-      Assert.AreEqual(60.0, (double)ds.Tables[0].Rows[0]["Total"], 0.0001); // BestRun
-      Assert.AreEqual(60.0, (double)ds.Tables[0].Rows[0]["Zeit 1"], 0.0001);
-      Assert.AreEqual(120.12, (double)ds.Tables[0].Rows[0]["Zeit 2"], 0.0001);
+      Assert.AreEqual("1,00", ds.Tables[0].Rows[0]["LPkte"]);
+      Assert.AreEqual("60,00", ds.Tables[0].Rows[0]["Total"]); // BestRun => 60.0
+      Assert.AreEqual("60,00", ds.Tables[0].Rows[0]["Zeit 1"]);
+      Assert.AreEqual("120,12", ds.Tables[0].Rows[0]["Zeit 2"]);
       Assert.AreEqual("Class 2M (2010)", ds.Tables[0].Rows[0]["Klasse"]);
       Assert.AreEqual("Group 2M", ds.Tables[0].Rows[0]["Gruppe"]);
-      Assert.AreEqual(DBNull.Value, ds.Tables[0].Rows[0]["RPkte"]);
+      Assert.AreEqual("---", ds.Tables[0].Rows[0]["RPkte"]);
 
-      var excelExport = new ExcelExport();
-      excelExport.Export(@"c:\trash\DSVAlpinExport.xlsx", ds);
-
-      var csvExport = new CsvExport();
-      csvExport.Export(@"c:\trash\DSVAlpinExport.csv", ds);
-
-      var tsvExport = new TsvExport();
-      tsvExport.Export(@"c:\trash\DSVAlpinExport.txt", ds);
+      // Participant 3, Run1: NIZ
+      Assert.AreEqual("NIZ1", ds.Tables[0].Rows[2]["Total"]); 
+      Assert.AreEqual("NIZ", ds.Tables[0].Rows[2]["Zeit 1"]);
+      Assert.AreEqual(DBNull.Value, ds.Tables[0].Rows[2]["Zeit 2"]);
     }
   }
 }

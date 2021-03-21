@@ -221,11 +221,11 @@ namespace RaceHorologyLib
 
       AddField("V/G", typeof(string), (Race race, RaceParticipant rp) => { return rp.Nation; });
       AddField("Verein", typeof(string), (Race race, RaceParticipant rp) => { return rp.Club; });
-      AddField("LPkte", typeof(double), (Race race, RaceParticipant rp) => { return rp.Points; });
+      AddField("LPkte", typeof(string), (Race race, RaceParticipant rp) => { return string.Format("{0:0.00}", rp.Points); });
 
       AddField(
         "Total", 
-        typeof(double), 
+        typeof(string), 
         (Race race, RaceParticipant rp) => 
         {
           var vp = race.GetResultViewProvider();
@@ -233,7 +233,20 @@ namespace RaceHorologyLib
           if (raceResult != null)
           {
             if (raceResult.TotalTime != null)
-              return ((TimeSpan)raceResult.TotalTime).TotalSeconds;
+              return string.Format("{0:0.00}", ((TimeSpan)raceResult.TotalTime).TotalSeconds);
+            else
+            {
+              string resultCode = string.Empty;
+              foreach (KeyValuePair<uint, RaceResultItem.SubResult> kvp in raceResult.SubResults.OrderBy(k => k.Key))
+              {
+                if (kvp.Value.RunResultCode != RunResult.EResultCode.Normal)
+                {
+                  resultCode = getResultString(kvp.Value.RunResultCode, kvp.Key);
+                  break;
+                }
+              }
+              return resultCode;
+            }
           }
           return null; 
         }
@@ -246,7 +259,7 @@ namespace RaceHorologyLib
 
       AddField(
         "RPkte",
-        typeof(double),
+        typeof(string),
         (Race race, RaceParticipant rp) =>
         {
           var vp = race.GetResultViewProvider();
@@ -254,9 +267,9 @@ namespace RaceHorologyLib
           if (raceResult != null)
           {
             if (raceResult.Points >= 0.0)
-              return raceResult.Points;
+              return string.Format("{0:0.00}", raceResult.Points);
           }
-          return null;
+          return "---";
         }
       );
     }
@@ -268,15 +281,40 @@ namespace RaceHorologyLib
       {
         AddField(
           string.Format("Zeit {0}", rr.Run),
-          typeof(double),
+          typeof(string),
           (Race race, RaceParticipant rp) =>
           {
-            if (rr.GetRunResult(rp) is RunResult runRes && runRes.RuntimeWOResultCode != null)
-              return ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds;
+            if (rr.GetRunResult(rp) is RunResult runRes)
+              if (runRes.ResultCode == RunResult.EResultCode.Normal)
+              {
+                if (runRes.RuntimeWOResultCode != null)
+                  return string.Format("{0:0.00}", ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds);
+              }
+              else
+              {
+                return getResultString(runRes.ResultCode, 0);
+              }
             return null;
           }
         );
       }
+    }
+
+    string getResultString(RunResult.EResultCode code, uint run)
+    {
+      string str = string.Empty;
+      switch(code)
+      {
+        case RunResult.EResultCode.DIS: str = "DIS"; break;
+        case RunResult.EResultCode.NaS: str = "NAS"; break;
+        case RunResult.EResultCode.NiZ: str = "NIZ"; break;
+        case RunResult.EResultCode.NQ: str = "NQ"; break;
+      }
+
+      if (run > 0)
+        str += run.ToString();
+
+      return str;
     }
   }
 
