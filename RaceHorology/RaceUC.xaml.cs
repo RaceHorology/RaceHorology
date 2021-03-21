@@ -1234,6 +1234,84 @@ namespace RaceHorology
     }
 
 
+    private void BtnExportDsvAlpin_Click(object sender, RoutedEventArgs e)
+    {
+
+      exportToTextFile
+        ("DSVAlpin - Tab Separated Text File (.txt)|*.txt",
+        ".txt",
+        (Race race, string filePath) =>
+        {
+          DSVAlpinExport exp = new DSVAlpinExport(race);
+          TsvExport tsvExp = new TsvExport();
+          tsvExp.Export(filePath, exp.ExportToDataSet());
+        }
+      );
+    }
+
+
+    private void BtnExportCsv_Click(object sender, RoutedEventArgs e)
+    {
+
+      exportToTextFile
+        ("Comma Separated Text File (.csv)|*.csv",
+        ".csv",
+        (Race race, string filePath) =>
+        {
+          Export exp = new Export(race);
+          CsvExport csvExp = new CsvExport();
+          csvExp.Export(filePath, exp.ExportToDataSet());
+        }
+      );
+    }
+
+    private void BtnExportXlsx_Click(object sender, RoutedEventArgs e)
+    {
+      exportToTextFile
+        ("Microsoft Excel (.xlsx)|*.xslx", 
+        ".xlsx", 
+        (Race race, string filePath) =>
+        {
+          Export exp = new Export(race);
+          ExcelExport csvExp = new ExcelExport();
+          csvExp.Export(filePath, exp.ExportToDataSet());
+        }
+      );
+    }
+
+
+    delegate void exportDelegate(Race race, string filepath);
+    private void exportToTextFile(string fileDialogFilter, string suffix, exportDelegate expDelegate)
+    {
+      string filePath = System.IO.Path.Combine(
+        _dataModel.GetDB().GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(_dataModel.GetDB().GetDBFileName()) + suffix);
+
+      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
+      openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
+      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
+      openFileDialog.DefaultExt = suffix;
+      openFileDialog.Filter = fileDialogFilter;
+      try
+      {
+        if (openFileDialog.ShowDialog() == true)
+        {
+          filePath = openFileDialog.FileName;
+
+          expDelegate(_thisRace, filePath);
+        }
+      }
+      catch (Exception ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
+          "Fehler",
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+      }
+    }
+
+
+
     public static void CreateAndOpenReport(IPDFReport report)
     {
       if (report == null)
@@ -1292,7 +1370,6 @@ namespace RaceHorology
     }
 
     #endregion
-
   }
 
   #region Utilities
