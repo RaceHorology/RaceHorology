@@ -221,7 +221,7 @@ namespace RaceHorologyLib
 
       AddField("V/G", typeof(string), (Race race, RaceParticipant rp) => { return rp.Nation; });
       AddField("Verein", typeof(string), (Race race, RaceParticipant rp) => { return rp.Club; });
-      AddField("LPkte", typeof(string), (Race race, RaceParticipant rp) => { return string.Format("{0:0.00}", rp.Points); });
+      AddField("LPkte", typeof(string), (Race race, RaceParticipant rp) => { return string.Format(new System.Globalization.CultureInfo("de-DE"), "{0:0.00}", rp.Points); });
 
       AddField(
         "Total", 
@@ -267,7 +267,7 @@ namespace RaceHorologyLib
           if (raceResult != null)
           {
             if (raceResult.Points >= 0.0)
-              return string.Format("{0:0.00}", raceResult.Points);
+              return string.Format(new System.Globalization.CultureInfo("de-DE"), "{0:0.00}", raceResult.Points);
           }
           return "---";
         }
