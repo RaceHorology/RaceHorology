@@ -179,12 +179,16 @@ namespace RaceHorologyLib
       if (!_isRunning)
         return;
 
-      Race currentRace = _dm.GetCurrentRace();
-      RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
-      RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
-
-      _syncContext.Send(delegate 
+      _syncContext.Send(delegate
       {
+        Race currentRace = _dm.GetCurrentRace();
+        RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
+        RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
+
+        // Create participant if desired
+        if (participant == null)
+          participant = createParticipantIfDesired(currentRace, e.StartNumber);
+
         if (participant != null)
         {
 
@@ -207,6 +211,22 @@ namespace RaceHorologyLib
 
       _dm.SetCurrentDayTime(e.CurrentDayTime);
     }
+
+
+    private RaceParticipant createParticipantIfDesired(Race race, uint startNumber)
+    {
+      Participant p = new Participant
+      {
+        Name = "Automatisch",
+        Firstname = "Erzeugt"
+      };
+
+      _dm.GetParticipants().Add(p);
+
+      return race.AddParticipant(p, startNumber);
+    }
+
+
     #endregion
 
   }
