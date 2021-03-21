@@ -1180,7 +1180,7 @@ namespace RaceHorologyLib
       {
         if (_onTrack.SingleOrDefault(o => o.Participant == r.Participant) == null)
         {
-          _onTrack.Add(new LiveResult(r, _appDataModel));
+          _onTrack.Insert(0, new LiveResult(r, _appDataModel));
 
           OnTrackChangedHandler handler = OnTrackChanged;
           handler?.Invoke(this, r.Participant, null, r);
