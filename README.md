@@ -1,3 +1,5 @@
+![example workflow](https://github.com/svenflossmann/RaceHorology/actions/workflows/main.yml/badge.svg)
+
 # Race Horology
 
 Race Horology ist ein Zeitnahmeprogramm für Rennsportarten – vorwiegend für Ski-Alpin Rennen.
