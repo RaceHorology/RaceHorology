@@ -206,9 +206,9 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("Nation", ds.Tables[0].Rows[0]["V/G"]);
       Assert.AreEqual("Verein", ds.Tables[0].Rows[0]["Verein"]);
       Assert.AreEqual("1,00", ds.Tables[0].Rows[0]["LPkte"]);
-      Assert.AreEqual("60,00", ds.Tables[0].Rows[0]["Total"]); // BestRun => 60.0
-      Assert.AreEqual("60,00", ds.Tables[0].Rows[0]["Zeit 1"]);
-      Assert.AreEqual("120,12", ds.Tables[0].Rows[0]["Zeit 2"]);
+      Assert.AreEqual("1:00,00", ds.Tables[0].Rows[0]["Total"]); // BestRun => 60.0
+      Assert.AreEqual("1:00,00", ds.Tables[0].Rows[0]["Zeit 1"]);
+      Assert.AreEqual("2:00,12", ds.Tables[0].Rows[0]["Zeit 2"]);
       Assert.AreEqual("Class 2M (2010)", ds.Tables[0].Rows[0]["Klasse"]);
       Assert.AreEqual("Group 2M", ds.Tables[0].Rows[0]["Gruppe"]);
       Assert.AreEqual("---", ds.Tables[0].Rows[0]["RPkte"]);

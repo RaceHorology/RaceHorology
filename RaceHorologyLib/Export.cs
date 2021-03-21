@@ -233,7 +233,7 @@ namespace RaceHorologyLib
           if (raceResult != null)
           {
             if (raceResult.TotalTime != null)
-              return string.Format("{0:0.00}", ((TimeSpan)raceResult.TotalTime).TotalSeconds);
+              return raceResult.TotalTime.ToRaceTimeString();
             else
             {
               string resultCode = string.Empty;
@@ -288,7 +288,7 @@ namespace RaceHorologyLib
               if (runRes.ResultCode == RunResult.EResultCode.Normal)
               {
                 if (runRes.RuntimeWOResultCode != null)
-                  return string.Format("{0:0.00}", ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds);
+                  return runRes.RuntimeWOResultCode.ToRaceTimeString();
               }
               else
               {
