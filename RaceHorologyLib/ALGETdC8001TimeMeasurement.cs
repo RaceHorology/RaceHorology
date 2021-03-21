@@ -264,6 +264,8 @@ namespace RaceHorologyLib
         }
         catch (TimeoutException)
         { continue; }
+        catch (System.IO.IOException)
+        { }
       }
 
       _serialPort.Close();
