@@ -1239,18 +1239,20 @@ namespace RaceHorologyLib
       {
         var entryStartList = startList[idxStart];
 
-        int idxFinishSrc = idxFinishDst+1; 
+        int idxFinishSrc = idxFinishDst; 
         while (idxFinishSrc < _inFinish.Count)
         {
           if (_inFinish[idxFinishSrc].Participant == entryStartList.Participant)
             break;
           idxFinishSrc++;
         }
-        
-        if (idxFinishSrc < _inFinish.Count && idxFinishDst < _inFinish.Count)
-          _inFinish.Move(idxFinishSrc, idxFinishDst);
 
-        idxFinishDst++;
+        if (idxFinishSrc < _inFinish.Count && idxFinishDst < _inFinish.Count)
+        {
+          _inFinish.Move(idxFinishSrc, idxFinishDst);
+          idxFinishDst++;
+        }
+
       }
     }
 
