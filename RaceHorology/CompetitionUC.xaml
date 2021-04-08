@@ -226,24 +226,24 @@
 
       <TabItem >
         <TabItem.Header>
-          <Label Content="Neues Rennen" Padding="0" Margin="0" FontSize="16"/>
+          <Label Content="Neues Disziplin" Padding="0" Margin="0" FontSize="16"/>
         </TabItem.Header>
         <Grid Margin="5" >
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
-          <Label Content="Renntyp:"/>
-          <ComboBox x:Name="cmbRaceType" Grid.Column="1"/>
+          <Label Content="Disziplin:"/>
+          <ComboBox x:Name="cmbRaceType" Grid.Column="1" Margin="5"/>
 
-          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.ColumnSpan="2">
-            <Button x:Name="btnCreateRace" Content="Rennen erstellen" Click="btnCreateRace_Click"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" Margin="5">
+            <Button x:Name="btnCreateRace" Content="Erstellen" Click="btnCreateRace_Click"/>
           </StackPanel>
         </Grid>
       </TabItem>
