@@ -5,12 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800">
   <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="*" />
+      <RowDefinition Height="1*" />
       <RowDefinition Height="5" />
-      <RowDefinition Height="*" />
+      <RowDefinition Height="2*" />
     </Grid.RowDefinitions>
 
     <Grid Grid.Row="0">
@@ -61,9 +61,9 @@
 
       <Grid Grid.Row="1" Grid.IsSharedSizeScope="True">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="5"/>
-          <ColumnDefinition Width="4*"/>
+          <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
@@ -75,7 +75,7 @@
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" SharedSizeGroup="Value"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -85,7 +85,6 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
 
@@ -106,7 +105,7 @@
 
               <Button x:Name="btnAssignCurrentGroup"  Content="Aktuelle Gruppe zuweisen" Margin="5" Padding="5" Grid.Row="5" Grid.Column="1" Click="btnAssignCurrentGroup_Click"/>
 
-              <Button x:Name="btnAssignAll" Content="Alle Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Row="8" Grid.Column="1" Click="btnAssignAll_Click"/>
+              <Button x:Name="btnAssignAll" Content="Alle Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Row="7" Grid.Column="1" Click="btnAssignAll_Click"/>
 
             </Grid>
           </GroupBox>
@@ -115,10 +114,14 @@
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" SharedSizeGroup="Value"/>
               </Grid.ColumnDefinitions>
-              <Label Content="Nicht zu vergebene Startnummern:&#10;(durch Komma getrennt)" Margin="5" Grid.Row="6" Grid.Column="0"/>
-              <TextBox x:Name="txtNotToBeAssigned" Margin="5" Grid.Row="6" Grid.Column="1" TextWrapping="Wrap"/>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <Label Content="Nicht zu vergebene Startnummern (durch Komma getrennt):" Margin="5,0,5,0" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
+              <TextBox x:Name="txtNotToBeAssigned" Margin="5" TextWrapping="Wrap" Grid.Column="1" Grid.Row="1"/>
             </Grid>
           </GroupBox>
 

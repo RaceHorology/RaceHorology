@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:RaceHorology"
              xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib"
              mc:Ignorable="d"
-             MinHeight="800" d:DesignWidth="1280" d:DesignHeight="800">
+             d:DesignWidth="1280" d:DesignHeight="800">
 
   <UserControl.Resources>
     <racehorologylib:PositionConverter x:Key="PositionConverter" />
@@ -23,8 +23,9 @@
     </Grid.ColumnDefinitions>
     <TabControl x:Name="tabControlRace1" Height="Auto" Margin="10" Grid.Column="0" Width="Auto">
       <TabItem Header="Konfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
-        <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
-          <!--<Grid Margin="0,0,0,0">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+          <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
+            <!--<Grid Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
               <ColumnDefinition Width="*"/>
@@ -34,175 +35,173 @@
               <Separator/>
             </DockPanel>
           </Grid>-->
-          <Grid Margin="0,20,0,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblTemplate" Margin="5" Content="Template:" Grid.Row="0" Grid.Column="0"/>
-            <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
-              <ComboBox x:Name="cmbTemplate" Margin="5" SelectionChanged="CmbTemplate_SelectionChanged"/>
-            </StackPanel>
-          </Grid>
+            <Grid Margin="0,20,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblTemplate" Margin="5" Content="Template:" Grid.Row="0" Grid.Column="0"/>
+              <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+                <ComboBox x:Name="cmbTemplate" Margin="5" SelectionChanged="CmbTemplate_SelectionChanged"/>
+              </StackPanel>
+            </Grid>
 
-          <Grid Margin="0,15,0,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <DockPanel Height="25" Grid.ColumnSpan="2">
-              <Label DockPanel.Dock="Left" Content="Allgemein"/>
-              <Separator/>
-            </DockPanel>
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblRuns" Margin="5" Content="Durchgänge:" Grid.Row="0" Grid.Column="0"/>
-            <ComboBox x:Name="cmbRuns" Margin="5" Grid.Row="0" Grid.Column="1"/>
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigErgebnis" Margin="5" Content="Berechnung:" Grid.Column="0"/>
-            <ComboBox x:Name="cmbConfigErgebnis" Margin="5" Grid.Column="1" />
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigErgebnisGrouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
-            <ComboBox x:Name="cmbConfigErgebnisGrouping" Margin="5" Grid.Column="1" />
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigFields" Margin="5" Content="Felder:" Grid.Column="0"/>
-            <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-              <CheckBox x:Name="chkConfigFieldsYear" Content="Jahrgang" Margin="5"/>
-              <CheckBox x:Name="chkConfigFieldsClub" Content="Verein" Margin="5"/>
-              <CheckBox x:Name="chkConfigFieldsNation" Content="Nation/Verband" Margin="5"/>
-              <CheckBox x:Name="chkConfigFieldsCode" Content="Code/SV-Id" Margin="5"/>
-              <CheckBox x:Name="chkConfigFieldsPoints" Content="Punkte" Margin="5"/>
-              <CheckBox x:Name="chkConfigFieldsPercentage" Content="Diff [%]" Margin="5"/>
-            </WrapPanel>
-          </Grid>
+            <Grid Margin="0,15,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <DockPanel Height="25" Grid.ColumnSpan="2">
+                <Label DockPanel.Dock="Left" Content="Allgemein"/>
+                <Separator/>
+              </DockPanel>
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblRuns" Margin="5" Content="Durchgänge:" Grid.Row="0" Grid.Column="0"/>
+              <ComboBox x:Name="cmbRuns" Margin="5" Grid.Row="0" Grid.Column="1"/>
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblConfigErgebnis" Margin="5" Content="Berechnung:" Grid.Column="0"/>
+              <ComboBox x:Name="cmbConfigErgebnis" Margin="5" Grid.Column="1" />
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblConfigErgebnisGrouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
+              <ComboBox x:Name="cmbConfigErgebnisGrouping" Margin="5" Grid.Column="1" />
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblConfigFields" Margin="5" Content="Felder:" Grid.Column="0"/>
+              <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                <CheckBox x:Name="chkConfigFieldsYear" Content="Jahrgang" Margin="5"/>
+                <CheckBox x:Name="chkConfigFieldsClub" Content="Verein" Margin="5"/>
+                <CheckBox x:Name="chkConfigFieldsNation" Content="Nation/Verband" Margin="5"/>
+                <CheckBox x:Name="chkConfigFieldsCode" Content="Code/SV-Id" Margin="5"/>
+                <CheckBox x:Name="chkConfigFieldsPoints" Content="Punkte" Margin="5"/>
+                <CheckBox x:Name="chkConfigFieldsPercentage" Content="Diff [%]" Margin="5"/>
+              </WrapPanel>
+            </Grid>
 
-          <Grid Margin="0,15,0,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <DockPanel Height="25" Grid.ColumnSpan="2">
-              <Label DockPanel.Dock="Left" Content="Durchgang 1"/>
-              <Separator/>
-            </DockPanel>
-          </Grid>
+            <Grid Margin="0,15,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <DockPanel Height="25" Grid.ColumnSpan="2">
+                <Label DockPanel.Dock="Left" Content="Durchgang 1"/>
+                <Separator/>
+              </DockPanel>
+            </Grid>
 
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigStartlist1Grouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
-            <ComboBox x:Name="cmbConfigStartlist1Grouping" Margin="5" Grid.Column="1" />
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigStartlist1" Margin="5" Content="Startsortierung:" Grid.Column="0"/>
-            <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
-              <ComboBox x:Name="cmbConfigStartlist1" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
-            </StackPanel>
-          </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblConfigStartlist1Grouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
+              <ComboBox x:Name="cmbConfigStartlist1Grouping" Margin="5" Grid.Column="1" />
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblConfigStartlist1" Margin="5" Content="Startsortierung:" Grid.Column="0"/>
+              <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+                <ComboBox x:Name="cmbConfigStartlist1" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+              </StackPanel>
+            </Grid>
 
-          <Grid Margin="0,15,0,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <DockPanel Height="25" Grid.ColumnSpan="2">
-              <Label DockPanel.Dock="Left" Content="Durchgang 2"/>
-              <Separator/>
-            </DockPanel>
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigStartlist2Grouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
-            <ComboBox x:Name="cmbConfigStartlist2Grouping" Margin="5" Grid.Column="1" />
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblConfigStartlist2" Margin="5" Content="Startsortierung:" Grid.Column="0"/>
-            <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
-              <ComboBox x:Name="cmbConfigStartlist2" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
-            </StackPanel>
-          </Grid>
+            <Grid Margin="0,15,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <DockPanel Height="25" Grid.ColumnSpan="2">
+                <Label DockPanel.Dock="Left" Content="Durchgang 2"/>
+                <Separator/>
+              </DockPanel>
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblConfigStartlist2Grouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>
+              <ComboBox x:Name="cmbConfigStartlist2Grouping" Margin="5" Grid.Column="1" />
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblConfigStartlist2" Margin="5" Content="Startsortierung:" Grid.Column="0"/>
+              <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+                <ComboBox x:Name="cmbConfigStartlist2" Margin="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+              </StackPanel>
+            </Grid>
 
-          <Grid Margin="0,15,0,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <DockPanel Height="25" Grid.ColumnSpan="2">
-              <Label DockPanel.Dock="Left" Content="Berechnung"/>
-              <Separator/>
-            </DockPanel>
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblValueF" Margin="5" Content="F-Wert:" Grid.Column="0"/>
-            <TextBox x:Name="txtValueF" Margin="5" Grid.Column="1" />
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblValueA" Margin="5" Content="Adder:" Grid.Column="0"/>
-            <TextBox x:Name="txtValueA" Margin="5" Grid.Column="1" />
-          </Grid>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="lblMinPenalty" Margin="5" Content="Minimumzuschlag:" Grid.Column="0"/>
-            <TextBox x:Name="txtMinPenalty" Margin="5" Grid.Column="1" />
-          </Grid>
+            <Grid Margin="0,15,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <DockPanel Height="25" Grid.ColumnSpan="2">
+                <Label DockPanel.Dock="Left" Content="Berechnung"/>
+                <Separator/>
+              </DockPanel>
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblValueF" Margin="5" Content="F-Wert:" Grid.Column="0"/>
+              <TextBox x:Name="txtValueF" Margin="5" Grid.Column="1" />
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblValueA" Margin="5" Content="Adder:" Grid.Column="0"/>
+              <TextBox x:Name="txtValueA" Margin="5" Grid.Column="1" />
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="lblMinPenalty" Margin="5" Content="Minimumzuschlag:" Grid.Column="0"/>
+              <TextBox x:Name="txtMinPenalty" Margin="5" Grid.Column="1" />
+            </Grid>
 
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
-              <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
-              <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
-            </StackPanel>
-          </Grid>
-
-
-        </StackPanel>
-
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
+                <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
+                <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </ScrollViewer>
       </TabItem>
 
       <TabItem x:Name="RaceParticipants" Header="Teilnehmer" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
@@ -467,7 +466,9 @@
         </ScrollViewer>
       </TabItem>
       <TabItem Header="Startnummern" FontSize="12">
-        <local:StartNumbersUC x:Name="ucStartNumbers" />
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+          <local:StartNumbersUC x:Name="ucStartNumbers" />
+        </ScrollViewer>
       </TabItem>
       <TabItem Header="Live Timing" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
