@@ -741,34 +741,41 @@ namespace RaceHorologyLib
       return _appDataModel;
     }
 
-
     public override string ToString()
     {
-      switch(RaceType)
+      return RaceUtil.ToString(RaceType);
+    }
+  }
+
+
+  public static class RaceUtil
+  {
+    public static string ToString(Race.ERaceType raceType)
+    {
+      switch (raceType)
       {
-        case ERaceType.DownHill:
+        case Race.ERaceType.DownHill:
           return "Abfahrt";
 
-        case ERaceType.SuperG:
+        case Race.ERaceType.SuperG:
           return "Super G";
 
-        case ERaceType.GiantSlalom:
+        case Race.ERaceType.GiantSlalom:
           return "Riesenslalom";
 
-        case ERaceType.Slalom:
+        case Race.ERaceType.Slalom:
           return "Slalom";
 
-        case ERaceType.KOSlalom:
+        case Race.ERaceType.KOSlalom:
           return "KO Slalom";
 
-        case ERaceType.ParallelSlalom:
+        case Race.ERaceType.ParallelSlalom:
           return "Parallel-Slalom";
-        
+
         default:
-          return RaceType.ToString();
+          return raceType.ToString();
       }
     }
-
   }
 
 

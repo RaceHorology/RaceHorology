@@ -228,7 +228,7 @@ namespace RaceHorology
       {
         if (_dm.GetRaces().FirstOrDefault(r => r.RaceType == rt) == null)
         {
-          cmbRaceType.Items.Add(rt);
+          cmbRaceType.Items.Add(new CBItem { Value = rt, Text = RaceUtil.ToString(rt) });
         }
       }
     }
@@ -239,7 +239,7 @@ namespace RaceHorology
       if (cmbRaceType.SelectedIndex < 0)
         return;
 
-      Race.ERaceType rt = (Race.ERaceType)cmbRaceType.SelectedItem;
+      Race.ERaceType rt = (Race.ERaceType)((CBItem)cmbRaceType.SelectedItem).Value;
 
       Race.RaceProperties raceProps = new Race.RaceProperties
       {
