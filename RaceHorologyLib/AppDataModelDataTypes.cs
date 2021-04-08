@@ -734,7 +734,7 @@ namespace RaceHorologyLib
     }
 
 
-    public StartListEntry ShallowCopy()
+    virtual public StartListEntry ShallowCopy()
     {
       StartListEntry copy = new StartListEntry(_participant);
       copy._started = _started;
@@ -809,6 +809,19 @@ namespace RaceHorologyLib
     public StartListEntryAdditionalRun(RunResult resultPreviousRun) : base(resultPreviousRun.Participant)
     {
       _resultPreviousRun = resultPreviousRun;
+    }
+
+    public StartListEntryAdditionalRun(StartListEntry sle, RunResult resultPreviousRun) 
+      : base(sle.Participant)
+    {
+      _resultPreviousRun = resultPreviousRun;
+    }
+
+    override public StartListEntry ShallowCopy()
+    {
+      StartListEntryAdditionalRun copy = new StartListEntryAdditionalRun(this, _resultPreviousRun);
+      copy._started = _started;
+      return copy;
     }
 
     public TimeSpan? Runtime { get { return _resultPreviousRun.Runtime; } }

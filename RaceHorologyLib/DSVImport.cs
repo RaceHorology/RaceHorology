@@ -176,6 +176,8 @@ namespace RaceHorologyLib
           string region = line.Substring(84, 10).Trim();
           string points = line.Substring(94, 10).Trim();
           string sex = line.Substring(104).Trim();
+          //TODO: Map F to W
+
           DataRow row = table.NewRow();
           row["SvId"] = id;
           row["Name"] = name;

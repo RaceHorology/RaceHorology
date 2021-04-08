@@ -796,6 +796,8 @@ namespace RaceHorologyLib
         case 'w':
         case 'D':
         case 'd':
+        case 'F':
+        case 'f':
           return "L";
       }
 
