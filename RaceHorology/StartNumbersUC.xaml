@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="800" d:DesignWidth="800">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="1*" />
@@ -57,7 +57,7 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label Content="Teilnehmer zuweisen" Grid.Row="0"  FontSize="16"/>
+      <Label Content="Startnummer zuweisen" Grid.Row="0"  FontSize="16"/>
 
       <Grid Grid.Row="1" Grid.IsSharedSizeScope="True">
         <Grid.ColumnDefinitions>
@@ -105,7 +105,7 @@
 
               <Button x:Name="btnAssignCurrentGroup"  Content="Aktuelle Gruppe zuweisen" Margin="5" Padding="5" Grid.Row="5" Grid.Column="1" Click="btnAssignCurrentGroup_Click"/>
 
-              <Button x:Name="btnAssignAll" Content="Alle Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Row="7" Grid.Column="1" Click="btnAssignAll_Click"/>
+              <Button x:Name="btnAssignAll" Content="Alle Startnummern zuweisen" Margin="5" Padding="5" Grid.Row="7" Grid.Column="1" Click="btnAssignAll_Click"/>
 
             </Grid>
           </GroupBox>
@@ -162,7 +162,7 @@
                 <Label Content="Startnummer:" Grid.Column="0" Margin="5" />
                 <TextBox x:Name="txtNextStartNumberManual" Grid.Column="1" Margin="5" Width="40" VerticalContentAlignment="Center"/>
 
-                <Button x:Name="btnAssign" Content="Teilnehmer zuweisen" Margin="5" Padding="5" Grid.Column="3" Click="btnAssign_Click"/>
+                <Button x:Name="btnAssign" Content="Startnummer zuweisen" Margin="5" Padding="5" Grid.Column="3" Click="btnAssign_Click"/>
               </Grid>
             </Grid>          
           </GroupBox>
