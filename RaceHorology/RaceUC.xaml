@@ -724,13 +724,12 @@
 
       <Grid Width="Auto">
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Label x:Name="lblTotalResult" Content="Rennergebnis" HorizontalAlignment="Left" Margin="0" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
-        <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="1" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
-        <ComboBox x:Name="cmbTotalResult" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResult_SelectionChanged"/>
+        <ComboBox x:Name="cmbTotalResult" Margin="5" Grid.Column="0" SelectionChanged="CmbTotalResult_SelectionChanged"/>
+        <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
       </Grid>
 
       <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
