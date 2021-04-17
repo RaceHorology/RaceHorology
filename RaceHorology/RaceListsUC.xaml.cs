@@ -98,7 +98,6 @@ namespace RaceHorology
 
     private void CmbTotalResult_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      ViewProvider vp = null;
       if (cmbTotalResult.SelectedValue is CBItem selected)
       {
         CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
