@@ -1,4 +1,4 @@
-using RaceHorologyLib;
+﻿using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -194,11 +194,14 @@ namespace RaceHorology
       };
 
       b.Converter = new PercentageConverter(false);
-        dgc.Binding = b;
-        dgc.CellStyle = new Style();
-        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
-        return dgc;
-      }
+      dgc.Binding = b;
+      dgc.CellStyle = new Style();
+      dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+
+      DataGridUtil.SetName(dgc, "Percentage");
+
+      return dgc;
+    }
 
     DataGridTextColumn createColumnDiff(string header, string property)
     {

@@ -35,6 +35,7 @@
 
 using RaceHorologyLib;
 using System;
+using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -116,16 +117,17 @@ namespace RaceHorology
 
     public static void EnableOrDisableColumn(Race race, DataGrid dg, string columnName)
     {
-      DataGridColumn col = dg.ColumnByName(columnName);
-      if (col != null)
+      foreach(var col in dg.ColumnsByName(columnName))
       {
-        if (race.IsFieldActive(columnName))
-          col.Visibility = Visibility.Visible;
-        else
-          col.Visibility = Visibility.Collapsed;
+        if (col != null)
+        {
+          if (race.IsFieldActive(columnName))
+            col.Visibility = Visibility.Visible;
+          else
+            col.Visibility = Visibility.Collapsed;
+        }
       }
     }
-
   }
 
 
@@ -145,11 +147,21 @@ namespace RaceHorology
 
     public static DataGridColumn ColumnByName(this DataGrid dg, string columnName)
     {
-      foreach (var col in dg.Columns)
-        if (string.Equals(GetName(col), columnName))
-          return col;
+      foreach (var col in dg.ColumnsByName(columnName))
+        return col;
 
       return null;
+    }
+
+    public static IEnumerable<DataGridColumn> ColumnsByName(this DataGrid dg, string columnName)
+    {
+      List<DataGridColumn> cols = new List<DataGridColumn>();
+
+      foreach (var col in dg.Columns)
+        if (string.Equals(GetName(col), columnName))
+          yield return col;
+
+      yield break;
     }
 
     public static readonly DependencyProperty NameProperty =
