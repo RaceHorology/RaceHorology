@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,124 +115,153 @@ namespace RaceHorology
     }
 
 
+    DataGridTextColumn createColumn(string columnName, string property, string header)
+    {
+      DataGridTextColumn dgc = new DataGridTextColumn
+      {
+        Header = header
+      };
+      Binding b = new Binding(property)
+      {
+        Mode = BindingMode.OneWay,
+      };
+
+      dgc.Binding = b;
+
+      DataGridUtil.SetName(dgc, columnName);
+
+      return dgc;
+    }
+
+
+    DataGridTextColumn createColumnAnmerkung()
+    {
+      DataGridTextColumn dgc = new DataGridTextColumn
+      {
+        Header = "Anmerkung"
+      };
+      MultiBinding b = new MultiBinding();
+      b.Mode = BindingMode.OneWay;
+
+      Binding b1 = new Binding("ResultCode")
+      {
+        Mode = BindingMode.OneWay,
+      };
+      Binding b2 = new Binding("DisqualText")
+      {
+        Mode = BindingMode.OneWay,
+      };
+
+      b.Bindings.Add(b1);
+      b.Bindings.Add(b2);
+
+      b.Converter = new ResultCodeWithCommentConverter();
+      dgc.Binding = b;
+
+      return dgc;
+    }
+
+    DataGridTextColumn createColumnPosition(string columnName, string property, bool inParantheses)
+    {
+      DataGridTextColumn dgc = new DataGridTextColumn
+      {
+        Header = "Pos"
+      };
+      Binding b = new Binding(property)
+      {
+        Mode = BindingMode.OneWay,
+      };
+
+      b.Converter = new PositionConverter(inParantheses);
+      dgc.Binding = b;
+      dgc.CellStyle = new Style();
+      dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+
+      DataGridUtil.SetName(dgc, columnName);
+
+      return dgc;
+    }
+
+    DataGridTextColumn createColumnDiffInPercentage(string header, string property)
+    {
+      DataGridTextColumn dgc = new DataGridTextColumn
+      {
+        Header = header
+      };
+      Binding b = new Binding(property)
+      {
+        Mode = BindingMode.OneWay,
+      };
+
+      b.Converter = new PercentageConverter(false);
+        dgc.Binding = b;
+        dgc.CellStyle = new Style();
+        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+        return dgc;
+      }
+
+    DataGridTextColumn createColumnDiff(string header, string property)
+    {
+      DataGridTextColumn dgc = new DataGridTextColumn
+      {
+        Header = header
+      };
+
+      Binding b1 = new Binding(property)
+      {
+        Mode = BindingMode.OneWay,
+      };
+      b1.Converter = new RaceHorologyLib.TimeSpanConverter();
+      dgc.Binding = b1;
+      dgc.CellStyle = new Style();
+      dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+      dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.MarginProperty, Value = new Thickness(15, 0, 0, 0) });
+      return dgc;
+    }
+
+    DataGridTextColumn createColumnTime(string header, string runtime, string resultcode)
+    {
+      DataGridTextColumn dgc = new DataGridTextColumn
+      {
+        Header = header
+      };
+
+      MultiBinding mb = new MultiBinding();
+      Binding b1 = new Binding(runtime)
+      {
+        Mode = BindingMode.OneWay,
+      };
+      Binding b2 = new Binding(resultcode)
+      {
+        Mode = BindingMode.OneWay,
+      };
+      mb.Bindings.Add(b1);
+      mb.Bindings.Add(b2);
+      mb.Converter = new ResultTimeAndCodeConverter();
+      dgc.Binding = mb;
+      dgc.CellStyle = new Style();
+      dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+      dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.MarginProperty, Value = new Thickness(15, 0, 0, 0) });
+      return dgc;
+    }
+
+
     private void adaptTotalResultsView()
     {
+      dgTotalResults.Columns.Clear();
 
-      DataGridTextColumn createColumnAnmerkung()
-      {
-        DataGridTextColumn dgc = new DataGridTextColumn
-        {
-          Header = "Anmerkung"
-        };
-        MultiBinding b = new MultiBinding();
-        b.Mode = BindingMode.OneWay;
-
-        Binding b1 = new Binding("ResultCode")
-        {
-          Mode = BindingMode.OneWay,
-        };
-        Binding b2 = new Binding("DisqualText")
-        {
-          Mode = BindingMode.OneWay,
-        };
-
-        b.Bindings.Add(b1);
-        b.Bindings.Add(b2);
-
-        b.Converter = new ResultCodeWithCommentConverter();
-        dgc.Binding = b;
-
-        return dgc;
-      }
-
-      DataGridTextColumn createColumnPosition(string property)
-      {
-        DataGridTextColumn dgc = new DataGridTextColumn
-        {
-          Header = "Pos"
-        };
-        Binding b = new Binding(property)
-        {
-          Mode = BindingMode.OneWay,
-        };
-
-        b.Converter = new PositionConverter(true);
-        dgc.Binding = b;
-        dgc.CellStyle = new Style();
-        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
-        return dgc;
-      }
-
-      DataGridTextColumn createColumnDiffInPercentage(string header, string property)
-      {
-        DataGridTextColumn dgc = new DataGridTextColumn
-        {
-          Header = header
-        };
-        Binding b = new Binding(property)
-        {
-          Mode = BindingMode.OneWay,
-        };
-
-        b.Converter = new PercentageConverter(false);
-        dgc.Binding = b;
-        dgc.CellStyle = new Style();
-        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
-        return dgc;
-      }
-
-      DataGridTextColumn createColumnDiff(string header, string property)
-      {
-        DataGridTextColumn dgc = new DataGridTextColumn
-        {
-          Header = header
-        };
-
-        Binding b1 = new Binding(property)
-        {
-          Mode = BindingMode.OneWay,
-        };
-        b1.Converter = new RaceHorologyLib.TimeSpanConverter();
-        dgc.Binding = b1;
-        dgc.CellStyle = new Style();
-        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
-        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.MarginProperty, Value = new Thickness(15, 0, 0, 0) });
-        return dgc;
-      }
-
-      DataGridTextColumn createTimeColumn(string header, string runtime, string resultcode)
-      {
-        DataGridTextColumn dgc = new DataGridTextColumn
-        {
-          Header = header
-        };
-
-        MultiBinding mb = new MultiBinding();
-        Binding b1 = new Binding(runtime)
-        {
-          Mode = BindingMode.OneWay,
-        };
-        Binding b2 = new Binding(resultcode)
-        {
-          Mode = BindingMode.OneWay,
-        };
-        mb.Bindings.Add(b1);
-        mb.Bindings.Add(b2);
-        mb.Converter = new ResultTimeAndCodeConverter();
-        dgc.Binding = mb;
-        dgc.CellStyle = new Style();
-        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
-        dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.MarginProperty, Value = new Thickness(15, 0, 0, 0) });
-        return dgc;
-      }
-
-      while (dgTotalResults.Columns.Count > 7)
-        dgTotalResults.Columns.RemoveAt(dgTotalResults.Columns.Count - 1);
+      dgTotalResults.Columns.Add(createColumnPosition("Position", "Position", false));
+      dgTotalResults.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
+      dgTotalResults.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
+      dgTotalResults.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
+      dgTotalResults.Columns.Add(createColumn("Year", "Participant.Year", "Jahrgang"));
+      dgTotalResults.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
+      dgTotalResults.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
 
       // Race Run Results
       if (_totalResultsVP is RaceRunResultViewProvider)
       {
-        dgTotalResults.Columns.Add(createTimeColumn("Zeit", "Runtime", "ResultCode"));
+        dgTotalResults.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
         dgTotalResults.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
         dgTotalResults.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
         dgTotalResults.Columns.Add(createColumnAnmerkung());
@@ -243,13 +272,13 @@ namespace RaceHorology
       {
         foreach (var r in _thisRace.GetRuns())
         {
-          dgTotalResults.Columns.Add(createTimeColumn(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
+          dgTotalResults.Columns.Add(createColumnTime(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
           dgTotalResults.Columns.Add(createColumnDiff(string.Format("Diff {0}", r.Run), string.Format("SubResults[{0}].DiffToFirst", r.Run)));
           dgTotalResults.Columns.Add(createColumnDiffInPercentage(string.Format("[%] {0}", r.Run), string.Format("SubResults[{0}].DiffToFirstPercentage", r.Run)));
-          dgTotalResults.Columns.Add(createColumnPosition(string.Format("SubResults[{0}].Position", r.Run)));
+          dgTotalResults.Columns.Add(createColumnPosition(string.Format("SubResults[{0}].Position", r.Run), string.Format("SubResults[{0}].Position", r.Run), true));
         }
 
-        dgTotalResults.Columns.Add(createTimeColumn("Total", "TotalTime", "ResultCode"));
+        dgTotalResults.Columns.Add(createColumnTime("Total", "TotalTime", "ResultCode"));
         dgTotalResults.Columns.Add(createColumnAnmerkung());
       }
       // Start List
@@ -257,7 +286,7 @@ namespace RaceHorology
       {
         if (_totalResultsVP is BasedOnResultsFirstRunStartListViewProvider)
         {
-          dgTotalResults.Columns.Add(createTimeColumn("Zeit", "Runtime", "ResultCode"));
+          dgTotalResults.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
         }
       }
 

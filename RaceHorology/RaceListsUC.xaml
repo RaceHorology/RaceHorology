@@ -34,15 +34,7 @@
     </Grid>
 
     <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
-      <DataGrid.Columns>
-        <DataGridTextColumn local:DataGridUtil.Name="Position" Header="Platz" Binding="{Binding Position, Mode=OneWay, Converter={StaticResource PositionConverter}}" />
-        <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
-        <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
-        <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
-        <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
-        <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
-        <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
-      </DataGrid.Columns>
+      <DataGrid.Columns />
 
       <DataGrid.Style>
         <Style TargetType="DataGrid">
@@ -69,7 +61,6 @@
           </Style.Triggers>
         </Style>
       </DataGrid.RowStyle>
-
     </DataGrid>
 
     <Grid Width="Auto" Grid.Row="2">
