@@ -88,8 +88,6 @@ namespace RaceHorology
       
       InitializeConfiguration();
 
-      InitializeRaceParticipants();
-
       InitializeRaceProperties();
 
       InitializeLiveTiming();
@@ -266,17 +264,6 @@ namespace RaceHorology
       // Reset UI (TODO should adapt itself based on events)
       ConnectUiToRaceRun(_currentRaceRun);
       ucRaceLists.UpdateAll();
-    }
-
-
-    #endregion
-
-
-    #region RaceParticipants
-
-    void InitializeRaceParticipants()
-    {
-      dgRaceParticipants.ItemsSource = _thisRace.GetParticipants();
     }
 
 
