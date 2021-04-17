@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -155,6 +155,61 @@ namespace RaceHorology
     public static readonly DependencyProperty NameProperty =
         DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridUtil), new UIPropertyMetadata(""));
 
+  }
+
+
+
+  public class ScrollToMeasuredItemBehavior
+  {
+    DataGrid _dataGrid;
+    AppDataModel _dataModel;
+    Participant _scrollToParticipant;
+
+    System.Timers.Timer _timer;
+
+
+    public ScrollToMeasuredItemBehavior(DataGrid dataGrid, AppDataModel dataModel)
+    {
+      _dataGrid = dataGrid;
+      _dataModel = dataModel;
+      _dataModel.ParticipantMeasuredEvent += OnParticipantMeasured;
+      _timer = null;
+    }
+
+
+    void OnParticipantMeasured(object sender, Participant participant)
+    {
+      _scrollToParticipant = participant;
+
+      _timer = new System.Timers.Timer(200);
+      _timer.Elapsed += OnTimedEvent;
+      _timer.AutoReset = false;
+      _timer.Enabled = true;
+
+    }
+
+    void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        if (_dataGrid.ItemsSource != null)
+        {
+          foreach (var x in _dataGrid.ItemsSource)
+          {
+            Participant xp = null;
+            xp = (x as RunResult)?.Participant.Participant;
+            if (xp == null)
+              xp = (x as RaceResultItem)?.Participant.Participant;
+
+            if (xp == _scrollToParticipant)
+            {
+              _dataGrid.ScrollIntoView(x);
+              break;
+            }
+          }
+        }
+      });
+    }
   }
 
 
