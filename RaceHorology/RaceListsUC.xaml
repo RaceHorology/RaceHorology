@@ -33,7 +33,7 @@
       <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
     </Grid>
 
-    <DataGrid FontSize="12" x:Name="dgTotalResults" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+    <DataGrid FontSize="12" x:Name="dgView" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
       <DataGrid.Columns />
 
       <DataGrid.Style>

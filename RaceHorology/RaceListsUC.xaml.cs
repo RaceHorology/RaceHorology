@@ -23,7 +23,7 @@ namespace RaceHorology
   {
     Race _thisRace;
 
-    ScrollToMeasuredItemBehavior dgTotalResultsScrollBehavior;
+    ScrollToMeasuredItemBehavior dgViewScrollBehavior;
 
 
     public RaceListsUC()
@@ -49,8 +49,11 @@ namespace RaceHorology
       RaceResultViewProvider vp = _thisRace.GetResultViewProvider();
 
       UiUtilities.FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping);
-      FillCmbTotalsResults(cmbTotalResult);
-      cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = null });
+
+      cmbTotalResult.Items.Clear();
+      cmbTotalResult.Items.Add(new CBItem { Text = "Teilnehmer", Value = new CBObjectTotalResults { Type = "participants" } });
+      FillCmbTotalsResultsWithRaceSpecifics(cmbTotalResult);
+      cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = new CBObjectTotalResults { Type = "raceresults" } });
       cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
     }
 
@@ -61,26 +64,24 @@ namespace RaceHorology
       public RaceRun RaceRun;
     }
 
-    ViewProvider _totalResultsVP = null;
+    ViewProvider _viewProvider = null;
 
 
-    private void FillCmbTotalsResults(ComboBox cmb)
+    private void FillCmbTotalsResultsWithRaceSpecifics(ComboBox cmb)
     {
-      cmb.Items.Clear();
-
       // Fill Runs
       for (int i = 0; i < _thisRace.GetMaxRun(); i++)
       {
         cmb.Items.Add(new CBItem
         {
           Text = String.Format("Startliste {0}. Durchgang", i + 1),
-          Value = new CBObjectTotalResults { Type = "startlist", RaceRun = _thisRace.GetRun(i) }
+          Value = new CBObjectTotalResults { Type = "startlist_run", RaceRun = _thisRace.GetRun(i) }
         });
 
         cmb.Items.Add(new CBItem
         {
           Text = String.Format("Ergebnis {0}. Durchgang", i + 1),
-          Value = new CBObjectTotalResults { Type = "results", RaceRun = _thisRace.GetRun(i) }
+          Value = new CBObjectTotalResults { Type = "results_run", RaceRun = _thisRace.GetRun(i) }
         });
       }
 
@@ -91,7 +92,7 @@ namespace RaceHorology
     private void CmbTotalResultGrouping_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       if (cmbTotalResultGrouping.SelectedValue is CBItem grouping)
-        _totalResultsVP?.ChangeGrouping((string)grouping.Value);
+        _viewProvider?.ChangeGrouping((string)grouping.Value);
     }
 
 
@@ -101,17 +102,17 @@ namespace RaceHorology
       if (cmbTotalResult.SelectedValue is CBItem selected)
       {
         CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
-        if (selObj == null)
-          vp = _thisRace.GetResultViewProvider();
-        else if (selObj.Type == "results")
-          vp = selObj.RaceRun.GetResultViewProvider();
-        else if (selObj.Type == "startlist")
-          vp = selObj.RaceRun.GetStartListProvider();
+        if (selObj == null) // Fallback
+          displayView(_thisRace.GetResultViewProvider());
+        else if (selObj.Type == "participants")
+          displayParticipants();
+        else if (selObj.Type == "raceresults")
+          displayView(_thisRace.GetResultViewProvider());
+        else if (selObj.Type == "results_run")
+          displayView(selObj.RaceRun.GetResultViewProvider());
+        else if (selObj.Type == "startlist_run")
+          displayView(selObj.RaceRun.GetStartListProvider());
       }
-
-      _totalResultsVP = vp;
-
-      adaptTotalResultsView();
     }
 
 
@@ -132,7 +133,6 @@ namespace RaceHorology
 
       return dgc;
     }
-
 
     DataGridTextColumn createColumnAnmerkung()
     {
@@ -249,58 +249,84 @@ namespace RaceHorology
     }
 
 
-    private void adaptTotalResultsView()
+    void clearDataGrid()
     {
-      dgTotalResults.Columns.Clear();
+      dgView.ItemsSource = null;
+      dgView.Columns.Clear();
+    }
 
-      dgTotalResults.Columns.Add(createColumnPosition("Position", "Position", false));
-      dgTotalResults.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
-      dgTotalResults.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
-      dgTotalResults.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
-      dgTotalResults.Columns.Add(createColumn("Year", "Participant.Year", "Jahrgang"));
-      dgTotalResults.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
-      dgTotalResults.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
+    void displayParticipants()
+    {
+      clearDataGrid();
+
+      _viewProvider = null;
+
+      dgView.Columns.Add(createColumn("StartNumber", "StartNumber", "StNr"));
+      dgView.Columns.Add(createColumn("Name", "Name", "Name"));
+      dgView.Columns.Add(createColumn("Firstname", "Firstname", "Vorname"));
+      dgView.Columns.Add(createColumn("Club", "Club", "Verein"));
+      dgView.Columns.Add(createColumn("Year", "Year", "Jahrgang"));
+      dgView.Columns.Add(createColumn("Class", "Class", "Klasse"));
+      dgView.Columns.Add(createColumn("Points", "Points", "Punkte"));
+
+      dgView.ItemsSource = _thisRace.GetParticipants();
+    }
+
+
+    private void displayView(ViewProvider viewProvider)
+    {
+      clearDataGrid();
+
+      _viewProvider = viewProvider;
+
+      if (_viewProvider == null)
+        return;
+
+      dgView.Columns.Add(createColumnPosition("Position", "Position", false));
+      dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
+      dgView.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
+      dgView.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
+      dgView.Columns.Add(createColumn("Year", "Participant.Year", "Jahrgang"));
+      dgView.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
+      dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
 
       // Race Run Results
-      if (_totalResultsVP is RaceRunResultViewProvider)
+      if (_viewProvider is RaceRunResultViewProvider)
       {
-        dgTotalResults.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
-        dgTotalResults.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
-        dgTotalResults.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
-        dgTotalResults.Columns.Add(createColumnAnmerkung());
+        dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
+        dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
+        dgView.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
+        dgView.Columns.Add(createColumnAnmerkung());
       }
 
       // Total Results
-      else if (_totalResultsVP is RaceResultViewProvider)
+      else if (_viewProvider is RaceResultViewProvider)
       {
         foreach (var r in _thisRace.GetRuns())
         {
-          dgTotalResults.Columns.Add(createColumnTime(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
-          dgTotalResults.Columns.Add(createColumnDiff(string.Format("Diff {0}", r.Run), string.Format("SubResults[{0}].DiffToFirst", r.Run)));
-          dgTotalResults.Columns.Add(createColumnDiffInPercentage(string.Format("[%] {0}", r.Run), string.Format("SubResults[{0}].DiffToFirstPercentage", r.Run)));
-          dgTotalResults.Columns.Add(createColumnPosition(string.Format("SubResults[{0}].Position", r.Run), string.Format("SubResults[{0}].Position", r.Run), true));
+          dgView.Columns.Add(createColumnTime(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
+          dgView.Columns.Add(createColumnDiff(string.Format("Diff {0}", r.Run), string.Format("SubResults[{0}].DiffToFirst", r.Run)));
+          dgView.Columns.Add(createColumnDiffInPercentage(string.Format("[%] {0}", r.Run), string.Format("SubResults[{0}].DiffToFirstPercentage", r.Run)));
+          dgView.Columns.Add(createColumnPosition(string.Format("SubResults[{0}].Position", r.Run), string.Format("SubResults[{0}].Position", r.Run), true));
         }
 
-        dgTotalResults.Columns.Add(createColumnTime("Total", "TotalTime", "ResultCode"));
-        dgTotalResults.Columns.Add(createColumnAnmerkung());
+        dgView.Columns.Add(createColumnTime("Total", "TotalTime", "ResultCode"));
+        dgView.Columns.Add(createColumnAnmerkung());
       }
       // Start List
-      else if (_totalResultsVP is StartListViewProvider)
+      else if (_viewProvider is StartListViewProvider)
       {
-        if (_totalResultsVP is BasedOnResultsFirstRunStartListViewProvider)
+        if (_viewProvider is BasedOnResultsFirstRunStartListViewProvider)
         {
-          dgTotalResults.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
+          dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
         }
       }
 
-      if (_totalResultsVP != null)
-      {
-        dgTotalResults.ItemsSource = _totalResultsVP.GetView();
-        dgTotalResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgTotalResults, _thisRace.GetDataModel());
-        cmbTotalResultGrouping.SelectCBItem(_totalResultsVP.ActiveGrouping);
-      }
+      dgView.ItemsSource = _viewProvider.GetView();
+      dgViewScrollBehavior = new ScrollToMeasuredItemBehavior(dgView, _thisRace.GetDataModel());
+      cmbTotalResultGrouping.SelectCBItem(_viewProvider.ActiveGrouping);
 
-      UiUtilities.EnableOrDisableColumns(_thisRace, dgTotalResults);
+      UiUtilities.EnableOrDisableColumns(_thisRace, dgView);
     }
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
