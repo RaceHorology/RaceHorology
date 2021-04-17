@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -99,6 +99,33 @@ namespace RaceHorology
       else
         comboBox.SelectCBItem(selected);
     }
+
+
+
+
+    public static void EnableOrDisableColumns(Race race, DataGrid dg)
+    {
+      EnableOrDisableColumn(race, dg, "Year");
+      EnableOrDisableColumn(race, dg, "Club");
+      EnableOrDisableColumn(race, dg, "Nation");
+      EnableOrDisableColumn(race, dg, "Code");
+      EnableOrDisableColumn(race, dg, "Points");
+      EnableOrDisableColumn(race, dg, "Percentage");
+    }
+
+
+    public static void EnableOrDisableColumn(Race race, DataGrid dg, string columnName)
+    {
+      DataGridColumn col = dg.ColumnByName(columnName);
+      if (col != null)
+      {
+        if (race.IsFieldActive(columnName))
+          col.Visibility = Visibility.Visible;
+        else
+          col.Visibility = Visibility.Collapsed;
+      }
+    }
+
   }
 
 

@@ -144,6 +144,9 @@
       <DependentUpon>MsChart.xaml</DependentUpon>
     </Compile>
     <Compile Include="RaceHorologyCommands.cs" />
+    <Compile Include="RaceListsUC.xaml.cs">
+      <DependentUpon>RaceListsUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RaceTabHeaderUC.xaml.cs">
       <DependentUpon>RaceTabHeaderUC.xaml</DependentUpon>
     </Compile>
@@ -222,6 +225,10 @@
     <Page Include="MsChart.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RaceListsUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RaceTabHeaderUC.xaml">
       <SubType>Designer</SubType>
