@@ -1266,6 +1266,37 @@ namespace RaceHorologyLib
   }
 
 
+  public static class RaceRunUtil
+  {
+    /// <summary>
+    /// True in case all participants have a valid time or a status other than NotSet or Normal
+    /// </summary>
+    static public bool IsComplete(RaceRun rr)
+    {
+      // Check whether all Participants have a result
+      // Check whether the result is either:
+      // a) Normal with valid runtime
+      //  or
+      // b) a resultcode different than NotSet or Normal
+
+      foreach(var rp in rr.GetRace().GetParticipants())
+      {
+        var runResult = rr.GetRunResult(rp);
+        if (runResult == null)
+          return false;
+
+        if (!(
+             (runResult.ResultCode == RunResult.EResultCode.Normal && runResult.RuntimeWOResultCode != null)
+          || (runResult.ResultCode != RunResult.EResultCode.Normal && runResult.ResultCode != RunResult.EResultCode.NotSet)
+          ))
+          return false;
+      }
+
+      return true;
+    }
+  }
+
+
 
 
   /// <summary>
