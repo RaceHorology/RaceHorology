@@ -776,6 +776,26 @@ namespace RaceHorologyLib
           return raceType.ToString();
       }
     }
+
+    /// <summary>
+    /// Returns true if:
+    /// - all participants have a startnumber assigned
+    /// - there wasn't a startnumber assigned twice
+    /// </summary>
+    /// <param name="race"></param>
+    /// <returns></returns>
+    public static bool IsConsistent(Race race)
+    {
+      HashSet<uint> startnumbers = new HashSet<uint>();
+      foreach(var rp in race.GetParticipants())
+      {
+        var stnr = rp.StartNumber;
+        if (stnr == 0 || !startnumbers.Add(stnr))
+          return false;
+      }
+
+      return true;
+    }
   }
 
 
