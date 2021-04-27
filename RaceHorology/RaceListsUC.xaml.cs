@@ -252,6 +252,8 @@ namespace RaceHorology
     {
       dgView.ItemsSource = null;
       dgView.Columns.Clear();
+
+      dgView.CanUserSortColumns = false;
     }
 
     void displayParticipants()
@@ -259,6 +261,8 @@ namespace RaceHorology
       clearDataGrid();
 
       _viewProvider = null;
+
+      dgView.CanUserSortColumns = true;
 
       dgView.Columns.Add(createColumn("StartNumber", "StartNumber", "StNr"));
       dgView.Columns.Add(createColumn("Name", "Name", "Name"));
