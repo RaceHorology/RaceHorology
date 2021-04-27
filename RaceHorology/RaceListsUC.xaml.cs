@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,16 +35,16 @@ namespace RaceHorology
     {
       _thisRace = race;
 
-      Initialize();
+      initialize();
     }
 
     public void UpdateAll()
     {
-      Initialize();
+      initialize();
     }
 
 
-    private void Initialize()
+    private void initialize()
     {
       RaceResultViewProvider vp = _thisRace.GetResultViewProvider();
 
