@@ -17,12 +17,19 @@ using System.Windows.Shapes;
 
 namespace RaceHorology
 {
-  internal class WarningLabelHandler : IDisposable
+
+  internal interface IWarningLabelHandler : IDisposable
+  { }
+
+  /// <summary>
+  /// Watches out a race and sets the corresponding warning text if, e.g. startnumbers are inconsistent.
+  /// </summary>
+  internal class RaceWarningLabelHandler : IWarningLabelHandler
   {
     Race _race;
     Label _label;
 
-    public WarningLabelHandler(Race race, Label label)
+    public RaceWarningLabelHandler(Race race, Label label)
     {
       _race = race;
       _label = label;
@@ -75,7 +82,7 @@ namespace RaceHorology
     Race _thisRace;
 
     ScrollToMeasuredItemBehavior dgViewScrollBehavior;
-    WarningLabelHandler _lblHandler;
+    IWarningLabelHandler _lblHandler;
 
     public RaceListsUC()
     {
@@ -109,7 +116,7 @@ namespace RaceHorology
     }
 
 
-    private void setWarningLabelHandler(WarningLabelHandler handler)
+    private void setWarningLabelHandler(IWarningLabelHandler handler)
     {
       if (_lblHandler != null)
         _lblHandler.Dispose();
@@ -334,7 +341,7 @@ namespace RaceHorology
 
       dgView.ItemsSource = _thisRace.GetParticipants();
 
-      setWarningLabelHandler(new WarningLabelHandler(_thisRace, lblWarning));
+      setWarningLabelHandler(new RaceWarningLabelHandler(_thisRace, lblWarning));
     }
 
 
