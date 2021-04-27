@@ -421,27 +421,34 @@ namespace RaceHorologyLibTest
 
       // Empty race
       Assert.IsTrue(RaceUtil.IsConsistent(race));
+      Assert.IsTrue(race.IsConsistent);
 
       // 1 Participant, no startnumber
       var rp1 = tg.createRaceParticipant();
       Assert.IsTrue(RaceUtil.IsConsistent(race));
+      Assert.IsTrue(race.IsConsistent);
       rp1.StartNumber = 0;
       Assert.IsFalse(RaceUtil.IsConsistent(race));
+      Assert.IsFalse(race.IsConsistent);
 
       // 2 Participants, no startnumber
       var rp2 = tg.createRaceParticipant();
       Assert.IsFalse(RaceUtil.IsConsistent(race));
+      Assert.IsFalse(race.IsConsistent);
       rp2.StartNumber = 0;
       Assert.IsFalse(RaceUtil.IsConsistent(race));
+      Assert.IsFalse(race.IsConsistent);
 
       // 2 Participants, same startnumber
       rp1.StartNumber = 1U;
       rp2.StartNumber = 1U;
       Assert.IsFalse(RaceUtil.IsConsistent(race));
+      Assert.IsFalse(race.IsConsistent);
 
       // 2 Participants, different startnumber
       rp2.StartNumber = 2U;
       Assert.IsTrue(RaceUtil.IsConsistent(race));
+      Assert.IsTrue(race.IsConsistent);
     }
 
 

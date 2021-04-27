@@ -413,7 +413,7 @@ namespace RaceHorologyLib
   /// A race typically consists out of 1 or 2 runs.
   /// </summary>
   /// 
-  public class Race
+  public class Race : INotifyPropertyChanged
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -445,6 +445,13 @@ namespace RaceHorologyLib
     public string Description { get { return _addProperties?.Description; } }
     public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
     public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
+
+    bool _isConsistent;
+    public bool IsConsistent 
+    { 
+      get { return _isConsistent; }
+      private set { if (value != _isConsistent) { _isConsistent = value; NotifyPropertyChanged(); } }
+    }
 
     public RaceConfiguration RaceConfiguration
     {
@@ -483,6 +490,11 @@ namespace RaceHorologyLib
       foreach (var p in particpants)
         _participants.Add(p);
 
+      // Watch for changes on actual participants and its properties => check internal state
+      _participants.ItemChanged += onRaceParticipants_ItemChanged;
+      _participants.CollectionChanged += onRaceParticipants_CollectionChanged;
+      checkConsistency();
+
       // Watch for changes on main particpants => react accordingly
       _appDataModel.GetParticipants().CollectionChanged += onParticipants_CollectionChanged;
 
@@ -491,6 +503,7 @@ namespace RaceHorologyLib
 
       createRaceRuns((int)properties.Runs);
 
+      // Store participant specific things
       _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
       // Store and Race related things
       _raceDBDelegator = new DatabaseDelegatorRace(this, db);
@@ -745,6 +758,46 @@ namespace RaceHorologyLib
     {
       return RaceUtil.ToString(RaceType);
     }
+
+    /// <summary>
+    /// Handler to watches out for changes on collection _participants and performs internal checks, e.g. checkConsistency()
+    /// </summary>
+    private void onRaceParticipants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      checkConsistency();
+    }
+
+    /// <summary>
+    /// Handler to watches out for changes on collection _participants and performs internal checks, e.g. checkConsistency()
+    /// </summary>
+    private void onRaceParticipants_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      checkConsistency();
+    }
+
+    /// <summary>
+    /// Internal function to check on consistency
+    /// </summary>
+    private void checkConsistency()
+    {
+      IsConsistent = RaceUtil.IsConsistent(this);
+    }
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChangedEventHandler handler = PropertyChanged;
+      if (handler != null)
+        handler(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
   }
 
 
