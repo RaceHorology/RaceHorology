@@ -1,6 +1,7 @@
-using RaceHorologyLib;
+﻿using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,56 @@ using System.Windows.Shapes;
 
 namespace RaceHorology
 {
+  internal class WarningLabelHandler : IDisposable
+  {
+    Race _race;
+    Label _label;
+
+    public WarningLabelHandler(Race race, Label label)
+    {
+      _race = race;
+      _label = label;
+
+      _race.PropertyChanged += OnChanged;
+      OnChanged(null, null);
+    }
+  
+
+    private void OnChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (_race.IsConsistent)
+        _label.Content = "";
+      else
+        _label.Content = "Startnummernvergabe noch nicht abgeschlossen";
+    }
+
+
+    #region Disposable implementation
+    private bool disposedValue;
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _race.PropertyChanged -= OnChanged;
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
+    }
+    #endregion
+  }
+
+
+
   /// <summary>
   /// Interaction logic for RaceListsUC.xaml
   /// </summary>
@@ -24,7 +75,7 @@ namespace RaceHorology
     Race _thisRace;
 
     ScrollToMeasuredItemBehavior dgViewScrollBehavior;
-
+    WarningLabelHandler _lblHandler;
 
     public RaceListsUC()
     {
@@ -55,6 +106,15 @@ namespace RaceHorology
       FillCmbTotalsResultsWithRaceSpecifics(cmbTotalResult);
       cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = new CBObjectTotalResults { Type = "raceresults" } });
       cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
+    }
+
+
+    private void setWarningLabelHandler(WarningLabelHandler handler)
+    {
+      if (_lblHandler != null)
+        _lblHandler.Dispose();
+
+      _lblHandler = handler;
     }
 
 
@@ -273,6 +333,8 @@ namespace RaceHorology
       dgView.Columns.Add(createColumn("Points", "Points", "Punkte"));
 
       dgView.ItemsSource = _thisRace.GetParticipants();
+
+      setWarningLabelHandler(new WarningLabelHandler(_thisRace, lblWarning));
     }
 
 

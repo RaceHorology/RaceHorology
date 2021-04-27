@@ -30,6 +30,7 @@
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <ComboBox x:Name="cmbTotalResult" Margin="5" Grid.Column="0" SelectionChanged="CmbTotalResult_SelectionChanged"/>
+      <Label x:Name="lblWarning" Content="***** Warning *****" Grid.Column="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Red" FontSize="16" VerticalAlignment="Center"/>
       <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
     </Grid>
 
