@@ -920,7 +920,7 @@ namespace RaceHorologyLib
   /// <summary>
   /// Represents a race run. Typically a race consists out of two race runs.
   /// </summary>
-  public class RaceRun
+  public class RaceRun : INotifyPropertyChanged
   {
     private uint _run;
     private Race _race;
@@ -955,6 +955,8 @@ namespace RaceHorologyLib
 
       // Ensure the results always are in sync with participants
       _race.GetParticipants().CollectionChanged += onParticipantsChanged;
+
+      _UpdateInternals(); // Do this initially
     }
 
 
@@ -962,6 +964,15 @@ namespace RaceHorologyLib
     /// Returns the run number for this run (round, durchgang)
     /// </summary>
     public uint Run { get { return _run; } }
+
+
+    private bool _isComplete;
+    public bool IsComplete 
+    {
+      get { return _isComplete; }
+      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+    }
+
 
     /// <summary>
     /// Returns the Race this RaceRun belongs to.
@@ -1168,8 +1179,12 @@ namespace RaceHorologyLib
     protected void onParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.OldItems != null)
+      {
         foreach (RaceParticipant rp in e.OldItems)
-          DeleteRunResult(rp);
+          DeleteRunResult(rp); // _UpdateInternals is called internally
+      }
+      else
+        _UpdateInternals();
     }
 
 
@@ -1237,6 +1252,7 @@ namespace RaceHorologyLib
     {
       _UpdateOnTrack();
       _UpdateInFinish();
+      IsComplete = RaceRunUtil.IsComplete(this);
     }
 
     private void _UpdateOnTrack()
@@ -1336,6 +1352,21 @@ namespace RaceHorologyLib
       }
     }
 
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChangedEventHandler handler = PropertyChanged;
+      if (handler != null)
+        handler(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
   }
 
 
