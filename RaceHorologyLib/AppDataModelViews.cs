@@ -470,10 +470,13 @@ namespace RaceHorologyLib
     int _reverseBestN;
     bool _allowNonResults;
     RuntimeSorter _resultsComparer;
-
+    RaceRun _previousRun;
 
     //RaceRunResultViewProvider _resultVPPreviousRun;
     ItemsChangeObservableCollection<RunResult> _resultsPreviousRun;
+
+
+    public RaceRun BasedOnRun { get { return _previousRun; } }
 
     public BasedOnResultsFirstRunStartListViewProvider(int reverseBestN, bool allowNonResults)
     {
@@ -494,6 +497,7 @@ namespace RaceHorologyLib
     {
       _viewList = new ObservableCollection<StartListEntry>();
 
+      _previousRun = previousRun;
       _resultsPreviousRun = previousRun.GetResultList();
       _resultsPreviousRun.CollectionChanged += OnSourceChanged;
       _resultsPreviousRun.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
@@ -921,6 +925,8 @@ namespace RaceHorologyLib
     ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
     ResultSorter<RunResult> _comparer;
 
+
+    public RaceRun RaceRun { get { return _raceRun; } }
 
     public RaceRunResultViewProvider()
     {

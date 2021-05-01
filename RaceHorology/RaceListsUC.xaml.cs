@@ -73,6 +73,58 @@ namespace RaceHorology
   }
 
 
+  /// <summary>
+  /// Watches out a race and sets the corresponding warning text if, e.g. race is not yet completed.
+  /// </summary>
+  internal class RaceRunCompletedWarningLabelHandler : IWarningLabelHandler
+  {
+    RaceRun _raceRun;
+    Label _label;
+
+    public RaceRunCompletedWarningLabelHandler(RaceRun raceRun, Label label)
+    {
+      _raceRun = raceRun;
+      _label = label;
+
+      _raceRun.PropertyChanged += OnChanged;
+      OnChanged(null, null);
+    }
+
+
+    private void OnChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (_raceRun.IsComplete)
+        _label.Content = "";
+      else
+        _label.Content = string.Format("{0}. Durchgang ist noch nicht abgeschlossen", _raceRun.Run);
+    }
+
+
+    #region Disposable implementation
+    private bool disposedValue;
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _raceRun.PropertyChanged -= OnChanged;
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
+    }
+    #endregion
+  }
+
+
 
   /// <summary>
   /// Interaction logic for RaceListsUC.xaml
@@ -363,12 +415,14 @@ namespace RaceHorology
       dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
 
       // Race Run Results
-      if (_viewProvider is RaceRunResultViewProvider)
+      if (_viewProvider is RaceRunResultViewProvider rrrVP)
       {
         dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
         dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
         dgView.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
         dgView.Columns.Add(createColumnAnmerkung());
+
+        setWarningLabelHandler(new RaceRunCompletedWarningLabelHandler(rrrVP.RaceRun, lblWarning));
       }
 
       // Total Results
@@ -384,13 +438,20 @@ namespace RaceHorology
 
         dgView.Columns.Add(createColumnTime("Total", "TotalTime", "ResultCode"));
         dgView.Columns.Add(createColumnAnmerkung());
+
+        setWarningLabelHandler(null); // TODO
       }
       // Start List
       else if (_viewProvider is StartListViewProvider)
       {
-        if (_viewProvider is BasedOnResultsFirstRunStartListViewProvider)
+        if (_viewProvider is BasedOnResultsFirstRunStartListViewProvider slVP2)
         {
           dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
+          setWarningLabelHandler(new RaceRunCompletedWarningLabelHandler(slVP2.BasedOnRun, lblWarning));
+        }
+        else
+        {
+          setWarningLabelHandler(new RaceWarningLabelHandler(_thisRace, lblWarning));
         }
       }
 
