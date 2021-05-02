@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -109,6 +109,57 @@ namespace RaceHorology
         if (disposing)
         {
           _raceRun.PropertyChanged -= OnChanged;
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
+    }
+    #endregion
+  }
+
+  /// <summary>
+  /// Watches out a race and sets the corresponding warning text if, e.g. race is not yet completed.
+  /// </summary>
+  internal class RaceCompletedWarningLabelHandler : IWarningLabelHandler
+  {
+    Race _race;
+    Label _label;
+
+    public RaceCompletedWarningLabelHandler(Race race, Label label)
+    {
+      _race = race;
+      _label = label;
+
+      _race.PropertyChanged += OnChanged;
+      OnChanged(null, null);
+    }
+
+
+    private void OnChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (_race.IsComplete)
+        _label.Content = "";
+      else
+        _label.Content = string.Format("Das Rennen ist noch nicht abgeschlossen.");
+    }
+
+
+    #region Disposable implementation
+    private bool disposedValue;
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _race.PropertyChanged -= OnChanged;
         }
 
         disposedValue = true;
@@ -439,7 +490,7 @@ namespace RaceHorology
         dgView.Columns.Add(createColumnTime("Total", "TotalTime", "ResultCode"));
         dgView.Columns.Add(createColumnAnmerkung());
 
-        setWarningLabelHandler(null); // TODO
+        setWarningLabelHandler(new RaceCompletedWarningLabelHandler(_thisRace, lblWarning));
       }
       // Start List
       else if (_viewProvider is StartListViewProvider)
