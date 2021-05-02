@@ -1,4 +1,4 @@
-using RaceHorologyLib;
+﻿using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -74,7 +74,7 @@ namespace RaceHorology
 
 
   /// <summary>
-  /// Watches out a race and sets the corresponding warning text if, e.g. race is not yet completed.
+  /// Watches out a race run and sets the corresponding warning text if, e.g. race is not yet completed.
   /// </summary>
   internal class RaceRunCompletedWarningLabelHandler : IWarningLabelHandler
   {
