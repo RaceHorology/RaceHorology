@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -181,19 +181,29 @@ namespace RaceHorology
 
     private void btnDSVImportOnlineU12_Click(object sender, RoutedEventArgs e)
     {
-      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger));
-      updateDSVGrid();
+      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger);
     }
 
     private void btnDSVImportOnlineU14_Click(object sender, RoutedEventArgs e)
     {
-      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
-      updateDSVGrid();
+      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
     }
 
     private void btnDSVImportOnlineU18_Click(object sender, RoutedEventArgs e)
     {
-      _dsvData.UpdateDSVList(new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder));
+      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);
+    }
+
+    private void importDSVOnline(DSVImportReaderZipBase.EDSVListType type)
+    {
+      try
+      {
+        _dsvData.UpdateDSVList(new DSVImportReaderOnline(type));
+      }
+      catch(Exception e)
+      {
+        MessageBox.Show("Die DSV Liste konnte nicht importiert werden.\n\nFehlermeldung: " + e.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+      }
       updateDSVGrid();
     }
 
@@ -210,7 +220,15 @@ namespace RaceHorology
         else
           dsvImportReader = new DSVImportReaderFile(path);
 
-        _dsvData.UpdateDSVList(dsvImportReader);
+        try
+        {
+          _dsvData.UpdateDSVList(dsvImportReader);
+        }
+        catch (Exception exc)
+        {
+          MessageBox.Show("Die DSV Liste konnte nicht importiert werden.\n\nFehlermeldung: " + exc.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
         updateDSVGrid();
       }
     }
