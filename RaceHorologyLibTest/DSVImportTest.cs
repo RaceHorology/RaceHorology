@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -134,7 +134,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("DAV Peissenberg", row["Club"]);
         Assert.AreEqual("BSV-WF", row["Verband"]);
         Assert.AreEqual(177.98, row["Points"]);
-        Assert.AreEqual("F", row["Sex"]);
+        Assert.AreEqual("W", row["Sex"]);
       }
     }
 
@@ -180,11 +180,11 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("DAV Peissenberg", row["Club"]);
         Assert.AreEqual("BSV-WF", row["Verband"]);
         Assert.AreEqual(207.98, row["Points"]);
-        Assert.AreEqual("F", row["Sex"]);
+        Assert.AreEqual("W", row["Sex"]);
       }
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("IntegrationDsvOnline")]
     public void ImportPointListViaWeb_U14U16()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
