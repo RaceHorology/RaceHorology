@@ -27,7 +27,7 @@ namespace RaceHorologyLib
     /// <summary>
     /// Checks whether the specified participant is in the import list
     /// </summary>
-    bool containsParticipant(Participant p);
+    bool ContainsParticipant(Participant p);
 
   }
 
@@ -112,7 +112,7 @@ namespace RaceHorologyLib
     }
 
 
-    public bool containsParticipant(Participant p)
+    public bool ContainsParticipant(Participant p)
     {
       if (_localReader?.Data == null || _localReader?.Data.Tables.Count == 0)
         return true;
