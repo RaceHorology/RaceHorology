@@ -33,11 +33,32 @@
         <DataGridTextColumn Header="Id" Binding="{Binding SvId, Mode=OneWay}" />
         <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
         <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-        <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+        <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Center" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
         <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
         <DataGridTextColumn Header="Verband" Binding="{Binding Verband, Mode=OneWay}" />
-        <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
-        <DataGridTextColumn Header="Geschlecht" Binding="{Binding Sex, Mode=OneWay}" />
+        <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay, StringFormat={}{0:0.00}}" >
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Geschlecht" Binding="{Binding Sex, Mode=OneWay}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Center" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
       </DataGrid.Columns>
     </DataGrid>
 

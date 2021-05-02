@@ -134,7 +134,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("DAV Peissenberg", row["Club"]);
         Assert.AreEqual("BSV-WF", row["Verband"]);
         Assert.AreEqual(177.98, row["Points"]);
-        Assert.AreEqual("F", row["Sex"]);
+        Assert.AreEqual("W", row["Sex"]);
       }
     }
 
@@ -180,11 +180,11 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("DAV Peissenberg", row["Club"]);
         Assert.AreEqual("BSV-WF", row["Verband"]);
         Assert.AreEqual(207.98, row["Points"]);
-        Assert.AreEqual("F", row["Sex"]);
+        Assert.AreEqual("W", row["Sex"]);
       }
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("IntegrationDsvOnline")]
     public void ImportPointListViaWeb_U14U16()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
@@ -206,7 +206,7 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(reader.Data.Tables[0].Rows.Count > 0, "Some rows generated");
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("IntegrationDsvOnline")]
     public void ImportPointListViaWeb_U12()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger);
@@ -228,7 +228,7 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(reader.Data.Tables[0].Rows.Count > 0, "Some rows generated");
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("IntegrationDsvOnline")]
     public void ImportPointListViaWeb_U18()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);
