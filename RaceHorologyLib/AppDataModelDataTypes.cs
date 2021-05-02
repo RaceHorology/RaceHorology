@@ -583,6 +583,21 @@ namespace RaceHorologyLib
     }
 
 
+
+    public bool IsEqualTo(Participant other)
+    {
+      return Name == other.Name 
+       && Firstname == other.Firstname
+       && Sex == other.Sex
+       && Year == other.Year
+       && Club == other.Club
+       && SvId == other.SvId
+       && Code == other.Code
+       && Nation == other.Nation
+       && Class == other.Class;
+    }
+
+
     #region INotifyPropertyChanged implementation
 
 
