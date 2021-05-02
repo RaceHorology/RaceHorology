@@ -27,7 +27,7 @@ namespace RaceHorologyLib
     /// <summary>
     /// Checks whether the specified participant is in the import list
     /// </summary>
-    bool containsParticipant(Participant p);
+    bool ContainsParticipant(Participant p);
 
   }
 
@@ -38,6 +38,7 @@ namespace RaceHorologyLib
 
     string _pathLocalDSV;
     DSVImportReader _localReader;
+    ParticipantImportUtils _partImportUtils;
 
 
     public DSVInterfaceModel(AppDataModel dm)
@@ -101,12 +102,17 @@ namespace RaceHorologyLib
         _localReader = null;
       }
 
+      if (_localReader != null)
+        _partImportUtils = new ParticipantImportUtils(_localReader.Mapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
+      else
+        _partImportUtils = null;
+
       var handler = DataChanged;
       handler?.Invoke(this, new EventArgs());
     }
 
 
-    public bool containsParticipant(Participant p)
+    public bool ContainsParticipant(Participant p)
     {
       if (_localReader?.Data == null || _localReader?.Data.Tables.Count == 0)
         return true;
@@ -114,7 +120,7 @@ namespace RaceHorologyLib
       foreach (DataRow r in _localReader?.Data.Tables[0].Rows)
       {
         if (r["SvId"]?.ToString() == p.CodeOrSvId)
-          return true;
+          return _partImportUtils.EqualsParticipant(p, r);
       }
 
       return false;

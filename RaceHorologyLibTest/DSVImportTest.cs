@@ -104,7 +104,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(new DateTime(2020, 2, 23), reader.Date);
 
       Assert.IsNotNull(reader.Mapping);
-      
+
       Assert.AreEqual("SvId", reader.Columns[0]);
       Assert.AreEqual("Name", reader.Columns[1]);
       Assert.AreEqual("Firstname", reader.Columns[2]);
@@ -342,6 +342,34 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(reader.Date, dsvIF.Date);
         Assert.AreEqual(reader.UsedDSVList, dsvIF.UsedDSVList);
       }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
+    public void DSVInterfaceModel_Test_ContainsParticipant()
+    {
+      // Setup Data Model & Co
+      var tg = new TestDataGenerator();
+      var dm = tg.Model;
+
+      DSVInterfaceModel dsvIF = new DSVInterfaceModel(dm);
+      dsvIF.UpdateDSVList(new DSVImportReaderZip("Punktelisten.zip", DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
+
+      var imp = new ParticipantImport(dm.GetParticipants(), dsvIF.Mapping, dm.GetParticipantCategories(), new ClassAssignment(dm.GetParticipantClasses()));
+      var participant = imp.ImportRow(dsvIF.Data.Tables[0].Rows[0]);
+
+      // Check if imported participant is available
+      Assert.IsTrue(dsvIF.ContainsParticipant(participant));
+      string storedName = participant.Name;
+      
+      // Modify participant, check if detected as not existing anymore
+      participant.Name = "123";
+      Assert.IsFalse(dsvIF.ContainsParticipant(participant));
+
+      // Correct it again, check whether existing again
+      participant.Name = storedName;
+      Assert.IsTrue(dsvIF.ContainsParticipant(participant));
+
     }
   }
 }

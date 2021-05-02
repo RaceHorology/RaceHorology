@@ -136,6 +136,61 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void Participant_IsEqualTo()
+    {
+      var sex1 = new ParticipantCategory('M');
+      var sex2 = new ParticipantCategory('W');
+      var class1 = new ParticipantClass("c1", null, "Class 1", sex1, 2000, 0);
+      var class2 = new ParticipantClass("c2", null, "Class 1", sex2, 2000, 0);
+
+      Participant p1 = new Participant
+      {
+        Name = "Name",
+        Firstname = "Firstname",
+        Sex = sex1,
+        Year = 2000,
+        Club = "Club",
+        SvId = "SvId",
+        Code = "Code",
+        Nation = "Nation",
+        Class = class1
+      };
+
+      Participant p2 = new Participant
+      {
+        Name = "Name",
+        Firstname = "Firstname",
+        Sex = sex1,
+        Year = 2000,
+        Club = "Club",
+        SvId = "SvId",
+        Code = "Code",
+        Nation = "Nation",
+        Class = class1
+      };
+
+      void performCheck()
+      {
+        Assert.IsFalse(p1.IsEqualTo(p2));
+        p2.Assign(p1); 
+        Assert.IsTrue(p1.IsEqualTo(p2));
+      }
+
+      Assert.IsTrue(p1.IsEqualTo(p2));
+
+      p2.Name = "name"; performCheck();
+      p2.Firstname = "fname"; performCheck();
+      p2.Sex = sex2; performCheck();
+      p2.Year = 1900; performCheck();
+      p2.Club = "c"; performCheck();
+      p2.SvId = "xyz"; performCheck();
+      p2.Code = "xyz"; performCheck();
+      p2.Nation = "xyz"; performCheck();
+      p2.Class = class2; performCheck();
+      p2.Class = null; performCheck();
+    }
+
 
 
     [TestMethod]

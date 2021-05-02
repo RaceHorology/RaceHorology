@@ -717,7 +717,7 @@ namespace RaceHorology
     bool checkInImport()
     {
       // No list, assume existing
-      return _importList == null || _importList.containsParticipant(_participant);
+      return _importList == null || _importList.ContainsParticipant(_participant);
     }
 
 
