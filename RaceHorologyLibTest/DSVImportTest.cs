@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -206,7 +206,7 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(reader.Data.Tables[0].Rows.Count > 0, "Some rows generated");
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("IntegrationDsvOnline")]
     public void ImportPointListViaWeb_U12()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger);
@@ -228,7 +228,7 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(reader.Data.Tables[0].Rows.Count > 0, "Some rows generated");
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("IntegrationDsvOnline")]
     public void ImportPointListViaWeb_U18()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);
