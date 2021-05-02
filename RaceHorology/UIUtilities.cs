@@ -35,6 +35,7 @@
 
 using RaceHorologyLib;
 using System;
+using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -99,6 +100,34 @@ namespace RaceHorology
       else
         comboBox.SelectCBItem(selected);
     }
+
+
+
+
+    public static void EnableOrDisableColumns(Race race, DataGrid dg)
+    {
+      EnableOrDisableColumn(race, dg, "Year");
+      EnableOrDisableColumn(race, dg, "Club");
+      EnableOrDisableColumn(race, dg, "Nation");
+      EnableOrDisableColumn(race, dg, "Code");
+      EnableOrDisableColumn(race, dg, "Points");
+      EnableOrDisableColumn(race, dg, "Percentage");
+    }
+
+
+    public static void EnableOrDisableColumn(Race race, DataGrid dg, string columnName)
+    {
+      foreach(var col in dg.ColumnsByName(columnName))
+      {
+        if (col != null)
+        {
+          if (race.IsFieldActive(columnName))
+            col.Visibility = Visibility.Visible;
+          else
+            col.Visibility = Visibility.Collapsed;
+        }
+      }
+    }
   }
 
 
@@ -118,16 +147,81 @@ namespace RaceHorology
 
     public static DataGridColumn ColumnByName(this DataGrid dg, string columnName)
     {
-      foreach (var col in dg.Columns)
-        if (string.Equals(GetName(col), columnName))
-          return col;
+      foreach (var col in dg.ColumnsByName(columnName))
+        return col;
 
       return null;
+    }
+
+    public static IEnumerable<DataGridColumn> ColumnsByName(this DataGrid dg, string columnName)
+    {
+      List<DataGridColumn> cols = new List<DataGridColumn>();
+
+      foreach (var col in dg.Columns)
+        if (string.Equals(GetName(col), columnName))
+          yield return col;
+
+      yield break;
     }
 
     public static readonly DependencyProperty NameProperty =
         DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridUtil), new UIPropertyMetadata(""));
 
+  }
+
+
+
+  public class ScrollToMeasuredItemBehavior
+  {
+    DataGrid _dataGrid;
+    AppDataModel _dataModel;
+    Participant _scrollToParticipant;
+
+    System.Timers.Timer _timer;
+
+
+    public ScrollToMeasuredItemBehavior(DataGrid dataGrid, AppDataModel dataModel)
+    {
+      _dataGrid = dataGrid;
+      _dataModel = dataModel;
+      _dataModel.ParticipantMeasuredEvent += OnParticipantMeasured;
+      _timer = null;
+    }
+
+
+    void OnParticipantMeasured(object sender, Participant participant)
+    {
+      _scrollToParticipant = participant;
+
+      _timer = new System.Timers.Timer(200);
+      _timer.Elapsed += OnTimedEvent;
+      _timer.AutoReset = false;
+      _timer.Enabled = true;
+
+    }
+
+    void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        if (_dataGrid.ItemsSource != null)
+        {
+          foreach (var x in _dataGrid.ItemsSource)
+          {
+            Participant xp = null;
+            xp = (x as RunResult)?.Participant.Participant;
+            if (xp == null)
+              xp = (x as RaceResultItem)?.Participant.Participant;
+
+            if (xp == _scrollToParticipant)
+            {
+              _dataGrid.ScrollIntoView(x);
+              break;
+            }
+          }
+        }
+      });
+    }
   }
 
 

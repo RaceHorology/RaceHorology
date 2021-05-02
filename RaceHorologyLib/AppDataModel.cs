@@ -413,7 +413,7 @@ namespace RaceHorologyLib
   /// A race typically consists out of 1 or 2 runs.
   /// </summary>
   /// 
-  public class Race
+  public class Race : INotifyPropertyChanged
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -445,6 +445,31 @@ namespace RaceHorologyLib
     public string Description { get { return _addProperties?.Description; } }
     public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
     public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
+
+    private bool _isConsistent; // Member storing value for property IsConsistent
+    /// <summary>
+    /// True in case there aren't any inconsistencies in the data, false otherwise.
+    /// Inconsistencies in data can be:
+    /// - Start numbers are not correctly assigned (either one startnumber is 0 or a start nnumber is used twice)
+    /// </summary>
+    public bool IsConsistent 
+    { 
+      get { return _isConsistent; }
+      private set { if (value != _isConsistent) { _isConsistent = value; NotifyPropertyChanged(); } }
+    }
+
+
+    private bool _isComplete; // Member storing value for property IsComplete
+    /// <summary>
+    /// True in case all runs have been completed.
+    /// False if one or more runs haven't been completed.
+    /// </summary>
+    public bool IsComplete
+    {
+      get { return _isComplete; }
+      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+    }
+
 
     public RaceConfiguration RaceConfiguration
     {
@@ -483,6 +508,11 @@ namespace RaceHorologyLib
       foreach (var p in particpants)
         _participants.Add(p);
 
+      // Watch for changes on actual participants and its properties => check internal state
+      _participants.ItemChanged += onRaceParticipants_ItemChanged;
+      _participants.CollectionChanged += onRaceParticipants_CollectionChanged;
+      checkConsistency();
+
       // Watch for changes on main particpants => react accordingly
       _appDataModel.GetParticipants().CollectionChanged += onParticipants_CollectionChanged;
 
@@ -491,6 +521,7 @@ namespace RaceHorologyLib
 
       createRaceRuns((int)properties.Runs);
 
+      // Store participant specific things
       _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
       // Store and Race related things
       _raceDBDelegator = new DatabaseDelegatorRace(this, db);
@@ -587,7 +618,25 @@ namespace RaceHorologyLib
       DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
       _runs.Add((rr, ddrr));
 
+      // Observe properties
+      rr.PropertyChanged += raceRun_PropertyChanged;
+
       RunsChanged?.Invoke(this, null);
+    }
+
+    private void raceRun_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e?.PropertyName == "IsComplete")
+        updateComplete();
+    }
+
+    private void updateComplete()
+    {
+      bool complete = true;
+      foreach (var rr in _runs)
+        complete = complete && rr.Item1.IsComplete;
+
+      IsComplete = complete;
     }
 
     /// <summary>
@@ -603,6 +652,9 @@ namespace RaceHorologyLib
 
       RaceRun rr = runItem.Item1;
       DatabaseDelegatorRaceRun ddrr = runItem.Item2;
+
+      // Un-Observe properties
+      rr.PropertyChanged -= raceRun_PropertyChanged;
 
       // TODO
       //rr.Dispose();
@@ -745,6 +797,46 @@ namespace RaceHorologyLib
     {
       return RaceUtil.ToString(RaceType);
     }
+
+    /// <summary>
+    /// Handler to watches out for changes on collection _participants and performs internal checks, e.g. checkConsistency()
+    /// </summary>
+    private void onRaceParticipants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      checkConsistency();
+    }
+
+    /// <summary>
+    /// Handler to watches out for changes on collection _participants and performs internal checks, e.g. checkConsistency()
+    /// </summary>
+    private void onRaceParticipants_ItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      checkConsistency();
+    }
+
+    /// <summary>
+    /// Internal function to check on consistency
+    /// </summary>
+    private void checkConsistency()
+    {
+      IsConsistent = RaceUtil.IsConsistent(this);
+    }
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChangedEventHandler handler = PropertyChanged;
+      if (handler != null)
+        handler(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
   }
 
 
@@ -775,6 +867,26 @@ namespace RaceHorologyLib
         default:
           return raceType.ToString();
       }
+    }
+
+    /// <summary>
+    /// Returns true if:
+    /// - all participants have a startnumber assigned
+    /// - there wasn't a startnumber assigned twice
+    /// </summary>
+    /// <param name="race"></param>
+    /// <returns></returns>
+    public static bool IsConsistent(Race race)
+    {
+      HashSet<uint> startnumbers = new HashSet<uint>();
+      foreach(var rp in race.GetParticipants())
+      {
+        var stnr = rp.StartNumber;
+        if (stnr == 0 || !startnumbers.Add(stnr))
+          return false;
+      }
+
+      return true;
     }
   }
 
@@ -847,7 +959,7 @@ namespace RaceHorologyLib
   /// <summary>
   /// Represents a race run. Typically a race consists out of two race runs.
   /// </summary>
-  public class RaceRun
+  public class RaceRun : INotifyPropertyChanged
   {
     private uint _run;
     private Race _race;
@@ -882,6 +994,8 @@ namespace RaceHorologyLib
 
       // Ensure the results always are in sync with participants
       _race.GetParticipants().CollectionChanged += onParticipantsChanged;
+
+      _UpdateInternals(); // Do this initially
     }
 
 
@@ -889,6 +1003,15 @@ namespace RaceHorologyLib
     /// Returns the run number for this run (round, durchgang)
     /// </summary>
     public uint Run { get { return _run; } }
+
+
+    private bool _isComplete;
+    public bool IsComplete 
+    {
+      get { return _isComplete; }
+      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+    }
+
 
     /// <summary>
     /// Returns the Race this RaceRun belongs to.
@@ -1095,8 +1218,12 @@ namespace RaceHorologyLib
     protected void onParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.OldItems != null)
+      {
         foreach (RaceParticipant rp in e.OldItems)
-          DeleteRunResult(rp);
+          DeleteRunResult(rp); // _UpdateInternals is called internally
+      }
+      else
+        _UpdateInternals();
     }
 
 
@@ -1164,6 +1291,7 @@ namespace RaceHorologyLib
     {
       _UpdateOnTrack();
       _UpdateInFinish();
+      IsComplete = RaceRunUtil.IsComplete(this);
     }
 
     private void _UpdateOnTrack()
@@ -1263,6 +1391,52 @@ namespace RaceHorologyLib
       }
     }
 
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChangedEventHandler handler = PropertyChanged;
+      if (handler != null)
+        handler(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
+  }
+
+
+  public static class RaceRunUtil
+  {
+    /// <summary>
+    /// True in case all participants have a valid time or a status other than NotSet or Normal
+    /// </summary>
+    static public bool IsComplete(RaceRun rr)
+    {
+      // Check whether all Participants have a result
+      // Check whether the result is either:
+      // a) Normal with valid runtime
+      //  or
+      // b) a resultcode different than NotSet or Normal
+
+      foreach(var rp in rr.GetRace().GetParticipants())
+      {
+        var runResult = rr.GetRunResult(rp);
+        if (runResult == null)
+          return false;
+
+        if (!(
+             (runResult.ResultCode == RunResult.EResultCode.Normal && runResult.RuntimeWOResultCode != null)
+          || (runResult.ResultCode != RunResult.EResultCode.Normal && runResult.ResultCode != RunResult.EResultCode.NotSet)
+          ))
+          return false;
+      }
+
+      return true;
+    }
   }
 
 

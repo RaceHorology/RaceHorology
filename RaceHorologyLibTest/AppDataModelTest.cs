@@ -262,6 +262,8 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, run.GetOnTrackList().Count);
       Assert.IsFalse(run.IsOrWasOnTrack(race.GetParticipant(1)));
       Assert.IsFalse(run.HasResults());
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       // NiZ
       run.SetStartTime(race.GetParticipant(1), new TimeSpan(8, 0, 0));
@@ -269,11 +271,15 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
       Assert.AreEqual(1, run.GetOnTrackList().Count);
       Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       run.SetResultCode(race.GetParticipant(1), RunResult.EResultCode.NiZ);
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       // ... and came later to the finish
       Assert.AreEqual(RunResult.EResultCode.NiZ, run.GetResultList().FirstOrDefault(p => p.StartNumber == 1).ResultCode);
@@ -282,6 +288,8 @@ namespace RaceHorologyLibTest
       // Set NiZ again for later test
       run.SetResultCode(race.GetParticipant(1), RunResult.EResultCode.NiZ);
       Assert.AreEqual(RunResult.EResultCode.NiZ, run.GetResultList().FirstOrDefault(p => p.StartNumber == 1).ResultCode);
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
 
       // NaS
@@ -290,6 +298,8 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1U, run.GetResultList()[0].StartNumber);
       Assert.AreEqual(2U, run.GetResultList()[1].StartNumber);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsTrue(RaceRunUtil.IsComplete(run));
+      Assert.IsTrue(run.IsComplete);
 
 
       // Special handling: Participant is allowed to restart and gets a new time => ResultCode shall be deleted
@@ -298,13 +308,20 @@ namespace RaceHorologyLibTest
       Assert.IsNotNull(run.GetResultList().FirstOrDefault(p => p.StartNumber == 1));
       Assert.AreEqual(RunResult.EResultCode.Normal, run.GetResultList().FirstOrDefault(p => p.StartNumber == 1).ResultCode);
       Assert.IsNotNull(run.GetOnTrackList().FirstOrDefault(p => p.StartNumber == 1));
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
+
       run.SetFinishTime(race.GetParticipant(1), new TimeSpan(9, 1, 0));
       Assert.IsNotNull(run.GetResultList().FirstOrDefault(p => p.StartNumber == 1));
       Assert.IsNull(run.GetOnTrackList().FirstOrDefault(p => p.StartNumber == 1));
+      Assert.IsTrue(RaceRunUtil.IsComplete(run));
+      Assert.IsTrue(run.IsComplete);
 
       Assert.AreEqual(RunResult.EResultCode.NaS, run.GetResultList().FirstOrDefault(p => p.StartNumber == 2).ResultCode);
       run.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 1, 0));
       Assert.AreEqual(RunResult.EResultCode.Normal, run.GetResultList().FirstOrDefault(p => p.StartNumber == 2).ResultCode);
+      Assert.IsTrue(RaceRunUtil.IsComplete(run));
+      Assert.IsTrue(run.IsComplete);
     }
 
 
@@ -313,13 +330,14 @@ namespace RaceHorologyLibTest
     /// Main focus are the lists:
     /// - GetResultList()
     /// - GetOnTrackList()
+    /// - RaceRunUtil.IsComplete()
     /// </summary>
     [TestMethod]
     public void RaceRun_RunResult()
     {
       TestDataGenerator tg = new TestDataGenerator();
 
-      tg.createRaceParticipants(10);
+      tg.createRaceParticipants(5);
 
       var race = tg.Model.GetRace(0);
       var run = race.GetRun(0);
@@ -328,26 +346,36 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, run.GetResultList().Count);
       Assert.IsFalse(run.IsOrWasOnTrack(race.GetParticipant(1)));
       Assert.IsFalse(run.HasResults());
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       run.SetStartTime(race.GetParticipant(1), new TimeSpan(8, 0, 0));
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
       
       Assert.IsTrue(run.HasResults());
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       run.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 1));
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       run.SetFinishTime(race.GetParticipant(1), null);
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       run.SetFinishTime(race.GetParticipant(1), new TimeSpan(8, 1, 1));
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(new TimeSpan(0, 1, 1), run.GetResultList()[0].Runtime);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
       Assert.IsTrue(run.IsOrWasOnTrack(race.GetParticipant(1)));
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       Assert.IsFalse(run.IsOrWasOnTrack(race.GetParticipant(2)));
       run.SetStartFinishTime(race.GetParticipant(2), new TimeSpan(8, 2, 0), new TimeSpan(8, 3, 2));
@@ -355,12 +383,17 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(new TimeSpan(0, 1, 2), run.GetResultList()[1].Runtime);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
       Assert.IsTrue(run.IsOrWasOnTrack(race.GetParticipant(2)));
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
 
       run.SetRunTime(race.GetParticipant(3), new TimeSpan(0, 1, 3));
       Assert.AreEqual(3, run.GetResultList().Count);
       Assert.AreEqual(new TimeSpan(0, 1, 3), run.GetResultList()[2].Runtime);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
 
       run.SetResultCode(race.GetParticipant(4), RunResult.EResultCode.NaS);
@@ -368,6 +401,8 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(null, run.GetResultList()[3].Runtime);
       Assert.AreEqual(RunResult.EResultCode.NaS, run.GetResultList()[3].ResultCode);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
       run.SetResultCode(race.GetParticipant(5), RunResult.EResultCode.DIS, "Tor 5");
       Assert.AreEqual(5, run.GetResultList().Count);
@@ -375,6 +410,8 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(RunResult.EResultCode.DIS, run.GetResultList()[4].ResultCode);
       Assert.AreEqual("Tor 5", run.GetResultList()[4].DisqualText);
       Assert.AreEqual(0, run.GetOnTrackList().Count);
+      Assert.IsTrue(RaceRunUtil.IsComplete(run));
+      Assert.IsTrue(run.IsComplete);
 
 
       var tmp1 = run.DeleteRunResult(race.GetParticipant(1));
@@ -382,15 +419,87 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(4, run.GetResultList().Count);
       Assert.AreNotEqual(1U, run.GetResultList()[0].StartNumber);
       Assert.AreEqual(2U, run.GetResultList()[0].StartNumber);
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
 
 
       Assert.IsTrue(run.HasResults());
       run.DeleteRunResults();
       Assert.IsFalse(run.HasResults());
       Assert.AreEqual(0, run.GetResultList().Count);
-
+      Assert.IsFalse(RaceRunUtil.IsComplete(run));
+      Assert.IsFalse(run.IsComplete);
     }
 
+
+    [TestMethod]
+    public void Race_IsComplete()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipants(1);
+
+      Race race = tg.Model.GetRace(0);
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
+
+      Assert.IsFalse(rr1.IsComplete);
+      Assert.IsFalse(rr2.IsComplete);
+      Assert.IsFalse(race.IsComplete);
+
+      rr1.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 1, 0));
+      Assert.IsTrue(rr1.IsComplete);
+      Assert.IsFalse(rr2.IsComplete);
+      Assert.IsFalse(race.IsComplete);
+
+      rr2.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 1, 0));
+      Assert.IsTrue(rr1.IsComplete);
+      Assert.IsTrue(rr2.IsComplete);
+      Assert.IsTrue(race.IsComplete);
+
+      rr2.DeleteRunResults();
+      Assert.IsTrue(rr1.IsComplete);
+      Assert.IsFalse(rr2.IsComplete);
+      Assert.IsFalse(race.IsComplete);
+    }
+
+
+    [TestMethod]
+    public void Race_IsConsistent()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      Race race = tg.Model.GetRace(0);
+
+      // Empty race
+      Assert.IsTrue(RaceUtil.IsConsistent(race));
+      Assert.IsTrue(race.IsConsistent);
+
+      // 1 Participant, no startnumber
+      var rp1 = tg.createRaceParticipant();
+      Assert.IsTrue(RaceUtil.IsConsistent(race));
+      Assert.IsTrue(race.IsConsistent);
+      rp1.StartNumber = 0;
+      Assert.IsFalse(RaceUtil.IsConsistent(race));
+      Assert.IsFalse(race.IsConsistent);
+
+      // 2 Participants, no startnumber
+      var rp2 = tg.createRaceParticipant();
+      Assert.IsFalse(RaceUtil.IsConsistent(race));
+      Assert.IsFalse(race.IsConsistent);
+      rp2.StartNumber = 0;
+      Assert.IsFalse(RaceUtil.IsConsistent(race));
+      Assert.IsFalse(race.IsConsistent);
+
+      // 2 Participants, same startnumber
+      rp1.StartNumber = 1U;
+      rp2.StartNumber = 1U;
+      Assert.IsFalse(RaceUtil.IsConsistent(race));
+      Assert.IsFalse(race.IsConsistent);
+
+      // 2 Participants, different startnumber
+      rp2.StartNumber = 2U;
+      Assert.IsTrue(RaceUtil.IsConsistent(race));
+      Assert.IsTrue(race.IsConsistent);
+    }
 
 
     [TestMethod]
