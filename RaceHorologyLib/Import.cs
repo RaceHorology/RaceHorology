@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -507,12 +507,31 @@ namespace RaceHorologyLib
       return p1.Fullname == p2.Fullname;
     }
 
+
+    public bool EqualsParticipant(Participant p1, DataRow row)
+    {
+      bool bRes = false;
+      try
+      {
+        bRes = p1.Name == getNameComaSeparated(GetValueAsString(row, "Name"))
+          && p1.Firstname == getFirstNameComaSeparated(GetValueAsString(row, "Firstname"))
+          && p1.Sex == importSex(GetValueAsString(row, "Sex"))
+          && p1.Club == GetValueAsString(row, "Club")
+          && p1.Nation == GetValueAsString(row, "Nation")
+          && p1.SvId == GetValueAsString(row, "SvId")
+          && p1.Code == GetValueAsString(row, "Code")
+          && p1.Year == GetValueAsUint(row, "Year");
+      }
+      catch (Exception)
+      { }
+
+      return bRes;
     }
 
-    Participant findExistingParticpant(Participant partImp)
+
+    public bool EqualsParticipant(Participant p1, Participant p2)
     {
-      var pFound = _particpants.FirstOrDefault(p => sameParticpant(p, partImp));
-      return pFound;
+      return p1.IsEqualTo(p2);
     }
 
 

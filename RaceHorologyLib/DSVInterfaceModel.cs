@@ -38,6 +38,7 @@ namespace RaceHorologyLib
 
     string _pathLocalDSV;
     DSVImportReader _localReader;
+    ParticipantImportUtils _partImportUtils;
 
 
     public DSVInterfaceModel(AppDataModel dm)
@@ -101,6 +102,11 @@ namespace RaceHorologyLib
         _localReader = null;
       }
 
+      if (_localReader != null)
+        _partImportUtils = new ParticipantImportUtils(_localReader.Mapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
+      else
+        _partImportUtils = null;
+
       var handler = DataChanged;
       handler?.Invoke(this, new EventArgs());
     }
@@ -114,7 +120,7 @@ namespace RaceHorologyLib
       foreach (DataRow r in _localReader?.Data.Tables[0].Rows)
       {
         if (r["SvId"]?.ToString() == p.CodeOrSvId)
-          return true;
+          return _partImportUtils.EqualsParticipant(p, r);
       }
 
       return false;
