@@ -446,7 +446,12 @@ namespace RaceHorologyLib
     public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
     public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
 
-    bool _isConsistent;
+    private bool _isConsistent; // Member storing value for property IsConsistent
+    /// <summary>
+    /// True in case there aren't any inconsistencies in the data, false otherwise.
+    /// Inconsistencies in data can be:
+    /// - Start numbers are not correctly assigned (either one startnumber is 0 or a start nnumber is used twice)
+    /// </summary>
     public bool IsConsistent 
     { 
       get { return _isConsistent; }
