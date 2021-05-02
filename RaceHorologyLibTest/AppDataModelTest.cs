@@ -433,6 +433,37 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
+    public void Race_IsComplete()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipants(1);
+
+      Race race = tg.Model.GetRace(0);
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
+
+      Assert.IsFalse(rr1.IsComplete);
+      Assert.IsFalse(rr2.IsComplete);
+      Assert.IsFalse(race.IsComplete);
+
+      rr1.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 1, 0));
+      Assert.IsTrue(rr1.IsComplete);
+      Assert.IsFalse(rr2.IsComplete);
+      Assert.IsFalse(race.IsComplete);
+
+      rr2.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 1, 0));
+      Assert.IsTrue(rr1.IsComplete);
+      Assert.IsTrue(rr2.IsComplete);
+      Assert.IsTrue(race.IsComplete);
+
+      rr2.DeleteRunResults();
+      Assert.IsTrue(rr1.IsComplete);
+      Assert.IsFalse(rr2.IsComplete);
+      Assert.IsFalse(race.IsComplete);
+    }
+
+
+    [TestMethod]
     public void Race_IsConsistent()
     {
       TestDataGenerator tg = new TestDataGenerator();

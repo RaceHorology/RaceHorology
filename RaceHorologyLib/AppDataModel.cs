@@ -458,6 +458,19 @@ namespace RaceHorologyLib
       private set { if (value != _isConsistent) { _isConsistent = value; NotifyPropertyChanged(); } }
     }
 
+
+    private bool _isComplete; // Member storing value for property IsComplete
+    /// <summary>
+    /// True in case all runs have been completed.
+    /// False if one or more runs haven't been completed.
+    /// </summary>
+    public bool IsComplete
+    {
+      get { return _isComplete; }
+      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+    }
+
+
     public RaceConfiguration RaceConfiguration
     {
       get { return _raceConfiguration; }
@@ -605,7 +618,25 @@ namespace RaceHorologyLib
       DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
       _runs.Add((rr, ddrr));
 
+      // Observe properties
+      rr.PropertyChanged += raceRun_PropertyChanged;
+
       RunsChanged?.Invoke(this, null);
+    }
+
+    private void raceRun_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e?.PropertyName == "IsComplete")
+        updateComplete();
+    }
+
+    private void updateComplete()
+    {
+      bool complete = true;
+      foreach (var rr in _runs)
+        complete = complete && rr.Item1.IsComplete;
+
+      IsComplete = complete;
     }
 
     /// <summary>
@@ -621,6 +652,9 @@ namespace RaceHorologyLib
 
       RaceRun rr = runItem.Item1;
       DatabaseDelegatorRaceRun ddrr = runItem.Item2;
+
+      // Un-Observe properties
+      rr.PropertyChanged -= raceRun_PropertyChanged;
 
       // TODO
       //rr.Dispose();
