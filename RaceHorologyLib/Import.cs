@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -361,19 +361,19 @@ namespace RaceHorologyLib
     ImportResults DoImport(DataSet ds);
   }
 
-  public class BaseImport
+  public class BaseImportUtils
   {
     protected Mapping _mapping;
     protected ClassAssignment _classAssignment;
 
 
-    protected BaseImport(Mapping mapping, ClassAssignment classAssignment)
+    protected BaseImportUtils(Mapping mapping, ClassAssignment classAssignment)
     {
       _mapping = mapping;
       _classAssignment = classAssignment;
     }
 
-    protected object getValueAsObject(DataRow row, string field)
+    public object GetValueAsObject(DataRow row, string field)
     {
       var columnName = _mapping.MappedField(field);
 
@@ -385,14 +385,14 @@ namespace RaceHorologyLib
       return null;
     }
 
-    protected string getValueAsString(DataRow row, string field)
+    public string GetValueAsString(DataRow row, string field)
     {
-      return Convert.ToString(getValueAsObject(row, field));
+      return Convert.ToString(GetValueAsObject(row, field));
     }
 
-    protected double getValueAsDouble(DataRow row, string field, double @default = 0.0)
+    public double GetValueAsDouble(DataRow row, string field, double @default = 0.0)
     {
-      object v = getValueAsObject(row, field);
+      object v = GetValueAsObject(row, field);
       if (v == null)
         return @default;
 
@@ -406,9 +406,9 @@ namespace RaceHorologyLib
       }
     }
 
-    protected uint getValueAsUint(DataRow row, string field, uint @default = 0)
+    public uint GetValueAsUint(DataRow row, string field, uint @default = 0)
     {
-      object v = getValueAsObject(row, field);
+      object v = GetValueAsObject(row, field);
       if (v == null)
         return @default;
 
@@ -422,7 +422,7 @@ namespace RaceHorologyLib
       }
     }
 
-    protected void assignClass(Participant participant)
+    public void AssignClass(Participant participant)
     {
       if (_classAssignment != null)
         participant.Class = _classAssignment.DetermineClass(participant);
@@ -432,72 +432,29 @@ namespace RaceHorologyLib
 
 
 
-  public class ParticipantImport : BaseImport, IImport
-  {
-    IList<Participant> _particpants;
-    IList<ParticipantCategory> _categories;
 
-    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
+  public class ParticipantImportUtils : BaseImportUtils
+  {
+    protected IList<ParticipantCategory> _categories;
+
+    public ParticipantImportUtils(Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null)
+      : base(mapping, classAssignment)
     {
-      _particpants = particpants;
       _categories = categories;
     }
 
-
-    public  ImportResults DoImport(DataSet ds)
-    {
-      ImportResults impRes = new ImportResults();
-
-      var rows = ds.Tables[0].Rows;
-
-      foreach(DataRow row in rows)
-      {
-        try
-        {
-          ImportRow(row);
-          impRes.AddSuccess();
-        }
-        catch (Exception)
-        {
-          impRes.AddError();
-        }
-      }
-
-      return impRes;
-    }
-
-
-    public Participant ImportRow(DataRow row) 
-    {
-      Participant partImported = null;
-
-      Participant partCreated = createParticipant(row);
-
-      Participant partExisting = findExistingParticpant(partCreated);
-
-      if (partExisting != null)
-        partImported = updateParticipant(partExisting, partCreated);
-      else
-        partImported = insertParticpant(partCreated);
-
-      assignClass(partImported);
-
-      return partImported;
-    }
-
-
-    Participant createParticipant(DataRow row)
+    public Participant CreateParticipant(DataRow row)
     {
       Participant p = new Participant
       {
-        Name = getNameComaSeparated(getValueAsString(row, "Name")),
-        Firstname = getFirstNameComaSeparated(getValueAsString(row, "Firstname")),
-        Sex = importSex(getValueAsString(row, "Sex")),
-        Club = getValueAsString(row, "Club"),
-        Nation = getValueAsString(row, "Nation"),
-        SvId = getValueAsString(row, "SvId"),
-        Code = getValueAsString(row, "Code"),
-        Year = getValueAsUint(row, "Year")
+        Name = getNameComaSeparated(GetValueAsString(row, "Name")),
+        Firstname = getFirstNameComaSeparated(GetValueAsString(row, "Firstname")),
+        Sex = importSex(GetValueAsString(row, "Sex")),
+        Club = GetValueAsString(row, "Club"),
+        Nation = GetValueAsString(row, "Nation"),
+        SvId = GetValueAsString(row, "SvId"),
+        Code = GetValueAsString(row, "Code"),
+        Year = GetValueAsUint(row, "Year")
       };
 
       return p;
@@ -527,7 +484,19 @@ namespace RaceHorologyLib
       return res.Trim();
     }
 
-    bool sameParticpant(Participant p1, Participant p2)
+    public double GetPoints(DataRow row)
+    {
+      return GetValueAsDouble(row, "Points", -1);
+    }
+
+
+    public uint GetStartNumber(DataRow row)
+    {
+      return GetValueAsUint(row, "StartNumber", 0);
+    }
+
+
+    public bool SameParticpant(Participant p1, Participant p2)
     {
       if (!string.IsNullOrEmpty(p1.SvId) && !string.IsNullOrEmpty(p2.SvId))
         return p1.SvId == p2.SvId;
@@ -536,6 +505,7 @@ namespace RaceHorologyLib
         return p1.Code == p2.Code;
 
       return p1.Fullname == p2.Fullname;
+    }
 
     }
 
@@ -545,18 +515,13 @@ namespace RaceHorologyLib
       return pFound;
     }
 
-    Participant updateParticipant(Participant partExisting, Participant partImp)
+
+    public Participant UpdateParticipant(Participant partExisting, Participant partImp)
     {
       partExisting.Assign(partImp);
       return partExisting;
     }
 
-    Participant insertParticpant(Participant partImp)
-    {
-      _particpants.Add(partImp);
-      
-      return partImp;
-    }
 
     ParticipantCategory importSex(string sex)
     {
@@ -589,20 +554,97 @@ namespace RaceHorologyLib
 
       return category;
     }
+
   }
 
 
-  public class RaceImport : BaseImport, IImport
+
+
+
+
+
+
+
+
+  public class ParticipantImport : IImport
+  {
+    IList<Participant> _particpants;
+    ParticipantImportUtils _partImportUtils;
+
+    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null) 
+    {
+      _particpants = particpants;
+      _partImportUtils = new ParticipantImportUtils(mapping, categories, classAssignment);
+    }
+
+
+    public  ImportResults DoImport(DataSet ds)
+    {
+      ImportResults impRes = new ImportResults();
+
+      var rows = ds.Tables[0].Rows;
+
+      foreach(DataRow row in rows)
+      {
+        try
+        {
+          ImportRow(row);
+          impRes.AddSuccess();
+        }
+        catch (Exception)
+        {
+          impRes.AddError();
+        }
+      }
+
+      return impRes;
+    }
+
+
+    public Participant ImportRow(DataRow row) 
+    {
+      Participant partImported = null;
+
+      Participant partCreated = _partImportUtils.CreateParticipant(row);
+
+      Participant partExisting = findExistingParticpant(partCreated);
+
+      if (partExisting != null)
+        partImported = _partImportUtils.UpdateParticipant(partExisting, partCreated);
+      else
+        partImported = insertParticpant(partCreated);
+
+      _partImportUtils.AssignClass(partImported);
+
+      return partImported;
+    }
+
+
+    Participant findExistingParticpant(Participant partImp)
+    {
+      var pFound = _particpants.FirstOrDefault(p => _partImportUtils.SameParticpant(p, partImp));
+      return pFound;
+    }
+
+    Participant insertParticpant(Participant partImp)
+    {
+      _particpants.Add(partImp);
+      return partImp;
+    }
+  }
+
+
+  public class RaceImport : IImport
   {
     Race _race;
+    ParticipantImportUtils _partImportUtils;
+    ParticipantImport _participantImport;
 
-    ParticipantImport _particpantImport;
-
-    public RaceImport(Race race, Mapping mapping, ClassAssignment classAssignment = null) : base(mapping, classAssignment)
+    public RaceImport(Race race, Mapping mapping, ClassAssignment classAssignment = null)
     {
       _race = race;
-
-      _particpantImport = new ParticipantImport(_race.GetDataModel().GetParticipants(), _mapping, _race.GetDataModel().GetParticipantCategories(), _classAssignment);
+      _partImportUtils = new ParticipantImportUtils(mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment);
+      _participantImport = new ParticipantImport(_race.GetDataModel().GetParticipants(), mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment);
     }
 
 
@@ -630,40 +672,30 @@ namespace RaceHorologyLib
 
     public RaceParticipant ImportRow(DataRow row)
     {
-      Participant importedParticipant = _particpantImport.ImportRow(row);
+      Participant importedParticipant = _participantImport.ImportRow(row);
 
-      double points = getPoints(row);
-      uint sn = getStartNumber(row);
+      double points = _partImportUtils.GetPoints(row);
+      uint sn = _partImportUtils.GetStartNumber(row);
 
       RaceParticipant rp = _race.AddParticipant(importedParticipant, sn, points);
 
       return rp;
     }
-
-
-    double getPoints(DataRow row) 
-    {
-      return getValueAsDouble(row, "Points", -1);
-    }
-
-
-    uint getStartNumber(DataRow row)
-    {
-      return getValueAsUint(row, "StartNumber", 0);
-    }
   }
 
 
-  public class UpdatePointsImport : BaseImport, IImport
+  public class UpdatePointsImport : IImport
   {
     Race _race;
+    ParticipantImportUtils _partImportUtils;
 
     Dictionary<string, DataRow> _id2row;
 
 
-    public UpdatePointsImport(Race race, Mapping mapping) : base(mapping, null)
+    public UpdatePointsImport(Race race, Mapping mapping)
     {
       _race = race;
+      _partImportUtils = new ParticipantImportUtils(mapping, _race.GetDataModel().GetParticipantCategories(), null);
 
       _id2row = new Dictionary<string, DataRow>();
     }
@@ -683,7 +715,7 @@ namespace RaceHorologyLib
         try
         {
           DataRow row = _id2row[key];
-          double points = getPoints(row);
+          double points = _partImportUtils.GetPoints(row);
           rp.Points = points;
           impRes.AddSuccess();
         }
@@ -702,19 +734,13 @@ namespace RaceHorologyLib
     }
 
 
-    double getPoints(DataRow row)
-    {
-      return getValueAsDouble(row, "Points", -1);
-    }
-
-
     protected void buildDictionary(DataSet ds)
     {
       // Build map for fast and easy access to row
       var rows = ds.Tables[0].Rows;
       foreach (DataRow row in rows)
       {
-        string key = getValueAsString(row, "SvId");
+        string key = _partImportUtils.GetValueAsString(row, "SvId");
         _id2row.Add(key, row);
       }
     }
