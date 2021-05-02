@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -106,6 +106,10 @@ namespace RaceHorology
 
         txtDSVSearch_TextChanged(null, null); // Update search
         dgDSVList_SelectionChanged(null, null); // Update button status
+      }
+      else
+      {
+        lblVersion.Content = string.Format("Version: --- (keine DSV Liste importiert)");
       }
     }
 
