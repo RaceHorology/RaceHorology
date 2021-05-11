@@ -193,14 +193,16 @@ namespace RaceHorologyLib
 
     private string _serialPortName;
     private SerialPort _serialPort;
+    private string _dumpDir;
     System.IO.StreamWriter _dumpFile;
 
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
 
-    public ALGETdC8001TimeMeasurement(string comport) : base()
+    public ALGETdC8001TimeMeasurement(string comport, string dumpDir) : base()
     {
       _serialPortName = comport;
+      _dumpDir = dumpDir;
     }
 
     public override string GetInfo()
@@ -218,6 +220,7 @@ namespace RaceHorologyLib
       _stopRequest = false;
 
       string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
+      dumpFilename = System.IO.Path.Combine(_dumpDir, dumpFilename);
       _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
 
       _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
