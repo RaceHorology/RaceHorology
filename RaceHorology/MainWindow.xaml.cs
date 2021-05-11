@@ -369,7 +369,7 @@ namespace RaceHorology
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
-      _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port);
+      _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, _dataModel.GetDB().GetDBPathDirectory());
       _alge.RawMessageReceived += Alge_OnMessageReceived;
 
       _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
