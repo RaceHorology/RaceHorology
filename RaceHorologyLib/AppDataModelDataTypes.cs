@@ -696,7 +696,7 @@ namespace RaceHorologyLib
     public uint StartNumber
     {
       get => _startnumber;
-      set { _startnumber = value; NotifyPropertyChanged(); }
+      set { if (_startnumber != value) { _startnumber = value; NotifyPropertyChanged(); } }
     }
 
     public double Points // Points prior to the race
