@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -78,6 +78,7 @@ namespace RaceHorology
 
       // Remember the Application Name
       _appTitle = this.Title;
+      updateAppTitle();
 
       // Last recently used files in menu
       _mruList = new MruList("RaceHorology", mnuRecentFiles, 10);
@@ -207,8 +208,7 @@ namespace RaceHorology
         // ... and create the corresponding data model
         _dataModel = new AppDataModel(db);
 
-        // Change the Application Window to contain the opened DataBase
-        this.Title = _appTitle + " - " + System.IO.Path.GetFileName(dbPath);
+        updateAppTitle();
 
         InitializeTiming();
 
@@ -244,9 +244,23 @@ namespace RaceHorology
 
       if (_dataModel != null)
       {
+        _dataModel.Close();
         _dataModel = null;
       }
 
+      updateAppTitle();
+    }
+
+    private void updateAppTitle()
+    {
+      string dbFile = "keine Datei geöffnet";
+      if (_dataModel != null)
+      {
+        dbFile = _dataModel.GetDB().GetDBPath();
+      }
+
+      // Change the Application Window to contain the opened DataBase
+      this.Title = string.Format("{0} - {1}", _appTitle, dbFile);
     }
 
     /// <summary>

@@ -151,6 +151,40 @@ namespace RaceHorologyLib
         _currentRace = _races.First();
     }
 
+
+    /// <summary>
+    /// Closes the data model
+    /// 
+    /// The object cannot be used anymore after that call.
+    /// </summary>
+    public void Close()
+    {
+      if (_db == null) // If database isn't set anymore, there is nothing to close
+        return;
+
+      _interactiveTimeMeasurements = null;
+
+      _currentRace = null;
+      _currentRaceRun = null;
+
+      _competitionDelegatorDB = null;
+      _participantsDelegatorDB = null;
+      _particpantCategoriesDelegatorDB = null;
+      _particpantClassesDelegatorDB = null;
+      _particpantGroupsDelegatorDB = null;
+
+      _races = null;
+      _particpantGroups = null;
+      _particpantClasses = null;
+      _particpantCategories = null;
+      _participants = null;
+
+      // Close data base and set to null
+      _db.Close();
+      _db = null;
+    }
+
+
     public IAppDataModelDataBase GetDB()
     {
       return _db;
@@ -1448,6 +1482,9 @@ namespace RaceHorologyLib
   /// <remarks>Assuming the database format changes we can simply create another implementation.</remarks>
   public interface IAppDataModelDataBase
   {
+
+    void Close();
+
     string GetDBPath();
     string GetDBFileName();
     string GetDBPathDirectory();

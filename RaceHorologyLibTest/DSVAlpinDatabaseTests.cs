@@ -110,7 +110,50 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(participants.Count() == 5);
       Assert.IsTrue(participants.Where(x => x.Name == "Nachname 3").Count() == 1);
 
+
+      string dbStatusFile = System.IO.Path.Combine(
+        db.GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(db.GetDBFileName()) + ".ldb");
+
+      Assert.IsTrue(System.IO.File.Exists(dbStatusFile), "MS-Access Status File existing");
+
+      Assert.ThrowsException<System.IO.IOException>(() => { System.IO.File.Delete(db.GetDBPath()); });
+
       db.Close();
+      Assert.IsFalse(System.IO.File.Exists(dbStatusFile), "MS-Access Status File not existing anymore");
+
+      System.IO.File.Delete(db.GetDBPath()); // Simply succeeds
+      Assert.IsFalse(System.IO.File.Exists(db.GetDBPath()), "MS-Access file could be deleted");
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void DatabaseOpenCloseWithAppDataModel()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel dm = new AppDataModel(db);
+      var participants = dm.GetParticipants();
+      Assert.IsTrue(participants.Count() == 5);
+      Assert.IsTrue(participants.Where(x => x.Name == "Nachname 3").Count() == 1);
+
+      string dbStatusFile = System.IO.Path.Combine(
+        db.GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(db.GetDBFileName()) + ".ldb");
+
+      Assert.IsTrue(System.IO.File.Exists(dbStatusFile), "MS-Access Status File existing");
+
+      Assert.ThrowsException<System.IO.IOException>(() => { System.IO.File.Delete(db.GetDBPath()); });
+
+      dm.Close();
+      Assert.IsFalse(System.IO.File.Exists(dbStatusFile), "MS-Access Status File not existing anymore");
+
+      System.IO.File.Delete(db.GetDBPath()); // Simply succeeds
+      Assert.IsFalse(System.IO.File.Exists(db.GetDBPath()), "MS-Access file could be deleted");
     }
 
 
