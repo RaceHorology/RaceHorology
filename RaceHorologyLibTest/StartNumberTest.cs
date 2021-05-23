@@ -105,26 +105,29 @@ namespace RaceHorologyLibTest
 
       // Assign startnumber from scratch
       rps.Sort(Comparer<RaceParticipant>.Create((x, y) => x.Name.CompareTo(y.Name)));
-      for(int i=0; i<rps.Count; i++)
-        rps[i].StartNumber = (uint)i+1;
-
+      for (int i = 0; i < rps.Count; i++)
+      {
+        Assert.AreEqual(0U, rps[i].StartNumber, "pre-condition check of unassigned startnumber");
+        rps[i].StartNumber = (uint)i + 1;
+      }
 
       // TEST 1: Test whether startnumber is remembered
       for (int i = 0; i < rps.Count; i++)
         Assert.AreEqual((uint)i+1, rps[i].StartNumber);
 
-
-      model = null;
       db.Close();
-
+      model = null;
 
       // TEST 2: Cross-Check whether the startnumbers have been stored in DataBase
       RaceHorologyLib.Database db2 = new RaceHorologyLib.Database();
       db2.Connect(dbFilename);
       AppDataModel model2 = new AppDataModel(db2);
       var rps2 = model2.GetRace(0).GetParticipants().ToList();
+
+      Assert.AreEqual(rps.Count, rps2.Count);
+
       rps2.Sort(Comparer<RaceParticipant>.Create((x, y) => x.Name.CompareTo(y.Name)));
-      for (int i = 0; i < rps.Count; i++)
+      for (int i = 0; i < rps2.Count; i++)
         Assert.AreEqual((uint)i + 1, rps2[i].StartNumber);
     }
 
