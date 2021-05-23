@@ -56,6 +56,19 @@ jobs:
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
           retention-days: 2
 
+      - name: Build Installer
+        run: |
+           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 $Env:GITHUB_WORKSPACE\RaceHorologySetup
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: installer_RaceHorology
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          retention-days: 2
+
+
 
   run_test:
     needs: build
