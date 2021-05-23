@@ -6,9 +6,20 @@ on:
   push:
     branches:
       - dev_main
+      - feature/ci_wixinstaller
   pull_request:
     branches:  
       - dev_main
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'  
+
+
 
 jobs:
   build:
@@ -36,13 +47,27 @@ jobs:
         run: |
            cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
            .\MSBuild.exe /p:Configuration=Debug /p:Platform=x86 $Env:GITHUB_WORKSPACE
+           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 $Env:GITHUB_WORKSPACE
 
       - name: Upload Test Programm
         uses: actions/upload-artifact@v2
         with:
           name: unittest_RaceHorologyLibTest
-          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86\Debug
+          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
           retention-days: 2
+
+      - name: Build Installer
+        run: |
+           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 $Env:GITHUB_WORKSPACE\RaceHorologySetup
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: installer_RaceHorology
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          retention-days: 2
+
 
 
   run_test:
@@ -53,16 +78,44 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: unittest_RaceHorologyLibTest
-          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86\Debug
+          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
 
       - name: Setup VSTest Path
         uses: darenm/Setup-VSTest@v1
       
-      - name: VSTest
+      - name: VSTest_Debug
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory!=HardwareDependent&TestCategory!=IntegrationDsvOnline" /logger:trx
+      
+      - name: VSTest_Release
+        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory!=HardwareDependent&TestCategory!=IntegrationDsvOnline" /logger:trx
 
-      - name: Upload Test Programm
+      - name: Upload Test Results
         uses: actions/upload-artifact@v2
         with:
           name: unittest_RaceHorologyLibTest_Results
+          path: ${{ github.workspace }}\TestResults\**\*.trx 
+
+  run_test_dsv_online:
+    needs: build
+    runs-on: [windows-latest]
+    steps:
+      - name: Download Test Programm
+        uses: actions/download-artifact@v2
+        with:
+          name: unittest_RaceHorologyLibTest
+          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
+
+      - name: Setup VSTest Path
+        uses: darenm/Setup-VSTest@v1
+      
+      - name: VSTest_Debug
+        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory=IntegrationDsvOnline" /logger:trx
+      
+      - name: VSTest_Release
+        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory=IntegrationDsvOnline" /logger:trx
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: unittest_RaceHorologyLibTest_Results_DsvOnline
           path: ${{ github.workspace }}\TestResults\**\*.trx 
