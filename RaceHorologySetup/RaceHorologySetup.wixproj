@@ -9,6 +9,7 @@
     <OutputName>RaceHorologySetup</OutputName>
     <OutputType>Package</OutputType>
     <DefineConstants>HarvestPath=..\Deploy</DefineConstants>
+    <DefineSolutionProperties>false</DefineSolutionProperties>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
