@@ -222,6 +222,12 @@ namespace RaceHorologyLibTest
       _basePath = basePath;
     }
 
+
+    public void Close()
+    {
+      // Simply nothing todo
+    }
+
     public string GetDBPath() { return System.IO.Path.Combine(_basePath, GetDBFileName()); }
     public string GetDBFileName() { return "dummy.mdb"; }
     public string GetDBPathDirectory() { return _basePath; }
