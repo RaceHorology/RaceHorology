@@ -81,3 +81,28 @@ jobs:
         with:
           name: unittest_RaceHorologyLibTest_Results
           path: ${{ github.workspace }}\TestResults\**\*.trx 
+
+  run_test_dsv_online:
+    needs: build
+    runs-on: [windows-latest]
+    steps:
+      - name: Download Test Programm
+        uses: actions/download-artifact@v2
+        with:
+          name: unittest_RaceHorologyLibTest
+          path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
+
+      - name: Setup VSTest Path
+        uses: darenm/Setup-VSTest@v1
+      
+      - name: VSTest_Debug
+        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory==IntegrationDsvOnline" /logger:trx
+      
+      - name: VSTest_Release
+        run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory==IntegrationDsvOnline" /logger:trx
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: unittest_RaceHorologyLibTest_Results_DsvOnline
+          path: ${{ github.workspace }}\TestResults\**\*.trx 
