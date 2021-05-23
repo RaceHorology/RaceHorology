@@ -401,10 +401,26 @@ namespace RaceHorologyLib
     }
 
 
+    private static int CompareGroups(object x, object y)
+    {
+      if (x is string sx && y is string sy)
+        return sx.CompareTo(sy);
+      if (x is string)
+        return 1;
+      if (y is string)
+        return -1;
+
+      if (x is IComparable ix && y is IComparable iy)
+        return ix.CompareTo(iy);
+
+      return 0;
+    }
+
+
     public bool SwitchToFirstGroup()
     {
       List<object> groups = _group2participant.Keys.ToList();
-      groups.Sort();
+      groups.Sort(CompareGroups);
 
       if (groups.Count > 0)
         CurrentGroup = groups[0];
@@ -418,7 +434,7 @@ namespace RaceHorologyLib
     public bool SwitchToNextGroup()
     {
       List<object> groups = _group2participant.Keys.ToList();
-      groups.Sort();
+      groups.Sort(CompareGroups);
 
       int index = int.MaxValue;
       if (CurrentGroup != null)

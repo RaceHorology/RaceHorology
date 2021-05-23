@@ -424,5 +424,44 @@ namespace RaceHorologyLibTest
       }
 
     }
+
+    [TestMethod]
+    public void StartNumberAssignment_ErrorCase_UnassignedClass()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant();
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+
+      StartNumberAssignment sna = new StartNumberAssignment();
+      ParticipantSelector ps = new ParticipantSelector(participants[0].Race, sna, null);
+
+      Assert.IsTrue(ps.SwitchToFirstGroup());
+      Assert.AreEqual("", ps.CurrentGroup);
+      Assert.IsFalse(ps.SwitchToNextGroup());
+
+      ps.GroupProperty = "Participant.Class";
+      Assert.IsTrue(ps.SwitchToFirstGroup());
+      Assert.AreEqual(tg.findClass("2M (2010)"), ps.CurrentGroup);
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual(tg.findClass("2W (2010)"), ps.CurrentGroup);
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual("", ps.CurrentGroup);
+      Assert.IsFalse(ps.SwitchToNextGroup());
+
+      ps.GroupProperty = "Group";
+      Assert.IsTrue(ps.SwitchToFirstGroup());
+      Assert.AreEqual(tg.findGroup("2M"), ps.CurrentGroup);
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual(tg.findGroup("2W"), ps.CurrentGroup);
+      Assert.IsTrue(ps.SwitchToNextGroup());
+      Assert.AreEqual("", ps.CurrentGroup);
+      Assert.IsFalse(ps.SwitchToNextGroup());
+
+    }
   }
 }
