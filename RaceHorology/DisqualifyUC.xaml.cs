@@ -153,6 +153,9 @@ namespace RaceHorology
 
     private void setRaceRun(RaceRun rr)
     {
+      if (rr == null)
+        return;
+
       _currentRaceRun = rr;
       connectUiToRaceRun(_currentRaceRun);
 
