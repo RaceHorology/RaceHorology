@@ -453,7 +453,6 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("", ps.CurrentGroup);
       Assert.IsFalse(ps.SwitchToNextGroup());
 
-
       ps.GroupProperty = "Group";
       Assert.IsTrue(ps.SwitchToFirstGroup());
       Assert.AreEqual(tg.findGroup("2M"), ps.CurrentGroup);
