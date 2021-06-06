@@ -463,11 +463,19 @@ namespace RaceHorology
 
       TimerPlus _timer;
 
+      SoundPlayer _soundLow;
+      SoundPlayer _soundHigh;
+      int _soundStatus;
+
       public LiveTimingStartCountDown(uint startIntervall, RaceRun raceRun, Label lblStart)
       {
         _raceRun = raceRun;
         _startIntervall = startIntervall;
         _lblStart = lblStart;
+
+        _soundLow = new SoundPlayer(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("RaceHorology.resources.count_down_low.wav"));
+        _soundHigh = new SoundPlayer(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("RaceHorology.resources.count_down_high_long.wav"));
+        _soundStatus = 0;
 
         _raceRun.OnTrackChanged += OnSomethingChanged;
 
@@ -488,6 +496,8 @@ namespace RaceHorology
       {
         _timer.Reset();
         _timer.Start();
+
+        _soundStatus = 4;
       }
 
 
@@ -496,7 +506,6 @@ namespace RaceHorology
         Application.Current.Dispatcher.Invoke(() =>
         {
           displayStartFree();
-          SystemSounds.Beep.Play();
         });
       }
 
@@ -512,7 +521,18 @@ namespace RaceHorology
         {
           _lblStart.Background = Brushes.Red;
           _lblStart.Content = string.Format("Start frei in {0}s", _timer.RemainingSeconds);
+
+          if (_timer.RemainingSeconds < _soundStatus)
+          {
+            if (_soundStatus > 1)
+              _soundLow.Play();
+            else
+              _soundHigh.Play();
+
+            _soundStatus = (int) _timer.RemainingSeconds;
+          }
         });
+
       }
 
 
