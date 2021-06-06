@@ -51,19 +51,65 @@ public interface ILiveTiming
 
 }
 
+
+internal class IsCompleteObserver : IDisposable
+{
+  RaceRun _previousRaceRun;
+  RaceRun _raceRun;
+  Action<RaceRun, RaceRun> _updateStartListFunc;
+  bool disposedValue;
+
+  public IsCompleteObserver(RaceRun previousRaceRun, RaceRun raceRun, Action<RaceRun, RaceRun> updateStartListFunc)
+  {
+    _previousRaceRun = previousRaceRun;
+    _raceRun = raceRun;
+    _updateStartListFunc = updateStartListFunc;
+
+    _previousRaceRun.PropertyChanged += OnChanged;
+  }
+
+  private void OnChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+  {
+    if (e.PropertyName == "IsComplete")
+      _updateStartListFunc(_previousRaceRun, _raceRun);
+  }
+
+  #region IDisposable implementation
+  protected virtual void Dispose(bool disposing)
+  {
+    if (!disposedValue)
+    {
+      if (disposing)
+      {
+        _previousRaceRun.PropertyChanged -= OnChanged;
+      }
+
+      disposedValue = true;
+    }
+  }
+
+  public void Dispose()
+  {
+    // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    Dispose(disposing: true);
+    GC.SuppressFinalize(this);
+  }
+  #endregion
+}
+
 public class LiveTimingDelegator : IDisposable
 {
   Race _race;
   ILiveTiming _liveTiming;
 
-  List<ItemsChangedNotifier> _notifier;
+  List<IDisposable> _notifier;
 
   public LiveTimingDelegator(Race race, ILiveTiming liveTiming)
   {
     _race = race;
     _liveTiming = liveTiming;
 
-    _notifier = new List<ItemsChangedNotifier>();
+    _notifier = new List<IDisposable>();
     
     ObserveRace();
   }
@@ -108,28 +154,51 @@ public class LiveTimingDelegator : IDisposable
 
     _notifier.Add(notifier);
 
+    RaceRun rLast = null;
     foreach (var r in _race.GetRuns())
-      ObserveRaceRun(r);
+    {
+      System.Diagnostics.Debug.Assert(rLast == null || rLast.Run < r.Run, "previous run number must be smaller than current run number");
+      ObserveRaceRun(rLast, r);
+      rLast = r;
+    }
   }
 
 
-  private void ObserveRaceRun(RaceRun raceRun)
+  private void ObserveRaceRun(RaceRun previousRaceRun, RaceRun raceRun)
   {
+    // Only the list of the current run is allowed to be sent.
+    // => Startlist needs to be send in following cases:
+    // a) Start list itself changes
+    // b) The previous run completed so that the next run needs to be send
     ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
     startListNotifier.ItemChanged += (o, e) =>
     {
-      _liveTiming.UpdateStartList(raceRun);
+      updateStartList(previousRaceRun, raceRun);
     };
-    _liveTiming.UpdateStartList(raceRun);
+    updateStartList(previousRaceRun, raceRun); // Initial update
     _notifier.Add(startListNotifier);
 
+    if (previousRaceRun != null)
+    {
+      IsCompleteObserver completeObserver = new IsCompleteObserver(previousRaceRun, raceRun, updateStartList);
+      _notifier.Add(completeObserver);
+    }
+
+    // Results
     ItemsChangedNotifier resultsNotifier = new ItemsChangedNotifier(raceRun.GetResultList());
     resultsNotifier.ItemChanged += (o, e) =>
     {
       _liveTiming.UpdateResults(raceRun);
     };
-    _liveTiming.UpdateResults(raceRun);
+    _liveTiming.UpdateResults(raceRun); // Initial update
     _notifier.Add(resultsNotifier);
+  }
+
+
+  private void updateStartList(RaceRun previousRaceRun, RaceRun raceRun)
+  {
+    if (previousRaceRun == null || previousRaceRun.IsComplete)
+      _liveTiming.UpdateStartList(raceRun);
   }
 
 }
@@ -276,8 +345,7 @@ public class LiveTimingRM : ILiveTiming
 
     if (_currentLvStruct.Fehlermeldung != "ok")
     {
-      Exception e = new Exception("Login error: " + _currentLvStruct.Fehlermeldung);
-      Logger.Info(e);
+      throw new Exception("Login error: " + _currentLvStruct.Fehlermeldung);
     }
 
     _isOnline = true;

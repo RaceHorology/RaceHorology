@@ -1040,6 +1040,10 @@ namespace RaceHorologyLib
 
 
     private bool _isComplete;
+
+    /// <summary>
+    /// True in case all participants have a valid time or a status other than NotSet or Normal
+    /// </summary>
     public bool IsComplete 
     {
       get { return _isComplete; }
