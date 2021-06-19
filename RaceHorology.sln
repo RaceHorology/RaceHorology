@@ -21,7 +21,7 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "RaceHorologySetup", "RaceHo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RHDevTools", "RHDevTools\RHDevTools.csproj", "{4C8FF12F-B3B3-47FF-8E8E-1CC6A96A8A27}"
 EndProject
-Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "LiveTimingFISVB", "LiveTimingFIS\LiveTimingFISVB.vbproj", "{3BC1BCEF-FA62-469D-823F-7C802498DD19}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "LiveTimingFISVB", "LiveTimingFISVB\LiveTimingFISVB.vbproj", "{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,14 +75,14 @@ Global
 		{4C8FF12F-B3B3-47FF-8E8E-1CC6A96A8A27}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C8FF12F-B3B3-47FF-8E8E-1CC6A96A8A27}.Release|x86.ActiveCfg = Release|Any CPU
 		{4C8FF12F-B3B3-47FF-8E8E-1CC6A96A8A27}.Release|x86.Build.0 = Release|Any CPU
-		{3BC1BCEF-FA62-469D-823F-7C802498DD19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BC1BCEF-FA62-469D-823F-7C802498DD19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BC1BCEF-FA62-469D-823F-7C802498DD19}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3BC1BCEF-FA62-469D-823F-7C802498DD19}.Debug|x86.Build.0 = Debug|Any CPU
-		{3BC1BCEF-FA62-469D-823F-7C802498DD19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BC1BCEF-FA62-469D-823F-7C802498DD19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BC1BCEF-FA62-469D-823F-7C802498DD19}.Release|x86.ActiveCfg = Release|Any CPU
-		{3BC1BCEF-FA62-469D-823F-7C802498DD19}.Release|x86.Build.0 = Release|Any CPU
+		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Debug|x86.Build.0 = Debug|Any CPU
+		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Release|x86.ActiveCfg = Release|Any CPU
+		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
