@@ -423,7 +423,8 @@ namespace RaceHorology
       switch (e.PropertyName)
       {
         case "AutoAddParticipants":
-          _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
+          if (_liveTimingMeasurement != null)
+            _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
           break;
         default:
           break;
@@ -433,12 +434,18 @@ namespace RaceHorology
 
     private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
     {
+      if (_liveTimingMeasurement == null)
+        return;
+
       _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
       _liveTimingMeasurement.Start();
     }
 
     private void LiveTimingStop_Click(object sender, RoutedEventArgs e)
     {
+      if (_liveTimingMeasurement == null)
+        return;
+     
       _liveTimingMeasurement.Stop();
     }
 
