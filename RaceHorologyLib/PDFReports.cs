@@ -1086,6 +1086,15 @@ namespace RaceHorologyLib
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun2.StartTime))));
 
+
+      string formatWeatherHeading()
+      {
+        if (string.IsNullOrEmpty(_race.AdditionalProperties.Snow))
+          return "Wetter:";
+
+        return "Wetter / Schnee:";
+      }
+
       string formatWeather()
       {
         if (string.IsNullOrEmpty(_race.AdditionalProperties.Weather) && string.IsNullOrEmpty(_race.AdditionalProperties.Snow))
@@ -1099,7 +1108,7 @@ namespace RaceHorologyLib
       }
 
       table.AddCell(createCell()
-        .Add(new Paragraph("Wetter / Schnee:")
+        .Add(new Paragraph(formatWeatherHeading())
           .SetPaddingTop(6)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
