@@ -520,16 +520,21 @@ namespace RaceHorology
       if (cmbTotalResult.SelectedValue is CBItem selected)
       {
         CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
-        if (selObj == null)
+        if ( selObj == null                     // Fallback
+          || selObj.Type == "raceresults")      // ResultList
         {
           if (_thisRace.GetResultViewProvider() is DSVSchoolRaceResultViewProvider)
             report = new DSVSchoolRaceResultReport(_thisRace);
           else
             report = new RaceResultReport(_thisRace);
         }
-        else if (selObj.Type == "results")
+        else if (selObj.Type == "raceresults")
+          displayView(_thisRace.GetResultViewProvider());
+        else if (selObj.Type == "results_run")
+        {
           report = new RaceRunResultReport(selObj.RaceRun);
-        else if (selObj.Type == "startlist")
+        }
+        else if (selObj.Type == "startlist_run")
         {
           if (selObj.RaceRun.GetStartListProvider() is BasedOnResultsFirstRunStartListViewProvider)
             report = new StartListReport2ndRun(selObj.RaceRun);
@@ -538,7 +543,8 @@ namespace RaceHorology
         }
       }
 
-      CreateAndOpenReport(report);
+      if (report != null)
+        CreateAndOpenReport(report);
     }
 
     private void BtnExportDsv_Click(object sender, RoutedEventArgs e)
