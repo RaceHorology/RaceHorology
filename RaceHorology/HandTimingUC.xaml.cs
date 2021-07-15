@@ -126,6 +126,7 @@ namespace RaceHorology
       _currentHandTimingVM = _handTimingVMManager.GetHandTimingVM(_race, rr, timeModus);
 
       dgHandTiming.ItemsSource = _currentHandTimingVM.Items;
+      updateButtonEnableState();
     }
 
     private void cmbDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -200,7 +201,12 @@ namespace RaceHorology
 
     private void dgHandTiming_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      updateButtonEnableState();
+    }
 
+    private void updateButtonEnableState()
+    {
+      btnCalc.IsEnabled = dgHandTiming.SelectedItem != null;
     }
 
     private void btnCalcAssign_Click(object sender, RoutedEventArgs e)
