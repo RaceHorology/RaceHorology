@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -206,7 +206,12 @@ namespace RaceHorology
 
     private void updateButtonEnableState()
     {
-      btnCalc.IsEnabled = dgHandTiming.SelectedItem != null;
+      HandTimingVMEntry entry = dgHandTiming.SelectedItem as HandTimingVMEntry;
+
+      btnCalc.IsEnabled = entry != null;
+      
+      btnCalcAssign.IsEnabled = entry?.HandTime != null;
+      btnCalcDissolve.IsEnabled = entry?.HandTime != null && entry?.StartNumber > 0;
     }
 
     private void btnCalcAssign_Click(object sender, RoutedEventArgs e)
