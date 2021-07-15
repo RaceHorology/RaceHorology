@@ -220,9 +220,21 @@ namespace RaceHorology
       {
         uint startNumber = 0U;
         try { startNumber = uint.Parse(txtCalcStartNumber.Text); } catch (Exception) { }
-        if (startNumber>0)
+        if (startNumber > 0)
+        {
           _currentHandTimingVM.AssignStartNumber(selEntry, startNumber);
+          selectHandTiming(startNumber);
+        }
       }
+    }
+
+
+    private void selectHandTiming(uint startNumber)
+    {
+      foreach(var item in dgHandTiming.Items)
+        if (item is HandTimingVMEntry entry)
+          if (entry.StartNumber == startNumber)
+            dgHandTiming.SelectedItem = entry;
     }
 
     private void btnCalcDissolve_Click(object sender, RoutedEventArgs e)
