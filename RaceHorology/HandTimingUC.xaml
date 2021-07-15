@@ -48,7 +48,7 @@
     <Label Content="Start / Ziel:" Grid.Row="4" Grid.Column="2" Margin="5" HorizontalContentAlignment="Right"/>
     <ComboBox x:Name="cmbCalcDeviceStartOrFinish" Grid.Row="4" Grid.Column="3" Margin="5" SelectionChanged="cmbCalcDeviceStartOrFinish_SelectionChanged"/>
 
-    <DataGrid x:Name="dgHandTiming" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="False" SelectionChanged="dgHandTiming_SelectionChanged">
+    <DataGrid x:Name="dgHandTiming" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="False" SelectionChanged="dgHandTiming_SelectionChanged" SelectionMode="Single">
       <DataGrid.Columns>
         <DataGridTextColumn Header="StNr" Binding="{Binding StartNumber}">
           <DataGridTextColumn.ElementStyle>
