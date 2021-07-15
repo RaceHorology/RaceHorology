@@ -66,6 +66,8 @@ namespace RaceHorologyLib
       _prototypes["Startlist_2nd_PreviousRun_15_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(15, true);
       _prototypes["Startlist_2nd_PreviousRun_30_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(30, false);
       _prototypes["Startlist_2nd_PreviousRun_30_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(30, true);
+      _prototypes["Startlist_2nd_PreviousRun_all_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(int.MaxValue, false);
+      _prototypes["Startlist_2nd_PreviousRun_all_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(int.MaxValue, true);
 
       _prototypes["RaceResult_BestOfTwo"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
       _prototypes["RaceResult_Sum"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
