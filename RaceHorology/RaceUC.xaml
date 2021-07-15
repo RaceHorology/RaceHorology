@@ -533,10 +533,10 @@
                 </Grid.ColumnDefinitions>
                 <DataGrid x:Name="dgRemainingStarters" Margin="5" Grid.Row="0" Grid.Column="0"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" SelectionChanged="dgRemainingStarters_SelectionChanged" SelectionMode="Single" SelectionUnit="FullRow">
                   <DataGrid.Columns>
-                    <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="StNr" Binding="{Binding StartNumber, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-                    <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jg" Binding="{Binding Year, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
@@ -600,10 +600,10 @@
               <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
               <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
                 <DataGrid.Columns>
-                  <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="StNr" Binding="{Binding StartNumber, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-                  <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jg" Binding="{Binding Year, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Aktuelle Zeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\}}" />
@@ -641,10 +641,10 @@
               </Grid>
               <DataGrid x:Name="dgFinish" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.Columns>
-                  <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="StNr" Binding="{Binding Path=Participant.StartNumber, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Path=Participant.Name, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Path=Participant.Firstname, Mode=OneWay}" />
-                  <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jahrgang" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jg" Binding="{Binding Path=Participant.Year, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Path=Participant.Class, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Path=Participant.Club, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="StartTime" Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, StringFormat=\{0:hh\\:mm\\:ss\\\,ff\}}"/>

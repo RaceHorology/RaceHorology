@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -126,6 +126,7 @@ namespace RaceHorology
       _currentHandTimingVM = _handTimingVMManager.GetHandTimingVM(_race, rr, timeModus);
 
       dgHandTiming.ItemsSource = _currentHandTimingVM.Items;
+      updateButtonEnableState();
     }
 
     private void cmbDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -200,7 +201,17 @@ namespace RaceHorology
 
     private void dgHandTiming_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      updateButtonEnableState();
+    }
 
+    private void updateButtonEnableState()
+    {
+      HandTimingVMEntry entry = dgHandTiming.SelectedItem as HandTimingVMEntry;
+
+      btnCalc.IsEnabled = entry != null;
+      
+      btnCalcAssign.IsEnabled = entry?.HandTime != null;
+      btnCalcDissolve.IsEnabled = entry?.HandTime != null && entry?.StartNumber > 0;
     }
 
     private void btnCalcAssign_Click(object sender, RoutedEventArgs e)
@@ -209,9 +220,21 @@ namespace RaceHorology
       {
         uint startNumber = 0U;
         try { startNumber = uint.Parse(txtCalcStartNumber.Text); } catch (Exception) { }
-        if (startNumber>0)
+        if (startNumber > 0)
+        {
           _currentHandTimingVM.AssignStartNumber(selEntry, startNumber);
+          selectHandTiming(startNumber);
+        }
       }
+    }
+
+
+    private void selectHandTiming(uint startNumber)
+    {
+      foreach(var item in dgHandTiming.Items)
+        if (item is HandTimingVMEntry entry)
+          if (entry.StartNumber == startNumber)
+            dgHandTiming.SelectedItem = entry;
     }
 
     private void btnCalcDissolve_Click(object sender, RoutedEventArgs e)
