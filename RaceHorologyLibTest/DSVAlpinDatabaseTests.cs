@@ -1062,6 +1062,7 @@ namespace RaceHorologyLibTest
       // Delete
       db.DeleteRunResult(race, rr2, rr5r2);
       DBCacheWorkaround();
+      DBCacheWorkaround();
       Assert.IsTrue(CheckRunResult(dbFilename, null, 5, 2));
     }
 
