@@ -119,6 +119,7 @@ namespace RaceHorologyLib
       _id2ParticipantCategory = null;
 
       _conn.Close();
+      _conn.Dispose();
       _conn = null;
     }
 
