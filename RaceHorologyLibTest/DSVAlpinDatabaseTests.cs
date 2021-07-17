@@ -1002,6 +1002,8 @@ namespace RaceHorologyLibTest
       void DBCacheWorkaround()
       {
         db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+
+        db = new RaceHorologyLib.Database();
         db.Connect(dbFilename);
         dataModel = new AppDataModel(db);
         race = dataModel.GetCurrentRace();
@@ -1062,7 +1064,6 @@ namespace RaceHorologyLibTest
       // Delete
       db.DeleteRunResult(race, rr2, rr5r2);
       DBCacheWorkaround();
-      System.Threading.Thread.Sleep(300);
       Assert.IsTrue(CheckRunResult(dbFilename, null, 5, 2));
     }
 
