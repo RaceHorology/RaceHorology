@@ -999,10 +999,10 @@ namespace RaceHorologyLibTest
       RaceRun rr1 = race.GetRun(0);
       RaceRun rr2 = race.GetRun(1);
 
-      void DBCacheWorkaround()
+      void DBCacheWorkaround()  // WORKAROUND: OleDB caches the update, so the Check would not see the changes
       {
-        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
-
+        db.Close();
+        System.Threading.Thread.Sleep(300);
         db = new RaceHorologyLib.Database();
         db.Connect(dbFilename);
         dataModel = new AppDataModel(db);
