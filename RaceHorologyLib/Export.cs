@@ -344,9 +344,15 @@ namespace RaceHorologyLib
 
   public class CsvExport
   {
-    public void Export(string path, DataSet ds)
+    public void Export(string path, DataSet ds, bool utf8)
     {
-      using (var textWriter = File.CreateText(path))
+      Encoding encoding;
+      if (utf8)
+        encoding = Encoding.UTF8;
+      else
+        encoding = Encoding.GetEncoding("windows-1252");
+
+      using (var textWriter = new StreamWriter(File.Open(path, FileMode.Create), encoding))
       using (var csv = new CsvWriter(textWriter, System.Globalization.CultureInfo.InvariantCulture))
       {
         var dt = ds.Tables[0];
@@ -375,9 +381,15 @@ namespace RaceHorologyLib
 
   public class TsvExport
   {
-    public void Export(string path, DataSet ds)
+    public void Export(string path, DataSet ds, bool utf8)
     {
-      using (var textWriter = File.CreateText(path))
+      Encoding encoding;
+      if (utf8)
+        encoding = Encoding.UTF8;
+      else
+        encoding = Encoding.GetEncoding("windows-1252");
+
+      using (var textWriter = new StreamWriter(File.Open(path, FileMode.Create), encoding))
       {
         CsvHelper.Configuration.CsvConfiguration csvConfig = new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture);
         csvConfig.Delimiter = "\t";
