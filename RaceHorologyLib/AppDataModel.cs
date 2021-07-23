@@ -782,6 +782,13 @@ namespace RaceHorologyLib
       {
         raceParticipant = new RaceParticipant(this, participant, startnumber, points);
         _participants.Add(raceParticipant);
+
+        // Add existing timings (again)
+        foreach(var run in GetRuns())
+        {
+          var rr = _db.GetRaceRun(this, run.Run).FindAll(r => r.Participant.Participant == participant);
+          run.InsertResults(rr);
+        }
       }
 
       return raceParticipant;

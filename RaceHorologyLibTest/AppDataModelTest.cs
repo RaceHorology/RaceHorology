@@ -133,6 +133,60 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests whether deactivated participants are imported correctly.
+    /// Especially, it tests whether a potential time measurement is not imported in that case.
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_DeactivatedParticipants.mdb")]
+    public void Race_DeactivatedParticipant()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_DeactivatedParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+      var race = model.GetRace(0);
+
+      void verifyParticpants_1()
+      {
+        Assert.AreEqual(2, model.GetParticipants().Count);
+        Assert.AreEqual(1, race.GetParticipants().Count);
+        Assert.AreEqual(1, race.GetRun(0).GetResultList().Count);
+        Assert.AreEqual("N1", race.GetRun(0).GetResultList()[0].Participant.Name);
+      }
+
+      void verifyParticpants_2()
+      {
+        Assert.AreEqual(2, race.GetParticipants().Count);
+        Assert.AreEqual(2, race.GetRun(0).GetResultList().Count);
+        {
+          var rr = race.GetRun(0).GetResultList().First((p) => p.Name == "N1");
+          Assert.AreEqual("N1", rr.Participant.Name);
+          Assert.IsNotNull(rr.Runtime);
+        }
+        {
+          var rr = race.GetRun(0).GetResultList().First((p) => p.Name == "N2");
+          Assert.AreEqual("N2", rr.Participant.Name);
+          Assert.IsNotNull(rr.Runtime);
+        }
+      }
+
+      verifyParticpants_1();
+      // Add the race participant, check whether the time is available
+      race.AddParticipant(model.GetParticipants().First((p) => p.Name == "N2"));
+      verifyParticpants_2();
+
+      // Remove participant
+      race.RemoveParticipant(model.GetParticipants().First((p) => p.Name == "N2"));
+      verifyParticpants_1();
+
+      // Re-add/re-enable the race participant, check whether the saved time data is available
+      race.AddParticipant(model.GetParticipants().First((p) => p.Name == "N2"));
+      verifyParticpants_2();
+    }
+
+
     class TestEventFired
     {
       RaceParticipant firedAdd, firedRemove;
@@ -178,28 +232,6 @@ namespace RaceHorologyLibTest
 
       tg.Model.GetParticipants().RemoveAt(0);
       Assert.AreEqual(1, tg.Model.GetRace(0).GetParticipants().Count);
-    }
-
-
-    /// <summary>
-    /// Tests whether deactivated participants are imported correctly.
-    /// Especially, it tests whether a potential time measurement is not imported in that case.
-    /// </summary>
-    [TestMethod]
-    [DeploymentItem(@"TestDataBases\TestDB_DeactivatedParticipants.mdb")]
-    public void Race_DeactivatedParticipant()
-    {
-      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_DeactivatedParticipants.mdb");
-      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
-      db.Connect(dbFilename);
-
-      AppDataModel model = new AppDataModel(db);
-      var race = model.GetRace(0);
-
-      Assert.AreEqual(2, model.GetParticipants().Count);
-      Assert.AreEqual(1, race.GetParticipants().Count);
-      Assert.AreEqual(1, race.GetRun(0).GetResultList().Count);
-      Assert.AreEqual("N1", race.GetRun(0).GetResultList()[0].Participant.Name);
     }
 
 
