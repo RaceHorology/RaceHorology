@@ -226,7 +226,7 @@
 
       <TabItem >
         <TabItem.Header>
-          <Label Content="Neues Disziplin" Padding="0" Margin="0" FontSize="16"/>
+          <Label Content="Neue Disziplin" Padding="0" Margin="0" FontSize="16"/>
         </TabItem.Header>
         <Grid Margin="5" >
           <Grid.ColumnDefinitions>
