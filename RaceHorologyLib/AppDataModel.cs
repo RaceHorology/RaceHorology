@@ -1211,6 +1211,9 @@ namespace RaceHorologyLib
 
     private RunResult findOrCreateRunResult(RaceParticipant participant)
     {
+      if (participant == null)
+        return null;
+
       RunResult result = GetRunResult(participant);
       if (result == null)
       {
@@ -1271,8 +1274,8 @@ namespace RaceHorologyLib
       foreach (var source in r)
       {
         var target = findOrCreateRunResult(source.Participant);
-        target.UpdateRunResult(source);
-
+        if (target != null)
+          target.UpdateRunResult(source);
       }
 
       _UpdateInternals();
