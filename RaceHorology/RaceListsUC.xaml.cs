@@ -648,6 +648,10 @@ namespace RaceHorology
         {
           filePath = openFileDialog.FileName;
 
+          string appliedFilter;
+          string[] filterstring = openFileDialog.Filter.Split('|');
+          appliedFilter = filterstring[(openFileDialog.FilterIndex - 1) * 2];
+
           expDelegate(_thisRace, filePath);
         }
       }
