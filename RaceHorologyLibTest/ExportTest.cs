@@ -141,10 +141,10 @@ namespace RaceHorologyLibTest
       excelExport.Export(@"c:\trash\test.xlsx", ds);
 
       var csvExport = new CsvExport();
-      csvExport.Export(@"c:\trash\test.csv", ds);
+      csvExport.Export(@"c:\trash\test.csv", ds, true);
 
       var tsvExport = new TsvExport();
-      tsvExport.Export(@"c:\trash\test.txt", ds);
+      tsvExport.Export(@"c:\trash\test.txt", ds, true);
     }
 
 
