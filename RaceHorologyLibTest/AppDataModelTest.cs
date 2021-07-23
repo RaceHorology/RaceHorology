@@ -181,6 +181,27 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests whether deactivated participants are imported correctly.
+    /// Especially, it tests whether a potential time measurement is not imported in that case.
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_DeactivatedParticipants.mdb")]
+    public void Race_DeactivatedParticipant()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_DeactivatedParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+      var race = model.GetRace(0);
+
+      Assert.AreEqual(2, model.GetParticipants().Count);
+      Assert.AreEqual(1, race.GetParticipants().Count);
+      Assert.AreEqual(1, race.GetRun(0).GetResultList().Count);
+      Assert.AreEqual("N1", race.GetRun(0).GetResultList()[0].Participant.Name);
+    }
+
 
     /// <summary>
     /// Tests RaceRun SetXXXTime() methods which are typically called by
