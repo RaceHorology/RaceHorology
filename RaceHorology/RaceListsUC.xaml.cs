@@ -588,13 +588,14 @@ namespace RaceHorology
     {
 
       exportToTextFile
-        ("DSVAlpin - Tab Separated Text File (.txt)|*.txt",
-        ".txt",
-        (Race race, string filePath) =>
+        ("DSVAlpin - Tab Separated Text File (.txt)|*.txt|" +
+         "DSVAlpin - Tab Separated Text File - UTF-8 (.txt)|*.txt"
+        ,".txt",
+        (Race race, string filePath, bool utf8) =>
         {
           DSVAlpinExport exp = new DSVAlpinExport(race);
           TsvExport tsvExp = new TsvExport();
-          tsvExp.Export(filePath, exp.ExportToDataSet());
+          tsvExp.Export(filePath, exp.ExportToDataSet(), utf8);
         }
       );
     }
@@ -604,13 +605,14 @@ namespace RaceHorology
     {
 
       exportToTextFile
-        ("Comma Separated Text File (.csv)|*.csv",
-        ".csv",
-        (Race race, string filePath) =>
+        ("Comma Separated Text File (.csv)|*.csv|" +
+         "Comma Separated Text File - UTF-8 (.csv)|*.csv"
+        ,".csv",
+        (Race race, string filePath, bool utf8) =>
         {
           Export exp = new Export(race);
           CsvExport csvExp = new CsvExport();
-          csvExp.Export(filePath, exp.ExportToDataSet());
+          csvExp.Export(filePath, exp.ExportToDataSet(), utf8);
         }
       );
     }
@@ -620,7 +622,7 @@ namespace RaceHorology
       exportToTextFile
         ("Microsoft Excel (.xlsx)|*.xslx",
         ".xlsx",
-        (Race race, string filePath) =>
+        (Race race, string filePath, bool utf8) =>
         {
           Export exp = new Export(race);
           ExcelExport csvExp = new ExcelExport();
@@ -630,7 +632,7 @@ namespace RaceHorology
     }
 
 
-    delegate void exportDelegate(Race race, string filepath);
+    delegate void exportDelegate(Race race, string filepath, bool utf8);
     private void exportToTextFile(string fileDialogFilter, string suffix, exportDelegate expDelegate)
     {
       string filePath = System.IO.Path.Combine(
@@ -651,8 +653,9 @@ namespace RaceHorology
           string appliedFilter;
           string[] filterstring = openFileDialog.Filter.Split('|');
           appliedFilter = filterstring[(openFileDialog.FilterIndex - 1) * 2];
+          bool utf8 = appliedFilter.Contains("UTF-8");
 
-          expDelegate(_thisRace, filePath);
+          expDelegate(_thisRace, filePath, utf8);
         }
       }
       catch (Exception ex)
