@@ -91,8 +91,8 @@ namespace RaceHorologyLib
           break;
 
         case NotifyCollectionChangedAction.Remove:
-          foreach (RunResult v in e.OldItems)
-              _db.DeleteRunResult(_race, _rr, v);
+          // do not delete from DB in this case, data shall be preserved
+          // Data is only deleted if the RunResult is set to empty (see above)
           break;
 
         case NotifyCollectionChangedAction.Reset:

@@ -841,11 +841,11 @@ namespace RaceHorologyLib
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Class, rrY.Participant?.Participant?.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Group, rrY.Participant?.Participant?.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY.Participant?.Participant?.Sex);
 
       return groupCompare;
     }
@@ -853,11 +853,11 @@ namespace RaceHorologyLib
     {
       int groupCompare = 0;
       if (_groupingPropertyName == "Participant.Class")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Class, rrY?.Participant?.Participant?.Class);
       else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Group, rrY?.Participant?.Participant?.Group);
       else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY?.Participant?.Participant?.Sex);
 
       return groupCompare;
     }
