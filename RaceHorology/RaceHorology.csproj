@@ -331,9 +331,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LiveTimingFISVB\LiveTimingFISVB.vbproj">
-      <Project>{8365a0f5-e0d2-496c-8e19-680e3bff5cf4}</Project>
-      <Name>LiveTimingFISVB</Name>
+    <ProjectReference Include="..\LiveTimingFIS\LiveTimingFIS.csproj">
+      <Project>{c6ca5ff3-ad91-482a-9f6f-b74484176592}</Project>
+      <Name>LiveTimingFIS</Name>
     </ProjectReference>
     <ProjectReference Include="..\RaceHorologyLib\RaceHorologyLib.csproj">
       <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>

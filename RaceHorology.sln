@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RHDevTools", "RHDevTools\RH
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "LiveTimingFISVB", "LiveTimingFISVB\LiveTimingFISVB.vbproj", "{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveTimingFIS", "LiveTimingFIS\LiveTimingFIS.csproj", "{C6CA5FF3-AD91-482A-9F6F-B74484176592}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,14 @@ Global
 		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Release|x86.ActiveCfg = Release|Any CPU
 		{8365A0F5-E0D2-496C-8E19-680E3BFF5CF4}.Release|x86.Build.0 = Release|Any CPU
+		{C6CA5FF3-AD91-482A-9F6F-B74484176592}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6CA5FF3-AD91-482A-9F6F-B74484176592}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6CA5FF3-AD91-482A-9F6F-B74484176592}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C6CA5FF3-AD91-482A-9F6F-B74484176592}.Debug|x86.Build.0 = Debug|Any CPU
+		{C6CA5FF3-AD91-482A-9F6F-B74484176592}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6CA5FF3-AD91-482A-9F6F-B74484176592}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6CA5FF3-AD91-482A-9F6F-B74484176592}.Release|x86.ActiveCfg = Release|Any CPU
+		{C6CA5FF3-AD91-482A-9F6F-B74484176592}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
