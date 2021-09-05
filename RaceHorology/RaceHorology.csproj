@@ -137,6 +137,12 @@
     <Compile Include="ImportWizard.xaml.cs">
       <DependentUpon>ImportWizard.xaml</DependentUpon>
     </Compile>
+    <Compile Include="LiveTimingFISUC.xaml.cs">
+      <DependentUpon>LiveTimingFISUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LiveTimingRMUC.xaml.cs">
+      <DependentUpon>LiveTimingRMUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MappingUC.xaml.cs">
       <DependentUpon>MappingUC.xaml</DependentUpon>
     </Compile>
@@ -203,6 +209,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ImportWizard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LiveTimingFISUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LiveTimingRMUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
