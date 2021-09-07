@@ -90,7 +90,7 @@ namespace RaceHorology
 
       InitializeRaceProperties();
 
-      InitializeLiveTiming();
+      liveTimingRMUC.InitializeLiveTiming(_thisRace);
 
       InitializeTiming();
 
@@ -297,156 +297,22 @@ namespace RaceHorology
 
     #region Live Timing
 
-    LiveTimingRM _liveTimingRM;
-
-    private void InitializeLiveTiming()
-    {
-      ResetLiveTimningUI(_thisRace.RaceConfiguration);
-    }
-
-    private void ResetLiveTimningUI(RaceConfiguration cfg)
-    {
-      if (cfg.LivetimingParams == null)
-        return;
-
-      try
-      {
-        txtLTBewerb.Text = cfg.LivetimingParams["Bewerb"];
-        txtLTLogin.Text = cfg.LivetimingParams["Login"];
-        txtLTPassword.Password = cfg.LivetimingParams["Password"];
-      }
-      catch (KeyNotFoundException) { }
-    }
-
-
-    private void SelectLiveTimingEvent(string eventName)
-    {
-      cmbLTEvent.SelectedItem = eventName;
-    }
-
-
-    private void StoreLiveTiming(ref RaceConfiguration cfg)
-    {
-      cfg.LivetimingParams = new Dictionary<string, string>();
-      cfg.LivetimingParams["Bewerb"] = txtLTBewerb.Text;
-      cfg.LivetimingParams["Login"] = txtLTLogin.Text;
-      cfg.LivetimingParams["Password"] = txtLTPassword.Password;
-      cfg.LivetimingParams["EventName"] = cmbLTEvent.SelectedItem?.ToString();
-    }
-
-
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
     {
-      if (_liveTimingRM != null)
+      if (liveTimingRMUC._liveTimingRM != null)
       {
         string text = "";
         Application.Current.Dispatcher.Invoke(() =>
         {
-          text = _txtLiveTimingStatus.Text;
+          if (sender is TextBox textBox)
+          {
+            text = textBox.Text;
+          }
         });
 
-        _liveTimingRM.UpdateStatus(text);
+        liveTimingRMUC._liveTimingRM.UpdateStatus(text);
       }
     }
-
-
-    private void BtnLTLogin_Click(object sender, RoutedEventArgs e)
-    {
-      RaceConfiguration cfg = _thisRace.RaceConfiguration;
-      StoreLiveTiming(ref cfg);
-      _thisRace.RaceConfiguration = cfg;
-
-      _liveTimingRM = new LiveTimingRM(_thisRace, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
-
-      try
-      {
-        _liveTimingRM.Login();
-
-        var events = _liveTimingRM.GetEvents();
-        cmbLTEvent.ItemsSource = events;
-
-        try
-        {
-          SelectLiveTimingEvent(cfg.LivetimingParams["EventName"]);
-        }
-        catch (KeyNotFoundException)
-        {
-          cmbLTEvent.SelectedIndex = 0;
-        }
-
-      }
-      catch (Exception error)
-      {
-        MessageBox.Show(error.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
-        _liveTimingRM = null;
-      }
-
-      UpdateLiveTimingUI();
-    }
-
-
-    private void CmbLTEvent_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (cmbLTEvent.SelectedIndex >= 0)
-      {
-        _liveTimingRM.SetEvent(cmbLTEvent.SelectedIndex);
-      }
-    }
-
-
-    private void BtnLTStart_Click(object sender, RoutedEventArgs e)
-    {
-      if (_liveTimingRM == null)
-        return;
-
-
-      if (_liveTimingRM.Started)
-      {
-        _liveTimingRM.Stop();
-      }
-      else
-      {
-        // Start
-        if (cmbLTEvent.SelectedIndex < 0)
-        {
-          MessageBox.Show("Bitte Veranstalltung auswählen", "Live Timing", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-        else
-        {
-          RaceConfiguration cfg = _thisRace.RaceConfiguration;
-          StoreLiveTiming(ref cfg);
-          _thisRace.RaceConfiguration = cfg;
-
-          _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
-
-          _liveTimingRM.UpdateStatus(_txtLiveTimingStatus.Text);
-        }
-      }
-
-      UpdateLiveTimingUI();
-    }
-
-    private void UpdateLiveTimingUI()
-    {
-      if (_liveTimingRM != null && _liveTimingRM.LoggedOn)
-      {
-        btnLTLogin.IsEnabled = false;
-        btnLTStart.IsEnabled = true;
-        cmbLTEvent.IsEnabled = true;
-      }
-      else
-      {
-        btnLTLogin.IsEnabled = true;
-        btnLTStart.IsEnabled = false;
-        cmbLTEvent.IsEnabled = false;
-      }
-
-      if (_liveTimingRM != null && _liveTimingRM.Started)
-        btnLTStart.Content = "Stop";
-      else
-        btnLTStart.Content = "Start";
-    }
-
 
     #endregion
 
