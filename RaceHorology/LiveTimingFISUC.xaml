@@ -6,7 +6,32 @@
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Label x:Name="lblRaceCode" Content="Racecode:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+    <TextBox x:Name="txtRaceCode" Grid.Row="0" Grid.Column="1"  Margin="5"/>
+
+    <Label x:Name="lblCategory" Content="Category:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+    <TextBox x:Name="txtCategory" Grid.Row="1" Grid.Column="1"  Margin="5"/>
+
+    <Label x:Name="lblPassword" Content="Passwort:" Grid.Row="2" Grid.Column="0" Margin="5"/>
+    <PasswordBox x:Name="txtPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
+
+    <Label x:Name="lblPort" Content="Passwort:" Grid.Row="3" Grid.Column="0" Margin="5"/>
+    <PasswordBox x:Name="txtPort" Grid.Row="3" Grid.Column="1"  Margin="5"/>
+
+    <Button x:Name="btnStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="4" Grid.Column="1"  Margin="5" Click="BtnStart_Click" />
+  </Grid>
 </UserControl>
