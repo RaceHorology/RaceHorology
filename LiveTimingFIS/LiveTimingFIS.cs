@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LiveTimingFIS
 {
-  public class LivitimingFIS
+  public class LiveTimingFIS
   {
 
   }
