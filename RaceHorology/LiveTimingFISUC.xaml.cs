@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,6 +27,33 @@ namespace RaceHorology
 
     private void BtnStart_Click(object sender, RoutedEventArgs e)
     {
+
+
+    private void ResetLiveTimningUI(RaceConfiguration cfg)
+    {
+      if (cfg.LivetimingParams == null)
+        return;
+
+      try
+      {
+        txtRaceCode.Text = cfg.LivetimingParams["FIS_RaceCode"];
+        txtCategory.Text = cfg.LivetimingParams["FIS_Category"];
+        txtPassword.Password = cfg.LivetimingParams["FIS_Pasword"];
+        txtPort.Text = cfg.LivetimingParams["FIS_Port"];
+      }
+      catch (KeyNotFoundException) { }
+    }
+
+
+    private void StoreLiveTiming(ref RaceConfiguration cfg)
+    {
+      cfg.LivetimingParams = new Dictionary<string, string>();
+      cfg.LivetimingParams["FIS_RaceCode"] = txtRaceCode.Text;
+      cfg.LivetimingParams["FIS_Category"] = txtCategory.Text;
+      cfg.LivetimingParams["FIS_Pasword"] = txtPassword.Password;
+      cfg.LivetimingParams["FIS_Port"] = txtPort.Text;
+    }
+
 
     }
   }
