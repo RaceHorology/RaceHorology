@@ -1,3 +1,5 @@
+﻿using RaceHorologyLib;
+using LiveTimingFIS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,13 +22,43 @@ namespace RaceHorology
   /// </summary>
   public partial class LiveTimingFISUC : UserControl
   {
+
+    LiveTimingFIS.LiveTimingFIS _liveTimingFIS;
+    Race _thisRace;
+
     public LiveTimingFISUC()
     {
       InitializeComponent();
     }
 
+    public void InitializeLiveTiming(Race race)
+    {
+      _thisRace = race;
+      ResetLiveTimningUI(_thisRace.RaceConfiguration);
+    }
+
+
     private void BtnStart_Click(object sender, RoutedEventArgs e)
     {
+
+      RaceConfiguration cfg = _thisRace.RaceConfiguration;
+      StoreLiveTiming(ref cfg);
+      _thisRace.RaceConfiguration = cfg;
+
+      _liveTimingFIS = new LiveTimingFIS.LiveTimingFIS(/*_thisRace, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password*/);
+
+      try
+      {
+        _liveTimingFIS.Race = _thisRace;
+        _liveTimingFIS.Login(cfg.LivetimingParams["FIS_RaceCode"], cfg.LivetimingParams["FIS_Category"], cfg.LivetimingParams["FIS_Pasword"], cfg.LivetimingParams["FIS_Port"]);
+        _liveTimingFIS.Start();
+      }
+      catch (Exception error)
+      {
+        MessageBox.Show(error.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+        _liveTimingFIS = null;
+      }
+    }
 
 
     private void ResetLiveTimningUI(RaceConfiguration cfg)
@@ -55,6 +87,5 @@ namespace RaceHorology
     }
 
 
-    }
   }
 }

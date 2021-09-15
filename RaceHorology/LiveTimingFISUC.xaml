@@ -29,8 +29,8 @@
     <Label x:Name="lblPassword" Content="Passwort:" Grid.Row="2" Grid.Column="0" Margin="5"/>
     <PasswordBox x:Name="txtPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
 
-    <Label x:Name="lblPort" Content="Passwort:" Grid.Row="3" Grid.Column="0" Margin="5"/>
-    <PasswordBox x:Name="txtPort" Grid.Row="3" Grid.Column="1"  Margin="5"/>
+    <Label x:Name="lblPort" Content="Port:" Grid.Row="3" Grid.Column="0" Margin="5"/>
+    <TextBox x:Name="txtPort" Grid.Row="3" Grid.Column="1"  Margin="5"/>
 
     <Button x:Name="btnStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="4" Grid.Column="1"  Margin="5" Click="BtnStart_Click" />
   </Grid>
