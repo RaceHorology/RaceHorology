@@ -90,7 +90,7 @@ namespace RaceHorology
 
       InitializeRaceProperties();
 
-      liveTimingRMUC.InitializeLiveTiming(_thisRace);
+      InitializeLiveTiming(_thisRace);
 
       InitializeTiming();
 
@@ -296,6 +296,12 @@ namespace RaceHorology
 
 
     #region Live Timing
+
+    private void InitializeLiveTiming(Race race) 
+    {
+      liveTimingRMUC.InitializeLiveTiming(race);
+      liveTimingFISUC.InitializeLiveTiming(race);
+    }
 
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
     {

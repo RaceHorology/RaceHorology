@@ -40,12 +40,11 @@ namespace RaceHorology
 
     private void BtnStart_Click(object sender, RoutedEventArgs e)
     {
-
       RaceConfiguration cfg = _thisRace.RaceConfiguration;
       StoreLiveTiming(ref cfg);
       _thisRace.RaceConfiguration = cfg;
 
-      _liveTimingFIS = new LiveTimingFIS.LiveTimingFIS(/*_thisRace, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password*/);
+      _liveTimingFIS = new LiveTimingFIS.LiveTimingFIS();
 
       try
       {

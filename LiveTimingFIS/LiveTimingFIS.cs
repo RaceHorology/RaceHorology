@@ -44,8 +44,164 @@ using System.Xml;
 
 namespace LiveTimingFIS
 {
+
+  internal class IsCompleteObserver : IDisposable
+  {
+    RaceRun _previousRaceRun;
+    RaceRun _raceRun;
+    Action<RaceRun, RaceRun> _updateStartListFunc;
+    bool disposedValue;
+
+    public IsCompleteObserver(RaceRun previousRaceRun, RaceRun raceRun, Action<RaceRun, RaceRun> updateStartListFunc)
+    {
+      _previousRaceRun = previousRaceRun;
+      _raceRun = raceRun;
+      _updateStartListFunc = updateStartListFunc;
+
+      _previousRaceRun.PropertyChanged += OnChanged;
+    }
+
+    private void OnChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == "IsComplete")
+        _updateStartListFunc(_previousRaceRun, _raceRun);
+    }
+
+    #region IDisposable implementation
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _previousRaceRun.PropertyChanged -= OnChanged;
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
+    }
+    #endregion
+  }
+
+
+
+  internal class LiveTimingDelegator : IDisposable
+  {
+    Race _race;
+    LiveTimingFIS _liveTiming;
+
+    List<IDisposable> _notifier;
+
+    public LiveTimingDelegator(Race race, LiveTimingFIS liveTiming)
+    {
+      _race = race;
+      _liveTiming = liveTiming;
+
+      _notifier = new List<IDisposable>();
+
+      ObserveRace();
+    }
+
+
+    #region IDisposable Support
+    private bool disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          foreach (var n in _notifier)
+            n.Dispose();
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    // This code added to correctly implement the disposable pattern.
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+      Dispose(true);
+      // TODO: uncomment the following line if the finalizer is overridden above.
+      // GC.SuppressFinalize(this);
+    }
+    #endregion
+
+
+    private void ObserveRace()
+    {
+      RaceRun rLast = null;
+      foreach (var r in _race.GetRuns())
+      {
+        System.Diagnostics.Debug.Assert(rLast == null || rLast.Run < r.Run, "previous run number must be smaller than current run number");
+        ObserveRaceRun(rLast, r);
+        rLast = r;
+      }
+    }
+
+
+    private void ObserveRaceRun(RaceRun previousRaceRun, RaceRun raceRun)
+    {
+      ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
+      startListNotifier.ItemChanged += (o, e) =>
+      {
+        updateStartList(previousRaceRun, raceRun);
+      };
+      updateStartList(previousRaceRun, raceRun); // Initial update
+      _notifier.Add(startListNotifier);
+
+      if (previousRaceRun != null)
+      {
+        IsCompleteObserver completeObserver = new IsCompleteObserver(previousRaceRun, raceRun, updateStartList);
+        _notifier.Add(completeObserver);
+      }
+
+      //// Results
+      //ItemsChangedNotifier resultsNotifier = new ItemsChangedNotifier(raceRun.GetResultList());
+      //resultsNotifier.ItemChanged += (o, e) =>
+      //{
+      //  _liveTiming.UpdateResults(raceRun);
+      //};
+      //_liveTiming.UpdateResults(raceRun); // Initial update
+      //_notifier.Add(resultsNotifier);
+    }
+
+
+    private void updateStartList(RaceRun previousRaceRun, RaceRun raceRun)
+    {
+      if (previousRaceRun == null || previousRaceRun.IsComplete)
+        _liveTiming.UpdateStartList(raceRun);
+    }
+
+  }
+
+
+
+
+
+
   public class LiveTimingFIS : ILiveTiming
   {
+    protected class Utf8StringWriter : StringWriter
+    {
+      // Use UTF8 encoding but write no BOM to the wire
+      public override Encoding Encoding
+      {
+        get { return new UTF8Encoding(false); } // in real code I'll cache this encoding.
+      }
+    }
+
+
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     string _fisRaceCode;
@@ -54,8 +210,18 @@ namespace LiveTimingFIS
     int _fisPort;
     int _sequence;
 
+    bool _isOnline;
+    bool _started;
+
+    LiveTimingDelegator _delegator;
+
+
     public LiveTimingFIS()
     {
+      _isOnline = false;
+      _started = false;
+
+      setUpXmlFormat();
     }
 
     private Race _race;
@@ -67,6 +233,9 @@ namespace LiveTimingFIS
 
     public void Login(string fisRaceCode, string fisCategory, string fisPassword, int fisPort)
     {
+      if (_isOnline)
+        return;
+
       _fisRaceCode = fisRaceCode;
       _fisCategory = fisCategory;
       _fisPassword = fisPassword;
@@ -75,18 +244,50 @@ namespace LiveTimingFIS
       _sequence = 0;
 
       scheduleTransfer(new LTTransfer(getXmlClearRace(), _fisPort));
+      scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race), _fisPort));
+      _isOnline = true;
     }
 
     public void Start()
     {
+      if (_started)
+        return;
 
-      throw new NotImplementedException();
+      _started = true;
+
+      //Task.Run(() => {
+      //  startLiveTiming();
+      //  sendClassesAndGroups();
+      //});
+
+      // Observes for changes and triggers UpdateMethods, also sends data initially
+      _delegator = new LiveTimingDelegator(_race, this);
     }
 
     public void Stop()
     {
-      throw new NotImplementedException();
+      if (!_started)
+        return;
+
+      _started = false;
+
+      _delegator.Dispose();
     }
+
+    public bool Started
+    {
+      get { return _started; }
+    }
+
+
+    #region Top Level Calls
+
+    public void UpdateStartList(RaceRun raceRun)
+    {
+      scheduleTransfer(new LTTransfer(getXmlStartList(raceRun), _fisPort));
+    }
+
+    #endregion
 
 
     #region FIS specific XML serializer
@@ -104,7 +305,8 @@ namespace LiveTimingFIS
 
     internal string getXmlClearRace()
     {
-      using (var sw = new StringWriter())
+      
+      using (var sw = new Utf8StringWriter())
       {
         using (var xw = XmlWriter.Create(sw, _xmlSettings))
         {
@@ -124,9 +326,10 @@ namespace LiveTimingFIS
     }
 
 
-    internal string getXmlRaceRun(RaceRun raceRun)
+    internal string getXmlRaceInfo(Race race)
     {
-      using (var sw = new StringWriter())
+      RaceRun raceRun = race.GetRun(0);
+      using (var sw = new Utf8StringWriter())
       {
         using (var xw = XmlWriter.Create(sw, _xmlSettings))
         {
@@ -136,7 +339,7 @@ namespace LiveTimingFIS
 
           xw.WriteElementString("event", raceRun.GetRace().Description);
           xw.WriteElementString("slope", raceRun.GetRace().AdditionalProperties.CoarseName);
-          xw.WriteElementString("disciplin", getDisciplin(raceRun.GetRace()));
+          xw.WriteElementString("discipline", getDisciplin(raceRun.GetRace()));
           xw.WriteElementString("gender", getGender(raceRun.GetRace()));
           xw.WriteElementString("category", _fisCategory);
           xw.WriteElementString("place", raceRun.GetRace().AdditionalProperties.Location);
@@ -144,50 +347,55 @@ namespace LiveTimingFIS
           xw.WriteElementString("longunit", "m");
           xw.WriteElementString("speedunit", "Kmh");
 
-          xw.WriteStartElement("run");
-          xw.WriteAttributeString("no", raceRun.Run.ToString());
-
-          xw.WriteElementString("disciplin", getDisciplin(raceRun.GetRace()));
-
-          if (raceRun.GetRace().AdditionalProperties?.StartHeight > 0)
-            xw.WriteElementString("start", raceRun.GetRace().AdditionalProperties?.StartHeight.ToString()));
-          if (raceRun.GetRace().AdditionalProperties?.FinishHeight > 0)
-            xw.WriteElementString("finish", raceRun.GetRace().AdditionalProperties?.FinishHeight.ToString()));
-          if (raceRun.GetRace().AdditionalProperties?.StartHeight > 0 && raceRun.GetRace().AdditionalProperties?.FinishHeight > 0)
-            xw.WriteElementString("height", (raceRun.GetRace().AdditionalProperties?.StartHeight - raceRun.GetRace().AdditionalProperties?.StartHeight).ToString()));
-
-          AdditionalRaceProperties.RaceRunProperties raceRunProperties = null;
-          if (raceRun.Run == 1)
-            raceRunProperties = raceRun.GetRace().AdditionalProperties?.RaceRun1;
-          else if (raceRun.Run == 2)
-            raceRunProperties = raceRun.GetRace().AdditionalProperties?.RaceRun2;
-
-          if (raceRunProperties != null)
+          foreach (RaceRun rr in race.GetRuns())
           {
-            if (raceRunProperties.Gates > 0)
-              xw.WriteElementString("gates", raceRunProperties.Gates.ToString());
 
-            if (raceRunProperties.Turns > 0)
-              xw.WriteElementString("turninggates", raceRunProperties.Turns.ToString());
+            xw.WriteStartElement("run");
+            xw.WriteAttributeString("no", rr.Run.ToString());
 
-            if (raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length==5)
+            xw.WriteElementString("discipline", getDisciplin(rr.GetRace()));
+
+            if (rr.GetRace().AdditionalProperties?.StartHeight > 0)
+              xw.WriteElementString("start", rr.GetRace().AdditionalProperties?.StartHeight.ToString());
+            if (rr.GetRace().AdditionalProperties?.FinishHeight > 0)
+              xw.WriteElementString("finish", rr.GetRace().AdditionalProperties?.FinishHeight.ToString());
+            if (rr.GetRace().AdditionalProperties?.StartHeight > 0 && rr.GetRace().AdditionalProperties?.FinishHeight > 0)
+              xw.WriteElementString("height", (rr.GetRace().AdditionalProperties?.StartHeight - rr.GetRace().AdditionalProperties?.FinishHeight).ToString());
+
+            AdditionalRaceProperties.RaceRunProperties raceRunProperties = null;
+            if (rr.Run == 1)
+              raceRunProperties = rr.GetRace().AdditionalProperties?.RaceRun1;
+            else if (rr.Run == 2)
+              raceRunProperties = rr.GetRace().AdditionalProperties?.RaceRun2;
+
+            if (raceRunProperties != null)
             {
-              xw.WriteElementString("hour", raceRunProperties.StartTime.Substring(0, 2));
-              xw.WriteElementString("minute", raceRunProperties.StartTime.Substring(3, 2));
+              if (raceRunProperties.Gates > 0)
+                xw.WriteElementString("gates", raceRunProperties.Gates.ToString());
+
+              if (raceRunProperties.Turns > 0)
+                xw.WriteElementString("turninggates", raceRunProperties.Turns.ToString());
+
+              if (raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
+              {
+                xw.WriteElementString("hour", raceRunProperties.StartTime.Substring(0, 2));
+                xw.WriteElementString("minute", raceRunProperties.StartTime.Substring(3, 2));
+              }
             }
+
+            if (rr.GetRace().AdditionalProperties?.DateResultList != null)
+            {
+              xw.WriteElementString("day", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Day.ToString());
+              xw.WriteElementString("month", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Month.ToString());
+              xw.WriteElementString("year", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Year.ToString());
+            }
+
+            xw.WriteStartElement("racedef");
+            xw.WriteEndElement();
+
+            xw.WriteEndElement(); // run
+            //break;
           }
-
-          if (raceRun.GetRace().AdditionalProperties?.DateResultList != null)
-          {
-            xw.WriteElementString("day", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Day.ToString());
-            xw.WriteElementString("month", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Month.ToString());
-            xw.WriteElementString("year", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Year.ToString());
-          }
-
-          xw.WriteStartElement("racedef");
-          xw.WriteEndElement();
-
-          xw.WriteEndElement(); // run
 
           xw.WriteEndElement(); // raceinfo
           xw.WriteEndElement(); // Livetiming
@@ -200,7 +408,7 @@ namespace LiveTimingFIS
 
     private string getXmlStartList(RaceRun raceRun)
     {
-      using (var sw = new StringWriter())
+      using (var sw = new Utf8StringWriter())
       {
         using (var xw = XmlWriter.Create(sw, _xmlSettings))
         {
@@ -222,11 +430,16 @@ namespace LiveTimingFIS
           int i = 1;
           foreach (var sle in startList)
           {
+            xw.WriteStartElement("racer");
+            xw.WriteAttributeString("order", i.ToString());
+
             xw.WriteElementString("bib", sle.StartNumber.ToString());
             xw.WriteElementString("lastname", sle.Name);
             xw.WriteElementString("firstname", sle.Firstname);
             xw.WriteElementString("nat", sle.Nation);
             xw.WriteElementString("fiscode", sle.Code);
+
+            xw.WriteEndElement(); // racer
             i++;
           }
 
@@ -240,6 +453,47 @@ namespace LiveTimingFIS
     }
 
 
+    private string getXmlResultList(RaceRun raceRun)
+    {
+      using (var sw = new Utf8StringWriter())
+      {
+        using (var xw = XmlWriter.Create(sw, _xmlSettings))
+        {
+          xw.WriteStartDocument();
+          xmlWriteStartElementLivetiming(xw);
+
+
+          xw.WriteStartElement("startlist");
+          xw.WriteAttributeString("runno", raceRun.Run.ToString());
+
+          StartListViewProvider slp = raceRun.GetStartListProvider();
+          var startList = slp.GetViewList();
+
+          int i = 1;
+          foreach (var sle in startList)
+          {
+            xw.WriteStartElement("racer");
+            xw.WriteAttributeString("order", i.ToString());
+
+            xw.WriteElementString("bib", sle.StartNumber.ToString());
+            xw.WriteElementString("lastname", sle.Name);
+            xw.WriteElementString("firstname", sle.Firstname);
+            xw.WriteElementString("nat", sle.Nation);
+            xw.WriteElementString("fiscode", sle.Code);
+
+            xw.WriteEndElement(); // racer
+            i++;
+          }
+
+          xw.WriteEndElement(); // startlist
+
+          xw.WriteEndElement(); // Livetiming
+          xw.WriteEndDocument();
+        }
+        return sw.ToString();
+      }
+    }
+
     private void xmlWriteStartElementLivetiming(XmlWriter xw)
     {
       xw.WriteStartElement("livetiming");
@@ -247,6 +501,8 @@ namespace LiveTimingFIS
       xw.WriteAttributeString("passwd", _fisPassword);
       xw.WriteAttributeString("sequence", _sequence.ToString("D5"));
       xw.WriteAttributeString("timestamp", System.DateTime.Now.ToString("hh:mm:ss"));
+
+      _sequence++;
     }
 
     #endregion
