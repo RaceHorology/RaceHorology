@@ -909,6 +909,9 @@ namespace RaceHorologyLib
       // Name and Number are stored in tblDisziplin
       storeRacePropertyInternal(race, props.RaceNumber, props.Description, props.DateStartList, props.DateResultList);
 
+      // Location is stored in tblBewerb
+      storeRacePropertyInternal(race, props.Location);
+
       storeRacePropertyInternal(race,  0, props.Analyzer);
       storeRacePropertyInternal(race,  2, props.Organizer);
       storeRacePropertyInternal(race,  3, props.RaceReferee.Name );
@@ -1020,16 +1023,43 @@ namespace RaceHorologyLib
       cmd.CommandType = CommandType.Text;
       try
       {
-        Logger.Debug("DeleteRunResult(), SQL: {0}", GetDebugSqlString(cmd));
+        Logger.Debug("storeRacePropertyInternal(), SQL: {0}", GetDebugSqlString(cmd));
         int temp = cmd.ExecuteNonQuery();
         Logger.Debug("... affected rows: {0}", temp);
         Debug.Assert(temp == 1, "Database could not be updated");
       }
       catch (Exception e)
       {
-        Logger.Warn(e, "DeleteRunResult failed, SQL: {0}", GetDebugSqlString(cmd));
+        Logger.Warn(e, "storeRacePropertyInternal failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
+
+
+    private void storeRacePropertyInternal(Race r, string location)
+    {
+      string sql = @"UPDATE tblBewerb " +
+                    @"SET ort = @ort";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+
+      if (string.IsNullOrEmpty(location))
+        cmd.Parameters.Add(new OleDbParameter("@ort", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@ort", location));
+
+      cmd.CommandType = CommandType.Text;
+      try
+      {
+        Logger.Debug("storeRacePropertyInternal(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "storeRacePropertyInternal failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
     #endregion
 
     #region Store / Get Key Value
