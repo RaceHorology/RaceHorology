@@ -1328,7 +1328,7 @@ namespace RaceHorologyLib
 
 
 
-    public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult);
+    public delegate void OnTrackChangedHandler(RaceRun rr, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult);
     public event OnTrackChangedHandler OnTrackChanged;
     public event OnTrackChangedHandler InFinishChanged;
 
