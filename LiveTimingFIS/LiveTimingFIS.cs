@@ -174,13 +174,53 @@ namespace LiveTimingFIS
       //};
       //_liveTiming.UpdateResults(raceRun); // Initial update
       //_notifier.Add(resultsNotifier);
+
+
+
+
+
+
+      raceRun.OnTrackChanged += RaceRun_OnTrackChanged;
+      raceRun.InFinishChanged += RaceRun_InFinishChanged;
+    }
+
+
+    private void RaceRun_OnTrackChanged(RaceRun raceRun, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    {
+      if (participantEnteredTrack != null)
+      {
+        _liveTiming.UpdateOnTrack(participantEnteredTrack);
+        updateNextStarter(raceRun);
+      }
+    }
+
+
+    private void RaceRun_InFinishChanged(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    {
+      //throw new NotImplementedException();
     }
 
 
     private void updateStartList(RaceRun previousRaceRun, RaceRun raceRun)
     {
       if (previousRaceRun == null || previousRaceRun.IsComplete)
+      {
         _liveTiming.UpdateStartList(raceRun);
+        updateNextStarter(raceRun);
+      }
+    }
+
+    private void updateNextStarter(RaceRun raceRun)
+    {
+      // Find current starter
+      foreach (var sle in raceRun.GetStartListProvider().GetViewList())
+      {
+        if (!raceRun.IsOrWasOnTrack(sle.Participant))
+        {
+          _liveTiming.UpdateOnStart(sle.Participant);
+          break;
+        }
+      }
     }
 
   }
@@ -297,6 +337,18 @@ namespace LiveTimingFIS
     public void UpdateStartList(RaceRun raceRun)
     {
       scheduleTransfer(new LTTransfer(getXmlStartList(raceRun), _fisPort));
+    }
+
+
+    public void UpdateOnStart(RaceParticipant rp)
+    {
+      scheduleTransfer(new LTTransfer(getXmlEventOnStart(rp), _fisPort));
+    }
+
+
+    public void UpdateOnTrack(RaceParticipant rp)
+    {
+      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _fisPort));
     }
 
     #endregion
@@ -526,6 +578,141 @@ namespace LiveTimingFIS
         return sw.ToString();
       }
     }
+
+    // Events
+    // - nextstart
+    // - started
+
+    private string getXml1()
+    {
+      using (var sw = new Utf8StringWriter())
+      {
+        using (var xw = XmlWriter.Create(sw, _xmlSettings))
+        {
+          xw.WriteStartDocument();
+          xmlWriteStartElementLivetiming(xw);
+
+          xw.WriteStartElement("raceevent");
+          xw.WriteEndElement(); // raceevent
+
+          xw.WriteEndElement(); // Livetiming
+          xw.WriteEndDocument();
+        }
+        return sw.ToString();
+      }
+    }
+
+
+    private string getXmlEventOnStart(RaceParticipant rp)
+    {
+      using (var sw = new Utf8StringWriter())
+      {
+        using (var xw = XmlWriter.Create(sw, _xmlSettings))
+        {
+          xw.WriteStartDocument();
+          xmlWriteStartElementLivetiming(xw);
+
+          xw.WriteStartElement("raceevent");
+
+          xw.WriteStartElement("nextstart");
+          xw.WriteAttributeString("bib", rp.StartNumber.ToString());
+          xw.WriteEndElement();
+
+          xw.WriteEndElement(); // raceevent
+
+          xw.WriteEndElement(); // livetiming
+          xw.WriteEndDocument();
+        }
+        return sw.ToString();
+      }
+    }
+
+
+    private string getXmlEventStarted(RaceParticipant rp)
+    {
+      using (var sw = new Utf8StringWriter())
+      {
+        using (var xw = XmlWriter.Create(sw, _xmlSettings))
+        {
+          xw.WriteStartDocument();
+          xmlWriteStartElementLivetiming(xw);
+
+          xw.WriteStartElement("raceevent");
+
+          xw.WriteStartElement("start");
+          xw.WriteAttributeString("bib", rp.StartNumber.ToString());
+          xw.WriteEndElement();
+
+          xw.WriteEndElement(); // raceevent
+
+          xw.WriteEndElement(); // livetiming
+          xw.WriteEndDocument();
+        }
+        return sw.ToString();
+      }
+    }
+
+
+    private string getXmlEventResult(RunResultWithPosition result)
+    {
+      using (var sw = new Utf8StringWriter())
+      {
+        using (var xw = XmlWriter.Create(sw, _xmlSettings))
+        {
+          xw.WriteStartDocument();
+          xmlWriteStartElementLivetiming(xw);
+
+          xw.WriteStartElement("raceevent");
+
+          if (result.ResultCode == RunResult.EResultCode.Normal && result.Runtime != null)
+          {
+            xw.WriteStartElement("finish");
+            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteElementString("time", ((TimeSpan)result.Runtime).ToString(@"s\.ff"));
+            xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
+            xw.WriteElementString("rank", result.Position.ToString());
+            xw.WriteEndElement();
+          }
+
+          if (result.ResultCode == RunResult.EResultCode.NotSet)
+          {
+            xw.WriteStartElement("finish");
+            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteAttributeString("correction", "y");
+            xw.WriteElementString("time", "0.00");
+            xw.WriteEndElement();
+          }
+
+          if (result.ResultCode == RunResult.EResultCode.NaS || result.ResultCode == RunResult.EResultCode.NQ)
+          { 
+            xw.WriteStartElement("dns");
+            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteEndElement();
+          }
+
+          if (result.ResultCode == RunResult.EResultCode.NiZ)
+          { 
+            xw.WriteStartElement("dnf");
+            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteEndElement();
+          }
+
+          if (result.ResultCode == RunResult.EResultCode.DIS)
+          { 
+            xw.WriteStartElement("dq");
+            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteEndElement();
+          }
+
+          xw.WriteEndElement(); // raceevent
+
+          xw.WriteEndElement(); // livetiming
+          xw.WriteEndDocument();
+        }
+        return sw.ToString();
+      }
+    }
+
 
     private void xmlWriteStartElementLivetiming(XmlWriter xw)
     {
