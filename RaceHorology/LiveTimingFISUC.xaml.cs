@@ -23,7 +23,7 @@ namespace RaceHorology
   public partial class LiveTimingFISUC : UserControl
   {
 
-    LiveTimingFIS.LiveTimingFIS _liveTimingFIS;
+    public LiveTimingFIS.LiveTimingFIS _liveTimingFIS;
     Race _thisRace;
 
     public LiveTimingFISUC()

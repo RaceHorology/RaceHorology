@@ -305,19 +305,20 @@ namespace RaceHorology
 
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
     {
-      if (liveTimingRMUC._liveTimingRM != null)
+      string text = "";
+      Application.Current.Dispatcher.Invoke(() =>
       {
-        string text = "";
-        Application.Current.Dispatcher.Invoke(() =>
+        if (sender is TextBox textBox)
         {
-          if (sender is TextBox textBox)
-          {
-            text = textBox.Text;
-          }
-        });
+          text = textBox.Text;
+        }
+      });
 
+
+      if (liveTimingRMUC._liveTimingRM != null)
         liveTimingRMUC._liveTimingRM.UpdateStatus(text);
-      }
+      if (liveTimingFISUC._liveTimingFIS != null)
+        liveTimingFISUC._liveTimingFIS.UpdateStatus(text);
     }
 
     #endregion

@@ -212,6 +212,7 @@ namespace LiveTimingFIS
 
     bool _isOnline;
     bool _started;
+    string _statusText;
 
     LiveTimingDelegator _delegator;
 
@@ -282,6 +283,17 @@ namespace LiveTimingFIS
 
     #region Top Level Calls
 
+    public void UpdateStatus(string statusText)
+    {
+      if (!Started || _statusText == statusText)
+        return;
+
+      _statusText = statusText;
+
+      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(_statusText), _fisPort));
+    }
+
+
     public void UpdateStartList(RaceRun raceRun)
     {
       scheduleTransfer(new LTTransfer(getXmlStartList(raceRun), _fisPort));
@@ -305,7 +317,7 @@ namespace LiveTimingFIS
 
     internal string getXmlClearRace()
     {
-      
+
       using (var sw = new Utf8StringWriter())
       {
         using (var xw = XmlWriter.Create(sw, _xmlSettings))
@@ -313,11 +325,32 @@ namespace LiveTimingFIS
           xw.WriteStartDocument();
           xmlWriteStartElementLivetiming(xw);
           xw.WriteStartElement("command");
-          
+
           xw.WriteStartElement("clear");
           xw.WriteEndElement(); // clear
 
           xw.WriteEndElement(); // command
+          xw.WriteEndElement(); // Livetiming
+          xw.WriteEndDocument();
+        }
+        return sw.ToString();
+      }
+    }
+
+    internal string getXmlStatusUpdateInfo(string info)
+    {
+
+      using (var sw = new Utf8StringWriter())
+      {
+        using (var xw = XmlWriter.Create(sw, _xmlSettings))
+        {
+          xw.WriteStartDocument();
+          xmlWriteStartElementLivetiming(xw);
+          xw.WriteStartElement("message");
+
+          xw.WriteElementString("text", info);
+
+          xw.WriteEndElement(); // message
           xw.WriteEndElement(); // Livetiming
           xw.WriteEndDocument();
         }
