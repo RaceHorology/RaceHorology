@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -252,6 +252,8 @@ namespace LiveTimingFIS
     int _fisPort;
     int _sequence;
     System.Net.Sockets.TcpClient _tcpClient;
+    System.Timers.Timer _keepAliveTimer;
+
 
     bool _isLoggedOn;
     bool _started;
@@ -289,14 +291,27 @@ namespace LiveTimingFIS
       {
         _tcpClient = new System.Net.Sockets.TcpClient();
         _tcpClient.Connect(_fisHostName, _fisPort);
+
+        _keepAliveTimer = new System.Timers.Timer();
+        _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
+        //_keepAliveTimer.Interval = 1000; // for testing
+        _keepAliveTimer.Interval = 5*60*1000; // 5 minutes * 60s * 1000ms
+        _keepAliveTimer.AutoReset = true;
+        _keepAliveTimer.Enabled = true;
+
       }
-      catch(Exception e)
+      catch (Exception e)
       {
         Logger.Warn(e, "Connect to {0} on port {1} failed", _fisHostName, _fisPort);
         _tcpClient.Dispose();
         _tcpClient = null;
         throw; // re-throw
       }
+    }
+
+    private void keepAliveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      scheduleTransfer(new LTTransfer(getXmlKeepAlive(), _tcpClient));
     }
 
     public void Disconnect()
@@ -401,6 +416,28 @@ namespace LiveTimingFIS
       _xmlSettings.Indent = true;
       _xmlSettings.IndentChars = "  ";
       _xmlSettings.Encoding = Encoding.UTF8;
+    }
+
+    internal string getXmlKeepAlive()
+    {
+
+      using (var sw = new Utf8StringWriter())
+      {
+        using (var xw = XmlWriter.Create(sw, _xmlSettings))
+        {
+          xw.WriteStartDocument();
+          xmlWriteStartElementLivetiming(xw);
+          xw.WriteStartElement("command");
+
+          xw.WriteStartElement("keepalive");
+          xw.WriteEndElement(); // clear
+
+          xw.WriteEndElement(); // command
+          xw.WriteEndElement(); // Livetiming
+          xw.WriteEndDocument();
+        }
+        return sw.ToString();
+      }
     }
 
     internal string getXmlClearRace()
