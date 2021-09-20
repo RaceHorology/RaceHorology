@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using LiveTimingFIS;
 using System;
 using System.Collections.Generic;
@@ -49,7 +49,8 @@ namespace RaceHorology
       try
       {
         _liveTimingFIS.Race = _thisRace;
-        _liveTimingFIS.Login(cfg.LivetimingParams["FIS_RaceCode"], cfg.LivetimingParams["FIS_Category"], cfg.LivetimingParams["FIS_Pasword"], int.Parse(cfg.LivetimingParams["FIS_Port"]));
+        _liveTimingFIS.Connect(int.Parse(cfg.LivetimingParams["FIS_Port"]));
+        _liveTimingFIS.Login(cfg.LivetimingParams["FIS_RaceCode"], cfg.LivetimingParams["FIS_Category"], cfg.LivetimingParams["FIS_Pasword"]);
         _liveTimingFIS.Start();
       }
       catch (Exception error)

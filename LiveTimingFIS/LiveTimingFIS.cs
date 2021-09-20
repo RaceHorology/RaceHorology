@@ -247,10 +247,13 @@ namespace LiveTimingFIS
     string _fisRaceCode;
     string _fisCategory;
     string _fisPassword;
+
+    string _fisHostName;
     int _fisPort;
     int _sequence;
+    System.Net.Sockets.TcpClient _tcpClient;
 
-    bool _isOnline;
+    bool _isLoggedOn;
     bool _started;
     string _statusText;
 
@@ -259,7 +262,7 @@ namespace LiveTimingFIS
 
     public LiveTimingFIS()
     {
-      _isOnline = false;
+      _isLoggedOn = false;
       _started = false;
 
       setUpXmlFormat();
@@ -272,21 +275,54 @@ namespace LiveTimingFIS
       get { return _race; }
     }
 
-    public void Login(string fisRaceCode, string fisCategory, string fisPassword, int fisPort)
+
+    public void Connect(int fisPort)
     {
-      if (_isOnline)
+      if (_tcpClient != null)
+        return;
+
+      _fisHostName = "live.fisski.com";
+      _fisPort = fisPort;
+
+      _sequence = 0;
+      try
+      {
+        _tcpClient = new System.Net.Sockets.TcpClient();
+        _tcpClient.Connect(_fisHostName, _fisPort);
+      }
+      catch(Exception e)
+      {
+        Logger.Warn(e, "Connect to {0} on port {1} failed", _fisHostName, _fisPort);
+        _tcpClient.Dispose();
+        _tcpClient = null;
+        throw; // re-throw
+      }
+    }
+
+    public void Disconnect()
+    {
+      if (_tcpClient == null)
+        return;
+
+      _tcpClient.Dispose();
+      _tcpClient = null;
+    }
+
+    public bool Connected { get { return _tcpClient != null && _tcpClient.Connected; } }
+
+
+    public void Login(string fisRaceCode, string fisCategory, string fisPassword)
+    {
+      if (_isLoggedOn)
         return;
 
       _fisRaceCode = fisRaceCode;
       _fisCategory = fisCategory;
       _fisPassword = fisPassword;
-      _fisPort = fisPort;
 
-      _sequence = 0;
-
-      scheduleTransfer(new LTTransfer(getXmlClearRace(), _fisPort));
-      scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race), _fisPort));
-      _isOnline = true;
+      scheduleTransfer(new LTTransfer(getXmlClearRace(), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race), _tcpClient));
+      _isLoggedOn = true;
     }
 
     public void Start()
@@ -330,25 +366,25 @@ namespace LiveTimingFIS
 
       _statusText = statusText;
 
-      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(_statusText), _fisPort));
+      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(_statusText), _tcpClient));
     }
 
 
     public void UpdateStartList(RaceRun raceRun)
     {
-      scheduleTransfer(new LTTransfer(getXmlStartList(raceRun), _fisPort));
+      scheduleTransfer(new LTTransfer(getXmlStartList(raceRun), _tcpClient));
     }
 
 
     public void UpdateOnStart(RaceParticipant rp)
     {
-      scheduleTransfer(new LTTransfer(getXmlEventOnStart(rp), _fisPort));
+      scheduleTransfer(new LTTransfer(getXmlEventOnStart(rp), _tcpClient));
     }
 
 
     public void UpdateOnTrack(RaceParticipant rp)
     {
-      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _fisPort));
+      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _tcpClient));
     }
 
     #endregion
@@ -847,12 +883,12 @@ namespace LiveTimingFIS
     protected string _type;
 
     protected string _xmlMessage;
-    protected int _port;
+    protected System.Net.Sockets.TcpClient _tcpClient;
 
-    public LTTransfer(string xmlMessage, int port)
+    public LTTransfer(string xmlMessage, System.Net.Sockets.TcpClient tcpClient)
     {
       _xmlMessage = xmlMessage;
-      _port = port;
+      _tcpClient = tcpClient;
     }
 
     public override string ToString()
@@ -863,23 +899,15 @@ namespace LiveTimingFIS
 
     public void performTransfer()
     {
-      System.Net.Sockets.TcpClient tcpClient = new System.Net.Sockets.TcpClient();
-
       try
       {
-        tcpClient.Connect("live.fisski.com", _port);
-
         byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(_xmlMessage);
-        var stream = tcpClient.GetStream();
+        var stream = _tcpClient.GetStream();
         stream.Write(utf8Message, 0, utf8Message.Length);
-
-        tcpClient.Close();
       }
       catch(Exception )
       {
       }
-
-      tcpClient.Dispose();
     }
 
   }
