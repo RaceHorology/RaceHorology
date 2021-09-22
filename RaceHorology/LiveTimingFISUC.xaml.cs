@@ -64,6 +64,17 @@ namespace RaceHorology
     public LiveTimingFISUC()
     {
       InitializeComponent();
+
+      Loaded += (s, e) => { // only at this point the control is ready
+        Window.GetWindow(this) // get the parent window
+              .Closing += (s1, e1) => Dispose(); //disposing logic here
+      };
+    }
+
+    private void Dispose()
+    {
+      if (_liveTimingFIS!= null)
+        _liveTimingFIS.Dispose();
     }
 
     public void InitializeLiveTiming(Race race)

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -38,6 +38,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -230,7 +231,7 @@ namespace LiveTimingFIS
 
 
 
-  public class LiveTimingFIS : ILiveTiming
+  public class LiveTimingFIS : ILiveTiming, IDisposable
   {
     protected class Utf8StringWriter : StringWriter
     {
@@ -252,6 +253,7 @@ namespace LiveTimingFIS
     int _fisPort;
     int _sequence;
     System.Net.Sockets.TcpClient _tcpClient;
+    System.Threading.Thread _receiveThread;
     System.Timers.Timer _keepAliveTimer;
 
 
@@ -269,6 +271,29 @@ namespace LiveTimingFIS
 
       setUpXmlFormat();
     }
+
+
+    #region IDisposable Implementation
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          Disconnect();
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
+    }
+    #endregion
 
     private Race _race;
     public Race Race
@@ -292,13 +317,16 @@ namespace LiveTimingFIS
         _tcpClient = new System.Net.Sockets.TcpClient();
         _tcpClient.Connect(_fisHostName, _fisPort);
 
+        // Spawn receive thread
+        _receiveThread = new System.Threading.Thread(receiveMethod);
+        _receiveThread.Start();
+
         _keepAliveTimer = new System.Timers.Timer();
         _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
         //_keepAliveTimer.Interval = 1000; // for testing
         _keepAliveTimer.Interval = 5*60*1000; // 5 minutes * 60s * 1000ms
         _keepAliveTimer.AutoReset = true;
         _keepAliveTimer.Enabled = true;
-
       }
       catch (Exception e)
       {
@@ -321,6 +349,9 @@ namespace LiveTimingFIS
 
       _tcpClient.Dispose();
       _tcpClient = null;
+
+      _receiveThread.Join();
+      _receiveThread = null;
     }
 
     public bool Connected { get { return _tcpClient != null && _tcpClient.Connected; } }
@@ -867,6 +898,7 @@ namespace LiveTimingFIS
     List<LTTransfer> _transfers = new List<LTTransfer>();
     object _transferLock = new object();
     bool _transferInProgress = false;
+    private bool disposedValue;
 
     private void scheduleTransfer(LTTransfer transfer)
     {
@@ -909,6 +941,30 @@ namespace LiveTimingFIS
       }
       else
         _transferInProgress = false;
+    }
+
+
+    /// <summary>
+    /// Receives all the data from FIS server
+    /// Note: Right now all data is ignored.
+    /// </summary>
+    private void receiveMethod()
+    {
+      using (var sr = new BufferedStream(_tcpClient.GetStream()))
+      {
+        byte[] buf = new byte[1024];
+
+        int bytesRead;
+        try
+        {
+          while ((bytesRead = sr.Read(buf, 0, buf.Length)) > 0)
+          {
+            Console.WriteLine(Encoding.UTF8.GetString(buf, 0, bytesRead));
+          }
+        }
+        catch (Exception)
+        { }
+      }
     }
 
     #endregion
