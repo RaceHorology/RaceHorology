@@ -561,6 +561,34 @@ namespace RaceHorology
 
       RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
       System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
+
+      UpdateLiveTimingStartStopButtons(isRunning);
+    }
+
+
+    private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
+    {
+      if (_liveTimingMeasurement == null)
+        return;
+
+      _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
+      _liveTimingMeasurement.Start();
+    }
+
+
+    private void LiveTimingStop_Click(object sender, RoutedEventArgs e)
+    {
+      if (_liveTimingMeasurement == null)
+        return;
+
+      _liveTimingMeasurement.Stop();
+    }
+
+
+    private void UpdateLiveTimingStartStopButtons(bool isRunning)
+    {
+      btnLiveTimingStart.IsChecked = isRunning;
+      btnLiveTimingStop.IsChecked = !isRunning;
     }
 
 
