@@ -107,7 +107,7 @@ namespace LiveTimingFIS
 
       _notifier = new List<IDisposable>();
 
-      ObserveRace();
+      observeRace();
     }
 
 
@@ -139,19 +139,19 @@ namespace LiveTimingFIS
     #endregion
 
 
-    private void ObserveRace()
+    private void observeRace()
     {
       RaceRun rLast = null;
       foreach (var r in _race.GetRuns())
       {
         System.Diagnostics.Debug.Assert(rLast == null || rLast.Run < r.Run, "previous run number must be smaller than current run number");
-        ObserveRaceRun(rLast, r);
+        observeRaceRun(rLast, r);
         rLast = r;
       }
     }
 
 
-    private void ObserveRaceRun(RaceRun previousRaceRun, RaceRun raceRun)
+    private void observeRaceRun(RaceRun previousRaceRun, RaceRun raceRun)
     {
       ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
       startListNotifier.ItemChanged += (o, e) =>
@@ -173,25 +173,26 @@ namespace LiveTimingFIS
       {
         _liveTiming.UpdateResults(raceRun);
       };
+
       _liveTiming.UpdateResults(raceRun); // Initial update
       _notifier.Add(resultsNotifier);
 
-      raceRun.OnTrackChanged += RaceRun_OnTrackChanged;
-      raceRun.InFinishChanged += RaceRun_InFinishChanged;
+      raceRun.OnTrackChanged += raceRun_OnTrackChanged;
+      raceRun.InFinishChanged += raceRun_InFinishChanged;
     }
 
 
-    private void RaceRun_OnTrackChanged(RaceRun raceRun, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    private void raceRun_OnTrackChanged(RaceRun raceRun, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
     {
       if (participantEnteredTrack != null)
       {
-        _liveTiming.UpdateOnTrack(participantEnteredTrack);
+        _liveTiming.UpdateOnTrack(raceRun, participantEnteredTrack);
         updateNextStarter(raceRun);
       }
     }
 
 
-    private void RaceRun_InFinishChanged(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    private void raceRun_InFinishChanged(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
     {
       //throw new NotImplementedException();
     }
@@ -213,7 +214,7 @@ namespace LiveTimingFIS
       {
         if (!raceRun.IsOrWasOnTrack(sle.Participant))
         {
-          _liveTiming.UpdateOnStart(sle.Participant);
+          _liveTiming.UpdateOnStart(raceRun, sle.Participant);
           break;
         }
       }
@@ -230,10 +231,10 @@ namespace LiveTimingFIS
   {
     protected class Utf8StringWriter : StringWriter
     {
-      // Use UTF8 encoding but write no BOM to the wire
+      // Use UTF8 encoding 
       public override Encoding Encoding
       {
-        get { return new UTF8Encoding(false); } // in real code I'll cache this encoding.
+        get { return new UTF8Encoding(false); }
       }
     }
 
@@ -293,8 +294,18 @@ namespace LiveTimingFIS
     private Race _race;
     public Race Race
     {
-      set { _race = value; }
-      get { return _race; }
+      set
+      { 
+        if (Connected)
+          throw new Exception("Race cannot be set if already connected");
+
+        _race = value; 
+      }
+      
+      get 
+      { 
+        return _race; 
+      }
     }
 
 
@@ -342,6 +353,8 @@ namespace LiveTimingFIS
       if (_tcpClient == null)
         return;
 
+      Stop(); // Stop first
+
       _tcpClient.Dispose();
       _tcpClient = null;
 
@@ -372,11 +385,6 @@ namespace LiveTimingFIS
         return;
 
       _started = true;
-
-      //Task.Run(() => {
-      //  startLiveTiming();
-      //  sendClassesAndGroups();
-      //});
 
       // Observes for changes and triggers UpdateMethods, also sends data initially
       _delegator = new LiveTimingDelegator(_race, this);
@@ -411,39 +419,68 @@ namespace LiveTimingFIS
     }
 
 
+    RaceRun _activeRaceRun;
+    public void SetActiveRaceRun(RaceRun raceRun)
+    {
+      if (_activeRaceRun == raceRun)
+        return;
+
+      scheduleTransfer(new LTTransfer(getXmlActiveRun(raceRun), _tcpClient));
+      _activeRaceRun = raceRun;
+    }
+
+
     public void UpdateStartList(RaceRun raceRun)
     {
       scheduleTransfer(new LTTransfer(getXmlStartList(raceRun), _tcpClient));
     }
 
 
-    public void UpdateOnStart(RaceParticipant rp)
+    public void UpdateOnStart(RaceRun raceRun, RaceParticipant rp)
     {
+      SetActiveRaceRun(raceRun);
       scheduleTransfer(new LTTransfer(getXmlEventOnStart(rp), _tcpClient));
     }
 
 
-    public void UpdateOnTrack(RaceParticipant rp)
+    public void UpdateOnTrack(RaceRun raceRun, RaceParticipant rp)
     {
+      SetActiveRaceRun(raceRun);
       scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _tcpClient));
     }
 
-    public void UpdateInFinish(RaceParticipant rp)
+
+    public void UpdateInFinish(RaceRun raceRun, RaceParticipant rp)
     {
+      SetActiveRaceRun(raceRun);
       scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _tcpClient));
     }
 
 
     public void UpdateResults(RaceRun raceRun)
     {
+      SetActiveRaceRun(raceRun);
+
       var results = ViewUtilities.ViewToList<RunResultWithPosition>(raceRun.GetResultView());
-      foreach(var rr in results)
+
+      RunResultWithPosition lastRR = null;
+      foreach (var rr in results)
       {
         if (rr.ResultCode == RunResult.EResultCode.NotSet)
           continue;
 
         scheduleTransfer(new LTTransfer(getXmlEventResult(rr), _tcpClient));
+
+        if ( lastRR == null
+          || (lastRR.FinishTime != null && lastRR.FinishTime < rr.FinishTime)
+          || (lastRR.StartTime != null && lastRR.StartTime < rr.StartTime)
+          )
+          lastRR = rr;
       }
+
+      // Update livetiming with last known time
+      if (lastRR != null)
+        scheduleTransfer(new LTTransfer(getXmlEventResult(lastRR), _tcpClient));
     }
 
 
@@ -597,7 +634,6 @@ namespace LiveTimingFIS
             xw.WriteEndElement();
 
             xw.WriteEndElement(); // run
-            //break;
           }
 
           xw.WriteEndElement(); // raceinfo
@@ -609,7 +645,7 @@ namespace LiveTimingFIS
     }
 
 
-    private string getXmlStartList(RaceRun raceRun)
+    private string getXmlActiveRun(RaceRun raceRun)
     {
       using (var sw = new Utf8StringWriter())
       {
@@ -623,6 +659,22 @@ namespace LiveTimingFIS
           xw.WriteAttributeString("no", raceRun.Run.ToString());
           xw.WriteEndElement(); // activerun
           xw.WriteEndElement(); // command
+
+          xw.WriteEndElement(); // Livetiming
+          xw.WriteEndDocument();
+        }
+        return sw.ToString();
+      }
+    }
+    
+    private string getXmlStartList(RaceRun raceRun)
+    {
+      using (var sw = new Utf8StringWriter())
+      {
+        using (var xw = XmlWriter.Create(sw, _xmlSettings))
+        {
+          xw.WriteStartDocument();
+          xmlWriteStartElementLivetiming(xw);
 
           xw.WriteStartElement("startlist");
           xw.WriteAttributeString("runno", raceRun.Run.ToString());
@@ -791,7 +843,7 @@ namespace LiveTimingFIS
               xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
             else
               xw.WriteElementString("diff", "0.00");
-            xw.WriteElementString("rank", "1");// result.Position.ToString());
+            xw.WriteElementString("rank", result.Position.ToString());
             xw.WriteEndElement();
           }
 
