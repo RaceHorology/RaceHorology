@@ -1095,10 +1095,27 @@ namespace RaceHorologyLib
     }
   }
 
+
+  /// <summary>
+  /// Base Interface for results with position (either for the race or a race run)
+  /// </summary>
+  public interface IResultWithPosition
+  {
+    RaceParticipant Participant { get; }
+
+    uint Position { get; }
+    TimeSpan? DiffToFirst { get; }
+
+    TimeSpan? Runtime { get; }
+    RunResult.EResultCode ResultCode { get; }
+    string DisqualText { get; }
+  }
+
+
   /// <summary>
   /// Represents a RunResult with position (for a run result list)
   /// </summary>
-  public class RunResultWithPosition : RunResult
+  public class RunResultWithPosition : RunResult, IResultWithPosition
   {
     private uint _position;
     private bool _justModified;
@@ -1153,7 +1170,7 @@ namespace RaceHorologyLib
   /// <summary>
   /// Represents a race result. It contains out of the participant including its run results (run, time, status) and its final position within the group.
   /// </summary>
-  public class RaceResultItem : INotifyPropertyChanged
+  public class RaceResultItem : INotifyPropertyChanged, IResultWithPosition
   {
     public class SubResult
     {
@@ -1266,6 +1283,14 @@ namespace RaceHorologyLib
     {
       get { return _totalTime; }
       set { if (_totalTime != value) { _totalTime = value; NotifyPropertyChanged(); } }
+    }
+
+    /// <summary>
+    /// Returns the final time (sum or minimum time depending on the race type)
+    /// </summary>
+    public TimeSpan? Runtime
+    {
+      get { return _totalTime; }
     }
 
     public RunResult.EResultCode ResultCode
