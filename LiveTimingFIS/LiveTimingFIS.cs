@@ -500,7 +500,7 @@ namespace LiveTimingFIS
       _xmlSettings.Encoding = Encoding.UTF8;
     }
 
-    internal string getXmlKeepAlive()
+    private string getXmlKeepAlive()
     {
 
       using (var sw = new Utf8StringWriter())
@@ -522,7 +522,7 @@ namespace LiveTimingFIS
       }
     }
 
-    internal string getXmlClearRace()
+    private string getXmlClearRace()
     {
 
       using (var sw = new Utf8StringWriter())
@@ -544,7 +544,7 @@ namespace LiveTimingFIS
       }
     }
 
-    internal string getXmlStatusUpdateInfo(string info)
+    private string getXmlStatusUpdateInfo(string info)
     {
 
       using (var sw = new Utf8StringWriter())
@@ -565,8 +565,7 @@ namespace LiveTimingFIS
       }
     }
 
-
-    internal string getXmlRaceInfo(Race race)
+    private string getXmlRaceInfo(Race race)
     {
       RaceRun raceRun = race.GetRun(0);
       using (var sw = new Utf8StringWriter())
@@ -644,7 +643,6 @@ namespace LiveTimingFIS
       }
     }
 
-
     private string getXmlActiveRun(RaceRun raceRun)
     {
       using (var sw = new Utf8StringWriter())
@@ -707,72 +705,6 @@ namespace LiveTimingFIS
       }
     }
 
-
-    private string getXmlResultList(RaceRun raceRun)
-    {
-      using (var sw = new Utf8StringWriter())
-      {
-        using (var xw = XmlWriter.Create(sw, _xmlSettings))
-        {
-          xw.WriteStartDocument();
-          xmlWriteStartElementLivetiming(xw);
-
-
-          xw.WriteStartElement("startlist");
-          xw.WriteAttributeString("runno", raceRun.Run.ToString());
-
-          StartListViewProvider slp = raceRun.GetStartListProvider();
-          var startList = slp.GetViewList();
-
-          int i = 1;
-          foreach (var sle in startList)
-          {
-            xw.WriteStartElement("racer");
-            xw.WriteAttributeString("order", i.ToString());
-
-            xw.WriteElementString("bib", sle.StartNumber.ToString());
-            xw.WriteElementString("lastname", sle.Name);
-            xw.WriteElementString("firstname", sle.Firstname);
-            xw.WriteElementString("nat", sle.Nation);
-            xw.WriteElementString("fiscode", sle.Code);
-
-            xw.WriteEndElement(); // racer
-            i++;
-          }
-
-          xw.WriteEndElement(); // startlist
-
-          xw.WriteEndElement(); // Livetiming
-          xw.WriteEndDocument();
-        }
-        return sw.ToString();
-      }
-    }
-
-    // Events
-    // - nextstart
-    // - started
-
-    private string getXml1()
-    {
-      using (var sw = new Utf8StringWriter())
-      {
-        using (var xw = XmlWriter.Create(sw, _xmlSettings))
-        {
-          xw.WriteStartDocument();
-          xmlWriteStartElementLivetiming(xw);
-
-          xw.WriteStartElement("raceevent");
-          xw.WriteEndElement(); // raceevent
-
-          xw.WriteEndElement(); // Livetiming
-          xw.WriteEndDocument();
-        }
-        return sw.ToString();
-      }
-    }
-
-
     private string getXmlEventOnStart(RaceParticipant rp)
     {
       using (var sw = new Utf8StringWriter())
@@ -797,7 +729,6 @@ namespace LiveTimingFIS
       }
     }
 
-
     private string getXmlEventStarted(RaceParticipant rp)
     {
       using (var sw = new Utf8StringWriter())
@@ -821,7 +752,6 @@ namespace LiveTimingFIS
         return sw.ToString();
       }
     }
-
 
     private string getXmlEventResult(RunResultWithPosition result)
     {
@@ -885,7 +815,6 @@ namespace LiveTimingFIS
         return sw.ToString();
       }
     }
-
 
     private void xmlWriteStartElementLivetiming(XmlWriter xw)
     {
