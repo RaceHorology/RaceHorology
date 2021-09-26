@@ -1197,10 +1197,32 @@ namespace RaceHorologyLib
       }
     }
 
+    /// <summary>
+    /// Helper class to support accessing with keys which are not in the dictionary
+    /// Returns null in case one tries and non-existing key
+    /// </summary>
+    public class SubResultMap : Dictionary<uint, SubResult>
+    {
+      public new SubResult this[uint key]
+      {
+        get
+        {
+          if (ContainsKey(key))
+            return base[key];
+          return null;
+        }
+        set
+        {
+          base[key] = value;
+        }
+      }
+    }
+
+
     #region private
 
     protected RaceParticipant _participant;
-    protected Dictionary<uint, SubResult> _subResults;
+    protected SubResultMap _subResults;
     protected TimeSpan? _totalTime;
     protected RunResult.EResultCode _resultCode;
     protected string _disqualText;
@@ -1220,7 +1242,7 @@ namespace RaceHorologyLib
     public RaceResultItem(RaceParticipant participant)
     {
       _participant = participant;
-      _subResults = new Dictionary<uint, SubResult>();
+      _subResults = new SubResultMap();
 
       _totalTime = null;
       _resultCode = RunResult.EResultCode.Normal;
@@ -1246,16 +1268,16 @@ namespace RaceHorologyLib
       set { if (_totalTime != value) { _totalTime = value; NotifyPropertyChanged(); } }
     }
 
-    public RunResult.EResultCode ResultCode 
-    { 
-      get { return _resultCode; } 
-      set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } 
+    public RunResult.EResultCode ResultCode
+    {
+      get { return _resultCode; }
+      set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } }
     }
 
-    public string DisqualText 
-    { 
-      get { return _disqualText; } 
-      set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } 
+    public string DisqualText
+    {
+      get { return _disqualText; }
+      set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } }
     }
 
 
@@ -1297,8 +1319,8 @@ namespace RaceHorologyLib
     }
 
 
+    public SubResultMap SubResults { get { return _subResults; } }
 
-    public Dictionary<uint, SubResult> SubResults { get { return _subResults; } }
 
     /// <summary>
     /// Sets the results for one specific run
