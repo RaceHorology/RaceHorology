@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -568,7 +568,7 @@ namespace LiveTimingFIS
             AdditionalRaceProperties.RaceRunProperties raceRunProperties = null;
             if (rr.Run == 1)
               raceRunProperties = rr.GetRace().AdditionalProperties?.RaceRun1;
-            else if (rr.Run == 2)
+            else if (rr.Run >= 2)
               raceRunProperties = rr.GetRace().AdditionalProperties?.RaceRun2;
 
             if (raceRunProperties != null)
