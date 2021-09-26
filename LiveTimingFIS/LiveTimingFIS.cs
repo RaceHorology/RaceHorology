@@ -168,14 +168,7 @@ namespace LiveTimingFIS
       }
 
       // Results
-      ItemsChangedNotifier resultsNotifier = new ItemsChangedNotifier(raceRun.GetResultList());
-      resultsNotifier.ItemChanged += (o, e) =>
-      {
-        _liveTiming.UpdateResults(raceRun);
-      };
-
       _liveTiming.UpdateResults(raceRun); // Initial update
-      _notifier.Add(resultsNotifier);
 
       raceRun.OnTrackChanged += raceRun_OnTrackChanged;
       raceRun.InFinishChanged += raceRun_InFinishChanged;
@@ -192,9 +185,26 @@ namespace LiveTimingFIS
     }
 
 
-    private void raceRun_InFinishChanged(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
+    private void raceRun_InFinishChanged(RaceRun raceRun, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
     {
-      //throw new NotImplementedException();
+      if (participantEnteredTrack != null)
+      {
+        // Uses following workaround to get consistent results:
+        // - wait some time
+        // - use race results to get data
+        Task.Delay(new TimeSpan(0, 0, 0, 0, 200)).ContinueWith(o =>
+       {
+         System.Windows.Application.Current.Dispatcher.Invoke(() =>
+         {
+           _liveTiming.UpdateInFinish(raceRun, participantEnteredTrack);
+         });
+       });
+      }
+
+      if (participantLeftTrack != null)
+      {
+
+      }
     }
 
 
@@ -453,7 +463,11 @@ namespace LiveTimingFIS
     public void UpdateInFinish(RaceRun raceRun, RaceParticipant rp)
     {
       SetActiveRaceRun(raceRun);
-      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _tcpClient));
+
+      var results = ViewUtilities.ViewToList<RaceResultItem>(raceRun.GetRace().GetTotalResultView());
+      var rri4Participant = results.FirstOrDefault(rri => rri.Participant == rp);
+
+      scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rri4Participant), _tcpClient));
     }
 
 
@@ -469,18 +483,40 @@ namespace LiveTimingFIS
         if (rr.ResultCode == RunResult.EResultCode.NotSet)
           continue;
 
-        scheduleTransfer(new LTTransfer(getXmlEventResult(rr), _tcpClient));
+        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rr), _tcpClient));
 
         if ( lastRR == null
-          || (lastRR.FinishTime != null && lastRR.FinishTime < rr.FinishTime)
-          || (lastRR.StartTime != null && lastRR.StartTime < rr.StartTime)
+          || (lastRR.FinishTime != null && rr.FinishTime != null && lastRR.FinishTime < rr.FinishTime)
+          || (lastRR.StartTime  != null && rr.StartTime  != null && lastRR.StartTime  < rr.StartTime)
           )
           lastRR = rr;
       }
 
       // Update livetiming with last known time
       if (lastRR != null)
-        scheduleTransfer(new LTTransfer(getXmlEventResult(lastRR), _tcpClient));
+        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, lastRR), _tcpClient));
+    }
+
+
+    TimeSpan? getAccumulatedTime(RaceRun rr, RunResultWithPosition resWp)
+    {
+      Race race = rr.GetRace();
+
+      TimeSpan? ts = new TimeSpan();
+      for(int i=0; i<race.GetMaxRun(); i++)
+      {
+        RaceRun r = race.GetRun(i);
+        if (r.Run <= rr.Run)
+        {
+          TimeSpan? t = r.GetRunResult(resWp.Participant)?.Runtime;
+          if (t != null && ts != null)
+            ts = ts + (TimeSpan)t;
+          else
+            ts = null;
+        }
+      }
+
+      return ts;
     }
 
 
@@ -753,7 +789,7 @@ namespace LiveTimingFIS
       }
     }
 
-    private string getXmlEventResult(RunResultWithPosition result)
+    private string getXmlEventResult(RaceRun raceRun, IResultWithPosition result)
     {
       using (var sw = new Utf8StringWriter())
       {
@@ -766,9 +802,18 @@ namespace LiveTimingFIS
 
           if (result.ResultCode == RunResult.EResultCode.Normal && result.Runtime != null)
           {
+            TimeSpan? runTime = null;
+            if (result is RunResultWithPosition rrwp)
+              runTime = getAccumulatedTime(raceRun, rrwp);
+            else
+              runTime = result.Runtime;
+
             xw.WriteStartElement("finish");
-            xw.WriteAttributeString("bib", result.StartNumber.ToString());
-            xw.WriteElementString("time", ((TimeSpan)result.Runtime).ToString(@"s\.ff"));
+            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
+            xw.WriteAttributeString("correction", "y");
+
+            xw.WriteElementString("time", ((TimeSpan)runTime).ToString(@"s\.ff"));
+
             if (result.DiffToFirst != null)
               xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
             else
@@ -780,7 +825,7 @@ namespace LiveTimingFIS
           if (result.ResultCode == RunResult.EResultCode.NotSet)
           {
             xw.WriteStartElement("finish");
-            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
             xw.WriteAttributeString("correction", "y");
             xw.WriteElementString("time", "0.00");
             xw.WriteEndElement();
@@ -789,21 +834,21 @@ namespace LiveTimingFIS
           if (result.ResultCode == RunResult.EResultCode.NaS || result.ResultCode == RunResult.EResultCode.NQ)
           { 
             xw.WriteStartElement("dns");
-            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
             xw.WriteEndElement();
           }
 
           if (result.ResultCode == RunResult.EResultCode.NiZ)
           { 
             xw.WriteStartElement("dnf");
-            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
             xw.WriteEndElement();
           }
 
           if (result.ResultCode == RunResult.EResultCode.DIS)
           { 
             xw.WriteStartElement("dq");
-            xw.WriteAttributeString("bib", result.StartNumber.ToString());
+            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
             xw.WriteEndElement();
           }
 
