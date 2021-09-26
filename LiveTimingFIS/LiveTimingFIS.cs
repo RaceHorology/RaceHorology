@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -167,19 +167,14 @@ namespace LiveTimingFIS
         _notifier.Add(completeObserver);
       }
 
-      //// Results
-      //ItemsChangedNotifier resultsNotifier = new ItemsChangedNotifier(raceRun.GetResultList());
-      //resultsNotifier.ItemChanged += (o, e) =>
-      //{
-      //  _liveTiming.UpdateResults(raceRun);
-      //};
-      //_liveTiming.UpdateResults(raceRun); // Initial update
-      //_notifier.Add(resultsNotifier);
-
-
-
-
-
+      // Results
+      ItemsChangedNotifier resultsNotifier = new ItemsChangedNotifier(raceRun.GetResultList());
+      resultsNotifier.ItemChanged += (o, e) =>
+      {
+        _liveTiming.UpdateResults(raceRun);
+      };
+      _liveTiming.UpdateResults(raceRun); // Initial update
+      _notifier.Add(resultsNotifier);
 
       raceRun.OnTrackChanged += RaceRun_OnTrackChanged;
       raceRun.InFinishChanged += RaceRun_InFinishChanged;
@@ -432,6 +427,25 @@ namespace LiveTimingFIS
     {
       scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _tcpClient));
     }
+
+    public void UpdateInFinish(RaceParticipant rp)
+    {
+      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _tcpClient));
+    }
+
+
+    public void UpdateResults(RaceRun raceRun)
+    {
+      var results = ViewUtilities.ViewToList<RunResultWithPosition>(raceRun.GetResultView());
+      foreach(var rr in results)
+      {
+        if (rr.ResultCode == RunResult.EResultCode.NotSet)
+          continue;
+
+        scheduleTransfer(new LTTransfer(getXmlEventResult(rr), _tcpClient));
+      }
+    }
+
 
     #endregion
 
@@ -773,8 +787,11 @@ namespace LiveTimingFIS
             xw.WriteStartElement("finish");
             xw.WriteAttributeString("bib", result.StartNumber.ToString());
             xw.WriteElementString("time", ((TimeSpan)result.Runtime).ToString(@"s\.ff"));
-            xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
-            xw.WriteElementString("rank", result.Position.ToString());
+            if (result.DiffToFirst != null)
+              xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
+            else
+              xw.WriteElementString("diff", "0.00");
+            xw.WriteElementString("rank", "1");// result.Position.ToString());
             xw.WriteEndElement();
           }
 
