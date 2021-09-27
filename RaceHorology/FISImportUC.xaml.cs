@@ -1,0 +1,291 @@
+﻿/*
+ *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
+using Microsoft.Win32;
+using RaceHorologyLib;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace RaceHorology
+{
+  /// <summary>
+  /// Interaction logic for FISImportUC.xaml
+  /// </summary>
+  public partial class FISImportUC : UserControl
+  {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+
+    AppDataModel _dm;
+
+    DSVInterfaceModel _dsvData;
+    CollectionViewSource _viewDSVList;
+
+    public FISImportUC()
+    {
+      InitializeComponent();
+    }
+
+
+    public void Init(AppDataModel dm, DSVInterfaceModel dsvData)
+    {
+      _dm = dm;
+      _dsvData = dsvData;
+
+      this.KeyDown += new KeyEventHandler(KeyDownHandler);
+
+      initDSVAddToList();
+    }
+
+
+
+    void initDSVAddToList()
+    {
+      updateDSVGrid();
+
+      txtDSVSearch.TextChanged += new DelayedEventHandler(
+          TimeSpan.FromMilliseconds(300),
+          txtDSVSearch_TextChanged
+      ).Delayed;
+    }
+
+    void updateDSVGrid()
+    {
+      if (_dsvData.Data != null)
+      {
+        _viewDSVList = new CollectionViewSource();
+        _viewDSVList.Source = _dsvData.Data.Tables[0].DefaultView;
+        dgDSVList.ItemsSource = _viewDSVList.View;
+
+        lblVersion.Content = string.Format("Version: {0} ({1})", _dsvData?.UsedDSVList, _dsvData.Date?.ToString("d"));
+
+        txtDSVSearch_TextChanged(null, null); // Update search
+        dgDSVList_SelectionChanged(null, null); // Update button status
+      }
+      else
+      {
+        lblVersion.Content = string.Format("Version: --- (keine DSV Liste importiert)");
+      }
+    }
+
+
+    private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        if (_dsvData?.Data != null)
+        {
+          DataTable table = _dsvData.Data.Tables[0];
+
+          string sFilterText = txtDSVSearch.Text;
+          if (string.IsNullOrEmpty(sFilterText))
+            table.DefaultView.RowFilter = string.Empty;
+          else
+          {
+            StringBuilder sb = new StringBuilder();
+            foreach (DataColumn column in table.Columns)
+            {
+              sb.AppendFormat("CONVERT({0}, System.String) Like '%{1}%' OR ", column.ColumnName, sFilterText);
+            }
+
+            sb.Remove(sb.Length - 3, 3); // Remove "OR "
+            table.DefaultView.RowFilter = sb.ToString();
+          }
+          _viewDSVList.View.Refresh();
+        }
+      });
+    }
+
+
+    private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
+    {
+      addSelectedItemsToDataModel();
+    }
+
+
+    private void dgDSVList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+      addSelectedItemsToDataModel();
+    }
+
+
+    private void addSelectedItemsToDataModel()
+    {
+      foreach (var item in dgDSVList.SelectedItems)
+      {
+        if (item is DataRowView rowView)
+        {
+          DataRow row = rowView.Row;
+          if (_dm.GetRaces().Count > 0)
+          {
+            foreach (var r in _dm.GetRaces())
+            {
+              RaceImport imp = new RaceImport(r, _dsvData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
+              RaceParticipant rp = imp.ImportRow(row);
+            }
+          }
+          else
+          {
+            ParticipantImport partImp = new ParticipantImport(_dm.GetParticipants(), _dsvData.Mapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
+            partImp.ImportRow(row);
+          }
+        }
+      }
+    }
+
+
+    private void btnDSVImportOnlineU12_Click(object sender, RoutedEventArgs e)
+    {
+      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger);
+    }
+
+    private void btnDSVImportOnlineU14_Click(object sender, RoutedEventArgs e)
+    {
+      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
+    }
+
+    private void btnDSVImportOnlineU18_Click(object sender, RoutedEventArgs e)
+    {
+      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);
+    }
+
+    private void importDSVOnline(DSVImportReaderZipBase.EDSVListType type)
+    {
+      try
+      {
+        _dsvData.UpdateDSVList(new DSVImportReaderOnline(type));
+      }
+      catch(Exception e)
+      {
+        MessageBox.Show("Die DSV Liste konnte nicht importiert werden.\n\nFehlermeldung: " + e.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+      }
+      updateDSVGrid();
+    }
+
+
+    private void btnDSVImportFile_Click(object sender, RoutedEventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      if (openFileDialog.ShowDialog() == true)
+      {
+        string path = openFileDialog.FileName;
+        IDSVImportReaderFile dsvImportReader;
+        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
+          dsvImportReader = new DSVImportReaderZip(path, DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
+        else
+          dsvImportReader = new DSVImportReaderFile(path);
+
+        try
+        {
+          _dsvData.UpdateDSVList(dsvImportReader);
+        }
+        catch (Exception exc)
+        {
+          MessageBox.Show("Die DSV Liste konnte nicht importiert werden.\n\nFehlermeldung: " + exc.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        updateDSVGrid();
+      }
+    }
+
+
+    private void btnDSVUpdatePoints_Click(object sender, RoutedEventArgs e)
+    {
+      var impRes = DSVUpdatePoints.UpdatePoints(_dm, _dsvData.Data, _dsvData.Mapping, _dsvData.UsedDSVList);
+      showUpdatePointsResult(impRes, _dsvData.UsedDSVList);
+    }
+
+
+    private void showUpdatePointsResult(List<ImportResults> impRes, string usedDSVLists)
+    {
+      string messageTextDetails = "";
+
+      messageTextDetails += string.Format("Benutzte DSV Liste: {0}\n\n", usedDSVLists);
+
+      int nRace = 0;
+      foreach (var i in impRes)
+      {
+        Race race = _dm.GetRace(nRace);
+
+        string notFoundParticipants = string.Join("\n", i.Errors);
+
+        messageTextDetails += string.Format(
+          "Zusammenfassung für das Rennen \"{0}\":\n" +
+          "- Punkte erfolgreich aktualisiert: {1}\n",
+          race.ToString(), i.SuccessCount);
+
+        if (i.ErrorCount > 0)
+        {
+          messageTextDetails += string.Format("\n" +
+            "- Teilnehmer nicht gefunden: {0}\n" +
+            "{1}",
+            i.ErrorCount, notFoundParticipants);
+        }
+
+        messageTextDetails += "\n";
+      }
+
+      MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private void dgDSVList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      btnDSVAdd.IsEnabled = dgDSVList.SelectedItems.Count > 0;
+    }
+
+
+    private void KeyDownHandler(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.D && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+      {
+        txtDSVSearch.Focus();
+        txtDSVSearch.SelectAll();
+      }
+    }
+  }
+}

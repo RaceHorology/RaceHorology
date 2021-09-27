@@ -104,6 +104,7 @@ namespace RaceHorology
 
       ucClassesAndGroups.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
+      ucFISImport.Init(_dm, _dsvData);
     }
 
     #region RaceTabs
