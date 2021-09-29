@@ -137,7 +137,7 @@ namespace RaceHorologyLib
         {
           if (group is System.Windows.Data.CollectionViewGroup cvGroup)
           {
-            var lblGroup = axis.CustomLabels.Add(x1 - 0.5, x1 + 0.5, workaroundGermanUmlaut(cvGroup.Name.ToString()));
+            var lblGroup = axis.CustomLabels.Add(x1 - 0.5, x1 + 0.5, workaroundGermanUmlaut(cvGroup.GetName()));
             lblGroup.GridTicks = GridTickTypes.None;
 
             // Second Level if possible
@@ -328,7 +328,7 @@ namespace RaceHorologyLib
         {
           if (group is System.Windows.Data.CollectionViewGroup cvGroup)
           {
-            System.Windows.Forms.DataVisualization.Charting.Series ds = new Series(cvGroup.Name.ToString());
+            System.Windows.Forms.DataVisualization.Charting.Series ds = new Series(cvGroup.GetName());
 
             if (cvGroup.Items.Count > 0)
             {
@@ -341,7 +341,7 @@ namespace RaceHorologyLib
             chart.Series.Add(ds);
             ds.Enabled = true;
 
-            //Series dsBB = new Series("BoxPlot" + cvGroup.Name.ToString());
+            //Series dsBB = new Series("BoxPlot" + cvGroup.GetName());
             //dsBB.ChartType = SeriesChartType.BoxPlot;
             //dsBB["BoxPlotSeries"] = ds.Name;
             //dsBB["BoxPlotWhiskerPercentile"] = "5";
