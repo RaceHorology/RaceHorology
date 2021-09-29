@@ -189,7 +189,7 @@ namespace RaceHorologyLibTest
         foreach (var group in view.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
-          // Group(Name) would be: cvGroup.Name.ToString()
+          // Group(Name) would be: cvGroup.GetName()
 
           foreach (var item in cvGroup.Items)
             resList.Add((T)item);
