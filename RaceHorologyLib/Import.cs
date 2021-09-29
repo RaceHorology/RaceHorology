@@ -91,7 +91,7 @@ namespace RaceHorologyLib
       else
       {
         // Excel
-        var stream = File.Open(path, FileMode.Open, FileAccess.Read);
+        var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         reader = ExcelReaderFactory.CreateReader(stream);
         _dataSet = reader.AsDataSet(new ExcelDataSetConfiguration() { ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration() { UseHeaderRow = true } });
       }
