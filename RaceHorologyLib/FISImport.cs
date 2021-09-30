@@ -113,6 +113,7 @@ namespace RaceHorologyLib
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+    protected string _fisExcelFile;
     protected List<string> _columns;
     protected DataSet _dataSet;
     protected string _usedFISList;
@@ -124,8 +125,12 @@ namespace RaceHorologyLib
 
     public FISImportReader(string fisExcelFile)
     {
+      _fisExcelFile = fisExcelFile;
+
       readData(fisExcelFile);
     }
+
+    public string FileName { get => _fisExcelFile; }
 
     public DataSet Data { get => _dataSet; }
 

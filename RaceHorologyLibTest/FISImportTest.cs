@@ -124,10 +124,10 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("SKIING A.S.D.", row["Skiclub"]);
         Assert.AreEqual("ITA", row["Nationcode"]);
         Assert.AreEqual("M", row["Gender"]);
-        Assert.AreEqual(145.06, row["DHPoints"]);
-        Assert.AreEqual(66.38, row["SLPoints"]);
-        Assert.AreEqual(66.48, row["GSPoints"]);
-        Assert.AreEqual(99.09, row["SGPoints"]);
+        Assert.AreEqual(145.06, row["DHpoints"]);
+        Assert.AreEqual(66.38, row["SLpoints"]);
+        Assert.AreEqual(66.48, row["GSpoints"]);
+        Assert.AreEqual(99.09, row["SGpoints"]);
       }
       //{
       //  DataRow row = reader.Data.Tables[0].Rows[1881];

@@ -63,8 +63,8 @@ namespace RaceHorology
 
     AppDataModel _dm;
 
-    DSVInterfaceModel _dsvData;
-    CollectionViewSource _viewDSVList;
+    FISInterfaceModel _importData;
+    CollectionViewSource _viewList;
 
     public FISImportUC()
     {
@@ -72,57 +72,57 @@ namespace RaceHorology
     }
 
 
-    public void Init(AppDataModel dm, DSVInterfaceModel dsvData)
+    public void Init(AppDataModel dm, FISInterfaceModel fisData)
     {
       _dm = dm;
-      _dsvData = dsvData;
+      _importData = fisData;
 
       this.KeyDown += new KeyEventHandler(KeyDownHandler);
 
-      initDSVAddToList();
+      initAddToList();
     }
 
 
 
-    void initDSVAddToList()
+    void initAddToList()
     {
-      updateDSVGrid();
+      updateGrid();
 
-      txtDSVSearch.TextChanged += new DelayedEventHandler(
+      txtSearch.TextChanged += new DelayedEventHandler(
           TimeSpan.FromMilliseconds(300),
-          txtDSVSearch_TextChanged
+          txtSearch_TextChanged
       ).Delayed;
     }
 
-    void updateDSVGrid()
+    void updateGrid()
     {
-      if (_dsvData.Data != null)
+      if (_importData.Data != null)
       {
-        _viewDSVList = new CollectionViewSource();
-        _viewDSVList.Source = _dsvData.Data.Tables[0].DefaultView;
-        dgDSVList.ItemsSource = _viewDSVList.View;
+        _viewList = new CollectionViewSource();
+        _viewList.Source = _importData.Data.Tables[0].DefaultView;
+        dgList.ItemsSource = _viewList.View;
 
-        lblVersion.Content = string.Format("Version: {0} ({1})", _dsvData?.UsedDSVList, _dsvData.Date?.ToString("d"));
+        lblVersion.Content = string.Format("Version: {0} ({1})", _importData?.UsedList, _importData.Date?.ToString("d"));
 
-        txtDSVSearch_TextChanged(null, null); // Update search
-        dgDSVList_SelectionChanged(null, null); // Update button status
+        txtSearch_TextChanged(null, null); // Update search
+        dgList_SelectionChanged(null, null); // Update button status
       }
       else
       {
-        lblVersion.Content = string.Format("Version: --- (keine DSV Liste importiert)");
+        lblVersion.Content = string.Format("Version: --- (keine FIS Liste importiert)");
       }
     }
 
 
-    private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
+    private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        if (_dsvData?.Data != null)
+        if (_importData?.Data != null)
         {
-          DataTable table = _dsvData.Data.Tables[0];
+          DataTable table = _importData.Data.Tables[0];
 
-          string sFilterText = txtDSVSearch.Text;
+          string sFilterText = txtSearch.Text;
           if (string.IsNullOrEmpty(sFilterText))
             table.DefaultView.RowFilter = string.Empty;
           else
@@ -136,19 +136,19 @@ namespace RaceHorology
             sb.Remove(sb.Length - 3, 3); // Remove "OR "
             table.DefaultView.RowFilter = sb.ToString();
           }
-          _viewDSVList.View.Refresh();
+          _viewList.View.Refresh();
         }
       });
     }
 
 
-    private void btnDSVAdd_Click(object sender, RoutedEventArgs e)
+    private void btnAdd_Click(object sender, RoutedEventArgs e)
     {
       addSelectedItemsToDataModel();
     }
 
 
-    private void dgDSVList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    private void dgList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
       addSelectedItemsToDataModel();
     }
@@ -156,7 +156,7 @@ namespace RaceHorology
 
     private void addSelectedItemsToDataModel()
     {
-      foreach (var item in dgDSVList.SelectedItems)
+      foreach (var item in dgList.SelectedItems)
       {
         if (item is DataRowView rowView)
         {
@@ -165,13 +165,13 @@ namespace RaceHorology
           {
             foreach (var r in _dm.GetRaces())
             {
-              RaceImport imp = new RaceImport(r, _dsvData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
+              RaceImport imp = new RaceImport(r, _importData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
               RaceParticipant rp = imp.ImportRow(row);
             }
           }
           else
           {
-            ParticipantImport partImp = new ParticipantImport(_dm.GetParticipants(), _dsvData.Mapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
+            ParticipantImport partImp = new ParticipantImport(_dm.GetParticipants(), _importData.Mapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
             partImp.ImportRow(row);
           }
         }
@@ -179,73 +179,41 @@ namespace RaceHorology
     }
 
 
-    private void btnDSVImportOnlineU12_Click(object sender, RoutedEventArgs e)
-    {
-      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger);
-    }
-
-    private void btnDSVImportOnlineU14_Click(object sender, RoutedEventArgs e)
-    {
-      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
-    }
-
-    private void btnDSVImportOnlineU18_Click(object sender, RoutedEventArgs e)
-    {
-      importDSVOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);
-    }
-
-    private void importDSVOnline(DSVImportReaderZipBase.EDSVListType type)
-    {
-      try
-      {
-        _dsvData.UpdateDSVList(new DSVImportReaderOnline(type));
-      }
-      catch(Exception e)
-      {
-        MessageBox.Show("Die DSV Liste konnte nicht importiert werden.\n\nFehlermeldung: " + e.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
-      }
-      updateDSVGrid();
-    }
-
-
-    private void btnDSVImportFile_Click(object sender, RoutedEventArgs e)
+    private void btnImportFile_Click(object sender, RoutedEventArgs e)
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       if (openFileDialog.ShowDialog() == true)
       {
         string path = openFileDialog.FileName;
-        IDSVImportReaderFile dsvImportReader;
-        if (System.IO.Path.GetExtension(path).ToLowerInvariant() == ".zip")
-          dsvImportReader = new DSVImportReaderZip(path, DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
-        else
-          dsvImportReader = new DSVImportReaderFile(path);
+
+        FISImportReader importReader = new FISImportReader(path);
 
         try
         {
-          _dsvData.UpdateDSVList(dsvImportReader);
+          _importData.UpdateFISList(importReader);
         }
         catch (Exception exc)
         {
-          MessageBox.Show("Die DSV Liste konnte nicht importiert werden.\n\nFehlermeldung: " + exc.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+          MessageBox.Show("Die FIS Liste konnte nicht importiert werden.\n\nFehlermeldung: " + exc.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        updateDSVGrid();
+        updateGrid();
       }
     }
 
 
-    private void btnDSVUpdatePoints_Click(object sender, RoutedEventArgs e)
+    private void btnUpdatePoints_Click(object sender, RoutedEventArgs e)
     {
-      var impRes = DSVUpdatePoints.UpdatePoints(_dm, _dsvData.Data, _dsvData.Mapping, _dsvData.UsedDSVList);
-      showUpdatePointsResult(impRes, _dsvData.UsedDSVList);
+      var impRes = DSVUpdatePoints.UpdatePoints(_dm, _importData.Data, _importData.Mapping, _importData.UsedList);
+      showUpdatePointsResult(impRes, _importData.UsedList);
     }
 
 
-    private void showUpdatePointsResult(List<ImportResults> impRes, string usedDSVLists)
+    private void showUpdatePointsResult(List<ImportResults> impRes, string usedLists)
     {
       string messageTextDetails = "";
 
-      messageTextDetails += string.Format("Benutzte DSV Liste: {0}\n\n", usedDSVLists);
+      messageTextDetails += string.Format("Benutzte FIS Liste: {0}\n\n", usedLists);
 
       int nRace = 0;
       foreach (var i in impRes)
@@ -273,9 +241,9 @@ namespace RaceHorology
       MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
-    private void dgDSVList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void dgList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      btnDSVAdd.IsEnabled = dgDSVList.SelectedItems.Count > 0;
+      btnAdd.IsEnabled = dgList.SelectedItems.Count > 0;
     }
 
 
@@ -283,9 +251,10 @@ namespace RaceHorology
     {
       if (e.Key == Key.D && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
       {
-        txtDSVSearch.Focus();
-        txtDSVSearch.SelectAll();
+        txtSearch.Focus();
+        txtSearch.SelectAll();
       }
     }
+
   }
 }

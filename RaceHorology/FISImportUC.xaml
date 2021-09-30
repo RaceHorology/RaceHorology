@@ -24,16 +24,16 @@
 
       <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
         <Label Content="Filter (&lt;Ctrl&gt;-D):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
-        <TextBox x:Name="txtDSVSearch" Width="100" Margin="5" Grid.Column="3" />
+        <TextBox x:Name="txtSearch" Width="100" Margin="5" Grid.Column="3" />
       </StackPanel>
     </Grid>
 
-    <DataGrid x:Name="dgDSVList" Grid.Row="1" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionChanged="dgDSVList_SelectionChanged" MouseDoubleClick="dgDSVList_MouseDoubleClick">
+    <DataGrid x:Name="dgList" Grid.Row="1" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionChanged="dgList_SelectionChanged" MouseDoubleClick="dgList_MouseDoubleClick">
       <DataGrid.Columns>
-        <DataGridTextColumn Header="Id" Binding="{Binding SvId, Mode=OneWay}" />
-        <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+        <DataGridTextColumn Header="FIS-Code" Binding="{Binding Fiscode, Mode=OneWay}" />
+        <DataGridTextColumn Header="Name" Binding="{Binding Lastname, Mode=OneWay}" />
         <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-        <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}">
+        <DataGridTextColumn Header="Geschlecht" Binding="{Binding Gender, Mode=OneWay}">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Center" />
@@ -41,9 +41,17 @@
             </Style>
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
-        <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-        <DataGridTextColumn Header="Verband" Binding="{Binding Verband, Mode=OneWay}" />
-        <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay, StringFormat={}{0:0.00}}" >
+        <DataGridTextColumn Header="Jahrgang" Binding="{Binding Birthyear, Mode=OneWay}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Center" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Verein" Binding="{Binding Skiclub, Mode=OneWay}" />
+        <DataGridTextColumn Header="Land" Binding="{Binding Nationcode, Mode=OneWay}" />
+        <DataGridTextColumn Header="Punkte-DH" Binding="{Binding DHPoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
@@ -51,10 +59,18 @@
             </Style>
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
-        <DataGridTextColumn Header="Geschlecht" Binding="{Binding Sex, Mode=OneWay}">
+        <DataGridTextColumn Header="Punkte-SL" Binding="{Binding SLPoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
-              <Setter Property="HorizontalAlignment" Value="Center" />
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Punkte-GS" Binding="{Binding GSPoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
               <Setter Property="Margin" Value="5,0,5,0" />
             </Style>
           </DataGridTextColumn.ElementStyle>
@@ -63,25 +79,15 @@
     </DataGrid>
 
     <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
-      <RibbonMenuButton x:Name="mbtnDsvImport" Label="DSV Daten importieren" Margin="5" Background="#FFDDDDDD" BorderBrush="#FF707070" BorderThickness="1">
-        
-        <RibbonMenuItem x:Name="mbtnDsvImportOnline" Header="Online" >
-          <RibbonMenuItem  x:Name="mbtnDsvImportOnlineU12" Header="Kinderliste (U12 und jünger)" Click="btnDSVImportOnlineU12_Click" />
-          <RibbonMenuItem  x:Name="mbtnDsvImportOnlineU14" Header="Schüler (U14 und U16)" Click="btnDSVImportOnlineU14_Click" />
-          <RibbonMenuItem  x:Name="mbtnDsvImportOnlineU18" Header="Jugend und Aktive (U18 und älter)" Click="btnDSVImportOnlineU18_Click" />
-        </RibbonMenuItem>
-      
-        <RibbonMenuItem x:Name="mbtnDsvImportFile" Header="Datei" Click="btnDSVImportFile_Click" />
-      
-      </RibbonMenuButton>
+      <Button x:Name="btnImportFile" Content="FIS Daten importieren" Margin="5" Padding="5" Click="btnImportFile_Click"/>
     </StackPanel>
 
     <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-      <Button x:Name="btnDSVUpdatePoints" Content="Punkte aller Teilnehmer aktualisieren" Margin="5" Padding="5" Click="btnDSVUpdatePoints_Click"/>
+      <Button x:Name="btnUpdatePoints" Content="Punkte aller Teilnehmer aktualisieren" Margin="5" Padding="5" Click="btnUpdatePoints_Click"/>
     </StackPanel>
 
     <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-      <Button x:Name="btnDSVAdd" Content="Teilnehmer übernehmen" Margin="5" Padding="5" Click="btnDSVAdd_Click"/>
+      <Button x:Name="btnAdd" Content="Teilnehmer übernehmen" Margin="5" Padding="5" Click="btnAdd_Click"/>
     </StackPanel>
 
   </Grid>

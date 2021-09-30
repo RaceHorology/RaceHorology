@@ -68,6 +68,7 @@ namespace RaceHorology
 
     AppDataModel _dm;
     DSVInterfaceModel _dsvData;
+    FISInterfaceModel _fisData;
 
     LiveTimingMeasurement _liveTimingMeasurement;
     TextBox _txtLiveTimingStatus;
@@ -79,6 +80,7 @@ namespace RaceHorology
     {
       _dm = dm;
       _dsvData = new DSVInterfaceModel(_dm);
+      _fisData = new FISInterfaceModel(_dm);
 
       ParticipantClasses = _dm.GetParticipantClasses();
       ParticipantCategories = _dm.GetParticipantCategories();
@@ -104,7 +106,7 @@ namespace RaceHorology
 
       ucClassesAndGroups.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
-      ucFISImport.Init(_dm, _dsvData);
+      ucFISImport.Init(_dm, _fisData);
     }
 
     #region RaceTabs
