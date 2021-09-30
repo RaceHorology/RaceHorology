@@ -98,7 +98,7 @@ namespace RaceHorologyLib
 
     public string UsedList
     {
-      get => "not implemented";
+      get => _localReader.UsedFISList;
     }
 
     public DateTime? Date

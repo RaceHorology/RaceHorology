@@ -102,7 +102,7 @@ namespace RaceHorologyLibTest
       reader.Columns.Contains("Fiscode");
 
       Assert.AreEqual("5th FIS points list 2021/2022", reader.UsedFISList);
-      //Assert.AreEqual(new DateTime(2020, 2, 23), reader.Date);
+      Assert.AreEqual(new DateTime(2021, 9, 14), reader.Date);
 
       //Assert.IsNotNull(reader.Mapping);
 

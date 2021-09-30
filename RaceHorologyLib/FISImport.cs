@@ -148,16 +148,30 @@ namespace RaceHorologyLib
 
       Mapping = new FISMapping();
 
-      _usedFISList = derriveListname(_dataSet);
+      _usedFISList = derriveListName(_dataSet);
+      _listDate = derriveListDate(_dataSet);
 
       deleteUnusedColumns(_dataSet);
 
       _columns = ImportUtils.extractFields(_dataSet);
     }
 
-    protected string derriveListname(DataSet dataSet)
+    protected string derriveListName(DataSet dataSet)
     {
       return _dataSet.Tables[0].Rows[0]["Listname"].ToString();
+    }
+    protected DateTime? derriveListDate(DataSet dataSet)
+    {
+      string sDate = _dataSet.Tables[0].Rows[0]["Calculationdate"].ToString();
+      DateTime? date = null;
+
+      try
+      {
+        date = DateTime.ParseExact(sDate, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
+      }
+      catch (Exception) { }
+
+      return date;
     }
 
 
