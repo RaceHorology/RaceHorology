@@ -51,7 +51,7 @@
         </DataGridTextColumn>
         <DataGridTextColumn Header="Verein" Binding="{Binding Skiclub, Mode=OneWay}" />
         <DataGridTextColumn Header="Land" Binding="{Binding Nationcode, Mode=OneWay}" />
-        <DataGridTextColumn Header="Punkte-DH" Binding="{Binding DHPoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
+        <DataGridTextColumn Header="Punkte-DH" Binding="{Binding DHpoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
@@ -59,7 +59,7 @@
             </Style>
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
-        <DataGridTextColumn Header="Punkte-SL" Binding="{Binding SLPoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
+        <DataGridTextColumn Header="Punkte-SL" Binding="{Binding SLpoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
@@ -67,7 +67,7 @@
             </Style>
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
-        <DataGridTextColumn Header="Punkte-GS" Binding="{Binding GSPoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
+        <DataGridTextColumn Header="Punkte-GS" Binding="{Binding GSpoints, Mode=OneWay, StringFormat={}{0:0.00}}" >
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
