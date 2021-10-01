@@ -129,17 +129,6 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(66.48, row["GSpoints"]);
         Assert.AreEqual(99.09, row["SGpoints"]);
       }
-      //{
-      //  DataRow row = reader.Data.Tables[0].Rows[1881];
-      //  Assert.AreEqual("26134", row["SvId"]);
-      //  Assert.AreEqual("OETSCHMANN", row["Name"]);
-      //  Assert.AreEqual("Sophie", row["Firstname"]);
-      //  Assert.AreEqual(2005U, row["Year"]);
-      //  Assert.AreEqual("DAV Peissenberg", row["Club"]);
-      //  Assert.AreEqual("BSV-WF", row["Verband"]);
-      //  Assert.AreEqual(177.98, row["Points"]);
-      //  Assert.AreEqual("W", row["Sex"]);
-      //}
     }
 
 
