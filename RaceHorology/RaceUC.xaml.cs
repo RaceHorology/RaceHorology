@@ -855,6 +855,15 @@ namespace RaceHorology
 
     }
 
+    private void dgRunning_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (dgRunning.SelectedItem is RunResult entry)
+      {
+        txtStartNumber.Text = entry.StartNumber.ToString();
+      }
+    }
+
+
     #endregion
 
   }
