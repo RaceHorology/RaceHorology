@@ -65,10 +65,14 @@ namespace RaceHorology
     {
       InitializeComponent();
 
-      Loaded += (s, e) => { // only at this point the control is ready
-        Window.GetWindow(this) // get the parent window
-              .Closing += (s1, e1) => Dispose(); //disposing logic here
-      };
+      if (Window.GetWindow(this) != null)
+      {
+        Loaded += (s, e) =>
+        { // only at this point the control is ready
+          Window.GetWindow(this) // get the parent window
+                .Closing += (s1, e1) => Dispose(); //disposing logic here
+        };
+      }
     }
 
     private void Dispose()
