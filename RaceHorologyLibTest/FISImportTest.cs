@@ -152,17 +152,18 @@ namespace RaceHorologyLibTest
     public void ImportFISParticipant()
     {
       TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.AddRace(new Race.RaceProperties { RaceType = Race.ERaceType.DownHill, Runs = 1 });
 
       var reader = new FISImportReader(@"FIS-points-list-AL-2022-330.xlsx");
 
-      RaceImport imp = new RaceImport(
-        tg.Model.GetRace(0),
-        reader.Mapping,
-        new ClassAssignment(tg.Model.GetParticipantClasses()));
-
-      var row = reader.Data.Tables[0].Rows[0];
-      RaceParticipant rp = imp.ImportRow(row);
       {
+        RaceImport imp = new RaceImport(
+          tg.Model.GetRace(0),
+          reader.GetMapping(tg.Model.GetRace(0)),
+          new ClassAssignment(tg.Model.GetParticipantClasses()));
+
+        var row = reader.Data.Tables[0].Rows[0];
+        RaceParticipant rp = imp.ImportRow(row);
         Assert.AreEqual("10000001", rp.Code);
         Assert.AreEqual("FERRETTI", rp.Name);
         Assert.AreEqual("Jacopo", rp.Firstname);
@@ -170,135 +171,47 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("SKIING A.S.D.", rp.Club);
         Assert.AreEqual("ITA", rp.Nation);
         Assert.AreEqual('M', rp.Sex.Name);
-        //Assert.AreEqual(145.06, row["DHpoints"]);
-        //Assert.AreEqual(66.38, row["SLpoints"]);
-        //Assert.AreEqual(66.48, row["GSpoints"]);
-        //Assert.AreEqual(99.09, row["SGpoints"]);
+        Assert.AreEqual(66.48, rp.Points); // GSpoints
       }
+
+      {
+        RaceImport imp = new RaceImport(
+          tg.Model.GetRace(1),
+          reader.GetMapping(tg.Model.GetRace(1)),
+          new ClassAssignment(tg.Model.GetParticipantClasses()));
+
+        var row = reader.Data.Tables[0].Rows[0];
+        RaceParticipant rp = imp.ImportRow(row);
+        Assert.AreEqual("10000001", rp.Code);
+        Assert.AreEqual("FERRETTI", rp.Name);
+        Assert.AreEqual("Jacopo", rp.Firstname);
+        Assert.AreEqual(2004U, rp.Year);
+        Assert.AreEqual("SKIING A.S.D.", rp.Club);
+        Assert.AreEqual("ITA", rp.Nation);
+        Assert.AreEqual('M', rp.Sex.Name);
+        Assert.AreEqual(145.06, rp.Points); // DHpoints
+      }
+
+
+
+      ///////////////////////////////////////////////////////////////////
+      /// FISUpdatePoints.UpdatePoints
+      ///////////////////////////////////////////////////////////////////
+
+      tg.Model.GetRace(0).GetParticipants()[0].Points = -1;
+      tg.Model.GetRace(1).GetParticipants()[0].Points = -1;
+
+      Assert.AreEqual(-1.0, tg.Model.GetRace(0).GetParticipants()[0].Points); // DHpoints
+      Assert.AreEqual(-1.0, tg.Model.GetRace(1).GetParticipants()[0].Points); // DHpoints
+
+      FISInterfaceModel fisImp = new FISInterfaceModel(tg.Model);
+      fisImp.UpdateFISList(reader);
+      FISUpdatePoints.UpdatePoints(tg.Model, fisImp);
+
+      Assert.AreEqual(66.48, tg.Model.GetRace(0).GetParticipants()[0].Points); // DHpoints
+      Assert.AreEqual(145.06, tg.Model.GetRace(1).GetParticipants()[0].Points); // DHpoints
     }
 
 
-
-    //[TestMethod]
-    //[DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
-    //[DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
-    //[DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
-    //public void UpdatePoints1()
-    //{
-    //  // Setup Data Model & Co
-    //  string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
-    //  Database db = new Database();
-    //  db.Connect(dbFilename);
-    //  AppDataModel model = new AppDataModel(db);
-    //  Race race = model.GetRace(0);
-
-    //  // Import DSV Point List
-    //  DSVImportReader dsvImportReader = new DSVImportReader(new DSVImportReaderZip(@"Punktelisten.zip", DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
-
-    //  // Check two prior
-    //  Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
-    //  Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
-
-    //  UpdatePointsImport import = new UpdatePointsImport(race, dsvImportReader.Mapping);
-    //  ImportResults impRes = import.DoImport(dsvImportReader.Data);
-
-    //  Assert.AreEqual(125, impRes.SuccessCount);
-    //  Assert.AreEqual(2, impRes.ErrorCount);
-
-    //  Assert.AreEqual(110.96, race.GetParticipants().First(r => r.SvId == "24438").Points);
-    //  Assert.AreEqual(100.33, race.GetParticipants().First(r => r.SvId == "25399").Points);
-    //}
-
-
-    //[TestMethod]
-    //[DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
-    //[DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
-    //[DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
-    //public void UpdatePoints2()
-    //{
-    //  // Setup Data Model & Co
-    //  string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
-    //  Database db = new Database();
-    //  db.Connect(dbFilename);
-    //  AppDataModel model = new AppDataModel(db);
-    //  Race race = model.GetRace(0);
-
-    //  // Import DSV Point List
-    //  DSVImportReader dsvImportReader = new DSVImportReader(new DSVImportReaderZip(@"Punktelisten.zip", DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
-
-    //  // Check two prior
-    //  Assert.AreEqual(148.86, race.GetParticipants().First(r => r.SvId == "24438").Points);
-    //  Assert.AreEqual(129.12, race.GetParticipants().First(r => r.SvId == "25399").Points);
-
-    //  var impRes = DSVUpdatePoints.UpdatePoints(model, dsvImportReader.Data, dsvImportReader.Mapping, dsvImportReader.UsedDSVList);
-
-    //  Assert.AreEqual(1, impRes.Count);
-    //  Assert.AreEqual(125, impRes[0].SuccessCount);
-    //  Assert.AreEqual(2, impRes[0].ErrorCount);
-
-    //  Assert.AreEqual(110.96, race.GetParticipants().First(r => r.SvId == "24438").Points);
-    //  Assert.AreEqual(100.33, race.GetParticipants().First(r => r.SvId == "25399").Points);
-
-    //  Assert.AreEqual("DSVSA20END", model.GetDB().GetKeyValue("DSV_UsedDSVList"));
-    //}
-
-
-
-
-    //[TestMethod]
-    //[DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
-    //[DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
-    //[DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
-    //public void DSVInterfaceModel_Test1()
-    //{
-    //  // Setup Data Model & Co
-    //  string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
-    //  Database db = new Database();
-    //  db.Connect(dbFilename);
-    //  AppDataModel dm = new AppDataModel(db);
-
-    //  {
-    //    // Initially, there aren't any data available
-    //    DSVInterfaceModel dsvIF = new DSVInterfaceModel(dm);
-    //    Assert.IsNull(dsvIF.Data, "Is null initially");
-    //    Assert.IsNull(dsvIF.Date, "Is null initially");
-
-    //    var reader = new DSVImportReader(new DSVImportReaderZip("Punktelisten.zip", DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
-
-    //    dsvIF.UpdateDSVList(new DSVImportReaderZip("Punktelisten.zip", DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
-
-    //    Assert.AreEqual(reader.Data.Tables[0].Rows.Count, dsvIF.Data.Tables[0].Rows.Count);
-    //    Assert.AreEqual(reader.Date, dsvIF.Date);
-    //    Assert.AreEqual(reader.UsedDSVList, dsvIF.UsedDSVList);
-    //  }
-    //}
-
-    //[TestMethod]
-    //[DeploymentItem(@"TestDataBases\Import\DSV\Punktelisten.zip")]
-    //public void DSVInterfaceModel_Test_ContainsParticipant()
-    //{
-    //  // Setup Data Model & Co
-    //  var tg = new TestDataGenerator();
-    //  var dm = tg.Model;
-
-    //  DSVInterfaceModel dsvIF = new DSVInterfaceModel(dm);
-    //  dsvIF.UpdateDSVList(new DSVImportReaderZip("Punktelisten.zip", DSVImportReaderZipBase.EDSVListType.Pupils_U14U16));
-
-    //  var imp = new ParticipantImport(dm.GetParticipants(), dsvIF.Mapping, dm.GetParticipantCategories(), new ClassAssignment(dm.GetParticipantClasses()));
-    //  var participant = imp.ImportRow(dsvIF.Data.Tables[0].Rows[0]);
-
-    //  // Check if imported participant is available
-    //  Assert.IsTrue(dsvIF.ContainsParticipant(participant));
-    //  string storedName = participant.Name;
-
-    //  // Modify participant, check if detected as not existing anymore
-    //  participant.Name = "123";
-    //  Assert.IsFalse(dsvIF.ContainsParticipant(participant));
-
-    //  // Correct it again, check whether existing again
-    //  participant.Name = storedName;
-    //  Assert.IsTrue(dsvIF.ContainsParticipant(participant));
-
-    //}
   }
 }

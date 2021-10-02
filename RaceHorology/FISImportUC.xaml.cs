@@ -165,13 +165,13 @@ namespace RaceHorology
           {
             foreach (var r in _dm.GetRaces())
             {
-              RaceImport imp = new RaceImport(r, _importData.Mapping, new ClassAssignment(_dm.GetParticipantClasses()));
+              RaceImport imp = new RaceImport(r, _importData.GetMapping(r), new ClassAssignment(_dm.GetParticipantClasses()));
               RaceParticipant rp = imp.ImportRow(row);
             }
           }
           else
           {
-            ParticipantImport partImp = new ParticipantImport(_dm.GetParticipants(), _importData.Mapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
+            ParticipantImport partImp = new ParticipantImport(_dm.GetParticipants(), _importData.GetMapping(null), _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
             partImp.ImportRow(row);
           }
         }
@@ -204,7 +204,7 @@ namespace RaceHorology
 
     private void btnUpdatePoints_Click(object sender, RoutedEventArgs e)
     {
-      var impRes = DSVUpdatePoints.UpdatePoints(_dm, _importData.Data, _importData.Mapping, _importData.UsedList);
+      var impRes = FISUpdatePoints.UpdatePoints(_dm, _importData);
       showUpdatePointsResult(impRes, _importData.UsedList);
     }
 

@@ -49,17 +49,19 @@ namespace RaceHorologyLib
 
   static public class FISUpdatePoints
   {
-    static public List<ImportResults> UpdatePoints(AppDataModel dm, DataSet data, Mapping mapping, string usedFISList)
+    static public List<ImportResults> UpdatePoints(AppDataModel dm, FISInterfaceModel fisData)
     {
       List<ImportResults> impRes = new List<ImportResults>();
       
       foreach (Race race in dm.GetRaces())
       {
+        var mapping = fisData.GetMapping(race);
+
         UpdatePointsImport import = new UpdatePointsImport(race, mapping);
-        var res = import.DoImport(data);
+        var res = import.DoImport(fisData.Data);
         impRes.Add(res);
       }
-      dm.GetDB().StoreKeyValue("FIS_UsedFISList", usedFISList);
+      dm.GetDB().StoreKeyValue("FIS_UsedFISList", fisData.UsedList);
 
       return impRes;
     }
@@ -70,35 +72,76 @@ namespace RaceHorologyLib
   /// </summary>
   public class FISMapping : Mapping
   {
+
     /// <summary>
     /// Map defining the required fields and potential available fields
     /// </summary>
-    static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
-    {
-      { "Code", new List<string>{"Fiscode"} },
-      { "Name", new List<string>{ "Lastname" } },
-      { "Firstname", new List<string>{ "Firstname"} },
-      { "Year", new List<string>{ "Birthyear" } },
-      { "Club", new List<string>{ "Skiclub" } },
-      { "Nation", new List<string>{ "Nationcode" } },
-      { "Points", new List<string>{"DHpoints"} },
-      { "Sex", new List<string>{"Gender"} }
-    };
+    private Dictionary<string, List<string>> _requiredField;
 
-    static List<string> _availableFields = new List<string>
+    static string getFISPointField(Race race)
     {
-      "Fiscode",
-      "Lastname",
-      "Firstname",
-      "Birthyear",
-      "Skiclub",
-      "Nationcode",
-      "DHpoints",
-      "Gender"
-    };
+      if (race != null)
+      {
+        switch (race.RaceType)
+        {
+          case Race.ERaceType.DownHill:
+            return "DHpoints";
+          case Race.ERaceType.GiantSlalom:
+            return "GSpoints";
+          case Race.ERaceType.Slalom:
+            return "SLpoints";
+          case Race.ERaceType.SuperG:
+            return "SGpoints";
+        }
+      }
+      return null;
+    }
 
-    public FISMapping() : base(_requiredField.Keys, _availableFields)
+    static Dictionary<string, List<string>> createRequiredFields(Race race)
     {
+      var fields = new Dictionary<string, List<string>>
+      {
+        { "Code", new List<string>{"Fiscode"} },
+        { "Name", new List<string>{ "Lastname" } },
+        { "Firstname", new List<string>{ "Firstname"} },
+        { "Year", new List<string>{ "Birthyear" } },
+        { "Club", new List<string>{ "Skiclub" } },
+        { "Nation", new List<string>{ "Nationcode" } },
+        { "Sex", new List<string>{"Gender"} }
+      };
+
+      var fieldPoints = getFISPointField(race);
+      if (!string.IsNullOrEmpty(fieldPoints))
+        fields.Add("Points", new List<string> { fieldPoints });
+
+      return fields;
+    }
+
+    static List<string> createAvailableFields(Race race)
+    {
+      var fields = new List<string>
+      {
+        "Fiscode",
+        "Lastname",
+        "Firstname",
+        "Birthyear",
+        "Skiclub",
+        "Nationcode",
+        "Gender"
+      };
+
+      var fieldPoints = getFISPointField(race);
+      if (!string.IsNullOrEmpty(fieldPoints))
+        fields.Add(fieldPoints);
+
+      return fields;
+    }
+
+    public FISMapping(Race race) 
+      : base()
+    {
+      _requiredField = createRequiredFields(race);
+      initMapping(_requiredField.Keys, createAvailableFields(race));
     }
 
     protected override List<string> synonyms(string field)
@@ -119,8 +162,11 @@ namespace RaceHorologyLib
     protected string _usedFISList;
     protected DateTime? _listDate;
 
-    public Mapping Mapping { get; protected set; }
 
+    public Mapping GetMapping(Race race)
+    {
+      return new FISMapping(race);
+    }
 
 
     public FISImportReader(string fisExcelFile)
@@ -145,8 +191,6 @@ namespace RaceHorologyLib
       var stream = File.Open(fisExcelFile, FileMode.Open, FileAccess.Read, FileShare.Read);
       IExcelDataReader reader = ExcelReaderFactory.CreateReader(stream);
       _dataSet = reader.AsDataSet(new ExcelDataSetConfiguration() { ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration() { UseHeaderRow = true } });
-
-      Mapping = new FISMapping();
 
       _usedFISList = derriveListName(_dataSet);
       _listDate = derriveListDate(_dataSet);

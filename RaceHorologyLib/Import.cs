@@ -166,17 +166,13 @@ namespace RaceHorologyLib
     List<string> _availableFields;
     List<string> _requiredFields;
 
+    protected Mapping()
+    {
+    }
+
     public Mapping(IEnumerable<string> requiredFields, IEnumerable<string> availableFields)
     {
-      _availableFields = new List<string>();
-      _availableFields.Add("---");
-      _availableFields.AddRange(availableFields);
-      
-      _requiredFields = requiredFields.ToList();
-
-      _mapping = new ObservableCollection<MappingEntry>();
-
-      initMapping();
+      initMapping(requiredFields, availableFields);
     }
 
 
@@ -211,8 +207,16 @@ namespace RaceHorologyLib
     /// <summary>
     /// Initially populates the mapping
     /// </summary>
-    void initMapping()
+    protected void initMapping(IEnumerable<string> requiredFields, IEnumerable<string> availableFields)
     {
+      _availableFields = new List<string>();
+      _availableFields.Add("---");
+      _availableFields.AddRange(availableFields);
+
+      _requiredFields = requiredFields.ToList();
+
+      _mapping = new ObservableCollection<MappingEntry>();
+
       foreach (var v in _requiredFields)
       {
         Assign(v, guessMappedField(v));
@@ -729,7 +733,7 @@ namespace RaceHorologyLib
       // Update the points for all participants in the race
       foreach(var rp in _race.GetParticipants() )
       {
-        string key = rp.SvId;
+        string key = string.Format("{0}_{1}", rp.Code, rp.SvId);
 
         try
         {
@@ -759,7 +763,7 @@ namespace RaceHorologyLib
       var rows = ds.Tables[0].Rows;
       foreach (DataRow row in rows)
       {
-        string key = _partImportUtils.GetValueAsString(row, "SvId");
+        string key = string.Format("{0}_{1}", _partImportUtils.GetValueAsString(row, "Code"), _partImportUtils.GetValueAsString(row, "SvId"));
         _id2row.Add(key, row);
       }
     }

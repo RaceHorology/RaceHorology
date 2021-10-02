@@ -59,7 +59,7 @@ namespace RaceHorologyLib
       }
 
       if (_localReader != null)
-        _partImportUtils = new ParticipantImportUtils(_localReader.Mapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
+        _partImportUtils = new ParticipantImportUtils(_localReader.GetMapping(null), _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()));
       else
         _partImportUtils = null;
 
@@ -75,7 +75,7 @@ namespace RaceHorologyLib
 
       foreach (DataRow r in _localReader?.Data.Tables[0].Rows)
       {
-        if (r["SvId"]?.ToString() == p.CodeOrSvId)
+        if (r["Code"]?.ToString() == p.CodeOrSvId)
           return _partImportUtils.EqualsParticipant(p, r);
       }
 
@@ -91,9 +91,9 @@ namespace RaceHorologyLib
       get => _localReader?.Data; 
     }
 
-    public Mapping Mapping
+    public Mapping GetMapping(Race race)
     {
-      get => _localReader?.Mapping;
+      return _localReader.GetMapping(race);
     }
 
     public string UsedList
