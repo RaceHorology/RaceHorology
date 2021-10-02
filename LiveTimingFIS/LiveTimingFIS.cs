@@ -837,7 +837,10 @@ namespace LiveTimingFIS
             xw.WriteStartElement("finish");
             xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
 
-            xw.WriteElementString("time", ((TimeSpan)runTime).ToString(@"s\.ff"));
+            if (runTime != null)
+              xw.WriteElementString("time", ((TimeSpan)runTime).ToString(@"s\.ff"));
+            else
+              xw.WriteElementString("time", "0.00");
 
             if (result.DiffToFirst != null)
               xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
