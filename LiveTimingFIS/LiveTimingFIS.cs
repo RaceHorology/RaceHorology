@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -398,6 +398,16 @@ namespace LiveTimingFIS
 
       // Observes for changes and triggers UpdateMethods, also sends data initially
       _delegator = new LiveTimingDelegator(_race, this);
+
+      // Figure out the right run and set it
+      foreach (var r in _race.GetRuns())
+      {
+        if (!r.IsComplete)
+        {
+          SetActiveRaceRun(r);
+          break;
+        }
+      }
     }
 
     public void Stop()
