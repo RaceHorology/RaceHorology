@@ -130,6 +130,7 @@
     <Compile Include="DSVAlpinDatabaseTests.cs" />
     <Compile Include="DSVCalculationTests.cs" />
     <Compile Include="DSVExportTest.cs" />
+    <Compile Include="FISImportTest.cs" />
     <Compile Include="DSVImportTest.cs" />
     <Compile Include="ExportTest.cs" />
     <Compile Include="HandTimingTest.cs" />
@@ -169,6 +170,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDataBases\Import\DSV\Punktelisten.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Import\FIS\FIS-points-list-AL-2022-330.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestDataBases\Import\Teilnehmer_Import_Race.xlsx">

@@ -68,6 +68,7 @@ namespace RaceHorology
 
     AppDataModel _dm;
     DSVInterfaceModel _dsvData;
+    FISInterfaceModel _fisData;
 
     LiveTimingMeasurement _liveTimingMeasurement;
     TextBox _txtLiveTimingStatus;
@@ -79,6 +80,7 @@ namespace RaceHorology
     {
       _dm = dm;
       _dsvData = new DSVInterfaceModel(_dm);
+      _fisData = new FISInterfaceModel(_dm);
 
       ParticipantClasses = _dm.GetParticipantClasses();
       ParticipantCategories = _dm.GetParticipantCategories();
@@ -104,6 +106,7 @@ namespace RaceHorology
 
       ucClassesAndGroups.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
+      ucFISImport.Init(_dm, _fisData);
     }
 
     #region RaceTabs
@@ -283,7 +286,7 @@ namespace RaceHorology
       // Connect with GUI DataGrids
       ObservableCollection<Participant> participants = _dm.GetParticipants();
 
-      _editParticipants = new ParticipantList(participants, _dm, _dsvData);
+      _editParticipants = new ParticipantList(participants, _dm, new IImportListProvider[] { _dsvData, _fisData });
 
       _viewParticipants = new CollectionViewSource();
       _viewParticipants.Source = _editParticipants;
@@ -687,15 +690,16 @@ namespace RaceHorology
     ParticpantOfRace _participantOfRace;
     bool _existsInImportList;
 
-    IImportListProvider _importList;
+    IImportListProvider[] _importList;
 
-    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider importList)
+    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider[] importList)
     {
       _participant = p;
       _participant.PropertyChanged += OnParticpantPropertyChanged;
 
       _importList = importList;
-      _importList.DataChanged += onDataChangedImportList;
+      foreach(var il in _importList)
+        il.DataChanged += onDataChangedImportList;
       updateExistsInImport();
 
       _participantOfRace = new ParticpantOfRace(p, races);
@@ -716,8 +720,12 @@ namespace RaceHorology
 
     bool checkInImport()
     {
-      // No list, assume existing
-      return _importList == null || _importList.ContainsParticipant(_participant);
+      bool res = false;
+      foreach (var il in _importList)
+      {
+        res |= il == null || il.ContainsParticipant(_participant);
+      }
+      return res;
     }
 
 
@@ -826,7 +834,7 @@ namespace RaceHorology
   /// </summary>
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
-    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider importList) 
+    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider[] importList) 
       : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList), false)
     { }
 
