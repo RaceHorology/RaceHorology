@@ -192,6 +192,9 @@
                 <TabItem Header="DSV Liste">
                   <local:DSVImportUC x:Name="ucDSVImport"/>
                 </TabItem>
+                <TabItem Header="FIS Liste">
+                  <local:FISImportUC x:Name="ucFISImport"/>
+                </TabItem>
               </TabControl>
 
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0" Grid.Row="2" Grid.Column="2">

@@ -81,7 +81,9 @@
     <Compile Include="DSVAlpin2HTTPServer.cs" />
     <Compile Include="DSVCalculations.cs" />
     <Compile Include="DSVExport.cs" />
+    <Compile Include="FISImport.cs" />
     <Compile Include="DSVImport.cs" />
+    <Compile Include="FISInterfaceModel.cs" />
     <Compile Include="DSVInterfaceModel.cs" />
     <Compile Include="Export.cs" />
     <Compile Include="HandTiming.cs" />
