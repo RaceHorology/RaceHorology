@@ -459,10 +459,15 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
-          <local:LiveTimingRMUC x:Name="liveTimingRMUC" Grid.Row="0"/>
-          <local:LiveTimingFISUC x:Name="liveTimingFISUC" Grid.Row="1" />
+          <Label Content="Rennmeldung.de" FontSize="16" Margin="5,5,0,0"/>
+          <local:LiveTimingRMUC x:Name="liveTimingRMUC" Grid.Row="1"/>
+
+          <Label Content="FIS" FontSize="16" Margin="5,25,0,0" Grid.Row="2"/>
+          <local:LiveTimingFISUC x:Name="liveTimingFISUC" Grid.Row="3" />
         </Grid>
       </TabItem>
       <TabItem Header="Zeitnahme" FontSize="12" >
