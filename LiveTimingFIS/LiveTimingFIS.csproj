@@ -56,10 +56,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LiveTimingFISVB\LiveTimingFISVB.vbproj">
-      <Project>{8365a0f5-e0d2-496c-8e19-680e3bff5cf4}</Project>
-      <Name>LiveTimingFISVB</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RaceHorologyLib\RaceHorologyLib.csproj">
       <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>
       <Name>RaceHorologyLib</Name>
