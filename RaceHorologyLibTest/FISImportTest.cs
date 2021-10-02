@@ -95,7 +95,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\FIS\FIS-points-list-AL-2022-330.xlsx")]
-    public void ImportPointList()
+    public void ImportFISList()
     {
       var reader = new FISImportReader(@"FIS-points-list-AL-2022-330.xlsx");
 
@@ -115,6 +115,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("Skiclub", reader.Columns[6]);
       Assert.AreEqual("Birthyear", reader.Columns[7]);
 
+      // Test first line of Input
       {
         DataRow row = reader.Data.Tables[0].Rows[0];
         Assert.AreEqual("10000001", row["Fiscode"]);
@@ -129,7 +130,53 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(66.48, row["GSpoints"]);
         Assert.AreEqual(99.09, row["SGpoints"]);
       }
+      // Test first line of Input
+      {
+        DataRow row = reader.Data.Tables[0].Rows[364];
+        Assert.AreEqual("107747", row["Fiscode"]);
+        Assert.AreEqual("SMART", row["Lastname"]);
+        Assert.AreEqual("Amelia", row["Firstname"]);
+        Assert.AreEqual("1998", row["Birthyear"]);
+        Assert.AreEqual("WINDERMERE", row["Skiclub"]);
+        Assert.AreEqual("CAN", row["Nationcode"]);
+        Assert.AreEqual("W", row["Gender"]);
+        Assert.AreEqual(999.99, row["DHpoints"]);
+        Assert.AreEqual(17.82, row["SLpoints"]);
+        Assert.AreEqual(41.29, row["GSpoints"]);
+        Assert.AreEqual(144.08, row["SGpoints"]);
+      }
     }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\FIS\FIS-points-list-AL-2022-330.xlsx")]
+    public void ImportFISParticipant()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      var reader = new FISImportReader(@"FIS-points-list-AL-2022-330.xlsx");
+
+      RaceImport imp = new RaceImport(
+        tg.Model.GetRace(0),
+        reader.Mapping,
+        new ClassAssignment(tg.Model.GetParticipantClasses()));
+
+      var row = reader.Data.Tables[0].Rows[0];
+      RaceParticipant rp = imp.ImportRow(row);
+      {
+        Assert.AreEqual("10000001", rp.Code);
+        Assert.AreEqual("FERRETTI", rp.Name);
+        Assert.AreEqual("Jacopo", rp.Firstname);
+        Assert.AreEqual(2004U, rp.Year);
+        Assert.AreEqual("SKIING A.S.D.", rp.Club);
+        Assert.AreEqual("ITA", rp.Nation);
+        Assert.AreEqual('M', rp.Sex.Name);
+        //Assert.AreEqual(145.06, row["DHpoints"]);
+        //Assert.AreEqual(66.38, row["SLpoints"]);
+        //Assert.AreEqual(66.48, row["GSpoints"]);
+        //Assert.AreEqual(99.09, row["SGpoints"]);
+      }
+    }
+
 
 
     //[TestMethod]
@@ -243,7 +290,7 @@ namespace RaceHorologyLibTest
     //  // Check if imported participant is available
     //  Assert.IsTrue(dsvIF.ContainsParticipant(participant));
     //  string storedName = participant.Name;
-      
+
     //  // Modify participant, check if detected as not existing anymore
     //  participant.Name = "123";
     //  Assert.IsFalse(dsvIF.ContainsParticipant(participant));

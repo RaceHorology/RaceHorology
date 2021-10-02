@@ -75,26 +75,26 @@ namespace RaceHorologyLib
     /// </summary>
     static Dictionary<string, List<string>> _requiredField = new Dictionary<string, List<string>>
     {
-      { "SvId", new List<string>{"SvId"} },
-      { "Name", new List<string>{ "Name" } },
+      { "Code", new List<string>{"Fiscode"} },
+      { "Name", new List<string>{ "Lastname" } },
       { "Firstname", new List<string>{ "Firstname"} },
-      { "Year", new List<string>{ "Year" } },
-      { "Club", new List<string>{ "Club" } },
-      { "Nation", new List<string>{ "Verband" } },
-      { "Points", new List<string>{"Points"} },
-      { "Sex", new List<string>{"Sex"} }
+      { "Year", new List<string>{ "Birthyear" } },
+      { "Club", new List<string>{ "Skiclub" } },
+      { "Nation", new List<string>{ "Nationcode" } },
+      { "Points", new List<string>{"DHpoints"} },
+      { "Sex", new List<string>{"Gender"} }
     };
 
     static List<string> _availableFields = new List<string>
     {
-      "SvId",
-      "Name",
+      "Fiscode",
+      "Lastname",
       "Firstname",
-      "Year",
-      "Club",
-      "Nation",
-      "Points",
-      "Sex"
+      "Birthyear",
+      "Skiclub",
+      "Nationcode",
+      "DHpoints",
+      "Gender"
     };
 
     public FISMapping() : base(_requiredField.Keys, _availableFields)
@@ -151,6 +151,12 @@ namespace RaceHorologyLib
       _usedFISList = derriveListName(_dataSet);
       _listDate = derriveListDate(_dataSet);
 
+      replaceEmptyPointsWith(_dataSet.Tables[0], "DHpoints", 999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "SLpoints", 999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "GSpoints", 999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "SGpoints", 999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "ACpoints", 999.99);
+
       deleteUnusedColumns(_dataSet);
 
       _columns = ImportUtils.extractFields(_dataSet);
@@ -172,6 +178,16 @@ namespace RaceHorologyLib
       catch (Exception) { }
 
       return date;
+    }
+
+
+    protected void replaceEmptyPointsWith(DataTable table, string column, double valueReplace)
+    {
+      foreach(DataRow row in table.Rows)
+      {
+        if (row[column] == System.DBNull.Value)
+          row[column] = valueReplace;
+      }
     }
 
 
