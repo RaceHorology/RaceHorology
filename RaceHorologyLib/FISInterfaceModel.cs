@@ -75,7 +75,7 @@ namespace RaceHorologyLib
 
       foreach (DataRow r in _localReader?.Data.Tables[0].Rows)
       {
-        if (r["Code"]?.ToString() == p.CodeOrSvId)
+        if (r["Fiscode"]?.ToString() == p.CodeOrSvId)
           return _partImportUtils.EqualsParticipant(p, r);
       }
 
