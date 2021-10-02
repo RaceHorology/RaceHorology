@@ -90,7 +90,7 @@ namespace RaceHorology
 
       InitializeRaceProperties();
 
-      InitializeLiveTiming();
+      InitializeLiveTiming(_thisRace);
 
       InitializeTiming();
 
@@ -297,156 +297,29 @@ namespace RaceHorology
 
     #region Live Timing
 
-    LiveTimingRM _liveTimingRM;
-
-    private void InitializeLiveTiming()
+    private void InitializeLiveTiming(Race race) 
     {
-      ResetLiveTimningUI(_thisRace.RaceConfiguration);
+      liveTimingRMUC.InitializeLiveTiming(race);
+      liveTimingFISUC.InitializeLiveTiming(race);
     }
-
-    private void ResetLiveTimningUI(RaceConfiguration cfg)
-    {
-      if (cfg.LivetimingParams == null)
-        return;
-
-      try
-      {
-        txtLTBewerb.Text = cfg.LivetimingParams["Bewerb"];
-        txtLTLogin.Text = cfg.LivetimingParams["Login"];
-        txtLTPassword.Password = cfg.LivetimingParams["Password"];
-      }
-      catch (KeyNotFoundException) { }
-    }
-
-
-    private void SelectLiveTimingEvent(string eventName)
-    {
-      cmbLTEvent.SelectedItem = eventName;
-    }
-
-
-    private void StoreLiveTiming(ref RaceConfiguration cfg)
-    {
-      cfg.LivetimingParams = new Dictionary<string, string>();
-      cfg.LivetimingParams["Bewerb"] = txtLTBewerb.Text;
-      cfg.LivetimingParams["Login"] = txtLTLogin.Text;
-      cfg.LivetimingParams["Password"] = txtLTPassword.Password;
-      cfg.LivetimingParams["EventName"] = cmbLTEvent.SelectedItem?.ToString();
-    }
-
 
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
     {
-      if (_liveTimingRM != null)
+      string text = "";
+      Application.Current.Dispatcher.Invoke(() =>
       {
-        string text = "";
-        Application.Current.Dispatcher.Invoke(() =>
+        if (sender is TextBox textBox)
         {
-          text = _txtLiveTimingStatus.Text;
-        });
-
-        _liveTimingRM.UpdateStatus(text);
-      }
-    }
-
-
-    private void BtnLTLogin_Click(object sender, RoutedEventArgs e)
-    {
-      RaceConfiguration cfg = _thisRace.RaceConfiguration;
-      StoreLiveTiming(ref cfg);
-      _thisRace.RaceConfiguration = cfg;
-
-      _liveTimingRM = new LiveTimingRM(_thisRace, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
-
-      try
-      {
-        _liveTimingRM.Login();
-
-        var events = _liveTimingRM.GetEvents();
-        cmbLTEvent.ItemsSource = events;
-
-        try
-        {
-          SelectLiveTimingEvent(cfg.LivetimingParams["EventName"]);
+          text = textBox.Text;
         }
-        catch (KeyNotFoundException)
-        {
-          cmbLTEvent.SelectedIndex = 0;
-        }
+      });
 
-      }
-      catch (Exception error)
-      {
-        MessageBox.Show(error.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
-        _liveTimingRM = null;
-      }
 
-      UpdateLiveTimingUI();
+      if (liveTimingRMUC._liveTimingRM != null)
+        liveTimingRMUC._liveTimingRM.UpdateStatus(text);
+      if (liveTimingFISUC._liveTimingFIS != null)
+        liveTimingFISUC._liveTimingFIS.UpdateStatus(text);
     }
-
-
-    private void CmbLTEvent_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (cmbLTEvent.SelectedIndex >= 0)
-      {
-        _liveTimingRM.SetEvent(cmbLTEvent.SelectedIndex);
-      }
-    }
-
-
-    private void BtnLTStart_Click(object sender, RoutedEventArgs e)
-    {
-      if (_liveTimingRM == null)
-        return;
-
-
-      if (_liveTimingRM.Started)
-      {
-        _liveTimingRM.Stop();
-      }
-      else
-      {
-        // Start
-        if (cmbLTEvent.SelectedIndex < 0)
-        {
-          MessageBox.Show("Bitte Veranstalltung auswählen", "Live Timing", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-        else
-        {
-          RaceConfiguration cfg = _thisRace.RaceConfiguration;
-          StoreLiveTiming(ref cfg);
-          _thisRace.RaceConfiguration = cfg;
-
-          _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
-
-          _liveTimingRM.UpdateStatus(_txtLiveTimingStatus.Text);
-        }
-      }
-
-      UpdateLiveTimingUI();
-    }
-
-    private void UpdateLiveTimingUI()
-    {
-      if (_liveTimingRM != null && _liveTimingRM.LoggedOn)
-      {
-        btnLTLogin.IsEnabled = false;
-        btnLTStart.IsEnabled = true;
-        cmbLTEvent.IsEnabled = true;
-      }
-      else
-      {
-        btnLTLogin.IsEnabled = true;
-        btnLTStart.IsEnabled = false;
-        cmbLTEvent.IsEnabled = false;
-      }
-
-      if (_liveTimingRM != null && _liveTimingRM.Started)
-        btnLTStart.Content = "Stop";
-      else
-        btnLTStart.Content = "Start";
-    }
-
 
     #endregion
 
@@ -688,6 +561,34 @@ namespace RaceHorology
 
       RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
       System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
+
+      UpdateLiveTimingStartStopButtons(isRunning);
+    }
+
+
+    private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
+    {
+      if (_liveTimingMeasurement == null)
+        return;
+
+      _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
+      _liveTimingMeasurement.Start();
+    }
+
+
+    private void LiveTimingStop_Click(object sender, RoutedEventArgs e)
+    {
+      if (_liveTimingMeasurement == null)
+        return;
+
+      _liveTimingMeasurement.Stop();
+    }
+
+
+    private void UpdateLiveTimingStartStopButtons(bool isRunning)
+    {
+      btnLiveTimingStart.IsChecked = isRunning;
+      btnLiveTimingStop.IsChecked = !isRunning;
     }
 
 
@@ -887,6 +788,14 @@ namespace RaceHorology
       storeResultCodeAndSelectNext(RunResult.EResultCode.DIS);
     }
 
+    private void BtnRowNaS(object sender, RoutedEventArgs e)
+    {
+      for (var vis = sender as Visual; vis != null; vis = VisualTreeHelper.GetParent(vis) as Visual)
+        if (vis is DataGridRow dataRow)
+          if (dataRow.Item is StartListEntry sle)
+            _currentRaceRun.SetResultCode(sle.Participant, RunResult.EResultCode.NaS);
+    }
+
     private void BtnRowNiZ(object sender, RoutedEventArgs e)
     {
       for (var vis = sender as Visual; vis != null; vis = VisualTreeHelper.GetParent(vis) as Visual)
@@ -945,6 +854,15 @@ namespace RaceHorology
       }
 
     }
+
+    private void dgRunning_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (dgRunning.SelectedItem is RunResult entry)
+      {
+        txtStartNumber.Text = entry.StartNumber.ToString();
+      }
+    }
+
 
     #endregion
 

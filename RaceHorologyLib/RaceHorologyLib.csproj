@@ -89,6 +89,7 @@
     <Compile Include="HandTiming.cs" />
     <Compile Include="Import.cs" />
     <Compile Include="JsonConversion.cs" />
+    <Compile Include="LiveTiming.cs" />
     <Compile Include="LiveTimingMeasurement.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="OfflineTimingMeasurement.cs" />

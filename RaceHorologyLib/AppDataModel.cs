@@ -1328,7 +1328,7 @@ namespace RaceHorologyLib
 
 
 
-    public delegate void OnTrackChangedHandler(object o, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult);
+    public delegate void OnTrackChangedHandler(RaceRun rr, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult);
     public event OnTrackChangedHandler OnTrackChanged;
     public event OnTrackChangedHandler InFinishChanged;
 
@@ -1376,7 +1376,7 @@ namespace RaceHorologyLib
     {
       var results = _results.ToArray();
 
-      // Remove from inFinish list if a result is available (= not on track anymore)
+      // Remove from inFinish list if a result is not available anymore (= not on track anymore)
       var itemsToRemove = _inFinish.Where(r => !IsOrWasOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
       {
@@ -1386,10 +1386,9 @@ namespace RaceHorologyLib
         handler?.Invoke(this, null, itemToRemove.Participant, itemToRemove);
       }
 
-      // Add to onTrack list if run result is not yet available (= is on track)
-      var shallBeOnTrack = results.Where(r => WasOnTrack(r)).ToList();
-
-      foreach (var r in shallBeOnTrack)
+      // Add to inFinish list if run result is available (= WasOnTrack())
+      var shallBeInFinish = results.Where(r => WasOnTrack(r)).ToList();
+      foreach (var r in shallBeInFinish)
       {
         if (_inFinish.SingleOrDefault(o => o.Participant == r.Participant) == null)
         {

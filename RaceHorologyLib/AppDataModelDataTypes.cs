@@ -1095,10 +1095,27 @@ namespace RaceHorologyLib
     }
   }
 
+
+  /// <summary>
+  /// Base Interface for results with position (either for the race or a race run)
+  /// </summary>
+  public interface IResultWithPosition
+  {
+    RaceParticipant Participant { get; }
+
+    uint Position { get; }
+    TimeSpan? DiffToFirst { get; }
+
+    TimeSpan? Runtime { get; }
+    RunResult.EResultCode ResultCode { get; }
+    string DisqualText { get; }
+  }
+
+
   /// <summary>
   /// Represents a RunResult with position (for a run result list)
   /// </summary>
-  public class RunResultWithPosition : RunResult
+  public class RunResultWithPosition : RunResult, IResultWithPosition
   {
     private uint _position;
     private bool _justModified;
@@ -1153,7 +1170,7 @@ namespace RaceHorologyLib
   /// <summary>
   /// Represents a race result. It contains out of the participant including its run results (run, time, status) and its final position within the group.
   /// </summary>
-  public class RaceResultItem : INotifyPropertyChanged
+  public class RaceResultItem : INotifyPropertyChanged, IResultWithPosition
   {
     public class SubResult
     {
@@ -1197,10 +1214,32 @@ namespace RaceHorologyLib
       }
     }
 
+    /// <summary>
+    /// Helper class to support accessing with keys which are not in the dictionary
+    /// Returns null in case one tries and non-existing key
+    /// </summary>
+    public class SubResultMap : Dictionary<uint, SubResult>
+    {
+      public new SubResult this[uint key]
+      {
+        get
+        {
+          if (ContainsKey(key))
+            return base[key];
+          return null;
+        }
+        set
+        {
+          base[key] = value;
+        }
+      }
+    }
+
+
     #region private
 
     protected RaceParticipant _participant;
-    protected Dictionary<uint, SubResult> _subResults;
+    protected SubResultMap _subResults;
     protected TimeSpan? _totalTime;
     protected RunResult.EResultCode _resultCode;
     protected string _disqualText;
@@ -1220,7 +1259,7 @@ namespace RaceHorologyLib
     public RaceResultItem(RaceParticipant participant)
     {
       _participant = participant;
-      _subResults = new Dictionary<uint, SubResult>();
+      _subResults = new SubResultMap();
 
       _totalTime = null;
       _resultCode = RunResult.EResultCode.Normal;
@@ -1246,16 +1285,24 @@ namespace RaceHorologyLib
       set { if (_totalTime != value) { _totalTime = value; NotifyPropertyChanged(); } }
     }
 
-    public RunResult.EResultCode ResultCode 
-    { 
-      get { return _resultCode; } 
-      set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } 
+    /// <summary>
+    /// Returns the final time (sum or minimum time depending on the race type)
+    /// </summary>
+    public TimeSpan? Runtime
+    {
+      get { return _totalTime; }
     }
 
-    public string DisqualText 
-    { 
-      get { return _disqualText; } 
-      set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } 
+    public RunResult.EResultCode ResultCode
+    {
+      get { return _resultCode; }
+      set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } }
+    }
+
+    public string DisqualText
+    {
+      get { return _disqualText; }
+      set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } }
     }
 
 
@@ -1297,8 +1344,8 @@ namespace RaceHorologyLib
     }
 
 
+    public SubResultMap SubResults { get { return _subResults; } }
 
-    public Dictionary<uint, SubResult> SubResults { get { return _subResults; } }
 
     /// <summary>
     /// Sets the results for one specific run

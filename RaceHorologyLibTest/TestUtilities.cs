@@ -173,36 +173,6 @@ namespace RaceHorologyLibTest
   }
 
 
-  public static class ViewTestUtilities
-  {
-
-    /// <summary>
-    /// Extension method to convert a ICollectionView to a List
-    /// </summary>
-    public static IList<T> ViewToList<T>(this System.ComponentModel.ICollectionView view)
-    {
-      IList<T> resList = new List<T>();
-
-      var lr = view as System.Windows.Data.ListCollectionView;
-      if (view.Groups != null)
-      {
-        foreach (var group in view.Groups)
-        {
-          System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
-          // Group(Name) would be: cvGroup.GetName()
-
-          foreach (var item in cvGroup.Items)
-            resList.Add((T)item);
-        }
-      }
-      else
-        foreach (var item in view.SourceCollection)
-          resList.Add((T)item);
-
-      return resList;
-    }
-  }
-
   public class DummyDataBase : IAppDataModelDataBase
   {
     List<Race.RaceProperties> _races;

@@ -85,9 +85,6 @@
     <Reference Include="System.Windows.Controls.Ribbon" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
-    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -139,6 +136,12 @@
     </Compile>
     <Compile Include="ImportWizard.xaml.cs">
       <DependentUpon>ImportWizard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LiveTimingFISUC.xaml.cs">
+      <DependentUpon>LiveTimingFISUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LiveTimingRMUC.xaml.cs">
+      <DependentUpon>LiveTimingRMUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="MappingUC.xaml.cs">
       <DependentUpon>MappingUC.xaml</DependentUpon>
@@ -210,6 +213,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ImportWizard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LiveTimingFISUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LiveTimingRMUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -338,6 +349,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LiveTimingFIS\LiveTimingFIS.csproj">
+      <Project>{c6ca5ff3-ad91-482a-9f6f-b74484176592}</Project>
+      <Name>LiveTimingFIS</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RaceHorologyLib\RaceHorologyLib.csproj">
       <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>
       <Name>RaceHorologyLib</Name>

@@ -734,6 +734,12 @@ namespace RaceHorologyLib
       return _view.View;
     }
 
+    public ObservableCollection<StartListEntry> GetViewList()
+    {
+      return _viewList;
+    }
+
+
     #region implementation details
 
     private void OnResultsChanged(object sender, NotifyCollectionChangedEventArgs e)

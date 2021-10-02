@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="RaceHorology.LiveTimingFISUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RaceHorology"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Label x:Name="lblRaceCode" Content="Racecode:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+    <TextBox x:Name="txtRaceCode" Grid.Row="0" Grid.Column="1"  Margin="5"/>
+
+    <Label x:Name="lblCategory" Content="Category:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+    <TextBox x:Name="txtCategory" Grid.Row="1" Grid.Column="1"  Margin="5"/>
+
+    <Label x:Name="lblPassword" Content="Passwort:" Grid.Row="2" Grid.Column="0" Margin="5"/>
+    <PasswordBox x:Name="txtPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
+
+    <Label x:Name="lblPort" Content="Port:" Grid.Row="3" Grid.Column="0" Margin="5"/>
+    <TextBox x:Name="txtPort" Grid.Row="3" Grid.Column="1"  Margin="5"/>
+
+    <Button x:Name="btnStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="4" Grid.Column="1"  Margin="5" Click="BtnStart_Click" />
+  </Grid>
+</UserControl>
