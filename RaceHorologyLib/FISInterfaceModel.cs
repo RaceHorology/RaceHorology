@@ -33,7 +33,7 @@ namespace RaceHorologyLib
 
     public void UpdateFISList(FISImportReader fileReader)
     {
-      System.IO.File.Copy(fileReader.FileName, _pathLocal);
+      System.IO.File.Copy(fileReader.FileName, _pathLocal, true);
 
       loadLocal();
     }
