@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -1012,7 +1012,7 @@ namespace LiveTimingFIS
         {
           while ((bytesRead = sr.Read(buf, 0, buf.Length)) > 0)
           {
-            Console.WriteLine(Encoding.UTF8.GetString(buf, 0, bytesRead));
+            Logger.Debug(Encoding.UTF8.GetString(buf, 0, bytesRead));
           }
         }
         catch (Exception)
