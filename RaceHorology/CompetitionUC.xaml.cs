@@ -720,10 +720,10 @@ namespace RaceHorology
 
     bool checkInImport()
     {
-      bool res = true;
+      bool res = false;
       foreach (var il in _importList)
       {
-        res &= il == null || il.ContainsParticipant(_participant);
+        res |= il == null || il.ContainsParticipant(_participant);
       }
       return res;
     }
