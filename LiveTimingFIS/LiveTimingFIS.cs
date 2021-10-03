@@ -677,7 +677,7 @@ namespace LiveTimingFIS
               if (raceRunProperties.Turns > 0)
                 xw.WriteElementString("turninggates", raceRunProperties.Turns.ToString());
 
-              if (raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
+              if (raceRunProperties.StartTime != null && raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
               {
                 xw.WriteElementString("hour", raceRunProperties.StartTime.Substring(0, 2));
                 xw.WriteElementString("minute", raceRunProperties.StartTime.Substring(3, 2));
