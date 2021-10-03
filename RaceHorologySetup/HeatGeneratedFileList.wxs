@@ -74,6 +74,12 @@
             <Component Id="cmp5E716E805A13D547B1010433FE2959FF" Guid="*">
                 <File Id="filA376894C866C87EF28CE18057A2F35A3" KeyPath="yes" Source="$(var.HarvestPath)\LICENSES_THIRD_PARTY.txt" />
             </Component>
+            <Component Id="cmp461D847AA8631B89ED6C4E62F5110B5A" Guid="*">
+                <File Id="fil00BFB578F6FAC65512836D9234D1F9E5" KeyPath="yes" Source="$(var.HarvestPath)\LiveTimingFIS.dll" />
+            </Component>
+            <Component Id="cmpC4757CD46838CBB1B2984EBE9B9E79CC" Guid="*">
+                <File Id="fil535F130F7B96905053047DB6A78AFD76" KeyPath="yes" Source="$(var.HarvestPath)\LiveTimingFIS.pdb" />
+            </Component>
             <Component Id="cmp6A2EA585B0593441A042D85BCA683555" Guid="*">
                 <File Id="filD87F1755B00146581FF85BD6C29C5952" KeyPath="yes" Source="$(var.HarvestPath)\LiveTimingRM.dll" />
             </Component>
@@ -143,9 +149,6 @@
             <Component Id="cmpB3AE432D48BF3A5AB43C6DAF12AB454A" Guid="*">
                 <File Id="filF7CF33617C2B93F6EEF50C0DEB533B07" KeyPath="yes" Source="$(var.HarvestPath)\System.Threading.Tasks.Extensions.dll" />
             </Component>
-            <Component Id="cmp017BFB3832A5B110A2B3A350E13F2A5C" Guid="*">
-                <File Id="fil17E34524E8398461D615894C92558FE9" KeyPath="yes" Source="$(var.HarvestPath)\System.Windows.Interactivity.dll" />
-            </Component>
             <Component Id="cmp7D2A50E4143D4DA7283AF1D716615988" Guid="*">
                 <File Id="fil33D44BE05BB2C3A696465AC1D98B7A34" KeyPath="yes" Source="$(var.HarvestPath)\websocket-sharp.dll" />
             </Component>
@@ -155,41 +158,6 @@
             <Directory Id="dir636058F130D9D2B5F5E67FEF841EE4BC" Name="dbtemplates">
                 <Component Id="cmpEB2A893F73ABC18DA37A5710F061B67A" Guid="*">
                     <File Id="fil1A62B9EE25172E14D17DBEBC32D598EA" KeyPath="yes" Source="$(var.HarvestPath)\dbtemplates\TemplateDB_Standard.mdb" />
-                </Component>
-            </Directory>
-            <Directory Id="dir242DC17B8DFC53C13CAF172FC08B730A" Name="de">
-                <Component Id="cmpB6C532107EB144C39ABD2F56C39306D7" Guid="*">
-                    <File Id="filB82126AFB787AA36F5EA53128AA09AD6" KeyPath="yes" Source="$(var.HarvestPath)\de\System.Windows.Interactivity.resources.dll" />
-                </Component>
-            </Directory>
-            <Directory Id="dir1710C20C4C4513ACEA8627A52788727F" Name="en">
-                <Component Id="cmpBDA498F45CBE57A7E58B97EB43FF456D" Guid="*">
-                    <File Id="fil8247BA0D347E881CD049EEA945490A2D" KeyPath="yes" Source="$(var.HarvestPath)\en\System.Windows.Interactivity.resources.dll" />
-                </Component>
-            </Directory>
-            <Directory Id="dir9AE38F4F5CB5E565E774521E138F44FD" Name="es">
-                <Component Id="cmpF764B4878911C9E76FF5841A7C142D5B" Guid="*">
-                    <File Id="filDBA036C5FD580E692829FCEB8187B07B" KeyPath="yes" Source="$(var.HarvestPath)\es\System.Windows.Interactivity.resources.dll" />
-                </Component>
-            </Directory>
-            <Directory Id="dirB55DFDA91FEE7CCCBC65CA7493B75748" Name="fr">
-                <Component Id="cmpBAAD9C9143AE7C0B0FDD591C9F1E9C94" Guid="*">
-                    <File Id="fil0A662AF4309B4F02F6D483738F3546DA" KeyPath="yes" Source="$(var.HarvestPath)\fr\System.Windows.Interactivity.resources.dll" />
-                </Component>
-            </Directory>
-            <Directory Id="dir45DE18DD71F3E8DD6BE4A0E2B48778C8" Name="it">
-                <Component Id="cmpDDE8AC599B8C0E23E5C8BE3E7214DE22" Guid="*">
-                    <File Id="fil13C2B017904B1016CBDC7DB6A2E3C27B" KeyPath="yes" Source="$(var.HarvestPath)\it\System.Windows.Interactivity.resources.dll" />
-                </Component>
-            </Directory>
-            <Directory Id="dir997B58958EFAE06BB705E870622AB899" Name="ja">
-                <Component Id="cmp787B2F46EF38D81FD1CD49F7588076FD" Guid="*">
-                    <File Id="fil7E3C71A6B5B22C8B4C5B815B286585F1" KeyPath="yes" Source="$(var.HarvestPath)\ja\System.Windows.Interactivity.resources.dll" />
-                </Component>
-            </Directory>
-            <Directory Id="dirF152986C1E6339E5EF84FD1370841521" Name="ko">
-                <Component Id="cmpCD6B880858C68ABB3F57724B5F04B96F" Guid="*">
-                    <File Id="fil2EF764D0D9E392B8577C36C394ABF0B4" KeyPath="yes" Source="$(var.HarvestPath)\ko\System.Windows.Interactivity.resources.dll" />
                 </Component>
             </Directory>
             <Directory Id="dir4BAF8AD94C579B2FF2F0C8D52DFC6F26" Name="Manual">
@@ -230,6 +198,12 @@
                 </Component>
             </Directory>
             <Directory Id="dir09903639A005C2D197EB19C866CDE8EB" Name="resources">
+                <Component Id="cmp9BBFC86D2054BC65774A516C1740667F" Guid="*">
+                    <File Id="filAAD629677C089F6D198A816751B40A61" KeyPath="yes" Source="$(var.HarvestPath)\resources\count_down_high_long.wav" />
+                </Component>
+                <Component Id="cmpB378B21C7C3B0CB4879CCCB354414763" Guid="*">
+                    <File Id="fil27F2A457B29ECC52C4339F67429398DB" KeyPath="yes" Source="$(var.HarvestPath)\resources\count_down_low.wav" />
+                </Component>
                 <Directory Id="dir26FC5C13EB72429BD2EC64127B101945" Name="pdf">
                     <Component Id="cmp780E66EB8AEBAAF84D57FCB8ED118B31" Guid="*">
                         <File Id="filFC79A1B25FF3B220B7930DF5FA541CDF" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRH.png" />
@@ -247,11 +221,6 @@
                         <File Id="fil832282DDD8838608C0E0D7286D355C40" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.svg" />
                     </Component>
                 </Directory>
-            </Directory>
-            <Directory Id="dirE9205C68F964857267FD3312DBFF9A91" Name="ru">
-                <Component Id="cmp73293AD8C7D9FD73E65D2E412CA7E1A3" Guid="*">
-                    <File Id="fil46122418162C66762372FD8D22B080D0" KeyPath="yes" Source="$(var.HarvestPath)\ru\System.Windows.Interactivity.resources.dll" />
-                </Component>
             </Directory>
             <Directory Id="dir2149C40F34DEC080F4A9D1894147C416" Name="webroot">
                 <Component Id="cmp0AB3103D396C9FF961C0F43BE5C9A726" Guid="*">
@@ -306,16 +275,6 @@
                     </Component>
                 </Directory>
             </Directory>
-            <Directory Id="dir4A8DD77DBC79775EC39CACBC8AA06107" Name="zh-Hans">
-                <Component Id="cmpDFF0AA886ED74AF38A556E1272567BC4" Guid="*">
-                    <File Id="fil444DDAAFA1E48FBB303308C0EDC4DCCB" KeyPath="yes" Source="$(var.HarvestPath)\zh-Hans\System.Windows.Interactivity.resources.dll" />
-                </Component>
-            </Directory>
-            <Directory Id="dir083BC4C92455CD933FA93376E7459C85" Name="zh-Hant">
-                <Component Id="cmp4CEAD35821858DFE561EC729EBFF4141" Guid="*">
-                    <File Id="filC9B280E3E65CFFD0F1875043957BC24B" KeyPath="yes" Source="$(var.HarvestPath)\zh-Hant\System.Windows.Interactivity.resources.dll" />
-                </Component>
-            </Directory>
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -344,6 +303,8 @@
             <ComponentRef Id="cmpC898D880A2401AD1520397C34B1F1D1D" />
             <ComponentRef Id="cmp8D8B4EF96A670A683B8B382D6EFD0DF9" />
             <ComponentRef Id="cmp5E716E805A13D547B1010433FE2959FF" />
+            <ComponentRef Id="cmp461D847AA8631B89ED6C4E62F5110B5A" />
+            <ComponentRef Id="cmpC4757CD46838CBB1B2984EBE9B9E79CC" />
             <ComponentRef Id="cmp6A2EA585B0593441A042D85BCA683555" />
             <ComponentRef Id="cmp6A4796DC260DD874D64AEF64CBFE9285" />
             <ComponentRef Id="cmp20E5A82EE1F53BB560782568696E50EF" />
@@ -367,17 +328,9 @@
             <ComponentRef Id="cmp89AE5ECEB789ECF60BE6CC568D60B2F9" />
             <ComponentRef Id="cmpAFCF21A15F6EDA45A32D147050609285" />
             <ComponentRef Id="cmpB3AE432D48BF3A5AB43C6DAF12AB454A" />
-            <ComponentRef Id="cmp017BFB3832A5B110A2B3A350E13F2A5C" />
             <ComponentRef Id="cmp7D2A50E4143D4DA7283AF1D716615988" />
             <ComponentRef Id="cmp16C1BCAA951D19F64A3F49C867F11A4D" />
             <ComponentRef Id="cmpEB2A893F73ABC18DA37A5710F061B67A" />
-            <ComponentRef Id="cmpB6C532107EB144C39ABD2F56C39306D7" />
-            <ComponentRef Id="cmpBDA498F45CBE57A7E58B97EB43FF456D" />
-            <ComponentRef Id="cmpF764B4878911C9E76FF5841A7C142D5B" />
-            <ComponentRef Id="cmpBAAD9C9143AE7C0B0FDD591C9F1E9C94" />
-            <ComponentRef Id="cmpDDE8AC599B8C0E23E5C8BE3E7214DE22" />
-            <ComponentRef Id="cmp787B2F46EF38D81FD1CD49F7588076FD" />
-            <ComponentRef Id="cmpCD6B880858C68ABB3F57724B5F04B96F" />
             <ComponentRef Id="cmpECFD29ACE9AB27E71E14EE82D4A8E4AC" />
             <ComponentRef Id="cmp8DDA6850E6D9B8FD44A6D5696F0A2B46" />
             <ComponentRef Id="cmpD096FDC3B27D91F97474C4BC816E4767" />
@@ -389,12 +342,13 @@
             <ComponentRef Id="cmpBB6D677E0C00F6072B5492EF995A422B" />
             <ComponentRef Id="cmp94005B61BB414A027D693BB1A83E68DD" />
             <ComponentRef Id="cmp91BBEE2163B20324C4BF557AB386E2F9" />
+            <ComponentRef Id="cmp9BBFC86D2054BC65774A516C1740667F" />
+            <ComponentRef Id="cmpB378B21C7C3B0CB4879CCCB354414763" />
             <ComponentRef Id="cmp780E66EB8AEBAAF84D57FCB8ED118B31" />
             <ComponentRef Id="cmpC042341FB0857F7C2B92277BD9243117" />
             <ComponentRef Id="cmp98C834C81A30A6D2468D42308AAC1F11" />
             <ComponentRef Id="cmpEF8CFEC3E9D62AC49DF334F5E354B96E" />
             <ComponentRef Id="cmpF496B3C08A251BFC2BCB4FA2CDD68800" />
-            <ComponentRef Id="cmp73293AD8C7D9FD73E65D2E412CA7E1A3" />
             <ComponentRef Id="cmp0AB3103D396C9FF961C0F43BE5C9A726" />
             <ComponentRef Id="cmpF67FAD183481C95F9FA93FD1EBC40C30" />
             <ComponentRef Id="cmp6E00057B5E286329F2495B3F54C47BD6" />
@@ -410,8 +364,6 @@
             <ComponentRef Id="cmp078664ECED30DC4C8B65F23D5DE491F1" />
             <ComponentRef Id="cmp53210619A53B18C2C66F00802D0C8A70" />
             <ComponentRef Id="cmp445497CE14C75D5351E102F20541046E" />
-            <ComponentRef Id="cmpDFF0AA886ED74AF38A556E1272567BC4" />
-            <ComponentRef Id="cmp4CEAD35821858DFE561EC729EBFF4141" />
         </ComponentGroup>
     </Fragment>
 </Wix>
