@@ -65,13 +65,9 @@ namespace RaceHorology
     {
       InitializeComponent();
 
-      Loaded += (s, e) =>
-      { // only at this point the control is ready
-        if (Window.GetWindow(this) != null)
-        {
-          Window.GetWindow(this) // get the parent window
+      Loaded += (s, e) => { // only at this point the control is ready
+        Window.GetWindow(this) // get the parent window
               .Closing += (s1, e1) => Dispose(); //disposing logic here
-        }
       };
     }
 
@@ -89,6 +85,17 @@ namespace RaceHorology
 
 
     private void BtnStart_Click(object sender, RoutedEventArgs e)
+    {
+      if (_liveTimingFIS != null)
+        stopLiveTiming();
+      else
+        startLiveTiming();
+
+      UpdateLiveTimingUI();
+    }
+
+
+    private void startLiveTiming()
     {
       RaceConfiguration cfg = _thisRace.RaceConfiguration;
       StoreLiveTiming(ref cfg);
@@ -108,6 +115,22 @@ namespace RaceHorology
         MessageBox.Show(error.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
         _liveTimingFIS = null;
       }
+    }
+
+
+    private void stopLiveTiming()
+    {
+      _liveTimingFIS.Dispose();
+      _liveTimingFIS = null;
+    }
+
+
+    private void UpdateLiveTimingUI()
+    {
+      if (_liveTimingFIS != null && _liveTimingFIS.Started)
+        btnStart.Content = "Stop";
+      else
+        btnStart.Content = "Start";
     }
 
 

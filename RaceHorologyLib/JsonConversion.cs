@@ -311,7 +311,7 @@ namespace RaceHorologyLib
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
 
           List<object> dstItems = new List<object>();
-          groupedData.Add(cvGroup.GetName(), dstItems);
+          groupedData.Add(cvGroup.Name, dstItems);
 
           foreach (var item in cvGroup.Items)
             dstItems.Add(item);

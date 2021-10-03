@@ -788,14 +788,6 @@ namespace RaceHorology
       storeResultCodeAndSelectNext(RunResult.EResultCode.DIS);
     }
 
-    private void BtnRowNaS(object sender, RoutedEventArgs e)
-    {
-      for (var vis = sender as Visual; vis != null; vis = VisualTreeHelper.GetParent(vis) as Visual)
-        if (vis is DataGridRow dataRow)
-          if (dataRow.Item is StartListEntry sle)
-            _currentRaceRun.SetResultCode(sle.Participant, RunResult.EResultCode.NaS);
-    }
-
     private void BtnRowNiZ(object sender, RoutedEventArgs e)
     {
       for (var vis = sender as Visual; vis != null; vis = VisualTreeHelper.GetParent(vis) as Visual)
@@ -854,15 +846,6 @@ namespace RaceHorology
       }
 
     }
-
-    private void dgRunning_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (dgRunning.SelectedItem is RunResult entry)
-      {
-        txtStartNumber.Text = entry.StartNumber.ToString();
-      }
-    }
-
 
     #endregion
 

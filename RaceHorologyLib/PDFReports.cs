@@ -1181,7 +1181,7 @@ namespace RaceHorologyLib
         foreach (var group in results.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
-          addLineToTable(table, cvGroup.GetName());
+          addLineToTable(table, cvGroup.Name.ToString());
 
           int i = 0;
           foreach (var result in cvGroup.Items)

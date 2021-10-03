@@ -459,15 +459,10 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
-          <Label Content="Rennmeldung.de" FontSize="16" Margin="5,5,0,0"/>
-          <local:LiveTimingRMUC x:Name="liveTimingRMUC" Grid.Row="1"/>
-
-          <Label Content="FIS" FontSize="16" Margin="5,25,0,0" Grid.Row="2"/>
-          <local:LiveTimingFISUC x:Name="liveTimingFISUC" Grid.Row="3" />
+          <local:LiveTimingRMUC x:Name="liveTimingRMUC" Grid.Row="0"/>
+          <local:LiveTimingFISUC x:Name="liveTimingFISUC" Grid.Row="1" />
         </Grid>
       </TabItem>
       <TabItem Header="Zeitnahme" FontSize="12" >
@@ -529,13 +524,6 @@
                     <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}" />
-                    <DataGridTemplateColumn Header="">
-                      <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                          <Button Click="BtnRowNaS" Content="NAS" />
-                        </DataTemplate>
-                      </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
                   </DataGrid.Columns>
                 </DataGrid>
               </Grid>
@@ -593,7 +581,7 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="lblRunning" Content="Auf der Piste" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
-              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" SelectionChanged="dgRunning_SelectionChanged" SelectionMode="Single" SelectionUnit="FullRow">
+              <DataGrid x:Name="dgRunning" Margin="5" Grid.Row="1"  AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False">
                 <DataGrid.Columns>
                   <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="StNr" Binding="{Binding StartNumber, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />

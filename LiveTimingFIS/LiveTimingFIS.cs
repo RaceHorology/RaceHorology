@@ -170,25 +170,8 @@ namespace LiveTimingFIS
       // Results
       _liveTiming.UpdateResults(raceRun); // Initial update
 
-
-      ItemsChangedNotifier resultsNotifier = new ItemsChangedNotifier(raceRun.GetResultList());
-      resultsNotifier.ItemChanged += (sender, e) =>
-      {
-        if (sender is RunResult rr)
-        {
-          Task.Delay(new TimeSpan(0, 0, 0, 0, 200)).ContinueWith(o =>
-          {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-            {
-              _liveTiming.UpdateInFinish(raceRun, rr.Participant);
-            });
-          });
-        }
-      };
-      _notifier.Add(resultsNotifier);
-      //raceRun.InFinishChanged += raceRun_InFinishChanged;
-
       raceRun.OnTrackChanged += raceRun_OnTrackChanged;
+      raceRun.InFinishChanged += raceRun_InFinishChanged;
     }
 
 
@@ -415,16 +398,6 @@ namespace LiveTimingFIS
 
       // Observes for changes and triggers UpdateMethods, also sends data initially
       _delegator = new LiveTimingDelegator(_race, this);
-
-      // Figure out the right run and set it
-      foreach (var r in _race.GetRuns())
-      {
-        if (!r.IsComplete)
-        {
-          SetActiveRaceRun(r);
-          break;
-        }
-      }
     }
 
     public void Stop()
@@ -513,6 +486,7 @@ namespace LiveTimingFIS
         scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rr), _tcpClient));
 
         if ( lastRR == null
+          || (lastRR.FinishTime != null && rr.FinishTime != null && lastRR.FinishTime < rr.FinishTime)
           || (lastRR.StartTime  != null && rr.StartTime  != null && lastRR.StartTime  < rr.StartTime)
           )
           lastRR = rr;
@@ -677,7 +651,7 @@ namespace LiveTimingFIS
               if (raceRunProperties.Turns > 0)
                 xw.WriteElementString("turninggates", raceRunProperties.Turns.ToString());
 
-              if (raceRunProperties.StartTime != null && raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
+              if (raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
               {
                 xw.WriteElementString("hour", raceRunProperties.StartTime.Substring(0, 2));
                 xw.WriteElementString("minute", raceRunProperties.StartTime.Substring(3, 2));
@@ -836,11 +810,9 @@ namespace LiveTimingFIS
 
             xw.WriteStartElement("finish");
             xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
+            xw.WriteAttributeString("correction", "y");
 
-            if (runTime != null)
-              xw.WriteElementString("time", ((TimeSpan)runTime).ToString(@"s\.ff"));
-            else
-              xw.WriteElementString("time", "0.00");
+            xw.WriteElementString("time", ((TimeSpan)runTime).ToString(@"s\.ff"));
 
             if (result.DiffToFirst != null)
               xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
@@ -1030,7 +1002,7 @@ namespace LiveTimingFIS
         {
           while ((bytesRead = sr.Read(buf, 0, buf.Length)) > 0)
           {
-            Logger.Debug(Encoding.UTF8.GetString(buf, 0, bytesRead));
+            Console.WriteLine(Encoding.UTF8.GetString(buf, 0, bytesRead));
           }
         }
         catch (Exception)

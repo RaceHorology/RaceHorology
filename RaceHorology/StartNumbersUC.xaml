@@ -19,7 +19,7 @@
         <RowDefinition Height="*"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Label Content="Vorläufige Startliste" FontSize="16"/>
+      <Label Content="Vorläuige Startliste" FontSize="16"/>
       <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
         <DataGrid.Columns>
           <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />

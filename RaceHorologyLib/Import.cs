@@ -91,7 +91,7 @@ namespace RaceHorologyLib
       else
       {
         // Excel
-        var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var stream = File.Open(path, FileMode.Open, FileAccess.Read);
         reader = ExcelReaderFactory.CreateReader(stream);
         _dataSet = reader.AsDataSet(new ExcelDataSetConfiguration() { ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration() { UseHeaderRow = true } });
       }
@@ -166,13 +166,17 @@ namespace RaceHorologyLib
     List<string> _availableFields;
     List<string> _requiredFields;
 
-    protected Mapping()
-    {
-    }
-
     public Mapping(IEnumerable<string> requiredFields, IEnumerable<string> availableFields)
     {
-      initMapping(requiredFields, availableFields);
+      _availableFields = new List<string>();
+      _availableFields.Add("---");
+      _availableFields.AddRange(availableFields);
+      
+      _requiredFields = requiredFields.ToList();
+
+      _mapping = new ObservableCollection<MappingEntry>();
+
+      initMapping();
     }
 
 
@@ -207,16 +211,8 @@ namespace RaceHorologyLib
     /// <summary>
     /// Initially populates the mapping
     /// </summary>
-    protected void initMapping(IEnumerable<string> requiredFields, IEnumerable<string> availableFields)
+    void initMapping()
     {
-      _availableFields = new List<string>();
-      _availableFields.Add("---");
-      _availableFields.AddRange(availableFields);
-
-      _requiredFields = requiredFields.ToList();
-
-      _mapping = new ObservableCollection<MappingEntry>();
-
       foreach (var v in _requiredFields)
       {
         Assign(v, guessMappedField(v));
@@ -733,7 +729,7 @@ namespace RaceHorologyLib
       // Update the points for all participants in the race
       foreach(var rp in _race.GetParticipants() )
       {
-        string key = string.Format("{0}_{1}", rp.Code, rp.SvId);
+        string key = rp.SvId;
 
         try
         {
@@ -763,7 +759,7 @@ namespace RaceHorologyLib
       var rows = ds.Tables[0].Rows;
       foreach (DataRow row in rows)
       {
-        string key = string.Format("{0}_{1}", _partImportUtils.GetValueAsString(row, "Code"), _partImportUtils.GetValueAsString(row, "SvId"));
+        string key = _partImportUtils.GetValueAsString(row, "SvId");
         _id2row.Add(key, row);
       }
     }
