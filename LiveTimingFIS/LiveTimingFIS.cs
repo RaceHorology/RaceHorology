@@ -38,7 +38,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -536,7 +535,7 @@ namespace LiveTimingFIS
       _xmlSettings.Encoding = Encoding.UTF8;
     }
 
-    private string getXmlKeepAlive()
+    internal string getXmlKeepAlive()
     {
 
       using (var sw = new Utf8StringWriter())

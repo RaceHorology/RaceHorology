@@ -135,6 +135,7 @@
     <Compile Include="HandTimingTest.cs" />
     <Compile Include="ImportTest.cs" />
     <Compile Include="IntegrationTests.cs" />
+    <Compile Include="LiveTimingFISTest.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />
     <Compile Include="StartNumberTest.cs" />
@@ -221,6 +222,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LiveTimingFIS\LiveTimingFIS.csproj">
+      <Project>{c6ca5ff3-ad91-482a-9f6f-b74484176592}</Project>
+      <Name>LiveTimingFIS</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RaceHorologyLib\RaceHorologyLib.csproj">
       <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>
       <Name>RaceHorologyLib</Name>
