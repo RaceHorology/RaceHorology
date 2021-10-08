@@ -123,6 +123,9 @@ namespace LiveTimingFIS
             n.Dispose();
         }
 
+        foreach(var rr in _race.GetRuns())
+          rr.OnTrackChanged -= raceRun_OnTrackChanged;
+
         disposedValue = true;
       }
     }
@@ -185,7 +188,6 @@ namespace LiveTimingFIS
         }
       };
       _notifier.Add(resultsNotifier);
-      //raceRun.InFinishChanged += raceRun_InFinishChanged;
 
       raceRun.OnTrackChanged += raceRun_OnTrackChanged;
     }
