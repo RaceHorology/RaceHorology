@@ -34,6 +34,8 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RaceHorologyLib;
+using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -97,12 +99,58 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void XmlSerializer()
     {
+      string xml;
 
       LiveTimingFIS.LiveTimingFIS lt = new LiveTimingFIS.LiveTimingFIS();
-
-      string xml = lt.getXmlKeepAlive();
+      
+      xml = lt.getXmlKeepAlive();
       XmlAssertion.AssertXPathExists("/livetiming/command/keepalive", xml);
 
+
+      xml = lt.getXmlClearRace();
+      XmlAssertion.AssertXPathExists("/livetiming/command/clear", xml);
+
+
+      xml = lt.getXmlStatusUpdateInfo("test");
+      XmlAssertion.AssertXPathExists("/livetiming/message", xml);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/message", xml, "test");
+    }
+
+    [TestMethod]
+    public void XmlSerializer_EventResult()
+    {
+      string getXmlEventResult(uint _startNumber, RaceRun _rr, LiveTimingFIS.LiveTimingFIS _lt)
+      {
+        var _results = ViewUtilities.ViewToList<RunResultWithPosition>(_rr.GetResultView());
+        var _res = _results.FirstOrDefault(_r => _r.StartNumber == _startNumber);
+        return _lt.getXmlEventResult(_rr, _res);
+      }
+
+      string xml;
+      LiveTimingFIS.LiveTimingFIS lt = new LiveTimingFIS.LiveTimingFIS();
+
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipant();
+      var r = tg.Model.GetRace(0);
+      var rr1 = r.GetRun(0);
+
+      xml = getXmlEventResult(1, rr1, lt);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/@bib", xml, "1");
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/@correction", xml, "y");
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "0.00");
+
+      rr1.SetStartFinishTime(r.GetParticipant(1), new TimeSpan(0, 08, 0, 0, 0), new TimeSpan(0, 08, 0, 0, 100));
+      xml = getXmlEventResult(1, rr1, lt);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "0.10");
+
+      rr1.SetStartFinishTime(r.GetParticipant(1), new TimeSpan(0, 08, 0, 0, 0), new TimeSpan(0, 08, 0, 30, 100));
+      xml = getXmlEventResult(1, rr1, lt);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "30.10");
+
+      rr1.SetStartFinishTime(r.GetParticipant(1), new TimeSpan(0, 08, 0, 0, 0), new TimeSpan(0, 08, 1, 30, 100));
+      xml = getXmlEventResult(1, rr1, lt);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "90.10");
+      //XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "1:30.10");
     }
   }
 }

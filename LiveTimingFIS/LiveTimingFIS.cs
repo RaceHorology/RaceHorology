@@ -557,7 +557,7 @@ namespace LiveTimingFIS
       }
     }
 
-    private string getXmlClearRace()
+    internal string getXmlClearRace()
     {
 
       using (var sw = new Utf8StringWriter())
@@ -579,7 +579,7 @@ namespace LiveTimingFIS
       }
     }
 
-    private string getXmlStatusUpdateInfo(string info)
+    internal string getXmlStatusUpdateInfo(string info)
     {
 
       using (var sw = new Utf8StringWriter())
@@ -600,7 +600,7 @@ namespace LiveTimingFIS
       }
     }
 
-    private string getXmlRaceInfo(Race race)
+    internal string getXmlRaceInfo(Race race)
     {
       RaceRun raceRun = race.GetRun(0);
       using (var sw = new Utf8StringWriter())
@@ -678,7 +678,7 @@ namespace LiveTimingFIS
       }
     }
 
-    private string getXmlActiveRun(RaceRun raceRun)
+    internal string getXmlActiveRun(RaceRun raceRun)
     {
       using (var sw = new Utf8StringWriter())
       {
@@ -699,8 +699,8 @@ namespace LiveTimingFIS
         return sw.ToString();
       }
     }
-    
-    private string getXmlStartList(RaceRun raceRun)
+
+    internal string getXmlStartList(RaceRun raceRun)
     {
       using (var sw = new Utf8StringWriter())
       {
@@ -740,7 +740,7 @@ namespace LiveTimingFIS
       }
     }
 
-    private string getXmlEventOnStart(RaceParticipant rp)
+    internal string getXmlEventOnStart(RaceParticipant rp)
     {
       using (var sw = new Utf8StringWriter())
       {
@@ -764,7 +764,7 @@ namespace LiveTimingFIS
       }
     }
 
-    private string getXmlEventStarted(RaceParticipant rp)
+    internal string getXmlEventStarted(RaceParticipant rp)
     {
       using (var sw = new Utf8StringWriter())
       {
@@ -788,7 +788,7 @@ namespace LiveTimingFIS
       }
     }
 
-    private string getXmlEventResult(RaceRun raceRun, IResultWithPosition result)
+    internal string getXmlEventResult(RaceRun raceRun, IResultWithPosition result)
     {
       using (var sw = new Utf8StringWriter())
       {
@@ -811,7 +811,7 @@ namespace LiveTimingFIS
             xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
             xw.WriteAttributeString("correction", "y");
 
-            xw.WriteElementString("time", ((TimeSpan)runTime).ToString(@"s\.ff"));
+            xw.WriteElementString("time", toFisTimeString(runTime));
 
             if (result.DiffToFirst != null)
               xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
@@ -871,12 +871,30 @@ namespace LiveTimingFIS
       _sequence++;
     }
 
-    #endregion
+
+    private static string toFisTimeString(TimeSpan? time)
+    {
+      if (time == null)
+        return "0.00";
+
+      TimeSpan time2 = (TimeSpan)time;
+      string str;
+      if (time2 < new TimeSpan(0, 1, 0))
+        str = time2.ToString(@"s\.ff");
+      else if (time2 < new TimeSpan(1, 0, 0))
+        str = time2.ToString(@"m\:ss\.ff");
+      else
+        str = time2.ToString(@"hh\:mm\:ss\.ff");
+
+      return str;
+    }
+
+  #endregion
 
 
-    #region FIS specific getter
+  #region FIS specific getter
 
-    private string getDisciplin(Race race)
+  private string getDisciplin(Race race)
     {
       switch(race.RaceType)
       {
