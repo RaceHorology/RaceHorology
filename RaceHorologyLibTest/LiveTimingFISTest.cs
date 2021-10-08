@@ -114,6 +114,29 @@ namespace RaceHorologyLibTest
       xml = lt.getXmlStatusUpdateInfo("test");
       XmlAssertion.AssertXPathExists("/livetiming/message", xml);
       XmlAssertion.AssertXPathEvaluatesTo("/livetiming/message", xml, "test");
+
+
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipant();
+      var r = tg.Model.GetRace(0);
+      r.GetParticipant(1).Participant.Nation = "nation";
+      r.GetParticipant(1).Participant.Code = "code";
+      var rr1 = r.GetRun(0);
+
+      xml = lt.getXmlEventOnStart(r.GetParticipant(1));
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/nextstart/@bib", xml, "1");
+
+      xml = lt.getXmlEventStarted(r.GetParticipant(1));
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/start/@bib", xml, "1");
+
+      xml = lt.getXmlStartList(rr1);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/startlist/@runno", xml, rr1.Run.ToString());
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/startlist/racer[1]/@order", xml, "1");
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/startlist/racer[1]/bib", xml, "1");
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/startlist/racer[1]/lastname", xml, r.GetParticipant(1).Name);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/startlist/racer[1]/firstname", xml, r.GetParticipant(1).Firstname);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/startlist/racer[1]/nat", xml, r.GetParticipant(1).Nation);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/startlist/racer[1]/fiscode", xml, r.GetParticipant(1).Code);
     }
 
     [TestMethod]
