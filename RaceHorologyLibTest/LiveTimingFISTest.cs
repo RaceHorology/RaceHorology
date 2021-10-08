@@ -150,6 +150,22 @@ namespace RaceHorologyLibTest
       rr1.SetStartFinishTime(r.GetParticipant(1), new TimeSpan(0, 08, 0, 0, 0), new TimeSpan(0, 08, 1, 30, 100));
       xml = getXmlEventResult(1, rr1, lt);
       XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "1:30.10");
+
+      rr1.SetResultCode(r.GetParticipant(1), RunResult.EResultCode.DIS);
+      xml = getXmlEventResult(1, rr1, lt);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/dq/@bib", xml, "1");
+
+      rr1.SetResultCode(r.GetParticipant(1), RunResult.EResultCode.NaS);
+      xml = getXmlEventResult(1, rr1, lt);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/dns/@bib", xml, "1");
+
+      rr1.SetResultCode(r.GetParticipant(1), RunResult.EResultCode.NQ);
+      xml = getXmlEventResult(1, rr1, lt);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/dns/@bib", xml, "1");
+
+      rr1.SetResultCode(r.GetParticipant(1), RunResult.EResultCode.NiZ);
+      xml = getXmlEventResult(1, rr1, lt);
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/dnf/@bib", xml, "1");
     }
   }
 }
