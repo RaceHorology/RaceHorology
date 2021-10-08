@@ -149,8 +149,7 @@ namespace RaceHorologyLibTest
 
       rr1.SetStartFinishTime(r.GetParticipant(1), new TimeSpan(0, 08, 0, 0, 0), new TimeSpan(0, 08, 1, 30, 100));
       xml = getXmlEventResult(1, rr1, lt);
-      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "90.10");
-      //XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "1:30.10");
+      XmlAssertion.AssertXPathEvaluatesTo("/livetiming/raceevent/finish/time", xml, "1:30.10");
     }
   }
 }
