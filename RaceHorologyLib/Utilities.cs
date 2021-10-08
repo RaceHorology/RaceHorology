@@ -653,6 +653,18 @@ namespace RaceHorologyLib
   }
 
 
+  public static class CollectionViewGroupUtils
+  {
+    public static string GetName(this System.Windows.Data.CollectionViewGroup cvGroup)
+    {
+      string groupName = string.Empty;
+      if (cvGroup?.Name != null)
+        groupName = cvGroup.Name.ToString();
+
+      return groupName;
+    }
+
+  }
 
 
 

@@ -279,7 +279,7 @@ namespace RaceHorologyLib
       if (_sex == char.MinValue)
         return true;
 
-      return rri.Participant.Sex.Name == _sex;
+      return rri?.Participant?.Sex?.Name == _sex;
     }
 
     bool didStart(RaceResultItem rri)
