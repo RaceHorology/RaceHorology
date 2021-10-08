@@ -401,6 +401,7 @@ namespace LiveTimingFIS
       _fisPassword = fisPassword;
 
       scheduleTransfer(new LTTransfer(getXmlClearRace(), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(""), _tcpClient));
       scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race), _tcpClient));
       _isLoggedOn = true;
     }
