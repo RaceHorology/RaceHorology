@@ -427,6 +427,8 @@ namespace LiveTimingFIS
           break;
         }
       }
+
+      StatusChanged.Invoke();
     }
 
     public void Stop()
@@ -437,7 +439,12 @@ namespace LiveTimingFIS
       _started = false;
 
       _delegator.Dispose();
+
+      StatusChanged.Invoke();
     }
+
+
+    public event OnStatusChanged StatusChanged;
 
     public bool Started
     {
@@ -1022,8 +1029,16 @@ namespace LiveTimingFIS
         // Trigger execution of transfers
         Task.Run(() =>
         {
-          Logger.Debug("process transfer: " + nextItem.ToString());
-          nextItem.performTransfer();
+          try
+          {
+            Logger.Debug("process transfer: " + nextItem.ToString());
+            nextItem.performTransfer();
+          }
+          catch(Exception e)
+          {
+            Logger.Error(e);
+            Stop();
+          }
         })
           .ContinueWith(delegate { processNextTransfer(); });
       }
@@ -1086,8 +1101,9 @@ namespace LiveTimingFIS
         var stream = _tcpClient.GetStream();
         stream.Write(utf8Message, 0, utf8Message.Length);
       }
-      catch(Exception )
+      catch(Exception e)
       {
+        throw new Exception("FIS Live Timing: performTransfer() failed", e);
       }
     }
 

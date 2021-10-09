@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
+
+  public delegate void OnStatusChanged();
+
   public interface ILiveTiming
   {
 
@@ -13,6 +16,10 @@ namespace RaceHorologyLib
 
     void Start();
     void Stop();
+
+    bool Started { get; }
+
+    event OnStatusChanged StatusChanged;
 
   }
 }
