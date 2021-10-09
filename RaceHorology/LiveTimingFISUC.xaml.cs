@@ -90,7 +90,7 @@ namespace RaceHorology
 
     private void BtnStart_Click(object sender, RoutedEventArgs e)
     {
-      if (_liveTimingFIS != null)
+      if (_liveTimingFIS != null && _liveTimingFIS.Started)
         stopLiveTiming();
       else
         startLiveTiming();
@@ -105,11 +105,16 @@ namespace RaceHorology
       StoreLiveTiming(ref cfg);
       _thisRace.RaceConfiguration = cfg;
 
+      if (_liveTimingFIS != null) // Might be a zombie from a failed connection
+        stopLiveTiming();
+
+      _stopRequested = false;
       _liveTimingFIS = new LiveTimingFIS.LiveTimingFIS();
 
       try
       {
         _liveTimingFIS.Race = _thisRace;
+        _liveTimingFIS.StatusChanged += liveTimingFIS_StatusChanged;
         _liveTimingFIS.Connect(int.Parse(cfg.LivetimingParams["FIS_Port"]));
         _liveTimingFIS.Login(cfg.LivetimingParams["FIS_RaceCode"], cfg.LivetimingParams["FIS_Category"], cfg.LivetimingParams["FIS_Pasword"]);
         _liveTimingFIS.Start();
@@ -121,20 +126,39 @@ namespace RaceHorology
       }
     }
 
+    private void liveTimingFIS_StatusChanged()
+    {
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        UpdateLiveTimingUI();
+      });
+    }
 
     private void stopLiveTiming()
     {
+      _stopRequested = true;
       _liveTimingFIS.Dispose();
+      _liveTimingFIS.StatusChanged -= liveTimingFIS_StatusChanged;
       _liveTimingFIS = null;
     }
 
-
+    bool _stopRequested = false;
     private void UpdateLiveTimingUI()
     {
       if (_liveTimingFIS != null && _liveTimingFIS.Started)
         btnStart.Content = "Stop";
       else
         btnStart.Content = "Start";
+
+      if (_liveTimingFIS != null && !_liveTimingFIS.Started && !_stopRequested)
+      {
+        MessageBox.Show(
+          "FIS Livetiming wurde unerwartet beendet. Starte das FIS Livetiming neu.\n\nWenn dies direkt nach dem Starten geschieht, ist meist das Passwort falsch.", 
+          "FIS Liveting beendet", 
+          MessageBoxButton.OK, 
+          MessageBoxImage.Error);
+      }
+
     }
 
 

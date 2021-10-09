@@ -123,6 +123,9 @@ namespace LiveTimingFIS
             n.Dispose();
         }
 
+        foreach(var rr in _race.GetRuns())
+          rr.OnTrackChanged -= raceRun_OnTrackChanged;
+
         disposedValue = true;
       }
     }
@@ -185,7 +188,6 @@ namespace LiveTimingFIS
         }
       };
       _notifier.Add(resultsNotifier);
-      //raceRun.InFinishChanged += raceRun_InFinishChanged;
 
       raceRun.OnTrackChanged += raceRun_OnTrackChanged;
     }
@@ -401,6 +403,7 @@ namespace LiveTimingFIS
       _fisPassword = fisPassword;
 
       scheduleTransfer(new LTTransfer(getXmlClearRace(), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(""), _tcpClient));
       scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race), _tcpClient));
       _isLoggedOn = true;
     }
@@ -424,6 +427,8 @@ namespace LiveTimingFIS
           break;
         }
       }
+
+      StatusChanged.Invoke();
     }
 
     public void Stop()
@@ -434,7 +439,12 @@ namespace LiveTimingFIS
       _started = false;
 
       _delegator.Dispose();
+
+      StatusChanged.Invoke();
     }
+
+
+    public event OnStatusChanged StatusChanged;
 
     public bool Started
     {
@@ -1019,8 +1029,16 @@ namespace LiveTimingFIS
         // Trigger execution of transfers
         Task.Run(() =>
         {
-          Logger.Debug("process transfer: " + nextItem.ToString());
-          nextItem.performTransfer();
+          try
+          {
+            Logger.Debug("process transfer: " + nextItem.ToString());
+            nextItem.performTransfer();
+          }
+          catch(Exception e)
+          {
+            Logger.Error(e);
+            Stop();
+          }
         })
           .ContinueWith(delegate { processNextTransfer(); });
       }
@@ -1083,8 +1101,9 @@ namespace LiveTimingFIS
         var stream = _tcpClient.GetStream();
         stream.Write(utf8Message, 0, utf8Message.Length);
       }
-      catch(Exception )
+      catch(Exception e)
       {
+        throw new Exception("FIS Live Timing: performTransfer() failed", e);
       }
     }
 
