@@ -301,6 +301,8 @@ namespace RaceHorology
     {
       liveTimingRMUC.InitializeLiveTiming(race);
       liveTimingFISUC.InitializeLiveTiming(race);
+
+      UpdateLiveTimingStartStopButtons(false); // Initial status
     }
 
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
@@ -557,12 +559,15 @@ namespace RaceHorology
     /// </summary>
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
     {
-      cmbRaceRun.IsEnabled = !isRunning;
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        cmbRaceRun.IsEnabled = !isRunning;
 
-      RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
-      System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
+        RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
+        System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
 
-      UpdateLiveTimingStartStopButtons(isRunning);
+        UpdateLiveTimingStartStopButtons(isRunning);
+      });
     }
 
 
@@ -587,8 +592,24 @@ namespace RaceHorology
 
     private void UpdateLiveTimingStartStopButtons(bool isRunning)
     {
-      btnLiveTimingStart.IsChecked = isRunning;
-      btnLiveTimingStop.IsChecked = !isRunning;
+      // Enable buttons if Timing Device is generally online
+      bool enableButtons = _liveTimingMeasurement?.LiveTimingDevice?.IsOnline == true;
+
+      btnLiveTimingStart.IsEnabled = enableButtons;
+      btnLiveTimingStop.IsEnabled = enableButtons;
+
+      if (!enableButtons)
+      {
+        btnLiveTimingStart.IsChecked = false;
+        btnLiveTimingStop.IsChecked = false;
+      }
+      else
+      {
+        bool running = _liveTimingMeasurement.IsRunning;
+        // Set corresponding color whether running or not
+        btnLiveTimingStart.IsChecked = running;
+        btnLiveTimingStop.IsChecked = !running;
+      }
     }
 
 

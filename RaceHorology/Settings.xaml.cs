@@ -67,6 +67,8 @@ namespace RaceHorology
       cbTimingDevicePort.SelectedValuePath = "Port";
       cbTimingDevicePort.SelectedValue = Properties.Settings.Default.TimingDevice_Port;
 
+      chkTimingDeviceDebugDump.IsChecked = Properties.Settings.Default.TimingDevice_Debug_Dump;
+
       cbTimingDevice.Items.Add("ALGE TdC8000/8001");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
 
@@ -91,7 +93,11 @@ namespace RaceHorology
       if (Properties.Settings.Default.TimingDevice_Port != (string)cbTimingDevicePort.SelectedValue)
         Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
 
-      try {
+      if (Properties.Settings.Default.TimingDevice_Debug_Dump != chkTimingDeviceDebugDump.IsChecked == true )
+        Properties.Settings.Default.TimingDevice_Debug_Dump = chkTimingDeviceDebugDump.IsChecked == true;
+
+      try
+      {
         if (Properties.Settings.Default.AutomaticNiZTimeout != uint.Parse(txtAutomaticNiZTimeout.Text))
           Properties.Settings.Default.AutomaticNiZTimeout = uint.Parse(txtAutomaticNiZTimeout.Text);
       }

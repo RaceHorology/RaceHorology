@@ -187,7 +187,10 @@ namespace RaceHorology
 
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
     {
-      EnsureOnlyCurrentRaceCanBeSelected(isRunning);
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        EnsureOnlyCurrentRaceCanBeSelected(isRunning);
+      });
     }
 
     private void EnsureOnlyCurrentRaceCanBeSelected(bool onlyCurrentRace)

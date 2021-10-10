@@ -43,7 +43,7 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
-  public abstract class ALGETdC8001TimeMeasurementBase : ILiveTimeMeasurement, ILiveDateTimeProvider
+  public abstract class ALGETdC8001TimeMeasurementBase : ILiveTimeMeasurementDevice, ILiveDateTimeProvider
   {
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
 
@@ -64,7 +64,7 @@ namespace RaceHorologyLib
       return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
     }
 
-    public virtual string GetInfo()
+    public virtual string GetDeviceInfo()
     {
       return "ALGE TdC 8001 (base)";
     }
@@ -79,6 +79,8 @@ namespace RaceHorologyLib
     public abstract void Start();
     public abstract void Stop();
 
+    public abstract bool IsOnline { get; }
+    public abstract event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
     protected void processLine(string dataLine)
     {
@@ -188,11 +190,14 @@ namespace RaceHorologyLib
 
   public class ALGETdC8001TimeMeasurement : ALGETdC8001TimeMeasurementBase
   {
+    enum EInternalStatus { Stopped, Initializing, NoCOMPort, Running };
+
     public delegate void RawMessageReceivedEventHandler(object sender, string message);
     public event RawMessageReceivedEventHandler RawMessageReceived;
 
     private string _serialPortName;
     private SerialPort _serialPort;
+    private EInternalStatus _internalStatus;
     private string _dumpDir;
     System.IO.StreamWriter _dumpFile;
 
@@ -202,10 +207,11 @@ namespace RaceHorologyLib
     public ALGETdC8001TimeMeasurement(string comport, string dumpDir) : base()
     {
       _serialPortName = comport;
+      _internalStatus = EInternalStatus.Stopped;
       _dumpDir = dumpDir;
     }
 
-    public override string GetInfo()
+    public override string GetDeviceInfo()
     {
       return "ALGE TdC 8001 (" + _serialPortName + ")";
     }
@@ -219,9 +225,8 @@ namespace RaceHorologyLib
 
       _stopRequest = false;
 
-      string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
-      dumpFilename = System.IO.Path.Combine(_dumpDir, dumpFilename);
-      _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
+      if (_dumpDir != null)
+        startWritingToDumpFile();
 
       _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
       _serialPort.NewLine = "\r"; // CR, ASCII(13)
@@ -243,17 +248,48 @@ namespace RaceHorologyLib
         _stopRequest = true;
         _instanceCaller.Join(); // Wait until thread has been terminated
 
-        _dumpFile.Close();
+        if (_dumpFile!=null)
+          _dumpFile.Close();
       }
     }
 
+
+    private void startWritingToDumpFile()
+    {
+      string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
+      dumpFilename = System.IO.Path.Combine(_dumpDir, dumpFilename);
+      _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
+    }
+
+
+    private void setInternalStatus(EInternalStatus value)
+    {
+      if (_internalStatus != value)
+      {
+        _internalStatus = value;
+
+        var handler = StatusChanged;
+        handler?.Invoke(this, IsOnline);
+      }
+    }
+
+    public override bool IsOnline { 
+      get { return _serialPort != null && _internalStatus == EInternalStatus.Running; } 
+    }
+
+    public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
+
+
     private void MainLoop()
     {
+      setInternalStatus(EInternalStatus.Initializing);
+
       while (!_stopRequest)
       {
         if (!EnsureOpenPort())
         {
           _statusText = "Serial port not available";
+          setInternalStatus(EInternalStatus.NoCOMPort);
 
           System.Threading.Thread.Sleep(2000);
           continue;
@@ -262,6 +298,7 @@ namespace RaceHorologyLib
         try
         {
           _statusText = "Running";
+          setInternalStatus(EInternalStatus.Running);
 
           string dataLine = _serialPort.ReadLine();
 
@@ -277,6 +314,7 @@ namespace RaceHorologyLib
       _serialPort.Close();
 
       _statusText = "Stopped";
+      setInternalStatus(EInternalStatus.Stopped);
     }
 
 
