@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -58,7 +58,7 @@ namespace RaceHorology
     CollectionViewSource _viewDisqualifications;
     FilterEventHandler _viewDisqualificationsFilterHandler;
 
-    public List<EResultCode> ListOfResultCodes { get; } = new List<EResultCode> { EResultCode.Normal, EResultCode.DIS, EResultCode.NaS, EResultCode.NiZ, EResultCode.NQ, EResultCode.NotSet};
+    public List<EResultCode> ListOfResultCodesToSet { get; } = new List<EResultCode> { EResultCode.Normal, EResultCode.DIS, EResultCode.NaS, EResultCode.NiZ, EResultCode.NQ };
 
     public DisqualifyUC()
     {
