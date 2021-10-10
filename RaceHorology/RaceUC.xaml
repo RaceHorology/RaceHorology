@@ -508,9 +508,45 @@
                 <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="30,0,5,0">
                   <ToggleButton x:Name="btnLiveTimingStart" Margin="5,0,0,0" Click="LiveTimingStart_Click" Height="35" Width="35">
                     <Image Source="{StaticResource IconPlay}" Height="20"/>
+                    <ToggleButton.Style>
+                      <Style TargetType="{x:Type ToggleButton}">
+                        <Setter Property="Template">
+                          <Setter.Value>
+                            <ControlTemplate TargetType="ToggleButton">
+                              <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                              </Border>
+                            </ControlTemplate>
+                          </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                          <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Background" Value="Green" />
+                          </Trigger>
+                        </Style.Triggers>
+                      </Style>
+                    </ToggleButton.Style>
                   </ToggleButton>
                   <ToggleButton x:Name="btnLiveTimingStop" Margin="5,0,0,0" Click="LiveTimingStop_Click" Height="35" Width="35">
                     <Image Source="{StaticResource IconStop}" Height="20"/>
+                    <ToggleButton.Style>
+                      <Style TargetType="{x:Type ToggleButton}">
+                        <Setter Property="Template">
+                          <Setter.Value>
+                            <ControlTemplate TargetType="ToggleButton">
+                              <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                              </Border>
+                            </ControlTemplate>
+                          </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                          <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Background" Value="Red" />
+                          </Trigger>
+                        </Style.Triggers>
+                      </Style>
+                    </ToggleButton.Style>
                   </ToggleButton>
                 </StackPanel>
                 
