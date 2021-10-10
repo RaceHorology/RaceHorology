@@ -182,6 +182,8 @@ namespace RaceHorology
     private void btnImportFile_Click(object sender, RoutedEventArgs e)
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
+      openFileDialog.Filter =
+        "FIS Point List (Excel Format - *.xlsx)|*.xlsx";
       if (openFileDialog.ShowDialog() == true)
       {
         string path = openFileDialog.FileName;
