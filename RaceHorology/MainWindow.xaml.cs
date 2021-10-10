@@ -457,7 +457,10 @@ namespace RaceHorology
 
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
     {
-      UpdateLiveTimingStartStopButtons(isRunning);
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        UpdateLiveTimingStartStopButtons(isRunning);
+      });
     }
 
     private void Alge_OnMessageReceived(object sender, string message)
