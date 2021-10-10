@@ -189,8 +189,10 @@ namespace RaceHorologyLib
     protected void readData(string fisExcelFile)
     {
       var stream = File.Open(fisExcelFile, FileMode.Open, FileAccess.Read, FileShare.Read);
-      IExcelDataReader reader = ExcelReaderFactory.CreateReader(stream);
-      _dataSet = reader.AsDataSet(new ExcelDataSetConfiguration() { ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration() { UseHeaderRow = true } });
+      using (IExcelDataReader reader = ExcelReaderFactory.CreateReader(stream))
+      {
+        _dataSet = reader.AsDataSet(new ExcelDataSetConfiguration() { ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration() { UseHeaderRow = true } });
+      }
 
       _usedFISList = derriveListName(_dataSet);
       _listDate = derriveListDate(_dataSet);

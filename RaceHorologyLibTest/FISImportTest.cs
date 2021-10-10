@@ -212,6 +212,26 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(145.06, tg.Model.GetRace(1).GetParticipants()[0].Points); // DHpoints
     }
 
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\FIS\FIS-points-list-AL-2022-330.xlsx")]
+    [DeploymentItem(@"TestDataBases\Import\FIS\FIS-points-list-AL-2022-331.xlsx")]
+    public void ImportFIS_ErrorCase_DoubleImport()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.AddRace(new Race.RaceProperties { RaceType = Race.ERaceType.DownHill, Runs = 1 });
+
+      var reader1 = new FISImportReader(@"FIS-points-list-AL-2022-330.xlsx");
+
+      FISInterfaceModel fisImp = new FISInterfaceModel(tg.Model);
+      fisImp.UpdateFISList(reader1);
+      Assert.AreEqual("5th FIS points list 2021/2022", fisImp.UsedList);
+
+      var reader2 = new FISImportReader(@"FIS-points-list-AL-2022-331.xlsx");
+      fisImp.UpdateFISList(reader2);
+      Assert.AreEqual("6th FIS points list 2021/2022", fisImp.UsedList);
+    }
+
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\FIS\FIS-points-list-AL-2022-331 - missing_fields.xlsx")]
     public void ImportFIS_ErrorCase_WrongExcel()
