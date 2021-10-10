@@ -186,10 +186,9 @@ namespace RaceHorology
       {
         string path = openFileDialog.FileName;
 
-        FISImportReader importReader = new FISImportReader(path);
-
         try
         {
+          FISImportReader importReader = new FISImportReader(path);
           _importData.UpdateFISList(importReader);
         }
         catch (Exception exc)
