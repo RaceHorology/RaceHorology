@@ -72,12 +72,18 @@ namespace RaceHorologyLibTest
     public override void Start()
     {
       _dumpFile = new System.IO.StreamReader(_filePath);
+
+      StatusChanged.Invoke(this, true);
     }
 
     public override void Stop()
     {
+      StatusChanged.Invoke(this, false);
       _dumpFile = null;
     }
+
+    public override bool IsOnline { get => true; }
+    public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
     public bool ProcessNextLine()

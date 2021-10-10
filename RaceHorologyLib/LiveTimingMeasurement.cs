@@ -45,6 +45,12 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
+  /// <summary>
+  /// Main data structure to transfer the measured time data from the Live Timing Measurement Device to the application 
+  /// It contains all fields to identify the runner, start / finish time as well as potentailly calculated runtime.
+  /// 
+  /// Note: Intermediate not yet supported
+  /// </summary>
   public class TimeMeasurementEventArgs : EventArgs
   {
     public TimeMeasurementEventArgs()
@@ -68,18 +74,41 @@ namespace RaceHorologyLib
   }
 
   public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);
+  public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, bool isRunning);
 
-  public interface ILiveTimeMeasurement
+
+  /// <summary>
+  /// This Interface must be implemented from a Live Timing Measurement Device which supports online time measurement during the race.
+  /// Most favourit device for now are the ALGE TdC8000/TdC8001 or ALGE Timy
+  /// </summary>
+  public interface ILiveTimeMeasurementDevice
   {
     /// <summary>
-    /// If a time measurement happend, this event is triggered
+    /// If a time measurement happend, this event must be triggered.
     /// </summary>
     event TimeMeasurementEventHandler TimeMeasurementReceived;
 
+    /// <summary>
+    /// Starts the timing device to measure.
+    /// </summary>
     void Start();
+    /// <summary>
+    /// Stops the timing device to measure.
+    /// </summary>
     void Stop();
 
+    /// <summary>
+    /// Status property to get the real status of the measuring device. Might return false even if Start() has been called.
+    /// IsOnline shall return true if everything works as expected and the device is connected / online.
+    /// </summary>
+    bool IsOnline { get; }
+    
+    /// <summary>
+    /// This event must be fired if the status of the device changed.
+    /// </summary>
+    event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
   }
+
 
 
   public class LiveDateTimeEventArgs : EventArgs
@@ -107,18 +136,24 @@ namespace RaceHorologyLib
 
 
   /// <summary>
-  /// Reacts on the Live Timing (e.g. ALGE TdC8001) and updates the DataModel accordingly by transferring the received time data into the DataModel
+  /// Reacts on the Live Timing Device (e.g. ALGE TdC8001) and updates the DataModel accordingly by transferring the received time data into the DataModel
+  /// This is the main implementation for performaing the time measurement.
   /// </summary>
   public class LiveTimingMeasurement
   {
     AppDataModel _dm;
     SynchronizationContext _syncContext;
 
-    ILiveTimeMeasurement _liveTimer;
+    ILiveTimeMeasurementDevice _liveTimer;
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
     bool _autoAddParticipants;
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="dm">The DataMOdel to work on.</param>
+    /// <param name="autoAddParticipants">true in case participants with a startnumber not existing shall be created.</param>
     public LiveTimingMeasurement(AppDataModel dm, bool autoAddParticipants = false)
     {
       _dm = dm;
@@ -127,20 +162,24 @@ namespace RaceHorologyLib
       _autoAddParticipants = autoAddParticipants;
     }
 
-    public bool AutoAddParticipants { get { return _autoAddParticipants; } set { _autoAddParticipants = value; } }
-
     #region Public Interface
+
+    public bool AutoAddParticipants { get { return _autoAddParticipants; } set { _autoAddParticipants = value; } }
 
     public delegate void LiveTimingMeasurementStatusEventHandler(object sender, bool isRunning);
     public event LiveTimingMeasurementStatusEventHandler LiveTimingMeasurementStatusChanged;
 
 
-    public void SetTimingDevice(ILiveTimeMeasurement liveTimer, ILiveDateTimeProvider liveDateTimeProvider)
+    /// <summary>
+    /// Sets the Timing Device to use
+    /// </summary>
+    public void SetTimingDevice(ILiveTimeMeasurementDevice liveTimer, ILiveDateTimeProvider liveDateTimeProvider)
     {
       // Cleanup if already used
       if (_liveTimer != null)
       {
         _liveTimer.TimeMeasurementReceived -= OnTimeMeasurementReceived;
+        liveTimer.StatusChanged -= OnTimerStatusChanged;
         _liveTimer = null;
       }
       if (_liveDateTimeProvider != null)
@@ -151,18 +190,23 @@ namespace RaceHorologyLib
 
       _liveTimer = liveTimer;
       _liveTimer.TimeMeasurementReceived += OnTimeMeasurementReceived;
+      _liveTimer.StatusChanged += OnTimerStatusChanged;
 
       _liveDateTimeProvider = liveDateTimeProvider;
       _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
     }
 
+    /// <summary>
+    /// Property to get the used timing device
+    /// </summary>
+    public ILiveTimeMeasurementDevice LiveTimingDevice { get => _liveTimer; }
 
     public void Start()
     {
       _isRunning = true;
 
       var handler = LiveTimingMeasurementStatusChanged;
-      handler?.Invoke(this, _isRunning);
+      handler?.Invoke(this, IsRunning);
     }
 
 
@@ -171,12 +215,28 @@ namespace RaceHorologyLib
       _isRunning = false;
 
       var handler = LiveTimingMeasurementStatusChanged;
-      handler?.Invoke(this, _isRunning);
+      handler?.Invoke(this, IsRunning);
     }
+
+    public bool IsRunning { get => _isRunning && _liveTimer?.IsOnline == true; }
 
     #endregion
 
     #region Internal Implementation
+
+    /// <summary>
+    /// Callback for the timing device to react on (e.g. disconnected, stopped, ...)
+    /// </summary>
+    private void OnTimerStatusChanged(object sender, bool isRunning)
+    {
+      // Just forward changes on status
+      var handler = LiveTimingMeasurementStatusChanged;
+      handler?.Invoke(this, IsRunning);
+    }
+
+    /// <summary>
+    /// Callback of the timing device in case of timing data received 
+    /// </summary>
     private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
       if (!_isRunning)
@@ -207,6 +267,10 @@ namespace RaceHorologyLib
       }, null);
     }
 
+
+    /// <summary>
+    /// Callback to sync the clock with the clock of the timing device
+    /// </summary>
     private void OnLiveDateTimeChanged(object sender, LiveDateTimeEventArgs e)
     {
       if (!_isRunning)
@@ -216,6 +280,9 @@ namespace RaceHorologyLib
     }
 
 
+    /// <summary>
+    /// Creates a default participant in case the startnumber was unknown
+    /// </summary>
     private RaceParticipant createParticipantIfDesired(Race race, uint startNumber)
     {
       if (!_autoAddParticipants)
