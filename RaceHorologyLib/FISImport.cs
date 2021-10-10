@@ -202,6 +202,7 @@ namespace RaceHorologyLib
       replaceEmptyPointsWith(_dataSet.Tables[0], "ACpoints", 999.99);
 
       deleteUnusedColumns(_dataSet);
+      checkForNeededColumns(_dataSet);
 
       _columns = ImportUtils.extractFields(_dataSet);
     }
@@ -235,7 +236,7 @@ namespace RaceHorologyLib
     }
 
 
-    protected void deleteUnusedColumns(DataSet dataSet)
+    static protected void deleteUnusedColumns(DataSet dataSet)
     {
       dataSet.Tables[0].Columns.Remove("Listid");
       dataSet.Tables[0].Columns.Remove("Listname");
@@ -258,6 +259,30 @@ namespace RaceHorologyLib
       dataSet.Tables[0].Columns.Remove("ACpos");
       dataSet.Tables[0].Columns.Remove("ACSta");
     }
-  }
 
+
+    static protected void checkForNeededColumns(DataSet dataSet)
+    {
+      string[] neededColumns = new string[]
+      {
+        "Fiscode",
+        "Lastname",
+        "Firstname",
+        "Birthyear",
+        "Skiclub",
+        "Nationcode",
+        "Gender",
+        "DHpoints",
+        "GSpoints",
+        "SLpoints",
+        "SGpoints"
+      };
+
+      foreach(var neededCol in neededColumns)
+      {
+        if (!dataSet.Tables[0].Columns.Contains(neededCol))
+          throw new Exception("missing column in FIS import file");
+      }
+    }
+  }
 }

@@ -212,6 +212,14 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(145.06, tg.Model.GetRace(1).GetParticipants()[0].Points); // DHpoints
     }
 
-
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\FIS\FIS-points-list-AL-2022-331 - missing_fields.xlsx")]
+    public void ImportFIS_ErrorCase_WrongExcel()
+    {
+      Assert.ThrowsException<Exception>(() =>
+      {
+        var reader = new FISImportReader(@"FIS-points-list-AL-2022-331 - missing_fields.xlsx");
+      });
+    }
   }
 }
