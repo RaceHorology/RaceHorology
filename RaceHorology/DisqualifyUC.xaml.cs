@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -88,13 +88,13 @@ namespace RaceHorology
       UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
 
       cmbFilter.Items.Clear();
-      cmbFilter.Items.Add(new CBItem { Text = "alle", Value = "all" });
-      cmbFilter.Items.Add(new CBItem { Text = "ohne Zeit", Value = "no_time"});
-      cmbFilter.Items.Add(new CBItem { Text = "ausgeschieden", Value = "out" });
-      cmbFilter.Items.Add(new CBItem { Text = "keine Daten", Value = "no_data" });
+      cmbFilter.Items.Add(new CBItem { Text = "alle Teilnehmer", Value = "all" });
+      cmbFilter.Items.Add(new CBItem { Text = "Teilnehmer ohne Zeit", Value = "no_time"});
+      cmbFilter.Items.Add(new CBItem { Text = "ausgeschiedene Teilnehmer", Value = "out" });
+      cmbFilter.Items.Add(new CBItem { Text = "offene Teilnehmer (keine Zeit oder Ausscheidung)", Value = "no_data" });
       cmbFilter.SelectedIndex = 1;
 
-      cmbDisqualify.ItemsSource = ListOfResultCodes;
+      cmbDisqualify.ItemsSource = ListOfResultCodesToSet;
 
       cmbDisqualifyReason.Items.Add("Vorbei am Tor");
       cmbDisqualifyReason.Items.Add("Eingefädelt am Tor");
@@ -126,13 +126,29 @@ namespace RaceHorology
       {
         _viewDisqualificationsFilterHandler = null;
         if (string.Equals(selected.Value, "all"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr); });
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(
+            delegate (object s, FilterEventArgs ea) 
+            { 
+              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr); 
+            });
         else if (string.Equals(selected.Value, "no_time"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.RuntimeWOResultCode == null; });
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(
+            delegate (object s, FilterEventArgs ea) 
+            { 
+              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.RuntimeWOResultCode == null; 
+            });
         else if (string.Equals(selected.Value, "out"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode != RunResult.EResultCode.Normal; });
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(
+            delegate (object s, FilterEventArgs ea) 
+            { 
+              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && (rr.ResultCode != RunResult.EResultCode.Normal && rr.ResultCode != RunResult.EResultCode.NotSet); 
+            });
         else if (string.Equals(selected.Value, "no_data"))
-          _viewDisqualificationsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea) { RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode == RunResult.EResultCode.NotSet; });
+          _viewDisqualificationsFilterHandler = new FilterEventHandler(
+            delegate (object s, FilterEventArgs ea) 
+            { 
+              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode == RunResult.EResultCode.NotSet; 
+            });
       }
 
       if (_viewDisqualificationsFilterHandler != null)
