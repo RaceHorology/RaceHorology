@@ -142,6 +142,38 @@ namespace RaceHorologyLib
   }
 
 
+  public class ResultCodeConverterWithNormal : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      try
+      {
+        RunResult.EResultCode rc = (RunResult.EResultCode)value;
+
+        switch (rc)
+        {
+          case RunResult.EResultCode.Normal:
+            return "keine Ausscheidung";
+          case RunResult.EResultCode.NotSet:
+            return "keine Zeit oder Ausscheidung";
+
+          default:
+            return rc.ToString();
+        }
+      }
+      catch (Exception)
+      {
+        return "";
+      }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
   public class TimeSpanConverter : IValueConverter
   {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
