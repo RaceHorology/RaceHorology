@@ -19,6 +19,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -29,6 +30,10 @@
 
           <Label x:Name="lblTimingDevicePort" Content="Schnittstelle:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="1" Grid.Column="0"/>
           <ComboBox x:Name="cbTimingDevicePort" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+        
+          <Label x:Name="lblTimingDeviceDebug" Content="Debug Funktionen:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="2" Grid.Column="0"/>
+          <CheckBox x:Name="chkTimingDeviceDebugDump" Content="Speichern der Kommunikation als Dump-File" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
         </Grid>
       </TabItem>
       <TabItem Header="Zeitnahme">

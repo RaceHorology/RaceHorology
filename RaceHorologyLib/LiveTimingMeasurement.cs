@@ -102,6 +102,16 @@ namespace RaceHorologyLib
     /// IsOnline shall return true if everything works as expected and the device is connected / online.
     /// </summary>
     bool IsOnline { get; }
+
+    /// <summary>
+    /// Returns information about the device itself, i.e. the device name
+    /// </summary>
+    string GetDeviceInfo();
+
+    /// <summary>
+    /// Returns information about the status of the device, i.e. online, disconnected, COM port not available, ...
+    /// </summary>
+    string GetStatusInfo();
     
     /// <summary>
     /// This event must be fired if the status of the device changed.
@@ -144,7 +154,7 @@ namespace RaceHorologyLib
     AppDataModel _dm;
     SynchronizationContext _syncContext;
 
-    ILiveTimeMeasurementDevice _liveTimer;
+    ILiveTimeMeasurementDevice _timingDevice;
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
     bool _autoAddParticipants;
@@ -173,33 +183,41 @@ namespace RaceHorologyLib
     /// <summary>
     /// Sets the Timing Device to use
     /// </summary>
-    public void SetTimingDevice(ILiveTimeMeasurementDevice liveTimer, ILiveDateTimeProvider liveDateTimeProvider)
+    public void SetTimingDevice(ILiveTimeMeasurementDevice timingDevice, ILiveDateTimeProvider liveDateTimeProvider)
     {
       // Cleanup if already used
-      if (_liveTimer != null)
+      if (_timingDevice != null)
       {
-        _liveTimer.TimeMeasurementReceived -= OnTimeMeasurementReceived;
-        liveTimer.StatusChanged -= OnTimerStatusChanged;
-        _liveTimer = null;
+        _timingDevice.TimeMeasurementReceived -= OnTimeMeasurementReceived;
+        _timingDevice.StatusChanged -= OnTimerStatusChanged;
+        _timingDevice = null;
       }
+
       if (_liveDateTimeProvider != null)
       { 
-        _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
+        _liveDateTimeProvider.LiveDateTimeChanged -= OnLiveDateTimeChanged;
         _liveDateTimeProvider = null;
       }
 
-      _liveTimer = liveTimer;
-      _liveTimer.TimeMeasurementReceived += OnTimeMeasurementReceived;
-      _liveTimer.StatusChanged += OnTimerStatusChanged;
-
+      _timingDevice = timingDevice;
       _liveDateTimeProvider = liveDateTimeProvider;
-      _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
+
+      if (_timingDevice != null)
+      {
+        _timingDevice.TimeMeasurementReceived += OnTimeMeasurementReceived;
+        _timingDevice.StatusChanged += OnTimerStatusChanged;
+      }
+      if (_liveDateTimeProvider != null)
+      {
+        _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
+      }
     }
 
     /// <summary>
     /// Property to get the used timing device
     /// </summary>
-    public ILiveTimeMeasurementDevice LiveTimingDevice { get => _liveTimer; }
+    public ILiveTimeMeasurementDevice LiveTimingDevice { get => _timingDevice; }
+    public ILiveDateTimeProvider LiveDateTimeProvider { get => _liveDateTimeProvider; }
 
     public void Start()
     {
@@ -218,7 +236,7 @@ namespace RaceHorologyLib
       handler?.Invoke(this, IsRunning);
     }
 
-    public bool IsRunning { get => _isRunning && _liveTimer?.IsOnline == true; }
+    public bool IsRunning { get => _isRunning && _timingDevice?.IsOnline == true; }
 
     #endregion
 

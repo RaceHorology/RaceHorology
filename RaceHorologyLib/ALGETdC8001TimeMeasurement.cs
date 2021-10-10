@@ -64,7 +64,7 @@ namespace RaceHorologyLib
       return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
     }
 
-    public virtual string GetInfo()
+    public virtual string GetDeviceInfo()
     {
       return "ALGE TdC 8001 (base)";
     }
@@ -211,7 +211,7 @@ namespace RaceHorologyLib
       _dumpDir = dumpDir;
     }
 
-    public override string GetInfo()
+    public override string GetDeviceInfo()
     {
       return "ALGE TdC 8001 (" + _serialPortName + ")";
     }
@@ -225,9 +225,8 @@ namespace RaceHorologyLib
 
       _stopRequest = false;
 
-      string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
-      dumpFilename = System.IO.Path.Combine(_dumpDir, dumpFilename);
-      _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
+      if (_dumpDir != null)
+        startWritingToDumpFile();
 
       _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
       _serialPort.NewLine = "\r"; // CR, ASCII(13)
@@ -249,8 +248,17 @@ namespace RaceHorologyLib
         _stopRequest = true;
         _instanceCaller.Join(); // Wait until thread has been terminated
 
-        _dumpFile.Close();
+        if (_dumpFile!=null)
+          _dumpFile.Close();
       }
+    }
+
+
+    private void startWritingToDumpFile()
+    {
+      string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
+      dumpFilename = System.IO.Path.Combine(_dumpDir, dumpFilename);
+      _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
     }
 
 
@@ -260,7 +268,8 @@ namespace RaceHorologyLib
       {
         _internalStatus = value;
 
-        StatusChanged.Invoke(this, IsOnline);
+        var handler = StatusChanged;
+        handler?.Invoke(this, IsOnline);
       }
     }
 

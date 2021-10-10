@@ -240,7 +240,7 @@ namespace RaceHorology
 
       DisconnectGUIFromDataModel();
 
-      DeinitializeTiming();
+      DeInitializeTiming();
 
       if (_dataModel != null)
       {
@@ -383,11 +383,6 @@ namespace RaceHorology
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
-      _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, _dataModel.GetDB().GetDBPathDirectory());
-      _alge.RawMessageReceived += Alge_OnMessageReceived;
-
-      _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
-
       _liveTimingStatusTimer = new System.Timers.Timer(300);
       _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
       _liveTimingStatusTimer.AutoReset = true;
@@ -395,26 +390,58 @@ namespace RaceHorology
 
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
 
-      _alge.Start();
+      InitializeTimingDevice();
     }
 
-    private void DeinitializeTiming()
+    private void DeInitializeTiming()
     {
-      if (_alge == null)
-        return;
-
-      _alge.Stop();
-
       Properties.Settings.Default.PropertyChanged -= SettingChangingHandler;
 
       _liveTimingStatusTimer.Elapsed -= UpdateLiveTimingDeviceStatus;
-      _liveTimingStatusTimer = null;
 
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged -= OnLiveTimingMeasurementStatusChanged;
-      _liveTimingMeasurement = null;
 
-      _alge.RawMessageReceived -= Alge_OnMessageReceived;
-      _alge = null;
+      DeInitializeTimingDevice();
+
+      _liveTimingStatusTimer = null;
+      _liveTimingMeasurement = null;
+    }
+
+    private void InitializeTimingDevice()
+    {
+      if (_alge != null)
+        throw new Exception("timing device already initialized");
+
+      string dumpDir = null;
+      if (Properties.Settings.Default.TimingDevice_Debug_Dump)
+        dumpDir = _dataModel.GetDB().GetDBPathDirectory();
+
+      _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      _alge.RawMessageReceived += Alge_OnMessageReceived;
+
+      _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
+
+      _alge.Start();
+    }
+
+    private void DeInitializeTimingDevice()
+    {
+      if (_alge != null)
+      {
+        _liveTimingMeasurement.SetTimingDevice(null, null);
+        _alge.RawMessageReceived -= Alge_OnMessageReceived;
+
+        _alge.Stop();
+
+        _alge = null;
+      }
+    }
+
+
+    private void ReInitializeTimingDevice()
+    {
+      DeInitializeTimingDevice();
+      InitializeTimingDevice();
     }
 
 
@@ -425,6 +452,11 @@ namespace RaceHorology
         case "AutoAddParticipants":
           if (_liveTimingMeasurement != null)
             _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
+          break;
+        case "TimingDevice_Port":
+        case "TimingDevice_Type":
+        case "TimingDevice_Debug_Dump":
+          ReInitializeTimingDevice();
           break;
         default:
           break;
@@ -474,7 +506,15 @@ namespace RaceHorology
 
     private void UpdateLiveTimingDeviceStatus(object sender, System.Timers.ElapsedEventArgs e)
     {
-      string str = _alge.GetInfo() + ", " + _alge.GetStatusInfo() + ", " + _alge.GetCurrentDayTime().ToString(@"hh\:mm\:ss");
+      var timingDevice = _liveTimingMeasurement.LiveTimingDevice;
+      var dateTimeProvider = _liveTimingMeasurement.LiveDateTimeProvider;
+
+      string str = "kein Zeitmessgerät ausgewählt";
+      if (timingDevice!=null && dateTimeProvider!=null)
+      { 
+        str = timingDevice.GetDeviceInfo() + ", " + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss");
+      }
+
       Application.Current.Dispatcher.Invoke(() =>
       {
         lblTimingDevice.Content = str;
