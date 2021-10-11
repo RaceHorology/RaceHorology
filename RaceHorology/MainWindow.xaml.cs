@@ -329,7 +329,6 @@ namespace RaceHorology
       if (_alpinServer == null)
       {
         imgQRCode.Source = null;
-        lblURL.Content = "nicht verfügbar";
       }
       else
       {
@@ -354,7 +353,6 @@ namespace RaceHorology
           }
 
           imgQRCode.Source = bitmapimage;
-          lblURL.Content = url;
         }
       }
     }
@@ -381,7 +379,6 @@ namespace RaceHorology
     private void InitializeTiming()
     {
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
-      _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
       _liveTimingStatusTimer = new System.Timers.Timer(300);
       _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
@@ -399,8 +396,6 @@ namespace RaceHorology
 
       _liveTimingStatusTimer.Elapsed -= UpdateLiveTimingDeviceStatus;
 
-      _liveTimingMeasurement.LiveTimingMeasurementStatusChanged -= OnLiveTimingMeasurementStatusChanged;
-
       DeInitializeTimingDevice();
 
       _liveTimingStatusTimer = null;
@@ -417,7 +412,6 @@ namespace RaceHorology
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
       _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
-      _alge.RawMessageReceived += Alge_OnMessageReceived;
 
       _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
 
@@ -429,7 +423,6 @@ namespace RaceHorology
       if (_alge != null)
       {
         _liveTimingMeasurement.SetTimingDevice(null, null);
-        _alge.RawMessageReceived -= Alge_OnMessageReceived;
 
         _alge.Stop();
 
@@ -479,29 +472,6 @@ namespace RaceHorology
         return;
      
       _liveTimingMeasurement.Stop();
-    }
-
-    private void UpdateLiveTimingStartStopButtons(bool isRunning)
-    {
-      btnLiveTimingStart.IsChecked = isRunning;
-      btnLiveTimingStop.IsChecked = !isRunning;
-    }
-
-    private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
-    {
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        UpdateLiveTimingStartStopButtons(isRunning);
-      });
-    }
-
-    private void Alge_OnMessageReceived(object sender, string message)
-    {
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        txtCOMPort.Text += message + "\n";
-        txtCOMPort.ScrollToEnd();
-      });
     }
 
     private void UpdateLiveTimingDeviceStatus(object sender, System.Timers.ElapsedEventArgs e)
