@@ -25,31 +25,31 @@
 
   <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="18"/>
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-    <Menu x:Name="mnuMain" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
-      <MenuItem Name="mnuFile" Header="Datei">
-        <MenuItem Name="mnuNew" Header="_Neu anlegen" Command="New" InputGestureText="Ctrl+N"/>
-        <MenuItem Name="mnuOpen" Header="Datei _öffnen" Command="Open" InputGestureText="Ctrl+O"/>
-        <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
-        <MenuItem Name="mnuClose" Header="S_chließen" Command="Close" InputGestureText="Ctrl+C"/>
-      </MenuItem>
-      <MenuItem Name="mnuTools"  Header="Werkzeuge">
-        <MenuItem Name="mnuToolsDeleteRunResults"  Header="Zeiten löschen" 
-                  IsEnabled="{Binding HasActiveRace}"
-                  Command="rhcmd:RaceHorologyCommands.DeleteRunResults" />
-        <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
-                  IsEnabled="{Binding HasActiveRace}"
-                  Command="rhcmd:RaceHorologyCommands.HandTime" />
-      </MenuItem>
-      <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
-        <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
-      </MenuItem>
-      <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
-    </Menu>
-    <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffeff5f0">
+      <Menu x:Name="mnuMain" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
+        <MenuItem Name="mnuFile" Header="Datei">
+          <MenuItem Name="mnuNew" Header="_Neu anlegen" Command="New" InputGestureText="Ctrl+N"/>
+          <MenuItem Name="mnuOpen" Header="Datei _öffnen" Command="Open" InputGestureText="Ctrl+O"/>
+          <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
+          <MenuItem Name="mnuClose" Header="S_chließen" Command="Close" InputGestureText="Ctrl+C"/>
+        </MenuItem>
+        <MenuItem Name="mnuTools"  Header="Werkzeuge">
+          <MenuItem Name="mnuToolsDeleteRunResults"  Header="Zeiten löschen" 
+                    IsEnabled="{Binding HasActiveRace}"
+                    Command="rhcmd:RaceHorologyCommands.DeleteRunResults" />
+          <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
+                    IsEnabled="{Binding HasActiveRace}"
+                    Command="rhcmd:RaceHorologyCommands.HandTime" />
+        </MenuItem>
+        <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
+          <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
+        </MenuItem>
+        <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
+      </Menu>
+    <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffe6eee5">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
@@ -59,84 +59,52 @@
         <ItemsPanelTemplate>
           <Grid>
             <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="2*" />
               <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
           </Grid>
         </ItemsPanelTemplate>
       </StatusBar.ItemsPanel>
 
-      <Separator Grid.Column="1" />
+      <StatusBarItem Grid.Column="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" >
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Label x:Name="lblLiveTimingStatus" Content="Statustext für Online Livetiming: " Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
+          <TextBox x:Name="txtLiveTimingStatus" Grid.Column="1" Text="" Margin="0" Padding="2" AcceptsReturn="False" FontSize="12" TextWrapping="NoWrap" MinWidth="100" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+        </Grid>
+      </StatusBarItem>
+
+      <Separator Grid.Column="1" Margin="10,0,10,0" Background="White"/>
 
       <StatusBarItem Grid.Column="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
-        <Grid >
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="1*"/>
-          </Grid.RowDefinitions>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-              <Label x:Name="lblLiveTimingStatus" Content="Live Timing - Status: " Margin="0" VerticalAlignment="Top" FontSize="12" />
-            </StackPanel>
-          </Grid>
-          <TextBox x:Name="txtLiveTimingStatus" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" Height="100" VerticalScrollBarVisibility="Auto"/>
-        </Grid>
-      </StatusBarItem>
-
-      <Separator Grid.Column="3" />
-
-      <StatusBarItem Grid.Column="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
-        <Grid >
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="1*"/>
-          </Grid.RowDefinitions>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-              <Label x:Name="lblTimingDeviceLBL" Content="Live Zeitnahme: " Margin="0" VerticalAlignment="Top" FontSize="12" />
-              <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12" />
-            </StackPanel>
-            <StackPanel Grid.Column="2" Orientation="Horizontal">
-              <ToggleButton x:Name="btnLiveTimingStart" Margin="5,0,0,0" Click="LiveTimingStart_Click">
-                <Image Source="{StaticResource IconPlay}" Height="20"/>
-              </ToggleButton>
-              <ToggleButton x:Name="btnLiveTimingStop" Margin="5,0,0,0" Click="LiveTimingStop_Click">
-                <Image Source="{StaticResource IconStop}" Height="20"/>
-              </ToggleButton>
-            </StackPanel>
-          </Grid>
-          <TextBox x:Name="txtCOMPort" Grid.Row="1" Text="" Margin="0" AcceptsReturn="True" FontSize="10" TextWrapping="Wrap" FontFamily="Courier New" Height="100" VerticalScrollBarVisibility="Auto"/>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Label x:Name="lblTimingDeviceLBL" Content="Live Zeitnahme: " Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
+          <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12"  Grid.Column="1"/>
+          <Button x:Name="btnTimingDeviceDebug" Content="Protokoll" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceDebug_Click"/>
         </Grid>
       </StatusBarItem>      
-      
-      <Separator Grid.Column="5" />
 
-      <StatusBarItem Grid.Column="6"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
-        <Grid Background="White">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Image x:Name="imgQRCode" Grid.Row="0" HorizontalAlignment="Center" Height="100" Margin="0,0,0,0" VerticalAlignment="Top" Width="100" PreviewMouseDown="LblURL_PreviewMouseDown"/>
-          <Label x:Name="lblURL" Grid.Row="1" Content="not running" Margin="0,0,0,0" VerticalAlignment="Bottom" Width="Auto" HorizontalContentAlignment="Left" FontSize="10" PreviewMouseDown="LblURL_PreviewMouseDown"/>
-        </Grid>
-      </StatusBarItem>
-      <Image x:Name="LogoRH_png" Height="80" Source="LogoRH.png" Stretch="Uniform" Margin="10,20,10,20" PreviewMouseDown="LogoRH_png_PreviewMouseDown"/>
     </StatusBar>
+
+    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,3,10,3" >
+      <Image x:Name="LogoRH_png" Height="53" Source="LogoRH.png" Stretch="Uniform" Margin="10,0,10,0" PreviewMouseDown="LogoRH_png_PreviewMouseDown" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+      <Grid Background="LightGray" Margin="30,0,0,0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Image x:Name="imgQRCode" Grid.Row="0" HorizontalAlignment="Center" Height="53" Margin="0,0,0,0" VerticalAlignment="Top" Stretch="Uniform" PreviewMouseDown="LblURL_PreviewMouseDown"/>
+      </Grid>
+    </StackPanel>
   </Grid>
 </Window>

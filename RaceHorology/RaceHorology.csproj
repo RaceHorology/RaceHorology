@@ -110,6 +110,9 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ALGEDebugDlg.xaml.cs">
+      <DependentUpon>ALGEDebugDlg.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ChartTestsUC.xaml.cs">
       <DependentUpon>ChartTestsUC.xaml</DependentUpon>
     </Compile>
@@ -177,6 +180,10 @@
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ALGEDebugDlg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

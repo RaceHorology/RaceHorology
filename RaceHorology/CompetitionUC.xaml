@@ -69,11 +69,11 @@
                       </Style>
                     </DataGridComboBoxColumn.EditingElementStyle>
                   </DataGridComboBoxColumn>
-                  <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year}"/>
+                  <DataGridTextColumn Header="Jg." Binding="{Binding Year}"/>
                   <DataGridTextColumn Header="Verein" Binding="{Binding Club}"/>
                   <DataGridTextColumn Header="SvId" Binding="{Binding SvId}"/>
                   <DataGridTextColumn Header="Code" Binding="{Binding Code}"/>
-                  <DataGridTextColumn Header="Nation" Binding="{Binding Nation}"/>
+                  <DataGridTextColumn Header="Nat." Binding="{Binding Nation}"/>
                   <DataGridComboBoxColumn Header="Klasse" 
                                 SelectedValueBinding="{Binding Class, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >
