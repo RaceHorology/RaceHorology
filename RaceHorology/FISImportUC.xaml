@@ -41,7 +41,7 @@
             </Style>
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
-        <DataGridTextColumn Header="Jahrgang" Binding="{Binding Birthyear, Mode=OneWay}">
+        <DataGridTextColumn Header="Jg." Binding="{Binding Birthyear, Mode=OneWay}">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Center" />

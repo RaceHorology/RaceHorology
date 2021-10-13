@@ -33,7 +33,7 @@
         <DataGridTextColumn Header="Id" Binding="{Binding SvId, Mode=OneWay}" />
         <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" />
         <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-        <DataGridTextColumn Header="Jahrgang" Binding="{Binding Year, Mode=OneWay}">
+        <DataGridTextColumn Header="Jg." Binding="{Binding Year, Mode=OneWay}">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Center" />
