@@ -22,7 +22,7 @@
       <Label Content="Vorläufige Startliste" FontSize="16"/>
       <DataGrid x:Name="dgStartList" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="True">
         <DataGrid.Columns>
-          <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="Startnummer" Binding="{Binding StartNumber, Mode=TwoWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="StNr" Binding="{Binding StartNumber, Mode=TwoWay}" />
           <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Participant.Name, Mode=OneWay}" />
           <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Participant.Firstname, Mode=OneWay}" />
           <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jg." Binding="{Binding Participant.Year, Mode=OneWay}" />
