@@ -42,7 +42,7 @@
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
         <DataGridTextColumn Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
-        <DataGridTextColumn Header="Verband" Binding="{Binding Verband, Mode=OneWay}" />
+        <DataGridTextColumn Header="Nat." Binding="{Binding Verband, Mode=OneWay}" />
         <DataGridTextColumn Header="Punkte" Binding="{Binding Points, Mode=OneWay, StringFormat={}{0:0.00}}" >
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
