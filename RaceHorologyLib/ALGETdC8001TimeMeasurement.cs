@@ -69,7 +69,6 @@ namespace RaceHorologyLib
       return "ALGE TdC 8001 (base)";
     }
 
-
     public string GetStatusInfo()
     {
       return _statusText;
@@ -200,6 +199,7 @@ namespace RaceHorologyLib
     private EInternalStatus _internalStatus;
     private string _dumpDir;
     System.IO.StreamWriter _dumpFile;
+    private string _internalProtocol;
 
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
@@ -209,6 +209,7 @@ namespace RaceHorologyLib
       _serialPortName = comport;
       _internalStatus = EInternalStatus.Stopped;
       _dumpDir = dumpDir;
+      _internalProtocol = string.Empty;
     }
 
     public override string GetDeviceInfo()
@@ -253,6 +254,11 @@ namespace RaceHorologyLib
       }
     }
 
+
+    public string GetProtocol()
+    {
+      return _internalProtocol;
+    }
 
     private void startWritingToDumpFile()
     {
@@ -351,6 +357,10 @@ namespace RaceHorologyLib
     {
       _dumpFile?.WriteLine(dataLine);
       _dumpFile?.Flush();
+
+      if (!string.IsNullOrEmpty(_internalProtocol))
+        _internalProtocol += "\n";
+      _internalProtocol += dataLine;
 
       RawMessageReceivedEventHandler handler = RawMessageReceived;
       handler?.Invoke(this, dataLine);

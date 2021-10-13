@@ -29,6 +29,7 @@ namespace RaceHorology
       InitializeComponent();
 
       connectToAlge();
+      tbAlgeLog.Text = _algeDevice.GetProtocol();
 
       Closing += onWindowClosing;
     }
