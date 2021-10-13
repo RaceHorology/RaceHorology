@@ -394,7 +394,8 @@ namespace RaceHorology
     {
       Properties.Settings.Default.PropertyChanged -= SettingChangingHandler;
 
-      _liveTimingStatusTimer.Elapsed -= UpdateLiveTimingDeviceStatus;
+      if (_liveTimingStatusTimer != null)
+        _liveTimingStatusTimer.Elapsed -= UpdateLiveTimingDeviceStatus;
 
       DeInitializeTimingDevice();
 
@@ -498,6 +499,17 @@ namespace RaceHorology
       System.Diagnostics.Process.Start("http://www.race-horology.com");
     }
 
+    private void btnTimingDeviceDebug_Click(object sender, RoutedEventArgs e)
+    {
+      if (_alge == null)
+      {
+        MessageBox.Show("Zeitmessgerät nicht verfügbar.", "Protokoll", MessageBoxButton.OK, MessageBoxImage.Information);
+        return;
+      }
+
+      ALGEDebugDlg debugDlg = new ALGEDebugDlg(_alge);
+      debugDlg.Show();
+    }
   }
 
 

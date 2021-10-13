@@ -1,0 +1,24 @@
+﻿<Window x:Class="RaceHorology.ALGEDebugDlg"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RaceHorology"
+        mc:Ignorable="d"
+        Title="ALGE Debug" Height="450" Width="800">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Label Content="RS 232 Protokoll:" Grid.Row="0"/>
+    <TextBox x:Name="tbAlgeLog" Grid.Row="1" Margin="5" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="True"/>
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+      <Button x:Name="btnOk" Content="Close" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,0,0" IsDefault="True" Click="BtnOk_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>
