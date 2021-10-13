@@ -90,7 +90,7 @@
           </Grid.ColumnDefinitions>
           <Label x:Name="lblTimingDeviceLBL" Content="Live Zeitnahme: " Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
           <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12"  Grid.Column="1"/>
-          <Button x:Name="btnTimingDeviceDebug" Content="Protocol" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceDebug_Click"/>
+          <Button x:Name="btnTimingDeviceDebug" Content="Protokoll" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceDebug_Click"/>
         </Grid>
       </StatusBarItem>      
 
