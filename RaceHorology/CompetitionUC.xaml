@@ -51,6 +51,8 @@
 
               <DataGrid x:Name="dgParticipants" Margin="5,0,5,0" Grid.Row="1" FontSize="12" AutoGenerateColumns="False" CanUserAddRows="True" SelectionChanged="dgParticipants_SelectionChanged">
                 <DataGrid.Columns>
+                  <DataGridTextColumn Header="SvId" Binding="{Binding SvId}"/>
+                  <DataGridTextColumn Header="Code" Binding="{Binding Code}"/>
                   <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
                   <DataGridTextColumn Header="Vorname" Binding="{Binding Firstname}"/>
                   <DataGridComboBoxColumn Header="Kategorie" 
@@ -70,10 +72,6 @@
                     </DataGridComboBoxColumn.EditingElementStyle>
                   </DataGridComboBoxColumn>
                   <DataGridTextColumn Header="Jg." Binding="{Binding Year}"/>
-                  <DataGridTextColumn Header="Verein" Binding="{Binding Club}"/>
-                  <DataGridTextColumn Header="SvId" Binding="{Binding SvId}"/>
-                  <DataGridTextColumn Header="Code" Binding="{Binding Code}"/>
-                  <DataGridTextColumn Header="Nat." Binding="{Binding Nation}"/>
                   <DataGridComboBoxColumn Header="Klasse" 
                                 SelectedValueBinding="{Binding Class, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >
@@ -91,6 +89,8 @@
                     </DataGridComboBoxColumn.EditingElementStyle>
                   </DataGridComboBoxColumn>
                   <DataGridTextColumn Header="Gruppe" Binding="{Binding Group, Mode=OneWay}"/>
+                  <DataGridTextColumn Header="Verein" Binding="{Binding Club}"/>
+                  <DataGridTextColumn Header="Nat." Binding="{Binding Nation}"/>
                 </DataGrid.Columns>
 
 
