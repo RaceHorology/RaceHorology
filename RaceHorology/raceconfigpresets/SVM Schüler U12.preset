@@ -1,5 +1,9 @@
 {
   "Runs": 2,
+  "ActiveFields": [
+    "Year",
+    "Club"
+  ],
   "DefaultGrouping": "Participant.Group",
   "RaceResultView": "RaceResult_Sum",
   "RaceResultViewParams": null,

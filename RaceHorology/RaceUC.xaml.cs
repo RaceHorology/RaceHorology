@@ -166,7 +166,11 @@ namespace RaceHorology
       if (cmbTemplate.SelectedValue is CBItem selected)
       {
         if (selected.Value is RaceConfiguration config)
-          ResetConfigurationSelectionUI(config);
+        {
+          RaceConfiguration configToSet = RaceConfigurationMerger.MainConfig(_raceConfiguration, config);
+
+          ResetConfigurationSelectionUI(configToSet);
+        }
       }
     }
 

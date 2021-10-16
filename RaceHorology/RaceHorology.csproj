@@ -327,6 +327,9 @@
     <None Include="raceconfigpresets\DSV Schüler U14-U16.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="raceconfigpresets\FIS Rennen.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="raceconfigpresets\Inline %28allgemein%29.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
