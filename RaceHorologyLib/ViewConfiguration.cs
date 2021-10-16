@@ -138,8 +138,53 @@ namespace RaceHorologyLib
     {
       ActiveFields = new List<string>();
     }
+    public RaceConfiguration(RaceConfiguration src)
+    {
+      Runs = src.Runs;
+      DefaultGrouping = src.DefaultGrouping;
+      ActiveFields = src.ActiveFields.Copy<List<string>>();
+      RaceResultView = src.RaceResultView;
+      RaceResultViewParams = src.RaceResultViewParams.Copy<Dictionary<string, object>>();
+
+      Run1_StartistView = src.Run1_StartistView;
+      Run1_StartistViewGrouping = src.Run1_StartistViewGrouping;
+      Run1_StartistViewParams = src.Run1_StartistViewParams.Copy<Dictionary<string, object>>();
+
+      Run2_StartistView = src.Run2_StartistView;
+      Run2_StartistViewGrouping = src.Run2_StartistViewGrouping;
+      Run2_StartistViewParams = src.Run2_StartistViewParams.Copy<Dictionary<string, object>>();
+
+      LivetimingParams = src.LivetimingParams.Copy<Dictionary<string, string>>();
+
+      ValueF = src.ValueF;
+      ValueA = src.ValueA;
+      MinimumPenalty = src.MinimumPenalty;
+    }
   }
 
+  public static class RaceConfigurationMerger
+  { 
+    public static RaceConfiguration MainConfig(RaceConfiguration baseConfig, RaceConfiguration newConfig)
+    {
+      RaceConfiguration mergedConfig = new RaceConfiguration(baseConfig);
+
+      mergedConfig.Runs = newConfig.Runs;
+      mergedConfig.DefaultGrouping = newConfig.DefaultGrouping;
+      mergedConfig.ActiveFields = newConfig.ActiveFields.Copy<List<string>>();
+      mergedConfig.RaceResultView = newConfig.RaceResultView;
+      mergedConfig.RaceResultViewParams = newConfig.RaceResultViewParams.Copy<Dictionary<string, object>>();
+
+      mergedConfig.Run1_StartistView = newConfig.Run1_StartistView;
+      mergedConfig.Run1_StartistViewGrouping = newConfig.Run1_StartistViewGrouping;
+      mergedConfig.Run1_StartistViewParams = newConfig.Run1_StartistViewParams.Copy<Dictionary<string, object>>();
+
+      mergedConfig.Run2_StartistView = newConfig.Run2_StartistView;
+      mergedConfig.Run2_StartistViewGrouping = newConfig.Run2_StartistViewGrouping;
+      mergedConfig.Run2_StartistViewParams = newConfig.Run2_StartistViewParams.Copy<Dictionary<string, object>>();
+
+      return mergedConfig;
+    }
+  }
 
 
   public class RaceConfigurationPresets
