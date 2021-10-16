@@ -139,6 +139,7 @@
     <Compile Include="LiveTimingFISTest.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />
+    <Compile Include="RaceConfigurationTest.cs" />
     <Compile Include="StartNumberTest.cs" />
     <Compile Include="TagHeuerTests.cs" />
     <Compile Include="TestUtilities.cs" />
