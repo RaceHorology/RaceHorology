@@ -28,6 +28,7 @@
           <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jg." Binding="{Binding Participant.Year, Mode=OneWay}" />
           <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Participant.Class, Mode=OneWay}" />
           <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Participant.Club, Mode=OneWay}" />
+          <DataGridTextColumn local:DataGridUtil.Name="Nation" Header="Nat." Binding="{Binding Participant.Nation, Mode=OneWay}" />
           <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Participant.Points, Mode=OneWay}" />
         </DataGrid.Columns>
       </DataGrid>
@@ -147,6 +148,7 @@
                   <DataGridTextColumn local:DataGridUtil.Name="Year" Header="Jg." Binding="{Binding Year, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
+                  <DataGridTextColumn local:DataGridUtil.Name="Nation" Header="Nat." Binding="{Binding Nation, Mode=OneWay}" />
                   <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
                 </DataGrid.Columns>
               </DataGrid>

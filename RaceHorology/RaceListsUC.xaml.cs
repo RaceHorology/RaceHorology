@@ -437,9 +437,10 @@ namespace RaceHorology
       dgView.Columns.Add(createColumn("StartNumber", "StartNumber", "StNr"));
       dgView.Columns.Add(createColumn("Name", "Name", "Name"));
       dgView.Columns.Add(createColumn("Firstname", "Firstname", "Vorname"));
-      dgView.Columns.Add(createColumn("Club", "Club", "Verein"));
       dgView.Columns.Add(createColumn("Year", "Year", "Jg."));
       dgView.Columns.Add(createColumn("Class", "Class", "Klasse"));
+      dgView.Columns.Add(createColumn("Club", "Club", "Verein"));
+      dgView.Columns.Add(createColumn("Nation", "Nation", "Nat."));
       dgView.Columns.Add(createColumn("Points", "Points", "Punkte"));
 
       dgView.ItemsSource = _thisRace.GetParticipants();
@@ -457,13 +458,16 @@ namespace RaceHorology
       if (_viewProvider == null)
         return;
 
-      dgView.Columns.Add(createColumnPosition("Position", "Position", false));
+      if (!(_viewProvider is StartListViewProvider))
+        dgView.Columns.Add(createColumnPosition("Position", "Position", false));
+
       dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
       dgView.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
       dgView.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
       dgView.Columns.Add(createColumn("Year", "Participant.Year", "Jg."));
       dgView.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
       dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
+      dgView.Columns.Add(createColumn("Nation", "Participant.Nation", "Nat."));
 
       // Race Run Results
       if (_viewProvider is RaceRunResultViewProvider rrrVP)
