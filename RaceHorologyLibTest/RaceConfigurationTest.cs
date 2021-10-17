@@ -96,6 +96,7 @@ namespace RaceHorologyLibTest
     {
       RaceConfiguration baseConfig = new RaceConfiguration
       {
+        Name = "BaseName",
         Runs = 2,
         DefaultGrouping = "DefaultG",
         ActiveFields = new List<string> { "eins", "zwei" },
@@ -119,6 +120,7 @@ namespace RaceHorologyLibTest
 
       RaceConfiguration newConfig = new RaceConfiguration
       {
+        Name = "NewName",
         Runs = 3,
         DefaultGrouping = "DefaultH",
         ActiveFields = new List<string> { "drei", "view" },
@@ -143,6 +145,8 @@ namespace RaceHorologyLibTest
 
       RaceConfiguration mergedConfig = RaceConfigurationMerger.MainConfig(baseConfig, newConfig);
 
+      Assert.AreEqual("NewName", mergedConfig.Name);
+
       Assert.AreEqual("DefaultH", mergedConfig.DefaultGrouping);
       Assert.AreEqual("drei", mergedConfig.ActiveFields[0]);
       Assert.AreEqual("view", mergedConfig.ActiveFields[1]);
@@ -162,6 +166,101 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(100, mergedConfig.ValueF);
       Assert.AreEqual(200, mergedConfig.ValueA);
       Assert.AreEqual(300, mergedConfig.MinimumPenalty);
+    }
+
+
+    [TestMethod]
+    public void RaceConfigurationCompare_MainConfig()
+    {
+      RaceConfiguration config1 = new RaceConfiguration
+      {
+        Name = "BaseName",
+        Runs = 2,
+        DefaultGrouping = "DefaultG",
+        ActiveFields = new List<string> { "eins", "zwei" },
+        RaceResultView = "RaceResultView",
+        RaceResultViewParams = new Dictionary<string, object>(),
+
+        Run1_StartistView = "Run1_StartistView",
+        Run1_StartistViewGrouping = "Run1_StartistViewGrouping",
+        Run1_StartistViewParams = new Dictionary<string, object>(),
+
+        Run2_StartistView = "Run2_StartistView",
+        Run2_StartistViewGrouping = "Run2_StartistViewGrouping",
+        Run2_StartistViewParams = new Dictionary<string, object>(),
+
+        LivetimingParams = new Dictionary<string, string> { { "key", "value" } },
+
+        ValueF = 100,
+        ValueA = 200,
+        MinimumPenalty = 300
+      };
+
+      RaceConfiguration config2 = new RaceConfiguration(config1);
+
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.Runs = 3;
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.Runs = 2;
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+      config2.DefaultGrouping = "DefaultC";
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config2.DefaultGrouping = "DefaultG";
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+      
+      config2.ActiveFields = new List<string> { "eins" };
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config2.ActiveFields = new List<string> { "eins", "zwei" };
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.ActiveFields = new List<string> { "eins" };
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.ActiveFields = new List<string> { "eins", "zwei" };
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+
+      config1.RaceResultView = "RaceResultView1";
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.RaceResultView = "RaceResultView";
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"raceconfigpresets\DSV Erwachsene.preset")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen.preset")]
+    public void RaceConfigurationPresets_Test()
+    {
+      RaceConfigurationPresets cfgPresets = new RaceConfigurationPresets(".");
+
+      var configs = cfgPresets.GetConfigurations();
+
+      Assert.AreEqual(2, configs.Count);
+      Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen"));
+
+      // Create new Config
+      var newConfig = new RaceConfiguration(configs["FIS Rennen"]);
+      newConfig.Runs = 3;
+      cfgPresets.SaveConfiguration("FIS Rennen - neu", newConfig);
+      Assert.AreEqual(3, configs.Count);
+      Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
+
+      // Delete a config
+      cfgPresets.DeleteConfiguration("FIS Rennen");
+      Assert.AreEqual(2, configs.Count);
+      Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
+      Assert.AreEqual(3, cfgPresets.GetConfigurations()["FIS Rennen - neu"].Runs);
+
+      // Create new Config with unsafe name
+      var newConfig2 = new RaceConfiguration(configs["DSV Erwachsene"]);
+      newConfig.Runs = 3;
+      cfgPresets.SaveConfiguration(@"abc\*:;? 123", newConfig);
+      Assert.AreEqual(3, configs.Count);
+      Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
+      Assert.IsTrue(configs.ContainsKey(@"abc\*:;? 123"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
+
     }
   }
 }

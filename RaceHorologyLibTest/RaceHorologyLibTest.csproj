@@ -153,6 +153,12 @@
     <None Include="COPYING" />
     <None Include="DSVAlpin2LibTest.runsettings" />
     <None Include="packages.config" />
+    <None Include="raceconfigpresets\DSV Erwachsene.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\FIS Rennen.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDataBases\FullTestCases\Case1\ALGETdC8001-202002020841.dump">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

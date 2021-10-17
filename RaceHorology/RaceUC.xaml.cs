@@ -110,14 +110,9 @@ namespace RaceHorology
     {
       // ApplicationFolder + raceconfigpresets
       _raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
-      foreach (var config in _raceConfigurationPresets.GetConfigurations())
-      {
-        cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
-      }
-
-
-
       _raceConfiguration = _thisRace.RaceConfiguration.Copy();
+      
+      refreshConfigPresetsUI();
 
       // Configuration Screen
       cmbRuns.Items.Add(new CBItem { Text = "1", Value = 1 });
@@ -175,6 +170,61 @@ namespace RaceHorology
     }
 
 
+    private void btnTemplateDelete_Click(object sender, RoutedEventArgs e)
+    {
+      if (cmbTemplate.SelectedValue is CBItem selected)
+      {
+        _raceConfigurationPresets.DeleteConfiguration(selected.Text);
+        refreshConfigPresetsUI();
+      }
+    }
+
+
+    private void btnTemplateSave_Click(object sender, RoutedEventArgs e)
+    {
+      RaceConfiguration newConfig = new RaceConfiguration();
+      StoreConfigurationSelectionUI(ref newConfig);
+
+      // Ask for the name to store
+      string configName = string.Empty;
+      if (cmbTemplate.SelectedValue is CBItem selected)
+        configName = selected.Text;
+
+      RaceConfigurationSaveDlg dlg = new RaceConfigurationSaveDlg(configName);
+      dlg.ShowDialog();
+      if (dlg.TemplateName == null)
+        return;
+
+      configName = dlg.TemplateName;
+
+      if (_raceConfigurationPresets.GetConfigurations().ContainsKey(configName))
+      {
+        var res = MessageBox.Show(string.Format("Die Konfiguration \"{0}\" existiert schon. Wollen Sie die Konfiguration überschreiben?", configName), "Konfiguration speichern", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (res == MessageBoxResult.No)
+          return;
+      }
+
+      _raceConfigurationPresets.SaveConfiguration(configName, newConfig);
+      refreshConfigPresetsUI();
+    }
+
+
+    void refreshConfigPresetsUI()
+    {
+      // Add items and look if the used config name is in the list and if so, use this as selected one
+      RaceConfiguration usedConfig = null;
+      cmbTemplate.Items.Clear();
+      foreach (var config in _raceConfigurationPresets.GetConfigurations())
+      {
+        cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
+        if ( _raceConfiguration?.Name == config.Value?.Name
+          && RaceConfigurationCompare.MainConfig(_raceConfiguration, config.Value) )
+          usedConfig = config.Value;
+      }
+
+      cmbTemplate.SelectCBItem(usedConfig);
+    }
+
 
     private void ResetConfigurationSelectionUI(RaceConfiguration cfg)
     {
@@ -195,12 +245,10 @@ namespace RaceHorology
       chkConfigFieldsCode.IsChecked = cfg.ActiveFields.Contains("Code");
       chkConfigFieldsPoints.IsChecked = cfg.ActiveFields.Contains("Points");
       chkConfigFieldsPercentage.IsChecked = cfg.ActiveFields.Contains("Percentage");
-
     }
 
     private bool StoreConfigurationSelectionUI(ref RaceConfiguration cfg)
     {
-
       if (cmbRuns.SelectedIndex < 0
         || cmbConfigErgebnisGrouping.SelectedIndex < 0
         || cmbConfigErgebnis.SelectedIndex < 0
@@ -210,6 +258,12 @@ namespace RaceHorology
         || cmbConfigStartlist2Grouping.SelectedIndex < 0
         )
         return false;
+
+      // Store the template name
+      string configName = null;
+      if (cmbTemplate.SelectedValue is CBItem selected)
+        configName = selected.Text;
+      cfg.Name = configName;
 
       cfg.Runs = (int)((CBItem)cmbRuns.SelectedValue).Value;
       cfg.DefaultGrouping = (string)((CBItem)cmbConfigErgebnisGrouping.SelectedValue).Value;
@@ -249,6 +303,7 @@ namespace RaceHorology
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {
       ResetConfigurationSelectionUI(_raceConfiguration);
+      refreshConfigPresetsUI();
     }
 
     private void BtnApply_Click(object sender, RoutedEventArgs e)
@@ -266,7 +321,9 @@ namespace RaceHorology
 
       ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       viewConfigurator.ConfigureRace(_thisRace);
-
+      
+      refreshConfigPresetsUI();
+      
       // Reset UI (TODO should adapt itself based on events)
       ConnectUiToRaceRun(_currentRaceRun);
       ucRaceLists.UpdateAll();
@@ -890,7 +947,6 @@ namespace RaceHorology
 
 
     #endregion
-
   }
 
 }

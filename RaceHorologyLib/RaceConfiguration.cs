@@ -47,6 +47,8 @@ namespace RaceHorologyLib
   /// </summary>
   public class RaceConfiguration
   {
+    public string Name;
+
     public int Runs;
 
     public string DefaultGrouping;
@@ -76,6 +78,7 @@ namespace RaceHorologyLib
     }
     public RaceConfiguration(RaceConfiguration src)
     {
+      Name = src.Name;
       Runs = src.Runs;
       DefaultGrouping = src.DefaultGrouping;
       ActiveFields = src.ActiveFields.Copy<List<string>>();
@@ -104,6 +107,7 @@ namespace RaceHorologyLib
     {
       RaceConfiguration mergedConfig = new RaceConfiguration(baseConfig);
 
+      mergedConfig.Name = newConfig.Name;
       mergedConfig.Runs = newConfig.Runs;
       mergedConfig.DefaultGrouping = newConfig.DefaultGrouping;
       mergedConfig.ActiveFields = newConfig.ActiveFields.Copy<List<string>>();
@@ -119,6 +123,32 @@ namespace RaceHorologyLib
       mergedConfig.Run2_StartistViewParams = newConfig.Run2_StartistViewParams.Copy<Dictionary<string, object>>();
 
       return mergedConfig;
+    }
+  }
+
+
+  public static class RaceConfigurationCompare
+  {
+    public static bool MainConfig(RaceConfiguration config1, RaceConfiguration config2)
+    {
+      bool res = true;
+
+      res &= config1.Runs == config2.Runs;
+
+      res &= config1.DefaultGrouping == config2.DefaultGrouping;
+
+      res &= !config1.ActiveFields.Except(config2.ActiveFields).Any();
+      res &= !config2.ActiveFields.Except(config1.ActiveFields).Any();
+
+      res &= config1.RaceResultView == config2.RaceResultView;
+
+      res &= config1.Run1_StartistView == config2.Run1_StartistView;
+      res &= config1.Run1_StartistViewGrouping == config2.Run1_StartistViewGrouping;
+
+      res &= config1.Run2_StartistView == config2.Run2_StartistView;
+      res &= config1.Run2_StartistViewGrouping == config2.Run2_StartistViewGrouping;
+
+      return res;
     }
   }
 
@@ -139,7 +169,7 @@ namespace RaceHorologyLib
       // Ensures the directory exists
       System.IO.Directory.CreateDirectory(directory);
 
-      LoadAllConfiguration();
+      loadAllConfiguration();
     }
 
 
@@ -149,22 +179,29 @@ namespace RaceHorologyLib
     }
 
 
-    public void SetConfigurations(string name, RaceConfiguration raceConfiguration)
+    public void SaveConfiguration(string name, RaceConfiguration raceConfiguration)
     {
-      WriteConfiguration(name, raceConfiguration);
-      LoadAllConfiguration();
+      char[] invalidFileNameChars = System.IO.Path.GetInvalidFileNameChars();
+
+      // Builds a string out of valid chars
+      string saveName = new string(name.Where(ch => !invalidFileNameChars.Contains(ch)).ToArray());
+
+      raceConfiguration.Name = name;
+
+      writeConfiguration(saveName, raceConfiguration);
+      loadAllConfiguration();
     }
 
 
-    public void DeleteConfigurations(string name)
+    public void DeleteConfiguration(string name)
     {
       string filename = System.IO.Path.Combine(_directory, name + ".preset");
       System.IO.File.Delete(filename);
-      LoadAllConfiguration();
+      loadAllConfiguration();
     }
 
 
-    void LoadAllConfiguration()
+    void loadAllConfiguration()
     {
       _configurations.Clear();
 
@@ -173,7 +210,7 @@ namespace RaceHorologyLib
       {
         string name;
         RaceConfiguration raceConfiguration;
-        if (LoadConfiguration(filename, out name, out raceConfiguration))
+        if (loadConfiguration(filename, out name, out raceConfiguration))
         {
           _configurations.Add(name, raceConfiguration);
         }
@@ -181,7 +218,7 @@ namespace RaceHorologyLib
     }
 
 
-    void WriteConfiguration(string name, RaceConfiguration raceConfiguration)
+    void writeConfiguration(string name, RaceConfiguration raceConfiguration)
     {
       string filename = System.IO.Path.Combine(_directory, name + ".preset");
 
@@ -198,16 +235,19 @@ namespace RaceHorologyLib
     }
 
 
-    bool LoadConfiguration(string filename, out string name, out RaceConfiguration raceConfiguration)
+    bool loadConfiguration(string filename, out string name, out RaceConfiguration raceConfiguration)
     {
       try
       {
-        name = System.IO.Path.GetFileNameWithoutExtension(filename);
-
         string configJSON = System.IO.File.ReadAllText(filename);
 
         raceConfiguration = new RaceConfiguration();
         Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, raceConfiguration);
+
+        if (string.IsNullOrEmpty(raceConfiguration.Name))
+          raceConfiguration.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+
+        name = raceConfiguration.Name;
       }
       catch (Exception e)
       {
