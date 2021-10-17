@@ -163,5 +163,35 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(200, mergedConfig.ValueA);
       Assert.AreEqual(300, mergedConfig.MinimumPenalty);
     }
+
+    [TestMethod]
+    [DeploymentItem(@"raceconfigpresets\DSV Erwachsene.preset")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen.preset")]
+    public void RaceConfigurationPresets_Test()
+    {
+      RaceConfigurationPresets cfgPresets = new RaceConfigurationPresets(".");
+
+      var configs = cfgPresets.GetConfigurations();
+
+      Assert.AreEqual(2, configs.Count);
+      Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen"));
+
+      // Create new Config
+      var newConfig = new RaceConfiguration(configs["FIS Rennen"]);
+      newConfig.Runs = 3;
+      cfgPresets.SaveConfiguration("FIS Rennen - neu", newConfig);
+      Assert.AreEqual(3, configs.Count);
+      Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
+
+      // Delete a config
+      cfgPresets.DeleteConfiguration("FIS Rennen");
+      Assert.AreEqual(2, configs.Count);
+      Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
+      Assert.AreEqual(3, cfgPresets.GetConfigurations()["FIS Rennen - neu"].Runs);
+    }
   }
 }
