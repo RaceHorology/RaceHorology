@@ -96,6 +96,7 @@ namespace RaceHorologyLibTest
     {
       RaceConfiguration baseConfig = new RaceConfiguration
       {
+        Name = "BaseName",
         Runs = 2,
         DefaultGrouping = "DefaultG",
         ActiveFields = new List<string> { "eins", "zwei" },
@@ -119,6 +120,7 @@ namespace RaceHorologyLibTest
 
       RaceConfiguration newConfig = new RaceConfiguration
       {
+        Name = "NewName",
         Runs = 3,
         DefaultGrouping = "DefaultH",
         ActiveFields = new List<string> { "drei", "view" },
@@ -142,6 +144,8 @@ namespace RaceHorologyLibTest
 
 
       RaceConfiguration mergedConfig = RaceConfigurationMerger.MainConfig(baseConfig, newConfig);
+
+      Assert.AreEqual("NewName", mergedConfig.Name);
 
       Assert.AreEqual("DefaultH", mergedConfig.DefaultGrouping);
       Assert.AreEqual("drei", mergedConfig.ActiveFields[0]);

@@ -47,6 +47,8 @@ namespace RaceHorologyLib
   /// </summary>
   public class RaceConfiguration
   {
+    public string Name;
+
     public int Runs;
 
     public string DefaultGrouping;
@@ -76,6 +78,7 @@ namespace RaceHorologyLib
     }
     public RaceConfiguration(RaceConfiguration src)
     {
+      Name = src.Name;
       Runs = src.Runs;
       DefaultGrouping = src.DefaultGrouping;
       ActiveFields = src.ActiveFields.Copy<List<string>>();
@@ -104,6 +107,7 @@ namespace RaceHorologyLib
     {
       RaceConfiguration mergedConfig = new RaceConfiguration(baseConfig);
 
+      mergedConfig.Name = newConfig.Name;
       mergedConfig.Runs = newConfig.Runs;
       mergedConfig.DefaultGrouping = newConfig.DefaultGrouping;
       mergedConfig.ActiveFields = newConfig.ActiveFields.Copy<List<string>>();
@@ -156,6 +160,8 @@ namespace RaceHorologyLib
       // Builds a string out of valid chars
       string saveName = new string(name.Where(ch => !invalidFileNameChars.Contains(ch)).ToArray());
 
+      raceConfiguration.Name = name;
+
       writeConfiguration(saveName, raceConfiguration);
       loadAllConfiguration();
     }
@@ -207,12 +213,15 @@ namespace RaceHorologyLib
     {
       try
       {
-        name = System.IO.Path.GetFileNameWithoutExtension(filename);
-
         string configJSON = System.IO.File.ReadAllText(filename);
 
         raceConfiguration = new RaceConfiguration();
         Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, raceConfiguration);
+
+        if (string.IsNullOrEmpty(raceConfiguration.Name))
+          raceConfiguration.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+
+        name = raceConfiguration.Name;
       }
       catch (Exception e)
       {
