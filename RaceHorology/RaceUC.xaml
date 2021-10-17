@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:RaceHorology"
              xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib"
              mc:Ignorable="d"
-             d:DesignWidth="1280" d:DesignHeight="800">
+             d:DesignWidth="1280" d:DesignHeight="1200">
 
   <UserControl.Resources>
     <racehorologylib:PositionConverter x:Key="PositionConverter" />
