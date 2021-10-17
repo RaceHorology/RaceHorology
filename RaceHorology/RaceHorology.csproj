@@ -166,6 +166,9 @@
       <DependentUpon>RaceUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="RegistryTools.cs" />
+    <Compile Include="SaveOrResetUC.xaml.cs">
+      <DependentUpon>SaveOrResetUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
@@ -271,6 +274,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SaveOrResetUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
