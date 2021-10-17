@@ -110,11 +110,7 @@ namespace RaceHorology
     {
       // ApplicationFolder + raceconfigpresets
       _raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
-      foreach (var config in _raceConfigurationPresets.GetConfigurations())
-      {
-        cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
-      }
-
+      refreshConfigPresetsUI();
 
 
       _raceConfiguration = _thisRace.RaceConfiguration.Copy();
@@ -174,6 +170,54 @@ namespace RaceHorology
       }
     }
 
+
+    private void btnTemplateDelete_Click(object sender, RoutedEventArgs e)
+    {
+      if (cmbTemplate.SelectedValue is CBItem selected)
+      {
+        _raceConfigurationPresets.DeleteConfiguration(selected.Text);
+        refreshConfigPresetsUI();
+      }
+    }
+
+
+    private void btnTemplateSave_Click(object sender, RoutedEventArgs e)
+    {
+      RaceConfiguration newConfig = new RaceConfiguration();
+      StoreConfigurationSelectionUI(ref newConfig);
+
+      // Ask for the name to store
+      string configName = string.Empty;
+      if (cmbTemplate.SelectedValue is CBItem selected)
+        configName = selected.Text;
+
+      RaceConfigurationSaveDlg dlg = new RaceConfigurationSaveDlg(configName);
+      dlg.ShowDialog();
+      if (dlg.TemplateName == null)
+        return;
+
+      configName = dlg.TemplateName;
+
+      if (_raceConfigurationPresets.GetConfigurations().ContainsKey(configName))
+      {
+        var res = MessageBox.Show(string.Format("Die Konfiguration \"{0}\" existiert schon. Wollen Sie die Konfiguration überschreiben?", configName), "Konfiguration speichern", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (res == MessageBoxResult.No)
+          return;
+      }
+
+      _raceConfigurationPresets.SaveConfiguration(configName, newConfig);
+      refreshConfigPresetsUI();
+    }
+
+
+    void refreshConfigPresetsUI()
+    {
+      cmbTemplate.Items.Clear();
+      foreach (var config in _raceConfigurationPresets.GetConfigurations())
+      {
+        cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
+      }
+    }
 
 
     private void ResetConfigurationSelectionUI(RaceConfiguration cfg)
@@ -890,7 +934,6 @@ namespace RaceHorology
 
 
     #endregion
-
   }
 
 }
