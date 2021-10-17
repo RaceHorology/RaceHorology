@@ -258,7 +258,7 @@ namespace RaceHorologyLibTest
       cfgPresets.SaveConfiguration(@"abc\*:;? 123", newConfig);
       Assert.AreEqual(3, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
-      Assert.IsTrue(configs.ContainsKey("abc; 123"));
+      Assert.IsTrue(configs.ContainsKey(@"abc\*:;? 123"));
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
 
     }
