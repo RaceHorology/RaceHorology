@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -139,7 +139,7 @@ namespace RaceHorologyLib
       // Ensures the directory exists
       System.IO.Directory.CreateDirectory(directory);
 
-      LoadAllConfiguration();
+      loadAllConfiguration();
     }
 
 
@@ -153,18 +153,20 @@ namespace RaceHorologyLib
     {
       WriteConfiguration(name, raceConfiguration);
       LoadAllConfiguration();
+      writeConfiguration(saveName, raceConfiguration);
+      loadAllConfiguration();
     }
 
 
-    public void DeleteConfigurations(string name)
+    public void DeleteConfiguration(string name)
     {
       string filename = System.IO.Path.Combine(_directory, name + ".preset");
       System.IO.File.Delete(filename);
-      LoadAllConfiguration();
+      loadAllConfiguration();
     }
 
 
-    void LoadAllConfiguration()
+    void loadAllConfiguration()
     {
       _configurations.Clear();
 
@@ -173,7 +175,7 @@ namespace RaceHorologyLib
       {
         string name;
         RaceConfiguration raceConfiguration;
-        if (LoadConfiguration(filename, out name, out raceConfiguration))
+        if (loadConfiguration(filename, out name, out raceConfiguration))
         {
           _configurations.Add(name, raceConfiguration);
         }
@@ -181,7 +183,7 @@ namespace RaceHorologyLib
     }
 
 
-    void WriteConfiguration(string name, RaceConfiguration raceConfiguration)
+    void writeConfiguration(string name, RaceConfiguration raceConfiguration)
     {
       string filename = System.IO.Path.Combine(_directory, name + ".preset");
 
@@ -198,7 +200,7 @@ namespace RaceHorologyLib
     }
 
 
-    bool LoadConfiguration(string filename, out string name, out RaceConfiguration raceConfiguration)
+    bool loadConfiguration(string filename, out string name, out RaceConfiguration raceConfiguration)
     {
       try
       {
