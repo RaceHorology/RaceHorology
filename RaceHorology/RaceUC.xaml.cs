@@ -217,7 +217,8 @@ namespace RaceHorology
       foreach (var config in _raceConfigurationPresets.GetConfigurations())
       {
         cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
-        if (_raceConfiguration?.Name == config.Value?.Name)
+        if ( _raceConfiguration?.Name == config.Value?.Name
+          && RaceConfigurationCompare.MainConfig(_raceConfiguration, config.Value) )
           usedConfig = config.Value;
       }
 
