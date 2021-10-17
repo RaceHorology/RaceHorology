@@ -192,6 +192,16 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
       Assert.AreEqual(3, cfgPresets.GetConfigurations()["FIS Rennen - neu"].Runs);
+
+      // Create new Config with unsafe name
+      var newConfig2 = new RaceConfiguration(configs["DSV Erwachsene"]);
+      newConfig.Runs = 3;
+      cfgPresets.SaveConfiguration(@"abc\*:;? 123", newConfig);
+      Assert.AreEqual(3, configs.Count);
+      Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
+      Assert.IsTrue(configs.ContainsKey("abc; 123"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
+
     }
   }
 }

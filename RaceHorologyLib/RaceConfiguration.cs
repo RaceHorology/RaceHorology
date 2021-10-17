@@ -149,10 +149,13 @@ namespace RaceHorologyLib
     }
 
 
-    public void SetConfigurations(string name, RaceConfiguration raceConfiguration)
+    public void SaveConfiguration(string name, RaceConfiguration raceConfiguration)
     {
-      WriteConfiguration(name, raceConfiguration);
-      LoadAllConfiguration();
+      char[] invalidFileNameChars = System.IO.Path.GetInvalidFileNameChars();
+
+      // Builds a string out of valid chars
+      string saveName = new string(name.Where(ch => !invalidFileNameChars.Contains(ch)).ToArray());
+
       writeConfiguration(saveName, raceConfiguration);
       loadAllConfiguration();
     }
