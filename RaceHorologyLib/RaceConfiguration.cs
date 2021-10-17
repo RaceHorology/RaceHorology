@@ -127,6 +127,32 @@ namespace RaceHorologyLib
   }
 
 
+  public static class RaceConfigurationCompare
+  {
+    public static bool MainConfig(RaceConfiguration config1, RaceConfiguration config2)
+    {
+      bool res = true;
+
+      res &= config1.Runs == config2.Runs;
+
+      res &= config1.DefaultGrouping == config2.DefaultGrouping;
+
+      res &= !config1.ActiveFields.Except(config2.ActiveFields).Any();
+      res &= !config2.ActiveFields.Except(config1.ActiveFields).Any();
+
+      res &= config1.RaceResultView == config2.RaceResultView;
+
+      res &= config1.Run1_StartistView == config2.Run1_StartistView;
+      res &= config1.Run1_StartistViewGrouping == config2.Run1_StartistViewGrouping;
+
+      res &= config1.Run2_StartistView == config2.Run2_StartistView;
+      res &= config1.Run2_StartistViewGrouping == config2.Run2_StartistViewGrouping;
+
+      return res;
+    }
+  }
+
+
   public class RaceConfigurationPresets
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

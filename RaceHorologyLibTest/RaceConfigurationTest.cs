@@ -168,6 +168,61 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(300, mergedConfig.MinimumPenalty);
     }
 
+
+    [TestMethod]
+    public void RaceConfigurationCompare_MainConfig()
+    {
+      RaceConfiguration config1 = new RaceConfiguration
+      {
+        Name = "BaseName",
+        Runs = 2,
+        DefaultGrouping = "DefaultG",
+        ActiveFields = new List<string> { "eins", "zwei" },
+        RaceResultView = "RaceResultView",
+        RaceResultViewParams = new Dictionary<string, object>(),
+
+        Run1_StartistView = "Run1_StartistView",
+        Run1_StartistViewGrouping = "Run1_StartistViewGrouping",
+        Run1_StartistViewParams = new Dictionary<string, object>(),
+
+        Run2_StartistView = "Run2_StartistView",
+        Run2_StartistViewGrouping = "Run2_StartistViewGrouping",
+        Run2_StartistViewParams = new Dictionary<string, object>(),
+
+        LivetimingParams = new Dictionary<string, string> { { "key", "value" } },
+
+        ValueF = 100,
+        ValueA = 200,
+        MinimumPenalty = 300
+      };
+
+      RaceConfiguration config2 = new RaceConfiguration(config1);
+
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.Runs = 3;
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.Runs = 2;
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+      config2.DefaultGrouping = "DefaultC";
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config2.DefaultGrouping = "DefaultG";
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+      
+      config2.ActiveFields = new List<string> { "eins" };
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config2.ActiveFields = new List<string> { "eins", "zwei" };
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.ActiveFields = new List<string> { "eins" };
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.ActiveFields = new List<string> { "eins", "zwei" };
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+
+      config1.RaceResultView = "RaceResultView1";
+      Assert.IsFalse(RaceConfigurationCompare.MainConfig(config1, config2));
+      config1.RaceResultView = "RaceResultView";
+      Assert.IsTrue(RaceConfigurationCompare.MainConfig(config1, config2));
+    }
+
     [TestMethod]
     [DeploymentItem(@"raceconfigpresets\DSV Erwachsene.preset")]
     [DeploymentItem(@"raceconfigpresets\FIS Rennen.preset")]
