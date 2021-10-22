@@ -3,27 +3,22 @@ name: CI
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
+  workflow_dispatch:
   push:
     branches:
-      - dev_main
-      - feature/ci_wixinstaller
+      - main
+      - feature/*
   pull_request:
     branches:  
-      - dev_main
-  workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'     
-        required: true
-        default: 'warning'
-      tags:
-        description: 'Test scenario tags'  
-
+      - main
 
 
 jobs:
   build:
     runs-on: [windows-latest]
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      branch: ${{ steps.version.outputs.branch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -42,6 +37,32 @@ jobs:
       - name: NuGet to restore dependencies as well as project-specific tools that are specified in the project file
         #if: steps.cache.outputs.cache-hit != 'true'
         run: nuget restore
+
+      - id: version
+        #if: ${{ startsWith(github.ref, 'refs/heads/main') }}
+        name: Update build version
+        run: |
+          git fetch --unshallow --tags
+          $versionString = git describe --tags $(git rev-list --tags --max-count=1)
+          Write-Host "Retrieved tag version: $versionString"         
+          if (!$versionString) {
+            Write-Host "Could not retrieve tag - using 1.0.0.0 as fallback"
+            $versionString="1.0.0.0" 
+          }
+
+          $version = $versionString.Split('.')
+          $majorVersion = $version[0]
+          $minorVersion = $version[1]
+          $patchVersion = $version[2]
+          $lastBuildVersion = $version[3]
+
+          $newBuildVersion = ([int]::Parse($lastBuildVersion) + 1)
+          $newVersionString = "$majorVersion.$minorVersion.$patchVersion.$newBuildVersion"
+          Write-Host "New version: $newVersionString"
+          echo "::set-output name=tag::$newVersionString"
+
+          $branch = $env:GITHUB_REF | Select-String -Pattern '(?<=refs\/heads\/).*' | ForEach-Object { $_.Matches[0].Value }
+          echo "::set-output name=branch::$branch"
 
       - name: Build DotNET
         run: |
