@@ -43,8 +43,11 @@ jobs:
 
       - name: Debug Version
         run: |
-          Write-Host "Retrieved tag version: ${{ steps.version.outputs.version }}"         
-          Write-Host "Retrieved tag version: ${{ steps.version.outputs.version_tag }}"         
+          Write-Host "Output of version: ${{ steps.version.outputs.version }}"         
+          Write-Host "Output of version_tag: ${{ steps.version.outputs.version_tag }}"         
+          Write-Host "Output of major: ${{ steps.version.outputs.major }}"         
+          Write-Host "Output of minor: ${{ steps.version.outputs.minor }}"         
+          Write-Host "Output of patch: ${{ steps.version.outputs.patch }}"         
 
 
       - uses: actions/cache@v1
