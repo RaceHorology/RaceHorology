@@ -21,7 +21,28 @@ jobs:
       branch: ${{ steps.version.outputs.branch }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Calculate Version
+        uses: paulhatch/semantic-version@v4.0.2
+        with:
+          # The prefix to use to identify tags
+          tag_prefix: "v"
+          # A string to determine the format of the version output
+          format: "${major}.${minor}.${patch}-prerelease${increment}"
+          # Named version, will be used as suffix for name version tag
+          namespace: race-horology
+          # Indicate whether short tags like 'v1' should be supported. If false only full
+          # tags like 'v1.0.0' will be recognized.
+          short_tags: false
+          # If this is set to true, *every* commit will be treated as a new version.
+          bump_each_commit: false        
+        run:
+          Write-Host "Retrieved tag version: $version"         
+          Write-Host "Retrieved tag version: $version_tag"         
+
 
       - uses: actions/cache@v1
         id: cache
@@ -37,32 +58,6 @@ jobs:
       - name: NuGet to restore dependencies as well as project-specific tools that are specified in the project file
         #if: steps.cache.outputs.cache-hit != 'true'
         run: nuget restore
-
-      - id: version
-        #if: ${{ startsWith(github.ref, 'refs/heads/main') }}
-        name: Update build version
-        run: |
-          git fetch --unshallow --tags
-          $versionString = git describe --tags $(git rev-list --tags --max-count=1)
-          Write-Host "Retrieved tag version: $versionString"         
-          if (!$versionString) {
-            Write-Host "Could not retrieve tag - using 1.0.0.0 as fallback"
-            $versionString="1.0.0.0" 
-          }
-
-          $version = $versionString.Split('.')
-          $majorVersion = $version[0]
-          $minorVersion = $version[1]
-          $patchVersion = $version[2]
-          $lastBuildVersion = $version[3]
-
-          $newBuildVersion = ([int]::Parse($lastBuildVersion) + 1)
-          $newVersionString = "$majorVersion.$minorVersion.$patchVersion.$newBuildVersion"
-          Write-Host "New version: $newVersionString"
-          echo "::set-output name=tag::$newVersionString"
-
-          $branch = $env:GITHUB_REF | Select-String -Pattern '(?<=refs\/heads\/).*' | ForEach-Object { $_.Matches[0].Value }
-          echo "::set-output name=branch::$branch"
 
       - name: Build DotNET
         run: |
