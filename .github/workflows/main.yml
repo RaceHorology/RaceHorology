@@ -27,6 +27,7 @@ jobs:
 
       - name: Calculate Version
         uses: paulhatch/semantic-version@v4.0.2
+        id: version
         with:
           # The prefix to use to identify tags
           tag_prefix: "v"
@@ -39,9 +40,11 @@ jobs:
           short_tags: false
           # If this is set to true, *every* commit will be treated as a new version.
           bump_each_commit: false        
+
+      - name: Debug Version
         run:
-          Write-Host "Retrieved tag version: $version"         
-          Write-Host "Retrieved tag version: $version_tag"         
+          Write-Host "Retrieved tag version: ${{ version.version }}"         
+          Write-Host "Retrieved tag version: ${{ version.version_tag }}"         
 
 
       - uses: actions/cache@v1
