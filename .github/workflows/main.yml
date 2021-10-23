@@ -17,8 +17,8 @@ jobs:
   build:
     runs-on: [windows-latest]
     outputs:
-      tag: ${{ steps.version.outputs.tag }}
-      branch: ${{ steps.version.outputs.branch }}
+      version_tag: ${{ steps.version.outputs.version_tag }}
+      commit: ${{ env.GITHUB_SHA }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -141,3 +141,18 @@ jobs:
         with:
           name: unittest_RaceHorologyLibTest_Results_DsvOnline
           path: ${{ github.workspace }}\TestResults\**\*.trx 
+
+  upload_as_release:
+    #if: ${{ startsWith(github.ref, 'refs/heads/main') }}
+    needs: [build, run_test]
+    runs-on: [windows-latest]
+    steps:
+      - name: Create release entry on GitHub
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi"
+          prerelease: true
+          tag: ${{ steps.build.outputs.version_tag }}
+          commit: ${{ needs.build.outputs.commit }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
