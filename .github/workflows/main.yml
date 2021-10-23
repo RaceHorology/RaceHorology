@@ -3,30 +3,50 @@ name: CI
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
+  workflow_dispatch:
   push:
     branches:
-      - dev_main
-      - feature/ci_wixinstaller
+      - main
+      - feature/*
   pull_request:
     branches:  
-      - dev_main
-  workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'     
-        required: true
-        default: 'warning'
-      tags:
-        description: 'Test scenario tags'  
-
+      - main
 
 
 jobs:
   build:
     runs-on: [windows-latest]
+    outputs:
+      version_tag: ${{ steps.version.outputs.version_tag }}
+      commit: ${{ env.GITHUB_SHA }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Calculate Version
+        uses: paulhatch/semantic-version@v4.0.2
+        id: version
+        with:
+          # The prefix to use to identify tags
+          tag_prefix: "v"
+          # A string to determine the format of the version output
+          format: "${major}.${minor}.${patch}.${increment}"
+          # Indicate whether short tags like 'v1' should be supported. If false only full
+          # tags like 'v1.0.0' will be recognized.
+          short_tags: false
+          # If this is set to true, *every* commit will be treated as a new version.
+          bump_each_commit: false        
+
+      - name: Debug Version
+        run: |
+          Write-Host "Output of version: ${{ steps.version.outputs.version }}"         
+          Write-Host "Output of version_tag: ${{ steps.version.outputs.version_tag }}"         
+          Write-Host "Output of major: ${{ steps.version.outputs.major }}"         
+          Write-Host "Output of minor: ${{ steps.version.outputs.minor }}"         
+          Write-Host "Output of patch: ${{ steps.version.outputs.patch }}"         
+
 
       - uses: actions/cache@v1
         id: cache
@@ -46,8 +66,8 @@ jobs:
       - name: Build DotNET
         run: |
            cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-           .\MSBuild.exe /p:Configuration=Debug /p:Platform=x86 $Env:GITHUB_WORKSPACE
-           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 $Env:GITHUB_WORKSPACE
+           .\MSBuild.exe /p:Configuration=Debug /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
+           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
 
       - name: Upload Test Programm
         uses: actions/upload-artifact@v2
@@ -59,7 +79,7 @@ jobs:
       - name: Build Installer
         run: |
            cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 $Env:GITHUB_WORKSPACE\RaceHorologySetup
+           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
 
       - name: Upload Installer
         uses: actions/upload-artifact@v2
@@ -119,3 +139,24 @@ jobs:
         with:
           name: unittest_RaceHorologyLibTest_Results_DsvOnline
           path: ${{ github.workspace }}\TestResults\**\*.trx 
+
+  upload_as_release:
+    if: ${{ startsWith(github.ref, 'refs/heads/main') }}
+    needs: [build, run_test]
+    runs-on: [windows-latest]
+    steps:
+      - name: Download Installer
+        uses: actions/download-artifact@v2
+        with:
+          name: installer_RaceHorology
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
+
+      - name: Create release entry on GitHub
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          prerelease: true
+          tag: ${{ needs.build.outputs.version_tag }}
+          commit: ${{ needs.build.outputs.commit }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
