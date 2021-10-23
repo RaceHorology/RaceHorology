@@ -81,7 +81,7 @@ jobs:
       - name: Build Installer
         run: |
            cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 $Env:GITHUB_WORKSPACE\RaceHorologySetup
+           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
 
       - name: Upload Installer
         uses: actions/upload-artifact@v2
