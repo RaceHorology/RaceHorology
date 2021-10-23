@@ -151,7 +151,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: installer_RaceHorology
-          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
 
       - name: Create release entry on GitHub
         uses: ncipollo/release-action@v1
