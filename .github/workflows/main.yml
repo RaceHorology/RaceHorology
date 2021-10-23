@@ -144,7 +144,7 @@ jobs:
 
   upload_as_release:
     #if: ${{ startsWith(github.ref, 'refs/heads/main') }}
-    needs: [build, run_test]
+    needs: [build]
     runs-on: [windows-latest]
     steps:
       - name: Create release entry on GitHub
@@ -152,7 +152,7 @@ jobs:
         with:
           artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
           prerelease: true
-          tag: ${{ steps.build.outputs.version_tag }}
+          tag: ${{ needs.build.outputs.version_tag }}
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
