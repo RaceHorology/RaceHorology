@@ -42,7 +42,7 @@ jobs:
           bump_each_commit: false        
 
       - name: Debug Version
-        run:
+        run: |
           Write-Host "Retrieved tag version: ${{ version.version }}"         
           Write-Host "Retrieved tag version: ${{ version.version_tag }}"         
 
