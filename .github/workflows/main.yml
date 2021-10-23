@@ -34,7 +34,7 @@ jobs:
           # A string to determine the format of the version output
           format: "${major}.${minor}.${patch}-prerelease${increment}"
           # Named version, will be used as suffix for name version tag
-          namespace: race-horology
+          #namespace: race-horology
           # Indicate whether short tags like 'v1' should be supported. If false only full
           # tags like 'v1.0.0' will be recognized.
           short_tags: false
