@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <DirectoryRef Id="INSTALLFOLDER">
@@ -172,6 +172,9 @@
                 <Component Id="cmpD096FDC3B27D91F97474C4BC816E4767" Guid="*">
                     <File Id="fil6A70686561FEABD6D3376251763E4A61" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\DSV Schüler U14-U16.preset" />
                 </Component>
+                <Component Id="cmp6B11DB0B6D1C19A802FCA02F240AAE70" Guid="*">
+                    <File Id="filE186A08F34A2070811EBA1004046BF08" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\FIS Rennen.preset" />
+                </Component>
                 <Component Id="cmp55165B1640D60C3DDFBE1439817D175C" Guid="*">
                     <File Id="filD81114C1F9AB4C78768EE6840C5CBC58" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Inline (allgemein).preset" />
                 </Component>
@@ -334,6 +337,7 @@
             <ComponentRef Id="cmpECFD29ACE9AB27E71E14EE82D4A8E4AC" />
             <ComponentRef Id="cmp8DDA6850E6D9B8FD44A6D5696F0A2B46" />
             <ComponentRef Id="cmpD096FDC3B27D91F97474C4BC816E4767" />
+            <ComponentRef Id="cmp6B11DB0B6D1C19A802FCA02F240AAE70" />
             <ComponentRef Id="cmp55165B1640D60C3DDFBE1439817D175C" />
             <ComponentRef Id="cmp9D3EA7846CA86D5131DC13FDB58842DD" />
             <ComponentRef Id="cmp0962DBC6A58D89AAA3CEF8D1753413BC" />
