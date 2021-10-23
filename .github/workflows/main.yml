@@ -43,8 +43,8 @@ jobs:
 
       - name: Debug Version
         run: |
-          Write-Host "Retrieved tag version: ${{ version }}"         
-          Write-Host "Retrieved tag version: ${{ version_tag }}"         
+          Write-Host "Retrieved tag version: ${{ jobs.build.steps.version.version }}"         
+          Write-Host "Retrieved tag version: ${{ jobs.build.steps.version.version_tag }}"         
 
 
       - uses: actions/cache@v1
