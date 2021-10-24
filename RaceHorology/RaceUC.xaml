@@ -207,7 +207,7 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-              <local:SaveOrResetUC x:Name="ucRaceConfigSaveOrReset" Grid.Row="0" Grid.Column="1" />
+              <local:SaveOrResetUC x:Name="ucRaceConfigSaveOrReset" Grid.Row="0" Grid.Column="1" Margin="0,15,0,0" />
               <!--
               <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
                 <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
