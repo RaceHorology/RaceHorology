@@ -26,17 +26,20 @@ namespace RaceHorology
 
   public class SaveOrReset : ISaveOrReset
   {
+    bool changes = true;
     public bool IsSaveNeeded()
     {
-      return true;
+      return changes;
     }
 
     public void Reset()
     {
+      changes = false;
     }
 
     public void Save()
     {
+      changes = false;
     }
   }
 
@@ -53,6 +56,8 @@ namespace RaceHorology
     public SaveOrResetUC()
     {
       InitializeComponent();
+
+      lbSaved.Visibility = Visibility.Hidden;
     }
 
     public void Init(ISaveOrReset saveOrReset, TabControl parent, TabItem thisTabItem)
@@ -65,57 +70,93 @@ namespace RaceHorology
 
 
       _tabControl.SelectionChanged += parent_SelectionChanged;
-
-      _tabControl.IsVisibleChanged += parent_IsVisibleChanged;
     }
 
 
-    bool switchAllowed = false;
     private void parent_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      if (_tabControl.SelectedItem == _thisTabItem)
+      if (_active && _tabControl.SelectedItem != _thisTabItem) // Seems like the user wants to move away from this tab
       {
-        // Just switched to here
-        _active = true;
-      }
-      else
-      {
-        // Move away
-        if (!switchAllowed)
+        if (existingChanges())
         {
-          e.Handled = true;
-          _tabControl.SelectedItem= _thisTabItem;
-          MessageBox.Show("Please Save or Cancel your work first.", "Error",
-              MessageBoxButton.OK, MessageBoxImage.Error);
+          Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (Action)(() =>
+          {
+            e.Handled = true;
+
+            var newTarget = _tabControl.SelectedItem;
+            _tabControl.SelectedItem = _thisTabItem;
+
+            var result = MessageBox.Show("Sollen die Änderungen gespeichert werden?", "Speichern?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+              saveChanges();
+              _tabControl.SelectedItem = newTarget;
+            }
+            else if (result == MessageBoxResult.No)
+            {
+              resetChanges();
+              _tabControl.SelectedItem = newTarget;
+            }
+            else
+            {
+              // Cancel
+              _tabControl.SelectedItem = _thisTabItem;
+            }
+          }));
         }
-        else
-          _active = false;
       }
+
+      // Set flag accordingly whether we are still on this tab
+      _active = _tabControl.SelectedItem == _thisTabItem;
     }
 
-    private void parent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private bool existingChanges()
     {
-      //if (_parent.IsVisible == true)
-      //  return;
+      return _saveOrReset.IsSaveNeeded();
+    }
 
-      //bool saveNeeded = _saveOrReset.IsSaveNeeded();
+    private void saveChanges()
+    {
+      showStatus(EStatus.Save);
+      _saveOrReset.Save();
+    }
 
-      //if (saveNeeded)
-      //{
-      //  var result = MessageBox.Show("Sollen die Änderungen gespeichert werden?", "Speichern?", MessageBoxButton.YesNo, MessageBoxImage.Question);
-      //  if (result == MessageBoxResult.Yes)
-      //    _saveOrReset.Save();
-      //}
+    private void resetChanges()
+    {
+      showStatus(EStatus.Reset);
+      _saveOrReset.Reset();
+    }
+
+
+    enum EStatus { Reset, Save };
+    private void showStatus(EStatus status)
+    {
+      if (status == EStatus.Reset)
+      {
+        lbSaved.Content = "Zurückgesetzt ...";
+        lbSaved.Foreground = Brushes.DarkRed;
+      }
+      else if (status == EStatus.Save)
+      {
+        lbSaved.Content = "Gespeichert ...";
+        lbSaved.Foreground = Brushes.DarkGreen;
+      }
+
+      lbSaved.Visibility = Visibility.Visible;
+      Task.Delay(2000).ContinueWith(t => 
+      {
+        lbSaved.Visibility = Visibility.Hidden;
+      }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 
     private void btnReset_Click(object sender, RoutedEventArgs e)
     {
-      _saveOrReset.Reset();
+      resetChanges();
     }
 
     private void btnApply_Click(object sender, RoutedEventArgs e)
     {
-      _saveOrReset.Save();
+      saveChanges();
     }
   }
 }
