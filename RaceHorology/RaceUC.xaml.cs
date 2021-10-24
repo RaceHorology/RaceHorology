@@ -83,7 +83,7 @@ namespace RaceHorology
 
       InitializeComponent();
 
-      ucStartNumbers.Init(_dataModel, _thisRace);
+      ucStartNumbers.Init(_dataModel, _thisRace, tabControlRace1, tabItemStartNumberAssignment);
       ucDisqualify.Init(_dataModel, _thisRace);
       
       InitializeConfiguration();

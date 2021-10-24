@@ -461,7 +461,7 @@
           </Grid>
         </ScrollViewer>
       </TabItem>
-      <TabItem Header="Startnummern" FontSize="12">
+      <TabItem x:Name="tabItemStartNumberAssignment" Header="Startnummern" FontSize="12">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
           <local:StartNumbersUC x:Name="ucStartNumbers" />
         </ScrollViewer>
