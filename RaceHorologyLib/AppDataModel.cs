@@ -397,6 +397,11 @@ namespace RaceHorologyLib
       public string Club { get; set; }
 
       public bool IsEmpty() { return string.IsNullOrEmpty(Name); }
+
+      static public bool Equals(Person p1, Person p2)
+      {
+        return string.Equals(p1?.Name, p2?.Name) && string.Equals(p1?.Club, p2?.Club);
+      }
     }
 
     public class RaceRunProperties
@@ -409,6 +414,18 @@ namespace RaceHorologyLib
       public int Gates { get; set; }
       public int Turns { get; set; }
       public string StartTime { get; set; }
+
+
+      static public bool Equals(RaceRunProperties rrp1, RaceRunProperties rrp2)
+      {
+        return Person.Equals(rrp1?.CoarseSetter, rrp2?.CoarseSetter)
+          && Person.Equals(rrp1?.Forerunner1, rrp2?.Forerunner1)
+          && Person.Equals(rrp1?.Forerunner2, rrp2?.Forerunner2)
+          && Person.Equals(rrp1?.Forerunner3, rrp2?.Forerunner3)
+          && rrp1?.Gates == rrp2?.Gates
+          && rrp1?.Turns == rrp2?.Turns
+          && rrp1?.StartTime == rrp2?.StartTime;
+      }
     }
 
 
@@ -439,6 +456,32 @@ namespace RaceHorologyLib
     public string Snow { get; set; }
     public string TempStart { get; set; }
     public string TempFinish { get; set; }
+
+
+    static public bool Equals(AdditionalRaceProperties p1, AdditionalRaceProperties p2)
+    {
+      return string.Equals(p1?.Location, p2?.Location)
+        && string.Equals(p1?.RaceNumber, p2?.RaceNumber)
+        && string.Equals(p1?.Description, p2?.Description)
+        && p1?.DateStartList == p2?.DateStartList
+        && p1?.DateResultList == p2?.DateResultList
+        && string.Equals(p1?.Analyzer, p2?.Analyzer)
+        && string.Equals(p1?.Organizer, p2?.Organizer)
+        && Person.Equals(p1?.RaceReferee, p2?.RaceReferee)
+        && Person.Equals(p1?.RaceManager, p2?.RaceManager)
+        && Person.Equals(p1?.TrainerRepresentative, p2?.TrainerRepresentative)
+        && string.Equals(p1?.CoarseName, p2?.CoarseName)
+        && p1?.CoarseLength == p2?.CoarseLength
+        && string.Equals(p1?.CoarseHomologNo, p2?.CoarseHomologNo)
+        && p1?.StartHeight == p2?.StartHeight
+        && p1?.FinishHeight == p2?.FinishHeight
+        && RaceRunProperties.Equals(p1?.RaceRun1, p2?.RaceRun1)
+        && RaceRunProperties.Equals(p1?.RaceRun2, p2?.RaceRun2)
+        && string.Equals(p1?.Weather, p2?.Weather)
+        && string.Equals(p1?.Snow, p2?.Snow)
+        && string.Equals(p1?.TempStart, p2?.TempStart)
+        && string.Equals(p1?.TempFinish, p2?.TempFinish);
+    }
   }
 
 

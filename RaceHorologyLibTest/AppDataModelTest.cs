@@ -639,6 +639,224 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    public void AdditionalRaceProperties_Person_Equals()
+    {
+      var p1 = new AdditionalRaceProperties.Person { Name = "Name 1", Club = "Club 1" };
+      var p2 = new AdditionalRaceProperties.Person { Name = "Name 1", Club = "Club 1" };
+
+      Assert.IsTrue(AdditionalRaceProperties.Person.Equals(p1, p1));
+      Assert.IsTrue(AdditionalRaceProperties.Person.Equals(p1, p2));
+      Assert.IsTrue(AdditionalRaceProperties.Person.Equals(p2, p1));
+      Assert.IsFalse(AdditionalRaceProperties.Person.Equals(p1, null));
+
+      p2.Name = "Name 2";
+      Assert.IsFalse(AdditionalRaceProperties.Person.Equals(p1, p2));
+      p2.Name = "Name 1";
+      Assert.IsTrue(AdditionalRaceProperties.Person.Equals(p1, p2));
+
+      p2.Club = "Club 2";
+      Assert.IsFalse(AdditionalRaceProperties.Person.Equals(p1, p2));
+      p2.Club = "Club 1";
+      Assert.IsTrue(AdditionalRaceProperties.Person.Equals(p1, p2));
+    }
+
+    [TestMethod]
+    public void AdditionalRaceProperties_RaceRunProperties_Equals()
+    {
+      var cs1 = new AdditionalRaceProperties.Person { Name = "NameCS 1", Club = "Club 1" };
+      var p1 = new AdditionalRaceProperties.Person { Name = "Name 1", Club = "Club 1" };
+      var p2 = new AdditionalRaceProperties.Person { Name = "Name 2", Club = "Club 2" };
+      var p3 = new AdditionalRaceProperties.Person { Name = "Name 3", Club = "Club 3" };
+
+      var rrp1 = new AdditionalRaceProperties.RaceRunProperties
+      {
+        CoarseSetter = cs1,
+        Forerunner1 = p1,
+        Forerunner2 = p2,
+        Forerunner3 = p3,
+        Gates = 10,
+        Turns = 9,
+        StartTime = "10:00"
+      };
+      var rrp2 = new AdditionalRaceProperties.RaceRunProperties
+      {
+        CoarseSetter = cs1,
+        Forerunner1 = p1,
+        Forerunner2 = p2,
+        Forerunner3 = p3,
+        Gates = 10,
+        Turns = 9,
+        StartTime = "10:00"
+      };
+
+      Assert.IsTrue(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp1));
+      Assert.IsTrue(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      Assert.IsTrue(AdditionalRaceProperties.RaceRunProperties.Equals(rrp2, rrp1));
+
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(null, rrp1));
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, null));
+      Assert.IsTrue(AdditionalRaceProperties.RaceRunProperties.Equals(null, null));
+
+      rrp1.CoarseSetter = p1;
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      rrp1.CoarseSetter = cs1;
+      Assert.IsTrue(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+
+      rrp1.Forerunner1 = cs1;
+      rrp1.Forerunner2 = cs1;
+      rrp1.Forerunner3 = cs1;
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      rrp1.Forerunner1 = p1;
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      rrp1.Forerunner2 = p2;
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      rrp1.Forerunner3 = p3;
+      Assert.IsTrue(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+
+      rrp1.Gates = 9;
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      rrp1.Turns = 8;
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      rrp1.Gates = 10;
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      rrp1.Turns = 9;
+      Assert.IsTrue(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+
+      rrp1.StartTime = "11:00";
+      Assert.IsFalse(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+      rrp1.StartTime = "10:00";
+      Assert.IsTrue(AdditionalRaceProperties.RaceRunProperties.Equals(rrp1, rrp2));
+    }
+
+
+    [TestMethod]
+    public void Equals()
+    {
+      var cs1 = new AdditionalRaceProperties.Person { Name = "NameCS 1", Club = "Club 1" };
+      var p1 = new AdditionalRaceProperties.Person { Name = "Name 1", Club = "Club 1" };
+      var p2 = new AdditionalRaceProperties.Person { Name = "Name 2", Club = "Club 2" };
+      var p3 = new AdditionalRaceProperties.Person { Name = "Name 3", Club = "Club 3" };
+
+      var rrp1 = new AdditionalRaceProperties.RaceRunProperties
+      {
+        CoarseSetter = cs1,
+        Forerunner1 = p1,
+        Forerunner2 = p2,
+        Forerunner3 = p3,
+        Gates = 10,
+        Turns = 9,
+        StartTime = "10:00"
+      };
+      var rrp2 = rrp1.Copy();
+      rrp2.StartTime = "11:00";
+
+      AdditionalRaceProperties prop1 = new AdditionalRaceProperties
+      {
+        Location = "Location 1",
+        RaceNumber = "RaceNumber 1",
+        Description = "Description 1",
+
+        DateStartList = new DateTime(2021, 01, 01),
+        DateResultList = new DateTime(2021, 02, 01),
+
+        Analyzer = "Analyzer 1",
+        Organizer = "Organizer 1",
+
+        RaceReferee = new AdditionalRaceProperties.Person { Name = "RaceReferee 1", Club = "Club 1" },
+        RaceManager = new AdditionalRaceProperties.Person { Name = "RaceManager 1", Club = "Club 1" },
+        TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "TrainerRepresentative 1", Club = "Club 1" },
+
+        CoarseName = "CoarseName 1",
+        CoarseLength = 100,
+        CoarseHomologNo = "CoarseHomologNo 1",
+
+        StartHeight = 1100,
+        FinishHeight = 1000,
+
+        RaceRun1 = rrp1,
+        RaceRun2 = rrp2,
+
+        Weather = "Weather 1",
+        Snow = "Snow 1",
+        TempStart = "TempStart 1",
+        TempFinish = "TempFinish 1"
+      };
+
+      AdditionalRaceProperties prop2 = prop1.Copy();
+
+      Assert.IsTrue(AdditionalRaceProperties.Equals(prop1, prop1));
+      Assert.IsTrue(AdditionalRaceProperties.Equals(prop1, prop2));
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, null));
+      Assert.IsFalse(AdditionalRaceProperties.Equals(null, prop1));
+
+      prop1.Location = "Location 2";
+      prop1.RaceNumber = "RaceNumber 2";
+      prop1.Description = "Description 2";
+      prop1.DateStartList = new DateTime(2021, 01, 02);
+      prop1.DateResultList = new DateTime(2021, 02, 02);
+      prop1.Analyzer = "Analyzer 2";
+      prop1.Organizer = "Organizer 2";
+      prop1.RaceReferee = new AdditionalRaceProperties.Person { Name = "RaceReferee 2", Club = "Club 2" };
+      prop1.RaceManager = new AdditionalRaceProperties.Person { Name = "RaceManager 2", Club = "Club 2" };
+      prop1.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "TrainerRepresentative 2", Club = "Club 2" };
+      prop1.CoarseName = "CoarseName 2";
+      prop1.CoarseLength = 200;
+      prop1.CoarseHomologNo = "CoarseHomologNo 2";
+      prop1.StartHeight = 2100;
+      prop1.FinishHeight = 2000;
+      prop1.RaceRun1 = rrp1;
+      prop1.RaceRun2 = rrp2;
+      prop1.Weather = "Weather 2";
+      prop1.Snow = "Snow 2";
+      prop1.TempStart = "TempStart 2";
+      prop1.TempFinish = "TempFinish 2";
+
+      prop1.Location = "Location 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.RaceNumber = "RaceNumber 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.Description = "Description 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.DateStartList = new DateTime(2021, 01, 01);
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.DateResultList = new DateTime(2021, 02, 01);
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.Analyzer = "Analyzer 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.Organizer = "Organizer 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.RaceReferee = new AdditionalRaceProperties.Person { Name = "RaceReferee 1", Club = "Club 1" };
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.RaceManager = new AdditionalRaceProperties.Person { Name = "RaceManager 1", Club = "Club 1" };
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.TrainerRepresentative = new AdditionalRaceProperties.Person { Name = "TrainerRepresentative 1", Club = "Club 1" };
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.CoarseName = "CoarseName 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.CoarseLength = 100;
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.CoarseHomologNo = "CoarseHomologNo 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.StartHeight = 1100;
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.FinishHeight = 1000;
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.RaceRun1 = rrp1;
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.RaceRun2 = rrp2;
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.Weather = "Weather 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.Snow = "Snow 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.TempStart = "TempStart 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.TempFinish = "TempFinish 1";
+      Assert.IsTrue(AdditionalRaceProperties.Equals(prop1, prop2));
+    }
+
+
 
   }
 }
