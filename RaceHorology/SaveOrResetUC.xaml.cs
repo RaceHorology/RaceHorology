@@ -83,24 +83,21 @@ namespace RaceHorology
           {
             e.Handled = true;
 
+            // Switch back to the originating tab to make the tabe visible to the user (context information)
+            // Remember the tab the user wanted to go
             var newTarget = _tabControl.SelectedItem;
             _tabControl.SelectedItem = _thisTabItem;
 
             var result = MessageBox.Show("Sollen die Änderungen gespeichert werden?", "Speichern?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
-              saveChanges();
-              _tabControl.SelectedItem = newTarget;
+              saveChanges();  // Save changes
+              _tabControl.SelectedItem = newTarget; // Go to the requested tab
             }
             else if (result == MessageBoxResult.No)
             {
-              resetChanges();
-              _tabControl.SelectedItem = newTarget;
-            }
-            else
-            {
-              // Cancel
-              _tabControl.SelectedItem = _thisTabItem;
+              resetChanges(); // Reset changes
+              _tabControl.SelectedItem = newTarget; // Go to the requested tab
             }
           }));
         }
