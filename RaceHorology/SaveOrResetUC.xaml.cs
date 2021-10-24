@@ -24,37 +24,88 @@ namespace RaceHorology
   }
 
 
+  public class SaveOrReset : ISaveOrReset
+  {
+    public bool IsSaveNeeded()
+    {
+      return true;
+    }
+
+    public void Reset()
+    {
+    }
+
+    public void Save()
+    {
+    }
+  }
+
   /// <summary>
   /// Interaction logic for SaveOrResetUC.xaml
   /// </summary>
   public partial class SaveOrResetUC : UserControl
   {
     private ISaveOrReset _saveOrReset;
-    private Control _parent;
+    private TabControl _tabControl;
+    private TabItem _thisTabItem;
+    private bool _active = false;
 
     public SaveOrResetUC()
     {
       InitializeComponent();
     }
 
-    public void Init(ISaveOrReset saveOrReset, Control parent)
+    public void Init(ISaveOrReset saveOrReset, TabControl parent, TabItem thisTabItem)
     {
       _saveOrReset = saveOrReset;
-      _parent = parent;
+      _tabControl = parent;
+      _thisTabItem = thisTabItem;
 
-      _parent.IsVisibleChanged += parent_IsVisibleChanged;
+      var p = thisTabItem.Parent;
+
+
+      _tabControl.SelectionChanged += parent_SelectionChanged;
+
+      _tabControl.IsVisibleChanged += parent_IsVisibleChanged;
+    }
+
+
+    bool switchAllowed = false;
+    private void parent_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (_tabControl.SelectedItem == _thisTabItem)
+      {
+        // Just switched to here
+        _active = true;
+      }
+      else
+      {
+        // Move away
+        if (!switchAllowed)
+        {
+          e.Handled = true;
+          _tabControl.SelectedItem= _thisTabItem;
+          MessageBox.Show("Please Save or Cancel your work first.", "Error",
+              MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        else
+          _active = false;
+      }
     }
 
     private void parent_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-      bool saveNeeded = _saveOrReset.IsSaveNeeded();
+      //if (_parent.IsVisible == true)
+      //  return;
 
-      if (saveNeeded)
-      {
-        var result = MessageBox.Show("Sollen die Änderungen gespeichert werden?", "Speichern?", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (result == MessageBoxResult.Yes)
-          _saveOrReset.Save();
-      }
+      //bool saveNeeded = _saveOrReset.IsSaveNeeded();
+
+      //if (saveNeeded)
+      //{
+      //  var result = MessageBox.Show("Sollen die Änderungen gespeichert werden?", "Speichern?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+      //  if (result == MessageBoxResult.Yes)
+      //    _saveOrReset.Save();
+      //}
     }
 
     private void btnReset_Click(object sender, RoutedEventArgs e)

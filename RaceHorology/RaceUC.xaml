@@ -22,7 +22,7 @@
       <ColumnDefinition Width="1*"/>
     </Grid.ColumnDefinitions>
     <TabControl x:Name="tabControlRace1" Height="Auto" Margin="10" Grid.Column="0" Width="Auto">
-      <TabItem Header="Konfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+      <TabItem x:Name="tabItemConfiguration" Header="Konfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
           <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
             <!--<Grid Margin="0,0,0,0">
@@ -207,10 +207,13 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
+              <local:SaveOrResetUC x:Name="ucRaceConfigSaveOrReset" Grid.Row="0" Grid.Column="1" />
+              <!--
               <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
                 <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
                 <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
               </StackPanel>
+              -->
             </Grid>
           </StackPanel>
         </ScrollViewer>

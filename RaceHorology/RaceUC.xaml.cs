@@ -153,6 +153,8 @@ namespace RaceHorology
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_all_AlsoWithoutResults" });
 
       ResetConfigurationSelectionUI(_raceConfiguration);
+
+      ucRaceConfigSaveOrReset.Init(new SaveOrReset(), tabControlRace1, tabItemConfiguration);
     }
 
 
