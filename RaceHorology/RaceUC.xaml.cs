@@ -342,18 +342,6 @@ namespace RaceHorology
     }
 
 
-
-    private void BtnReset_Click(object sender, RoutedEventArgs e)
-    {
-      configuration_ResetChanges();
-    }
-
-    private void BtnApply_Click(object sender, RoutedEventArgs e)
-    {
-      configuration_SaveChanges();
-    }
-
-
     #endregion
 
 
@@ -362,16 +350,23 @@ namespace RaceHorology
     AdditionalRaceProperties _addRaceProps;
     void InitializeRaceProperties()
     {
-      _addRaceProps = _thisRace.AdditionalProperties.Copy();
-      RaceProperties.DataContext = _addRaceProps;
+      ucPropSaveOrReset.Init( tabControlRace1, tabItemRaceProperties, 
+                              prop_ExistingChanges, prop_SaveChanges, prop_ResetChanges);
+      prop_ResetChanges();
     }
 
-    private void BtnAddPropReset_Click(object sender, RoutedEventArgs e)
+    private bool prop_ExistingChanges()
     {
-      InitializeRaceProperties();
+      return !AdditionalRaceProperties.Equals(_thisRace.AdditionalProperties, _addRaceProps);
     }
 
-    private void BtnAddPropApply_Click(object sender, RoutedEventArgs e)
+    private void prop_ResetChanges()
+    {
+      _addRaceProps = _thisRace.AdditionalProperties.Copy();
+      tabItemRaceProperties.DataContext = _addRaceProps;
+    }
+
+    private void prop_SaveChanges()
     {
       _thisRace.AdditionalProperties = _addRaceProps.Copy();
     }

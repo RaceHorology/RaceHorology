@@ -219,7 +219,7 @@
         </ScrollViewer>
       </TabItem>
 
-      <TabItem x:Name="RaceProperties" Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+      <TabItem x:Name="tabItemRaceProperties" Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.IsSharedSizeScope="True">
           <Grid>
             <Grid.RowDefinitions>
@@ -456,10 +456,7 @@
               <TextBox Margin="5"  Grid.Row="1" Grid.Column="3" Text="{Binding Path=TempFinish}"/>
             </Grid>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="29" Grid.Column="2" HorizontalAlignment="Right" Margin="0,15,0,0">
-              <Button x:Name="btnAddPropReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnAddPropReset_Click"/>
-              <Button x:Name="btnAddPropApply" Content="Speichern" Margin="5" Padding="5" Click="BtnAddPropApply_Click"/>
-            </StackPanel>
+            <local:SaveOrResetUC x:Name="ucPropSaveOrReset" Grid.Row="29" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,15,0,0"/>
 
           </Grid>
         </ScrollViewer>
