@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - release/*
       - feature/*
   pull_request:
     branches:  
@@ -141,7 +142,7 @@ jobs:
           path: ${{ github.workspace }}\TestResults\**\*.trx 
 
   upload_as_release:
-    if: ${{ startsWith(github.ref, 'refs/heads/main') }}
+    if: ${{ startsWith(github.ref, 'refs/heads/release') }}
     needs: [build, run_test]
     runs-on: [windows-latest]
     steps:
