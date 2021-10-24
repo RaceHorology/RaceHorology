@@ -154,7 +154,9 @@ namespace RaceHorology
 
       ResetConfigurationSelectionUI(_raceConfiguration);
 
-      ucRaceConfigSaveOrReset.Init(new SaveOrReset(), tabControlRace1, tabItemConfiguration);
+      ucRaceConfigSaveOrReset.Init(
+        tabControlRace1, tabItemConfiguration, 
+        configuration_ExistingChanges, configuration_SaveChanges, configuration_ResetChanges);
     }
 
 
@@ -302,13 +304,15 @@ namespace RaceHorology
       return true;
     }
 
-    private void BtnReset_Click(object sender, RoutedEventArgs e)
+    private bool configuration_ExistingChanges()
     {
-      ResetConfigurationSelectionUI(_raceConfiguration);
-      refreshConfigPresetsUI();
+      RaceConfiguration cfgTemp = new RaceConfiguration();
+      StoreConfigurationSelectionUI(ref cfgTemp);
+
+      return !RaceConfigurationCompare.MainConfig(_raceConfiguration, cfgTemp);
     }
 
-    private void BtnApply_Click(object sender, RoutedEventArgs e)
+    private void configuration_SaveChanges()
     {
       RaceConfiguration cfg = new RaceConfiguration();
       if (!StoreConfigurationSelectionUI(ref cfg))
@@ -323,12 +327,30 @@ namespace RaceHorology
 
       ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       viewConfigurator.ConfigureRace(_thisRace);
-      
+
       refreshConfigPresetsUI();
-      
+
       // Reset UI (TODO should adapt itself based on events)
       ConnectUiToRaceRun(_currentRaceRun);
       ucRaceLists.UpdateAll();
+    }
+
+    private void configuration_ResetChanges()
+    {
+      ResetConfigurationSelectionUI(_raceConfiguration);
+      refreshConfigPresetsUI();
+    }
+
+
+
+    private void BtnReset_Click(object sender, RoutedEventArgs e)
+    {
+      configuration_ResetChanges();
+    }
+
+    private void BtnApply_Click(object sender, RoutedEventArgs e)
+    {
+      configuration_SaveChanges();
     }
 
 

@@ -15,40 +15,19 @@ using System.Windows.Shapes;
 
 namespace RaceHorology
 {
-  public interface ISaveOrReset
-  {
-    bool IsSaveNeeded();
-
-    void Save();
-    void Reset();
-  }
-
-
-  public class SaveOrReset : ISaveOrReset
-  {
-    bool changes = true;
-    public bool IsSaveNeeded()
-    {
-      return changes;
-    }
-
-    public void Reset()
-    {
-      changes = false;
-    }
-
-    public void Save()
-    {
-      changes = false;
-    }
-  }
-
   /// <summary>
   /// Interaction logic for SaveOrResetUC.xaml
   /// </summary>
   public partial class SaveOrResetUC : UserControl
   {
-    private ISaveOrReset _saveOrReset;
+    public delegate bool ExistingChanges();
+    public delegate void SaveChanges();
+    public delegate void ResetChanges();
+
+    private ExistingChanges _existingChangesCallback;
+    private SaveChanges _saveChangesCallback;
+    private ResetChanges _resetChangesCallback;
+
     private TabControl _tabControl;
     private TabItem _thisTabItem;
     private bool _active = false;
@@ -60,14 +39,18 @@ namespace RaceHorology
       lbSaved.Visibility = Visibility.Hidden;
     }
 
-    public void Init(ISaveOrReset saveOrReset, TabControl parent, TabItem thisTabItem)
+
+    public void Init( TabControl parent, TabItem thisTabItem,
+                      ExistingChanges existingChangesCallback, SaveChanges saveChangesCallback, ResetChanges resetChangesCallback)
     {
-      _saveOrReset = saveOrReset;
+      _existingChangesCallback = existingChangesCallback;
+      _saveChangesCallback = saveChangesCallback;
+      _resetChangesCallback = resetChangesCallback;
+
       _tabControl = parent;
       _thisTabItem = thisTabItem;
 
       var p = thisTabItem.Parent;
-
 
       _tabControl.SelectionChanged += parent_SelectionChanged;
     }
@@ -109,19 +92,19 @@ namespace RaceHorology
 
     private bool existingChanges()
     {
-      return _saveOrReset.IsSaveNeeded();
+      return _existingChangesCallback();
     }
 
     private void saveChanges()
     {
       showStatus(EStatus.Save);
-      _saveOrReset.Save();
+      _saveChangesCallback();
     }
 
     private void resetChanges()
     {
       showStatus(EStatus.Reset);
-      _saveOrReset.Reset();
+      _resetChangesCallback();
     }
 
 
