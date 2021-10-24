@@ -207,6 +207,14 @@ namespace RaceHorologyLibTest
           Assert.AreEqual(snap.Participant, rp);
         }
       }
+
+      Assert.IsFalse(sna.DifferentToRace(race));
+      sna.Assign(1000, race.GetParticipant(1));
+      Assert.IsTrue(sna.DifferentToRace(race));
+      sna.LoadFromRace(race);
+      Assert.IsFalse(sna.DifferentToRace(race));
+      sna.DeleteAll();
+      Assert.IsTrue(sna.DifferentToRace(race));
     }
 
 

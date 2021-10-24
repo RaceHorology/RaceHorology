@@ -171,6 +171,26 @@ namespace RaceHorologyLib
     }
 
 
+    public bool DifferentToRace(Race race)
+    {
+      var particpants = race.GetParticipants();
+
+      foreach (var p in particpants)
+      {
+        var ass = _snAssignment.FirstOrDefault(a => a.Participant == p);
+        if (ass != null)
+        {
+          if (p.StartNumber != ass.StartNumber)
+            return true;
+        }
+        else
+          return true;
+      }
+
+      return false;
+    }
+
+
     /// <summary>
     /// Returns the workng space containing current StartNumber and Particpant
     /// </summary>
