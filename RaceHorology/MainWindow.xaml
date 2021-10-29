@@ -11,6 +11,7 @@
   <Window.CommandBindings>
     <CommandBinding Command="New"  Executed="NewCommandBinding_Executed" />
     <CommandBinding Command="Open"  Executed="OpenCommandBinding_Executed" />
+    <CommandBinding Command="Save"  Executed="SaveCommandBinding_Executed" />
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
     <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
@@ -20,6 +21,7 @@
   <Window.InputBindings>
     <KeyBinding Key="N" Modifiers="Control" Command="New"/>
     <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
+    <KeyBinding Key="S" Modifiers="Control" Command="Save"/>
     <KeyBinding Key="C" Modifiers="Control" Command="Close"/>
   </Window.InputBindings>
 
