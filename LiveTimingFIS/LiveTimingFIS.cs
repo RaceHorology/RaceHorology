@@ -404,7 +404,6 @@ namespace LiveTimingFIS
 
       scheduleTransfer(new LTTransfer(getXmlClearRace()));
       scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo("")));
-      scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race)));
 
       _isLoggedOn = true;
     }
@@ -479,6 +478,7 @@ namespace LiveTimingFIS
 
     public void UpdateStartList(RaceRun raceRun)
     {
+      scheduleTransfer(new LTTransfer(getXmlRaceInfo(raceRun)));
       scheduleTransfer(new LTTransfer(getXmlStartList(raceRun)));
     }
 
@@ -637,9 +637,8 @@ namespace LiveTimingFIS
       }
     }
 
-    internal string getXmlRaceInfo(Race race)
+    internal string getXmlRaceInfo(RaceRun raceRun)
     {
-      RaceRun raceRun = race.GetRun(0);
       using (var sw = new Utf8StringWriter())
       {
         using (var xw = XmlWriter.Create(sw, _xmlSettings))
@@ -658,54 +657,50 @@ namespace LiveTimingFIS
           xw.WriteElementString("longunit", "m");
           xw.WriteElementString("speedunit", "Kmh");
 
-          foreach (RaceRun rr in race.GetRuns())
+          xw.WriteStartElement("run");
+          xw.WriteAttributeString("no", raceRun.Run.ToString());
+
+          xw.WriteElementString("discipline", getDisciplin(raceRun.GetRace()));
+
+          if (raceRun.GetRace().AdditionalProperties?.StartHeight > 0)
+            xw.WriteElementString("start", raceRun.GetRace().AdditionalProperties?.StartHeight.ToString());
+          if (raceRun.GetRace().AdditionalProperties?.FinishHeight > 0)
+            xw.WriteElementString("finish", raceRun.GetRace().AdditionalProperties?.FinishHeight.ToString());
+          if (raceRun.GetRace().AdditionalProperties?.StartHeight > 0 && raceRun.GetRace().AdditionalProperties?.FinishHeight > 0)
+            xw.WriteElementString("height", (raceRun.GetRace().AdditionalProperties?.StartHeight - raceRun.GetRace().AdditionalProperties?.FinishHeight).ToString());
+
+          AdditionalRaceProperties.RaceRunProperties raceRunProperties = null;
+          if (raceRun.Run == 1)
+            raceRunProperties = raceRun.GetRace().AdditionalProperties?.RaceRun1;
+          else if (raceRun.Run >= 2)
+            raceRunProperties = raceRun.GetRace().AdditionalProperties?.RaceRun2;
+
+          if (raceRunProperties != null)
           {
+            if (raceRunProperties.Gates > 0)
+              xw.WriteElementString("gates", raceRunProperties.Gates.ToString());
 
-            xw.WriteStartElement("run");
-            xw.WriteAttributeString("no", rr.Run.ToString());
+            if (raceRunProperties.Turns > 0)
+              xw.WriteElementString("turninggates", raceRunProperties.Turns.ToString());
 
-            xw.WriteElementString("discipline", getDisciplin(rr.GetRace()));
-
-            if (rr.GetRace().AdditionalProperties?.StartHeight > 0)
-              xw.WriteElementString("start", rr.GetRace().AdditionalProperties?.StartHeight.ToString());
-            if (rr.GetRace().AdditionalProperties?.FinishHeight > 0)
-              xw.WriteElementString("finish", rr.GetRace().AdditionalProperties?.FinishHeight.ToString());
-            if (rr.GetRace().AdditionalProperties?.StartHeight > 0 && rr.GetRace().AdditionalProperties?.FinishHeight > 0)
-              xw.WriteElementString("height", (rr.GetRace().AdditionalProperties?.StartHeight - rr.GetRace().AdditionalProperties?.FinishHeight).ToString());
-
-            AdditionalRaceProperties.RaceRunProperties raceRunProperties = null;
-            if (rr.Run == 1)
-              raceRunProperties = rr.GetRace().AdditionalProperties?.RaceRun1;
-            else if (rr.Run >= 2)
-              raceRunProperties = rr.GetRace().AdditionalProperties?.RaceRun2;
-
-            if (raceRunProperties != null)
+            if (raceRunProperties.StartTime != null && raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
             {
-              if (raceRunProperties.Gates > 0)
-                xw.WriteElementString("gates", raceRunProperties.Gates.ToString());
-
-              if (raceRunProperties.Turns > 0)
-                xw.WriteElementString("turninggates", raceRunProperties.Turns.ToString());
-
-              if (raceRunProperties.StartTime != null && raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
-              {
-                xw.WriteElementString("hour", raceRunProperties.StartTime.Substring(0, 2));
-                xw.WriteElementString("minute", raceRunProperties.StartTime.Substring(3, 2));
-              }
+              xw.WriteElementString("hour", raceRunProperties.StartTime.Substring(0, 2));
+              xw.WriteElementString("minute", raceRunProperties.StartTime.Substring(3, 2));
             }
-
-            if (rr.GetRace().AdditionalProperties?.DateResultList != null)
-            {
-              xw.WriteElementString("day", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Day.ToString());
-              xw.WriteElementString("month", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Month.ToString());
-              xw.WriteElementString("year", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Year.ToString());
-            }
-
-            xw.WriteStartElement("racedef");
-            xw.WriteEndElement();
-
-            xw.WriteEndElement(); // run
           }
+
+          if (raceRun.GetRace().AdditionalProperties?.DateResultList != null)
+          {
+            xw.WriteElementString("day", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Day.ToString());
+            xw.WriteElementString("month", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Month.ToString());
+            xw.WriteElementString("year", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Year.ToString());
+          }
+
+          xw.WriteStartElement("racedef");
+          xw.WriteEndElement();
+
+          xw.WriteEndElement(); // run
 
           xw.WriteEndElement(); // raceinfo
           xw.WriteEndElement(); // Livetiming
