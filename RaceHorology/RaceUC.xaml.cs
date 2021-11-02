@@ -767,8 +767,8 @@ namespace RaceHorology
         RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
         if (rr != null)
         {
-          txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ff");
-          txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ff");
+          txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ffff");
+          txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ffff");
           txtRun.Text = rr.GetRunTime()?.ToString(@"mm\:ss\,ff");
         }
         else
