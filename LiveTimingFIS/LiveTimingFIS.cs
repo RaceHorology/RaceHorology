@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -373,7 +373,7 @@ namespace LiveTimingFIS
 
     private void keepAliveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
-      scheduleTransfer(new LTTransfer(getXmlKeepAlive(), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlKeepAlive()));
     }
 
     public void Disconnect()
@@ -402,9 +402,10 @@ namespace LiveTimingFIS
       _fisCategory = fisCategory;
       _fisPassword = fisPassword;
 
-      scheduleTransfer(new LTTransfer(getXmlClearRace(), _tcpClient));
-      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(""), _tcpClient));
-      scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlClearRace()));
+      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo("")));
+      scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race)));
+
       _isLoggedOn = true;
     }
 
@@ -461,7 +462,7 @@ namespace LiveTimingFIS
 
       _statusText = statusText;
 
-      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(_statusText), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(_statusText)));
     }
 
 
@@ -471,28 +472,28 @@ namespace LiveTimingFIS
       if (_activeRaceRun == raceRun)
         return;
 
-      scheduleTransfer(new LTTransfer(getXmlActiveRun(raceRun), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlActiveRun(raceRun)));
       _activeRaceRun = raceRun;
     }
 
 
     public void UpdateStartList(RaceRun raceRun)
     {
-      scheduleTransfer(new LTTransfer(getXmlStartList(raceRun), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlStartList(raceRun)));
     }
 
 
     public void UpdateOnStart(RaceRun raceRun, RaceParticipant rp)
     {
       SetActiveRaceRun(raceRun);
-      scheduleTransfer(new LTTransfer(getXmlEventOnStart(rp), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlEventOnStart(rp)));
     }
 
 
     public void UpdateOnTrack(RaceRun raceRun, RaceParticipant rp)
     {
       SetActiveRaceRun(raceRun);
-      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp)));
     }
 
 
@@ -503,7 +504,7 @@ namespace LiveTimingFIS
       var results = ViewUtilities.ViewToList<RaceResultItem>(raceRun.GetRace().GetTotalResultView());
       var rri4Participant = results.FirstOrDefault(rri => rri.Participant == rp);
 
-      scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rri4Participant), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rri4Participant)));
     }
 
 
@@ -519,7 +520,7 @@ namespace LiveTimingFIS
         if (rr.ResultCode == RunResult.EResultCode.NotSet)
           continue;
 
-        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rr), _tcpClient));
+        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rr)));
 
         if ( lastRR == null
           || (lastRR.StartTime  != null && rr.StartTime  != null && lastRR.StartTime  < rr.StartTime)
@@ -529,7 +530,7 @@ namespace LiveTimingFIS
 
       // Update livetiming with last known time
       if (lastRR != null)
-        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, lastRR), _tcpClient));
+        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, lastRR)));
     }
 
 
@@ -1084,14 +1085,11 @@ namespace LiveTimingFIS
   public class LTTransfer
   {
     protected string _type;
-
     protected string _xmlMessage;
-    protected System.Net.Sockets.TcpClient _tcpClient;
 
-    public LTTransfer(string xmlMessage, System.Net.Sockets.TcpClient tcpClient)
+    public LTTransfer(string xmlMessage)
     {
       _xmlMessage = xmlMessage;
-      _tcpClient = tcpClient;
     }
 
     public string Message { get => _xmlMessage; }
