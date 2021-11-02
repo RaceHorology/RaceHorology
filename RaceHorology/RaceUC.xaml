@@ -588,49 +588,63 @@
                   </DataGrid.Columns>
                 </DataGrid>
               </Grid>
-              <Grid Grid.Row="3" ShowGridLines="False">
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="Auto"/>
-                  <RowDefinition Height="Auto"/>
-                  <RowDefinition Height="Auto"/>
-                  <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+              <Grid Grid.Row="3" >
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <Label x:Name="lblManualMode" Grid.Row="0" Grid.Column="0" Content="Manuelle Erfassung (&lt;CTRL&gt;-&lt;M&gt;)" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                <Button x:Name="btnManualModeShow" Grid.Row="0" Grid.Column="1" Content="Anzeigen" Click="btnManualModeShow_Click" VerticalAlignment="Center" Margin="5"/>
 
-                <Label x:Name="lblManualMode" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Content="Manuelle Erfassung (&lt;CTRL&gt;-&lt;M&gt;)" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12"/>
-                <ComboBox x:Name="cmbManualMode" Grid.Row="2" Grid.Column="7" Grid.ColumnSpan="1" Margin="5,5,5,5" SelectionChanged="CmbManualMode_SelectionChanged"/>
-                <Button x:Name="btnHandTiming" Content="Handzeit" Margin="5" Grid.Row="1" Grid.Column="7" Click="btnHandTiming_Click"/>
+                <Grid x:Name="gridManualMode" Grid.Row="1" Grid.ColumnSpan="3" ShowGridLines="False">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
 
-                <Label x:Name="lblStartNumber" Content="StNr" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" HorizontalAlignment="Left" Margin="5,0,5,0"  VerticalAlignment="Center" FontSize="12"/>
-                <TextBox x:Name="txtStartNumber" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Margin="5,0,5,0" Width="80" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Right" TextChanged="TxtStartNumber_TextChanged" GotFocus="TxtManualTime_GotFocus"/>
-                <!-- Label x:Name="lblParticipant" Content="Teilnehmer" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/ -->
-                <TextBox x:Name="txtParticipant" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4" Margin="5,0,5,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False"/>
+                  <ComboBox x:Name="cmbManualMode" Grid.Row="2" Grid.Column="8" Grid.ColumnSpan="1" Margin="5,5,5,5" SelectionChanged="CmbManualMode_SelectionChanged"/>
+                  <Button x:Name="btnHandTiming" Content="Handzeit" Margin="5" Grid.Row="1" Grid.Column="8" Click="btnHandTiming_Click"/>
 
-                <Label x:Name="lblStart" Content="Start" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="5,0,5,0" VerticalAlignment="Center" FontSize="12"/>
-                <TextBox x:Name="txtStart" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" Width="80" HorizontalAlignment="Left" Margin="5,0,5,0" VerticalAlignment="Center" TextAlignment="Right"  GotFocus="TxtManualTime_GotFocus" LostFocus="TxtManualTime_LostFocus"/>
-                <Label x:Name="lblFinish" Content="Ziel" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Margin="5,0,5,0"  VerticalAlignment="Center" FontSize="12"/>
-                <TextBox x:Name="txtFinish" Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="1" HorizontalAlignment="Left" Width="80" Margin="5,0,5,0" VerticalAlignment="Center" TextAlignment="Right"  GotFocus="TxtManualTime_GotFocus" LostFocus="TxtManualTime_LostFocus"/>
-                <Label x:Name="lblRun" Content="Laufzeit" Grid.Row="2" Grid.Column="4" HorizontalAlignment="Right" Margin="5,0,5,0"  VerticalAlignment="Center" FontSize="12"/>
-                <TextBox x:Name="txtRun" Grid.Row="2" Grid.Column="5" Width="80" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,5,0" TextAlignment="Right"  GotFocus="TxtManualTime_GotFocus" LostFocus="TxtManualTime_LostFocus"/>
+                  <Label x:Name="lblStartNumber" Content="StNr" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" HorizontalAlignment="Left" Margin="5,0,5,0"  VerticalAlignment="Center" FontSize="12"/>
+                  <TextBox x:Name="txtStartNumber" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Margin="5,0,5,0" Width="80" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Right" TextChanged="TxtStartNumber_TextChanged" GotFocus="TxtManualTime_GotFocus"/>
+                  <!-- Label x:Name="lblParticipant" Content="Teilnehmer" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" HorizontalAlignment="Left" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="12"/ -->
+                  <TextBox x:Name="txtParticipant" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" Margin="5,0,5,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False"/>
 
-                <Button x:Name="btnManualTimeStore" Grid.Row="3" Grid.Column="7" Content="Speichern &lt;F2&gt;" Margin="5,0,5,0"  VerticalAlignment="Center" Click="BtnManualTimeStore_Click"/>
+                  <Label x:Name="lblStart" Content="Start" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="5,0,5,0" VerticalAlignment="Center" FontSize="12"/>
+                  <TextBox x:Name="txtStart" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" Width="80" HorizontalAlignment="Left" Margin="5,0,5,0" VerticalAlignment="Center" TextAlignment="Right"  GotFocus="TxtManualTime_GotFocus" LostFocus="TxtManualTime_LostFocus"/>
+                  <Label x:Name="lblFinish" Content="Ziel" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Margin="5,0,5,0"  VerticalAlignment="Center" FontSize="12"/>
+                  <TextBox x:Name="txtFinish" Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="1" HorizontalAlignment="Left" Width="80" Margin="5,0,5,0" VerticalAlignment="Center" TextAlignment="Right"  GotFocus="TxtManualTime_GotFocus" LostFocus="TxtManualTime_LostFocus"/>
+                  <Label x:Name="lblRun" Content="Laufzeit" Grid.Row="2" Grid.Column="4" HorizontalAlignment="Right" Margin="5,0,5,0"  VerticalAlignment="Center" FontSize="12"/>
+                  <TextBox x:Name="txtRun" Grid.Row="2" Grid.Column="5" Width="80" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,5,0" TextAlignment="Right"  GotFocus="TxtManualTime_GotFocus" LostFocus="TxtManualTime_LostFocus"/>
 
+                  <Button x:Name="btnManualTimeStore" Grid.Row="3" Grid.Column="8" Content="Speichern &lt;F2&gt;" Margin="5,0,5,0"  VerticalAlignment="Center" Click="BtnManualTimeStore_Click"/>
 
-                <Label x:Name="lblManualTimingLabel" Content="Schnell-Auscheidung: " Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="5,0,5,0" VerticalAlignment="Center" FontSize="12"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="4" HorizontalAlignment="Right" Margin="0,0,0,0">
-                  <Button x:Name="btnManualTimingNaS" Grid.Row="3" Grid.Column="1" Content="Nicht am Start" Margin="5,0,5,0"  VerticalAlignment="Center" Click="btnManualTimingNaS_Click"/>
-                  <Button x:Name="btnManualTimingNiZ" Grid.Row="3" Grid.Column="3" Content="Nicht im Ziel" Margin="5,0,5,0"  VerticalAlignment="Center" Click="btnManualTimingNiZ_Click"/>
-                  <Button x:Name="btnManualTimingDIS" Grid.Row="3" Grid.Column="5" Content="Disqualifiziert" Margin="5,0,5,0"  VerticalAlignment="Center" Click="btnManualTimingDIS_Click"/>
-                </StackPanel>
+                  <Label x:Name="lblManualTimingLabel" Content="Auscheidung: " Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="5,0,5,0" VerticalAlignment="Center" FontSize="12"/>
+                  <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="5" HorizontalAlignment="Right" Margin="0,0,0,0">
+                    <Button x:Name="btnManualTimingNaS" Grid.Row="3" Grid.Column="1" Content="Nicht am Start" Margin="5,0,5,0"  VerticalAlignment="Center" Click="btnManualTimingNaS_Click"/>
+                    <Button x:Name="btnManualTimingNiZ" Grid.Row="3" Grid.Column="3" Content="Nicht im Ziel" Margin="5,0,5,0"  VerticalAlignment="Center" Click="btnManualTimingNiZ_Click"/>
+                    <Button x:Name="btnManualTimingDIS" Grid.Row="3" Grid.Column="5" Content="Disqualifiziert" Margin="5,0,5,0"  VerticalAlignment="Center" Click="btnManualTimingDIS_Click"/>
+                  </StackPanel>
+                </Grid>
               </Grid>
             </Grid>
 

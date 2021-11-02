@@ -494,6 +494,8 @@ namespace RaceHorology
       cmbManualMode.Items.Add(new CBItem { Text = "Differenz", Value = "Difference" });
       cmbManualMode.SelectedIndex = 0;
 
+      gridManualMode.Visibility = Visibility.Collapsed;
+
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
 
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
@@ -688,7 +690,7 @@ namespace RaceHorology
         {
           txtStart.IsEnabled = true;
           txtFinish.IsEnabled = true;
-          txtRun.IsEnabled = true;
+          txtRun.IsEnabled = false;
         }
       }
     }
@@ -725,29 +727,41 @@ namespace RaceHorology
 
     private void TxtManualTime_LostFocus(object sender, RoutedEventArgs e)
     {
-      CheckTime(txtStart);
-      CheckTime(txtFinish);
-      UpdateRunTime();
+      bool startTimeAvailable = CheckTime(txtStart);
+      bool finishTimeAvailable = CheckTime(txtFinish);
+
+      if (!txtRun.IsEnabled) // Only calculate in case it is read only
+        UpdateRunTime();
+
       CheckTime(txtRun);
     }
 
 
-    private void CheckTime(TextBox txtbox)
+    private bool CheckTime(TextBox txtbox)
     {
+
       TimeSpan? ts = TimeSpanExtensions.ParseTimeSpan(txtbox.Text);
-      if (ts == null && !string.IsNullOrWhiteSpace(txtbox.Text) && txtbox.IsEnabled)
+      bool validTime = ts != null;
+      
+      if (!validTime && !string.IsNullOrWhiteSpace(txtbox.Text) && txtbox.IsEnabled)
         txtbox.Background = Brushes.Orange;
       else
         txtbox.Background = Brushes.White;
+
+      return validTime;
     }
 
     private void UpdateRunTime()
     {
       try
       {
+        TimeSpan? run = null;
         TimeSpan? start = TimeSpanExtensions.ParseTimeSpan(txtStart.Text);
         TimeSpan? finish = TimeSpanExtensions.ParseTimeSpan(txtFinish.Text);
-        TimeSpan? run = finish - start;
+        
+        if (start != null && finish != null)
+          run = (new RoundedTimeSpan((TimeSpan)(finish - start), 2, RoundedTimeSpan.ERoundType.Floor)).TimeSpan;
+        
         if (run != null)
           txtRun.Text = run?.ToString(@"mm\:ss\,ff");
       }
@@ -810,6 +824,21 @@ namespace RaceHorology
           _currentRaceRun.SetStartTime(participant, null);
         if (command == "clear_stop")
           _currentRaceRun.SetFinishTime(participant, null);
+      }
+    }
+
+
+    private void btnManualModeShow_Click(object sender, RoutedEventArgs e)
+    {
+      if (gridManualMode.Visibility == Visibility.Visible)
+      {
+        gridManualMode.Visibility = Visibility.Collapsed;
+        btnManualModeShow.Content = "Anzeigen";
+      }
+      else
+      {
+        gridManualMode.Visibility = Visibility.Visible;
+        btnManualModeShow.Content = "Verstecken";
       }
     }
 
@@ -947,6 +976,7 @@ namespace RaceHorology
 
 
     #endregion
+
   }
 
 }
