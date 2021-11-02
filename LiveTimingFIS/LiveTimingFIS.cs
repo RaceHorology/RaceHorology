@@ -954,6 +954,9 @@ namespace LiveTimingFIS
       string raceGender = string.Empty;
       foreach(var rp in race.GetParticipants())
       {
+        if (rp.Sex == null)
+          continue;
+
         char sex = char.ToUpper(rp.Sex.Name);
         string gender = string.Empty;
 
