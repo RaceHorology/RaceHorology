@@ -306,6 +306,9 @@ namespace RaceHorologyLib
       if (!_autoAddParticipants)
         return null;
 
+       if (startNumber == 0)
+        return null;
+
       Participant p = new Participant
       {
         Name = "Automatisch",
