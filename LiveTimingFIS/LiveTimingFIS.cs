@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -997,6 +997,8 @@ namespace LiveTimingFIS
 
     private void scheduleTransfer(LTTransfer transfer)
     {
+      Logger.Debug("Schedule transfer to FIS:\n{0}", transfer.Message);
+
       lock (_transferLock)
       {
         // Remove all outdated transfers
@@ -1031,16 +1033,18 @@ namespace LiveTimingFIS
         {
           try
           {
-            Logger.Debug("process transfer: " + nextItem.ToString());
-            nextItem.performTransfer();
+            Logger.Debug("Transfer to FIS:\n{0}", nextItem.Message);
+
+            byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(nextItem.Message);
+            var stream = _tcpClient.GetStream();
+            stream.Write(utf8Message, 0, utf8Message.Length);
           }
-          catch(Exception e)
+          catch (Exception e)
           {
             Logger.Error(e);
             Stop();
           }
-        })
-          .ContinueWith(delegate { processNextTransfer(); });
+        }).ContinueWith(delegate { processNextTransfer(); });
       }
       else
         _transferInProgress = false;
@@ -1062,7 +1066,7 @@ namespace LiveTimingFIS
         {
           while ((bytesRead = sr.Read(buf, 0, buf.Length)) > 0)
           {
-            Logger.Debug(Encoding.UTF8.GetString(buf, 0, bytesRead));
+            Logger.Debug("Received from FIS:\n{0}", Encoding.UTF8.GetString(buf, 0, bytesRead));
           }
         }
         catch (Exception)
@@ -1087,24 +1091,11 @@ namespace LiveTimingFIS
       _tcpClient = tcpClient;
     }
 
+    public string Message { get => _xmlMessage; }
+
     public override string ToString()
     {
       return "LTTransfer(" + _xmlMessage + ")";
-    }
-
-
-    public void performTransfer()
-    {
-      try
-      {
-        byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(_xmlMessage);
-        var stream = _tcpClient.GetStream();
-        stream.Write(utf8Message, 0, utf8Message.Length);
-      }
-      catch(Exception e)
-      {
-        throw new Exception("FIS Live Timing: performTransfer() failed", e);
-      }
     }
 
   }
