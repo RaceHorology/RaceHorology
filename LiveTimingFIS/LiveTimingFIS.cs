@@ -357,8 +357,8 @@ namespace LiveTimingFIS
 
         _keepAliveTimer = new System.Timers.Timer();
         _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
-        //_keepAliveTimer.Interval = 1000; // for testing
         _keepAliveTimer.Interval = 5*60*1000; // 5 minutes * 60s * 1000ms
+        //_keepAliveTimer.Interval = 1000; // for testing
         _keepAliveTimer.AutoReset = true;
         _keepAliveTimer.Enabled = true;
       }
