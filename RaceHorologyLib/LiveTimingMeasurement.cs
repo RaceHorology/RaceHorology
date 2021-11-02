@@ -267,7 +267,7 @@ namespace RaceHorologyLib
         RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
 
         // Create participant if desired
-        if (participant == null)
+        if (participant == null && e.StartNumber > 0)
           participant = createParticipantIfDesired(currentRace, e.StartNumber);
 
         if (participant != null)
