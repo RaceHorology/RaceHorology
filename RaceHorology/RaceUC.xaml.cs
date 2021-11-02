@@ -492,7 +492,7 @@ namespace RaceHorology
 
       cmbManualMode.Items.Add(new CBItem { Text = "Laufzeit", Value = "Absolut" });
       cmbManualMode.Items.Add(new CBItem { Text = "Differenz", Value = "Difference" });
-      cmbManualMode.SelectedIndex = 0;
+      cmbManualMode.SelectedIndex = 1;
 
       gridManualMode.Visibility = Visibility.Collapsed;
 
