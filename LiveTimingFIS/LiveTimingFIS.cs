@@ -183,6 +183,7 @@ namespace LiveTimingFIS
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
               _liveTiming.UpdateInFinish(raceRun, rr.Participant);
+              updateNextStarter(raceRun);
             });
           });
         }
@@ -357,8 +358,8 @@ namespace LiveTimingFIS
 
         _keepAliveTimer = new System.Timers.Timer();
         _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
-        //_keepAliveTimer.Interval = 1000; // for testing
         _keepAliveTimer.Interval = 5*60*1000; // 5 minutes * 60s * 1000ms
+        //_keepAliveTimer.Interval = 1000; // for testing
         _keepAliveTimer.AutoReset = true;
         _keepAliveTimer.Enabled = true;
       }
@@ -373,7 +374,7 @@ namespace LiveTimingFIS
 
     private void keepAliveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
-      scheduleTransfer(new LTTransfer(getXmlKeepAlive(), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlKeepAlive()));
     }
 
     public void Disconnect()
@@ -402,9 +403,9 @@ namespace LiveTimingFIS
       _fisCategory = fisCategory;
       _fisPassword = fisPassword;
 
-      scheduleTransfer(new LTTransfer(getXmlClearRace(), _tcpClient));
-      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(""), _tcpClient));
-      scheduleTransfer(new LTTransfer(getXmlRaceInfo(_race), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlClearRace()));
+      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo("")));
+
       _isLoggedOn = true;
     }
 
@@ -461,7 +462,7 @@ namespace LiveTimingFIS
 
       _statusText = statusText;
 
-      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(_statusText), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlStatusUpdateInfo(_statusText)));
     }
 
 
@@ -471,28 +472,29 @@ namespace LiveTimingFIS
       if (_activeRaceRun == raceRun)
         return;
 
-      scheduleTransfer(new LTTransfer(getXmlActiveRun(raceRun), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlActiveRun(raceRun)));
       _activeRaceRun = raceRun;
     }
 
 
     public void UpdateStartList(RaceRun raceRun)
     {
-      scheduleTransfer(new LTTransfer(getXmlStartList(raceRun), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlRaceInfo(raceRun)));
+      scheduleTransfer(new LTTransfer(getXmlStartList(raceRun)));
     }
 
 
     public void UpdateOnStart(RaceRun raceRun, RaceParticipant rp)
     {
       SetActiveRaceRun(raceRun);
-      scheduleTransfer(new LTTransfer(getXmlEventOnStart(rp), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlEventOnStart(rp)));
     }
 
 
     public void UpdateOnTrack(RaceRun raceRun, RaceParticipant rp)
     {
       SetActiveRaceRun(raceRun);
-      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlEventStarted(rp)));
     }
 
 
@@ -503,7 +505,7 @@ namespace LiveTimingFIS
       var results = ViewUtilities.ViewToList<RaceResultItem>(raceRun.GetRace().GetTotalResultView());
       var rri4Participant = results.FirstOrDefault(rri => rri.Participant == rp);
 
-      scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rri4Participant), _tcpClient));
+      scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rri4Participant)));
     }
 
 
@@ -519,7 +521,7 @@ namespace LiveTimingFIS
         if (rr.ResultCode == RunResult.EResultCode.NotSet)
           continue;
 
-        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rr), _tcpClient));
+        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, rr)));
 
         if ( lastRR == null
           || (lastRR.StartTime  != null && rr.StartTime  != null && lastRR.StartTime  < rr.StartTime)
@@ -529,7 +531,7 @@ namespace LiveTimingFIS
 
       // Update livetiming with last known time
       if (lastRR != null)
-        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, lastRR), _tcpClient));
+        scheduleTransfer(new LTTransfer(getXmlEventResult(raceRun, lastRR)));
     }
 
 
@@ -636,9 +638,8 @@ namespace LiveTimingFIS
       }
     }
 
-    internal string getXmlRaceInfo(Race race)
+    internal string getXmlRaceInfo(RaceRun raceRun)
     {
-      RaceRun raceRun = race.GetRun(0);
       using (var sw = new Utf8StringWriter())
       {
         using (var xw = XmlWriter.Create(sw, _xmlSettings))
@@ -657,54 +658,50 @@ namespace LiveTimingFIS
           xw.WriteElementString("longunit", "m");
           xw.WriteElementString("speedunit", "Kmh");
 
-          foreach (RaceRun rr in race.GetRuns())
+          xw.WriteStartElement("run");
+          xw.WriteAttributeString("no", raceRun.Run.ToString());
+
+          xw.WriteElementString("discipline", getDisciplin(raceRun.GetRace()));
+
+          if (raceRun.GetRace().AdditionalProperties?.StartHeight > 0)
+            xw.WriteElementString("start", raceRun.GetRace().AdditionalProperties?.StartHeight.ToString());
+          if (raceRun.GetRace().AdditionalProperties?.FinishHeight > 0)
+            xw.WriteElementString("finish", raceRun.GetRace().AdditionalProperties?.FinishHeight.ToString());
+          if (raceRun.GetRace().AdditionalProperties?.StartHeight > 0 && raceRun.GetRace().AdditionalProperties?.FinishHeight > 0)
+            xw.WriteElementString("height", (raceRun.GetRace().AdditionalProperties?.StartHeight - raceRun.GetRace().AdditionalProperties?.FinishHeight).ToString());
+
+          AdditionalRaceProperties.RaceRunProperties raceRunProperties = null;
+          if (raceRun.Run == 1)
+            raceRunProperties = raceRun.GetRace().AdditionalProperties?.RaceRun1;
+          else if (raceRun.Run >= 2)
+            raceRunProperties = raceRun.GetRace().AdditionalProperties?.RaceRun2;
+
+          if (raceRunProperties != null)
           {
+            if (raceRunProperties.Gates > 0)
+              xw.WriteElementString("gates", raceRunProperties.Gates.ToString());
 
-            xw.WriteStartElement("run");
-            xw.WriteAttributeString("no", rr.Run.ToString());
+            if (raceRunProperties.Turns > 0)
+              xw.WriteElementString("turninggates", raceRunProperties.Turns.ToString());
 
-            xw.WriteElementString("discipline", getDisciplin(rr.GetRace()));
-
-            if (rr.GetRace().AdditionalProperties?.StartHeight > 0)
-              xw.WriteElementString("start", rr.GetRace().AdditionalProperties?.StartHeight.ToString());
-            if (rr.GetRace().AdditionalProperties?.FinishHeight > 0)
-              xw.WriteElementString("finish", rr.GetRace().AdditionalProperties?.FinishHeight.ToString());
-            if (rr.GetRace().AdditionalProperties?.StartHeight > 0 && rr.GetRace().AdditionalProperties?.FinishHeight > 0)
-              xw.WriteElementString("height", (rr.GetRace().AdditionalProperties?.StartHeight - rr.GetRace().AdditionalProperties?.FinishHeight).ToString());
-
-            AdditionalRaceProperties.RaceRunProperties raceRunProperties = null;
-            if (rr.Run == 1)
-              raceRunProperties = rr.GetRace().AdditionalProperties?.RaceRun1;
-            else if (rr.Run >= 2)
-              raceRunProperties = rr.GetRace().AdditionalProperties?.RaceRun2;
-
-            if (raceRunProperties != null)
+            if (raceRunProperties.StartTime != null && raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
             {
-              if (raceRunProperties.Gates > 0)
-                xw.WriteElementString("gates", raceRunProperties.Gates.ToString());
-
-              if (raceRunProperties.Turns > 0)
-                xw.WriteElementString("turninggates", raceRunProperties.Turns.ToString());
-
-              if (raceRunProperties.StartTime != null && raceRunProperties.StartTime.Contains(":") && raceRunProperties.StartTime.Length == 5)
-              {
-                xw.WriteElementString("hour", raceRunProperties.StartTime.Substring(0, 2));
-                xw.WriteElementString("minute", raceRunProperties.StartTime.Substring(3, 2));
-              }
+              xw.WriteElementString("hour", raceRunProperties.StartTime.Substring(0, 2));
+              xw.WriteElementString("minute", raceRunProperties.StartTime.Substring(3, 2));
             }
-
-            if (rr.GetRace().AdditionalProperties?.DateResultList != null)
-            {
-              xw.WriteElementString("day", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Day.ToString());
-              xw.WriteElementString("month", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Month.ToString());
-              xw.WriteElementString("year", ((DateTime)rr.GetRace().AdditionalProperties?.DateResultList).Year.ToString());
-            }
-
-            xw.WriteStartElement("racedef");
-            xw.WriteEndElement();
-
-            xw.WriteEndElement(); // run
           }
+
+          if (raceRun.GetRace().AdditionalProperties?.DateResultList != null)
+          {
+            xw.WriteElementString("day", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Day.ToString());
+            xw.WriteElementString("month", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Month.ToString());
+            xw.WriteElementString("year", ((DateTime)raceRun.GetRace().AdditionalProperties?.DateResultList).Year.ToString());
+          }
+
+          xw.WriteStartElement("racedef");
+          xw.WriteEndElement();
+
+          xw.WriteEndElement(); // run
 
           xw.WriteEndElement(); // raceinfo
           xw.WriteEndElement(); // Livetiming
@@ -954,6 +951,9 @@ namespace LiveTimingFIS
       string raceGender = string.Empty;
       foreach(var rp in race.GetParticipants())
       {
+        if (rp.Sex == null)
+          continue;
+
         char sex = char.ToUpper(rp.Sex.Name);
         string gender = string.Empty;
 
@@ -997,10 +997,15 @@ namespace LiveTimingFIS
 
     private void scheduleTransfer(LTTransfer transfer)
     {
+      Logger.Debug("Schedule transfer to FIS:\n{0}", transfer.Message);
+
+      if (transfer.IsEmpty())
+        return;
+
       lock (_transferLock)
       {
         // Remove all outdated transfers
-        //_transfers.RemoveAll(x => x.IsEqual(transfer));
+        _transfers.RemoveAll(x => x.IsEqual(transfer));
         _transfers.Add(transfer);
       }
 
@@ -1031,16 +1036,18 @@ namespace LiveTimingFIS
         {
           try
           {
-            Logger.Debug("process transfer: " + nextItem.ToString());
-            nextItem.performTransfer();
+            Logger.Info("Transfer to FIS:\n{0}", nextItem.Message);
+
+            byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(nextItem.Message);
+            var stream = _tcpClient.GetStream();
+            stream.Write(utf8Message, 0, utf8Message.Length);
           }
-          catch(Exception e)
+          catch (Exception e)
           {
             Logger.Error(e);
             Stop();
           }
-        })
-          .ContinueWith(delegate { processNextTransfer(); });
+        }).ContinueWith(delegate { processNextTransfer(); });
       }
       else
         _transferInProgress = false;
@@ -1062,7 +1069,7 @@ namespace LiveTimingFIS
         {
           while ((bytesRead = sr.Read(buf, 0, buf.Length)) > 0)
           {
-            Logger.Debug(Encoding.UTF8.GetString(buf, 0, bytesRead));
+            Logger.Info("Received from FIS:\n{0}", Encoding.UTF8.GetString(buf, 0, bytesRead));
           }
         }
         catch (Exception)
@@ -1077,15 +1084,45 @@ namespace LiveTimingFIS
   public class LTTransfer
   {
     protected string _type;
-
     protected string _xmlMessage;
-    protected System.Net.Sockets.TcpClient _tcpClient;
+    private string _actualXML;
 
-    public LTTransfer(string xmlMessage, System.Net.Sockets.TcpClient tcpClient)
+    public LTTransfer(string xmlMessage)
     {
       _xmlMessage = xmlMessage;
-      _tcpClient = tcpClient;
+      setupInternals();
     }
+
+
+    /// <summary>
+    /// Stores the actual FIS XML message that is inside the  root "livetiming" tag.
+    /// </summary>
+    private void setupInternals()
+    {
+      XmlDocument doc = new XmlDocument();
+      doc.LoadXml(_xmlMessage);
+
+      XmlNode elem = doc.DocumentElement.FirstChild;
+      _actualXML = elem.OuterXml;
+    }
+
+    public bool IsEqual(LTTransfer other)
+    {
+      return string.Equals(_actualXML, other._actualXML);
+    }
+
+    public bool IsEmpty()
+    {
+      if (string.IsNullOrWhiteSpace(_actualXML))
+        return true;
+      if (string.Equals(_actualXML, "<raceevent />"))
+        return true;
+
+      return false;
+    }
+
+    public string Message { get => _xmlMessage; }
+
 
     public override string ToString()
     {
@@ -1093,19 +1130,7 @@ namespace LiveTimingFIS
     }
 
 
-    public void performTransfer()
-    {
-      try
-      {
-        byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(_xmlMessage);
-        var stream = _tcpClient.GetStream();
-        stream.Write(utf8Message, 0, utf8Message.Length);
-      }
-      catch(Exception e)
-      {
-        throw new Exception("FIS Live Timing: performTransfer() failed", e);
-      }
-    }
+
 
   }
 

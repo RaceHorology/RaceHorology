@@ -77,8 +77,10 @@ namespace RaceHorology
 
     private void Dispose()
     {
-      if (_liveTimingFIS!= null)
-        _liveTimingFIS.Dispose();
+      if (_liveTimingFIS != null)
+      {
+        stopLiveTiming(); // Includes Dispose
+      }
     }
 
     public void InitializeLiveTiming(Race race)
