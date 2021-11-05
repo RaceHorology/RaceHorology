@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -1032,7 +1032,7 @@ namespace LiveTimingFIS
         {
           try
           {
-            Logger.Debug("Transfer to FIS:\n{0}", nextItem.Message);
+            Logger.Info("Transfer to FIS:\n{0}", nextItem.Message);
 
             byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(nextItem.Message);
             var stream = _tcpClient.GetStream();
@@ -1065,7 +1065,7 @@ namespace LiveTimingFIS
         {
           while ((bytesRead = sr.Read(buf, 0, buf.Length)) > 0)
           {
-            Logger.Debug("Received from FIS:\n{0}", Encoding.UTF8.GetString(buf, 0, bytesRead));
+            Logger.Info("Received from FIS:\n{0}", Encoding.UTF8.GetString(buf, 0, bytesRead));
           }
         }
         catch (Exception)
