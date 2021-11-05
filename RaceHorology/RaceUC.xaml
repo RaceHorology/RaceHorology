@@ -470,7 +470,7 @@
         <TabItem.Header>
           <StackPanel Orientation="Horizontal">
             <TextBlock x:Name="lblTabHeaderLiveTiming" Text="Live Timing" Margin="0,0,3,0" VerticalAlignment="Center" FontSize="12" />
-            <Image Name="imgTabHeaderLiveTiming" Height="12" VerticalAlignment="Center" Source="/Icons/icons8-play-52.png" />
+            <Image Name="imgTabHeaderLiveTiming" Height="12" VerticalAlignment="Center" Source="/Icons/icons8-play-52-green.png" />
           </StackPanel>
         </TabItem.Header>
 
@@ -489,7 +489,7 @@
           <local:LiveTimingFISUC x:Name="liveTimingFISUC" Grid.Row="3" />
         </Grid>
       </TabItem>
-      <TabItem>
+      <TabItem FontSize="12">
         <TabItem.Header>
           <StackPanel Orientation="Horizontal">
             <TextBlock x:Name="lblTabHeaderTiming" Text="Zeitnahme" Margin="0,0,3,0" VerticalAlignment="Center" FontSize="12" />

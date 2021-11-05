@@ -665,6 +665,7 @@ namespace RaceHorology
       {
         btnLiveTimingStart.IsChecked = false;
         btnLiveTimingStop.IsChecked = false;
+        imgTabHeaderTiming.Visibility = Visibility.Collapsed;
       }
       else
       {
@@ -672,6 +673,7 @@ namespace RaceHorology
         // Set corresponding color whether running or not
         btnLiveTimingStart.IsChecked = running;
         btnLiveTimingStop.IsChecked = !running;
+        imgTabHeaderTiming.Visibility = running ? Visibility.Visible : Visibility.Collapsed;
       }
     }
 
