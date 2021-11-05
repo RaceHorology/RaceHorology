@@ -1001,7 +1001,7 @@ namespace LiveTimingFIS
       lock (_transferLock)
       {
         // Remove all outdated transfers
-        //_transfers.RemoveAll(x => x.IsEqual(transfer));
+        _transfers.RemoveAll(x => x.IsEqual(transfer));
         _transfers.Add(transfer);
       }
 
@@ -1081,18 +1081,42 @@ namespace LiveTimingFIS
   {
     protected string _type;
     protected string _xmlMessage;
+    private string _actualXML;
 
     public LTTransfer(string xmlMessage)
     {
       _xmlMessage = xmlMessage;
+      setupInternals();
+    }
+
+
+    /// <summary>
+    /// Stores the actual FIS XML message that is inside the  root "livetiming" tag.
+    /// </summary>
+    private void setupInternals()
+    {
+      XmlDocument doc = new XmlDocument();
+      doc.LoadXml(_xmlMessage);
+
+      XmlNode elem = doc.DocumentElement.FirstChild;
+      _actualXML = elem.OuterXml;
+    }
+
+    public bool IsEqual(LTTransfer other)
+    {
+      return string.Equals(_actualXML, other._actualXML);
     }
 
     public string Message { get => _xmlMessage; }
+
 
     public override string ToString()
     {
       return "LTTransfer(" + _xmlMessage + ")";
     }
+
+
+
 
   }
 

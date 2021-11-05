@@ -140,6 +140,37 @@ namespace RaceHorologyLibTest
     }
 
     [TestMethod]
+    public void LTTransfer_IsEqual()
+    {
+      string getXmlEventResult(uint _startNumber, RaceRun _rr, LiveTimingFIS.LiveTimingFIS _lt)
+      {
+        var _results = ViewUtilities.ViewToList<RunResultWithPosition>(_rr.GetResultView());
+        var _res = _results.FirstOrDefault(_r => _r.StartNumber == _startNumber);
+        return _lt.getXmlEventResult(_rr, _res);
+      }
+
+      string xml;
+      LiveTimingFIS.LiveTimingFIS lt = new LiveTimingFIS.LiveTimingFIS();
+
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipant();
+      var r = tg.Model.GetRace(0);
+      var rr1 = r.GetRun(0);
+
+      rr1.SetStartFinishTime(r.GetParticipant(1), new TimeSpan(0, 08, 0, 0, 0), new TimeSpan(0, 08, 0, 0, 100));
+      xml = getXmlEventResult(1, rr1, lt);
+
+      var t1 = new LiveTimingFIS.LTTransfer(xml);
+      var t2 = new LiveTimingFIS.LTTransfer(xml);
+      Assert.IsTrue(t1.IsEqual(t2));
+
+      rr1.SetStartFinishTime(r.GetParticipant(1), new TimeSpan(0, 08, 0, 0, 0), new TimeSpan(0, 08, 0, 0, 110));
+      xml = getXmlEventResult(1, rr1, lt);
+      var t3 = new LiveTimingFIS.LTTransfer(xml);
+      Assert.IsFalse(t1.IsEqual(t3));
+    }
+
+    [TestMethod]
     public void XmlSerializer_EventResult()
     {
       string getXmlEventResult(uint _startNumber, RaceRun _rr, LiveTimingFIS.LiveTimingFIS _lt)
