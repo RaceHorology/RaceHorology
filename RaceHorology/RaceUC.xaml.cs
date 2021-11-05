@@ -363,7 +363,9 @@ namespace RaceHorology
       liveTimingRMUC.InitializeLiveTiming(race);
       liveTimingFISUC.InitializeLiveTiming(race);
 
-      UpdateLiveTimingStartStopButtons(false); // Initial status
+
+      // TODO
+      imgTabHeaderLiveTiming.Visibility = Visibility.Visible;
     }
 
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
@@ -501,6 +503,8 @@ namespace RaceHorology
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
 
       _thisRace.RunsChanged += OnRaceRunsChanged;
+
+      UpdateLiveTimingStartStopButtons(false); // Initial status
     }
 
 

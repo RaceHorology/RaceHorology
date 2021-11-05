@@ -195,7 +195,7 @@ public class LiveTimingDelegator : IDisposable
 
 
 
-public class LiveTimingRM //: ILiveTiming
+public class LiveTimingRM : ILiveTiming
 {
   private Race _race;
   private string _bewerbnr;
@@ -215,23 +215,39 @@ public class LiveTimingRM //: ILiveTiming
   private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
-  public LiveTimingRM(Race race, string bewerbnr, string login, string password)
+  public LiveTimingRM()
   {
-    _race = race;
-    _bewerbnr = bewerbnr;
-    _login = login;
-    _password = password;
-
     _isOnline = false;
     _started = false;
   }
 
 
-  public void Login()
+  public Race Race
   {
+    set
+    {
+      if (LoggedOn || Started)
+        throw new Exception("Race cannot be set if already connected");
+
+      _race = value;
+    }
+
+    get
+    {
+      return _race;
+    }
+  }
+
+
+  public void Login(string bewerbnr, string login, string password)
+  {
+    _bewerbnr = bewerbnr;
+    _login = login;
+    _password = password;
+
     _lv = new rmlt.LiveTiming();
 
-    login();
+    loginInternal();
   }
 
   public bool LoggedOn
@@ -241,14 +257,13 @@ public class LiveTimingRM //: ILiveTiming
 
 
 
-  public void Start(int noEvent)
+  public void Start()
   {
-    if (_started)
+    // Check if event was setup first
+    if (string.IsNullOrEmpty(_currentLvStruct.VeranstNr))
       return;
 
     _started = true;
-
-    SetEvent(noEvent);
 
     Task.Run(() => {
       startLiveTiming();
@@ -257,6 +272,10 @@ public class LiveTimingRM //: ILiveTiming
 
     // Observes for changes and triggers UpdateMethods, also sends data initially
     _delegator = new LiveTimingDelegator(_race, this);
+
+    var handler = StatusChanged;
+    if (handler != null)
+      handler.Invoke();
   }
 
   public void Stop()
@@ -266,15 +285,20 @@ public class LiveTimingRM //: ILiveTiming
 
     _started = false;
 
+    var handler = StatusChanged;
+    if (handler != null)
+      handler.Invoke();
+
     _delegator.Dispose();
   }
+
+
+  public event OnStatusChanged StatusChanged;
 
   public bool Started
   {
     get { return _started; }
   }
-
-
 
 
   public List<string> GetEvents()
@@ -320,7 +344,7 @@ public class LiveTimingRM //: ILiveTiming
   }
 
 
-  protected void login()
+  protected void loginInternal()
   {
     if (isOnline())
       return;

@@ -107,8 +107,8 @@ namespace RaceHorologyLibTest
       model.SetCurrentRace(model.GetRaces()[0]);
       model.SetCurrentRaceRun(model.GetCurrentRace().GetRun(0));
 
-      LiveTimingRM cl = new LiveTimingRM(model.GetCurrentRace(), "01122", "livetiming", "livetiming");
-      //cl.Init();
+      LiveTimingRM cl = new LiveTimingRM();
+      cl.Race = model.GetCurrentRace();
 
       string classes = cl.getClasses();
       Assert.AreEqual(
