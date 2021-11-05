@@ -429,7 +429,9 @@ namespace LiveTimingFIS
         }
       }
 
-      StatusChanged.Invoke();
+      var handler = StatusChanged;
+      if (handler != null)
+        handler.Invoke();
     }
 
     public void Stop()
@@ -441,7 +443,9 @@ namespace LiveTimingFIS
 
       _delegator.Dispose();
 
-      StatusChanged.Invoke();
+      var handler = StatusChanged;
+      if (handler != null)
+        handler.Invoke();
     }
 
 
