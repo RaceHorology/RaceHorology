@@ -41,17 +41,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-public interface ILiveTiming
-{
-  void UpdateParticipants();
-
-  void UpdateStartList(RaceRun raceRun);
-
-  void UpdateResults(RaceRun raceRun);
-
-}
-
-
 internal class IsCompleteObserver : IDisposable
 {
   RaceRun _previousRaceRun;
@@ -100,11 +89,11 @@ internal class IsCompleteObserver : IDisposable
 public class LiveTimingDelegator : IDisposable
 {
   Race _race;
-  ILiveTiming _liveTiming;
+  LiveTimingRM _liveTiming;
 
   List<IDisposable> _notifier;
 
-  public LiveTimingDelegator(Race race, ILiveTiming liveTiming)
+  public LiveTimingDelegator(Race race, LiveTimingRM liveTiming)
   {
     _race = race;
     _liveTiming = liveTiming;
@@ -206,7 +195,7 @@ public class LiveTimingDelegator : IDisposable
 
 
 
-public class LiveTimingRM : ILiveTiming
+public class LiveTimingRM //: ILiveTiming
 {
   private Race _race;
   private string _bewerbnr;
