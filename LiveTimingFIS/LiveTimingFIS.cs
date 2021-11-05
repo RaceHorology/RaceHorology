@@ -999,6 +999,9 @@ namespace LiveTimingFIS
     {
       Logger.Debug("Schedule transfer to FIS:\n{0}", transfer.Message);
 
+      if (transfer.IsEmpty())
+        return;
+
       lock (_transferLock)
       {
         // Remove all outdated transfers
@@ -1106,6 +1109,16 @@ namespace LiveTimingFIS
     public bool IsEqual(LTTransfer other)
     {
       return string.Equals(_actualXML, other._actualXML);
+    }
+
+    public bool IsEmpty()
+    {
+      if (string.IsNullOrWhiteSpace(_actualXML))
+        return true;
+      if (string.Equals(_actualXML, "<raceevent />"))
+        return true;
+
+      return false;
     }
 
     public string Message { get => _xmlMessage; }

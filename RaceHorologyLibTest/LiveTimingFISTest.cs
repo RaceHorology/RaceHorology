@@ -170,6 +170,32 @@ namespace RaceHorologyLibTest
       Assert.IsFalse(t1.IsEqual(t3));
     }
 
+
+    [TestMethod]
+    public void LTTransfer_IsEmpty()
+    {
+      LiveTimingFIS.LiveTimingFIS lt = new LiveTimingFIS.LiveTimingFIS();
+
+      var t1 = new LiveTimingFIS.LTTransfer(
+@"<?xml version=""1.0"" encoding=""utf-8""?>
+<livetiming codex=""1234"" passwd=""abc"" sequence=""00050"" timestamp=""05:25:38"">
+  <raceevent>abc</raceevent>
+</livetiming>"
+      );
+      Assert.IsFalse(t1.IsEmpty());
+
+      var t2 = new LiveTimingFIS.LTTransfer(
+@"<?xml version=""1.0"" encoding=""utf-8""?>
+<livetiming codex=""1234"" passwd=""abc"" sequence=""00050"" timestamp=""05:25:38"">
+  <raceevent />
+</livetiming>"
+      );
+      Assert.IsTrue(t2.IsEmpty());
+
+      var t3 = new LiveTimingFIS.LTTransfer(lt.getXmlClearRace());
+      Assert.IsFalse(t3.IsEmpty());
+    }
+
     [TestMethod]
     public void XmlSerializer_EventResult()
     {
