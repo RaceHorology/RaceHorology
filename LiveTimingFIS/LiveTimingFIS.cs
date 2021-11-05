@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -183,6 +183,7 @@ namespace LiveTimingFIS
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
               _liveTiming.UpdateInFinish(raceRun, rr.Participant);
+              updateNextStarter(raceRun);
             });
           });
         }
