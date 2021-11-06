@@ -1103,10 +1103,22 @@ namespace RaceHorologyLib
 
     public void SetStartListProvider(StartListViewProvider slp)
     {
+      if (_slVP != null)
+        _slVP.GetViewList().CollectionChanged -= startListVP_CollectionChanged;
+
       _slVP = slp;
-      
+
+      _slVP.GetViewList().CollectionChanged += startListVP_CollectionChanged;
+
+      _UpdateInternals();
       sortInFinish();
     }
+
+    private void startListVP_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      _UpdateInternals();
+    }
+
     public StartListViewProvider GetStartListProvider()
     {
       return _slVP;
@@ -1115,6 +1127,7 @@ namespace RaceHorologyLib
     public void SetResultViewProvider(ResultViewProvider rvp)
     {
       _rvp = rvp;
+      _UpdateInternals();
     }
 
     public ResultViewProvider GetResultViewProvider()
