@@ -41,17 +41,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-public interface ILiveTiming
-{
-  void UpdateParticipants();
-
-  void UpdateStartList(RaceRun raceRun);
-
-  void UpdateResults(RaceRun raceRun);
-
-}
-
-
 internal class IsCompleteObserver : IDisposable
 {
   RaceRun _previousRaceRun;
@@ -100,11 +89,11 @@ internal class IsCompleteObserver : IDisposable
 public class LiveTimingDelegator : IDisposable
 {
   Race _race;
-  ILiveTiming _liveTiming;
+  LiveTimingRM _liveTiming;
 
   List<IDisposable> _notifier;
 
-  public LiveTimingDelegator(Race race, ILiveTiming liveTiming)
+  public LiveTimingDelegator(Race race, LiveTimingRM liveTiming)
   {
     _race = race;
     _liveTiming = liveTiming;
@@ -226,23 +215,39 @@ public class LiveTimingRM : ILiveTiming
   private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
-  public LiveTimingRM(Race race, string bewerbnr, string login, string password)
+  public LiveTimingRM()
   {
-    _race = race;
-    _bewerbnr = bewerbnr;
-    _login = login;
-    _password = password;
-
     _isOnline = false;
     _started = false;
   }
 
 
-  public void Login()
+  public Race Race
   {
+    set
+    {
+      if (LoggedOn || Started)
+        throw new Exception("Race cannot be set if already connected");
+
+      _race = value;
+    }
+
+    get
+    {
+      return _race;
+    }
+  }
+
+
+  public void Login(string bewerbnr, string login, string password)
+  {
+    _bewerbnr = bewerbnr;
+    _login = login;
+    _password = password;
+
     _lv = new rmlt.LiveTiming();
 
-    login();
+    loginInternal();
   }
 
   public bool LoggedOn
@@ -252,14 +257,13 @@ public class LiveTimingRM : ILiveTiming
 
 
 
-  public void Start(int noEvent)
+  public void Start()
   {
-    if (_started)
+    // Check if event was setup first
+    if (string.IsNullOrEmpty(_currentLvStruct.VeranstNr))
       return;
 
     _started = true;
-
-    SetEvent(noEvent);
 
     Task.Run(() => {
       startLiveTiming();
@@ -268,6 +272,10 @@ public class LiveTimingRM : ILiveTiming
 
     // Observes for changes and triggers UpdateMethods, also sends data initially
     _delegator = new LiveTimingDelegator(_race, this);
+
+    var handler = StatusChanged;
+    if (handler != null)
+      handler.Invoke();
   }
 
   public void Stop()
@@ -277,15 +285,20 @@ public class LiveTimingRM : ILiveTiming
 
     _started = false;
 
+    var handler = StatusChanged;
+    if (handler != null)
+      handler.Invoke();
+
     _delegator.Dispose();
   }
+
+
+  public event OnStatusChanged StatusChanged;
 
   public bool Started
   {
     get { return _started; }
   }
-
-
 
 
   public List<string> GetEvents()
@@ -331,7 +344,7 @@ public class LiveTimingRM : ILiveTiming
   }
 
 
-  protected void login()
+  protected void loginInternal()
   {
     if (isOnline())
       return;

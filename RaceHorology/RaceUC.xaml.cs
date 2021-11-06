@@ -40,6 +40,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Media;
 using System.Text;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -363,7 +364,17 @@ namespace RaceHorology
       liveTimingRMUC.InitializeLiveTiming(race);
       liveTimingFISUC.InitializeLiveTiming(race);
 
-      UpdateLiveTimingStartStopButtons(false); // Initial status
+      updateLiveTimingStatus();
+      // TODO: Should actually be refactored to listen to the signals ILiveTiming.StatusChanged instead of polling
+      var timer = new System.Windows.Threading.DispatcherTimer();
+      timer.Tick += new EventHandler(liveTiming_OnTimeBeforeRefreshElapsed);
+      timer.Interval = new TimeSpan(0, 0, 1);
+      timer.Start();
+    }
+
+    private void liveTiming_OnTimeBeforeRefreshElapsed(object sender, EventArgs e)
+    {
+      updateLiveTimingStatus();
     }
 
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
@@ -382,6 +393,18 @@ namespace RaceHorology
         liveTimingRMUC._liveTimingRM.UpdateStatus(text);
       if (liveTimingFISUC._liveTimingFIS != null)
         liveTimingFISUC._liveTimingFIS.UpdateStatus(text);
+    }
+
+    private void updateLiveTimingStatus()
+    {
+      bool isRunning = false;
+
+      if (liveTimingRMUC._liveTimingRM != null)
+        isRunning = liveTimingRMUC._liveTimingRM.Started;
+      if (liveTimingFISUC._liveTimingFIS != null)
+        isRunning = liveTimingFISUC._liveTimingFIS.Started;
+
+      imgTabHeaderLiveTiming.Visibility = isRunning ? Visibility.Visible : Visibility.Collapsed;
     }
 
     #endregion
@@ -501,6 +524,8 @@ namespace RaceHorology
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
 
       _thisRace.RunsChanged += OnRaceRunsChanged;
+
+      UpdateLiveTimingStartStopButtons(false); // Initial status
     }
 
 
@@ -665,6 +690,7 @@ namespace RaceHorology
       {
         btnLiveTimingStart.IsChecked = false;
         btnLiveTimingStop.IsChecked = false;
+        imgTabHeaderTiming.Visibility = Visibility.Collapsed;
       }
       else
       {
@@ -672,6 +698,7 @@ namespace RaceHorology
         // Set corresponding color whether running or not
         btnLiveTimingStart.IsChecked = running;
         btnLiveTimingStop.IsChecked = !running;
+        imgTabHeaderTiming.Visibility = running ? Visibility.Visible : Visibility.Collapsed;
       }
     }
 

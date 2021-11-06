@@ -466,7 +466,14 @@
           <local:StartNumbersUC x:Name="ucStartNumbers" />
         </ScrollViewer>
       </TabItem>
-      <TabItem Header="Live Timing" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+      <TabItem FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock x:Name="lblTabHeaderLiveTiming" Text="Live Timing" Margin="0,0,3,0" VerticalAlignment="Center" FontSize="12" />
+            <Image Name="imgTabHeaderLiveTiming" Height="12" VerticalAlignment="Center" Source="/Icons/icons8-play-52-green.png" />
+          </StackPanel>
+        </TabItem.Header>
+
         <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -482,7 +489,13 @@
           <local:LiveTimingFISUC x:Name="liveTimingFISUC" Grid.Row="3" />
         </Grid>
       </TabItem>
-      <TabItem Header="Zeitnahme" FontSize="12" >
+      <TabItem FontSize="12">
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock x:Name="lblTabHeaderTiming" Text="Zeitnahme" Margin="0,0,3,0" VerticalAlignment="Center" FontSize="12" />
+            <Image Name="imgTabHeaderTiming" Height="12" VerticalAlignment="Center" Source="/Icons/icons8-play-52-green.png" />
+          </StackPanel>
+        </TabItem.Header>
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
