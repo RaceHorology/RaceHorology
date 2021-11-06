@@ -1468,10 +1468,12 @@ namespace RaceHorologyLib
       // a) Normal with valid runtime
       //  or
       // b) a resultcode different than NotSet or Normal
+      if (rr.GetStartListProvider() == null)
+        return false;
 
-      foreach(var rp in rr.GetRace().GetParticipants())
+      foreach (var sle in rr.GetStartListProvider().GetViewList())
       {
-        var runResult = rr.GetRunResult(rp);
+        var runResult = rr.GetRunResult(sle.Participant);
         if (runResult == null)
           return false;
 
