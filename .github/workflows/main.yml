@@ -180,6 +180,10 @@ jobs:
           artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
           prerelease: true
           tag: ${{ needs.build.outputs.build_tag }}
+          name: Automatic build from main ${{ needs.build.outputs.build_tag }}
+          body: Achtung 
+                Diese Version wurde automatisch aus den letzten Quellcodeänderungen gebaut und stellt nur den letzten Stand der Änderungen dar.
+                Sie könnte daher instabil sein.
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
