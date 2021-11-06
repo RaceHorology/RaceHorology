@@ -230,6 +230,21 @@ namespace RaceHorologyLibTest
         Assert.AreEqual((new TimeSpan(0, 16, 01, 56, 658)).AddMicroseconds(500), pd.Time);
       }
       #endregion
+
+      #region Short Lines 
+      {
+        var pd = parser.Parse("n0003");
+        Assert.AreEqual('n', pd.Flag);
+        Assert.AreEqual(3U, pd.StartNumber);
+      }
+      { 
+        var pd = parser.Parse("s0003");
+        Assert.AreEqual('s', pd.Flag);
+        Assert.AreEqual(3U, pd.StartNumber);
+      }
+      #endregion
+
+
     }
 
 
@@ -316,6 +331,11 @@ namespace RaceHorologyLibTest
         var pd = ParseAndTransfer("n0034");
         Assert.IsNull(pd);
       }
+      {
+        var pd = ParseAndTransfer("s0003");
+        Assert.IsNull(pd);
+      }
+
     }
 
     [TestMethod]
