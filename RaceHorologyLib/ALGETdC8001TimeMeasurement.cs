@@ -122,7 +122,8 @@ namespace RaceHorologyLib
         || parsedData.Flag == '?' 
         || parsedData.Flag == 'b' 
         || parsedData.Flag == 'm'
-        || parsedData.Flag == 'n')
+        || parsedData.Flag == 'n'
+        || parsedData.Flag == 's')
         return null;
 
       if (parsedData.Flag == 'd'
