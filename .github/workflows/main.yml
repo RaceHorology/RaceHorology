@@ -20,6 +20,7 @@ jobs:
     runs-on: [windows-latest]
     outputs:
       version_tag: ${{ steps.version.outputs.version_tag }}
+      build_tag: ${{ steps.version.outputs.version_tag }}.${{ steps.version.outputs.patch }}
       commit: ${{ env.GITHUB_SHA }}
     steps:
       - name: Checkout
@@ -157,8 +158,28 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
-          prerelease: true
+          prerelease: false
           tag: ${{ needs.build.outputs.version_tag }}
+          commit: ${{ needs.build.outputs.commit }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload_as_pre-release:
+    if: ${{ startsWith(github.ref, 'refs/heads/main') }}
+    needs: [build, run_test]
+    runs-on: [windows-latest]
+    steps:
+      - name: Download Installer
+        uses: actions/download-artifact@v2
+        with:
+          name: installer_RaceHorology
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
+
+      - name: Upload as pre-release 
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          prerelease: true
+          tag: ${{ needs.build.outputs.build_tag }}
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
