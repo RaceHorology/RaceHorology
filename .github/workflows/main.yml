@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: [windows-latest]
     outputs:
+      version: ${{ steps.version.outputs.version }}
       version_tag: ${{ steps.version.outputs.version_tag }}
-      build_tag: ${{ steps.version.outputs.version_tag }}.${{ steps.version.outputs.patch }}
       commit: ${{ env.GITHUB_SHA }}
     steps:
       - name: Checkout
@@ -179,8 +179,8 @@ jobs:
         with:
           artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
           prerelease: true
-          tag: ${{ needs.build.outputs.build_tag }}
-          name: Automatic build from main ${{ needs.build.outputs.build_tag }}
+          tag: pre-${{ needs.build.outputs.version }}
+          name: Automatic build from main pre-${{ needs.build.outputs.version }}
           body: Achtung 
                 Diese Version wurde automatisch aus den letzten Quellcodeänderungen gebaut und stellt nur den letzten Stand der Änderungen dar.
                 Sie könnte daher instabil sein.
