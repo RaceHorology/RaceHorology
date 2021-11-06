@@ -485,6 +485,52 @@ namespace RaceHorologyLibTest
     }
 
 
+
+    /// <summary>
+    /// Tests Race.IsComplete and RaceRun.IsComplete 
+    /// with an scenario where the 2nd run has reduced participants 
+    /// because of not qualified for 2nd run.
+    /// </summary>
+    [TestMethod]
+    public void RaceRun_IsComplete_ParticipantNotInStartlist()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+
+      var frslVP = new FirstRunStartListViewProvider();
+      frslVP.Init(race.GetParticipants());
+      run1.SetStartListProvider(frslVP);
+
+      var rVP = new RaceRunResultViewProvider();
+      rVP.Init(run1, tg.Model);
+      run1.SetResultViewProvider(rVP);
+
+      var srslVP = new BasedOnResultsFirstRunStartListViewProvider(0, false);
+      srslVP.Init(run1);
+      run2.SetStartListProvider(srslVP);
+
+      tg.createRaceParticipants(2);
+
+      Assert.IsFalse(run1.IsComplete);
+      //Assert.IsFalse(run2.IsComplete);
+
+      // Run 1
+      run1.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 0, 0, 10, 0));
+      Assert.IsFalse(run1.IsComplete);
+      run1.SetResultCode(race.GetParticipant(2), RunResult.EResultCode.NaS);
+      Assert.IsTrue(run1.IsComplete);
+
+      // Run 2
+      Assert.IsFalse(RaceRunUtil.IsComplete(run2));
+      Assert.IsFalse(run2.IsComplete);
+      run2.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 0, 0, 10, 0));
+      Assert.IsTrue(run2.IsComplete);
+    }
+
+
     [TestMethod]
     public void Race_IsComplete()
     {
