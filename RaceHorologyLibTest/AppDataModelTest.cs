@@ -535,11 +535,13 @@ namespace RaceHorologyLibTest
     public void Race_IsComplete()
     {
       TestDataGenerator tg = new TestDataGenerator();
-      tg.createRaceParticipants(1);
-
       Race race = tg.Model.GetRace(0);
       RaceRun rr1 = race.GetRun(0);
       RaceRun rr2 = race.GetRun(1);
+
+      Assert.IsFalse(rr1.IsComplete);
+
+      tg.createRaceParticipants(1);
 
       Assert.IsFalse(rr1.IsComplete);
       Assert.IsFalse(rr2.IsComplete);
