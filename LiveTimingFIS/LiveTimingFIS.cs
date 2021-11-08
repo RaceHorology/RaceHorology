@@ -515,6 +515,9 @@ namespace LiveTimingFIS
 
     public void UpdateResults(RaceRun raceRun)
     {
+      if (!raceRun.HasResults())
+        return;
+
       SetActiveRaceRun(raceRun);
 
       var results = ViewUtilities.ViewToList<RunResultWithPosition>(raceRun.GetResultView());

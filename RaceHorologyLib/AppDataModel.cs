@@ -1333,7 +1333,9 @@ namespace RaceHorologyLib
       if (_results.Count == 0)
         return false;
 
-      if (_results.FirstOrDefault(r => r.ResultCode != RunResult.EResultCode.NotSet) != null)
+      if (_results.FirstOrDefault(
+        r => (r.ResultCode == RunResult.EResultCode.Normal && r.Runtime != null) 
+          || (r.ResultCode != RunResult.EResultCode.NotSet && r.ResultCode != RunResult.EResultCode.Normal)) != null)
         return true;
 
       return false;

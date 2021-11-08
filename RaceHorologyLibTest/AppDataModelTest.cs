@@ -406,7 +406,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
       
-      Assert.IsTrue(run.HasResults());
+      Assert.IsFalse(run.HasResults());
       Assert.IsFalse(RaceRunUtil.IsComplete(run));
       Assert.IsFalse(run.IsComplete);
 
