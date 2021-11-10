@@ -74,11 +74,12 @@ namespace RaceHorology
       StoreLiveTiming(ref cfg);
       _thisRace.RaceConfiguration = cfg;
 
-      _liveTimingRM = new LiveTimingRM(_thisRace, txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
-
       try
       {
-        _liveTimingRM.Login();
+        _liveTimingRM = new LiveTimingRM();
+        _liveTimingRM.Race = _thisRace;
+
+        _liveTimingRM.Login(txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
 
         var events = _liveTimingRM.GetEvents();
         cmbLTEvent.ItemsSource = events;
@@ -135,10 +136,8 @@ namespace RaceHorology
           StoreLiveTiming(ref cfg);
           _thisRace.RaceConfiguration = cfg;
 
-          _liveTimingRM.Start(cmbLTEvent.SelectedIndex);
-
-          // TODO: to be refactored out
-          //_liveTimingRM.UpdateStatus(_txtLiveTimingStatus.Text);
+          _liveTimingRM.SetEvent(cmbLTEvent.SelectedIndex);
+          _liveTimingRM.Start();
         }
       }
 
