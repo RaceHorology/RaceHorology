@@ -1068,7 +1068,7 @@ namespace LiveTimingFIS
           catch (Exception e)
           {
             Logger.Error(e);
-            Stop();
+            Disconnect();
           }
         }).ContinueWith(delegate { processNextTransfer(); });
       }
