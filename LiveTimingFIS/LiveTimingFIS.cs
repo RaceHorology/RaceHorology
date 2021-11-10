@@ -156,7 +156,7 @@ namespace LiveTimingFIS
     private void observeRaceRun(RaceRun previousRaceRun, RaceRun raceRun)
     {
       ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
-      startListNotifier.ItemChanged += (o, e) =>
+      startListNotifier.CollectionChanged += (o, e) =>
       {
         updateStartList(previousRaceRun, raceRun);
       };
