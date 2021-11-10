@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -349,6 +349,7 @@ namespace LiveTimingFIS
       _sequence = 0;
       try
       {
+        clearScheduledTransfers();
         _tcpClient = new System.Net.Sockets.TcpClient();
         _tcpClient.Connect(_fisHostName, _fisPort);
 
@@ -386,6 +387,8 @@ namespace LiveTimingFIS
 
       _tcpClient.Dispose();
       _tcpClient = null;
+      
+      clearScheduledTransfers();
 
       //_receiveThread.Join();
       //_receiveThread = null;
@@ -1001,6 +1004,15 @@ namespace LiveTimingFIS
     object _transferLock = new object();
     bool _transferInProgress = false;
     private bool disposedValue;
+
+    private void clearScheduledTransfers()
+    {
+      lock (_transferLock)
+      {
+        _transfers.Clear();
+      }
+    }
+
 
     private void scheduleTransfer(LTTransfer transfer)
     {
