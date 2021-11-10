@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -1057,13 +1057,21 @@ namespace LiveTimingFIS
           {
             Logger.Info("Transfer to FIS:\n{0}", nextItem.Message);
 
-            byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(nextItem.Message);
-            var stream = _tcpClient.GetStream();
-            stream.Write(utf8Message, 0, utf8Message.Length);
+            if (_tcpClient != null)
+            {
+              var stream = _tcpClient.GetStream();
 
-            byte[] buf = new byte[1024];
-            int bytesRead = stream.Read(buf, 0, 69);
-            Logger.Info("Received from FIS:\n{0}", Encoding.UTF8.GetString(buf, 0, bytesRead));
+              byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(nextItem.Message);
+              stream.Write(utf8Message, 0, utf8Message.Length);
+
+              byte[] buf = new byte[1024];
+              int bytesRead = stream.Read(buf, 0, 69);
+              Logger.Info("Received from FIS:\n{0}", Encoding.UTF8.GetString(buf, 0, bytesRead));
+            }
+            else
+            {
+              throw new Exception("Transfer to FIS failed: connection not existing");
+            }
           }
           catch (Exception e)
           {
