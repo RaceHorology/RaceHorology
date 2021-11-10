@@ -761,17 +761,21 @@ namespace LiveTimingFIS
           int i = 1;
           foreach (var sle in startList)
           {
-            xw.WriteStartElement("racer");
-            xw.WriteAttributeString("order", i.ToString());
+            // Skip participants which are not "FIS compliant" 
+            if (checkParticipantFisCompliant(sle.Participant))
+            {
+              xw.WriteStartElement("racer");
+              xw.WriteAttributeString("order", i.ToString());
 
-            xw.WriteElementString("bib", sle.StartNumber.ToString());
-            xw.WriteElementString("lastname", sle.Name);
-            xw.WriteElementString("firstname", sle.Firstname);
-            xw.WriteElementString("nat", sle.Nation);
-            xw.WriteElementString("fiscode", sle.Code);
+              xw.WriteElementString("bib", sle.StartNumber.ToString());
+              xw.WriteElementString("lastname", sle.Name);
+              xw.WriteElementString("firstname", sle.Firstname);
+              xw.WriteElementString("nat", sle.Nation);
+              xw.WriteElementString("fiscode", sle.Code);
 
-            xw.WriteEndElement(); // racer
-            i++;
+              xw.WriteEndElement(); // racer
+              i++;
+            }
           }
 
           xw.WriteEndElement(); // startlist
@@ -782,6 +786,22 @@ namespace LiveTimingFIS
         return sw.ToString();
       }
     }
+
+    /// <summary>
+    /// Checks whether the participant seems to be FIS compliant
+    /// 
+    /// - FIS does not accept participants with invalid FIS code
+    /// </summary>
+    private bool checkParticipantFisCompliant(RaceParticipant rp)
+    {
+      // Check whether FIS code is a number
+      uint nFisCode = 0;
+      if (!uint.TryParse(rp.Code, out nFisCode) || nFisCode == 0)
+        return false;
+
+      return true;
+    }
+
 
     internal string getXmlEventOnStart(RaceParticipant rp)
     {
@@ -842,55 +862,59 @@ namespace LiveTimingFIS
 
           xw.WriteStartElement("raceevent");
 
-          if (result.ResultCode == RunResult.EResultCode.Normal && result.Runtime != null)
+          // Skip participants which are not "FIS compliant" 
+          if (checkParticipantFisCompliant(result.Participant))
           {
-            TimeSpan? runTime = null;
-            if (result is RunResultWithPosition rrwp)
-              runTime = getAccumulatedTime(raceRun, rrwp);
-            else
-              runTime = result.Runtime;
+            if (result.ResultCode == RunResult.EResultCode.Normal && result.Runtime != null)
+            {
+              TimeSpan? runTime = null;
+              if (result is RunResultWithPosition rrwp)
+                runTime = getAccumulatedTime(raceRun, rrwp);
+              else
+                runTime = result.Runtime;
 
-            xw.WriteStartElement("finish");
-            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
+              xw.WriteStartElement("finish");
+              xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
 
-            xw.WriteElementString("time", toFisTimeString(runTime));
+              xw.WriteElementString("time", toFisTimeString(runTime));
 
-            if (result.DiffToFirst != null)
-              xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
-            else
-              xw.WriteElementString("diff", "0.00");
-            xw.WriteElementString("rank", result.Position.ToString());
-            xw.WriteEndElement();
-          }
+              if (result.DiffToFirst != null)
+                xw.WriteElementString("diff", ((TimeSpan)result.DiffToFirst).ToString(@"s\.ff"));
+              else
+                xw.WriteElementString("diff", "0.00");
+              xw.WriteElementString("rank", result.Position.ToString());
+              xw.WriteEndElement();
+            }
 
-          if (result.ResultCode == RunResult.EResultCode.NotSet)
-          {
-            xw.WriteStartElement("finish");
-            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
-            xw.WriteAttributeString("correction", "y");
-            xw.WriteElementString("time", "0.00");
-            xw.WriteEndElement();
-          }
+            if (result.ResultCode == RunResult.EResultCode.NotSet)
+            {
+              xw.WriteStartElement("finish");
+              xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
+              xw.WriteAttributeString("correction", "y");
+              xw.WriteElementString("time", "0.00");
+              xw.WriteEndElement();
+            }
 
-          if (result.ResultCode == RunResult.EResultCode.NaS || result.ResultCode == RunResult.EResultCode.NQ)
-          { 
-            xw.WriteStartElement("dns");
-            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
-            xw.WriteEndElement();
-          }
+            if (result.ResultCode == RunResult.EResultCode.NaS || result.ResultCode == RunResult.EResultCode.NQ)
+            {
+              xw.WriteStartElement("dns");
+              xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
+              xw.WriteEndElement();
+            }
 
-          if (result.ResultCode == RunResult.EResultCode.NiZ)
-          { 
-            xw.WriteStartElement("dnf");
-            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
-            xw.WriteEndElement();
-          }
+            if (result.ResultCode == RunResult.EResultCode.NiZ)
+            {
+              xw.WriteStartElement("dnf");
+              xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
+              xw.WriteEndElement();
+            }
 
-          if (result.ResultCode == RunResult.EResultCode.DIS)
-          { 
-            xw.WriteStartElement("dq");
-            xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
-            xw.WriteEndElement();
+            if (result.ResultCode == RunResult.EResultCode.DIS)
+            {
+              xw.WriteStartElement("dq");
+              xw.WriteAttributeString("bib", result.Participant.StartNumber.ToString());
+              xw.WriteEndElement();
+            }
           }
 
           xw.WriteEndElement(); // raceevent
