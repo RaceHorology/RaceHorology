@@ -160,7 +160,7 @@ public class LiveTimingDelegator : IDisposable
     // a) Start list itself changes
     // b) The previous run completed so that the next run needs to be send
     ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
-    startListNotifier.ItemChanged += (o, e) =>
+    startListNotifier.CollectionChanged += (o, e) =>
     {
       updateStartList(previousRaceRun, raceRun);
     };
