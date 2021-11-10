@@ -387,7 +387,7 @@ public class LiveTimingRM : ILiveTiming
       else if (_race.RaceConfiguration.DefaultGrouping.Contains("Sex"))
         _currentLvStruct.Gruppierung = "Kategorie";
 
-    Logger.Info("startLiveTiming: " + _currentLvStruct.ToString());
+    Logger.Info("startLiveTiming: {0}", _currentLvStruct);
     _lv.StartLiveTiming(ref _currentLvStruct);
   }
 
