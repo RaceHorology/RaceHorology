@@ -354,8 +354,8 @@ namespace LiveTimingFIS
         _tcpClient.Connect(_fisHostName, _fisPort);
 
         // Spawn receive thread
-        //_receiveThread = new System.Threading.Thread(receiveMethod);
-        //_receiveThread.Start();
+        _receiveThread = new System.Threading.Thread(receiveMethod);
+        _receiveThread.Start();
 
         _keepAliveTimer = new System.Timers.Timer();
         _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
@@ -390,8 +390,8 @@ namespace LiveTimingFIS
       
       clearScheduledTransfers();
 
-      //_receiveThread.Join();
-      //_receiveThread = null;
+      _receiveThread.Join();
+      _receiveThread = null;
     }
 
     public bool Connected { get { return _tcpClient != null && _tcpClient.Connected; } }
@@ -1063,10 +1063,6 @@ namespace LiveTimingFIS
 
               byte[] utf8Message = System.Text.Encoding.UTF8.GetBytes(nextItem.Message);
               stream.Write(utf8Message, 0, utf8Message.Length);
-
-              byte[] buf = new byte[1024];
-              int bytesRead = stream.Read(buf, 0, 69);
-              Logger.Info("Received from FIS:\n{0}", Encoding.UTF8.GetString(buf, 0, bytesRead));
             }
             else
             {
