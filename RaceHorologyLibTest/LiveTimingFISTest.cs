@@ -117,10 +117,10 @@ namespace RaceHorologyLibTest
 
 
       TestDataGenerator tg = new TestDataGenerator();
-      tg.createRaceParticipant();
+      var rp = tg.createRaceParticipant();
       var r = tg.Model.GetRace(0);
       r.GetParticipant(1).Participant.Nation = "nation";
-      r.GetParticipant(1).Participant.Code = "code";
+      r.GetParticipant(1).Participant.Code = "123";
       var rr1 = r.GetRun(0);
 
       xml = lt.getXmlEventOnStart(r.GetParticipant(1));
@@ -153,7 +153,8 @@ namespace RaceHorologyLibTest
       LiveTimingFIS.LiveTimingFIS lt = new LiveTimingFIS.LiveTimingFIS();
 
       TestDataGenerator tg = new TestDataGenerator();
-      tg.createRaceParticipant();
+      var rp = tg.createRaceParticipant();
+      rp.Participant.Code = "123";
       var r = tg.Model.GetRace(0);
       var rr1 = r.GetRun(0);
 
@@ -210,7 +211,9 @@ namespace RaceHorologyLibTest
       LiveTimingFIS.LiveTimingFIS lt = new LiveTimingFIS.LiveTimingFIS();
 
       TestDataGenerator tg = new TestDataGenerator();
-      tg.createRaceParticipant();
+      var rp = tg.createRaceParticipant();
+      rp.Participant.Code = "123";
+
       var r = tg.Model.GetRace(0);
       var rr1 = r.GetRun(0);
 

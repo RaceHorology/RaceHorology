@@ -1333,7 +1333,9 @@ namespace RaceHorologyLib
       if (_results.Count == 0)
         return false;
 
-      if (_results.FirstOrDefault(r => r.ResultCode != RunResult.EResultCode.NotSet) != null)
+      if (_results.FirstOrDefault(
+        r => (r.ResultCode == RunResult.EResultCode.Normal && r.Runtime != null) 
+          || (r.ResultCode != RunResult.EResultCode.NotSet && r.ResultCode != RunResult.EResultCode.Normal)) != null)
         return true;
 
       return false;
@@ -1484,7 +1486,11 @@ namespace RaceHorologyLib
       if (rr.GetStartListProvider() == null)
         return false;
 
-      foreach (var sle in rr.GetStartListProvider().GetViewList())
+      var slpList = rr.GetStartListProvider().GetViewList();
+      if (slpList.Count == 0)
+        return false;
+
+      foreach (var sle in slpList)
       {
         var runResult = rr.GetRunResult(sle.Participant);
         if (runResult == null)

@@ -160,7 +160,7 @@ public class LiveTimingDelegator : IDisposable
     // a) Start list itself changes
     // b) The previous run completed so that the next run needs to be send
     ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
-    startListNotifier.ItemChanged += (o, e) =>
+    startListNotifier.CollectionChanged += (o, e) =>
     {
       updateStartList(previousRaceRun, raceRun);
     };
@@ -387,7 +387,7 @@ public class LiveTimingRM : ILiveTiming
       else if (_race.RaceConfiguration.DefaultGrouping.Contains("Sex"))
         _currentLvStruct.Gruppierung = "Kategorie";
 
-    Logger.Info("startLiveTiming: " + _currentLvStruct.ToString());
+    Logger.Info("startLiveTiming: {0}", _currentLvStruct);
     _lv.StartLiveTiming(ref _currentLvStruct);
   }
 
