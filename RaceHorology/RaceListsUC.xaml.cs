@@ -519,7 +519,7 @@ namespace RaceHorology
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
     {
-      IPDFReport report = null;
+      PDFReport report = null;
 
       if (cmbTotalResult.SelectedValue is CBItem selected)
       {
@@ -548,7 +548,11 @@ namespace RaceHorology
       }
 
       if (report != null)
+      {
+        report.WithDiagram = chkPrintOptionWithDiagram.IsChecked == true;
+        report.WithRaceHeader = chkPrintOptionWithRaceHeader.IsChecked == true;
         CreateAndOpenReport(report);
+      }
     }
 
     private void BtnExportDsv_Click(object sender, RoutedEventArgs e)

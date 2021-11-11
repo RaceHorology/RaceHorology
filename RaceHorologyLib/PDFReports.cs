@@ -848,6 +848,8 @@ namespace RaceHorologyLib
 
     protected int _nOptFields;
 
+    public bool WithDiagram { get; set; } = true;
+    public bool WithRaceHeader { get; set; } = true;
 
     public PDFReport(Race race) : base(race)
     {
@@ -864,9 +866,12 @@ namespace RaceHorologyLib
 
     protected override void addContent(PdfDocument pdf, Document document)
     {
-      Table raceProperties = getRacePropertyTable();
-      if (raceProperties != null)
-        document.Add(raceProperties);
+      if (WithRaceHeader)
+      {
+        Table raceProperties = getRacePropertyTable();
+        if (raceProperties != null)
+          document.Add(raceProperties);
+      }
 
       Table table = getResultsTable();
       document.Add(table);
@@ -2089,7 +2094,8 @@ namespace RaceHorologyLib
 
       addStatistic(pdf, document);
 
-      addResultsChart(pdf, document);
+      if (WithDiagram)
+        addResultsChart(pdf, document);
     }
 
 
