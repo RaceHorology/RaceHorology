@@ -848,8 +848,8 @@ namespace RaceHorologyLib
 
     protected int _nOptFields;
 
-    public bool WithDiagram { get; set; }
-    public bool WithRaceHeader { get; set; }
+    public bool WithDiagram { get; set; } = true;
+    public bool WithRaceHeader { get; set; } = true;
 
     public PDFReport(Race race) : base(race)
     {
