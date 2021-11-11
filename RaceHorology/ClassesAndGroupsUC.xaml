@@ -49,7 +49,7 @@
       </DataGrid.Resources>
       <DataGrid.Columns>
         <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
-        <DataGridTextColumn Header="ältester Jahrgang" Binding="{Binding Year, Converter={StaticResource AgeToYearInputConverter}}"/>
+        <DataGridTextColumn Header="jüngster Jahrgang" Binding="{Binding Year, Converter={StaticResource AgeToYearInputConverter}}"/>
 
         <DataGridComboBoxColumn Header="Kategorie" 
                                 HeaderStyle="{StaticResource Category}"
