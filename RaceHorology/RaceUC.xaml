@@ -462,9 +462,7 @@
         </ScrollViewer>
       </TabItem>
       <TabItem Header="Startnummern" FontSize="12">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
           <local:StartNumbersUC x:Name="ucStartNumbers" />
-        </ScrollViewer>
       </TabItem>
       <TabItem FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <TabItem.Header>
