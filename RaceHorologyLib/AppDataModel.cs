@@ -1146,10 +1146,22 @@ namespace RaceHorologyLib
 
     public void SetStartListProvider(StartListViewProvider slp)
     {
+      if (_slVP != null)
+        _slVP.GetViewList().CollectionChanged -= startListVP_CollectionChanged;
+
       _slVP = slp;
-      
+
+      _slVP.GetViewList().CollectionChanged += startListVP_CollectionChanged;
+
+      _UpdateInternals();
       sortInFinish();
     }
+
+    private void startListVP_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      _UpdateInternals();
+    }
+
     public StartListViewProvider GetStartListProvider()
     {
       return _slVP;
@@ -1158,6 +1170,7 @@ namespace RaceHorologyLib
     public void SetResultViewProvider(ResultViewProvider rvp)
     {
       _rvp = rvp;
+      _UpdateInternals();
     }
 
     public ResultViewProvider GetResultViewProvider()
@@ -1363,7 +1376,9 @@ namespace RaceHorologyLib
       if (_results.Count == 0)
         return false;
 
-      if (_results.FirstOrDefault(r => r.ResultCode != RunResult.EResultCode.NotSet) != null)
+      if (_results.FirstOrDefault(
+        r => (r.ResultCode == RunResult.EResultCode.Normal && r.Runtime != null) 
+          || (r.ResultCode != RunResult.EResultCode.NotSet && r.ResultCode != RunResult.EResultCode.Normal)) != null)
         return true;
 
       return false;
@@ -1511,10 +1526,16 @@ namespace RaceHorologyLib
       // a) Normal with valid runtime
       //  or
       // b) a resultcode different than NotSet or Normal
+      if (rr.GetStartListProvider() == null)
+        return false;
 
-      foreach(var rp in rr.GetRace().GetParticipants())
+      var slpList = rr.GetStartListProvider().GetViewList();
+      if (slpList.Count == 0)
+        return false;
+
+      foreach (var sle in slpList)
       {
-        var runResult = rr.GetRunResult(rp);
+        var runResult = rr.GetRunResult(sle.Participant);
         if (runResult == null)
           return false;
 

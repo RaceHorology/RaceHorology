@@ -40,6 +40,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Media;
 using System.Text;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -382,7 +383,17 @@ namespace RaceHorology
       liveTimingRMUC.InitializeLiveTiming(race);
       liveTimingFISUC.InitializeLiveTiming(race);
 
-      UpdateLiveTimingStartStopButtons(false); // Initial status
+      updateLiveTimingStatus();
+      // TODO: Should actually be refactored to listen to the signals ILiveTiming.StatusChanged instead of polling
+      var timer = new System.Windows.Threading.DispatcherTimer();
+      timer.Tick += new EventHandler(liveTiming_OnTimeBeforeRefreshElapsed);
+      timer.Interval = new TimeSpan(0, 0, 1);
+      timer.Start();
+    }
+
+    private void liveTiming_OnTimeBeforeRefreshElapsed(object sender, EventArgs e)
+    {
+      updateLiveTimingStatus();
     }
 
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
@@ -401,6 +412,18 @@ namespace RaceHorology
         liveTimingRMUC._liveTimingRM.UpdateStatus(text);
       if (liveTimingFISUC._liveTimingFIS != null)
         liveTimingFISUC._liveTimingFIS.UpdateStatus(text);
+    }
+
+    private void updateLiveTimingStatus()
+    {
+      bool isRunning = false;
+
+      if (liveTimingRMUC._liveTimingRM != null)
+        isRunning = liveTimingRMUC._liveTimingRM.Started;
+      if (liveTimingFISUC._liveTimingFIS != null)
+        isRunning = liveTimingFISUC._liveTimingFIS.Started;
+
+      imgTabHeaderLiveTiming.Visibility = isRunning ? Visibility.Visible : Visibility.Collapsed;
     }
 
     #endregion
@@ -511,13 +534,17 @@ namespace RaceHorology
 
       cmbManualMode.Items.Add(new CBItem { Text = "Laufzeit", Value = "Absolut" });
       cmbManualMode.Items.Add(new CBItem { Text = "Differenz", Value = "Difference" });
-      cmbManualMode.SelectedIndex = 0;
+      cmbManualMode.SelectedIndex = 1;
+
+      gridManualMode.Visibility = Visibility.Collapsed;
 
       this.KeyDown += new KeyEventHandler(Timing_KeyDown);
 
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
 
       _thisRace.RunsChanged += OnRaceRunsChanged;
+
+      UpdateLiveTimingStartStopButtons(false); // Initial status
     }
 
 
@@ -682,6 +709,7 @@ namespace RaceHorology
       {
         btnLiveTimingStart.IsChecked = false;
         btnLiveTimingStop.IsChecked = false;
+        imgTabHeaderTiming.Visibility = Visibility.Collapsed;
       }
       else
       {
@@ -689,6 +717,7 @@ namespace RaceHorology
         // Set corresponding color whether running or not
         btnLiveTimingStart.IsChecked = running;
         btnLiveTimingStop.IsChecked = !running;
+        imgTabHeaderTiming.Visibility = running ? Visibility.Visible : Visibility.Collapsed;
       }
     }
 
@@ -707,7 +736,7 @@ namespace RaceHorology
         {
           txtStart.IsEnabled = true;
           txtFinish.IsEnabled = true;
-          txtRun.IsEnabled = true;
+          txtRun.IsEnabled = false;
         }
       }
     }
@@ -744,29 +773,41 @@ namespace RaceHorology
 
     private void TxtManualTime_LostFocus(object sender, RoutedEventArgs e)
     {
-      CheckTime(txtStart);
-      CheckTime(txtFinish);
-      UpdateRunTime();
+      bool startTimeAvailable = CheckTime(txtStart);
+      bool finishTimeAvailable = CheckTime(txtFinish);
+
+      if (!txtRun.IsEnabled) // Only calculate in case it is read only
+        UpdateRunTime();
+
       CheckTime(txtRun);
     }
 
 
-    private void CheckTime(TextBox txtbox)
+    private bool CheckTime(TextBox txtbox)
     {
+
       TimeSpan? ts = TimeSpanExtensions.ParseTimeSpan(txtbox.Text);
-      if (ts == null && !string.IsNullOrWhiteSpace(txtbox.Text) && txtbox.IsEnabled)
+      bool validTime = ts != null;
+      
+      if (!validTime && !string.IsNullOrWhiteSpace(txtbox.Text) && txtbox.IsEnabled)
         txtbox.Background = Brushes.Orange;
       else
         txtbox.Background = Brushes.White;
+
+      return validTime;
     }
 
     private void UpdateRunTime()
     {
       try
       {
+        TimeSpan? run = null;
         TimeSpan? start = TimeSpanExtensions.ParseTimeSpan(txtStart.Text);
         TimeSpan? finish = TimeSpanExtensions.ParseTimeSpan(txtFinish.Text);
-        TimeSpan? run = finish - start;
+        
+        if (start != null && finish != null)
+          run = (new RoundedTimeSpan((TimeSpan)(finish - start), 2, RoundedTimeSpan.ERoundType.Floor)).TimeSpan;
+        
         if (run != null)
           txtRun.Text = run?.ToString(@"mm\:ss\,ff");
       }
@@ -786,8 +827,8 @@ namespace RaceHorology
         RunResult rr = _currentRaceRun.GetResultList().FirstOrDefault(r => r.Participant == participant);
         if (rr != null)
         {
-          txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ff");
-          txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ff");
+          txtStart.Text = rr.GetStartTime()?.ToString(@"hh\:mm\:ss\,ffff");
+          txtFinish.Text = rr.GetFinishTime()?.ToString(@"hh\:mm\:ss\,ffff");
           txtRun.Text = rr.GetRunTime()?.ToString(@"mm\:ss\,ff");
         }
         else
@@ -829,6 +870,21 @@ namespace RaceHorology
           _currentRaceRun.SetStartTime(participant, null);
         if (command == "clear_stop")
           _currentRaceRun.SetFinishTime(participant, null);
+      }
+    }
+
+
+    private void btnManualModeShow_Click(object sender, RoutedEventArgs e)
+    {
+      if (gridManualMode.Visibility == Visibility.Visible)
+      {
+        gridManualMode.Visibility = Visibility.Collapsed;
+        btnManualModeShow.Content = "Anzeigen";
+      }
+      else
+      {
+        gridManualMode.Visibility = Visibility.Visible;
+        btnManualModeShow.Content = "Verstecken";
       }
     }
 
@@ -966,6 +1022,7 @@ namespace RaceHorology
 
 
     #endregion
+
   }
 
 }

@@ -292,6 +292,13 @@ namespace RaceHorology
       setStartNumbersNotToAssign();
       setAnzVerlosung();
 
+      try
+      {
+        _snaWorkspace.SetNextStartNumber(uint.Parse(txtNextStartNumber.Text));
+      }
+      catch (Exception)
+      { }
+
       do
       {
         _rpSelector.AssignParticipants();

@@ -7,7 +7,9 @@ on:
   push:
     branches:
       - main
+      - release/*
       - feature/*
+      - bugfix/*
   pull_request:
     branches:  
       - main
@@ -17,6 +19,7 @@ jobs:
   build:
     runs-on: [windows-latest]
     outputs:
+      version: ${{ steps.version.outputs.version }}
       version_tag: ${{ steps.version.outputs.version_tag }}
       commit: ${{ env.GITHUB_SHA }}
     steps:
@@ -141,7 +144,7 @@ jobs:
           path: ${{ github.workspace }}\TestResults\**\*.trx 
 
   upload_as_release:
-    if: ${{ startsWith(github.ref, 'refs/heads/main') }}
+    if: ${{ startsWith(github.ref, 'refs/heads/release') }}
     needs: [build, run_test]
     runs-on: [windows-latest]
     steps:
@@ -155,8 +158,32 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
-          prerelease: true
+          prerelease: false
           tag: ${{ needs.build.outputs.version_tag }}
+          commit: ${{ needs.build.outputs.commit }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload_as_pre-release:
+    if: ${{ startsWith(github.ref, 'refs/heads/main') }}
+    needs: [build, run_test]
+    runs-on: [windows-latest]
+    steps:
+      - name: Download Installer
+        uses: actions/download-artifact@v2
+        with:
+          name: installer_RaceHorology
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
+
+      - name: Upload as pre-release 
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          prerelease: true
+          tag: pre-${{ needs.build.outputs.version }}
+          name: Automatic build from main pre-${{ needs.build.outputs.version }}
+          body: Achtung 
+                Diese Version wurde automatisch aus den letzten Quellcodeänderungen gebaut und stellt nur den letzten Stand der Änderungen dar.
+                Sie könnte daher instabil sein.
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
