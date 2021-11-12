@@ -37,8 +37,16 @@ namespace RaceHorology
       InitializeComponent();
 
       lbSaved.Visibility = Visibility.Hidden;
+
+      ShortcutSingleton.Instance.Save += OnSaveTriggered;
     }
 
+
+    private void OnSaveTriggered()
+    {
+      if (IsVisible)
+        saveChanges();
+    }
 
     public void Init( TabControl parent, TabItem thisTabItem,
                       ExistingChanges existingChangesCallback, SaveChanges saveChangesCallback, ResetChanges resetChangesCallback)
