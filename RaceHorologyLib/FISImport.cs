@@ -197,11 +197,11 @@ namespace RaceHorologyLib
       _usedFISList = derriveListName(_dataSet);
       _listDate = derriveListDate(_dataSet);
 
-      replaceEmptyPointsWith(_dataSet.Tables[0], "DHpoints", 999.99);
-      replaceEmptyPointsWith(_dataSet.Tables[0], "SLpoints", 999.99);
-      replaceEmptyPointsWith(_dataSet.Tables[0], "GSpoints", 999.99);
-      replaceEmptyPointsWith(_dataSet.Tables[0], "SGpoints", 999.99);
-      replaceEmptyPointsWith(_dataSet.Tables[0], "ACpoints", 999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "DHpoints", 9999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "SLpoints", 9999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "GSpoints", 9999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "SGpoints", 9999.99);
+      replaceEmptyPointsWith(_dataSet.Tables[0], "ACpoints", 9999.99);
 
       deleteUnusedColumns(_dataSet);
       checkForNeededColumns(_dataSet);
