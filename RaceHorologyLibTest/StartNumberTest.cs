@@ -354,23 +354,23 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
-    public void StartNumberAssignment_ParticpantSelector3_Test()
+    public void StartNumberAssignment_ParticpantSelector3_AssignmentTest_100()
     {
       TestDataGenerator testData = new TestDataGenerator();
 
       var participants = testData.createRaceParticipants(100);
-      // Point distribution: 
-      // 1..90 increasing, 
-      // 81..90: 999.0, 
-      // 91..100 equal 9999.0
+      // Point distribution based on Id: 
+      // 1..80 increasing, 
+      // 81..90: 999.9, 
+      // 91..100 equal 9999.9
       for(int i=0; i<participants.Count; i++)
       {
         if (i<80)
           participants[i].Points = (double)(i + 1);
         else if (i < 90)
-          participants[i].Points = 999.0;
+          participants[i].Points = 999.9;
         else if (i < 100)
-          participants[i].Points = 9999.0;
+          participants[i].Points = 9999.9;
       }
 
 
@@ -413,17 +413,61 @@ namespace RaceHorologyLibTest
           int id = int.Parse(a.Participant.Id);
 
           if (id <= 10)
-            Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
+            Assert.IsTrue(a.StartNumber == 90 - id + 1);
           else if (id <= 80)
-            Assert.IsTrue(a.StartNumber == 100-id+1);
+            Assert.IsTrue(a.StartNumber == 90 - id + 1);
           else if (id <= 90)
-            Assert.IsTrue(10 < a.StartNumber && a.StartNumber <= 20);
+            Assert.IsTrue(1 <= a.StartNumber && a.StartNumber <= 10);  // 1..10
           else if (id <= 100)
-            Assert.IsTrue(a.StartNumber <= 10);
+            Assert.IsTrue(90 < a.StartNumber && a.StartNumber <= 100);
         }
       }
 
     }
+
+
+    [TestMethod]
+    public void StartNumberAssignment_ParticpantSelector3_AssignmentTest_NoPoints()
+    {
+      TestDataGenerator testData = new TestDataGenerator();
+
+      var participants = testData.createRaceParticipants(20);
+      // Point distribution: 
+      //  1..10 increasing, 
+      // 11..15 equal 9999.9 // = no points
+      // 16..20 equal -1     // = no points
+      for (int i = 0; i < participants.Count; i++)
+      {
+        if (i < 10)
+          participants[i].Points = (double)(i + 1);
+        else if (i < 16)
+          participants[i].Points = 9999.9;
+        else if (i < 20)
+          participants[i].Points = -1.0;
+      }
+
+
+      // Ascending
+      {
+        StartNumberAssignment sna = new StartNumberAssignment();
+        ParticipantSelector ps = new ParticipantSelector(participants[0].Race, sna, null);
+        ps.AnzahlVerlosung = 20;
+
+        ps.AssignParticipants(participants);
+
+        // Check: 
+        foreach (var a in sna.ParticipantList)
+        {
+          int id = int.Parse(a.Participant.Id);
+
+          if (id <= 10)
+            Assert.IsTrue(a.StartNumber <= 10);
+          else if (id <= 20)
+            Assert.IsTrue(10 < a.StartNumber && a.StartNumber <= 20);
+        }
+      }
+    }
+
 
     [TestMethod]
     public void StartNumberAssignment_ErrorCase_UnassignedClass()

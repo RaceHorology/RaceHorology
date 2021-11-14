@@ -140,7 +140,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual("WINDERMERE", row["Skiclub"]);
         Assert.AreEqual("CAN", row["Nationcode"]);
         Assert.AreEqual("W", row["Gender"]);
-        Assert.AreEqual(999.99, row["DHpoints"]);
+        Assert.AreEqual(9999.99, row["DHpoints"]);
         Assert.AreEqual(17.82, row["SLpoints"]);
         Assert.AreEqual(41.29, row["GSpoints"]);
         Assert.AreEqual(144.08, row["SGpoints"]);
