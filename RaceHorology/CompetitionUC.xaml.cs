@@ -330,6 +330,11 @@ namespace RaceHorology
           Binding = new Binding(string.Format("ParticipantOfRace[{0}]", i)),
           Header = race.RaceType.ToString()
         });
+        dgParticipants.Columns.Add(new DataGridTextColumn
+        {
+          Binding = new Binding(string.Format("PointsOfRace[{0}]", i)),
+          Header = string.Format("Points {0}", race.RaceType.ToString())
+        });
       }
     }
     /// <summary>
@@ -683,6 +688,67 @@ namespace RaceHorology
 
 
   /// <summary>
+  /// Represents and modified the points an participants has for a race
+  /// Example: PointsOfRace[i] = 1.23
+  /// </summary>
+  public class PointsOfRace : INotifyPropertyChanged
+  {
+    Participant _participant;
+    IList<Race> _races;
+
+    public PointsOfRace(Participant p, IList<Race> races)
+    {
+      _participant = p;
+      _races = races;
+    }
+
+    private RaceParticipant getRaceParticipant(int i)
+    {
+      if (i >= _races.Count)
+        return null;
+
+      return _races[i].GetParticipants().FirstOrDefault(rp => rp.Participant == _participant);
+    }
+
+    public double this[int i]
+    {
+      get
+      {
+        RaceParticipant rp = getRaceParticipant(i);
+        return rp != null ? rp.Points : -1.0;
+      }
+
+      set
+      {
+        RaceParticipant rp = getRaceParticipant(i);
+        if (rp!=null)
+        {
+          if (rp.Points != value)
+          {
+            rp.Points = value;
+            NotifyPropertyChanged();
+          }
+        }
+      }
+    }
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
+  }
+
+
+  /// <summary>
   /// Represents a row within the participant data grid for editing participants
   /// - Proxies standard participant properties
   /// - Contains ParticpantOfRace to modifiy the membership to a race (eg. pe.ParticpantOfRace[i] = true | false )
@@ -691,6 +757,7 @@ namespace RaceHorology
   {
     Participant _participant;
     ParticpantOfRace _participantOfRace;
+    PointsOfRace _pointsOfRace;
     bool _existsInImportList;
 
     IImportListProvider[] _importList;
@@ -707,8 +774,15 @@ namespace RaceHorology
 
       _participantOfRace = new ParticpantOfRace(p, races);
       _participantOfRace.PropertyChanged += OnParticpantOfRaceChanged;
+
+      _pointsOfRace = new PointsOfRace(p, races);
+      _pointsOfRace.PropertyChanged += OnPointsOfRaceChanged;
     }
 
+    private void _pointsOfRace_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      throw new NotImplementedException();
+    }
 
     void onDataChangedImportList(object sender, EventArgs e)
     {
@@ -795,8 +869,13 @@ namespace RaceHorology
 
 
     public ParticpantOfRace ParticipantOfRace
-    { 
-      get => _participantOfRace; 
+    {
+      get => _participantOfRace;
+    }
+
+    public PointsOfRace PointsOfRace
+    {
+      get => _pointsOfRace;
     }
 
 
@@ -804,6 +883,16 @@ namespace RaceHorology
     {
       private set { if (_existsInImportList != value) { _existsInImportList = value; NotifyPropertyChanged(); } }
       get => _existsInImportList;
+    }
+
+    private void OnParticpantOfRaceChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ParticipantOfRace"));
+    }
+
+    private void OnPointsOfRaceChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PointsOfRace"));
     }
 
     #region INotifyPropertyChanged implementation
@@ -823,7 +912,7 @@ namespace RaceHorology
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(eargs.PropertyName));
     }
 
-    private void OnParticpantOfRaceChanged(object source, PropertyChangedEventArgs eargs)
+    private void OnPpointsOfRaceChanged(object source, PropertyChangedEventArgs eargs)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ParticipantOfRace"));
     }
