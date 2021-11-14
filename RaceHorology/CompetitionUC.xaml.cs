@@ -896,6 +896,7 @@ namespace RaceHorology
     private void OnParticpantOfRaceChanged(object source, PropertyChangedEventArgs eargs)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ParticipantOfRace"));
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PointsOfRace"));
     }
 
     private void OnPointsOfRaceChanged(object source, PropertyChangedEventArgs eargs)
