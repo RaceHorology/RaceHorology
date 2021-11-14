@@ -317,6 +317,13 @@ namespace RaceHorology
     /// </summary>
     private void createParticipantOfRaceColumns()
     {
+      Binding createPointsBinding(int i)
+      {
+        Binding b = new Binding(string.Format("PointsOfRace[{0}]", i));
+        b.Converter = new PointsConverter();
+        return b;
+      }
+
       // Delete previous race columns
       while (dgParticipants.Columns.Count > 10)
         dgParticipants.Columns.RemoveAt(dgParticipants.Columns.Count - 1);
@@ -332,7 +339,8 @@ namespace RaceHorology
         });
         dgParticipants.Columns.Add(new DataGridTextColumn
         {
-          Binding = new Binding(string.Format("PointsOfRace[{0}]", i)),
+          Binding = createPointsBinding(i),
+          
           Header = string.Format("Points {0}", race.RaceType.ToString())
         });
       }
