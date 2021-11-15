@@ -667,6 +667,17 @@ namespace RaceHorologyLib
   }
 
 
+  public static class StringUtils
+  {
+    public static string ToStringOrEmpty(this object o)
+    {
+      if (o == null)
+        return "";
+      return o.ToString();
+    }
+  }
+
+
 
   public class Singleton<T> where T : class, new()
   {
