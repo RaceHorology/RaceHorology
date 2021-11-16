@@ -284,7 +284,9 @@ namespace RaceHorologyLib
 
     bool didStart(RaceResultItem rri)
     {
-      return rri.SubResults[1].RunResultCode != RunResult.EResultCode.NaS;
+      if (rri.SubResults.ContainsKey(1))
+        return rri.SubResults[1].RunResultCode != RunResult.EResultCode.NaS;
+      return false;
     }
 
   }
