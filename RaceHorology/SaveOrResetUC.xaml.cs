@@ -58,9 +58,11 @@ namespace RaceHorology
       _tabControl = parent;
       _thisTabItem = thisTabItem;
 
-      var p = thisTabItem.Parent;
-
-      _tabControl.SelectionChanged += parent_SelectionChanged;
+      if (_tabControl != null && _thisTabItem != null)
+      {
+        var p = thisTabItem.Parent;
+        _tabControl.SelectionChanged += parent_SelectionChanged;
+      }
     }
 
 
@@ -100,7 +102,7 @@ namespace RaceHorology
 
     private bool existingChanges()
     {
-      return _existingChangesCallback();
+      return _existingChangesCallback==null || _existingChangesCallback();
     }
 
     private void saveChanges()
