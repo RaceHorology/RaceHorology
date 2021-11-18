@@ -156,6 +156,7 @@ namespace RaceHorology
       ResetConfigurationSelectionUI(_raceConfiguration);
 
       ucRaceConfigSaveOrReset.Init(
+        "Konfigurationsänderungen",
         tabControlRace1, tabItemConfiguration, 
         configuration_ExistingChanges, configuration_SaveChanges, configuration_ResetChanges);
     }
@@ -351,7 +352,8 @@ namespace RaceHorology
     AdditionalRaceProperties _addRaceProps;
     void InitializeRaceProperties()
     {
-      ucPropSaveOrReset.Init( tabControlRace1, tabItemRaceProperties, 
+      ucPropSaveOrReset.Init( "Renndatenänderungen", 
+                              tabControlRace1, tabItemRaceProperties, 
                               prop_ExistingChanges, prop_SaveChanges, prop_ResetChanges);
       prop_ResetChanges();
     }

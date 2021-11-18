@@ -75,7 +75,7 @@ namespace RaceHorology
       _dm = dm;
       _race = race;
 
-      ucSaveOrReset.Init(parent, thisTabItem, existingChanges, saveChanges, resetChanges);
+      ucSaveOrReset.Init("Startnummerzuweisungen", parent, thisTabItem, existingChanges, saveChanges, resetChanges);
 
       _snaWorkspace = new StartNumberAssignment();
       _snaWorkspace.ParticipantList.CollectionChanged += OnWorkspaceChanged;

@@ -24,6 +24,7 @@ namespace RaceHorology
     public delegate void SaveChanges();
     public delegate void ResetChanges();
 
+    private string _functionDescription;
     private ExistingChanges _existingChangesCallback;
     private SaveChanges _saveChangesCallback;
     private ResetChanges _resetChangesCallback;
@@ -48,9 +49,11 @@ namespace RaceHorology
         saveChanges();
     }
 
-    public void Init( TabControl parent, TabItem thisTabItem,
+    public void Init( string functionDescription,
+                      TabControl parent, TabItem thisTabItem,
                       ExistingChanges existingChangesCallback, SaveChanges saveChangesCallback, ResetChanges resetChangesCallback)
     {
+      _functionDescription = functionDescription;
       _existingChangesCallback = existingChangesCallback;
       _saveChangesCallback = saveChangesCallback;
       _resetChangesCallback = resetChangesCallback;
@@ -63,8 +66,38 @@ namespace RaceHorology
         var p = thisTabItem.Parent;
         _tabControl.SelectionChanged += parent_SelectionChanged;
       }
+      else
+      {
+        IsVisibleChanged += SaveOrResetUC_IsVisibleChanged;
+      }
     }
 
+    private void SaveOrResetUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+      
+      if (IsVisible == false) // Became invisible
+      {
+        if (true)//existingChanges())
+        {
+          Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (Action)(() =>
+          {
+            var result = MessageBox.Show(
+              string.Format("Sollen die {0} gespeichert werden?", _functionDescription), 
+              "Speichern?", 
+              MessageBoxButton.YesNo, 
+              MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+              saveChanges();  // Save changes
+            }
+            else if (result == MessageBoxResult.No)
+            {
+              resetChanges(); // Reset changes
+            }
+          }));
+        }
+      }
+    }
 
     private void parent_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -81,7 +114,11 @@ namespace RaceHorology
             var newTarget = _tabControl.SelectedItem;
             _tabControl.SelectedItem = _thisTabItem;
 
-            var result = MessageBox.Show("Sollen die Änderungen gespeichert werden?", "Speichern?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+            var result = MessageBox.Show(
+              string.Format("Sollen die {0} gespeichert werden?", _functionDescription), 
+              "Speichern?", 
+              MessageBoxButton.YesNoCancel, 
+              MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
               saveChanges();  // Save changes

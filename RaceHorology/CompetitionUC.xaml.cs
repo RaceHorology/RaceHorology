@@ -104,7 +104,7 @@ namespace RaceHorology
       ConnectGUIToDataModel();
       ConnectGUIToParticipants();
 
-      ucSaveOrReset.Init(null, null, null, storeParticipant, resetParticipant);
+      ucSaveOrReset.Init("Teilnehmeränderungen", null, null, null, storeParticipant, resetParticipant);
 
       ucClassesAndGroups.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);

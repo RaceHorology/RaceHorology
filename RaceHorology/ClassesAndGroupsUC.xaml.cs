@@ -67,7 +67,7 @@ namespace RaceHorology
 
       connectDataGrids();
 
-      ucSaveOrReset.Init(null, null, null, save, reset);
+      ucSaveOrReset.Init( "Klassen- und Gruppenänderungen", null, null, null, save, reset);
     }
 
     protected void connectDataGrids()
