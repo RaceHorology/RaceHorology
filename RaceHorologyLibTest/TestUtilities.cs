@@ -211,7 +211,7 @@ namespace RaceHorologyLibTest
 
 
     public List<Race.RaceProperties> GetRaces() { return _races; }
-    public List<RaceParticipant> GetRaceParticipants(Race race) { return new List<RaceParticipant>(); }
+    public List<RaceParticipant> GetRaceParticipants(Race race, bool ignoreActiveFlag = false) { return new List<RaceParticipant>(); }
 
     public List<RunResult> GetRaceRun(Race race, uint run) { return new List<RunResult>(); }
 

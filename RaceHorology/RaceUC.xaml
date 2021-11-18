@@ -6,10 +6,11 @@
              xmlns:local="clr-namespace:RaceHorology"
              xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib"
              mc:Ignorable="d"
-             d:DesignWidth="1280" d:DesignHeight="800">
+             d:DesignWidth="1280" d:DesignHeight="1200">
 
   <UserControl.Resources>
     <racehorologylib:PositionConverter x:Key="PositionConverter" />
+    <racehorologylib:PointsConverter x:Key="PointsConverter" />
     <local:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
     <racehorologylib:ResultCodeConverter x:Key="ResultCodeConverter" />
     <racehorologylib:ResultCodeWithCommentConverter x:Key="ResultCodeWithCommentConverter" />
@@ -22,7 +23,7 @@
       <ColumnDefinition Width="1*"/>
     </Grid.ColumnDefinitions>
     <TabControl x:Name="tabControlRace1" Height="Auto" Margin="10" Grid.Column="0" Width="Auto">
-      <TabItem Header="Konfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+      <TabItem x:Name="tabItemConfiguration" Header="Konfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
           <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
             <!--<Grid Margin="0,0,0,0">
@@ -207,16 +208,19 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
+              <local:SaveOrResetUC x:Name="ucRaceConfigSaveOrReset" Grid.Row="0" Grid.Column="1" Margin="0,15,0,0" />
+              <!--
               <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,15,0,0">
                 <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
                 <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
               </StackPanel>
+              -->
             </Grid>
           </StackPanel>
         </ScrollViewer>
       </TabItem>
 
-      <TabItem x:Name="RaceProperties" Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+      <TabItem x:Name="tabItemRaceProperties" Header="Renndaten" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.IsSharedSizeScope="True">
           <Grid>
             <Grid.RowDefinitions>
@@ -453,18 +457,13 @@
               <TextBox Margin="5"  Grid.Row="1" Grid.Column="3" Text="{Binding Path=TempFinish}"/>
             </Grid>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="29" Grid.Column="2" HorizontalAlignment="Right" Margin="0,15,0,0">
-              <Button x:Name="btnAddPropReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnAddPropReset_Click"/>
-              <Button x:Name="btnAddPropApply" Content="Speichern" Margin="5" Padding="5" Click="BtnAddPropApply_Click"/>
-            </StackPanel>
+            <local:SaveOrResetUC x:Name="ucPropSaveOrReset" Grid.Row="29" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,15,0,0"/>
 
           </Grid>
         </ScrollViewer>
       </TabItem>
-      <TabItem Header="Startnummern" FontSize="12">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-          <local:StartNumbersUC x:Name="ucStartNumbers" />
-        </ScrollViewer>
+      <TabItem x:Name="tabItemStartNumberAssignment" Header="Startnummern" FontSize="12">
+        <local:StartNumbersUC x:Name="ucStartNumbers" />
       </TabItem>
       <TabItem FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <TabItem.Header>
@@ -589,7 +588,7 @@
                     <DataGridTextColumn local:DataGridUtil.Name="Class" Header="Klasse" Binding="{Binding Class, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Club" Header="Verein" Binding="{Binding Club, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Nation" Header="Nat." Binding="{Binding Nation, Mode=OneWay}" />
-                    <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Mode=OneWay}" />
+                    <DataGridTextColumn local:DataGridUtil.Name="Points" Header="Punkte" Binding="{Binding Points, Converter={StaticResource PointsConverter}, Mode=OneWay}" />
                     <DataGridTextColumn local:DataGridUtil.Name="Runtime" Header="Laufzeit" Binding="{Binding Runtime, Mode=OneWay, StringFormat=\{0:mm\\:ss\\\,ff\}}" />
                     <DataGridTemplateColumn Header="">
                       <DataGridTemplateColumn.CellTemplate>

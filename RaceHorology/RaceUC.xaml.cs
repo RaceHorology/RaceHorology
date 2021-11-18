@@ -84,7 +84,7 @@ namespace RaceHorology
 
       InitializeComponent();
 
-      ucStartNumbers.Init(_dataModel, _thisRace);
+      ucStartNumbers.Init(_dataModel, _thisRace, tabControlRace1, tabItemStartNumberAssignment);
       ucDisqualify.Init(_dataModel, _thisRace);
       
       InitializeConfiguration();
@@ -154,6 +154,11 @@ namespace RaceHorology
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_all_AlsoWithoutResults" });
 
       ResetConfigurationSelectionUI(_raceConfiguration);
+
+      ucRaceConfigSaveOrReset.Init(
+        "Konfigurationsänderungen",
+        tabControlRace1, tabItemConfiguration, 
+        configuration_ExistingChanges, configuration_SaveChanges, configuration_ResetChanges);
     }
 
 
@@ -301,13 +306,15 @@ namespace RaceHorology
       return true;
     }
 
-    private void BtnReset_Click(object sender, RoutedEventArgs e)
+    private bool configuration_ExistingChanges()
     {
-      ResetConfigurationSelectionUI(_raceConfiguration);
-      refreshConfigPresetsUI();
+      RaceConfiguration cfgTemp = new RaceConfiguration();
+      StoreConfigurationSelectionUI(ref cfgTemp);
+
+      return !RaceConfigurationCompare.MainConfig(_raceConfiguration, cfgTemp);
     }
 
-    private void BtnApply_Click(object sender, RoutedEventArgs e)
+    private void configuration_SaveChanges()
     {
       RaceConfiguration cfg = new RaceConfiguration();
       if (!StoreConfigurationSelectionUI(ref cfg))
@@ -322,12 +329,18 @@ namespace RaceHorology
 
       ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       viewConfigurator.ConfigureRace(_thisRace);
-      
+
       refreshConfigPresetsUI();
-      
+
       // Reset UI (TODO should adapt itself based on events)
       ConnectUiToRaceRun(_currentRaceRun);
       ucRaceLists.UpdateAll();
+    }
+
+    private void configuration_ResetChanges()
+    {
+      ResetConfigurationSelectionUI(_raceConfiguration);
+      refreshConfigPresetsUI();
     }
 
 
@@ -339,16 +352,24 @@ namespace RaceHorology
     AdditionalRaceProperties _addRaceProps;
     void InitializeRaceProperties()
     {
-      _addRaceProps = _thisRace.AdditionalProperties.Copy();
-      RaceProperties.DataContext = _addRaceProps;
+      ucPropSaveOrReset.Init( "Renndatenänderungen", 
+                              tabControlRace1, tabItemRaceProperties, 
+                              prop_ExistingChanges, prop_SaveChanges, prop_ResetChanges);
+      prop_ResetChanges();
     }
 
-    private void BtnAddPropReset_Click(object sender, RoutedEventArgs e)
+    private bool prop_ExistingChanges()
     {
-      InitializeRaceProperties();
+      return !AdditionalRaceProperties.Equals(_thisRace.AdditionalProperties, _addRaceProps);
     }
 
-    private void BtnAddPropApply_Click(object sender, RoutedEventArgs e)
+    private void prop_ResetChanges()
+    {
+      _addRaceProps = _thisRace.AdditionalProperties.Copy();
+      tabItemRaceProperties.DataContext = _addRaceProps;
+    }
+
+    private void prop_SaveChanges()
     {
       _thisRace.AdditionalProperties = _addRaceProps.Copy();
     }

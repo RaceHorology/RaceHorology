@@ -705,6 +705,7 @@ namespace RaceHorologyLib
     protected AppDataModel _dm;
 
     protected PDFHelper _pdfHelper;
+    PointsConverter _pointsConverter;
 
     public PDFRaceReport(Race race)
     {
@@ -712,6 +713,7 @@ namespace RaceHorologyLib
       _dm = race.GetDataModel();
 
       _pdfHelper = new PDFHelper(_dm);
+      _pointsConverter = new PointsConverter();
     }
 
     protected abstract string getTitle();
@@ -824,10 +826,7 @@ namespace RaceHorologyLib
 
     protected string formatPoints(double points)
     {
-      if (points < 0.0)
-        return "";
-
-      return string.Format("{0:0.00}", points);
+      return (string) _pointsConverter.Convert(points, typeof(string), null, null);
     }
 
     protected string formatStartNumber(uint startNumber)
@@ -848,6 +847,8 @@ namespace RaceHorologyLib
 
     protected int _nOptFields;
 
+    public bool WithDiagram { get; set; } = true;
+    public bool WithRaceHeader { get; set; } = true;
 
     public PDFReport(Race race) : base(race)
     {
@@ -864,9 +865,12 @@ namespace RaceHorologyLib
 
     protected override void addContent(PdfDocument pdf, Document document)
     {
-      Table raceProperties = getRacePropertyTable();
-      if (raceProperties != null)
-        document.Add(raceProperties);
+      if (WithRaceHeader)
+      {
+        Table raceProperties = getRacePropertyTable();
+        if (raceProperties != null)
+          document.Add(raceProperties);
+      }
 
       Table table = getResultsTable();
       document.Add(table);
@@ -2089,7 +2093,8 @@ namespace RaceHorologyLib
 
       addStatistic(pdf, document);
 
-      addResultsChart(pdf, document);
+      if (WithDiagram)
+        addResultsChart(pdf, document);
     }
 
 

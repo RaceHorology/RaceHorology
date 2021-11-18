@@ -49,6 +49,35 @@ using System.Runtime.CompilerServices;
 
 namespace RaceHorology
 {
+
+  // Shortcut Singleton
+  public sealed class ShortcutSingleton
+  {
+    private ShortcutSingleton() { }
+    private static ShortcutSingleton instance = null;
+    public static ShortcutSingleton Instance
+    {
+      get
+      {
+        if (instance == null)
+        {
+          instance = new ShortcutSingleton();
+        }
+        return instance;
+      }
+    }
+
+    public void EmitSave()
+    {
+      var handler = Save;
+      if (handler != null) Save.Invoke();
+    }
+
+    public delegate void SaveHandler();
+    public event SaveHandler Save;
+  }
+
+
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// Main entry point of the application
@@ -126,6 +155,13 @@ namespace RaceHorology
         OpenDatabase(dbPath);
       }
     }
+
+
+    private void SaveCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      ShortcutSingleton.Instance.EmitSave();
+    }
+
 
     /// <summary>
     /// File Close - closes the data base

@@ -68,9 +68,9 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Nation");
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
-      writer.WriteValue(value.Class.ToString());
+      writer.WriteValue(value.Class.ToStringOrEmpty());
       writer.WritePropertyName("Group");
-      writer.WriteValue(value.Class.Group.ToString());
+      writer.WriteValue(value.Class?.Group.ToStringOrEmpty());
       writer.WriteEndObject();
     }
 
@@ -106,9 +106,9 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Nation");
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
-      writer.WriteValue(value.Class.ToString());
+      writer.WriteValue(value.Class.ToStringOrEmpty());
       writer.WritePropertyName("Group");
-      writer.WriteValue(value.Class.Group.ToString());
+      writer.WriteValue(value.Class?.Group.ToStringOrEmpty());
 
       writer.WritePropertyName("Runtime");
 
@@ -165,9 +165,9 @@ namespace RaceHorologyLib
         writer.WritePropertyName("Nation");
         writer.WriteValue(value.Nation);
         writer.WritePropertyName("Class");
-        writer.WriteValue(value.Class.ToString());
+        writer.WriteValue(value.Class.ToStringOrEmpty());
         writer.WritePropertyName("Group");
-        writer.WriteValue(value.Class.Group.ToString());
+        writer.WriteValue(value.Class?.Group.ToStringOrEmpty());
       }
       writer.WritePropertyName("Runtime");
       if (_precisionIn100seconds)
@@ -220,9 +220,9 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Nation");
       writer.WriteValue(value.Participant.Nation);
       writer.WritePropertyName("Class");
-      writer.WriteValue(value.Participant.Class.ToString());
+      writer.WriteValue(value.Participant.Class.ToStringOrEmpty());
       writer.WritePropertyName("Group");
-      writer.WriteValue(value.Participant.Class.Group.ToString());
+      writer.WriteValue(value.Participant.Class?.Group.ToStringOrEmpty());
       writer.WritePropertyName("Totaltime");
       writer.WriteValue(value.TotalTime.ToRaceTimeString());
       writer.WritePropertyName("DiffToFirst");
@@ -283,9 +283,9 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Nation");
       writer.WriteValue(value.Nation);
       writer.WritePropertyName("Class");
-      writer.WriteValue(value.Class.ToString());
+      writer.WriteValue(value.Class.ToStringOrEmpty());
       writer.WritePropertyName("Group");
-      writer.WriteValue(value.Class.Group.ToString());
+      writer.WriteValue(value.Class?.Group.ToStringOrEmpty());
       writer.WriteEndObject();
     }
 

@@ -282,7 +282,7 @@ namespace RaceHorologyLib
     }
 
 
-    public List<RaceParticipant> GetRaceParticipants(Race race)
+    public List<RaceParticipant> GetRaceParticipants(Race race, bool ignoreActiveFlag = false)
     {
       List<RaceParticipant> participants = new List<RaceParticipant>();
 
@@ -290,39 +290,43 @@ namespace RaceHorologyLib
 
       string startNumberField = null;
       string pointsField = null;
+      string activeField = null;
       switch (race.RaceType)
       {
         case Race.ERaceType.DownHill:
-          sql += " WHERE dhaktiv = true";
+          activeField = "dhaktiv";
           startNumberField = "startnrdh";
           pointsField = "pktedh";
           break;
         case Race.ERaceType.SuperG:
-          sql += " WHERE sgaktiv = true";
+          activeField = "sgaktiv";
           startNumberField = "startnrsg";
           pointsField = "pktesg";
           break;
         case Race.ERaceType.GiantSlalom:
-          sql += " WHERE gsaktiv = true";
+          activeField = "gsaktiv";
           startNumberField = "startnrgs";
           pointsField = "pktegs";
           break;
         case Race.ERaceType.Slalom:
-          sql += " WHERE slaktiv = true";
+          activeField = "slaktiv";
           startNumberField = "startnrsl";
           pointsField = "pktesl";
           break;
         case Race.ERaceType.KOSlalom:
-          sql += " WHERE ksaktiv = true";
+          activeField = "ksaktiv";
           startNumberField = "startnrks";
           pointsField = "pkteks";
           break;
         case Race.ERaceType.ParallelSlalom:
-          sql += " WHERE psaktiv = true";
+          activeField = "psaktiv";
           startNumberField = "startnrps";
           pointsField = "pkteps";
           break;
       }
+
+      if (!ignoreActiveFlag)
+        sql += " WHERE " + activeField + " = true";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
       // Execute command  

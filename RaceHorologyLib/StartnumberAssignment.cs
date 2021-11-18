@@ -135,13 +135,14 @@ namespace RaceHorologyLib
     }
 
 
-    public void LoadFromRace(Race race)
+    public void LoadFromRace(Race race, bool onlyNewParticipants = false)
     {
       var particpants = race.GetParticipants();
 
       foreach(var p in particpants)
       {
-        if (p.StartNumber != 0)
+        var ass = _snAssignment.FirstOrDefault(a => a.Participant == p);
+        if (p.StartNumber != 0 && ( onlyNewParticipants && ass == null || !onlyNewParticipants))
           Assign(p.StartNumber, p);
       }
     }
@@ -168,6 +169,26 @@ namespace RaceHorologyLib
           p.StartNumber = 0;
         }
       }
+    }
+
+
+    public bool DifferentToRace(Race race)
+    {
+      var particpants = race.GetParticipants();
+
+      foreach (var p in particpants)
+      {
+        var ass = _snAssignment.FirstOrDefault(a => a.Participant == p);
+        if (ass != null)
+        {
+          if (p.StartNumber != ass.StartNumber)
+            return true;
+        }
+        else
+          return true;
+      }
+
+      return false;
     }
 
 
@@ -490,26 +511,42 @@ namespace RaceHorologyLib
 
     public void AssignParticipants(List<RaceParticipant> participants)
     {
+
+      bool hasPoints(RaceParticipant p) { return 0.0 <= p.Points && p.Points < 9999.9; }
+
       var wcParticipants = participants.ToList();
 
+      // Split between participants with points and without
+      List<RaceParticipant> participantWithPoints = new List<RaceParticipant>(), participantWithoutPoints = new List<RaceParticipant>();
+      foreach(var rp in wcParticipants)
+      {
+        if (hasPoints(rp))
+          participantWithPoints.Add(rp);
+        else
+          participantWithoutPoints.Add(rp);
+      }
+
+
       // Sort
-      wcParticipants.Sort(_sorting);
+      participantWithPoints.Sort(_sorting);
 
       // Split into groups
       List<RaceParticipant> g1, g2;
-      int g1Count = Math.Min(_anzVerlosung, wcParticipants.Count);
+      int g1Count = Math.Min(_anzVerlosung, participantWithPoints.Count);
 
       if (0 < g1Count)
       {
-        g1 = wcParticipants.GetRange(0, g1Count);
+        g1 = participantWithPoints.GetRange(0, g1Count);
         assignParticipantsRandomly(g1);
       }
 
-      if (g1Count < wcParticipants.Count)
+      if (g1Count < participantWithPoints.Count)
       {
-        g2 = wcParticipants.GetRange(g1Count, wcParticipants.Count - g1Count);
+        g2 = participantWithPoints.GetRange(g1Count, participantWithPoints.Count - g1Count);
         assignParticipantsOrdered(g2);
       }
+
+      assignParticipantsRandomly(participantWithoutPoints);
     }
 
 

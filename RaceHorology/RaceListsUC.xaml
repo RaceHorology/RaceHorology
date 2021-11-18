@@ -73,11 +73,18 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
       <Button x:Name="btnExportDSVAlpin" Content="Export DSVAlpin" Margin="5" Grid.Row="0" Grid.Column="1" Click="BtnExportDsvAlpin_Click"/>
       <Button x:Name="btnExportCSV" Content="Export CSV" Margin="5" Grid.Row="0" Grid.Column="2" Click="BtnExportCsv_Click"/>
       <Button x:Name="btnExportXLSX" Content="Export Excel" Margin="5" Grid.Row="0" Grid.Column="3" Click="BtnExportXlsx_Click"/>
       <Button x:Name="btnExport" Content="Export DSV" Margin="5" Grid.Row="0" Grid.Column="4" Click="BtnExportDsv_Click"/>
       <Button x:Name="btnPrint" Content="Drucken" Margin="5" Grid.Row="0" Grid.Column="5" Click="BtnPrint_Click"/>
+
+      <CheckBox x:Name="chkPrintOptionWithRaceHeader" Content="Rennkopf drucken" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2"/>
+      <CheckBox x:Name="chkPrintOptionWithDiagram" Content="Diagramm drucken" Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="2"/>
     </Grid>
   </Grid>
 </UserControl>
