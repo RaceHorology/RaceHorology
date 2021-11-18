@@ -1863,7 +1863,7 @@ namespace RaceHorologyLib
 
     protected override string getTitle()
     {
-      return string.Format("OFFIZIELLE ERGEBNISLISTE");
+      return string.Format("ERGEBNISLISTE");
     }
 
 
@@ -2194,11 +2194,6 @@ namespace RaceHorologyLib
   {
     public DSVSchoolRaceResultReport(Race race) : base(race)
     {
-    }
-
-    protected override string getTitle()
-    {
-      return string.Format("INOFFIZIELLE ERGEBNISLISTE");
     }
 
     protected override void addContent(PdfDocument pdf, Document document)
