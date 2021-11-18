@@ -115,5 +115,28 @@ namespace RaceHorologyLibTest
       raceCalcM.CalculatePenalty();
       Assert.AreEqual(51.18, raceCalcM.CalculatedPenalty);
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case4-DSV-less-participants\2801DSHS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case4-DSV-less-participants\2801DSHS_Slalom.config")]
+    public void LessThen10ValidResults_Test()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"2801DSHS.mdb");
+
+      // Setup Data Model & Co
+      Database db = new Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      DSVRaceCalculation raceCalcW = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), 'W');
+      raceCalcW.CalculatePenalty();
+      Assert.AreEqual(93.99, raceCalcW.CalculatedPenalty);
+
+      DSVRaceCalculation raceCalcM = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), 'M');
+      raceCalcM.CalculatePenalty();
+      Assert.AreEqual(91.51, raceCalcM.CalculatedPenalty);
+    }
   }
 }

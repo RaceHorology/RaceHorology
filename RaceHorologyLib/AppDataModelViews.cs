@@ -1673,14 +1673,14 @@ namespace RaceHorologyLib
       if (_viewList == null)
         return;
 
+      base.ResortResults();
+
       try
       {
         _dsvCalcM.CalculatePenalty();
         _dsvCalcW.CalculatePenalty();
       }
       catch (Exception) { }
-
-      base.ResortResults();
     }
 
     protected override double calculatePoints(RaceResultItem rri)

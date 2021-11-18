@@ -805,10 +805,10 @@ namespace RaceHorology
 
     bool checkInImport()
     {
-      bool res = false;
+      bool res = true;
       foreach (var il in _importList)
       {
-        res |= il == null || il.ContainsParticipant(_participant);
+        res &= (il == null || il.ContainsParticipant(_participant));
       }
       return res;
     }
