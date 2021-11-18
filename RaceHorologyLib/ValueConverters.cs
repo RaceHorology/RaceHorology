@@ -82,6 +82,41 @@ namespace RaceHorologyLib
     }
   }
 
+
+  /// <summary>
+  /// Converts a position number into a string. Position 0 is transferred into "./."
+  /// </summary>
+  public class PointsConverter : IValueConverter
+  {
+    public PointsConverter()
+    {
+    }
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      double points = (double)value;
+
+      if (points < 0 || points >= 9999.99)
+        return "---";
+
+      return string.Format("{0:0.00}", points);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      try
+      {
+        double d = double.Parse((string)value);
+        return d;
+      }
+      catch(Exception )
+      {
+        return -1.0;
+      }
+    }
+  }
+
+
   /// <summary>
   /// Converts a position number into a string. Position 0 is transferred into "./."
   /// </summary>
