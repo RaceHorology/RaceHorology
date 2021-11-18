@@ -245,6 +245,12 @@ namespace RaceHorologyLib
     }
 
 
+    public bool DifferentToDataModel()
+    {
+      return groupsDifferent() || categoriesDifferent() || classesDifferent();
+    }
+
+
     public void Import(AppDataModel srcModel)
     {
       var srcGroups = srcModel.GetParticipantGroups();
@@ -362,6 +368,39 @@ namespace RaceHorologyLib
       }
     }
 
+    private bool groupsDifferent()
+    {
+      // *** Check removed one
+      foreach (var g2 in _dm.GetParticipantGroups())
+      {
+        ParticipantGroup g1 = null;
+        _group2Group.TryGetValue(g2, out g1);
+        if (g1 == null || GroupViewModel.Items.FirstOrDefault(i => i == g1) == null)
+          return true;
+      }
+
+      // *** Check updated & new ones
+      uint curSortPos = 1;
+      foreach (var g1 in GroupViewModel.Items)
+      {
+        var found = _group2Group.FirstOrDefault(i => i.Value == g1); // Find original
+        var g2 = found.Key;
+        g2 = _dm.GetParticipantGroups().FirstOrDefault(i => i == g2); // Check if already in DataModel
+
+        if (g2 != null)
+        { // Update existing one
+          if (g2.Name != g1.Name || g2.SortPos != curSortPos)
+            return true;
+        }
+        else
+          return true;
+
+        curSortPos++;
+      }
+
+      return false;
+    }
+
 
     private void storeCategories()
     {
@@ -409,6 +448,40 @@ namespace RaceHorologyLib
     }
 
 
+    private bool categoriesDifferent()
+    {
+      // *** Check removed one
+      foreach (var cat2 in _dm.GetParticipantCategories())
+      {
+        ParticipantCategory cat1 = null;
+        _category2Category.TryGetValue(cat2, out cat1);
+        if (cat1 == null || CategoryViewModel.Items.FirstOrDefault(i => i == cat1) == null)
+          return true;
+      }
+
+      // *** Check updated & new ones
+      uint curSortPos = 1;
+      foreach (var cat1 in CategoryViewModel.Items)
+      {
+        var found = _category2Category.FirstOrDefault(i => i.Value == cat1);  // Find original
+        var cat2 = found.Key;
+        cat2 = _dm.GetParticipantCategories().FirstOrDefault(i => i == cat2); // Check if already in DataModel
+
+        if (cat2 != null)
+        { // Check updated
+          if (cat2.Name != cat1.Name || cat2.PrettyName != cat1.PrettyName || cat2.Synonyms != cat1.Synonyms || cat2.SortPos != curSortPos)
+            return true;
+        }
+        else
+          return true;
+
+        curSortPos++;
+      }
+
+      return false;
+    }
+
+
     private void storeClasses()
     {
       // Delete removed one
@@ -453,6 +526,46 @@ namespace RaceHorologyLib
 
         curSortPos++;
       }
+    }
+
+    private bool classesDifferent()
+    {
+      // Check removed one
+      foreach (var c2 in _dm.GetParticipantClasses())
+      {
+        ParticipantClass c1 = null;
+        _class2Class.TryGetValue(c2, out c1);
+        if (c1 == null || ClassViewModel.Items.FirstOrDefault(i => i == c1) == null)
+          return true;
+      }
+
+      // Check update & new ones
+      uint curSortPos = 1;
+      foreach (var c1 in ClassViewModel.Items)
+      {
+        var found = _class2Class.FirstOrDefault(i => i.Value == c1);
+        var c2 = found.Key;
+        c2 = _dm.GetParticipantClasses().FirstOrDefault(i => i == c2);
+
+        var g2 = _group2Group.FirstOrDefault(i => i.Value == c1.Group);
+        var cat2 = _category2Category.FirstOrDefault(i => i.Value == c1.Sex);
+
+        if (c2 != null)
+        { // Update existing one
+          if (c2.Name != c1.Name
+              || c2.Group != g2.Key
+              || c2.Sex != cat2.Key
+              || c2.Year != c1.Year
+              || c2.SortPos != curSortPos)
+            return true;
+        }
+        else
+          return true;
+
+        curSortPos++;
+      }
+
+      return false;
     }
   }
 }
