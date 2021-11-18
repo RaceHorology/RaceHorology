@@ -104,6 +104,8 @@ namespace RaceHorology
       ConnectGUIToDataModel();
       ConnectGUIToParticipants();
 
+      ucSaveOrReset.Init(null, null, null, storeParticipant, resetParticipant);
+
       ucClassesAndGroups.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
       ucFISImport.Init(_dm, _fisData);
@@ -301,16 +303,6 @@ namespace RaceHorology
     }
 
 
-    private void btnReset_Click(object sender, RoutedEventArgs e)
-    {
-      updatePartcipantEditFields();
-    }
-
-    private void btnApply_Click(object sender, RoutedEventArgs e)
-    {
-      storeParticipant();
-    }
-
 
     /// <summary>
     /// (Re-)Creates the columns for adding/removing the participants to an race
@@ -481,6 +473,12 @@ namespace RaceHorology
       }
 
       control.IsEnabled = values.Count() > 0;
+    }
+
+
+    private void resetParticipant()
+    {
+      updatePartcipantEditFields();
     }
 
 
