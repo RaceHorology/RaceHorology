@@ -70,10 +70,12 @@ namespace RaceHorology
       InitializeComponent();
     }
 
-    public void Init(AppDataModel dm, Race race)
+    public void Init(AppDataModel dm, Race race, TabControl parent, TabItem thisTabItem)
     {
       _dm = dm;
       _race = race;
+
+      ucSaveOrReset.Init("Startnummerzuweisungen", parent, thisTabItem, existingChanges, saveChanges, resetChanges);
 
       _snaWorkspace = new StartNumberAssignment();
       _snaWorkspace.ParticipantList.CollectionChanged += OnWorkspaceChanged;
@@ -138,7 +140,7 @@ namespace RaceHorology
     {
       if (!(bool)e.OldValue && (bool)e.NewValue) // Became visible
       {
-        _snaWorkspace.LoadFromRace(_race);
+        _snaWorkspace.LoadFromRace(_race, true);
 
         UiUtilities.FillGrouping(cmbGrouping, _race.RaceConfiguration.Run1_StartistViewGrouping);
         txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
@@ -212,12 +214,18 @@ namespace RaceHorology
       _rpSelector.SwitchToFirstGroup();
     }
 
-    private void BtnReset_Click(object sender, RoutedEventArgs e)
+
+    private bool existingChanges()
+    {
+      return _snaWorkspace.DifferentToRace(_race);
+    }
+
+    private void resetChanges()
     {
       _snaWorkspace.LoadFromRace(_race);
     }
 
-    private void BtnApply_Click(object sender, RoutedEventArgs e)
+    private void saveChanges()
     {
       _snaWorkspace.SaveToRace(_race);
     }

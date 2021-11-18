@@ -135,13 +135,14 @@ namespace RaceHorologyLib
     }
 
 
-    public void LoadFromRace(Race race)
+    public void LoadFromRace(Race race, bool onlyNewParticipants = false)
     {
       var particpants = race.GetParticipants();
 
       foreach(var p in particpants)
       {
-        if (p.StartNumber != 0)
+        var ass = _snAssignment.FirstOrDefault(a => a.Participant == p);
+        if (p.StartNumber != 0 && ( onlyNewParticipants && ass == null || !onlyNewParticipants))
           Assign(p.StartNumber, p);
       }
     }
@@ -168,6 +169,26 @@ namespace RaceHorologyLib
           p.StartNumber = 0;
         }
       }
+    }
+
+
+    public bool DifferentToRace(Race race)
+    {
+      var particpants = race.GetParticipants();
+
+      foreach (var p in particpants)
+      {
+        var ass = _snAssignment.FirstOrDefault(a => a.Participant == p);
+        if (ass != null)
+        {
+          if (p.StartNumber != ass.StartNumber)
+            return true;
+        }
+        else
+          return true;
+      }
+
+      return false;
     }
 
 

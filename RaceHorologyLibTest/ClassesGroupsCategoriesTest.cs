@@ -223,20 +223,36 @@ namespace RaceHorologyLibTest
 
       ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
 
+      void checkAndStore()
+      {
+        Assert.IsTrue(cge.DifferentToDataModel()); 
+        cge.Store(); 
+        Assert.IsFalse(cge.DifferentToDataModel());
+      }
+
+      Assert.IsFalse(cge.DifferentToDataModel());
+
       // Per XXX add, modify, delete
       cge.CategoryViewModel.Items.Add(new ParticipantCategory('U', "Unbekannt", 2));
+      checkAndStore();
       cge.CategoryViewModel.Items.RemoveAt(0);
+      checkAndStore();
       cge.CategoryViewModel.Items[0].PrettyName = "WEIBLICH";
+      checkAndStore();
 
       cge.GroupViewModel.Items.Add(new ParticipantGroup("xxx", "G_U14", 2));
+      checkAndStore();
       cge.GroupViewModel.Items.RemoveAt(0);
+      checkAndStore();
       cge.GroupViewModel.Items[0].Name = "B_U12";
+      checkAndStore();
 
       cge.ClassViewModel.Items.Add(new ParticipantClass("xxx", cge.GroupViewModel.Items[1], "U14", cge.CategoryViewModel.Items[0], 2006, 0));
+      checkAndStore();
       cge.ClassViewModel.Items.RemoveAt(0);
+      checkAndStore();
       cge.ClassViewModel.Items[0].Name = "u10";
-
-      cge.Store();
+      checkAndStore();
 
       // Verify Data Model
       Assert.AreEqual(dm.GetParticipantCategories().Count, 2);
@@ -262,8 +278,10 @@ namespace RaceHorologyLibTest
       ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
 
       cge.Import(createTestDataModel12());
+      Assert.IsTrue(cge.DifferentToDataModel());
 
       cge.Store();
+      Assert.IsFalse(cge.DifferentToDataModel());
 
       // Verify Data Model
       Assert.AreEqual(2, dm.GetParticipantCategories().Count);
@@ -295,9 +313,12 @@ namespace RaceHorologyLibTest
       ClassesGroupsCategoriesEditVM cge = new ClassesGroupsCategoriesEditVM(dm);
 
       cge.Clear();
+      Assert.IsTrue(cge.DifferentToDataModel());
       cge.Import(createTestDataModel1());
+      Assert.IsTrue(cge.DifferentToDataModel());
 
       cge.Store();
+      Assert.IsFalse(cge.DifferentToDataModel());
 
       // Verify Data Model
       Assert.AreEqual(2, dm.GetParticipantCategories().Count);
@@ -333,6 +354,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, cge.CategoryViewModel.Items.Count);
 
       cge.Reset();
+      Assert.IsFalse(cge.DifferentToDataModel());
       Assert.AreEqual(4, cge.ClassViewModel.Items.Count);
       Assert.AreEqual(2, cge.GroupViewModel.Items.Count);
       Assert.AreEqual(2, cge.CategoryViewModel.Items.Count);
@@ -419,8 +441,8 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantCategory>
       {
-          new ParticipantCategory('M', "Männlich", 0),
-          new ParticipantCategory('W', "Weiblich", 1)
+          new ParticipantCategory('M', "Männlich", 1),
+          new ParticipantCategory('W', "Weiblich", 2)
       })
       {
         dm.GetParticipantCategories().Add(o);
@@ -428,8 +450,8 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantGroup>
       {
-        new ParticipantGroup("1", "G_U10", 0),
-        new ParticipantGroup("2", "G_U12", 1)
+        new ParticipantGroup("1", "G_U10", 1),
+        new ParticipantGroup("2", "G_U12", 2)
       })
       {
         dm.GetParticipantGroups().Add(o);
@@ -437,10 +459,10 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantClass>
       {
-        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U10", dm.GetParticipantCategories()[0], 2010, 0),
-        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U10", dm.GetParticipantCategories()[1], 2010, 0),
-        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U12", dm.GetParticipantCategories()[0], 2008, 1),
-        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U12", dm.GetParticipantCategories()[1], 2008, 1)
+        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U10", dm.GetParticipantCategories()[0], 2010, 1),
+        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U10", dm.GetParticipantCategories()[1], 2010, 2),
+        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U12", dm.GetParticipantCategories()[0], 2008, 3),
+        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U12", dm.GetParticipantCategories()[1], 2008, 4)
       })
       {
         dm.GetParticipantClasses().Add(o);
@@ -456,8 +478,8 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantCategory>
       {
-          new ParticipantCategory('M', "Männlich", 0),
-          new ParticipantCategory('W', "Weiblich", 1)
+          new ParticipantCategory('M', "Männlich", 1),
+          new ParticipantCategory('W', "Weiblich", 2)
       })
       {
         dm.GetParticipantCategories().Add(o);
@@ -465,8 +487,8 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantGroup>
       {
-        new ParticipantGroup("1", "G_U14", 0),
-        new ParticipantGroup("2", "G_U16", 1)
+        new ParticipantGroup("1", "G_U14", 1),
+        new ParticipantGroup("2", "G_U16", 2)
       })
       {
         dm.GetParticipantGroups().Add(o);
@@ -474,10 +496,10 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantClass>
       {
-        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U14", dm.GetParticipantCategories()[0], 2006, 0),
-        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U14", dm.GetParticipantCategories()[1], 2006, 0),
-        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U16", dm.GetParticipantCategories()[0], 2004, 1),
-        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U16", dm.GetParticipantCategories()[1], 2004, 1)
+        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U14", dm.GetParticipantCategories()[0], 2006, 1),
+        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U14", dm.GetParticipantCategories()[1], 2006, 2),
+        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U16", dm.GetParticipantCategories()[0], 2004, 3),
+        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U16", dm.GetParticipantCategories()[1], 2004, 4)
       })
       {
         dm.GetParticipantClasses().Add(o);
@@ -493,8 +515,8 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantCategory>
       {
-          new ParticipantCategory('M', "Männlich", 0),
-          new ParticipantCategory('W', "Weiblich", 1)
+          new ParticipantCategory('M', "Männlich", 1),
+          new ParticipantCategory('W', "Weiblich", 2)
       })
       {
         dm.GetParticipantCategories().Add(o);
@@ -502,10 +524,10 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantGroup>
       {
-        new ParticipantGroup("1", "G_U10", 0),
-        new ParticipantGroup("2", "G_U12", 1),
-        new ParticipantGroup("3", "G_U14", 2),
-        new ParticipantGroup("4", "G_U16", 3)
+        new ParticipantGroup("1", "G_U10", 1),
+        new ParticipantGroup("2", "G_U12", 2),
+        new ParticipantGroup("3", "G_U14", 3),
+        new ParticipantGroup("4", "G_U16", 4)
       })
       {
         dm.GetParticipantGroups().Add(o);
@@ -513,15 +535,15 @@ namespace RaceHorologyLibTest
 
       foreach (var o in new List<ParticipantClass>
       {
-        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U10", dm.GetParticipantCategories()[0], 2010, 0),
-        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U10", dm.GetParticipantCategories()[1], 2010, 1),
-        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U12", dm.GetParticipantCategories()[0], 2008, 2),
-        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U12", dm.GetParticipantCategories()[1], 2008, 3),
+        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U10", dm.GetParticipantCategories()[0], 2010, 1),
+        new ParticipantClass("1", dm.GetParticipantGroups()[0], "U10", dm.GetParticipantCategories()[1], 2010, 2),
+        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U12", dm.GetParticipantCategories()[0], 2008, 3),
+        new ParticipantClass("2", dm.GetParticipantGroups()[1], "U12", dm.GetParticipantCategories()[1], 2008, 4),
 
-        new ParticipantClass("1", dm.GetParticipantGroups()[2], "U14", dm.GetParticipantCategories()[0], 2006, 4),
-        new ParticipantClass("1", dm.GetParticipantGroups()[2], "U14", dm.GetParticipantCategories()[1], 2006, 5),
-        new ParticipantClass("2", dm.GetParticipantGroups()[3], "U16", dm.GetParticipantCategories()[0], 2004, 6),
-        new ParticipantClass("2", dm.GetParticipantGroups()[3], "U16", dm.GetParticipantCategories()[1], 2004, 7)
+        new ParticipantClass("1", dm.GetParticipantGroups()[2], "U14", dm.GetParticipantCategories()[0], 2006, 5),
+        new ParticipantClass("1", dm.GetParticipantGroups()[2], "U14", dm.GetParticipantCategories()[1], 2006, 6),
+        new ParticipantClass("2", dm.GetParticipantGroups()[3], "U16", dm.GetParticipantCategories()[0], 2004, 7),
+        new ParticipantClass("2", dm.GetParticipantGroups()[3], "U16", dm.GetParticipantCategories()[1], 2004, 8)
       })
       {
         dm.GetParticipantClasses().Add(o);

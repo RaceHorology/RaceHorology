@@ -66,6 +66,8 @@ namespace RaceHorology
       _dm = dm;
 
       connectDataGrids();
+
+      ucSaveOrReset.Init( "Klassen- und Gruppenänderungen", null, null, changed, save, reset);
     }
 
     protected void connectDataGrids()
@@ -74,14 +76,19 @@ namespace RaceHorology
       DataContext = _cgVM; 
     }
 
-    private void BtnReset_Click(object sender, RoutedEventArgs e)
+    private void reset()
     {
       _cgVM.Reset();
     }
 
-    private void BtnApply_Click(object sender, RoutedEventArgs e)
+    private void save()
     {
       _cgVM.Store();
+    }
+
+    private bool changed()
+    {
+      return _cgVM.DifferentToDataModel();
     }
 
     private void BtnImport_Click(object sender, RoutedEventArgs e)

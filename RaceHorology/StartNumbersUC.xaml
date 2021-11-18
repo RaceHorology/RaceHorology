@@ -171,11 +171,7 @@
         </Grid>
       </Grid>
 
-      
-      <StackPanel Orientation="Horizontal"  Grid.Row="2" HorizontalAlignment="Right" >
-        <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
-        <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
-      </StackPanel>
+      <local:SaveOrResetUC x:Name="ucSaveOrReset" Grid.Row="2" HorizontalAlignment="Left" Margin="10,15,0,0"/>
     </Grid>
   </Grid>
 </UserControl>

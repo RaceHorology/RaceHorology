@@ -145,14 +145,11 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <StackPanel Orientation="Horizontal"  Grid.Column="0" HorizontalAlignment="Left" >
+      <StackPanel Orientation="Horizontal"  Grid.Column="2" HorizontalAlignment="Right" >
         <Button x:Name="btnImport" Content="Importieren und Ersetzen" Margin="5" Padding="5" Click="BtnImport_Click"/>
         <Button x:Name="btnImportAdd" Content="Importieren und Hinzufügen" Margin="5" Padding="5" Click="BtnImportAdd_Click"/>
       </StackPanel>
-      <StackPanel Orientation="Horizontal"  Grid.Column="2" HorizontalAlignment="Right" >
-        <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" Click="BtnReset_Click"/>
-        <Button x:Name="btnApply" Content="Speichern" Margin="5" Padding="5" Click="BtnApply_Click"/>
-      </StackPanel>
+      <local:SaveOrResetUC x:Name="ucSaveOrReset" Grid.Column="1" HorizontalAlignment="Left" />
     </Grid>
 
   </Grid>
