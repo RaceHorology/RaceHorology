@@ -330,6 +330,28 @@ namespace RaceHorology
       return dgc;
     }
 
+    DataGridTextColumn createColumnPoints(string columnName, string property)
+    {
+      DataGridTextColumn dgc = new DataGridTextColumn
+      {
+        Header = "Punkte"
+      };
+      Binding b = new Binding(property)
+      {
+        Mode = BindingMode.OneWay,
+      };
+
+      b.Converter = new PointsConverter();
+      dgc.Binding = b;
+      dgc.CellStyle = new Style();
+      dgc.CellStyle.Setters.Add(new Setter { Property = TextBlock.TextAlignmentProperty, Value = TextAlignment.Right });
+
+      DataGridUtil.SetName(dgc, columnName);
+
+      return dgc;
+    }
+
+
     DataGridTextColumn createColumnPosition(string columnName, string property, bool inParantheses)
     {
       DataGridTextColumn dgc = new DataGridTextColumn
@@ -441,7 +463,7 @@ namespace RaceHorology
       dgView.Columns.Add(createColumn("Class", "Class", "Klasse"));
       dgView.Columns.Add(createColumn("Club", "Club", "Verein"));
       dgView.Columns.Add(createColumn("Nation", "Nation", "Nat."));
-      dgView.Columns.Add(createColumn("Points", "Points", "Punkte"));
+      dgView.Columns.Add(createColumnPoints("Points", "Points"));
 
       dgView.ItemsSource = _thisRace.GetParticipants();
 

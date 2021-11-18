@@ -736,7 +736,7 @@ Vue.component('dsv-liveapp', {
 
       this.socket.onmessage = ({data}) => {
         
-        parsedData = JSON.parse(event.data);
+        parsedData = JSON.parse(data);
 
         if (parsedData["type"] == "onstart")
         {

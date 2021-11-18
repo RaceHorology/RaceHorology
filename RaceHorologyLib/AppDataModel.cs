@@ -819,6 +819,14 @@ namespace RaceHorologyLib
     /// <returns>The the corresponding RaceParticipant object</returns>
     public RaceParticipant AddParticipant(Participant participant, uint startnumber= 0, double points = -1)
     {
+      if (points == -1)
+      {
+        // Update points from DB if existing
+        var raceParticipantDB = _db.GetRaceParticipants(this, true).FirstOrDefault(r => r.Participant == participant);
+        if (raceParticipantDB != null)
+          points = raceParticipantDB.Points;
+      }
+
       RaceParticipant raceParticipant = GetParticipant(participant);
 
       if (raceParticipant == null)
@@ -827,7 +835,7 @@ namespace RaceHorologyLib
         _participants.Add(raceParticipant);
 
         // Add existing timings (again)
-        foreach(var run in GetRuns())
+        foreach (var run in GetRuns())
         {
           var rr = _db.GetRaceRun(this, run.Run).FindAll(r => r.Participant.Participant == participant);
           run.InsertResults(rr);
@@ -1574,7 +1582,7 @@ namespace RaceHorologyLib
     List<ParticipantCategory> GetParticipantCategories();
 
     List<Race.RaceProperties> GetRaces();
-    List<RaceParticipant> GetRaceParticipants(Race race);
+    List<RaceParticipant> GetRaceParticipants(Race race, bool ignoreAktiveFlag = false);
 
     List<RunResult> GetRaceRun(Race race, uint run);
 

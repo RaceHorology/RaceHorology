@@ -150,7 +150,7 @@ namespace RaceHorologyLib
       foreach ( var item in results)
       {
         if (item is RaceResultItem rri)
-          if (includeResult(rri))
+          if (sexMatched(rri) && hasResult(rri))
             items.Add(rri);
       }
 
@@ -253,7 +253,7 @@ namespace RaceHorologyLib
         {
           if (item is RaceResultItem rri)
           {
-            if (includeResult(rri) && didStart(rri))
+            if (sexMatched(rri) && didStart(rri))
             {
               if (rri.Participant.Points < bestPoints)
               {
@@ -274,7 +274,7 @@ namespace RaceHorologyLib
     }
 
 
-    bool includeResult(RaceResultItem rri)
+    bool sexMatched(RaceResultItem rri)
     {
       if (_sex == char.MinValue)
         return true;
@@ -282,9 +282,16 @@ namespace RaceHorologyLib
       return rri?.Participant?.Sex?.Name == _sex;
     }
 
+    bool hasResult(RaceResultItem rri)
+    {
+      return rri.Position > 0;
+    }
+
     bool didStart(RaceResultItem rri)
     {
-      return rri.SubResults[1].RunResultCode != RunResult.EResultCode.NaS;
+      if (rri.SubResults.ContainsKey(1))
+        return rri.SubResults[1].RunResultCode != RunResult.EResultCode.NaS;
+      return false;
     }
 
   }

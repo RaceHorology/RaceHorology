@@ -705,6 +705,7 @@ namespace RaceHorologyLib
     protected AppDataModel _dm;
 
     protected PDFHelper _pdfHelper;
+    PointsConverter _pointsConverter;
 
     public PDFRaceReport(Race race)
     {
@@ -712,6 +713,7 @@ namespace RaceHorologyLib
       _dm = race.GetDataModel();
 
       _pdfHelper = new PDFHelper(_dm);
+      _pointsConverter = new PointsConverter();
     }
 
     protected abstract string getTitle();
@@ -824,10 +826,7 @@ namespace RaceHorologyLib
 
     protected string formatPoints(double points)
     {
-      if (points < 0.0)
-        return "";
-
-      return string.Format("{0:0.00}", points);
+      return (string) _pointsConverter.Convert(points, typeof(string), null, null);
     }
 
     protected string formatStartNumber(uint startNumber)
