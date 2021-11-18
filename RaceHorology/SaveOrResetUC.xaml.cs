@@ -77,7 +77,7 @@ namespace RaceHorology
       
       if (IsVisible == false) // Became invisible
       {
-        if (true)//existingChanges())
+        if (existingChanges())
         {
           Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (Action)(() =>
           {
@@ -139,7 +139,7 @@ namespace RaceHorology
 
     private bool existingChanges()
     {
-      return _existingChangesCallback==null || _existingChangesCallback();
+      return _existingChangesCallback!=null && _existingChangesCallback();
     }
 
     private void saveChanges()
