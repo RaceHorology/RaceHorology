@@ -32,6 +32,9 @@
     <Label x:Name="lblPort" Content="Port:" Grid.Row="3" Grid.Column="0" Margin="5"/>
     <TextBox x:Name="txtPort" Grid.Row="3" Grid.Column="1"  Margin="5"/>
 
-    <Button x:Name="btnStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="4" Grid.Column="1"  Margin="5" Click="BtnStart_Click" />
+    <StackPanel HorizontalAlignment="Right" Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+      <Button x:Name="btnSave" Content="Speichern" Width="100" Margin="5" Click="BtnSave_Click" />
+      <Button x:Name="btnStart" Content="Start" Width="100" Margin="5" Click="BtnStart_Click" />
+    </StackPanel>
   </Grid>
 </UserControl>

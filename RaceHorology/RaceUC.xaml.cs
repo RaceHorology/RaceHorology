@@ -255,29 +255,33 @@ namespace RaceHorology
 
     private bool StoreConfigurationSelectionUI(ref RaceConfiguration cfg)
     {
-      if (cmbRuns.SelectedIndex < 0
-        || cmbConfigErgebnisGrouping.SelectedIndex < 0
-        || cmbConfigErgebnis.SelectedIndex < 0
-        || cmbConfigStartlist1.SelectedIndex < 0
-        || cmbConfigStartlist1Grouping.SelectedIndex < 0
-        || cmbConfigStartlist2.SelectedIndex < 0
-        || cmbConfigStartlist2Grouping.SelectedIndex < 0
-        )
-        return false;
-
       // Store the template name
       string configName = null;
       if (cmbTemplate.SelectedValue is CBItem selected)
         configName = selected.Text;
       cfg.Name = configName;
 
-      cfg.Runs = (int)((CBItem)cmbRuns.SelectedValue).Value;
-      cfg.DefaultGrouping = (string)((CBItem)cmbConfigErgebnisGrouping.SelectedValue).Value;
-      cfg.RaceResultView = (string)((CBItem)cmbConfigErgebnis.SelectedValue).Value;
-      cfg.Run1_StartistView = (string)((CBItem)cmbConfigStartlist1.SelectedValue).Value;
-      cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
-      cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
-      cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;
+      if (cmbRuns.SelectedIndex >= 0)
+        cfg.Runs = (int)((CBItem)cmbRuns.SelectedValue).Value;
+
+      if (cmbConfigErgebnisGrouping.SelectedIndex >= 0)
+        cfg.DefaultGrouping = (string)((CBItem)cmbConfigErgebnisGrouping.SelectedValue).Value;
+      
+      if (cmbConfigErgebnis.SelectedIndex >= 0)
+        cfg.RaceResultView = (string)((CBItem)cmbConfigErgebnis.SelectedValue).Value;
+      
+      if (cmbConfigStartlist1.SelectedIndex >= 0)
+        cfg.Run1_StartistView = (string)((CBItem)cmbConfigStartlist1.SelectedValue).Value;
+
+      if (cmbConfigStartlist1Grouping.SelectedIndex >= 0)
+        cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
+
+      if (cmbConfigStartlist2.SelectedIndex >= 0)
+        cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
+
+      if (cmbConfigStartlist2Grouping.SelectedIndex >= 0)
+        cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;
+      
       try { cfg.ValueF = double.Parse(txtValueF.Text); } catch (Exception) { }
       try { cfg.ValueA = double.Parse(txtValueA.Text); } catch (Exception) { }
       try { cfg.MinimumPenalty = double.Parse(txtMinPenalty.Text); } catch (Exception) { }
@@ -317,11 +321,7 @@ namespace RaceHorology
     private void configuration_SaveChanges()
     {
       RaceConfiguration cfg = new RaceConfiguration();
-      if (!StoreConfigurationSelectionUI(ref cfg))
-      {
-        MessageBox.Show("Alle Optionen müssen korrekt ausgefüllt sein.", "Optionen fehlerhaft", MessageBoxButton.OK, MessageBoxImage.Error);
-        return;
-      }
+      StoreConfigurationSelectionUI(ref cfg);
 
       _raceConfiguration = cfg.Copy();
 
@@ -555,6 +555,16 @@ namespace RaceHorology
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
     }
 
+
+    private void cmbRaceRun_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      if (_liveTimingMeasurement != null && _liveTimingMeasurement.IsRunning)
+      {
+        MessageBox.Show("Durchgangswechsel während einer Zeitnahme nicht möglich.\n\nBeenden Sie erst die aktuelle Zeitnahme und wähle Sie anschließend den Durchgang aus.", "Durchgangswechsel nicht möglich", MessageBoxButton.OK, MessageBoxImage.Information);
+        e.Handled = true;
+      }
+    }
+
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
@@ -643,6 +653,9 @@ namespace RaceHorology
         dgFinish.ItemsSource = raceRun.GetInFinishList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgFinish);
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
+
+        lblStartList.DataContext = _rslVP.GetView();
+
       }
       else
       {
@@ -664,14 +677,12 @@ namespace RaceHorology
 
 
     /// <summary>
-    /// Enables / disable the recerun combobox depending on whether LiveTimingMeasurement is performed or not
+    /// Enables / disable UI elements based on whether LiveTimingMeasurement is performed or not
     /// </summary>
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        cmbRaceRun.IsEnabled = !isRunning;
-
         RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
         System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
 
@@ -1024,7 +1035,6 @@ namespace RaceHorology
 
 
     #endregion
-
   }
 
 }

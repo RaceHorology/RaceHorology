@@ -523,11 +523,11 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="lblStartList" Content="Am Start" HorizontalAlignment="Left" Margin="5,5,5,5" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
+                <Label x:Name="lblStartList" Content="{Binding Count}" ContentStringFormat="Am Start: {0}" HorizontalAlignment="Left" Margin="5,5,5,5" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
                 <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
                 <Label x:Name="lblStartCountDown" Content="Start frei!" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="40,5,40,5" Grid.Column="1" VerticalAlignment="Top" FontSize="16"
                        Background="LightGreen"/>
-                <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged"/>
+                <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged" PreviewMouseDown="cmbRaceRun_PreviewMouseDown" />
 
                 <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="30,0,5,0">
                   <ToggleButton x:Name="btnLiveTimingStart" Margin="5,0,0,0" Click="LiveTimingStart_Click" Height="35" Width="35">
