@@ -653,6 +653,9 @@ namespace RaceHorology
         dgFinish.ItemsSource = raceRun.GetInFinishList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgFinish);
         dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
+
+        lblStartList.DataContext = _rslVP.GetView();
+
       }
       else
       {
