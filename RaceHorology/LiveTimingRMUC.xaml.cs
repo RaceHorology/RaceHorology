@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,9 +58,19 @@ namespace RaceHorology
     }
 
 
+    private void storeLiveTimingConfig()
+    {
+      RaceConfiguration cfg = _thisRace.RaceConfiguration;
+      StoreLiveTiming(ref cfg);
+      _thisRace.RaceConfiguration = cfg;
+    }
+
+
     private void StoreLiveTiming(ref RaceConfiguration cfg)
     {
-      cfg.LivetimingParams = new Dictionary<string, string>();
+      if (cfg.LivetimingParams == null)
+        cfg.LivetimingParams = new Dictionary<string, string>();
+      
       cfg.LivetimingParams["RM_Bewerb"] = txtLTBewerb.Text;
       cfg.LivetimingParams["RM_Login"] = txtLTLogin.Text;
       cfg.LivetimingParams["RM_Password"] = txtLTPassword.Password;
@@ -68,11 +78,16 @@ namespace RaceHorology
     }
 
 
+    private void BtnLTSave_Click(object sender, RoutedEventArgs e)
+    {
+      storeLiveTimingConfig();
+    }
+    
+
     private void BtnLTLogin_Click(object sender, RoutedEventArgs e)
     {
+      storeLiveTimingConfig();
       RaceConfiguration cfg = _thisRace.RaceConfiguration;
-      StoreLiveTiming(ref cfg);
-      _thisRace.RaceConfiguration = cfg;
 
       try
       {

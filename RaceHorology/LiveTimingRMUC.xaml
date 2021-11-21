@@ -39,6 +39,10 @@
     <Label x:Name="lblLTEvent" Content="Veranstaltung:" Grid.Row="5" Grid.Column="0" Margin="5"/>
     <ComboBox x:Name="cmbLTEvent" Grid.Row="5" Grid.Column="1"  Margin="5" SelectionChanged="CmbLTEvent_SelectionChanged"/>
 
-    <Button x:Name="btnLTStart" Content="Start" Width="100" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="1"  Margin="5" Click="BtnLTStart_Click" />
+    <StackPanel HorizontalAlignment="Right" Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+      <Button x:Name="btnSave" Content="Speichern" Width="100" Margin="5" Click="BtnLTSave_Click" />
+      <Button x:Name="btnLTStart" Content="Start" Width="100" Margin="5" Click="BtnLTStart_Click" />
+    </StackPanel>
+
   </Grid>
 </UserControl>
