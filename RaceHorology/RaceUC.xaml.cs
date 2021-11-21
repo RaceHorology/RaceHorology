@@ -555,6 +555,16 @@ namespace RaceHorology
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
     }
 
+
+    private void cmbRaceRun_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      if (_liveTimingMeasurement != null && _liveTimingMeasurement.IsRunning)
+      {
+        MessageBox.Show("Durchgangswechsel während einer Zeitnahme nicht möglich.\n\nBeenden Sie erst die aktuelle Zeitnahme und wähle Sie anschließend den Durchgang aus.", "Durchgangswechsel nicht möglich", MessageBoxButton.OK, MessageBoxImage.Information);
+        e.Handled = true;
+      }
+    }
+
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
@@ -664,14 +674,12 @@ namespace RaceHorology
 
 
     /// <summary>
-    /// Enables / disable the recerun combobox depending on whether LiveTimingMeasurement is performed or not
+    /// Enables / disable UI elements based on whether LiveTimingMeasurement is performed or not
     /// </summary>
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        cmbRaceRun.IsEnabled = !isRunning;
-
         RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
         System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
 
@@ -1024,7 +1032,6 @@ namespace RaceHorology
 
 
     #endregion
-
   }
 
 }
