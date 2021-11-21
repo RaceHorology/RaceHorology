@@ -83,10 +83,17 @@ namespace RaceHorology
       }
     }
 
+
     public void InitializeLiveTiming(Race race)
     {
       _thisRace = race;
       ResetLiveTimningUI(_thisRace.RaceConfiguration);
+    }
+
+
+    private void BtnSave_Click(object sender, RoutedEventArgs e)
+    {
+      storeLiveTimingConfig();
     }
 
 
@@ -101,12 +108,18 @@ namespace RaceHorology
     }
 
 
-    private void startLiveTiming()
+    private void storeLiveTimingConfig()
     {
       RaceConfiguration cfg = _thisRace.RaceConfiguration;
       StoreLiveTiming(ref cfg);
       _thisRace.RaceConfiguration = cfg;
+    }
 
+    private void startLiveTiming()
+    {
+      storeLiveTimingConfig();
+
+      RaceConfiguration cfg = _thisRace.RaceConfiguration;
       if (_liveTimingFIS != null) // Might be a zombie from a failed connection
         stopLiveTiming();
 
@@ -188,7 +201,5 @@ namespace RaceHorology
       cfg.LivetimingParams["FIS_Pasword"] = txtPassword.Password;
       cfg.LivetimingParams["FIS_Port"] = txtPort.Text;
     }
-
-
   }
 }
