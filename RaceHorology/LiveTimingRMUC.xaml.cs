@@ -1,4 +1,4 @@
-using RaceHorologyLib;
+﻿using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -147,9 +147,8 @@ namespace RaceHorology
         }
         else
         {
+          storeLiveTimingConfig();
           RaceConfiguration cfg = _thisRace.RaceConfiguration;
-          StoreLiveTiming(ref cfg);
-          _thisRace.RaceConfiguration = cfg;
 
           _liveTimingRM.SetEvent(cmbLTEvent.SelectedIndex);
           _liveTimingRM.Start();

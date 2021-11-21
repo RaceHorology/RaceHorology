@@ -195,7 +195,9 @@ namespace RaceHorology
 
     private void StoreLiveTiming(ref RaceConfiguration cfg)
     {
-      cfg.LivetimingParams = new Dictionary<string, string>();
+      if (cfg.LivetimingParams == null)
+        cfg.LivetimingParams = new Dictionary<string, string>();
+
       cfg.LivetimingParams["FIS_RaceCode"] = txtRaceCode.Text;
       cfg.LivetimingParams["FIS_Category"] = txtCategory.Text;
       cfg.LivetimingParams["FIS_Pasword"] = txtPassword.Password;
