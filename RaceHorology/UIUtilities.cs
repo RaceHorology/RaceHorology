@@ -58,14 +58,19 @@ namespace RaceHorology
 
     public static bool SelectCBItem(this ComboBox cmb, object value)
     {
+      bool itemSelected = false;
       foreach (CBItem item in cmb.Items)
         if (object.Equals(item.Value, value))
         {
           cmb.SelectedValue = item;
-          return true;
+          itemSelected = true;
+          break;
         }
 
-      return false;
+      if (!itemSelected)
+        cmb.SelectedIndex = -1;
+      
+      return itemSelected;
     }
 
   }
