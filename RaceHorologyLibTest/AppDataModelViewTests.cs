@@ -1008,6 +1008,7 @@ namespace RaceHorologyLibTest
 
     /// <summary>
     /// Tests whether the positions are correct in case two or more participants have the same runtime
+    /// Rule 621.11 IWO
     /// </summary>
     [TestMethod]
     public void BasedOnResultsFirstRunStartListViewProviderTest_EqualRankAt30()
