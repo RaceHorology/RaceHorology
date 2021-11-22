@@ -918,6 +918,104 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// Tests whether the positions are correct in case two or more participants have the same runtime
+    /// </summary>
+    [TestMethod]
+    public void RaceRunResultViewProviderTest_SameRunTime()
+    {
+      int i = 0;
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(); // StNr 1
+      tg.createRaceParticipant(); // StNr 2
+      tg.createRaceParticipant(); // StNr 3
+      tg.createRaceParticipant(); // StNr 4
+
+      rr.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 0, 0, 11, 0));
+      rr.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 0, 0, 11, 100));
+      rr.SetRunTime(race.GetParticipant(3), new TimeSpan(0, 0, 0, 11, 0));
+      rr.SetRunTime(race.GetParticipant(4), new TimeSpan(0, 0, 0, 10, 990));
+
+      RaceRunResultViewProvider vp = new RaceRunResultViewProvider();
+      vp.Init(rr, tg.Model);
+
+      var ranking = vp.GetView().ViewToList<RunResultWithPosition>();
+      Assert.AreEqual(1U, ranking[0].Position);
+      Assert.AreEqual(4U, ranking[0].StartNumber);
+
+      Assert.AreEqual(2U, ranking[1].Position);
+      Assert.AreEqual(1U, ranking[1].StartNumber);
+
+      Assert.AreEqual(2U, ranking[2].Position);
+      Assert.AreEqual(3U, ranking[2].StartNumber);
+
+      Assert.AreEqual(4U, ranking[3].Position);
+      Assert.AreEqual(2U, ranking[3].StartNumber);
+    }
+
+
+
+    /// <summary>
+    /// Tests whether the positions are correct in case two or more participants have the same runtime
+    /// </summary>
+    [TestMethod]
+    public void BasedOnResultsFirstRunStartListViewProviderTest_SameRunTime()
+    {
+      int i = 0;
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(); // StNr 1
+      tg.createRaceParticipant(); // StNr 2
+      tg.createRaceParticipant(); // StNr 3
+      tg.createRaceParticipant(); // StNr 4
+
+      rr.SetRunTime(race.GetParticipant(1), new TimeSpan(0, 0, 0, 11, 0));
+      rr.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 0, 0, 11, 100));
+      rr.SetRunTime(race.GetParticipant(3), new TimeSpan(0, 0, 0, 11, 0));
+      rr.SetRunTime(race.GetParticipant(4), new TimeSpan(0, 0, 0, 10, 990));
+
+      RaceRunResultViewProvider vp = new RaceRunResultViewProvider();
+      vp.Init(rr, tg.Model);
+
+      BasedOnResultsFirstRunStartListViewProvider slp = new BasedOnResultsFirstRunStartListViewProvider(0, true);
+      slp.Init(rr);
+
+      var ranking = vp.GetView().ViewToList<RunResultWithPosition>();
+      var starter = slp.GetView().ViewToList<StartListEntryAdditionalRun>();
+      Assert.AreEqual(1U, ranking[0].Position);
+      Assert.AreEqual(4U, ranking[0].StartNumber);
+
+      Assert.AreEqual(2U, ranking[1].Position);
+      Assert.AreEqual(1U, ranking[1].StartNumber);
+
+      Assert.AreEqual(2U, ranking[2].Position);
+      Assert.AreEqual(3U, ranking[2].StartNumber);
+
+      Assert.AreEqual(4U, ranking[3].Position);
+      Assert.AreEqual(2U, ranking[3].StartNumber);
+
+      // Start List
+      Assert.AreEqual(4U, starter[0].StartNumber);
+      Assert.AreEqual(3U, starter[1].StartNumber);
+      Assert.AreEqual(1U, starter[2].StartNumber);
+      Assert.AreEqual(2U, starter[3].StartNumber);
+
+    }
+
+
+    /// <summary>
     /// Test for TotalTimeSorter
     /// 
     /// Compares two RunResults, taking into account:
