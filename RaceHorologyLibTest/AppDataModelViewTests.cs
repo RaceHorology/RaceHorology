@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -977,8 +977,8 @@ namespace RaceHorologyLibTest
 
       tg.createRaceParticipants(40); // Create 40 Participants
 
-      for (uint stnr=1; stnr <= 40; ++stnr)
-        rr.SetRunTime(race.GetParticipant(stnr), new TimeSpan(0, 0, 0, 60-(int)stnr, 0));
+      for (uint stnr = 1; stnr <= 40; ++stnr)
+        rr.SetRunTime(race.GetParticipant(stnr), new TimeSpan(0, 0, 0, 60 - (int)stnr, 0));
 
       RaceRunResultViewProvider vp = new RaceRunResultViewProvider();
       vp.Init(rr, tg.Model);
@@ -991,8 +991,8 @@ namespace RaceHorologyLibTest
 
       for (int i = 0; i < 40; ++i)
       {
-        Assert.AreEqual((uint)(i+1), ranking[i].Position);
-        Assert.AreEqual((uint)(40-i), ranking[i].StartNumber);
+        Assert.AreEqual((uint)(i + 1), ranking[i].Position);
+        Assert.AreEqual((uint)(40 - i), ranking[i].StartNumber);
       }
 
       // Start List
