@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -1002,6 +1002,62 @@ namespace RaceHorologyLibTest
           Assert.AreEqual((uint)(21 + i), starter[i].StartNumber);
         else
           Assert.AreEqual((uint)(40 - i), starter[i].StartNumber);
+      }
+    }
+
+
+    /// <summary>
+    /// Tests whether the positions are correct in case two or more participants have the same runtime
+    /// </summary>
+    [TestMethod]
+    public void BasedOnResultsFirstRunStartListViewProviderTest_EqualRankAt30()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipants(40); // Create 40 Participants
+
+      for (uint stnr = 1; stnr <= 40; ++stnr)
+        rr.SetRunTime(race.GetParticipant(stnr), new TimeSpan(0, 0, 0, (int)stnr, 0));
+
+      rr.SetRunTime(race.GetParticipant(30), new TimeSpan(0, 0, 0, 30, 0));
+      rr.SetRunTime(race.GetParticipant(31), new TimeSpan(0, 0, 0, 30, 0));
+
+      RaceRunResultViewProvider vp = new RaceRunResultViewProvider();
+      vp.Init(rr, tg.Model);
+
+      BasedOnResultsFirstRunStartListViewProvider slp = new BasedOnResultsFirstRunStartListViewProvider(30, true);
+      slp.Init(rr);
+
+      var ranking = vp.GetView().ViewToList<RunResultWithPosition>();
+      var starter = slp.GetView().ViewToList<StartListEntryAdditionalRun>();
+
+      for (int i = 0; i < 40; ++i)
+      {
+        if (ranking[i].StartNumber == 30 || ranking[i].StartNumber == 31)
+        {
+          Assert.AreEqual(30U, ranking[i].Position);
+        }
+        else
+        {
+          Assert.AreEqual((uint)(i + 1), ranking[i].Position);
+          Assert.AreEqual((uint)(i + 1), ranking[i].StartNumber);
+        }
+      }
+
+      // Start List
+      for (int i = 0; i < 40; ++i)
+      {
+        // 31, 30, 29 ... 1
+        if (i < 31)
+          Assert.AreEqual((uint)(31-i), starter[i].StartNumber);
+        else
+          Assert.AreEqual((uint)(32 + i), starter[i].StartNumber);
       }
     }
 
