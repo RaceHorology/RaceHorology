@@ -965,6 +965,52 @@ namespace RaceHorologyLibTest
     /// Tests whether the positions are correct in case two or more participants have the same runtime
     /// </summary>
     [TestMethod]
+    public void BasedOnResultsFirstRunStartListViewProviderTest_40Participants()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipants(40); // Create 40 Participants
+
+      for (uint stnr=1; stnr <= 40; ++stnr)
+        rr.SetRunTime(race.GetParticipant(stnr), new TimeSpan(0, 0, 0, 60-(int)stnr, 0));
+
+      RaceRunResultViewProvider vp = new RaceRunResultViewProvider();
+      vp.Init(rr, tg.Model);
+
+      BasedOnResultsFirstRunStartListViewProvider slp = new BasedOnResultsFirstRunStartListViewProvider(20, true);
+      slp.Init(rr);
+
+      var ranking = vp.GetView().ViewToList<RunResultWithPosition>();
+      var starter = slp.GetView().ViewToList<StartListEntryAdditionalRun>();
+
+      for (int i = 0; i < 40; ++i)
+      {
+        Assert.AreEqual((uint)(i+1), ranking[i].Position);
+        Assert.AreEqual((uint)(40-i), ranking[i].StartNumber);
+      }
+
+      // Start List
+      for (int i = 0; i < 40; ++i)
+      {
+        if (i < 20)
+          Assert.AreEqual((uint)(21 + i), starter[i].StartNumber);
+        else
+          Assert.AreEqual((uint)(40 - i), starter[i].StartNumber);
+      }
+    }
+
+
+
+    /// <summary>
+    /// Tests whether the positions are correct in case two or more participants have the same runtime
+    /// </summary>
+    [TestMethod]
     public void BasedOnResultsFirstRunStartListViewProviderTest_SameRunTime()
     {
       int i = 0;
@@ -1011,7 +1057,6 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(3U, starter[1].StartNumber);
       Assert.AreEqual(1U, starter[2].StartNumber);
       Assert.AreEqual(2U, starter[3].StartNumber);
-
     }
 
 
