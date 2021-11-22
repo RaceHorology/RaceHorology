@@ -1055,10 +1055,14 @@ namespace RaceHorologyLibTest
       for (int i = 0; i < 40; ++i)
       {
         // 31, 30, 29 ... 1
-        if (i < 31)
-          Assert.AreEqual((uint)(31-i), starter[i].StartNumber);
+        if (i == 0)
+          Assert.AreEqual(30U, starter[i].StartNumber);
+        else if (i == 1)
+          Assert.AreEqual(31U, starter[i].StartNumber);
+        else if (i < 31)
+          Assert.AreEqual((uint)(31 - i), starter[i].StartNumber);
         else
-          Assert.AreEqual((uint)(32 + i), starter[i].StartNumber);
+          Assert.AreEqual((uint)(i + 1), starter[i].StartNumber);
       }
     }
 
