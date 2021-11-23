@@ -538,7 +538,7 @@ namespace RaceHorologyLib
       _reverseBestN = reverseBestN;
       _allowNonResults = allowNonResults;
 
-      _resultsComparer = new RuntimeSorter();
+      _resultsComparer = new RuntimeSorter(startNumberAscending: false);
     }
 
 
@@ -626,16 +626,22 @@ namespace RaceHorologyLib
 
     protected void ProcessGroup(List<RunResult> resultsCurGroup, List<StartListEntry> newStartList)
     {
-      // Find how many valid results are there (could be less than _reverseBestN)
+      // Find how many valid results are there (could be less or more than _reverseBestN)
+      // depending on:
+      // a) less qualified participants then _reverseBestN => return only number of qualified participants
+      // b) there are several participants at rank _reverseBestN
       int firstBestN = 0;
+      TimeSpan? lastRuntime = null;
       foreach( var item in resultsCurGroup)
       {
-        if (firstBestN >= _reverseBestN)
+        // Maximum 
+        if (firstBestN >= _reverseBestN && (item.Runtime != lastRuntime && lastRuntime != null))
           break;
 
         if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal)
           break;
-          
+
+        lastRuntime = item.Runtime;
         firstBestN++;
       }
 
@@ -937,6 +943,12 @@ namespace RaceHorologyLib
   /// </summary>
   public class RuntimeSorter : ResultSorter<RunResult>
   {
+    bool _startNumberAscending;
+
+    public RuntimeSorter(bool startNumberAscending = true)
+    {
+      _startNumberAscending = startNumberAscending;
+    }
 
     public override int Compare(RunResult rrX, RunResult rrY)
     {
@@ -967,7 +979,7 @@ namespace RaceHorologyLib
       int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
       // If equal, consider startnumber as well
       if (timeComp == 0)
-        return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
+        return (_startNumberAscending?1:-1) * rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
       return timeComp;
     }
