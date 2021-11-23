@@ -315,14 +315,14 @@ namespace RaceHorologyLibTest
       var groups = Model.GetParticipantGroups();
 
       var classes = Model.GetParticipantClasses();
-      classes.Add(new ParticipantClass("1", findGroup("2M"), "Class 2M (2010)", new ParticipantCategory('M'), 2010, 0));
-      classes.Add(new ParticipantClass("2", findGroup("2W"), "Class 2W (2010)", new ParticipantCategory('W'), 2010, 0));
-      classes.Add(new ParticipantClass("3", findGroup("2M"), "Class 2M (2011)", new ParticipantCategory('M'), 2011, 0));
-      classes.Add(new ParticipantClass("4", findGroup("2W"), "Class 2W (2011)", new ParticipantCategory('W'), 2011, 0));
-      classes.Add(new ParticipantClass("5", findGroup("1M"), "Class 1M (2012)", new ParticipantCategory('M'), 2012, 0));
-      classes.Add(new ParticipantClass("6", findGroup("1W"), "Class 1W (2012)", new ParticipantCategory('W'), 2012, 0));
-      classes.Add(new ParticipantClass("7", findGroup("1M"), "Class 1M (2013)", new ParticipantCategory('M'), 2013, 0));
-      classes.Add(new ParticipantClass("8", findGroup("1W"), "Class 1W (2013)", new ParticipantCategory('W'), 2013, 0));
+      classes.Add(new ParticipantClass("1", findGroup("2M"), "Class 2M (2010)", new ParticipantCategory('M'), 2010, 1));
+      classes.Add(new ParticipantClass("2", findGroup("2W"), "Class 2W (2010)", new ParticipantCategory('W'), 2010, 2));
+      classes.Add(new ParticipantClass("3", findGroup("2M"), "Class 2M (2011)", new ParticipantCategory('M'), 2011, 3));
+      classes.Add(new ParticipantClass("4", findGroup("2W"), "Class 2W (2011)", new ParticipantCategory('W'), 2011, 4));
+      classes.Add(new ParticipantClass("5", findGroup("1M"), "Class 1M (2012)", new ParticipantCategory('M'), 2012, 5));
+      classes.Add(new ParticipantClass("6", findGroup("1W"), "Class 1W (2012)", new ParticipantCategory('W'), 2012, 6));
+      classes.Add(new ParticipantClass("7", findGroup("1M"), "Class 1M (2013)", new ParticipantCategory('M'), 2013, 7));
+      classes.Add(new ParticipantClass("8", findGroup("1W"), "Class 1W (2013)", new ParticipantCategory('W'), 2013, 8));
       return classes;
     }
 
