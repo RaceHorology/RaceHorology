@@ -345,14 +345,23 @@ namespace RaceHorologyLib
     }
 
 
-    public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer)
+    public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer, int first = -1, int last = -1)
     {
-      int n = collection.Count();
+      int firstElement = 0;
+      int lastElement= collection.Count - 1;
+
+      if (first >= 0)
+        firstElement = Math.Min(first, collection.Count - 1);
+
+      if (last >= 0)
+        lastElement = Math.Min(last, collection.Count - 1);
+
+      int n = lastElement;
       bool swapped;
       do
       {
         swapped = false;
-        for (int i = 0; i < n - 1; ++i)
+        for (int i = firstElement; i < n; ++i)
         {
           if (comparer.Compare(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
           {
