@@ -179,61 +179,77 @@ namespace RaceHorologyLibTest
     /// Test for DSVFirstRunStartListViewProvider
     /// 
     /// Which provides a start list based on startnumber and points following the criterias:
-    /// - Best first firstNStartnumbers (15) based on the points are randomized
-    /// - Succeeding start list entries are sorted based on the points
+    /// - Best first firstNStartnumbers (5) based on the points are randomized
+    /// - Succeeding start list entries are sorted based on the points i.e. startnumber is ignored
+    ///   (this enables late nominated starters to start at the right slot)
     /// </summary>
     [TestMethod]
     public void DSVFirstRunStartListViewProvider_Test()
     {
-      int i;
       TestDataGenerator tg = new TestDataGenerator();
       tg.createCatsClassesGroups();
 
       var participants = tg.Model.GetRace(0).GetParticipants();
 
-      double points = 1.0;
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++); // points: 1.0
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++);
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: points++); // points: 10.0
+      // Startnumber 1..10, women
+      for (int j = 0; j < 10; ++j)
+        tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: (double)(j + 1)); // points: 1.0 ... 10.0
+
+      // Startnumber 11..20, men
+      for (int j = 0; j < 10; ++j)
+        tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: (double)(j + 1)); // points: 1.0 ... 10.0
 
       DSVFirstRunStartListViewProvider provider = new DSVFirstRunStartListViewProvider(5);
       provider.Init(participants);
+      provider.ChangeGrouping("Participant.Class");
 
-      provider.ChangeGrouping(null);
-
-      Assert.AreEqual("Name 1", provider.GetViewList()[i = 0].Name);
-      Assert.AreEqual("Name 2", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 5", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 6", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 7", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 8", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 9", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 10", provider.GetViewList()[++i].Name);
+      var startlist = provider.GetViewList();
+      // Check initial order by startnumber
+      for (int j = 0; j < 10; ++j)
+      {
+        Assert.AreEqual(string.Format("Name {0}", j + 1), startlist[j].Name);
+        Assert.AreEqual((uint)(j+1), startlist[j].StartNumber);
+      }
+      // Check initial order by startnumber
+      for (int j = 0; j < 10; ++j)
+      {
+        Assert.AreEqual(string.Format("Name {0}", j + 11), startlist[j+10].Name);
+        Assert.AreEqual((uint)(j + 11), startlist[j+10].StartNumber);
+      }
 
       // Add two additional starter, one below first 5, one within the remaining 
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 2.0); // StNr 11 => Pos 6
-      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 8.1); // StNr 12 => Pos 10
-      Assert.AreEqual("Name 1", provider.GetViewList()[i = 0].Name);
-      Assert.AreEqual("Name 2", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 3", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 4", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 5", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 11", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 6", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 7", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 8", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 12", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 9", provider.GetViewList()[++i].Name);
-      Assert.AreEqual("Name 10", provider.GetViewList()[++i].Name);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 2.0); // StNr 21 => Pos 6
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 8.1); // StNr 22 => Pos 10
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: 2.0); // StNr 23 => Pos 6
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: 8.1); // StNr 24 => Pos 10
+
+      int i = 0;
+      // Women
+      Assert.AreEqual("Name 1", startlist[i = 0].Name);
+      Assert.AreEqual("Name 2", startlist[++i].Name);
+      Assert.AreEqual("Name 3", startlist[++i].Name);
+      Assert.AreEqual("Name 4", startlist[++i].Name);
+      Assert.AreEqual("Name 5", startlist[++i].Name);
+      Assert.AreEqual("Name 21", startlist[++i].Name);
+      Assert.AreEqual("Name 6", startlist[++i].Name);
+      Assert.AreEqual("Name 7", startlist[++i].Name);
+      Assert.AreEqual("Name 8", startlist[++i].Name);
+      Assert.AreEqual("Name 22", startlist[++i].Name);
+      Assert.AreEqual("Name 9", startlist[++i].Name);
+      Assert.AreEqual("Name 10", startlist[++i].Name);
+      // Men
+      Assert.AreEqual("Name 11", startlist[++i].Name);
+      Assert.AreEqual("Name 12", startlist[++i].Name);
+      Assert.AreEqual("Name 13", startlist[++i].Name);
+      Assert.AreEqual("Name 14", startlist[++i].Name);
+      Assert.AreEqual("Name 15", startlist[++i].Name);
+      Assert.AreEqual("Name 23", startlist[++i].Name);
+      Assert.AreEqual("Name 16", startlist[++i].Name);
+      Assert.AreEqual("Name 17", startlist[++i].Name);
+      Assert.AreEqual("Name 18", startlist[++i].Name);
+      Assert.AreEqual("Name 24", startlist[++i].Name);
+      Assert.AreEqual("Name 19", startlist[++i].Name);
+      Assert.AreEqual("Name 20", startlist[++i].Name);
     }
 
 
