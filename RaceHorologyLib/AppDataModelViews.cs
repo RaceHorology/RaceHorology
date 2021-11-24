@@ -265,9 +265,7 @@ namespace RaceHorologyLib
     {
       _comparer.SetGrouping(propertyName);
 
-      // Ensure list is sorted again
-      if (_viewList != null)
-        _viewList.Sort(_comparer);
+      sortViewList();
     }
 
 
@@ -284,42 +282,64 @@ namespace RaceHorologyLib
         }
 
       if (e.NewItems != null)
+      {
         foreach (INotifyPropertyChanged item in e.NewItems)
-          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
+          _viewList.Add(CreateStartListEntry((RaceParticipant)item));
+
+        sortViewList();
+      }
     }
 
 
     private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
     {
       // Ensure list is sorted again
-      _viewList.Sort(_comparer);
+      sortViewList();
     }
 
+
+    protected virtual void sortViewList()
+    {
+      // Ensure list is sorted again
+      if (_viewList != null)
+        _viewList.Sort(_comparer);
+    }
   }
 
 
 
   public class PointsStartListEntryComparer : StartListEntryComparer
   {
+    protected uint _firstStartnumber;
     protected int _firstNStartnumbers;
     public PointsStartListEntryComparer(int firstNStartnumbers)
     {
       _firstNStartnumbers = firstNStartnumbers;
+      _firstStartnumber = 1;
+    }
+
+    public uint FirstStartNumber
+    {
+      get => _firstStartnumber;
+      set => _firstStartnumber = value;
     }
 
     public override int Compare(StartListEntry left, StartListEntry right)
     {
-      if (left.StartNumber < _firstNStartnumbers + 1)
+      int groupCompare = CompareGroup(left, right);
+      if (groupCompare != 0)
+        return groupCompare;
+
+      if ((left.StartNumber - _firstStartnumber) < _firstNStartnumbers)
       {
-        if (right.StartNumber < _firstNStartnumbers + 1)
+        if ((right.StartNumber - _firstStartnumber) < _firstNStartnumbers)
           return left.StartNumber.CompareTo(right.StartNumber);
         else
           return -1;
       }
 
       // Left Startnumber is bigger than _firstNStartnumbers
-
-      if (right.StartNumber < _firstNStartnumbers + 1)
+      if ((right.StartNumber - _firstStartnumber) < _firstNStartnumbers)
         return +1;
 
       // According to points, but other direction
@@ -350,12 +370,47 @@ namespace RaceHorologyLib
     public DSVFirstRunStartListViewProvider(int firstNStartnumbers)
     {
       _firstNStartnumbers = firstNStartnumbers;
-      _comparer = new PointsStartListEntryComparer(firstNStartnumbers);
     }
 
     public override ViewProvider Clone()
     {
       return new DSVFirstRunStartListViewProvider(_firstNStartnumbers);
+    }
+
+    protected override void sortViewList()
+    {
+      if (_viewList == null)
+        return;
+
+      // Re-Sort based on DSV Strategy per Group
+      PointsStartListEntryComparer pointsComparer = new PointsStartListEntryComparer(_firstNStartnumbers);
+      void sortGroup(int start, int end)
+      {
+        pointsComparer.FirstStartNumber = _viewList[start].StartNumber;
+        _viewList.Sort(pointsComparer, start, end);
+      }
+
+      // Ensure list is sorted again
+      if (_viewList != null)
+        _viewList.Sort(_comparer);
+
+      // Process each group separately
+      object curGroup = null;
+      int curGroupStart = 0, curGroupEnd = 0;
+      for (int i=0; i<_viewList.Count; ++i)
+      {
+        var item = _viewList[i];
+        object itemGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
+        if (!Equals(PropertyUtilities.GetPropertyValue(item, _activeGrouping), curGroup))
+        {
+          // New group starts
+          sortGroup(curGroupStart, curGroupEnd);
+          curGroup = itemGroup;
+          curGroupStart = i;
+        }
+        curGroupEnd = i;
+      }
+      sortGroup(curGroupStart, curGroupEnd);
     }
   }
 
