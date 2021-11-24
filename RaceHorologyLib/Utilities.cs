@@ -344,14 +344,20 @@ namespace RaceHorologyLib
 
     }
 
-
-    public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer, int first = -1, int last = -1)
+    /// <summary>
+    /// Sorts the collection in-place
+    /// </summary>
+    /// <typeparam name="TC"></typeparam>
+    /// <param name="collection">The collection to sort.</param>
+    /// <param name="comparer">The comparer to use</param>
+    /// <param name="first">The first element to start the sort process. Specifiy 0 if from start.</param>
+    /// <param name="last">The last element to include into the sort. Specify -1 for the last element.</param>
+    public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer, int first = 0, int last = -1)
     {
       int firstElement = 0;
       int lastElement= collection.Count - 1;
 
-      if (first >= 0)
-        firstElement = Math.Min(first, collection.Count - 1);
+      firstElement = Math.Min(first, collection.Count - 1);
 
       if (last >= 0)
         lastElement = Math.Min(last, collection.Count - 1);
