@@ -135,6 +135,7 @@ namespace RaceHorologyLib
     {
       checkOrUpgradeSchema_RHMisc();
       checkOrUpgradeSchema_tblKategorie();
+      checkOrUpgradeDBVersion();
     }
 
     void checkOrUpgradeSchema_RHMisc()
@@ -158,6 +159,28 @@ namespace RaceHorologyLib
       string sql = @"ALTER TABLE tblKategorie ADD RHSynonyms TEXT(255) DEFAULT NULL";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
+    }
+
+
+    void checkOrUpgradeDBVersion()
+    {
+      string sql = @"UPDATE tblVersion SET version = @version";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+
+      cmd.Parameters.Add(new OleDbParameter("@version", 18));
+      cmd.CommandType = CommandType.Text;
+
+      try
+      {
+        Logger.Debug("checkOrUpgradeDBVersion(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "checkOrUpgradeDBVersion failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
     }
 
 

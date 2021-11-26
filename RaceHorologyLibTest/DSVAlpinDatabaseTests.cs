@@ -169,6 +169,8 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(participants.Count() == 0);
 
       db.Close();
+
+      Assert.IsTrue(checkDBVersion(dbFilename));
     }
 
     [TestMethod]
@@ -190,6 +192,8 @@ namespace RaceHorologyLibTest
       db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
       db.Close();
+
+      Assert.IsTrue(checkDBVersion(dbFilename));
 
       Assert.IsTrue(existsTable(dbFilename, "RHMisc"), "table 'RHMisc' is still existing");
     }
@@ -214,6 +218,8 @@ namespace RaceHorologyLibTest
       db.Connect(dbFilename);
       db.Close();
 
+      Assert.IsTrue(checkDBVersion(dbFilename));
+
       Assert.IsTrue(existsColumn(dbFilename, "tblKategorie", "RHSynonyms"));
     }
 
@@ -234,7 +240,7 @@ namespace RaceHorologyLibTest
     bool existsColumn(string dbFilename, string tableName, string column)
     {
       using (OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename })
-      { 
+      {
         conn.Open();
 
         System.Data.DataTable schema = conn.GetSchema("COLUMNS");
@@ -244,6 +250,29 @@ namespace RaceHorologyLibTest
         return col.Length > 0;
       }
     }
+
+    bool checkDBVersion(string dbFilename, int version = 18)
+    {
+      bool res = false;
+
+      using (OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename })
+      {
+        conn.Open();
+
+        string sql = @"SELECT * FROM tblVersion";
+        OleDbCommand command = new OleDbCommand(sql, conn);
+
+        using (OleDbDataReader reader = command.ExecuteReader())
+        {
+          if (reader.Read())
+            if ((int)reader.GetValue(reader.GetOrdinal("version")) == version)
+              res = true;
+        }
+      }
+
+      return res;
+    }
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
