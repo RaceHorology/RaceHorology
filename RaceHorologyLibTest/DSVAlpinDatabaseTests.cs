@@ -387,10 +387,6 @@ namespace RaceHorologyLibTest
         var propIs = db.GetCompetitionProperties();
         TestUtilities.AreEqualByJson(competitionProps, propIs);
       }
-
-
-
-
     }
 
 
