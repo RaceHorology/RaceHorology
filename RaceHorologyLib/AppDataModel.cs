@@ -405,13 +405,12 @@ namespace RaceHorologyLib
       VersatilityPoints = 6,
       VersatilityNoPoints = 7,
       ClubInternal = 8,
-      Parallel = 9,
-      Unknown = 99999
+      Parallel = 9
     };
 
 
-    public string Name { get; set; }
-    public ECompetitionType Type { get; set; } = ECompetitionType.Unknown;
+    public string Name { get; set; } = "";
+    public ECompetitionType Type { get; set; } = ECompetitionType.ClubInternal;
     public bool WithPoints { get; set; }
     // Note: Location is already part of AdditionalRaceProperties
     public string Nation { get; set; }

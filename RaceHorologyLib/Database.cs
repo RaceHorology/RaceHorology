@@ -1102,9 +1102,16 @@ namespace RaceHorologyLib
 
           if (!reader.IsDBNull(reader.GetOrdinal("typ")))
             competitionProps.Type = (CompetitionProperties.ECompetitionType)(byte)reader.GetValue(reader.GetOrdinal("typ"));
+
           competitionProps.WithPoints = (bool)reader.GetValue(reader.GetOrdinal("punktewertung"));
-          competitionProps.Nation = reader["nation"].ToString();
-          competitionProps.Saeson = (uint)((short)reader.GetValue(reader.GetOrdinal("saison")));
+
+          if (reader["nation"].ToString().Length == 3)
+            competitionProps.Nation = reader["nation"].ToString();
+          else
+            competitionProps.Nation = null;
+
+          if (!reader.IsDBNull(reader.GetOrdinal("saison")))
+            competitionProps.Saeson = (uint)((short)reader.GetValue(reader.GetOrdinal("saison")));
 
           competitionProps.KlassenWertung = (bool)reader.GetValue(reader.GetOrdinal("klassenwertung"));
           competitionProps.MannschaftsWertung = (bool)reader.GetValue(reader.GetOrdinal("mannschaftswertung"));
@@ -1126,35 +1133,64 @@ namespace RaceHorologyLib
 
     public void UpdateCompetitionProperties(CompetitionProperties competitionProps)
     {
-      //string sql = @"UPDATE * FROM tblBewerb";
-      //OleDbCommand cmd = new OleDbCommand(sql2, _conn);
-      //using (OleDbDataReader reader = cmd.ExecuteReader())
-      //{
-      //  if (reader.Read())
-      //  {
-      //    competitionProps.Name = reader["bname"].ToString();
+      string sql = @"UPDATE tblBewerb SET " +
+                    @"bname = @bname, " +
+                    @"typ = @typ, " +
+                    @"punktewertung = @punktewertung, " +
+                    @"nation = @nation, " +
+                    @"saison = @saison, " +
+                    @"klassenwertung = @klassenwertung, " +
+                    @"mannschaftswertung = @mannschaftswertung, " +
+                    @"zwischenzeiterfassung = @zwischenzeiterfassung, " +
+                    @"freien_lk_benutzen = @freien_lk_benutzen, " +
+                    @"supercombi = @supercombi, " +
+                    @"jahrgang_aktiv = @jahrgangAktiv, " +
+                    @"verein_aktiv = @vereinAktiv, " +
+                    @"nation_aktiv = @natAktiv, " +
+                    @"code_aktiv = @codeAktiv, " +
+                    @"nenngeld = @nenngeld";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      if (string.IsNullOrEmpty(competitionProps.Name))
+        cmd.Parameters.Add(new OleDbParameter("@bname", ""));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@bname", competitionProps.Name));
 
-      //    competitionProps.Type = (CompetitionProperties.ECompetitionType)(byte)reader.GetValue(reader.GetOrdinal("typ"));
-      //    competitionProps.WithPoints = (bool)reader.GetValue(reader.GetOrdinal("punktewertung"));
-      //    competitionProps.Nation = reader["nation"].ToString();
-      //    competitionProps.Saeson = (uint)((short)reader.GetValue(reader.GetOrdinal("saison")));
+      cmd.Parameters.Add(new OleDbParameter("@typ", (byte)competitionProps.Type));
+      
+      cmd.Parameters.Add(new OleDbParameter("@punktewertung", competitionProps.WithPoints));
+      
+      if (string.IsNullOrEmpty(competitionProps.Nation) || competitionProps.Nation.Length != 3)
+        cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
+      else
+        cmd.Parameters.Add("@nation", OleDbType.Char).Value = competitionProps.Nation;
+      
+      cmd.Parameters.Add(new OleDbParameter("@saison", (short)competitionProps.Saeson));
 
-      //    competitionProps.KlassenWertung = (bool)reader.GetValue(reader.GetOrdinal("klassenwertung"));
-      //    competitionProps.MannschaftsWertung = (bool)reader.GetValue(reader.GetOrdinal("mannschaftswertung"));
-      //    competitionProps.ZwischenZeit = (bool)reader.GetValue(reader.GetOrdinal("zwischenzeiterfassung"));
-      //    competitionProps.FreierListenKopf = (bool)reader.GetValue(reader.GetOrdinal("freien_lk_benutzen"));
-      //    competitionProps.FISSuperCombi = (bool)reader.GetValue(reader.GetOrdinal("supercombi"));
+      cmd.Parameters.Add(new OleDbParameter("@klassenwertung", competitionProps.KlassenWertung));
+      cmd.Parameters.Add(new OleDbParameter("@mannschaftswertung", competitionProps.MannschaftsWertung));
+      cmd.Parameters.Add(new OleDbParameter("@zwischenzeiterfassung", competitionProps.ZwischenZeit));
+      cmd.Parameters.Add(new OleDbParameter("@freien_lk_benutzen", competitionProps.FreierListenKopf));
+      cmd.Parameters.Add(new OleDbParameter("@supercombi", competitionProps.FISSuperCombi));
 
-      //    competitionProps.FieldActiveYear = (bool)reader.GetValue(reader.GetOrdinal("jahrgang_aktiv"));
-      //    competitionProps.FieldActiveClub = (bool)reader.GetValue(reader.GetOrdinal("verein_aktiv"));
-      //    competitionProps.FieldActiveNation = (bool)reader.GetValue(reader.GetOrdinal("nation_aktiv"));
-      //    competitionProps.FieldActiveCode = (bool)reader.GetValue(reader.GetOrdinal("code_aktiv"));
+      cmd.Parameters.Add(new OleDbParameter("@jahrgangAktiv", competitionProps.FieldActiveYear));
+      cmd.Parameters.Add(new OleDbParameter("@vereinAktiv", competitionProps.FieldActiveClub));
+      cmd.Parameters.Add(new OleDbParameter("@natAktiv", competitionProps.FieldActiveNation));
+      cmd.Parameters.Add(new OleDbParameter("@codeAktiv", competitionProps.FieldActiveCode));
 
-      //    competitionProps.Nenngeld = (double)((decimal)reader.GetValue(reader.GetOrdinal("nenngeld")));
-      //  }
-      //}
+      cmd.Parameters.Add(new OleDbParameter("@nenngeld", (decimal)competitionProps.Nenngeld));
 
-      //return competitionProps;
+      cmd.CommandType = CommandType.Text;
+      try
+      {
+        Logger.Debug("UpdateCompetitionProperties(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "UpdateCompetitionProperties() failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
     }
 
     #endregion

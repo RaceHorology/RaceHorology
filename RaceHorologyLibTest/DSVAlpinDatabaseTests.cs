@@ -318,6 +318,27 @@ namespace RaceHorologyLibTest
         RaceHorologyLib.Database db = new RaceHorologyLib.Database();
         db.Connect(dbFilename);
 
+        CompetitionProperties propShall = new CompetitionProperties();
+        CompetitionProperties propIs = null;
+
+        propShall.WithPoints = true;
+        db.UpdateCompetitionProperties(propShall); propIs = db.GetCompetitionProperties(); TestUtilities.AreEqualByJson(propShall, propIs);
+
+        propShall.Nation = "REG";
+        db.UpdateCompetitionProperties(propShall); propIs = db.GetCompetitionProperties(); TestUtilities.AreEqualByJson(propShall, propIs);
+
+        propShall.MannschaftsWertung = true;
+        db.UpdateCompetitionProperties(propShall); propIs = db.GetCompetitionProperties(); TestUtilities.AreEqualByJson(propShall, propIs);
+
+        propShall.Saeson = 1999;
+        db.UpdateCompetitionProperties(propShall); propIs = db.GetCompetitionProperties(); TestUtilities.AreEqualByJson(propShall, propIs);
+      }
+
+      {
+        string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+
         var competitionProps = db.GetCompetitionProperties();
         Assert.AreEqual("Zwergerlrennen 2019", competitionProps.Name);
         Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal, competitionProps.Type);
@@ -334,6 +355,10 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(false, competitionProps.FieldActiveNation);
         Assert.AreEqual(false, competitionProps.FieldActiveCode);
         Assert.AreEqual(10.0, competitionProps.Nenngeld);
+
+        db.UpdateCompetitionProperties(competitionProps);
+        var propIs = db.GetCompetitionProperties(); 
+        TestUtilities.AreEqualByJson(competitionProps, propIs);
       }
       {
         string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
@@ -356,7 +381,15 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(true, competitionProps.FieldActiveNation);
         Assert.AreEqual(true, competitionProps.FieldActiveCode);
         Assert.AreEqual(10.0, competitionProps.Nenngeld);
+
+
+        db.UpdateCompetitionProperties(competitionProps);
+        var propIs = db.GetCompetitionProperties();
+        TestUtilities.AreEqualByJson(competitionProps, propIs);
       }
+
+
+
 
     }
 
