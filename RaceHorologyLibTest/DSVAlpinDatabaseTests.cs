@@ -307,6 +307,62 @@ namespace RaceHorologyLibTest
 
     #endregion
 
+    #region Competition
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    public void TestCompetitionProperties()
+    {
+      {
+        string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+
+        var competitionProps = db.GetCompetitionProperties();
+        Assert.AreEqual("Zwergerlrennen 2019", competitionProps.Name);
+        Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal, competitionProps.Type);
+        Assert.AreEqual(false, competitionProps.WithPoints);
+        Assert.AreEqual("GER", competitionProps.Nation);
+        Assert.AreEqual(2019U, competitionProps.Saeson);
+        Assert.AreEqual(true, competitionProps.KlassenWertung);
+        Assert.AreEqual(false, competitionProps.MannschaftsWertung);
+        Assert.AreEqual(false, competitionProps.ZwischenZeit);
+        Assert.AreEqual(true, competitionProps.FreierListenKopf);
+        Assert.AreEqual(false, competitionProps.FISSuperCombi);
+        Assert.AreEqual(true, competitionProps.FieldActiveYear);
+        Assert.AreEqual(false, competitionProps.FieldActiveClub);
+        Assert.AreEqual(false, competitionProps.FieldActiveNation);
+        Assert.AreEqual(false, competitionProps.FieldActiveCode);
+        Assert.AreEqual(10.0, competitionProps.Nenngeld);
+      }
+      {
+        string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+
+        var competitionProps = db.GetCompetitionProperties();
+        Assert.AreEqual("1554MSBS", competitionProps.Name);
+        Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_SchoolPoints, competitionProps.Type);
+        Assert.AreEqual(true, competitionProps.WithPoints);
+        Assert.AreEqual("AUT", competitionProps.Nation);
+        Assert.AreEqual(2020U, competitionProps.Saeson);
+        Assert.AreEqual(true, competitionProps.KlassenWertung);
+        Assert.AreEqual(false, competitionProps.MannschaftsWertung);
+        Assert.AreEqual(false, competitionProps.ZwischenZeit);
+        Assert.AreEqual(false, competitionProps.FreierListenKopf);
+        Assert.AreEqual(false, competitionProps.FISSuperCombi);
+        Assert.AreEqual(true, competitionProps.FieldActiveYear);
+        Assert.AreEqual(true, competitionProps.FieldActiveClub);
+        Assert.AreEqual(true, competitionProps.FieldActiveNation);
+        Assert.AreEqual(true, competitionProps.FieldActiveCode);
+        Assert.AreEqual(10.0, competitionProps.Nenngeld);
+      }
+
+    }
+
+
+    #endregion
+
     #region Races
 
     [TestMethod]

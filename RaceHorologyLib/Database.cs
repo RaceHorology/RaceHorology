@@ -1087,6 +1087,76 @@ namespace RaceHorologyLib
       }
     }
 
+
+    public CompetitionProperties GetCompetitionProperties()
+    {
+      CompetitionProperties competitionProps = new CompetitionProperties();
+
+      string sql2 = @"SELECT * FROM tblBewerb";
+      OleDbCommand cmd = new OleDbCommand(sql2, _conn);
+      using (OleDbDataReader reader = cmd.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          competitionProps.Name = reader["bname"].ToString();
+
+          if (!reader.IsDBNull(reader.GetOrdinal("typ")))
+            competitionProps.Type = (CompetitionProperties.ECompetitionType)(byte)reader.GetValue(reader.GetOrdinal("typ"));
+          competitionProps.WithPoints = (bool)reader.GetValue(reader.GetOrdinal("punktewertung"));
+          competitionProps.Nation = reader["nation"].ToString();
+          competitionProps.Saeson = (uint)((short)reader.GetValue(reader.GetOrdinal("saison")));
+
+          competitionProps.KlassenWertung = (bool)reader.GetValue(reader.GetOrdinal("klassenwertung"));
+          competitionProps.MannschaftsWertung = (bool)reader.GetValue(reader.GetOrdinal("mannschaftswertung"));
+          competitionProps.ZwischenZeit = (bool)reader.GetValue(reader.GetOrdinal("zwischenzeiterfassung"));
+          competitionProps.FreierListenKopf = (bool)reader.GetValue(reader.GetOrdinal("freien_lk_benutzen"));
+          competitionProps.FISSuperCombi = (bool)reader.GetValue(reader.GetOrdinal("supercombi"));
+
+          competitionProps.FieldActiveYear = (bool)reader.GetValue(reader.GetOrdinal("jahrgang_aktiv"));
+          competitionProps.FieldActiveClub = (bool)reader.GetValue(reader.GetOrdinal("verein_aktiv"));
+          competitionProps.FieldActiveNation = (bool)reader.GetValue(reader.GetOrdinal("nation_aktiv"));
+          competitionProps.FieldActiveCode = (bool)reader.GetValue(reader.GetOrdinal("code_aktiv"));
+
+          competitionProps.Nenngeld = (double)((decimal)reader.GetValue(reader.GetOrdinal("nenngeld")));
+        }
+      }
+
+      return competitionProps;
+    }
+
+    public void UpdateCompetitionProperties(CompetitionProperties competitionProps)
+    {
+      //string sql = @"UPDATE * FROM tblBewerb";
+      //OleDbCommand cmd = new OleDbCommand(sql2, _conn);
+      //using (OleDbDataReader reader = cmd.ExecuteReader())
+      //{
+      //  if (reader.Read())
+      //  {
+      //    competitionProps.Name = reader["bname"].ToString();
+
+      //    competitionProps.Type = (CompetitionProperties.ECompetitionType)(byte)reader.GetValue(reader.GetOrdinal("typ"));
+      //    competitionProps.WithPoints = (bool)reader.GetValue(reader.GetOrdinal("punktewertung"));
+      //    competitionProps.Nation = reader["nation"].ToString();
+      //    competitionProps.Saeson = (uint)((short)reader.GetValue(reader.GetOrdinal("saison")));
+
+      //    competitionProps.KlassenWertung = (bool)reader.GetValue(reader.GetOrdinal("klassenwertung"));
+      //    competitionProps.MannschaftsWertung = (bool)reader.GetValue(reader.GetOrdinal("mannschaftswertung"));
+      //    competitionProps.ZwischenZeit = (bool)reader.GetValue(reader.GetOrdinal("zwischenzeiterfassung"));
+      //    competitionProps.FreierListenKopf = (bool)reader.GetValue(reader.GetOrdinal("freien_lk_benutzen"));
+      //    competitionProps.FISSuperCombi = (bool)reader.GetValue(reader.GetOrdinal("supercombi"));
+
+      //    competitionProps.FieldActiveYear = (bool)reader.GetValue(reader.GetOrdinal("jahrgang_aktiv"));
+      //    competitionProps.FieldActiveClub = (bool)reader.GetValue(reader.GetOrdinal("verein_aktiv"));
+      //    competitionProps.FieldActiveNation = (bool)reader.GetValue(reader.GetOrdinal("nation_aktiv"));
+      //    competitionProps.FieldActiveCode = (bool)reader.GetValue(reader.GetOrdinal("code_aktiv"));
+
+      //    competitionProps.Nenngeld = (double)((decimal)reader.GetValue(reader.GetOrdinal("nenngeld")));
+      //  }
+      //}
+
+      //return competitionProps;
+    }
+
     #endregion
 
     #region Store / Get Key Value
@@ -1441,7 +1511,7 @@ namespace RaceHorologyLib
 
 
     /* ************************ Category ********************* */
-    public void ReadParticipantCategories()
+    private void ReadParticipantCategories()
     {
       if (_id2ParticipantCategory.Count() > 0)
         return;
