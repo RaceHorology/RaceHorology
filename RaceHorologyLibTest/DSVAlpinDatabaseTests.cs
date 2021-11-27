@@ -165,8 +165,9 @@ namespace RaceHorologyLibTest
       db.Connect(dbFilename);
 
       var participants = db.GetParticipants();
-
       Assert.IsTrue(participants.Count() == 0);
+
+      Assert.AreEqual("new", db.GetCompetitionProperties().Name);
 
       db.Close();
 

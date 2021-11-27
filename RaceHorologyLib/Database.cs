@@ -75,6 +75,21 @@ namespace RaceHorologyLib
       stream.Seek(0, System.IO.SeekOrigin.Begin);
       stream.CopyTo(fileStream);
       fileStream.Close();
+
+      // Store some correct Value in the DB
+      Connect(dbPath);
+      
+      // Update the right name within the DB
+      var prop = GetCompetitionProperties();
+      prop.Name = System.IO.Path.GetFileNameWithoutExtension(GetDBFileName());
+      // A default country
+      prop.Nation = "GER"; 
+      UpdateCompetitionProperties(prop);
+      // A Default location
+      storeRacePropertyInternal(null, "");
+
+      Close();
+
       return dbPath;
     }
 
@@ -1068,7 +1083,7 @@ namespace RaceHorologyLib
                     @"SET ort = @ort";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
 
-      if (string.IsNullOrEmpty(location))
+      if (location == null)
         cmd.Parameters.Add(new OleDbParameter("@ort", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@ort", location));
@@ -1124,7 +1139,10 @@ namespace RaceHorologyLib
           competitionProps.FieldActiveNation = (bool)reader.GetValue(reader.GetOrdinal("nation_aktiv"));
           competitionProps.FieldActiveCode = (bool)reader.GetValue(reader.GetOrdinal("code_aktiv"));
 
-          competitionProps.Nenngeld = (double)((decimal)reader.GetValue(reader.GetOrdinal("nenngeld")));
+          if (!reader.IsDBNull(reader.GetOrdinal("nenngeld")))
+            competitionProps.Nenngeld = (double)((decimal)reader.GetValue(reader.GetOrdinal("nenngeld")));
+          else
+            competitionProps.Nenngeld = 0.0;
         }
       }
 
