@@ -136,6 +136,7 @@
     <Compile Include="ExportTest.cs" />
     <Compile Include="HandTimingTest.cs" />
     <Compile Include="ImportTest.cs" />
+    <Compile Include="ImportTimeTest.cs" />
     <Compile Include="IntegrationTests.cs" />
     <Compile Include="LiveTimingFISTest.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
