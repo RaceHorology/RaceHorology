@@ -34,6 +34,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -48,9 +49,6 @@ namespace RaceHorologyLibTest
   {
     public ImportTimeTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
     }
 
     private TestContext testContextInstance;
@@ -94,11 +92,55 @@ namespace RaceHorologyLibTest
     #endregion
 
     [TestMethod]
-    public void TestMethod1()
+    public void ImportTimeEntryWithParticipant()
     {
-      //
-      // TODO: Add test logic here
-      //
+      TestDataGenerator tg = new TestDataGenerator();
+      var rp = tg.createRaceParticipant();
+
+      ImportTimeEntry ie = new ImportTimeEntry { RunTime = new TimeSpan(0, 0, 10), StartNumber = 1 };
+
+      ImportTimeEntryWithParticipant entry = new ImportTimeEntryWithParticipant(ie, rp);
+
+      Assert.AreEqual(1U, entry.StartNumber);
+      Assert.AreEqual("Name 1", entry.Name);
+    }
+
+
+    [TestMethod]
+    public void ImportTimeEntryVM()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipants(5);
+      var race = tg.Model.GetRace(0);
+
+      ImportTimeEntryVM vm = new ImportTimeEntryVM(race);
+      vm.AddEntry(new ImportTimeEntry { RunTime = new TimeSpan(0, 0, 10), StartNumber = 1 });
+
+      Assert.AreEqual(1, vm.ImportEntries.Count);
+      Assert.AreEqual(1U, vm.ImportEntries[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0,0,0,10), vm.ImportEntries[0].RunTime);
+
+      vm.AddEntry(new ImportTimeEntry { RunTime = new TimeSpan(0, 0, 13), StartNumber = 3 });
+      Assert.AreEqual(2, vm.ImportEntries.Count);
+      Assert.AreEqual(1U, vm.ImportEntries[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 10), vm.ImportEntries[0].RunTime);
+      Assert.AreEqual(3U, vm.ImportEntries[1].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[1].RunTime);
+
+      vm.AddEntry(new ImportTimeEntry { RunTime = new TimeSpan(0, 0, 11), StartNumber = 1 });
+      Assert.AreEqual(2, vm.ImportEntries.Count);
+      Assert.AreEqual(3U, vm.ImportEntries[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[0].RunTime);
+      Assert.AreEqual(1U, vm.ImportEntries[1].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 11), vm.ImportEntries[1].RunTime);
+
+      var rr1 = race.GetRun(0);
+
+      Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(1))?.Runtime);
+      vm.Save(rr1);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 11), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
+      Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(2))?.Runtime);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 13), rr1.GetRunResult(race.GetParticipant(3)).Runtime);
     }
   }
 }
