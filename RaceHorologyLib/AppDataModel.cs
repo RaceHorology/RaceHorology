@@ -661,40 +661,55 @@ namespace RaceHorologyLib
 
     protected void StoreRaceConfig()
     {
-      string configFile = GetRaceConfigFilepath();
       try
       {
         string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_raceConfiguration, Newtonsoft.Json.Formatting.Indented);
 
-        System.IO.File.WriteAllText(configFile, configJSON);
+        //string configFile = GetRaceConfigFilepath();
+        //System.IO.File.WriteAllText(configFile, configJSON);
+        _db.StoreKeyValue(GetRaceConfigKey(), configJSON);
       }
       catch (Exception e)
       {
-        logger.Info(e, "could not write race config {name}", configFile);
+        logger.Info(e, "could store race config");
       }
     }
 
     protected string GetRaceConfigFilepath()
     {
       string configFile = System.IO.Path.Combine(
-        _appDataModel.GetDB().GetDBPathDirectory(), 
+        _appDataModel.GetDB().GetDBPathDirectory(),
         _appDataModel.GetDB().GetDBFileName() + "_" + _properties.RaceType.ToString() + ".config");
       return configFile;
+    }
+
+    protected string GetRaceConfigKey()
+    {
+      return string.Format("RaceConfig_{0}", _properties.RaceType.ToString());
     }
 
     protected void LoadRaceConfig()
     {
       _raceConfiguration = new RaceConfiguration();
-      string configFile = GetRaceConfigFilepath();
       try
       {
-        string configJSON = System.IO.File.ReadAllText(configFile);
+        string configJSON;
+        
+        string configJSONDB = _db.GetKeyValue(GetRaceConfigKey());
+        if (!string.IsNullOrEmpty(configJSONDB))
+          configJSON = configJSONDB;
+        else 
+        {
+          string configFile = GetRaceConfigFilepath();
+          configJSON = System.IO.File.ReadAllText(configFile);
+        }
 
-        Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, _raceConfiguration);
+        if (!string.IsNullOrEmpty(configJSON))
+          Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, _raceConfiguration);
       }
       catch(Exception e)
       {
-        logger.Info(e, "could not load race config {name}", configFile);
+        logger.Info(e, "could not load race config");
       }
     }
 
