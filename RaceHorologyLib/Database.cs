@@ -78,14 +78,13 @@ namespace RaceHorologyLib
 
       // Store some correct Value in the DB
       Connect(dbPath);
-      
-      // Update the right name within the DB
+      // Update the right name within the DB - to make DSVAlpin and DSVAlpinX happy
       var prop = GetCompetitionProperties();
       prop.Name = System.IO.Path.GetFileNameWithoutExtension(GetDBFileName());
-      // A default country
+      // A default country - to make DSVAlpinX happy
       prop.Nation = "GER"; 
       UpdateCompetitionProperties(prop);
-      // A Default location
+      // A Default location - to make DSVAlpinX happy
       storeRacePropertyInternal(null, "");
 
       Close();
@@ -135,6 +134,12 @@ namespace RaceHorologyLib
 
       _conn.Close();
       _conn.Dispose();
+
+      // Force closing the connection and destroy the connection pool
+      OleDbConnection.ReleaseObjectPool();
+      GC.Collect();
+      GC.WaitForPendingFinalizers(); 
+
       _conn = null;
     }
 
