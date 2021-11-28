@@ -388,6 +388,48 @@ namespace RaceHorologyLib
   }
 
 
+  /// <summary>
+  /// Represents some properties for the competition i.e., top level properties directly on the AppDataModel.
+  /// Note: This mainly originates from the DSVAlpin data base and might change if database backend changes.
+  /// </summary>
+  public class CompetitionProperties
+  {
+    public enum ECompetitionType
+    {
+      FIS_Women = 0,
+      FIS_Men = 1,
+      DSV_Points = 2,
+      DSV_NoPoints = 3,
+      DSV_SchoolPoints = 4,
+      DSV_SchoolNoPoints = 5,
+      VersatilityPoints = 6,
+      VersatilityNoPoints = 7,
+      ClubInternal = 8,
+      Parallel = 9
+    };
+
+
+    public string Name { get; set; } = "";
+    public ECompetitionType Type { get; set; } = ECompetitionType.ClubInternal;
+    public bool WithPoints { get; set; }
+    // Note: Location is already part of AdditionalRaceProperties
+    public string Nation { get; set; }
+    public uint Saeson { get; set; }
+
+    public bool KlassenWertung { get; set; }
+    public bool MannschaftsWertung { get; set; }
+    public bool ZwischenZeit { get; set; }
+    public bool FreierListenKopf { get; set; }
+    public bool FISSuperCombi { get; set; }
+
+    public bool FieldActiveYear { get; set; }
+    public bool FieldActiveClub { get; set; }
+    public bool FieldActiveNation { get; set; }
+    public bool FieldActiveCode { get; set; }
+
+    public double Nenngeld { get; set; }
+  }
+
 
   public class AdditionalRaceProperties
   {
