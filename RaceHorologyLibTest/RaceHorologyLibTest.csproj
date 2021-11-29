@@ -177,6 +177,18 @@
     <None Include="TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="TestDataBases\ALGE-Classement\ALGEClassement_Memorytime.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\ALGE-Classement\ALGEClassement_Runtime_Run1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\ALGE-Classement\ALGEClassement_Runtime_Run2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDataBases\ALGE-Classement\ALGEClassement_Totaltime.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDataBases\FullTestCases\Case4-DSV-less-participants\2801DSHS_Slalom.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
