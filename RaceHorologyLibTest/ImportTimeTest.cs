@@ -97,7 +97,7 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator();
       var rp = tg.createRaceParticipant();
 
-      ImportTimeEntry ie = new ImportTimeEntry { RunTime = new TimeSpan(0, 0, 10), StartNumber = 1 };
+      ImportTimeEntry ie = new ImportTimeEntry(1U, new TimeSpan(0, 0, 10));
 
       ImportTimeEntryWithParticipant entry = new ImportTimeEntryWithParticipant(ie, rp);
 
@@ -114,20 +114,20 @@ namespace RaceHorologyLibTest
       var race = tg.Model.GetRace(0);
 
       ImportTimeEntryVM vm = new ImportTimeEntryVM(race);
-      vm.AddEntry(new ImportTimeEntry { RunTime = new TimeSpan(0, 0, 10), StartNumber = 1 });
+      vm.AddEntry(new ImportTimeEntry (1, new TimeSpan(0, 0, 10)));
 
       Assert.AreEqual(1, vm.ImportEntries.Count);
       Assert.AreEqual(1U, vm.ImportEntries[0].StartNumber);
       Assert.AreEqual(new TimeSpan(0,0,0,10), vm.ImportEntries[0].RunTime);
 
-      vm.AddEntry(new ImportTimeEntry { RunTime = new TimeSpan(0, 0, 13), StartNumber = 3 });
+      vm.AddEntry(new ImportTimeEntry (3, new TimeSpan(0, 0, 13)));
       Assert.AreEqual(2, vm.ImportEntries.Count);
       Assert.AreEqual(1U, vm.ImportEntries[0].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 10), vm.ImportEntries[0].RunTime);
       Assert.AreEqual(3U, vm.ImportEntries[1].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[1].RunTime);
 
-      vm.AddEntry(new ImportTimeEntry { RunTime = new TimeSpan(0, 0, 11), StartNumber = 1 });
+      vm.AddEntry(new ImportTimeEntry (1, new TimeSpan(0, 0, 11)));
       Assert.AreEqual(2, vm.ImportEntries.Count);
       Assert.AreEqual(3U, vm.ImportEntries[0].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[0].RunTime);

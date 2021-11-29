@@ -45,6 +45,14 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
+  public delegate void ImportTimeEntryEventHandler(object sender, ImportTimeEntry e);
+
+  public interface IImportTime
+  {
+    event ImportTimeEntryEventHandler ImportTimeEntryReceived;
+  }
+
+
   /// <summary>
   /// Represent an imported time e.g. received via ALGE Classement
   /// </summary>
@@ -53,10 +61,10 @@ namespace RaceHorologyLib
     uint _startNumber;
     TimeSpan? _runTime;
 
-    public ImportTimeEntry()
+    public ImportTimeEntry(uint startNumber, TimeSpan? runTime)
     {
-      _startNumber = 0;
-      _runTime = null;
+      _startNumber = startNumber;
+      _runTime = runTime;
     }
 
     public uint StartNumber
@@ -79,9 +87,8 @@ namespace RaceHorologyLib
     RaceParticipant _rp;
 
     public ImportTimeEntryWithParticipant(ImportTimeEntry ie, RaceParticipant rp)
+      : base(ie.StartNumber, ie.RunTime)
     {
-      StartNumber = ie.StartNumber;
-      RunTime = ie.RunTime;
       _rp = rp;
     }
 

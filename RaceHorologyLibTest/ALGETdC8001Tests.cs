@@ -163,90 +163,227 @@ namespace RaceHorologyLibTest
       ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
 
       {
-        var pd = parser.Parse(" 0035 C0M 21:46:36.3900 00");
-        Assert.AreEqual(' ', pd.Flag);
-        Assert.AreEqual(35U, pd.StartNumber);
-        Assert.AreEqual("C0", pd.Channel);
-        Assert.AreEqual('M', pd.ChannelModifier);
-        Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 390), pd.Time);
+        parser.Parse(" 0035 C0M 21:46:36.3900 00");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(35U, parser.TimingData.StartNumber);
+        Assert.AreEqual("C0", parser.TimingData.Channel);
+        Assert.AreEqual('M', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 390), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
 
       {
-        var pd = parser.Parse(" 0035 C0  21:46:36.3910 00");
-        Assert.AreEqual(' ', pd.Flag);
-        Assert.AreEqual(35U, pd.StartNumber);
-        Assert.AreEqual("C0", pd.Channel);
-        Assert.AreEqual(' ', pd.ChannelModifier);
-        Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 391), pd.Time);
+        parser.Parse(" 0035 C0  21:46:36.3910 00");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(35U, parser.TimingData.StartNumber);
+        Assert.AreEqual("C0", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 391), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
 
       {
-        var pd = parser.Parse("?0034 C1M 21:46:48.3300 00");
-        Assert.AreEqual('?', pd.Flag);
-        Assert.AreEqual(34U, pd.StartNumber);
-        Assert.AreEqual("C1", pd.Channel);
-        Assert.AreEqual('M', pd.ChannelModifier);
-        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 330), pd.Time);
+        parser.Parse("?0034 C1M 21:46:48.3300 00");
+        Assert.AreEqual('?', parser.TimingData.Flag);
+        Assert.AreEqual(34U, parser.TimingData.StartNumber);
+        Assert.AreEqual("C1", parser.TimingData.Channel);
+        Assert.AreEqual('M', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 330), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
 
       {
-        var pd = parser.Parse("n0034");
-        Assert.AreEqual('n', pd.Flag);
-        Assert.AreEqual(34U, pd.StartNumber);
-        Assert.AreEqual("", pd.Channel);
-        Assert.AreEqual(' ', pd.ChannelModifier);
-        Assert.AreEqual(new TimeSpan(), pd.Time);
+        parser.Parse("n0034");
+        Assert.AreEqual('n', parser.TimingData.Flag);
+        Assert.AreEqual(34U, parser.TimingData.StartNumber);
+        Assert.AreEqual("", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
 
-      // Uncommon input for parser
-      Assert.ThrowsException<FormatException>(() => { parser.Parse("                                "); });
-
+      {
+        // Uncommon input for parser
+        parser.Parse("                                ");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
       #region Different Time Accuracy
       {
-        var pd = parser.Parse("?0034 C1M 21:46:48.1230 00");
-        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 123), pd.Time);
+        parser.Parse("?0034 C1M 21:46:48.1230 00");
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 123), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
       {
-        var pd = parser.Parse("?0034 C1M 21:46:48.123  00");
-        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 123), pd.Time);
+        parser.Parse("?0034 C1M 21:46:48.123  00");
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 123), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
       {
-        var pd = parser.Parse("?0034 C1M 21:46:48.12   00");
-        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 120), pd.Time);
+        parser.Parse("?0034 C1M 21:46:48.12   00");
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 120), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
       {
-        var pd = parser.Parse("?0034 C1M 21:46:48.1    00");
-        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 100), pd.Time);
+        parser.Parse("?0034 C1M 21:46:48.1    00");
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 100), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
       #endregion
 
       #region ALGE WTN 
       {
-        var pd = parser.Parse("t0003 C1  16:01:56.6585 00");
-        Assert.AreEqual('t', pd.Flag);
-        Assert.AreEqual(3U, pd.StartNumber);
-        Assert.AreEqual("C1", pd.Channel);
-        Assert.AreEqual(' ', pd.ChannelModifier);
-        Assert.AreEqual((new TimeSpan(0, 16, 01, 56, 658)).AddMicroseconds(500), pd.Time);
+        parser.Parse("t0003 C1  16:01:56.6585 00");
+        Assert.AreEqual('t', parser.TimingData.Flag);
+        Assert.AreEqual(3U, parser.TimingData.StartNumber);
+        Assert.AreEqual("C1", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual((new TimeSpan(0, 16, 01, 56, 658)).AddMicroseconds(500), parser.TimingData.Time);
       }
       #endregion
 
       #region Short Lines 
       {
-        var pd = parser.Parse("n0003");
-        Assert.AreEqual('n', pd.Flag);
-        Assert.AreEqual(3U, pd.StartNumber);
+        parser.Parse("n0003");
+        Assert.AreEqual('n', parser.TimingData.Flag);
+        Assert.AreEqual(3U, parser.TimingData.StartNumber);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
       { 
-        var pd = parser.Parse("s0003");
-        Assert.AreEqual('s', pd.Flag);
-        Assert.AreEqual(3U, pd.StartNumber);
+        parser.Parse("s0003");
+        Assert.AreEqual('s', parser.TimingData.Flag);
+        Assert.AreEqual(3U, parser.TimingData.StartNumber);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
       #endregion
 
 
     }
 
+
+    [TestMethod]
+    public void ParserClassementTest()
+    {
+      ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
+
+      {
+        parser.Parse("                                ");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse("CLASSEMENT:");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.Classement, parser.Mode);
+      }
+      {
+        parser.Parse("ALL");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.Classement, parser.Mode);
+      }
+      {
+        parser.Parse("RUN TIME");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.Classement, parser.Mode);
+      }
+      {
+        parser.Parse(" 0001 RTM 00:00:13.39   00 0001");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(1U, parser.TimingData.StartNumber);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 13, 390), parser.TimingData.Time);
+        Assert.AreEqual("RT", parser.TimingData.Channel);
+        Assert.AreEqual('M', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.Classement, parser.Mode);
+      }
+      {
+        parser.Parse(" 0002 RTM 00:00:13.68   00 0002");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(2U, parser.TimingData.StartNumber);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 13, 680), parser.TimingData.Time);
+        Assert.AreEqual("RT", parser.TimingData.Channel);
+        Assert.AreEqual('M', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.Classement, parser.Mode);
+      }
+      {
+        parser.Parse(" 0004 RTM 00:00:13.89   00 0003");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(4U, parser.TimingData.StartNumber);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 13, 890), parser.TimingData.Time);
+        Assert.AreEqual("RT", parser.TimingData.Channel);
+        Assert.AreEqual('M', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.Classement, parser.Mode);
+      }
+      {
+        parser.Parse(" 0003 RTM 00:00:14.05   00 0004");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(3U, parser.TimingData.StartNumber);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 14, 50), parser.TimingData.Time);
+        Assert.AreEqual("RT", parser.TimingData.Channel);
+        Assert.AreEqual('M', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.Classement, parser.Mode);
+      }
+      {
+        parser.Parse("  ALGE TIMING");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse("   TdC  8001");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse("  DEU V 18.92");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse("21-11-28  17:04");
+        Assert.IsNull(parser.TimingData);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+    }
+
+    /// <summary>
+    /// Tests whether the parser switches between Classement and LiveTiming correctly
+    /// </summary>
+    [TestMethod]
+    public void ParserModeTest()
+    {
+      List<Tuple<string, ALGETdC8001LineParser.EMode>> testData = new List<Tuple<string, ALGETdC8001LineParser.EMode>>
+      {
+        Tuple.Create(" 0035 C0M 21:46:36.3900 00", ALGETdC8001LineParser.EMode.LiveTiming),
+        Tuple.Create("                                ", ALGETdC8001LineParser.EMode.LiveTiming),
+        Tuple.Create("CLASSEMENT:", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("                                ", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("ALL", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("                                ", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("RUN TIME", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("                                ", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("                                ", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create(" 0001 RTM 00:00:13.39   00 0001", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create(" 0002 RTM 00:00:13.68   00 0002", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create(" 0004 RTM 00:00:13.89   00 0003", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create(" 0003 RTM 00:00:14.05   00 0004", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("                                ", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("                                ", ALGETdC8001LineParser.EMode.Classement),
+        Tuple.Create("  ALGE TIMING", ALGETdC8001LineParser.EMode.LiveTiming),
+        Tuple.Create("   TdC  8001", ALGETdC8001LineParser.EMode.LiveTiming),
+        Tuple.Create("  DEU V 18.92", ALGETdC8001LineParser.EMode.LiveTiming),
+        Tuple.Create("21 - 11 - 28  17:04", ALGETdC8001LineParser.EMode.LiveTiming),
+        Tuple.Create(" 0035 C0  21:46:36.3910 00", ALGETdC8001LineParser.EMode.LiveTiming)
+      };
+
+      ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
+
+      int line = 0;
+      foreach( var item in testData)
+      {
+        parser.Parse(item.Item1);
+        Assert.AreEqual(item.Item2, parser.Mode);
+        line++;
+      }
+    }
 
     [TestMethod]
     public void HandleUncommonInput()
@@ -263,7 +400,8 @@ namespace RaceHorologyLibTest
       TimeMeasurementEventArgs ParseAndTransfer(string line)
       {
         ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
-        return ALGETdC8001TimeMeasurement.TransferToTimemeasurementData(parser.Parse(line));
+        parser.Parse(line);
+        return ALGETdC8001TimeMeasurement.TransferToTimemeasurementData(parser.TimingData);
       }
 
       { 
