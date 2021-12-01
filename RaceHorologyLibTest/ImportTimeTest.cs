@@ -47,6 +47,18 @@ namespace RaceHorologyLibTest
   [TestClass]
   public class ImportTimeTest
   {
+    public class ImportTimeMock : IImportTime
+    {
+      public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
+
+      public void TriggerImportTimeEntryReceived(ImportTimeEntry entry)
+      {
+        ImportTimeEntryReceived.Invoke(this, entry);
+      }
+    }
+
+
+
     public ImportTimeTest()
     {
     }
@@ -113,7 +125,9 @@ namespace RaceHorologyLibTest
       tg.createRaceParticipants(5);
       var race = tg.Model.GetRace(0);
 
-      ImportTimeEntryVM vm = new ImportTimeEntryVM(race);
+      ImportTimeMock importTimeMock = new ImportTimeMock();
+
+      ImportTimeEntryVM vm = new ImportTimeEntryVM(race, importTimeMock);
       vm.AddEntry(new ImportTimeEntry (1, new TimeSpan(0, 0, 10)));
 
       Assert.AreEqual(1, vm.ImportEntries.Count);
@@ -127,7 +141,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(3U, vm.ImportEntries[1].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[1].RunTime);
 
-      vm.AddEntry(new ImportTimeEntry (1, new TimeSpan(0, 0, 11)));
+      importTimeMock.TriggerImportTimeEntryReceived(new ImportTimeEntry (1, new TimeSpan(0, 0, 11)));
       Assert.AreEqual(2, vm.ImportEntries.Count);
       Assert.AreEqual(3U, vm.ImportEntries[0].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[0].RunTime);

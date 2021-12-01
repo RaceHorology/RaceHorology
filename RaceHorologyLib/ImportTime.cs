@@ -113,17 +113,29 @@ namespace RaceHorologyLib
 
 
 
-  public class ImportTimeEntryVM
+  public class ImportTimeEntryVM : IDisposable
   {
     ObservableCollection<ImportTimeEntryWithParticipant> _importEntries;
 
     Race _race;
+    IImportTime _importTimeDevice;
 
-    public ImportTimeEntryVM(Race race)
+    public ImportTimeEntryVM(Race race, IImportTime importTimeDevice)
     {
       _race = race;
+      _importTimeDevice = importTimeDevice;
 
       _importEntries = new ObservableCollection<ImportTimeEntryWithParticipant>();
+
+      _importTimeDevice.ImportTimeEntryReceived += importTimeDevice_ImportTimeEntryReceived;
+    }
+
+    private void importTimeDevice_ImportTimeEntryReceived(object sender, ImportTimeEntry entry)
+    {
+      System.Windows.Application.Current.Dispatcher.Invoke(() =>
+      {
+        AddEntry(entry);
+      });
     }
 
     public ObservableCollection<ImportTimeEntryWithParticipant> ImportEntries
@@ -155,6 +167,32 @@ namespace RaceHorologyLib
       }
     }
 
+
+    #region IDisposable implementation
+
+    private bool disposedValue;
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          _importTimeDevice.ImportTimeEntryReceived -= importTimeDevice_ImportTimeEntryReceived;
+          _importTimeDevice = null;
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
+    }
+
+    #endregion
   }
 
 
