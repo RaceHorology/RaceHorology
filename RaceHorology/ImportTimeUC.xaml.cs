@@ -35,6 +35,9 @@ namespace RaceHorology
       _importTimeVM = new ImportTimeEntryVM(race, importTimeDevice);
 
       dgImportTime.ItemsSource = _importTimeVM.ImportEntries;
+
+      cmbRun.SelectedValuePath = "Value";
+      UiUtilities.FillCmbRaceRun(cmbRun, race);
     }
 
     private void DeInit()
@@ -45,6 +48,9 @@ namespace RaceHorology
 
     private void btnSave_Click(object sender, RoutedEventArgs e)
     {
+      if (cmbRun.SelectedValue is RaceRun rr)
+        _importTimeVM.Save(rr);
+
       DeInit();
       Finished?.Invoke(this, new EventArgs());
     }
@@ -53,6 +59,11 @@ namespace RaceHorology
     {
       DeInit();
       Finished?.Invoke(this, new EventArgs());
+    }
+
+    private void cmbRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+
     }
   }
 }
