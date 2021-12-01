@@ -63,7 +63,8 @@ namespace RaceHorology
 
       _race = race;
 
-      fillCmbCalcRun();
+      cmbCalcRun.SelectedValuePath = "Value";
+      UiUtilities.FillCmbRaceRun(cmbCalcRun, race);
 
       updateHandTimingVM();
     }
@@ -101,16 +102,6 @@ namespace RaceHorology
     {
       cmb.Items.Add(new CBItem { Text = "Start", Value = "Start" });
       cmb.Items.Add(new CBItem { Text = "Ziel", Value = "Finish" });
-    }
-
-    private void fillCmbCalcRun() 
-    {
-      cmbCalcRun.Items.Clear();
-      cmbCalcRun.SelectedValuePath = "Value";
-      foreach (var r in _race.GetRuns())
-        cmbCalcRun.Items.Add(new CBItem { Text = string.Format("Lauf {0}", r.Run), Value = r });
-      
-      cmbCalcRun.SelectedIndex = 0;
     }
 
 
