@@ -20,14 +20,15 @@ namespace RaceHorology
   /// </summary>
   public partial class ImportTimeDlg : Window
   {
+
     public ImportTimeDlg()
     {
       InitializeComponent();
     }
 
-    public void Init(AppDataModel dm, Race race)
+    public void Init(AppDataModel dm, Race race, IImportTime importTimeDevice)
     {
-      ucImportTime.Init(dm, race);
+      ucImportTime.Init(dm, race, importTimeDevice);
 
       ucImportTime.Finished += UcImportTime_Finished;
     }

@@ -4,9 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RaceHorology"
-             mc:Ignorable="d" 
+               xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib"
+           mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+  
+  <UserControl.Resources>
+    <racehorologylib:TimeSpanConverter x:Key="TimeSpanConverter" />
+  </UserControl.Resources>
+  
+  <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
@@ -25,6 +31,25 @@
       <ColumnDefinition Width="*"/>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
+
+
+    <DataGrid x:Name="dgImportTime" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="StNr" Binding="{Binding StartNumber}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+        <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
+        <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+        <DataGridTextColumn Header="Laufzeit" Binding="{Binding RunTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+        </DataGridTextColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+
 
     <Button x:Name="btnSave" Content="Speichern" Grid.Row="7" Grid.Column="4" Margin="5" Click="btnSave_Click"/>
     <Button x:Name="btnCancel" Content="Abbrechen" Grid.Row="7" Grid.Column="3" Margin="5" Click="btnCancel_Click"/>

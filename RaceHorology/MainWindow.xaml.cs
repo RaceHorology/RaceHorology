@@ -200,8 +200,9 @@ namespace RaceHorology
       if (race == null)
         return;
 
+
       ImportTimeDlg dlg = new ImportTimeDlg();
-      dlg.Init(_dataModel, race);
+      dlg.Init(_dataModel, race, _alge);
       dlg.Owner = this;
       dlg.Show();
     }

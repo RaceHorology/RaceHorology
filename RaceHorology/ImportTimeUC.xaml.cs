@@ -22,6 +22,7 @@ namespace RaceHorology
   public partial class ImportTimeUC : UserControl
   {
 
+    ImportTimeEntryVM _importTimeVM;
     public event EventHandler Finished;
 
     public ImportTimeUC()
@@ -29,17 +30,28 @@ namespace RaceHorology
       InitializeComponent();
     }
 
-    public void Init(AppDataModel dm, Race race)
+    public void Init(AppDataModel dm, Race race, IImportTime importTimeDevice)
     {
+      _importTimeVM = new ImportTimeEntryVM(race, importTimeDevice);
+
+      dgImportTime.ItemsSource = _importTimeVM.ImportEntries;
+    }
+
+    private void DeInit()
+    {
+      _importTimeVM.Dispose();
+      _importTimeVM = null;
     }
 
     private void btnSave_Click(object sender, RoutedEventArgs e)
     {
+      DeInit();
       Finished?.Invoke(this, new EventArgs());
     }
 
     private void btnCancel_Click(object sender, RoutedEventArgs e)
     {
+      DeInit();
       Finished?.Invoke(this, new EventArgs());
     }
   }
