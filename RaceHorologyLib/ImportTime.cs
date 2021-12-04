@@ -98,17 +98,17 @@ namespace RaceHorologyLib
       set { if (_rp != value) { _rp = value; } }
     }
 
-    public string Name { get => _rp.Name; }
-    public string Firstname { get => _rp.Firstname; }
-    public string Fullname { get => _rp.Fullname; }
-    public ParticipantCategory Sex { get => _rp.Sex; }
-    public uint Year { get => _rp.Year; }
-    public string Club { get => _rp.Club; }
-    public string Nation { get => _rp.Nation; }
-    public string SvId { get => _rp.SvId; }
-    public string Code { get => _rp.Code; }
-    public ParticipantClass Class { get => _rp.Class; }
-    public ParticipantGroup Group { get => _rp.Group; }
+    public string Name { get => _rp?.Name; }
+    public string Firstname { get => _rp?.Firstname; }
+    public string Fullname { get => _rp?.Fullname; }
+    public ParticipantCategory Sex { get => _rp?.Sex; }
+    public uint Year { get => _rp == null ? 0 : _rp.Year; }
+    public string Club { get => _rp?.Club; }
+    public string Nation { get => _rp?.Nation; }
+    public string SvId { get => _rp?.SvId; }
+    public string Code { get => _rp?.Code; }
+    public ParticipantClass Class { get => _rp?.Class; }
+    public ParticipantGroup Group { get => _rp?.Group; }
   }
 
 
@@ -145,12 +145,11 @@ namespace RaceHorologyLib
 
     public void AddEntry(ImportTimeEntry entry)
     {
-      var participant = _race.GetParticipant(entry.StartNumber);
-
-      var existingEntry = _importEntries.FirstOrDefault(x => x.Participant == participant);
+      var existingEntry = _importEntries.FirstOrDefault(x => x.StartNumber == entry.StartNumber);
       if (existingEntry != null)
         _importEntries.Remove(existingEntry);
 
+      var participant = _race.GetParticipant(entry.StartNumber);
       var e = new ImportTimeEntryWithParticipant(entry, participant);
       _importEntries.Add(e);
     }
@@ -163,7 +162,8 @@ namespace RaceHorologyLib
     {
       foreach( var entry in _importEntries)
       {
-        raceRun.SetRunTime(entry.Participant, entry.RunTime);
+        if (entry.Participant != null)
+          raceRun.SetRunTime(entry.Participant, entry.RunTime);
       }
     }
 

@@ -86,8 +86,14 @@ namespace RaceHorologyLibTest
     // You can use the following additional attributes as you write your tests:
     //
     // Use ClassInitialize to run code before running the first test in the class
-    // [ClassInitialize()]
-    // public static void MyClassInitialize(TestContext testContext) { }
+    [ClassInitialize()]
+    public static void MyClassInitialize(TestContext testContext) 
+    {
+      if (System.Windows.Application.Current == null)
+      {
+        new System.Windows.Application { ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown };
+      }
+    }
     //
     // Use ClassCleanup to run code after all tests in a class have run
     // [ClassCleanup()]
@@ -111,10 +117,14 @@ namespace RaceHorologyLibTest
 
       ImportTimeEntry ie = new ImportTimeEntry(1U, new TimeSpan(0, 0, 10));
 
-      ImportTimeEntryWithParticipant entry = new ImportTimeEntryWithParticipant(ie, rp);
+      ImportTimeEntryWithParticipant entry1 = new ImportTimeEntryWithParticipant(ie, rp);
+      Assert.AreEqual(1U, entry1.StartNumber);
+      Assert.AreEqual("Name 1", entry1.Name);
 
-      Assert.AreEqual(1U, entry.StartNumber);
-      Assert.AreEqual("Name 1", entry.Name);
+      // ImportTimeEntryWithParticipant and no patient
+      ImportTimeEntryWithParticipant entry2 = new ImportTimeEntryWithParticipant(ie, null);
+      Assert.AreEqual(1U, entry2.StartNumber);
+      Assert.AreEqual(null, entry2.Name);
     }
 
 
@@ -141,6 +151,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(3U, vm.ImportEntries[1].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[1].RunTime);
 
+      // Update startnumber 1
       importTimeMock.TriggerImportTimeEntryReceived(new ImportTimeEntry (1, new TimeSpan(0, 0, 11)));
       Assert.AreEqual(2, vm.ImportEntries.Count);
       Assert.AreEqual(3U, vm.ImportEntries[0].StartNumber);
@@ -148,8 +159,33 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1U, vm.ImportEntries[1].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 11), vm.ImportEntries[1].RunTime);
 
-      var rr1 = race.GetRun(0);
+      // Add entry without participant
+      importTimeMock.TriggerImportTimeEntryReceived(new ImportTimeEntry(999, new TimeSpan(0, 0, 9)));
+      Assert.AreEqual(3, vm.ImportEntries.Count);
+      Assert.AreEqual(3U, vm.ImportEntries[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[0].RunTime);
+      Assert.AreEqual(1U, vm.ImportEntries[1].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 11), vm.ImportEntries[1].RunTime);
+      Assert.AreEqual(999U, vm.ImportEntries[2].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 9), vm.ImportEntries[2].RunTime);
 
+      // Add second entry without participant
+      importTimeMock.TriggerImportTimeEntryReceived(new ImportTimeEntry(998, new TimeSpan(0, 0, 8)));
+      Assert.AreEqual(4, vm.ImportEntries.Count);
+      Assert.AreEqual(3U, vm.ImportEntries[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 13), vm.ImportEntries[0].RunTime);
+      Assert.AreEqual(1U, vm.ImportEntries[1].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 11), vm.ImportEntries[1].RunTime);
+      Assert.AreEqual(999U, vm.ImportEntries[2].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 9), vm.ImportEntries[2].RunTime);
+      Assert.AreEqual(998U, vm.ImportEntries[3].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 0, 0, 8), vm.ImportEntries[3].RunTime);
+
+
+      // Save to racerun, only time for real articipants should be taken over
+      // StNr 1, 3 have time
+      // StNr 2 doesn't have a time
+      var rr1 = race.GetRun(0);
       Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(1))?.Runtime);
       vm.Save(rr1);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 11), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
