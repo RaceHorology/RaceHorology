@@ -35,7 +35,7 @@
     <Label Content="Durchgang:" Grid.Row="4" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
     <ComboBox x:Name="cmbRun" Grid.Row="4" Grid.Column="1" Margin="5" SelectionChanged="cmbRun_SelectionChanged"/>
 
-    <DataGrid x:Name="dgImportTime" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="False">
+    <DataGrid x:Name="dgImportTime" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="true">
       <DataGrid.Columns>
         <DataGridTextColumn Header="StNr" Binding="{Binding StartNumber}">
           <DataGridTextColumn.ElementStyle>
@@ -48,6 +48,12 @@
         <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
         <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
         <DataGridTextColumn Header="Laufzeit" Binding="{Binding RunTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
       </DataGrid.Columns>
     </DataGrid>
