@@ -90,9 +90,9 @@
     <Grid Grid.Row="1">
     </Grid>
     -->
-    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-      <Button x:Name="btnOk" Content="Speichern" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,10,0" IsDefault="True" Click="BtnOk_Click"/>
-      <Button x:Name="btnCancel" Content="Abbrechen" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" IsCancel="True" Click="BtnCancel_Click"/>
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
+      <Button x:Name="btnCancel" Content="Abbrechen" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="100" Margin="5" Padding="5" IsCancel="True" Click="BtnCancel_Click"/>
+      <Button x:Name="btnOk" Content="Speichern" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="100" Margin="5" Padding="5" IsDefault="True" Click="BtnOk_Click"/>
     </StackPanel>
   </Grid>
 </Window>
