@@ -138,6 +138,12 @@
     <Compile Include="HandTimingUC.xaml.cs">
       <DependentUpon>HandTimingUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ImportTimeDlg.xaml.cs">
+      <DependentUpon>ImportTimeDlg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ImportTimeUC.xaml.cs">
+      <DependentUpon>ImportTimeUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ImportWizard.xaml.cs">
       <DependentUpon>ImportWizard.xaml</DependentUpon>
     </Compile>
@@ -223,6 +229,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="HandTimingUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImportTimeDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImportTimeUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

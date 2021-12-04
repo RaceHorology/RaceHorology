@@ -43,9 +43,10 @@ using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
-  public abstract class ALGETdC8001TimeMeasurementBase : ILiveTimeMeasurementDevice, ILiveDateTimeProvider
+  public abstract class ALGETdC8001TimeMeasurementBase : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, IImportTime
   {
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
+    public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
 
     ALGETdC8001LineParser _parser;
     protected string _statusText;
@@ -81,29 +82,38 @@ namespace RaceHorologyLib
     public abstract bool IsOnline { get; }
     public abstract event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
+
     protected void processLine(string dataLine)
     {
-      ALGETdC8001LiveTimingData parsedData = null;
       try
       {
-        parsedData = _parser.Parse(dataLine);
+        _parser.Parse(dataLine);
       }
       catch (Exception)
       {}
 
-      if (parsedData == null)
+      if (_parser.TimingData == null)
         return;
 
       try
       {
-        UpdateLiveDayTime(parsedData);
-
-        TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(parsedData);
-        if (timeMeasurmentData != null)
+        if (_parser.Mode == ALGETdC8001LineParser.EMode.LiveTiming)
         {
-          // Trigger event
-          var handle = TimeMeasurementReceived;
-          handle?.Invoke(this, timeMeasurmentData);
+          UpdateLiveDayTime(_parser.TimingData);
+
+          TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(_parser.TimingData);
+          if (timeMeasurmentData != null)
+          {
+            // Trigger event
+            var handle = TimeMeasurementReceived;
+            handle?.Invoke(this, timeMeasurmentData);
+          }
+        }
+        else if (_parser.Mode == ALGETdC8001LineParser.EMode.Classement)
+        {
+          ImportTimeEntry entry = new ImportTimeEntry(_parser.TimingData.StartNumber, _parser.TimingData.Time);
+          var handle = ImportTimeEntryReceived;
+          handle?.Invoke(this, entry);
         }
       }
       catch (FormatException)
@@ -393,15 +403,85 @@ namespace RaceHorologyLib
 
   public class ALGETdC8001LineParser
   {
-    public ALGETdC8001LineParser()
-    { }
-
-    public ALGETdC8001LiveTimingData Parse(string dataLine)
+    public enum EMode
     {
-      ALGETdC8001LiveTimingData parsedData = new ALGETdC8001LiveTimingData();
+      LiveTiming,
+      Classement
+    }
 
+
+    public enum ELineType
+    { 
+      Unknown,
+      TimeLine,
+      ClassementStart,
+      ClassementEnd
+    }
+
+
+    public ALGETdC8001LiveTimingData TimingData { get; private set;}
+    public EMode Mode { get; private set; }
+
+
+    public ALGETdC8001LineParser()
+    {
+      // Initial mode
+      Mode = EMode.LiveTiming;
+    }
+
+
+    public void Parse(string dataLine)
+    {
+      // Clear data from previous run
+      TimingData = null;
+
+      // Figure out the type of line
+      ELineType lineType = parseType(dataLine);
+
+      if (lineType == ELineType.ClassementStart)
+        Mode = EMode.Classement;
+
+      if (Mode == EMode.Classement && lineType == ELineType.ClassementEnd)
+        Mode = EMode.LiveTiming;
+
+      ALGETdC8001LiveTimingData timingData = parseTimeLine(dataLine);
+      if (timingData != null)
+        TimingData = timingData;
+    }
+
+    private ELineType parseType(string dataLine)
+    {
+      if (dataLine.StartsWith("CLASSEMENT:"))
+        return ELineType.ClassementStart;
+
+      if (Mode == EMode.Classement && dataLine.StartsWith("  ALGE TIMING"))
+        return ELineType.ClassementEnd;
+
+      // Just try
+      ALGETdC8001LiveTimingData timingData = parseTimeLine(dataLine);
+      if (timingData != null)
+        return ELineType.TimeLine;
+
+      return ELineType.Unknown;
+    }
+
+
+    private ALGETdC8001LiveTimingData parseTimeLine(string dataLine)
+    {
+      if (dataLine.Length < 5)
+        return null;
+
+      ALGETdC8001LiveTimingData parsedData = new ALGETdC8001LiveTimingData();
       parsedData.Flag = dataLine[0];
-      parsedData.StartNumber = UInt32.Parse(dataLine.Substring(1, 4));
+
+      try
+      {
+        parsedData.StartNumber = UInt32.Parse(dataLine.Substring(1, 4));
+      }
+      catch (FormatException)
+      {
+        return null;
+      }
 
       if (dataLine.Length > 5)
       {
@@ -416,7 +496,6 @@ namespace RaceHorologyLib
         }
         catch (FormatException)
         {
-          throw;
         }
         parsedData.Group = UInt32.Parse(dataLine.Substring(24, 2));
       }

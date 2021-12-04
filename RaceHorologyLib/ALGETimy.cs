@@ -87,8 +87,6 @@ namespace RaceHorologyLib
     {
       do
       {
-
-        ALGETdC8001LiveTimingData parsedData = null;
         try
         {
           string dataLine = _serialPort.ReadLine();
@@ -99,7 +97,7 @@ namespace RaceHorologyLib
             _serialPort.ReadLine(); // "20-10-04  16:54"
             break;
           }
-          parsedData = _parser.Parse(dataLine);
+          _parser.Parse(dataLine);
         }
         catch (TimeoutException)
         {
@@ -108,11 +106,11 @@ namespace RaceHorologyLib
         catch (Exception)
         { }
 
-        if (parsedData != null)
+        if (_parser.TimingData != null)
         {
           TimingData td = new TimingData
           {
-            Time = parsedData.Time
+            Time = _parser.TimingData.Time
           };
 
           reportProgress(td.Time.ToString());
