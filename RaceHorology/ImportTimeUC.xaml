@@ -15,13 +15,7 @@
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
@@ -30,14 +24,14 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Label Content="Classement über Zeitnahmegerät senden." Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="5" FontSize="16" HorizontalAlignment="Center"/>
+    <Label Content="Classement über Zeitnahmegerät senden." Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="5" FontSize="16" HorizontalAlignment="Center"/>
     
-    <Label Content="Durchgang:" Grid.Row="4" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
-    <ComboBox x:Name="cmbRun" Grid.Row="4" Grid.Column="1" Margin="5" SelectionChanged="cmbRun_SelectionChanged"/>
+    <Label Content="Durchgang:" Grid.Row="0" Grid.Column="0" Margin="5" HorizontalContentAlignment="Right"/>
+    <ComboBox x:Name="cmbRun" Grid.Row="0" Grid.Column="1" Margin="5" SelectionChanged="cmbRun_SelectionChanged"/>
 
-    <DataGrid x:Name="dgImportTime" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="true">
+    <DataGrid x:Name="dgImportTime" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="true">
       <DataGrid.Columns>
-        <DataGridTextColumn Header="StNr" Binding="{Binding StartNumber}">
+        <DataGridTextColumn Header="StNr" Binding="{Binding StartNumber}" SortDirection="Ascending">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
@@ -58,9 +52,9 @@
       </DataGrid.Columns>
     </DataGrid>
 
-    <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.ColumnSpan="4" HorizontalAlignment="Right">
-      <Button x:Name="btnCancel" Content="Abbrechen" Grid.Row="7" Grid.Column="3" Margin="5" Click="btnCancel_Click"/>
-      <Button x:Name="btnSave" Content="Speichern" Grid.Row="7" Grid.Column="4" Margin="5" Click="btnSave_Click"/>
+    <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="4" HorizontalAlignment="Right" Margin="0,5,0,5">
+      <Button x:Name="btnCancel" Content="Abbrechen" Grid.Row="7" Grid.Column="3" Margin="5" Padding="5" MinWidth="100" Click="btnCancel_Click"/>
+      <Button x:Name="btnSave" Content="Speichern" Grid.Row="7" Grid.Column="4" Margin="5" Padding="5" MinWidth="100" Click="btnSave_Click"/>
     </StackPanel>
   </Grid>
 </UserControl>
