@@ -1504,7 +1504,7 @@ namespace RaceHorologyLib
       var results = _results.ToArray();
 
       // Remove from inFinish list if a result is not available anymore (= not on track anymore)
-      var itemsToRemove = _inFinish.Where(r => !IsOrWasOnTrack(r)).ToList();
+      var itemsToRemove = _inFinish.Where(r => !WasOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
       {
         _inFinish.Remove(itemToRemove);
