@@ -690,7 +690,20 @@ namespace RaceHorology
     private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
     {
       if (_liveTimingMeasurement == null)
+      {
+        MessageBox.Show("Zeitnahmegerät ist nicht verfügbar.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
         return;
+      }
+
+      if (!_thisRace.IsConsistent)
+      {
+        MessageBox.Show("Die Startnummern sind nicht eindeutig zugewiesen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
+
+      if (_thisRace.GetPreviousRun(_currentRaceRun) != null && !_thisRace.GetPreviousRun(_currentRaceRun).IsComplete)
+      {
+        MessageBox.Show("Der vorhergehende Durchlauf ist noch nicht komplett abgeschlossen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
 
       _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
       _liveTimingMeasurement.Start();

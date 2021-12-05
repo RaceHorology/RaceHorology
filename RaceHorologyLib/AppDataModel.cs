@@ -839,6 +839,25 @@ namespace RaceHorologyLib
       return runs;
     }
 
+    public RaceRun GetPreviousRun(RaceRun race)
+    {
+      int i = 0;
+      for (; i < _runs.Count; i++)
+        if (_runs[i].Item1 == race)
+          break;
+
+      // Race not found or null passed
+      if (i == _runs.Count)
+        return null;
+
+      // First run does not have a previous run
+      if (i == 0)
+        return null;
+      
+      --i;
+      return _runs[i].Item1;
+    }
+
     public event EventHandler RunsChanged;
 
 
