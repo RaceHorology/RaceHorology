@@ -1320,6 +1320,8 @@ namespace RaceHorologyLib
     {
       RunResult result = findOrCreateRunResult(participant);
 
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
+
       result.ResultCode = rc;
 
       _UpdateInternals();
@@ -1329,6 +1331,8 @@ namespace RaceHorologyLib
     public void SetResultCode(RaceParticipant participant, RunResult.EResultCode rc, string disqualText)
     {
       RunResult result = findOrCreateRunResult(participant);
+
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       result.ResultCode = rc;
       result.DisqualText = disqualText;
