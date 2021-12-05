@@ -706,7 +706,7 @@ namespace RaceHorology
 
       if (_thisRace.GetPreviousRun(_currentRaceRun) != null && !_thisRace.GetPreviousRun(_currentRaceRun).IsComplete)
       {
-        MessageBox.Show("Der vorhergehende Durchlauf ist noch nicht komplett abgeschlossen.(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show("Der vorhergehende Durchlauf ist noch nicht komplett abgeschlossen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
       }
 
       _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
