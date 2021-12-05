@@ -65,8 +65,6 @@ namespace RaceHorology
 
     RemainingStartListViewProvider _rslVP;
 
-    ScrollToMeasuredItemBehavior dgResultsScrollBehavior;
-
 
     public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
@@ -652,7 +650,6 @@ namespace RaceHorology
 
         dgFinish.ItemsSource = raceRun.GetInFinishList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgFinish);
-        dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
 
         lblStartList.DataContext = _rslVP.GetView();
 
@@ -662,7 +659,6 @@ namespace RaceHorology
         dgRemainingStarters.ItemsSource = null;
         dgRunning.ItemsSource = null;
         dgFinish.ItemsSource = null;
-        dgResultsScrollBehavior = null;
       }
     }
 

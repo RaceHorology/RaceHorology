@@ -310,7 +310,7 @@ namespace RaceHorologyLib
       }
       return false;
     }
-    static readonly TimeSpan delta = new TimeSpan(0, 0, 5); // 1 sec
+    static readonly TimeSpan delta = new TimeSpan(0, 0, 5); // 5 sec
 
     public delegate void ParticipantMeasuredHandler(object sender, Participant participant);
     public event ParticipantMeasuredHandler ParticipantMeasuredEvent;
@@ -1254,7 +1254,7 @@ namespace RaceHorologyLib
     {
       RunResult result = findOrCreateRunResult(participant);
 
-      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
+      //_appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       result.SetStartTime(startTime);
 
@@ -1320,6 +1320,8 @@ namespace RaceHorologyLib
     {
       RunResult result = findOrCreateRunResult(participant);
 
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
+
       result.ResultCode = rc;
 
       _UpdateInternals();
@@ -1329,6 +1331,8 @@ namespace RaceHorologyLib
     public void SetResultCode(RaceParticipant participant, RunResult.EResultCode rc, string disqualText)
     {
       RunResult result = findOrCreateRunResult(participant);
+
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       result.ResultCode = rc;
       result.DisqualText = disqualText;
@@ -1413,7 +1417,7 @@ namespace RaceHorologyLib
     // Helper definition for a participant is on track
     private bool IsOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
+      return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal; // && _appDataModel.TodayMeasured(r.Participant.Participant);
     }
 
     // Helper definition for a participant is on track
@@ -1500,7 +1504,7 @@ namespace RaceHorologyLib
       var results = _results.ToArray();
 
       // Remove from inFinish list if a result is not available anymore (= not on track anymore)
-      var itemsToRemove = _inFinish.Where(r => !IsOrWasOnTrack(r)).ToList();
+      var itemsToRemove = _inFinish.Where(r => !WasOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
       {
         _inFinish.Remove(itemToRemove);

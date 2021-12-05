@@ -72,7 +72,6 @@ namespace RaceHorology
     #endregion
   }
 
-
   /// <summary>
   /// Watches out a race run and sets the corresponding warning text if, e.g. race is not yet completed.
   /// </summary>
@@ -184,7 +183,6 @@ namespace RaceHorology
   {
     Race _thisRace;
 
-    ScrollToMeasuredItemBehavior dgViewScrollBehavior;
     IWarningLabelHandler _lblHandler;
 
     public RaceListsUC()
@@ -533,7 +531,6 @@ namespace RaceHorology
       }
 
       dgView.ItemsSource = _viewProvider.GetView();
-      dgViewScrollBehavior = new ScrollToMeasuredItemBehavior(dgView, _thisRace.GetDataModel());
       cmbTotalResultGrouping.SelectCBItem(_viewProvider.ActiveGrouping);
 
       UiUtilities.EnableOrDisableColumns(_thisRace, dgView);
