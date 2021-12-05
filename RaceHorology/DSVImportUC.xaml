@@ -6,7 +6,22 @@
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="600">
+  
   <Grid>
+    <Grid.Resources>
+      <Style x:Key="TransparentStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="Button">
+              <Border Background="Transparent">
+                <ContentPresenter/>
+              </Border>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </Grid.Resources>
+
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
@@ -25,6 +40,9 @@
       <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
         <Label Content="Filter (&lt;Ctrl&gt;-D):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
         <TextBox x:Name="txtDSVSearch" Width="100" Margin="5" Grid.Column="3" />
+        <Button x:Name="btnClearSearch" Margin="-20,0,5,0" VerticalAlignment="Center" Content="X" 
+                        Style="{StaticResource TransparentStyle}" Click="btnClearSearch_Click" />
+        <ComboBox x:Name="cmbSearchField" SelectionChanged="cmbSearchField_SelectionChanged" Margin="5" MinWidth="80" />
       </StackPanel>
     </Grid>
 
