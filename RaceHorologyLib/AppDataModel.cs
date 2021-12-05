@@ -310,7 +310,7 @@ namespace RaceHorologyLib
       }
       return false;
     }
-    static readonly TimeSpan delta = new TimeSpan(0, 0, 5); // 1 sec
+    static readonly TimeSpan delta = new TimeSpan(0, 0, 5); // 5 sec
 
     public delegate void ParticipantMeasuredHandler(object sender, Participant participant);
     public event ParticipantMeasuredHandler ParticipantMeasuredEvent;
