@@ -1254,7 +1254,7 @@ namespace RaceHorologyLib
     {
       RunResult result = findOrCreateRunResult(participant);
 
-      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
+      //_appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       result.SetStartTime(startTime);
 
@@ -1413,7 +1413,7 @@ namespace RaceHorologyLib
     // Helper definition for a participant is on track
     private bool IsOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
+      return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal; // && _appDataModel.TodayMeasured(r.Participant.Participant);
     }
 
     // Helper definition for a participant is on track
