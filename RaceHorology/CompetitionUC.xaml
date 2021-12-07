@@ -10,9 +10,30 @@
     <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
       <TabItem >
         <TabItem.Header>
-          <Label Content="Teilnehmerdaten" Padding="0" Margin="0" FontSize="16"/>
+          <Label Content="Teilnehmer &amp; Globale Konfiguration" Padding="0" Margin="0" FontSize="16"/>
         </TabItem.Header>
         <TabControl x:Name="tabControlParticipants" Height="Auto" Margin="10" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
+          <TabItem x:Name="tabItemConfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <TabItem.Header>
+              <Label Content="Globale Konfiguration" Padding="0" Margin="0" />
+            </TabItem.Header>
+
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" MaxWidth="1200"/>
+                </Grid.ColumnDefinitions>
+
+                <local:RaceConfigurationUC x:Name="ucRaceConfig" />
+                <local:SaveOrResetUC x:Name="ucRaceConfigSaveOrReset" Grid.Row="1" Grid.Column="1" Margin="5,25,0,0" />
+              </Grid>
+            </ScrollViewer>
+          </TabItem>
+          
           <TabItem >
             <TabItem.Header>
               <Label Content="Teilnehmer" Padding="0" Margin="0" />

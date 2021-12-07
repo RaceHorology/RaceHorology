@@ -109,6 +109,8 @@ namespace RaceHorology
       ucClassesAndGroups.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
       ucFISImport.Init(_dm, _fisData);
+
+      InitializeGlobalConfig();
     }
 
     #region RaceTabs
@@ -259,7 +261,6 @@ namespace RaceHorology
     }
 
     #endregion
-
 
     #region Particpants
 
@@ -627,6 +628,47 @@ namespace RaceHorology
           }
         }
       }
+    }
+
+    #endregion
+
+    #region Global Config
+
+    private void InitializeGlobalConfig()
+    {
+      ucRaceConfig.Init(new RaceConfiguration());
+
+      ucRaceConfigSaveOrReset.Init(
+        "Konfigurationsänderungen",
+        null, null,
+        globalConfig_ExistingChanges, globalConfig_SaveChanges, globalConfig_ResetChanges);
+    }
+
+
+    private bool globalConfig_ExistingChanges()
+    {
+      return ucRaceConfig.ExistingChanges();
+    }
+
+    private void globalConfig_SaveChanges()
+    {
+      RaceConfiguration cfg = new RaceConfiguration();
+
+      //_thisRace.RaceConfiguration = ucRaceConfig.GetConfig();
+
+      //ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
+      //viewConfigurator.ConfigureRace(_thisRace);
+
+      ucRaceConfig.Init(ucRaceConfig.GetConfig());
+
+      // Reset UI (TODO should adapt itself based on events)
+      //ConnectUiToRaceRun(_currentRaceRun);
+      //ucRaceLists.UpdateAll();
+    }
+
+    private void globalConfig_ResetChanges()
+    {
+      ucRaceConfig.ResetChanges();
     }
 
     #endregion
