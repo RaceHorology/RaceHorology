@@ -262,5 +262,53 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
 
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void GlobalRaceConfig_SaveAndLoad()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      TestUtilities.AreEqualByJson(new RaceConfiguration(), model.GlobalRaceConfig);
+
+      var testConfig1 = new RaceConfiguration
+      {
+        Name = "BaseName",
+        Runs = 2,
+        DefaultGrouping = "DefaultG",
+        ActiveFields = new List<string> { "eins", "zwei" },
+        RaceResultView = "RaceResultView",
+        RaceResultViewParams = new Dictionary<string, object>(),
+
+        Run1_StartistView = "Run1_StartistView",
+        Run1_StartistViewGrouping = "Run1_StartistViewGrouping",
+        Run1_StartistViewParams = new Dictionary<string, object>(),
+
+        Run2_StartistView = "Run2_StartistView",
+        Run2_StartistViewGrouping = "Run2_StartistViewGrouping",
+        Run2_StartistViewParams = new Dictionary<string, object>(),
+
+        LivetimingParams = new Dictionary<string, string> { { "key", "value" } },
+
+        ValueF = 100,
+        ValueA = 200,
+        MinimumPenalty = 300
+      };
+
+      model.GlobalRaceConfig = testConfig1;
+      TestUtilities.AreEqualByJson(testConfig1, model.GlobalRaceConfig);
+      model.Close();
+
+      // Check saving and loading from in DB
+      RaceHorologyLib.Database db2 = new RaceHorologyLib.Database();
+      db2.Connect(dbFilename);
+      AppDataModel model2 = new AppDataModel(db2);
+      TestUtilities.AreEqualByJson(testConfig1, model2.GlobalRaceConfig);
+    }
   }
 }

@@ -55,6 +55,8 @@ namespace RaceHorologyLib
   /// <remarks>not yet fully implemented</remarks>
   public class AppDataModel : ILiveDateTimeProvider
   {
+    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
     private IAppDataModelDataBase _db;
 
     ObservableCollection<ParticipantGroup> _particpantGroups;
@@ -74,6 +76,9 @@ namespace RaceHorologyLib
     ObservableCollection<Race> _races;
     Race _currentRace;
     RaceRun _currentRaceRun;
+
+    // Main configuration which is used by the different races, contains mainly ViewConfiguration (sorting, grouing, ...)
+    RaceConfiguration _globalRaceConfig;
 
     private Dictionary<Participant, DateTime> _interactiveTimeMeasurements; // Contains the time measurements made interactively
 
@@ -120,6 +125,9 @@ namespace RaceHorologyLib
     {
       //// DB Backend ////
       _db = db;
+
+      loadRaceConfig();
+
       _interactiveTimeMeasurements = new Dictionary<Participant, DateTime>();
 
       _particpantGroups = new ObservableCollection<ParticipantGroup>(_db.GetParticipantGroups());
@@ -215,7 +223,7 @@ namespace RaceHorologyLib
       return _particpantClasses;
     }
 
-
+    #region Race Management
     public ObservableCollection<Race> GetRaces()
     {
       return _races;
@@ -288,7 +296,10 @@ namespace RaceHorologyLib
     {
       return _currentRaceRun;
     }
+    #endregion
 
+
+    #region Time Measurement specifics
     public void InsertInteractiveTimeMeasurement(Participant participant)
     {
       _interactiveTimeMeasurements[participant] = DateTime.Now;
@@ -315,6 +326,46 @@ namespace RaceHorologyLib
     public delegate void ParticipantMeasuredHandler(object sender, Participant participant);
     public event ParticipantMeasuredHandler ParticipantMeasuredEvent;
 
+    #endregion
+
+
+    #region Global Race Configuration
+    public RaceConfiguration GlobalRaceConfig
+    {
+      get { return _globalRaceConfig; }
+      set { _globalRaceConfig = value.Copy(); storeRaceConfig(); }
+    }
+
+    protected void storeRaceConfig()
+    {
+      try
+      {
+        string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_globalRaceConfig, Newtonsoft.Json.Formatting.Indented);
+        _db.StoreKeyValue("GlobalRaceConfig", configJSON);
+      }
+      catch (Exception e)
+      {
+        logger.Info(e, "could store global race config");
+      }
+    }
+
+    protected void loadRaceConfig()
+    {
+      _globalRaceConfig = new RaceConfiguration();
+      try
+      {
+        string configJSONDB = _db.GetKeyValue("GlobalRaceConfig");
+        if (!string.IsNullOrEmpty(configJSONDB))
+          Newtonsoft.Json.JsonConvert.PopulateObject(configJSONDB, _globalRaceConfig);
+      }
+      catch (Exception e)
+      {
+        logger.Info(e, "could not load global race config");
+      }
+    }
+
+
+    #endregion
 
     #region Internal - Fix Consistencies
 
