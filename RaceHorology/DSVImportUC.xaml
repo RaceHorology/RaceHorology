@@ -39,7 +39,7 @@
 
       <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
         <Label Content="Filter (&lt;Ctrl&gt;-D):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
-        <TextBox x:Name="txtDSVSearch" Width="100" Margin="5" Grid.Column="3" />
+        <local:ClickSelectTextBox x:Name="txtDSVSearch" Width="100" Margin="5" Grid.Column="3" />
         <Button x:Name="btnClearSearch" Margin="-20,0,5,0" VerticalAlignment="Center" Content="X" 
                         Style="{StaticResource TransparentStyle}" Click="btnClearSearch_Click" />
         <ComboBox x:Name="cmbSearchField" SelectionChanged="cmbSearchField_SelectionChanged" Margin="5" MinWidth="80" />
