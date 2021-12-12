@@ -342,7 +342,7 @@ namespace RaceHorologyLibTest
 
         var competitionProps = db.GetCompetitionProperties();
         Assert.AreEqual("Zwergerlrennen 2019", competitionProps.Name);
-        Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal, competitionProps.Type);
+        Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, competitionProps.Type);
         Assert.AreEqual(false, competitionProps.WithPoints);
         Assert.AreEqual("GER", competitionProps.Nation);
         Assert.AreEqual(2019U, competitionProps.Saeson);
