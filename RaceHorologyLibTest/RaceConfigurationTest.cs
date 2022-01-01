@@ -225,7 +225,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"raceconfigpresets\DSV Erwachsene.preset")]
-    [DeploymentItem(@"raceconfigpresets\FIS Rennen.preset")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen Men.preset")]
     public void RaceConfigurationPresets_Test()
     {
       RaceConfigurationPresets cfgPresets = new RaceConfigurationPresets(".");
@@ -234,19 +234,19 @@ namespace RaceHorologyLibTest
 
       Assert.AreEqual(2, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
-      Assert.IsTrue(configs.ContainsKey("FIS Rennen"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen Men"));
 
       // Create new Config
-      var newConfig = new RaceConfiguration(configs["FIS Rennen"]);
+      var newConfig = new RaceConfiguration(configs["FIS Rennen Men"]);
       newConfig.Runs = 3;
       cfgPresets.SaveConfiguration("FIS Rennen - neu", newConfig);
       Assert.AreEqual(3, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
-      Assert.IsTrue(configs.ContainsKey("FIS Rennen"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen Men"));
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
 
       // Delete a config
-      cfgPresets.DeleteConfiguration("FIS Rennen");
+      cfgPresets.DeleteConfiguration("FIS Rennen Men");
       Assert.AreEqual(2, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
@@ -258,7 +258,7 @@ namespace RaceHorologyLibTest
       cfgPresets.SaveConfiguration(@"abc\*:;? 123", newConfig);
       Assert.AreEqual(3, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
-      Assert.IsTrue(configs.ContainsKey(@"abc\*:;? 123"));
+      Assert.IsTrue(configs.ContainsKey(@"abc; 123"));
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
 
     }
@@ -274,7 +274,9 @@ namespace RaceHorologyLibTest
       db.Connect(dbFilename);
       AppDataModel model = new AppDataModel(db);
 
-      TestUtilities.AreEqualByJson(new RaceConfiguration(), model.GlobalRaceConfig);
+      // Default Config
+      Assert.AreEqual("Vereinsrennen - BestOfTwo", model.GlobalRaceConfig.Name);
+      //TestUtilities.AreEqualByJson(new RaceConfiguration(), model.GlobalRaceConfig);
 
       var testConfig1 = new RaceConfiguration
       {
@@ -318,6 +320,7 @@ namespace RaceHorologyLibTest
     {
       TestDataGenerator tg = new TestDataGenerator();
       var model = tg.Model;
+      model.RemoveRace(model.GetRace(0));
 
       var testConfig1 = new RaceConfiguration
       {
@@ -344,6 +347,11 @@ namespace RaceHorologyLibTest
       };
 
       model.GlobalRaceConfig = testConfig1;
+      model.AddRace(new Race.RaceProperties
+      {
+        RaceType = Race.ERaceType.GiantSlalom,
+        Runs = 2
+      });
 
       TestUtilities.AreEqualByJson(testConfig1, model.GlobalRaceConfig);
       TestUtilities.AreEqualByJson(testConfig1, model.GetRace(0).RaceConfiguration);

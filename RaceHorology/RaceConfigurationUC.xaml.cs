@@ -86,8 +86,9 @@ namespace RaceHorology
     {
       if (cmbTemplate.SelectedValue is CBItem selected)
       {
-        if (selected.Value is RaceConfiguration config)
+        if (selected.Value is string configName)
         {
+          RaceConfiguration config = _raceConfigurationPresets.GetConfiguration(configName);
           RaceConfiguration configToSet = RaceConfigurationMerger.MainConfig(_raceConfiguration, config);
 
           ResetConfigurationSelectionUI(configToSet);
@@ -100,8 +101,11 @@ namespace RaceHorology
     {
       if (cmbTemplate.SelectedValue is CBItem selected)
       {
-        _raceConfigurationPresets.DeleteConfiguration(selected.Text);
-        refreshConfigPresetsUI();
+        if (selected.Value is string configName)
+        {
+          _raceConfigurationPresets.DeleteConfiguration(configName);
+          refreshConfigPresetsUI();
+        }
       }
     }
 
@@ -113,8 +117,8 @@ namespace RaceHorology
 
       // Ask for the name to store
       string configName = string.Empty;
-      if (cmbTemplate.SelectedValue is CBItem selected)
-        configName = selected.Text;
+      if (cmbTemplate.SelectedValue is CBItem selected && selected.Value is string selConfigName)
+        configName = selConfigName;
 
       RaceConfigurationSaveDlg dlg = new RaceConfigurationSaveDlg(configName);
       dlg.ShowDialog();
@@ -138,14 +142,14 @@ namespace RaceHorology
     void refreshConfigPresetsUI()
     {
       // Add items and look if the used config name is in the list and if so, use this as selected one
-      RaceConfiguration usedConfig = null;
+      string usedConfig = null;
       cmbTemplate.Items.Clear();
       foreach (var config in _raceConfigurationPresets.GetConfigurations())
       {
-        cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
+        cmbTemplate.Items.Add(new CBItem { Text = config.Value?.Name, Value = config.Key });
         if (_raceConfiguration?.Name == config.Value?.Name
           && RaceConfigurationCompare.MainConfig(_raceConfiguration, config.Value))
-          usedConfig = config.Value;
+          usedConfig = config.Key;
       }
 
       cmbTemplate.SelectCBItem(usedConfig);
@@ -177,8 +181,8 @@ namespace RaceHorology
     {
       // Store the template name
       string configName = null;
-      if (cmbTemplate.SelectedValue is CBItem selected)
-        configName = selected.Text;
+      if (cmbTemplate.SelectedValue is CBItem selected && selected.Value is string selConfigName)
+        configName = selConfigName;
       cfg.Name = configName;
 
       if (cmbRuns.SelectedIndex >= 0)
