@@ -10,7 +10,7 @@
   "Run1_StartistView": "Startlist_1stRun_StartnumberAscending",
   "Run1_StartistViewGrouping": "Participant.Class",
   "Run1_StartistViewParams": null,
-  "Run2_StartistView": "Startlist_1stRun_StartnumberAscending",
+  "Run2_StartistView": "Startlist_2nd_StartnumberAscending",
   "Run2_StartistViewGrouping": "Participant.Class",
   "Run2_StartistViewParams": null
 }
