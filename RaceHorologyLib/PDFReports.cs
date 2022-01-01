@@ -285,6 +285,7 @@ namespace RaceHorologyLib
       float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
       var result = tableHeader.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+      tableHeight = tableHeight * 1.02F;
 
       Rectangle rectTable = new Rectangle(
         pageSize.GetLeft() + _pageMargins.Left, pageSize.GetTop() - _pageMargins.Top - _bannerHeight - tableHeight,
