@@ -636,7 +636,7 @@ namespace RaceHorology
 
     private void InitializeGlobalConfig()
     {
-      ucRaceConfig.Init(new RaceConfiguration());
+      ucRaceConfig.Init(_dm.GlobalRaceConfig);
 
       ucRaceConfigSaveOrReset.Init(
         "Konfigurationsänderungen",
@@ -652,14 +652,13 @@ namespace RaceHorology
 
     private void globalConfig_SaveChanges()
     {
-      RaceConfiguration cfg = new RaceConfiguration();
+      RaceConfiguration cfg = ucRaceConfig.GetConfig();
+      _dm.GlobalRaceConfig = cfg;
 
-      //_thisRace.RaceConfiguration = ucRaceConfig.GetConfig();
+      ucRaceConfig.Init(_dm.GlobalRaceConfig);
 
       //ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       //viewConfigurator.ConfigureRace(_thisRace);
-
-      ucRaceConfig.Init(ucRaceConfig.GetConfig());
 
       // Reset UI (TODO should adapt itself based on events)
       //ConnectUiToRaceRun(_currentRaceRun);
