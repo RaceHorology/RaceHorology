@@ -48,6 +48,7 @@ namespace RaceHorologyLib
   public class RaceConfiguration
   {
     public string Name;
+    public CompetitionProperties.ECompetitionType? InternalDSVAlpinCompetitionTypeWrite;
 
     public int Runs;
 
@@ -79,6 +80,8 @@ namespace RaceHorologyLib
     public RaceConfiguration(RaceConfiguration src)
     {
       Name = src.Name;
+      InternalDSVAlpinCompetitionTypeWrite = src.InternalDSVAlpinCompetitionTypeWrite;
+
       Runs = src.Runs;
       DefaultGrouping = src.DefaultGrouping;
       ActiveFields = src.ActiveFields.Copy<List<string>>();

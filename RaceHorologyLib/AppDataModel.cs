@@ -342,6 +342,16 @@ namespace RaceHorologyLib
       {
         string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_globalRaceConfig, Newtonsoft.Json.Formatting.Indented);
         _db.StoreKeyValue("GlobalRaceConfig", configJSON);
+
+        if (_db is Database dsvAlpinDB)
+        {
+          if (_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite != null)
+          {
+            CompetitionProperties compProps = dsvAlpinDB.GetCompetitionProperties();
+            compProps.Type = (CompetitionProperties.ECompetitionType)_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite;
+            dsvAlpinDB.UpdateCompetitionProperties(compProps);
+          }
+        }
       }
       catch (Exception e)
       {

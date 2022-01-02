@@ -418,5 +418,91 @@ namespace RaceHorologyLibTest
       model = configDBAndGetModel(CompetitionProperties.ECompetitionType.Sledding_Points);
       Assert.AreEqual(null, model.GlobalRaceConfig.Name);
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"raceconfigpresets\DSV Erwachsene.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\DSV Schüler U14-U16.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen Men.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen Women.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Inline (allgemein).preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Inline (Punkte).preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\KSC Ebersberg -U12.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\KSC Ebersberg U14-.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\SVM Schüler U12.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\SVM Schüler U8-U10.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Vereinsrennen - BestOfTwo.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Vereinsrennen - Summe.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void GlobalRaceConfig_DSVAlpinExport()
+    {
+      RaceConfigurationPresets cfgPresets = new RaceConfigurationPresets("raceconfigpresets");
+
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      Database db = new Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      RaceConfiguration config;
+      config = cfgPresets.GetConfiguration("DSV Erwachsene");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_Points, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_Points, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("DSV Schüler U14-U16");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_SchoolPoints, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_SchoolPoints, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("FIS Rennen Men");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.FIS_Men, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.FIS_Men, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("FIS Rennen Women");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.FIS_Women, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.FIS_Women, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("Inline (allgemein)");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("Inline (Punkte)");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_Points, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_Points, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("KSC Ebersberg -U12");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("KSC Ebersberg U14-");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("SVM Schüler U12");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("SVM Schüler U8-U10");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("Vereinsrennen - BestOfTwo");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("Vereinsrennen - Summe");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+    }
   }
 }

@@ -1,5 +1,6 @@
 {
-  "Name" : "FIS Rennen - Herren",
+  "InternalDSVAlpinCompetitionTypeWrite": 1,
+  "Name": "FIS Rennen - Herren",
   "Runs": 2,
   "ActiveFields": [
     "Year",
