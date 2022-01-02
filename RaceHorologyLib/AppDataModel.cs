@@ -330,6 +330,7 @@ namespace RaceHorologyLib
 
 
     #region Global Race Configuration
+
     public RaceConfiguration GlobalRaceConfig
     {
       get { return _globalRaceConfig; }
@@ -343,15 +344,7 @@ namespace RaceHorologyLib
         string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_globalRaceConfig, Newtonsoft.Json.Formatting.Indented);
         _db.StoreKeyValue("GlobalRaceConfig", configJSON);
 
-        if (_db is Database dsvAlpinDB)
-        {
-          if (_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite != null)
-          {
-            CompetitionProperties compProps = dsvAlpinDB.GetCompetitionProperties();
-            compProps.Type = (CompetitionProperties.ECompetitionType)_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite;
-            dsvAlpinDB.UpdateCompetitionProperties(compProps);
-          }
-        }
+        storeRaceConfig_FixDSVAlpinType();
       }
       catch (Exception e)
       {
@@ -369,16 +362,35 @@ namespace RaceHorologyLib
           Newtonsoft.Json.JsonConvert.PopulateObject(configJSONDB, _globalRaceConfig);
         else
         {
-          var raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
+          loadRaceConfig_BasedOnDSVAlpinType();
+        }
+      }
+      catch (Exception e)
+      {
+        logger.Info(e, "could not load global race config");
+      }
+    }
 
-          if (_db is Database dsvAlpinDB)
-          {
-            CompetitionProperties p = dsvAlpinDB.GetCompetitionProperties();
+    protected void storeRaceConfig_FixDSVAlpinType()
+    {
+      if (_db is Database dsvAlpinDB)
+      {
+        if (_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite != null)
+        {
+          CompetitionProperties compProps = dsvAlpinDB.GetCompetitionProperties();
+          compProps.Type = (CompetitionProperties.ECompetitionType)_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite;
+          dsvAlpinDB.UpdateCompetitionProperties(compProps);
+        }
+      }
+    }
 
-            Dictionary<CompetitionProperties.ECompetitionType, string> mapDSVAlpinType2RaceConfig = new Dictionary<CompetitionProperties.ECompetitionType, string>
-            {
-              {CompetitionProperties.ECompetitionType.FIS_Women, "FIS Rennen - Damen" },
-              {CompetitionProperties.ECompetitionType.FIS_Men, "FIS Rennen - Herren" },
+    protected void loadRaceConfig_BasedOnDSVAlpinType()
+    {
+      Dictionary<CompetitionProperties.ECompetitionType, string> mapDSVAlpinType2RaceConfig
+        = new Dictionary<CompetitionProperties.ECompetitionType, string>
+              {
+              {CompetitionProperties.ECompetitionType.FIS_Women, "FIS Rennen Women" },
+              {CompetitionProperties.ECompetitionType.FIS_Men, "FIS Rennen Men" },
               {CompetitionProperties.ECompetitionType.DSV_Points, "DSV Erwachsene" },
               {CompetitionProperties.ECompetitionType.DSV_NoPoints, "DSV Erwachsene" },
               {CompetitionProperties.ECompetitionType.DSV_SchoolPoints, "DSV Schüler U14-U16" },
@@ -390,27 +402,26 @@ namespace RaceHorologyLib
               //{CompetitionProperties.ECompetitionType.Parallel, "???" },
               //{CompetitionProperties.ECompetitionType.Sledding_Points, "???" },
               //{CompetitionProperties.ECompetitionType.Sledding_NoPoints, "???" },
-            };
+        };
 
-            string defaultConfigName = null;
-            if (mapDSVAlpinType2RaceConfig.TryGetValue(p.Type, out defaultConfigName))
-            {
-              RaceConfiguration defaultConfig = null;
-              if (raceConfigurationPresets.GetConfigurations().TryGetValue(defaultConfigName, out defaultConfig))
-              {
-                if (defaultConfig != null)
-                  _globalRaceConfig = defaultConfig.Copy();
-              }
-            }
+      var raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
+
+      if (_db is Database dsvAlpinDB)
+      {
+        CompetitionProperties p = dsvAlpinDB.GetCompetitionProperties();
+
+        string defaultConfigName = null;
+        if (mapDSVAlpinType2RaceConfig.TryGetValue(p.Type, out defaultConfigName))
+        {
+          RaceConfiguration defaultConfig = null;
+          if (raceConfigurationPresets.GetConfigurations().TryGetValue(defaultConfigName, out defaultConfig))
+          {
+            if (defaultConfig != null)
+              _globalRaceConfig = defaultConfig.Copy();
           }
         }
       }
-      catch (Exception e)
-      {
-        logger.Info(e, "could not load global race config");
-      }
     }
-
 
     #endregion
 
