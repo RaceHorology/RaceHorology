@@ -185,6 +185,10 @@ namespace RaceHorology
         configName = selConfigName;
       cfg.Name = configName;
 
+      var presetConfig = _raceConfigurationPresets.GetConfiguration(configName);
+      if (presetConfig != null)
+        cfg.InternalDSVAlpinCompetitionTypeWrite = presetConfig.InternalDSVAlpinCompetitionTypeWrite;
+
       if (cmbRuns.SelectedIndex >= 0)
         cfg.Runs = (int)((CBItem)cmbRuns.SelectedValue).Value;
 
