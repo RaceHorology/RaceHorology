@@ -183,6 +183,9 @@ namespace RaceHorologyLib
 
     public RaceConfiguration GetConfiguration(string name)
     {
+      if (name == null || !_configurations.ContainsKey(name))
+        return null;
+
       return _configurations[name];
     }
 
