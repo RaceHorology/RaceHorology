@@ -379,6 +379,11 @@ namespace RaceHorologyLib
         {
           CompetitionProperties compProps = dsvAlpinDB.GetCompetitionProperties();
           compProps.Type = (CompetitionProperties.ECompetitionType)_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite;
+          compProps.WithPoints = _globalRaceConfig.ActiveFields.Contains("Points");
+          compProps.FieldActiveClub = _globalRaceConfig.ActiveFields.Contains("Club");
+          compProps.FieldActiveCode = _globalRaceConfig.ActiveFields.Contains("Code");
+          compProps.FieldActiveYear = _globalRaceConfig.ActiveFields.Contains("Year");
+          compProps.FieldActiveNation = _globalRaceConfig.ActiveFields.Contains("Nation");
           dsvAlpinDB.UpdateCompetitionProperties(compProps);
         }
       }
