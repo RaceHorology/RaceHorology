@@ -1748,6 +1748,12 @@ namespace RaceHorologyLib
         _dsvCalcW.CalculatePenalty();
       }
       catch (Exception) { }
+
+      // Re-Update points
+      foreach (var sortedItem in _viewList)
+      {
+        sortedItem.Points = calculatePoints(sortedItem);
+      }
     }
 
     protected override double calculatePoints(RaceResultItem rri)
