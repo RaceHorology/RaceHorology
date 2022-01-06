@@ -266,6 +266,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    [DeploymentItem(@"raceconfigpresets\Vereinsrennen - BestOfTwo.preset", @"raceconfigpresets")]
     public void GlobalRaceConfig_SaveAndLoad()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
@@ -276,7 +277,6 @@ namespace RaceHorologyLibTest
 
       // Default Config
       Assert.AreEqual("Vereinsrennen - BestOfTwo", model.GlobalRaceConfig.Name);
-      //TestUtilities.AreEqualByJson(new RaceConfiguration(), model.GlobalRaceConfig);
 
       var testConfig1 = new RaceConfiguration
       {
