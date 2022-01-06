@@ -103,6 +103,8 @@ namespace RaceHorology
 
     private void InitializeConfiguration()
     {
+      _thisRace.PropertyChanged += thisRace_PropertyChanged;
+
       ucRaceConfig.Init(_thisRace.RaceConfiguration);
 
       ucRaceConfigSaveOrReset.Init(
@@ -111,6 +113,11 @@ namespace RaceHorology
         configuration_ExistingChanges, configuration_SaveChanges, configuration_ResetChanges);
     }
 
+    private void thisRace_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == "RaceConfiguration")
+        configuration_reconfigureViews();
+    }
 
     private bool configuration_ExistingChanges()
     {
@@ -123,14 +130,6 @@ namespace RaceHorology
 
       _thisRace.RaceConfiguration = ucRaceConfig.GetConfig();
 
-      ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
-      viewConfigurator.ConfigureRace(_thisRace);
-
-      ucRaceConfig.Init(ucRaceConfig.GetConfig());
-
-      // Reset UI (TODO should adapt itself based on events)
-      ConnectUiToRaceRun(_currentRaceRun);
-      ucRaceLists.UpdateAll();
     }
 
     private void configuration_ResetChanges()
@@ -138,6 +137,17 @@ namespace RaceHorology
       ucRaceConfig.ResetChanges();
     }
 
+    private void configuration_reconfigureViews()
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
+      viewConfigurator.ConfigureRace(_thisRace);
+
+      ucRaceConfig.Init(_thisRace.RaceConfiguration);
+
+      // Reset UI
+      ConnectUiToRaceRun(_currentRaceRun);
+      ucRaceLists.UpdateAll();
+    }
 
     #endregion
 

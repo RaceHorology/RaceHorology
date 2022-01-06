@@ -656,13 +656,6 @@ namespace RaceHorology
       _dm.GlobalRaceConfig = cfg;
 
       ucRaceConfig.Init(_dm.GlobalRaceConfig);
-
-      //ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
-      //viewConfigurator.ConfigureRace(_thisRace);
-
-      // Reset UI (TODO should adapt itself based on events)
-      //ConnectUiToRaceRun(_currentRaceRun);
-      //ucRaceLists.UpdateAll();
     }
 
     private void globalConfig_ResetChanges()
