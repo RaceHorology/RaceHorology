@@ -503,6 +503,66 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
       model.GlobalRaceConfig = config;
       Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+
+
+      config = cfgPresets.GetConfiguration("Vereinsrennen - Summe");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+
+      config.ActiveFields = new List<string>();
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Points" };
+      model.GlobalRaceConfig = config;
+      Assert.IsTrue(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Club" };
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Code" };
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Year" };
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Nation" };
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Year", "Nation", "Code", "Points", "Club" };
+      model.GlobalRaceConfig = config;
+      Assert.IsTrue(db.GetCompetitionProperties().WithPoints);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveNation);
     }
   }
 }
