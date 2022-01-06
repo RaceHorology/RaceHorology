@@ -67,7 +67,7 @@ namespace RaceHorologyLib
 
     public virtual string GetDeviceInfo()
     {
-      return "ALGE TdC 8001 (base)";
+      return "ALGE TdC 8000/8001 (base)";
     }
 
     public string GetStatusInfo()
@@ -225,7 +225,7 @@ namespace RaceHorologyLib
 
     public override string GetDeviceInfo()
     {
-      return "ALGE TdC 8001 (" + _serialPortName + ")";
+      return "ALGE TdC8000/8001 (" + _serialPortName + ")";
     }
 
     public override void Start()
@@ -273,7 +273,7 @@ namespace RaceHorologyLib
 
     private void startWritingToDumpFile()
     {
-      string dumpFilename = String.Format(@"ALGETdC8001-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
+      string dumpFilename = String.Format(@"ALGETdC800x-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
       dumpFilename = System.IO.Path.Combine(_dumpDir, dumpFilename);
       _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
     }

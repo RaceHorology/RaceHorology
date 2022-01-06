@@ -650,7 +650,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Timing: {0}", "Alge TdC8001"))));
+        .Add(new Paragraph(string.Format("Timing: {0}", "Alge TdC8000/8001"))));
 
       return tableFooter;
     }
