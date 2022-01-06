@@ -137,12 +137,23 @@ namespace RaceHorology
       ucRaceConfig.ResetChanges();
     }
 
+
+    private void btnClearConfiguration_Click(object sender, RoutedEventArgs e)
+    {
+      _thisRace.RaceConfiguration = null;
+    }
+
+
     private void configuration_reconfigureViews()
     {
       ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       viewConfigurator.ConfigureRace(_thisRace);
 
       ucRaceConfig.Init(_thisRace.RaceConfiguration);
+
+      imgTabHeaderConfiguration.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(
+        _thisRace.IsRaceConfigurationLocal ? "/Icons/icons8-umkreist-l-50.png" : "/Icons/icons8-umkreist-g-50.png", 
+        UriKind.Relative));
 
       // Reset UI
       ConnectUiToRaceRun(_currentRaceRun);
@@ -459,7 +470,6 @@ namespace RaceHorology
         UiUtilities.EnableOrDisableColumns(_thisRace, dgFinish);
 
         lblStartList.DataContext = _rslVP.GetView();
-
       }
       else
       {

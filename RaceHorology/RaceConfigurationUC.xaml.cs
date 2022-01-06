@@ -41,6 +41,7 @@ namespace RaceHorology
       refreshConfigPresetsUI();
 
       // Configuration Screen
+      cmbRuns.Items.Clear();
       cmbRuns.Items.Add(new CBItem { Text = "1", Value = 1 });
       cmbRuns.Items.Add(new CBItem { Text = "2", Value = 2 });
       cmbRuns.Items.Add(new CBItem { Text = "3", Value = 3 });
@@ -51,6 +52,7 @@ namespace RaceHorology
       // Result
       UiUtilities.FillGrouping(cmbConfigErgebnisGrouping);
 
+      cmbConfigErgebnis.Items.Clear();
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe der besten 2 Durchgänge", Value = "RaceResult_SumBest2" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
@@ -58,6 +60,7 @@ namespace RaceHorology
 
       // Run 1
       UiUtilities.FillGrouping(cmbConfigStartlist1Grouping);
+      cmbConfigStartlist1.Items.Clear();
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_1stRun_StartnumberAscending" });
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (nicht gelost)", Value = "Startlist_1stRun_Points_0" });
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 15 gelost)", Value = "Startlist_1stRun_Points_15" });
@@ -65,6 +68,7 @@ namespace RaceHorology
 
       // Run 2
       UiUtilities.FillGrouping(cmbConfigStartlist2Grouping);
+      cmbConfigStartlist2.Items.Clear();
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_2nd_StartnumberAscending" });
       //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberAscending" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (absteigend)", Value = "Startlist_2nd_StartnumberDescending" });

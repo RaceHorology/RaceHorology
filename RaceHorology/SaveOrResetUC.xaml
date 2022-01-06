@@ -6,9 +6,9 @@
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
              >
-  <StackPanel Orientation="Horizontal" Grid.Row="29" Grid.Column="2" HorizontalAlignment="Left" Margin="0,0,0,0">
-    <Button x:Name="btnReset" Content="Zurücksetzen" Margin="5" Padding="5" MinWidth="100" Click="btnReset_Click"/>
-    <Button x:Name="btnApply" Content="Speichern" ToolTip="STRG + S" Margin="5" Padding="5" MinWidth="100" Click="btnApply_Click"/>
-    <Label x:Name="lbSaved" Content="Gespeichert ..." Margin="5" Padding="5" VerticalAlignment="Center"/>
+  <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
+    <Button x:Name="btnReset" Content="Zurücksetzen" Margin="0,0,5,0" Padding="5" MinWidth="100" Click="btnReset_Click"/>
+    <Button x:Name="btnApply" Content="Speichern" ToolTip="STRG + S" Margin="5,0,5,0" Padding="0" MinWidth="100" Click="btnApply_Click"/>
+    <Label x:Name="lbSaved" Content="Gespeichert ..." Margin="5" Padding="0" VerticalAlignment="Center"/>
   </StackPanel>
 </UserControl>

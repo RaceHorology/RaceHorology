@@ -691,7 +691,9 @@ namespace RaceHorologyLib
 
     // Mainly ViewConfiguration (sorting, grouing, ...)
     RaceConfiguration _raceConfiguration;
-    
+    bool _raceConfigurationIsLocal;
+
+
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
     private DatabaseDelegatorRace _raceDBDelegator;
@@ -740,12 +742,29 @@ namespace RaceHorologyLib
       }
       
       set 
-      { 
-        _raceConfiguration = value.Copy(); 
-        UpdateNumberOfRuns((uint)_raceConfiguration.Runs);  
-        storeRaceConfig();
+      {
+        if (value != null)
+        {
+          _raceConfiguration = value.Copy();
+          _raceConfigurationIsLocal = true;
+          storeRaceConfig();
+        }
+        else
+        {
+          _raceConfiguration = null;
+          storeRaceConfig();
+          loadGlobalRaceConfig();
+        }
+
+        UpdateNumberOfRuns((uint)_raceConfiguration.Runs);
+
         NotifyPropertyChanged();
       }
+    }
+
+    public bool IsRaceConfigurationLocal
+    {
+      get { return _raceConfigurationIsLocal; }
     }
 
 
@@ -809,6 +828,7 @@ namespace RaceHorologyLib
       if (e.PropertyName == "GlobalRaceConfig")
       {
         loadRaceConfig();
+        UpdateNumberOfRuns((uint)_raceConfiguration.Runs);
       }
     }
 
@@ -826,8 +846,15 @@ namespace RaceHorologyLib
     {
       try
       {
-        string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_raceConfiguration, Newtonsoft.Json.Formatting.Indented);
-        _db.StoreKeyValue(getRaceConfigKey(), configJSON);
+        if (_raceConfiguration != null)
+        {
+          string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_raceConfiguration, Newtonsoft.Json.Formatting.Indented);
+          _db.StoreKeyValue(getRaceConfigKey(), configJSON);
+        }
+        else
+        {
+          _db.StoreKeyValue(getRaceConfigKey(), "");
+        }
       }
       catch (Exception e)
       {
@@ -876,6 +903,7 @@ namespace RaceHorologyLib
           RaceConfiguration loadedConfig = new RaceConfiguration();
           Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, loadedConfig);
           _raceConfiguration = loadedConfig;
+          _raceConfigurationIsLocal = true;
           return true;
         }
       }
@@ -890,6 +918,7 @@ namespace RaceHorologyLib
     protected bool loadGlobalRaceConfig()
     {
       _raceConfiguration = _appDataModel.GlobalRaceConfig.Copy();
+      _raceConfigurationIsLocal = false;
       return true;
     }
 

@@ -400,6 +400,8 @@
     </EmbeddedResource>
     <Resource Include="Icons\icons8-play-52-green.png" />
     <Resource Include="Icons\icons8-stop-52-red.png" />
+    <Resource Include="Icons\icons8-umkreist-g-50.png" />
+    <Resource Include="Icons\icons8-umkreist-l-50.png" />
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -23,7 +23,14 @@
       <ColumnDefinition Width="1*"/>
     </Grid.ColumnDefinitions>
     <TabControl x:Name="tabControlRace1" Height="Auto" Margin="10" Grid.Column="0" Width="Auto">
-      <TabItem x:Name="tabItemConfiguration" Header="Konfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+      <TabItem x:Name="tabItemConfiguration" FontSize="12" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock x:Name="lblTabHeaderConfiguration" Text="Konfiguration" Margin="0,0,3,0" VerticalAlignment="Center" FontSize="12" />
+            <Image Name="imgTabHeaderConfiguration" Height="15" Margin="2" VerticalAlignment="Center" Source="/Icons/icons8-umkreist-g-50.png" />
+          </StackPanel>
+        </TabItem.Header>
+
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
           <Grid>
             <Grid.RowDefinitions>
@@ -35,7 +42,17 @@
             </Grid.ColumnDefinitions>
 
             <local:RaceConfigurationUC x:Name="ucRaceConfig" />
-            <local:SaveOrResetUC x:Name="ucRaceConfigSaveOrReset" Grid.Row="1" Grid.Column="1" Margin="5,25,0,0" />
+            <Grid Grid.Row="1" Grid.Column="1" Margin="5,25,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <local:SaveOrResetUC x:Name="ucRaceConfigSaveOrReset" Grid.Column="0" />
+              <Button x:Name="btnClearConfiguration" Content="Globale Konfiguration nutzen" Margin="0,0,5,0" MinWidth="100" Grid.Column="2" Click="btnClearConfiguration_Click" />
+            </Grid>
+            <StackPanel Orientation="Horizontal" >
+            </StackPanel>
           </Grid>
         </ScrollViewer>
       </TabItem>
