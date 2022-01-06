@@ -53,7 +53,7 @@ namespace RaceHorologyLib
   /// Data is written back to the data base in case it is needed
   /// 
   /// <remarks>not yet fully implemented</remarks>
-  public class AppDataModel : ILiveDateTimeProvider
+  public class AppDataModel : ILiveDateTimeProvider, INotifyPropertyChanged
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -333,8 +333,17 @@ namespace RaceHorologyLib
 
     public RaceConfiguration GlobalRaceConfig
     {
-      get { return _globalRaceConfig; }
-      set { _globalRaceConfig = value.Copy(); storeRaceConfig(); }
+      get 
+      { 
+        return _globalRaceConfig; 
+      }
+      
+      set 
+      { 
+        _globalRaceConfig = value.Copy(); 
+        storeRaceConfig(); 
+        NotifyPropertyChanged(); 
+      }
     }
 
     protected void storeRaceConfig()
@@ -369,6 +378,8 @@ namespace RaceHorologyLib
       {
         logger.Info(e, "could not load global race config");
       }
+
+      NotifyPropertyChanged("GlobalRaceConfig");
     }
 
     protected void storeRaceConfig_FixDSVAlpinType()
@@ -499,6 +510,20 @@ namespace RaceHorologyLib
     #endregion
 
 
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChangedEventHandler handler = PropertyChanged;
+      if (handler != null)
+        handler(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
   }
 
 
@@ -718,7 +743,8 @@ namespace RaceHorologyLib
       { 
         _raceConfiguration = value.Copy(); 
         UpdateNumberOfRuns((uint)_raceConfiguration.Runs);  
-        StoreRaceConfig(); 
+        storeRaceConfig();
+        NotifyPropertyChanged();
       }
     }
 
@@ -753,6 +779,9 @@ namespace RaceHorologyLib
       foreach (var p in particpants)
         _participants.Add(p);
 
+      // Watch for changes on the RaceConfiguration
+      _appDataModel.PropertyChanged += appDataModel_PropertyChanged;
+
       // Watch for changes on actual participants and its properties => check internal state
       _participants.ItemChanged += onRaceParticipants_ItemChanged;
       _participants.CollectionChanged += onRaceParticipants_CollectionChanged;
@@ -775,6 +804,14 @@ namespace RaceHorologyLib
       viewConfigurator.ConfigureRace(this);
     }
 
+    private void appDataModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == "GlobalRaceConfig")
+      {
+        loadRaceConfig();
+      }
+    }
+
     private void onParticipants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.OldItems != null)
@@ -785,15 +822,12 @@ namespace RaceHorologyLib
 
     #region Configuration
 
-    protected void StoreRaceConfig()
+    protected void storeRaceConfig()
     {
       try
       {
         string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_raceConfiguration, Newtonsoft.Json.Formatting.Indented);
-
-        //string configFile = GetRaceConfigFilepath();
-        //System.IO.File.WriteAllText(configFile, configJSON);
-        _db.StoreKeyValue(GetRaceConfigKey(), configJSON);
+        _db.StoreKeyValue(getRaceConfigKey(), configJSON);
       }
       catch (Exception e)
       {
@@ -801,7 +835,7 @@ namespace RaceHorologyLib
       }
     }
 
-    protected string GetRaceConfigFilepath()
+    private string getRaceConfigFilepath()
     {
       string configFile = System.IO.Path.Combine(
         _appDataModel.GetDB().GetDBPathDirectory(),
@@ -809,30 +843,31 @@ namespace RaceHorologyLib
       return configFile;
     }
 
-    protected string GetRaceConfigKey()
+    protected string getRaceConfigKey()
     {
       return string.Format("RaceConfig_{0}", _properties.RaceType.ToString());
     }
 
     protected void loadRaceConfig()
     {
-      loadLocalRaceConfig();
-      if (_raceConfiguration == null)
+      if (!loadLocalRaceConfig())
         loadGlobalRaceConfig();
+
+      NotifyPropertyChanged("RaceConfiguration");
     }
 
-    protected void loadLocalRaceConfig()
+    protected bool loadLocalRaceConfig()
     {
       try
       {
         string configJSON;
 
-        string configJSONDB = _db.GetKeyValue(GetRaceConfigKey());
+        string configJSONDB = _db.GetKeyValue(getRaceConfigKey());
         if (!string.IsNullOrEmpty(configJSONDB))
           configJSON = configJSONDB;
         else
         {
-          string configFile = GetRaceConfigFilepath();
+          string configFile = getRaceConfigFilepath();
           configJSON = System.IO.File.ReadAllText(configFile);
         }
 
@@ -841,17 +876,21 @@ namespace RaceHorologyLib
           RaceConfiguration loadedConfig = new RaceConfiguration();
           Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, loadedConfig);
           _raceConfiguration = loadedConfig;
+          return true;
         }
       }
       catch (Exception e)
       {
         logger.Info(e, "could not load race config");
       }
+
+      return false;
     }
 
-    protected void loadGlobalRaceConfig()
+    protected bool loadGlobalRaceConfig()
     {
       _raceConfiguration = _appDataModel.GlobalRaceConfig.Copy();
+      return true;
     }
 
 

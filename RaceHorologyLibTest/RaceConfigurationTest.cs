@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -302,7 +302,16 @@ namespace RaceHorologyLibTest
         MinimumPenalty = 300
       };
 
+      // Check for PropertyChanged event
+      string propertyChanged = null;
+      model.PropertyChanged += delegate (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+      {
+        propertyChanged = e.PropertyName;
+      };
+
       model.GlobalRaceConfig = testConfig1;
+      Assert.AreEqual("GlobalRaceConfig", propertyChanged);
+
       TestUtilities.AreEqualByJson(testConfig1, model.GlobalRaceConfig);
       model.Close();
 
@@ -320,7 +329,6 @@ namespace RaceHorologyLibTest
     {
       TestDataGenerator tg = new TestDataGenerator();
       var model = tg.Model;
-      model.RemoveRace(model.GetRace(0));
 
       var testConfig1 = new RaceConfiguration
       {
@@ -347,11 +355,6 @@ namespace RaceHorologyLibTest
       };
 
       model.GlobalRaceConfig = testConfig1;
-      model.AddRace(new Race.RaceProperties
-      {
-        RaceType = Race.ERaceType.GiantSlalom,
-        Runs = 2
-      });
 
       TestUtilities.AreEqualByJson(testConfig1, model.GlobalRaceConfig);
       TestUtilities.AreEqualByJson(testConfig1, model.GetRace(0).RaceConfiguration);
