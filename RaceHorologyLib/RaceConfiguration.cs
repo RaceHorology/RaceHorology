@@ -48,6 +48,7 @@ namespace RaceHorologyLib
   public class RaceConfiguration
   {
     public string Name;
+    public CompetitionProperties.ECompetitionType? InternalDSVAlpinCompetitionTypeWrite;
 
     public int Runs;
 
@@ -79,6 +80,8 @@ namespace RaceHorologyLib
     public RaceConfiguration(RaceConfiguration src)
     {
       Name = src.Name;
+      InternalDSVAlpinCompetitionTypeWrite = src.InternalDSVAlpinCompetitionTypeWrite;
+
       Runs = src.Runs;
       DefaultGrouping = src.DefaultGrouping;
       ActiveFields = src.ActiveFields.Copy<List<string>>();
@@ -178,6 +181,14 @@ namespace RaceHorologyLib
       return _configurations;
     }
 
+    public RaceConfiguration GetConfiguration(string name)
+    {
+      if (name == null || !_configurations.ContainsKey(name))
+        return null;
+
+      return _configurations[name];
+    }
+
 
     public void SaveConfiguration(string name, RaceConfiguration raceConfiguration)
     {
@@ -208,10 +219,11 @@ namespace RaceHorologyLib
       var presetFiles = System.IO.Directory.GetFiles(_directory, "*.preset", System.IO.SearchOption.TopDirectoryOnly);
       foreach (var filename in presetFiles)
       {
-        string name;
+        string prettyName;
         RaceConfiguration raceConfiguration;
-        if (loadConfiguration(filename, out name, out raceConfiguration))
+        if (loadConfiguration(filename, out prettyName, out raceConfiguration))
         {
+          var name = System.IO.Path.GetFileNameWithoutExtension(filename);
           _configurations.Add(name, raceConfiguration);
         }
       }

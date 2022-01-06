@@ -6,7 +6,7 @@ Race Horology Logo
 Beratung und Consulting während der Entwicklung
   Bernd Altmann - http://www.rennmeldung.de
 
-Testen und Ausprobieren währende der Entwicklung
+Testen und Ausprobieren während der Entwicklung
   Andreas Ewert (SV Germering)
   Bernd Klostermeyer (Niedersächsischer Skiverband)
   Dieter Limmer (WSV München)

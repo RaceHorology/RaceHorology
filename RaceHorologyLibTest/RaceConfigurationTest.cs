@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -225,7 +225,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     [DeploymentItem(@"raceconfigpresets\DSV Erwachsene.preset")]
-    [DeploymentItem(@"raceconfigpresets\FIS Rennen.preset")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen Men.preset")]
     public void RaceConfigurationPresets_Test()
     {
       RaceConfigurationPresets cfgPresets = new RaceConfigurationPresets(".");
@@ -234,19 +234,19 @@ namespace RaceHorologyLibTest
 
       Assert.AreEqual(2, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
-      Assert.IsTrue(configs.ContainsKey("FIS Rennen"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen Men"));
 
       // Create new Config
-      var newConfig = new RaceConfiguration(configs["FIS Rennen"]);
+      var newConfig = new RaceConfiguration(configs["FIS Rennen Men"]);
       newConfig.Runs = 3;
       cfgPresets.SaveConfiguration("FIS Rennen - neu", newConfig);
       Assert.AreEqual(3, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
-      Assert.IsTrue(configs.ContainsKey("FIS Rennen"));
+      Assert.IsTrue(configs.ContainsKey("FIS Rennen Men"));
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
 
       // Delete a config
-      cfgPresets.DeleteConfiguration("FIS Rennen");
+      cfgPresets.DeleteConfiguration("FIS Rennen Men");
       Assert.AreEqual(2, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
@@ -258,9 +258,314 @@ namespace RaceHorologyLibTest
       cfgPresets.SaveConfiguration(@"abc\*:;? 123", newConfig);
       Assert.AreEqual(3, configs.Count);
       Assert.IsTrue(configs.ContainsKey("DSV Erwachsene"));
-      Assert.IsTrue(configs.ContainsKey(@"abc\*:;? 123"));
+      Assert.IsTrue(configs.ContainsKey(@"abc; 123"));
       Assert.IsTrue(configs.ContainsKey("FIS Rennen - neu"));
 
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    [DeploymentItem(@"raceconfigpresets\Vereinsrennen - BestOfTwo.preset", @"raceconfigpresets")]
+    public void GlobalRaceConfig_SaveAndLoad()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      // Default Config
+      Assert.AreEqual("Vereinsrennen - BestOfTwo", model.GlobalRaceConfig.Name);
+
+      var testConfig1 = new RaceConfiguration
+      {
+        Name = "BaseName",
+        Runs = 2,
+        DefaultGrouping = "DefaultG",
+        ActiveFields = new List<string> { "eins", "zwei" },
+        RaceResultView = "RaceResultView",
+        RaceResultViewParams = new Dictionary<string, object>(),
+
+        Run1_StartistView = "Run1_StartistView",
+        Run1_StartistViewGrouping = "Run1_StartistViewGrouping",
+        Run1_StartistViewParams = new Dictionary<string, object>(),
+
+        Run2_StartistView = "Run2_StartistView",
+        Run2_StartistViewGrouping = "Run2_StartistViewGrouping",
+        Run2_StartistViewParams = new Dictionary<string, object>(),
+
+        LivetimingParams = new Dictionary<string, string> { { "key", "value" } },
+
+        ValueF = 100,
+        ValueA = 200,
+        MinimumPenalty = 300
+      };
+
+      // Check for PropertyChanged event
+      string propertyChanged = null;
+      model.PropertyChanged += delegate (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+      {
+        propertyChanged = e.PropertyName;
+      };
+
+      model.GlobalRaceConfig = testConfig1;
+      Assert.AreEqual("GlobalRaceConfig", propertyChanged);
+
+      TestUtilities.AreEqualByJson(testConfig1, model.GlobalRaceConfig);
+      model.Close();
+
+      // Check saving and loading from in DB
+      RaceHorologyLib.Database db2 = new RaceHorologyLib.Database();
+      db2.Connect(dbFilename);
+      AppDataModel model2 = new AppDataModel(db2);
+      TestUtilities.AreEqualByJson(testConfig1, model2.GlobalRaceConfig);
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void GlobalRaceConfig_InheritToRace()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      var model = tg.Model;
+
+      var testConfig1 = new RaceConfiguration
+      {
+        Name = "BaseName",
+        Runs = 2,
+        DefaultGrouping = "DefaultG",
+        ActiveFields = new List<string> { "eins", "zwei" },
+        RaceResultView = "RaceResultView",
+        RaceResultViewParams = new Dictionary<string, object>(),
+
+        Run1_StartistView = "Run1_StartistView",
+        Run1_StartistViewGrouping = "Run1_StartistViewGrouping",
+        Run1_StartistViewParams = new Dictionary<string, object>(),
+
+        Run2_StartistView = "Run2_StartistView",
+        Run2_StartistViewGrouping = "Run2_StartistViewGrouping",
+        Run2_StartistViewParams = new Dictionary<string, object>(),
+
+        LivetimingParams = new Dictionary<string, string> { { "key", "value" } },
+
+        ValueF = 100,
+        ValueA = 200,
+        MinimumPenalty = 300
+      };
+
+      model.GlobalRaceConfig = testConfig1;
+
+      TestUtilities.AreEqualByJson(testConfig1, model.GlobalRaceConfig);
+      TestUtilities.AreEqualByJson(testConfig1, model.GetRace(0).RaceConfiguration);
+
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"raceconfigpresets\DSV Erwachsene.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\DSV Schüler U14-U16.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen Men.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen Women.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Inline (allgemein).preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Inline (Punkte).preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\KSC Ebersberg -U12.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\KSC Ebersberg U14-.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\SVM Schüler U12.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\SVM Schüler U8-U10.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Vereinsrennen - BestOfTwo.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Vereinsrennen - Summe.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void GlobalRaceConfig_DSVAlpinImport()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      AppDataModel configDBAndGetModel(CompetitionProperties.ECompetitionType type)
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+
+        var compProp = db.GetCompetitionProperties();
+        compProp.Type = type;
+        db.UpdateCompetitionProperties(compProp);
+
+        return new AppDataModel(db);
+      }
+
+      AppDataModel model;
+
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.FIS_Women);
+      Assert.AreEqual("FIS Rennen - Damen", model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.FIS_Men);
+      Assert.AreEqual("FIS Rennen - Herren", model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.DSV_Points);
+      Assert.AreEqual("DSV Erwachsene", model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.DSV_NoPoints);
+      Assert.AreEqual("DSV Erwachsene", model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.DSV_SchoolPoints);
+      Assert.AreEqual("DSV Schüler U14-U16", model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.DSV_SchoolNoPoints);
+      Assert.AreEqual("DSV Schüler U14-U16", model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.VersatilityPoints);
+      Assert.AreEqual(null, model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.VersatilityNoPoints);
+      Assert.AreEqual(null, model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.ClubInternal_BestRun);
+      Assert.AreEqual("Vereinsrennen - BestOfTwo", model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.ClubInternal_Sum);
+      Assert.AreEqual("Vereinsrennen - Summe", model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.Parallel);
+      Assert.AreEqual(null, model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.Sledding_NoPoints);
+      Assert.AreEqual(null, model.GlobalRaceConfig.Name);
+      model = configDBAndGetModel(CompetitionProperties.ECompetitionType.Sledding_Points);
+      Assert.AreEqual(null, model.GlobalRaceConfig.Name);
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"raceconfigpresets\DSV Erwachsene.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\DSV Schüler U14-U16.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen Men.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\FIS Rennen Women.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Inline (allgemein).preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Inline (Punkte).preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\KSC Ebersberg -U12.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\KSC Ebersberg U14-.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\SVM Schüler U12.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\SVM Schüler U8-U10.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Vereinsrennen - BestOfTwo.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"raceconfigpresets\Vereinsrennen - Summe.preset", @"raceconfigpresets")]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void GlobalRaceConfig_DSVAlpinExport()
+    {
+      RaceConfigurationPresets cfgPresets = new RaceConfigurationPresets("raceconfigpresets");
+
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      Database db = new Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      RaceConfiguration config;
+      config = cfgPresets.GetConfiguration("DSV Erwachsene");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_Points, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_Points, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("DSV Schüler U14-U16");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_SchoolPoints, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_SchoolPoints, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("FIS Rennen Men");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.FIS_Men, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.FIS_Men, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("FIS Rennen Women");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.FIS_Women, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.FIS_Women, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("Inline (allgemein)");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("Inline (Punkte)");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_Points, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.DSV_Points, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("KSC Ebersberg -U12");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("KSC Ebersberg U14-");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("SVM Schüler U12");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("SVM Schüler U8-U10");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("Vereinsrennen - BestOfTwo");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_BestRun, db.GetCompetitionProperties().Type);
+
+      config = cfgPresets.GetConfiguration("Vereinsrennen - Summe");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+      model.GlobalRaceConfig = config;
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, db.GetCompetitionProperties().Type);
+
+
+      config = cfgPresets.GetConfiguration("Vereinsrennen - Summe");
+      Assert.AreEqual(CompetitionProperties.ECompetitionType.ClubInternal_Sum, config.InternalDSVAlpinCompetitionTypeWrite);
+
+      config.ActiveFields = new List<string>();
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Points" };
+      model.GlobalRaceConfig = config;
+      Assert.IsTrue(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Club" };
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Code" };
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Year" };
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Nation" };
+      model.GlobalRaceConfig = config;
+      Assert.IsFalse(db.GetCompetitionProperties().WithPoints);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsFalse(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveNation);
+
+      config.ActiveFields = new List<string> { "Year", "Nation", "Code", "Points", "Club" };
+      model.GlobalRaceConfig = config;
+      Assert.IsTrue(db.GetCompetitionProperties().WithPoints);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveClub);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveCode);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveYear);
+      Assert.IsTrue(db.GetCompetitionProperties().FieldActiveNation);
     }
   }
 }

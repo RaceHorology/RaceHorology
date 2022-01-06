@@ -162,6 +162,9 @@
     <Compile Include="RaceConfigurationSaveDlg.xaml.cs">
       <DependentUpon>RaceConfigurationSaveDlg.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RaceConfigurationUC.xaml.cs">
+      <DependentUpon>RaceConfigurationUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RaceHorologyCommands.cs" />
     <Compile Include="RaceListsUC.xaml.cs">
       <DependentUpon>RaceListsUC.xaml</DependentUpon>
@@ -276,6 +279,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="RaceConfigurationUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="RaceListsUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -350,39 +357,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="raceconfigpresets\DSV Erwachsene.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\DSV Schüler U14-U16.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\FIS Rennen.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\Inline %28allgemein%29.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\Inline %28Punkte%29.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\KSC Ebersberg U14-.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\SVM Schüler U12.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\SVM Schüler U8-U10.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\KSC Ebersberg -U12.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\Vereinsrennen - BestOfTwo.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="raceconfigpresets\Vereinsrennen - Summe.preset">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -426,6 +400,8 @@
     </EmbeddedResource>
     <Resource Include="Icons\icons8-play-52-green.png" />
     <Resource Include="Icons\icons8-stop-52-red.png" />
+    <Resource Include="Icons\icons8-umkreist-g-50.png" />
+    <Resource Include="Icons\icons8-umkreist-l-50.png" />
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
