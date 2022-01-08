@@ -2155,23 +2155,23 @@ namespace RaceHorologyLib
       // Render the chart (vector format WMF)
       OfflineChart fileHelper = new OfflineChart((int)areaChart.GetWidth(), (int)areaChart.GetHeight());
 
-      if (false)
-      {
-        MemoryStream chartStreamWMF = new MemoryStream();
-        fileHelper.RenderToWmf(chartStreamWMF, _race.GetResultViewProvider());
+      //if (false)
+      //{
+      //  MemoryStream chartStreamWMF = new MemoryStream();
+      //  fileHelper.RenderToWmf(chartStreamWMF, _race.GetResultViewProvider());
 
-        // Create an iText Image 
-        //WmfImageData imgData = new WmfImageData(chartStreamWMF.ToArray());
-        WmfImageData imgData = new WmfImageData(@"c:\trash\test.wmf");
-        var pdfFormxObj = new PdfFormXObject(imgData, pdf);
-        Image imgChart = new Image(pdfFormxObj);
-        // Render the image
-        PdfCanvas pdfCanvas = new PdfCanvas(page);
-        Canvas canvas = new Canvas(pdfCanvas, areaChart)
-          .SetHorizontalAlignment(HorizontalAlignment.CENTER)
-          .Add(imgChart.SetAutoScale(true));
-      }
-      else
+      //  // Create an iText Image 
+      //  //WmfImageData imgData = new WmfImageData(chartStreamWMF.ToArray());
+      //  WmfImageData imgData = new WmfImageData(@"c:\trash\test.wmf");
+      //  var pdfFormxObj = new PdfFormXObject(imgData, pdf);
+      //  Image imgChart = new Image(pdfFormxObj);
+      //  // Render the image
+      //  PdfCanvas pdfCanvas = new PdfCanvas(page);
+      //  Canvas canvas = new Canvas(pdfCanvas, areaChart)
+      //    .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+      //    .Add(imgChart.SetAutoScale(true));
+      //}
+      //else
       {
         MemoryStream imgStream = new MemoryStream();
         fileHelper.RenderToImage(imgStream, _race.GetResultViewProvider());
