@@ -117,6 +117,7 @@ namespace RaceHorology
       mnuMain.DataContext = _menuVM;
 
       StartDSVAlpinServer();
+      mnuClose.IsEnabled = false;
     }
 
     protected override void OnClosed(EventArgs e)
@@ -169,6 +170,16 @@ namespace RaceHorology
     private void CloseCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       CloseDatabase();
+    }
+
+    /// <summary>
+    /// Applicaton Exit
+    /// </summary>
+    private void ApplicationClose(object sender, RoutedEventArgs e)
+    {
+      CloseDatabase();
+      StopDSVAlpinServer();
+      Environment.Exit(0);
     }
 
     private void OptionsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -272,6 +283,7 @@ namespace RaceHorology
         _menuVM.SetDataModel(_dataModel);
 
         _mruList.AddFile(dbPath);
+        mnuClose.IsEnabled = true;
       }
       catch (Exception ex)
       {
@@ -300,6 +312,7 @@ namespace RaceHorology
       }
 
       updateAppTitle();
+      mnuClose.IsEnabled = false;
     }
 
     private void updateAppTitle()

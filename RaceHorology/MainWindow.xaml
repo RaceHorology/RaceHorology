@@ -32,15 +32,18 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-      <Menu x:Name="mnuMain" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
-        <MenuItem Name="mnuFile" Header="Datei">
-          <MenuItem Name="mnuNew" Header="_Neu anlegen" Command="New" InputGestureText="Ctrl+N"/>
-          <MenuItem Name="mnuOpen" Header="Datei _öffnen" Command="Open" InputGestureText="Ctrl+O"/>
-          <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
-          <MenuItem Name="mnuClose" Header="S_chließen" Command="Close" InputGestureText="Ctrl+C"/>
-        </MenuItem>
-        <MenuItem Name="mnuTools"  Header="Werkzeuge">
-          <MenuItem Name="mnuToolsDeleteRunResults"  Header="Zeiten löschen" 
+    <Menu x:Name="mnuMain" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
+      <MenuItem Name="mnuFile" Header="Datei">
+        <MenuItem Name="mnuNew" Header="_Neu anlegen" Command="New" InputGestureText="Ctrl+N"/>
+        <MenuItem Name="mnuOpen" Header="Datei _öffnen" Command="Open" InputGestureText="Ctrl+O"/>
+        <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
+        <MenuItem Name="mnuClose" Header="S_chließen" Command="Close" InputGestureText="Ctrl+C"/>
+        <Separator/>
+        <MenuItem Name="mnuExit" Header="_Beenden" Click="ApplicationClose" />
+      </MenuItem>
+
+      <MenuItem Name="mnuTools"  Header="Werkzeuge">
+        <MenuItem Name="mnuToolsDeleteRunResults"  Header="Zeiten löschen" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.DeleteRunResults" />
         <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
@@ -50,11 +53,11 @@
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.ImportTime" />
       </MenuItem>
-        <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
-          <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
-        </MenuItem>
-        <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
-      </Menu>
+      <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
+        <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
+      </MenuItem>
+      <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
+    </Menu>
     <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffe6eee5">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
