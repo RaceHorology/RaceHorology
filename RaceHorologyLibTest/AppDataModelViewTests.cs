@@ -939,7 +939,6 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void RaceRunResultViewProviderTest_SameRunTime()
     {
-      int i = 0;
       TestDataGenerator tg = new TestDataGenerator();
       tg.Model.SetCurrentRace(tg.Model.GetRace(0));
       tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
@@ -1090,7 +1089,6 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void BasedOnResultsFirstRunStartListViewProviderTest_SameRunTime()
     {
-      int i = 0;
       TestDataGenerator tg = new TestDataGenerator();
       tg.Model.SetCurrentRace(tg.Model.GetRace(0));
       tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));

@@ -144,6 +144,19 @@ namespace RaceHorologyLibTest
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       model.GetDB().StoreKeyValue("DSV_UsedDSVList", "123");
 
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing f-value",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+      model.GetRace(0).RaceConfiguration.ValueF = 720.0;
+
+      xmlData = new MemoryStream();
+      Assert.AreEqual("wrong raceresultview",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+
+      var rvp = new DSVSchoolRaceResultViewProvider();
+      rvp.Init(model.GetRace(0), model);
+      model.GetRace(0).SetResultViewProvider(rvp);
+
 
 
       xmlData = new MemoryStream();
@@ -226,6 +239,13 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/raceplace", s, "Test Location");
 
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/useddsvlist", s, "123");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/fvalue", s, "720");
+
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racepenalty[@gender='L']/applied_penalty", s, "0");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racepenalty[@gender='L']/calculated_penalty", s, "0");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racepenalty[@gender='M']/applied_penalty", s, "0");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racepenalty[@gender='M']/calculated_penalty", s, "0");
+
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='ChiefRace']/lastname", s, "Manager");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='ChiefRace']/firstname", s, "Race");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/racejury[@function='Referee']/lastname", s, "Referee");
@@ -290,11 +310,6 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator();
       
       fillMandatoryFields(tg.Model);
-
-      // Configure to use sum
-      var rvp = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
-      rvp.Init(tg.Model.GetRace(0), tg.Model);
-      tg.Model.GetRace(0).SetResultViewProvider(rvp);
 
       // Run 1
       tg.Model.GetRace(0).GetRun(0).SetStartFinishTime(tg.createRaceParticipant(cat: tg.findCat('M')), new TimeSpan(0, 8, 0, 0), new TimeSpan(0, 8, 0, 2));
@@ -425,6 +440,12 @@ namespace RaceHorologyLibTest
         raceProps.RaceRun2.CoarseSetter = new AdditionalRaceProperties.Person { Name = "Sven Flossmann", Club = "WSV Glonn" };
         raceProps.RaceRun2.Forerunner1 = new AdditionalRaceProperties.Person { Name = "F. Runner", Club = "WSV Glonn" };
       }
+
+      model.GetRace(0).RaceConfiguration.ValueF = 720.0;
+
+      var rvp = new DSVSchoolRaceResultViewProvider();
+      rvp.Init(model.GetRace(0), model);
+      model.GetRace(0).SetResultViewProvider(rvp);
     }
 
   }

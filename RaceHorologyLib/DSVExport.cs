@@ -94,6 +94,10 @@ namespace RaceHorologyLib
           return "Kurslänge fehlt";
         case "missing forerunner":
           return "Vorläufer fehlt";
+        case "missing f-value":
+          return "F-Wert nicht korrekt";
+        case "wrong raceresultview":
+          return "Ergebnisliste enthält keine Punktberechnung";
         default:
           return Message;
       }
@@ -316,15 +320,20 @@ namespace RaceHorologyLib
       _writer.WriteValue(usedDSVList);
       _writer.WriteEndElement();
 
-      if (false) // TODO: needs to be fixed, btw: optional
+      if (race.RaceConfiguration.ValueF == 0.0)
+        throw new DSVExportException("missing f-value");
+
+      _writer.WriteStartElement("fvalue");
+      _writer.WriteValue(race.RaceConfiguration.ValueF);
+      _writer.WriteEndElement();
+
+      DSVSchoolRaceResultViewProvider dsvRaceVP = race.GetResultViewProvider() as DSVSchoolRaceResultViewProvider;
+      if (dsvRaceVP == null)
+        throw new DSVExportException("wrong raceresultview");
+
+      DSVRaceCalculation dsvCalcW = dsvRaceVP.GetDSVRaceCalculationWomen();
+      if (dsvCalcW != null)
       {
-        _writer.WriteStartElement("fvalue");
-        _writer.WriteValue(race.RaceConfiguration.ValueF);
-        _writer.WriteEndElement();
-
-        DSVRaceCalculation dsvCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
-
-        // women
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "L");
 
@@ -337,9 +346,11 @@ namespace RaceHorologyLib
         _writer.WriteEndElement();
 
         _writer.WriteEndElement();
+      }
 
-        // men
-        DSVRaceCalculation dsvCalcM = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'M');
+      DSVRaceCalculation dsvCalcM = dsvRaceVP.GetDSVRaceCalculationMen();
+      if (dsvCalcM != null)
+      { 
         _writer.WriteStartElement("racepenalty");
         _writer.WriteAttributeString("gender", "M");
 
