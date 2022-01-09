@@ -117,6 +117,7 @@
     <Compile Include="ChartTestsUC.xaml.cs">
       <DependentUpon>ChartTestsUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SettingBindingExtension.cs" />
     <Compile Include="ClassesAndGroupsUC.xaml.cs">
       <DependentUpon>ClassesAndGroupsUC.xaml</DependentUpon>
     </Compile>
