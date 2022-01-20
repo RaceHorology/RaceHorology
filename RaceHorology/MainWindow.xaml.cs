@@ -77,7 +77,7 @@ namespace RaceHorology
     public event SaveHandler Save;
   }
 
-
+  
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// Main entry point of the application
@@ -123,6 +123,7 @@ namespace RaceHorology
     {
       CloseDatabase();
       StopDSVAlpinServer();
+      RaceHorology.Properties.Settings.Default.Save(); // TODO: Need to add later on to ExitApplication function when it was merged.
     }
 
     /// <summary>
