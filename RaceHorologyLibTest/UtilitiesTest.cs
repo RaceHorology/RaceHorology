@@ -164,6 +164,24 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, coc.Count);
     }
 
+
+    [TestMethod]
+    public void ObservableCollectionExtensions_Sort()
+    {
+      Collection<int> collection = new Collection<int>{ 2, 3, 1, 8, 7, 9, 4, 6, 5 };
+
+      collection.Sort(Comparer<int>.Default, 0, 2);
+      CollectionAssert.AreEqual(new Collection<int> { 1, 2, 3, 8, 7, 9, 4, 6, 5 }, collection);
+
+      collection.Sort(Comparer<int>.Default, 6, 9);
+      CollectionAssert.AreEqual(new Collection<int> { 1, 2, 3, 8, 7, 9, 4, 5, 6 }, collection);
+
+      collection.Sort(Comparer<int>.Default);
+      CollectionAssert.AreEqual(new Collection<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, collection);
+    }
+
+
+
     [TestMethod]
     public void ToRaceTimeStringTest()
     {

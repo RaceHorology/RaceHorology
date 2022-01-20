@@ -1,4 +1,5 @@
 {
+  "InternalDSVAlpinCompetitionTypeWrite": 4,
   "Runs": 2,
   "ActiveFields": [
     "Year",
@@ -7,10 +8,10 @@
     "Code",
     "Points"
   ],
-  "DefaultGrouping": "Participant.Sex",
-  "RaceResultView": "RaceResult_Sum",
+  "DefaultGrouping": "Participant.Group",
+  "RaceResultView": "RaceResult_SumDSVPointsSchool",
   "RaceResultViewParams": null,
-  "Run1_StartistView": "Startlist_1stRun_Points_0",
+  "Run1_StartistView": "Startlist_1stRun_Points_15",
   "Run1_StartistViewGrouping": "Participant.Group",
   "Run1_StartistViewParams": null,
   "Run2_StartistView": "Startlist_2nd_PreviousRun_30_OnlyWithResults",

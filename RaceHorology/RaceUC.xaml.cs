@@ -65,8 +65,6 @@ namespace RaceHorology
 
     RemainingStartListViewProvider _rslVP;
 
-    ScrollToMeasuredItemBehavior dgResultsScrollBehavior;
-
 
     public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
@@ -80,7 +78,6 @@ namespace RaceHorology
           TimeSpan.FromMilliseconds(400),
           TxtLiveTimingStatus_TextChanged
       ).Delayed;
-
 
       InitializeComponent();
 
@@ -104,56 +101,11 @@ namespace RaceHorology
 
     #region Configuration
 
-    RaceConfiguration _raceConfiguration;
-    RaceConfigurationPresets _raceConfigurationPresets;
-
     private void InitializeConfiguration()
     {
-      // ApplicationFolder + raceconfigpresets
-      _raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
-      _raceConfiguration = _thisRace.RaceConfiguration.Copy();
-      
-      refreshConfigPresetsUI();
+      _thisRace.PropertyChanged += thisRace_PropertyChanged;
 
-      // Configuration Screen
-      cmbRuns.Items.Add(new CBItem { Text = "1", Value = 1 });
-      cmbRuns.Items.Add(new CBItem { Text = "2", Value = 2 });
-      cmbRuns.Items.Add(new CBItem { Text = "3", Value = 3 });
-      cmbRuns.Items.Add(new CBItem { Text = "4", Value = 4 });
-      cmbRuns.Items.Add(new CBItem { Text = "5", Value = 5 });
-      cmbRuns.Items.Add(new CBItem { Text = "6", Value = 6 });
-
-      // Result
-      UiUtilities.FillGrouping(cmbConfigErgebnisGrouping);
-
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe der besten 2 Durchgänge", Value = "RaceResult_SumBest2" });
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach DSV Schülerreglement", Value = "RaceResult_SumDSVPointsSchool" });
-
-      // Run 1
-      UiUtilities.FillGrouping(cmbConfigStartlist1Grouping);
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_1stRun_StartnumberAscending" });
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (nicht gelost)", Value = "Startlist_1stRun_Points_0" });
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 15 gelost)", Value = "Startlist_1stRun_Points_15" });
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 30 gelost)", Value = "Startlist_1stRun_Points_30" });
-
-      // Run 2
-      UiUtilities.FillGrouping(cmbConfigStartlist2Grouping);
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_2nd_StartnumberAscending" });
-      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberAscending" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (absteigend)", Value = "Startlist_2nd_StartnumberDescending" });
-      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberDescending" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (nicht gedreht)", Value = "Startlist_2nd_PreviousRun_0_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (nicht gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_0_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 15 gedreht)", Value = "Startlist_2nd_PreviousRun_15_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 15 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_15_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 30 gedreht)", Value = "Startlist_2nd_PreviousRun_30_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 30 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_30_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht)", Value = "Startlist_2nd_PreviousRun_all_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_all_AlsoWithoutResults" });
-
-      ResetConfigurationSelectionUI(_raceConfiguration);
+      ucRaceConfig.Init(_thisRace.RaceConfiguration);
 
       ucRaceConfigSaveOrReset.Init(
         "Konfigurationsänderungen",
@@ -161,188 +113,52 @@ namespace RaceHorology
         configuration_ExistingChanges, configuration_SaveChanges, configuration_ResetChanges);
     }
 
-
-    private void CmbTemplate_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void thisRace_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (cmbTemplate.SelectedValue is CBItem selected)
-      {
-        if (selected.Value is RaceConfiguration config)
-        {
-          RaceConfiguration configToSet = RaceConfigurationMerger.MainConfig(_raceConfiguration, config);
-
-          ResetConfigurationSelectionUI(configToSet);
-        }
-      }
-    }
-
-
-    private void btnTemplateDelete_Click(object sender, RoutedEventArgs e)
-    {
-      if (cmbTemplate.SelectedValue is CBItem selected)
-      {
-        _raceConfigurationPresets.DeleteConfiguration(selected.Text);
-        refreshConfigPresetsUI();
-      }
-    }
-
-
-    private void btnTemplateSave_Click(object sender, RoutedEventArgs e)
-    {
-      RaceConfiguration newConfig = new RaceConfiguration();
-      StoreConfigurationSelectionUI(ref newConfig);
-
-      // Ask for the name to store
-      string configName = string.Empty;
-      if (cmbTemplate.SelectedValue is CBItem selected)
-        configName = selected.Text;
-
-      RaceConfigurationSaveDlg dlg = new RaceConfigurationSaveDlg(configName);
-      dlg.ShowDialog();
-      if (dlg.TemplateName == null)
-        return;
-
-      configName = dlg.TemplateName;
-
-      if (_raceConfigurationPresets.GetConfigurations().ContainsKey(configName))
-      {
-        var res = MessageBox.Show(string.Format("Die Konfiguration \"{0}\" existiert schon. Wollen Sie die Konfiguration überschreiben?", configName), "Konfiguration speichern", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (res == MessageBoxResult.No)
-          return;
-      }
-
-      _raceConfigurationPresets.SaveConfiguration(configName, newConfig);
-      refreshConfigPresetsUI();
-    }
-
-
-    void refreshConfigPresetsUI()
-    {
-      // Add items and look if the used config name is in the list and if so, use this as selected one
-      RaceConfiguration usedConfig = null;
-      cmbTemplate.Items.Clear();
-      foreach (var config in _raceConfigurationPresets.GetConfigurations())
-      {
-        cmbTemplate.Items.Add(new CBItem { Text = config.Key, Value = config.Value });
-        if ( _raceConfiguration?.Name == config.Value?.Name
-          && RaceConfigurationCompare.MainConfig(_raceConfiguration, config.Value) )
-          usedConfig = config.Value;
-      }
-
-      cmbTemplate.SelectCBItem(usedConfig);
-    }
-
-
-    private void ResetConfigurationSelectionUI(RaceConfiguration cfg)
-    {
-      cmbRuns.SelectCBItem(cfg.Runs);
-      cmbConfigErgebnisGrouping.SelectCBItem(cfg.DefaultGrouping);
-      cmbConfigErgebnis.SelectCBItem(cfg.RaceResultView);
-      cmbConfigStartlist1.SelectCBItem(cfg.Run1_StartistView);
-      cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
-      cmbConfigStartlist2.SelectCBItem(cfg.Run2_StartistView);
-      cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
-      txtValueF.Text = cfg.ValueF.ToString();
-      txtValueA.Text = cfg.ValueA.ToString();
-      txtMinPenalty.Text = cfg.MinimumPenalty.ToString();
-
-      chkConfigFieldsYear.IsChecked = cfg.ActiveFields.Contains("Year");
-      chkConfigFieldsClub.IsChecked = cfg.ActiveFields.Contains("Club");
-      chkConfigFieldsNation.IsChecked = cfg.ActiveFields.Contains("Nation");
-      chkConfigFieldsCode.IsChecked = cfg.ActiveFields.Contains("Code");
-      chkConfigFieldsPoints.IsChecked = cfg.ActiveFields.Contains("Points");
-      chkConfigFieldsPercentage.IsChecked = cfg.ActiveFields.Contains("Percentage");
-    }
-
-    private bool StoreConfigurationSelectionUI(ref RaceConfiguration cfg)
-    {
-      if (cmbRuns.SelectedIndex < 0
-        || cmbConfigErgebnisGrouping.SelectedIndex < 0
-        || cmbConfigErgebnis.SelectedIndex < 0
-        || cmbConfigStartlist1.SelectedIndex < 0
-        || cmbConfigStartlist1Grouping.SelectedIndex < 0
-        || cmbConfigStartlist2.SelectedIndex < 0
-        || cmbConfigStartlist2Grouping.SelectedIndex < 0
-        )
-        return false;
-
-      // Store the template name
-      string configName = null;
-      if (cmbTemplate.SelectedValue is CBItem selected)
-        configName = selected.Text;
-      cfg.Name = configName;
-
-      cfg.Runs = (int)((CBItem)cmbRuns.SelectedValue).Value;
-      cfg.DefaultGrouping = (string)((CBItem)cmbConfigErgebnisGrouping.SelectedValue).Value;
-      cfg.RaceResultView = (string)((CBItem)cmbConfigErgebnis.SelectedValue).Value;
-      cfg.Run1_StartistView = (string)((CBItem)cmbConfigStartlist1.SelectedValue).Value;
-      cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
-      cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
-      cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;
-      try { cfg.ValueF = double.Parse(txtValueF.Text); } catch (Exception) { }
-      try { cfg.ValueA = double.Parse(txtValueA.Text); } catch (Exception) { }
-      try { cfg.MinimumPenalty = double.Parse(txtMinPenalty.Text); } catch (Exception) { }
-
-      void enableField(List<string> fieldList, string field, bool? enabled)
-      {
-        if (enabled != null && (bool)enabled)
-        {
-          if (!fieldList.Contains(field))
-            fieldList.Add(field);
-        }
-        else
-        {
-          if (fieldList.Contains(field))
-            fieldList.Remove(field);
-        }
-      }
-
-      enableField(cfg.ActiveFields, "Year", chkConfigFieldsYear.IsChecked);
-      enableField(cfg.ActiveFields, "Club", chkConfigFieldsClub.IsChecked);
-      enableField(cfg.ActiveFields, "Nation", chkConfigFieldsNation.IsChecked);
-      enableField(cfg.ActiveFields, "Code", chkConfigFieldsCode.IsChecked);
-      enableField(cfg.ActiveFields, "Points", chkConfigFieldsPoints.IsChecked);
-      enableField(cfg.ActiveFields, "Percentage", chkConfigFieldsPercentage.IsChecked);
-
-      return true;
+      if (e.PropertyName == "RaceConfiguration")
+        configuration_reconfigureViews();
     }
 
     private bool configuration_ExistingChanges()
     {
-      RaceConfiguration cfgTemp = new RaceConfiguration();
-      StoreConfigurationSelectionUI(ref cfgTemp);
-
-      return !RaceConfigurationCompare.MainConfig(_raceConfiguration, cfgTemp);
+      return ucRaceConfig.ExistingChanges();
     }
 
     private void configuration_SaveChanges()
     {
       RaceConfiguration cfg = new RaceConfiguration();
-      if (!StoreConfigurationSelectionUI(ref cfg))
-      {
-        MessageBox.Show("Alle Optionen müssen korrekt ausgefüllt sein.", "Optionen fehlerhaft", MessageBoxButton.OK, MessageBoxImage.Error);
-        return;
-      }
 
-      _raceConfiguration = cfg.Copy();
+      _thisRace.RaceConfiguration = ucRaceConfig.GetConfig();
 
-      _thisRace.RaceConfiguration = cfg;
-
-      ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
-      viewConfigurator.ConfigureRace(_thisRace);
-
-      refreshConfigPresetsUI();
-
-      // Reset UI (TODO should adapt itself based on events)
-      ConnectUiToRaceRun(_currentRaceRun);
-      ucRaceLists.UpdateAll();
     }
 
     private void configuration_ResetChanges()
     {
-      ResetConfigurationSelectionUI(_raceConfiguration);
-      refreshConfigPresetsUI();
+      ucRaceConfig.ResetChanges();
     }
 
+
+    private void btnClearConfiguration_Click(object sender, RoutedEventArgs e)
+    {
+      _thisRace.RaceConfiguration = null;
+    }
+
+
+    private void configuration_reconfigureViews()
+    {
+      ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
+      viewConfigurator.ConfigureRace(_thisRace);
+
+      ucRaceConfig.Init(_thisRace.RaceConfiguration);
+
+      imgTabHeaderConfiguration.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(
+        _thisRace.IsRaceConfigurationLocal ? "/Icons/icons8-umkreist-l-50.png" : "/Icons/icons8-umkreist-g-50.png", 
+        UriKind.Relative));
+
+      // Reset UI
+      ConnectUiToRaceRun(_currentRaceRun);
+      ucRaceLists.UpdateAll();
+    }
 
     #endregion
 
@@ -555,6 +371,16 @@ namespace RaceHorology
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _thisRace);
     }
 
+
+    private void cmbRaceRun_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      if (_liveTimingMeasurement != null && _liveTimingMeasurement.IsRunning)
+      {
+        MessageBox.Show("Durchgangswechsel während einer Zeitnahme nicht möglich.\n\nBeenden Sie erst die aktuelle Zeitnahme und wähle Sie anschließend den Durchgang aus.", "Durchgangswechsel nicht möglich", MessageBoxButton.OK, MessageBoxImage.Information);
+        e.Handled = true;
+      }
+    }
+
     private void CmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
@@ -642,14 +468,14 @@ namespace RaceHorology
 
         dgFinish.ItemsSource = raceRun.GetInFinishList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgFinish);
-        dgResultsScrollBehavior = new ScrollToMeasuredItemBehavior(dgFinish, _dataModel);
+
+        lblStartList.DataContext = _rslVP.GetView();
       }
       else
       {
         dgRemainingStarters.ItemsSource = null;
         dgRunning.ItemsSource = null;
         dgFinish.ItemsSource = null;
-        dgResultsScrollBehavior = null;
       }
     }
 
@@ -664,14 +490,12 @@ namespace RaceHorology
 
 
     /// <summary>
-    /// Enables / disable the recerun combobox depending on whether LiveTimingMeasurement is performed or not
+    /// Enables / disable UI elements based on whether LiveTimingMeasurement is performed or not
     /// </summary>
     private void OnLiveTimingMeasurementStatusChanged(object sender, bool isRunning)
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        cmbRaceRun.IsEnabled = !isRunning;
-
         RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
         System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
 
@@ -683,7 +507,20 @@ namespace RaceHorology
     private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
     {
       if (_liveTimingMeasurement == null)
+      {
+        MessageBox.Show("Zeitnahmegerät ist nicht verfügbar.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
         return;
+      }
+
+      if (!_thisRace.IsConsistent)
+      {
+        MessageBox.Show("Die Startnummern sind nicht eindeutig zugewiesen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
+
+      if (_thisRace.GetPreviousRun(_currentRaceRun) != null && !_thisRace.GetPreviousRun(_currentRaceRun).IsComplete)
+      {
+        MessageBox.Show("Der vorhergehende Durchlauf ist noch nicht komplett abgeschlossen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
 
       _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
       _liveTimingMeasurement.Start();
@@ -1024,7 +861,6 @@ namespace RaceHorology
 
 
     #endregion
-
   }
 
 }

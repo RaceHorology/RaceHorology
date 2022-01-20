@@ -1,11 +1,12 @@
 {
+  "InternalDSVAlpinCompetitionTypeWrite": 8,
   "Runs": 2,
   "ActiveFields": [
     "Year",
     "Club"
   ],
   "DefaultGrouping": "Participant.Class",
-  "RaceResultView": "RaceResult_BestOfTwo",
+  "RaceResultView": "RaceResult_Sum",
   "RaceResultViewParams": null,
   "Run1_StartistView": "Startlist_1stRun_StartnumberAscending",
   "Run1_StartistViewGrouping": "Participant.Class",

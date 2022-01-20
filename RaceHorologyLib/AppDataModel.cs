@@ -53,8 +53,10 @@ namespace RaceHorologyLib
   /// Data is written back to the data base in case it is needed
   /// 
   /// <remarks>not yet fully implemented</remarks>
-  public class AppDataModel : ILiveDateTimeProvider
+  public class AppDataModel : ILiveDateTimeProvider, INotifyPropertyChanged
   {
+    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
     private IAppDataModelDataBase _db;
 
     ObservableCollection<ParticipantGroup> _particpantGroups;
@@ -74,6 +76,9 @@ namespace RaceHorologyLib
     ObservableCollection<Race> _races;
     Race _currentRace;
     RaceRun _currentRaceRun;
+
+    // Main configuration which is used by the different races, contains mainly ViewConfiguration (sorting, grouing, ...)
+    RaceConfiguration _globalRaceConfig;
 
     private Dictionary<Participant, DateTime> _interactiveTimeMeasurements; // Contains the time measurements made interactively
 
@@ -120,6 +125,9 @@ namespace RaceHorologyLib
     {
       //// DB Backend ////
       _db = db;
+
+      loadRaceConfig();
+
       _interactiveTimeMeasurements = new Dictionary<Participant, DateTime>();
 
       _particpantGroups = new ObservableCollection<ParticipantGroup>(_db.GetParticipantGroups());
@@ -215,7 +223,7 @@ namespace RaceHorologyLib
       return _particpantClasses;
     }
 
-
+    #region Race Management
     public ObservableCollection<Race> GetRaces()
     {
       return _races;
@@ -288,7 +296,10 @@ namespace RaceHorologyLib
     {
       return _currentRaceRun;
     }
+    #endregion
 
+
+    #region Time Measurement specifics
     public void InsertInteractiveTimeMeasurement(Participant participant)
     {
       _interactiveTimeMeasurements[participant] = DateTime.Now;
@@ -310,11 +321,125 @@ namespace RaceHorologyLib
       }
       return false;
     }
-    static readonly TimeSpan delta = new TimeSpan(0, 0, 5); // 1 sec
+    static readonly TimeSpan delta = new TimeSpan(0, 0, 5); // 5 sec
 
     public delegate void ParticipantMeasuredHandler(object sender, Participant participant);
     public event ParticipantMeasuredHandler ParticipantMeasuredEvent;
 
+    #endregion
+
+
+    #region Global Race Configuration
+
+    public RaceConfiguration GlobalRaceConfig
+    {
+      get 
+      { 
+        return _globalRaceConfig; 
+      }
+      
+      set 
+      { 
+        _globalRaceConfig = value.Copy(); 
+        storeRaceConfig(); 
+        NotifyPropertyChanged(); 
+      }
+    }
+
+    protected void storeRaceConfig()
+    {
+      try
+      {
+        string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_globalRaceConfig, Newtonsoft.Json.Formatting.Indented);
+        _db.StoreKeyValue("GlobalRaceConfig", configJSON);
+
+        storeRaceConfig_FixDSVAlpinType();
+      }
+      catch (Exception e)
+      {
+        logger.Info(e, "could store global race config");
+      }
+    }
+
+    protected void loadRaceConfig()
+    {
+      _globalRaceConfig = new RaceConfiguration();
+      try
+      {
+        string configJSONDB = _db.GetKeyValue("GlobalRaceConfig");
+        if (!string.IsNullOrEmpty(configJSONDB))
+          Newtonsoft.Json.JsonConvert.PopulateObject(configJSONDB, _globalRaceConfig);
+        else
+        {
+          loadRaceConfig_BasedOnDSVAlpinType();
+        }
+      }
+      catch (Exception e)
+      {
+        logger.Info(e, "could not load global race config");
+      }
+
+      NotifyPropertyChanged("GlobalRaceConfig");
+    }
+
+    protected void storeRaceConfig_FixDSVAlpinType()
+    {
+      if (_db is Database dsvAlpinDB)
+      {
+        if (_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite != null)
+        {
+          CompetitionProperties compProps = dsvAlpinDB.GetCompetitionProperties();
+          compProps.Type = (CompetitionProperties.ECompetitionType)_globalRaceConfig.InternalDSVAlpinCompetitionTypeWrite;
+          compProps.WithPoints = _globalRaceConfig.ActiveFields.Contains("Points");
+          compProps.FieldActiveClub = _globalRaceConfig.ActiveFields.Contains("Club");
+          compProps.FieldActiveCode = _globalRaceConfig.ActiveFields.Contains("Code");
+          compProps.FieldActiveYear = _globalRaceConfig.ActiveFields.Contains("Year");
+          compProps.FieldActiveNation = _globalRaceConfig.ActiveFields.Contains("Nation");
+          dsvAlpinDB.UpdateCompetitionProperties(compProps);
+        }
+      }
+    }
+
+    protected void loadRaceConfig_BasedOnDSVAlpinType()
+    {
+      Dictionary<CompetitionProperties.ECompetitionType, string> mapDSVAlpinType2RaceConfig
+        = new Dictionary<CompetitionProperties.ECompetitionType, string>
+              {
+              {CompetitionProperties.ECompetitionType.FIS_Women, "FIS Rennen Women" },
+              {CompetitionProperties.ECompetitionType.FIS_Men, "FIS Rennen Men" },
+              {CompetitionProperties.ECompetitionType.DSV_Points, "DSV Erwachsene" },
+              {CompetitionProperties.ECompetitionType.DSV_NoPoints, "DSV Erwachsene" },
+              {CompetitionProperties.ECompetitionType.DSV_SchoolPoints, "DSV Schüler U14-U16" },
+              {CompetitionProperties.ECompetitionType.DSV_SchoolNoPoints, "DSV Schüler U14-U16" },
+              //{CompetitionProperties.ECompetitionType.VersatilityPoints, "???" },  // BestOfTwo-Points
+              //{CompetitionProperties.ECompetitionType.VersatilityNoPoints, "Vereinsrennen - BestOfTwo" },
+              {CompetitionProperties.ECompetitionType.ClubInternal_Sum, "Vereinsrennen - Summe" },
+              {CompetitionProperties.ECompetitionType.ClubInternal_BestRun, "Vereinsrennen - BestOfTwo" },
+              //{CompetitionProperties.ECompetitionType.Parallel, "???" },
+              //{CompetitionProperties.ECompetitionType.Sledding_Points, "???" },
+              //{CompetitionProperties.ECompetitionType.Sledding_NoPoints, "???" },
+        };
+
+      var raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
+
+      if (_db is Database dsvAlpinDB)
+      {
+        CompetitionProperties p = dsvAlpinDB.GetCompetitionProperties();
+
+        string defaultConfigName = null;
+        if (mapDSVAlpinType2RaceConfig.TryGetValue(p.Type, out defaultConfigName))
+        {
+          RaceConfiguration defaultConfig = null;
+          if (raceConfigurationPresets.GetConfigurations().TryGetValue(defaultConfigName, out defaultConfig))
+          {
+            if (defaultConfig != null)
+              _globalRaceConfig = defaultConfig.Copy();
+          }
+        }
+      }
+    }
+
+    #endregion
 
     #region Internal - Fix Consistencies
 
@@ -385,8 +510,67 @@ namespace RaceHorologyLib
     #endregion
 
 
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChangedEventHandler handler = PropertyChanged;
+      if (handler != null)
+        handler(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
   }
 
+
+  /// <summary>
+  /// Represents some properties for the competition i.e., top level properties directly on the AppDataModel.
+  /// Note: This mainly originates from the DSVAlpin data base and might change if database backend changes.
+  /// </summary>
+  public class CompetitionProperties
+  {
+    public enum ECompetitionType
+    {
+      FIS_Women = 0,
+      FIS_Men = 1,
+      DSV_Points = 2,
+      DSV_NoPoints = 3,
+      DSV_SchoolPoints = 4,
+      DSV_SchoolNoPoints = 5,
+      VersatilityPoints = 6,
+      VersatilityNoPoints = 7,
+      ClubInternal_Sum = 8,
+      Parallel = 9,
+      Sledding_Points = 10,
+      Sledding_NoPoints = 11,
+      ClubInternal_BestRun = 12
+    };
+
+
+    public string Name { get; set; } = "";
+    public ECompetitionType Type { get; set; } = ECompetitionType.ClubInternal_Sum;
+    public bool WithPoints { get; set; }
+    // Note: Location is already part of AdditionalRaceProperties
+    public string Nation { get; set; }
+    public uint Saeson { get; set; }
+
+    public bool KlassenWertung { get; set; }
+    public bool MannschaftsWertung { get; set; }
+    public bool ZwischenZeit { get; set; }
+    public bool FreierListenKopf { get; set; }
+    public bool FISSuperCombi { get; set; }
+
+    public bool FieldActiveYear { get; set; }
+    public bool FieldActiveClub { get; set; }
+    public bool FieldActiveNation { get; set; }
+    public bool FieldActiveCode { get; set; }
+
+    public double Nenngeld { get; set; }
+  }
 
 
   public class AdditionalRaceProperties
@@ -507,7 +691,9 @@ namespace RaceHorologyLib
 
     // Mainly ViewConfiguration (sorting, grouing, ...)
     RaceConfiguration _raceConfiguration;
-    
+    bool _raceConfigurationIsLocal;
+
+
     private AppDataModel _appDataModel;
     private IAppDataModelDataBase _db;
     private DatabaseDelegatorRace _raceDBDelegator;
@@ -550,8 +736,35 @@ namespace RaceHorologyLib
 
     public RaceConfiguration RaceConfiguration
     {
-      get { return _raceConfiguration; }
-      set { _raceConfiguration = value.Copy(); UpdateNumberOfRuns((uint)_raceConfiguration.Runs);  StoreRaceConfig(); }
+      get 
+      { 
+        return _raceConfiguration;
+      }
+      
+      set 
+      {
+        if (value != null)
+        {
+          _raceConfiguration = value.Copy();
+          _raceConfigurationIsLocal = true;
+          storeRaceConfig();
+        }
+        else
+        {
+          _raceConfiguration = null;
+          storeRaceConfig();
+          loadGlobalRaceConfig();
+        }
+
+        UpdateNumberOfRuns((uint)_raceConfiguration.Runs);
+
+        NotifyPropertyChanged();
+      }
+    }
+
+    public bool IsRaceConfigurationLocal
+    {
+      get { return _raceConfigurationIsLocal; }
     }
 
 
@@ -575,7 +788,7 @@ namespace RaceHorologyLib
 
       _addProperties = _db.GetRaceProperties(this);
 
-      LoadRaceConfig();
+      loadRaceConfig();
       // Ensure no inconsistencies
       _raceConfiguration.Runs = (int)_properties.Runs;
 
@@ -584,6 +797,9 @@ namespace RaceHorologyLib
       var particpants = _db.GetRaceParticipants(this);
       foreach (var p in particpants)
         _participants.Add(p);
+
+      // Watch for changes on the RaceConfiguration
+      _appDataModel.PropertyChanged += appDataModel_PropertyChanged;
 
       // Watch for changes on actual participants and its properties => check internal state
       _participants.ItemChanged += onRaceParticipants_ItemChanged;
@@ -607,6 +823,15 @@ namespace RaceHorologyLib
       viewConfigurator.ConfigureRace(this);
     }
 
+    private void appDataModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == "GlobalRaceConfig")
+      {
+        loadRaceConfig();
+        UpdateNumberOfRuns((uint)_raceConfiguration.Runs);
+      }
+    }
+
     private void onParticipants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.OldItems != null)
@@ -617,44 +842,86 @@ namespace RaceHorologyLib
 
     #region Configuration
 
-    protected void StoreRaceConfig()
+    protected void storeRaceConfig()
     {
-      string configFile = GetRaceConfigFilepath();
       try
       {
-        string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_raceConfiguration, Newtonsoft.Json.Formatting.Indented);
-
-        System.IO.File.WriteAllText(configFile, configJSON);
+        if (_raceConfiguration != null)
+        {
+          string configJSON = Newtonsoft.Json.JsonConvert.SerializeObject(_raceConfiguration, Newtonsoft.Json.Formatting.Indented);
+          _db.StoreKeyValue(getRaceConfigKey(), configJSON);
+        }
+        else
+        {
+          _db.StoreKeyValue(getRaceConfigKey(), "");
+        }
       }
       catch (Exception e)
       {
-        logger.Info(e, "could not write race config {name}", configFile);
+        logger.Info(e, "could store race config");
       }
     }
 
-    protected string GetRaceConfigFilepath()
+    private string getRaceConfigFilepath()
     {
       string configFile = System.IO.Path.Combine(
-        _appDataModel.GetDB().GetDBPathDirectory(), 
+        _appDataModel.GetDB().GetDBPathDirectory(),
         _appDataModel.GetDB().GetDBFileName() + "_" + _properties.RaceType.ToString() + ".config");
       return configFile;
     }
 
-    protected void LoadRaceConfig()
+    protected string getRaceConfigKey()
     {
-      _raceConfiguration = new RaceConfiguration();
-      string configFile = GetRaceConfigFilepath();
+      return string.Format("RaceConfig_{0}", _properties.RaceType.ToString());
+    }
+
+    protected void loadRaceConfig()
+    {
+      if (!loadLocalRaceConfig())
+        loadGlobalRaceConfig();
+
+      NotifyPropertyChanged("RaceConfiguration");
+    }
+
+    protected bool loadLocalRaceConfig()
+    {
       try
       {
-        string configJSON = System.IO.File.ReadAllText(configFile);
+        string configJSON;
 
-        Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, _raceConfiguration);
+        string configJSONDB = _db.GetKeyValue(getRaceConfigKey());
+        if (!string.IsNullOrEmpty(configJSONDB))
+          configJSON = configJSONDB;
+        else
+        {
+          string configFile = getRaceConfigFilepath();
+          configJSON = System.IO.File.ReadAllText(configFile);
+        }
+
+        if (!string.IsNullOrEmpty(configJSON))
+        {
+          RaceConfiguration loadedConfig = new RaceConfiguration();
+          Newtonsoft.Json.JsonConvert.PopulateObject(configJSON, loadedConfig);
+          _raceConfiguration = loadedConfig;
+          _raceConfigurationIsLocal = true;
+          return true;
+        }
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-        logger.Info(e, "could not load race config {name}", configFile);
+        logger.Info(e, "could not load race config");
       }
+
+      return false;
     }
+
+    protected bool loadGlobalRaceConfig()
+    {
+      _raceConfiguration = _appDataModel.GlobalRaceConfig.Copy();
+      _raceConfigurationIsLocal = false;
+      return true;
+    }
+
 
     public bool IsFieldActive(string field)
     {
@@ -780,6 +1047,25 @@ namespace RaceHorologyLib
         runs[i] = GetRun(i);
 
       return runs;
+    }
+
+    public RaceRun GetPreviousRun(RaceRun race)
+    {
+      int i = 0;
+      for (; i < _runs.Count; i++)
+        if (_runs[i].Item1 == race)
+          break;
+
+      // Race not found or null passed
+      if (i == _runs.Count)
+        return null;
+
+      // First run does not have a previous run
+      if (i == 0)
+        return null;
+      
+      --i;
+      return _runs[i].Item1;
     }
 
     public event EventHandler RunsChanged;
@@ -1197,7 +1483,7 @@ namespace RaceHorologyLib
     {
       RunResult result = findOrCreateRunResult(participant);
 
-      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
+      //_appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       result.SetStartTime(startTime);
 
@@ -1263,6 +1549,8 @@ namespace RaceHorologyLib
     {
       RunResult result = findOrCreateRunResult(participant);
 
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
+
       result.ResultCode = rc;
 
       _UpdateInternals();
@@ -1272,6 +1560,8 @@ namespace RaceHorologyLib
     public void SetResultCode(RaceParticipant participant, RunResult.EResultCode rc, string disqualText)
     {
       RunResult result = findOrCreateRunResult(participant);
+
+      _appDataModel.InsertInteractiveTimeMeasurement(participant.Participant);
 
       result.ResultCode = rc;
       result.DisqualText = disqualText;
@@ -1356,7 +1646,7 @@ namespace RaceHorologyLib
     // Helper definition for a participant is on track
     private bool IsOnTrack(RunResult r)
     {
-      return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal && _appDataModel.TodayMeasured(r.Participant.Participant);
+      return r.GetStartTime() != null && r.GetFinishTime() == null && r.ResultCode == RunResult.EResultCode.Normal; // && _appDataModel.TodayMeasured(r.Participant.Participant);
     }
 
     // Helper definition for a participant is on track
@@ -1443,7 +1733,7 @@ namespace RaceHorologyLib
       var results = _results.ToArray();
 
       // Remove from inFinish list if a result is not available anymore (= not on track anymore)
-      var itemsToRemove = _inFinish.Where(r => !IsOrWasOnTrack(r)).ToList();
+      var itemsToRemove = _inFinish.Where(r => !WasOnTrack(r)).ToList();
       foreach (var itemToRemove in itemsToRemove)
       {
         _inFinish.Remove(itemToRemove);

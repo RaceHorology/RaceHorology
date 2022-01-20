@@ -109,6 +109,8 @@ namespace RaceHorology
       ucClassesAndGroups.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
       ucFISImport.Init(_dm, _fisData);
+
+      InitializeGlobalConfig();
     }
 
     #region RaceTabs
@@ -259,7 +261,6 @@ namespace RaceHorology
     }
 
     #endregion
-
 
     #region Particpants
 
@@ -627,6 +628,39 @@ namespace RaceHorology
           }
         }
       }
+    }
+
+    #endregion
+
+    #region Global Config
+
+    private void InitializeGlobalConfig()
+    {
+      ucRaceConfig.Init(_dm.GlobalRaceConfig);
+
+      ucRaceConfigSaveOrReset.Init(
+        "Konfigurationsänderungen",
+        null, null,
+        globalConfig_ExistingChanges, globalConfig_SaveChanges, globalConfig_ResetChanges);
+    }
+
+
+    private bool globalConfig_ExistingChanges()
+    {
+      return ucRaceConfig.ExistingChanges();
+    }
+
+    private void globalConfig_SaveChanges()
+    {
+      RaceConfiguration cfg = ucRaceConfig.GetConfig();
+      _dm.GlobalRaceConfig = cfg;
+
+      ucRaceConfig.Init(_dm.GlobalRaceConfig);
+    }
+
+    private void globalConfig_ResetChanges()
+    {
+      ucRaceConfig.ResetChanges();
     }
 
     #endregion

@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RaceHorology"
         xmlns:rhcmd="clr-namespace:RaceHorology.Commands"
+        xmlns:Settings="clr-namespace:RaceHorology.Settings" 
+        Settings:WindowSettings.Save="True"
         mc:Ignorable="d"
-        Title="Race Horology" Height="1024" Width="1400">
+        Title="Race Horology" WindowState="Maximized">
 
   <Window.CommandBindings>
     <CommandBinding Command="New"  Executed="NewCommandBinding_Executed" />
@@ -16,6 +18,7 @@
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
     <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.HandTime" Executed="HandTimeCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.ImportTime" Executed="ImportTimeCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.DeleteRunResults" Executed="DeleteRunResultsCommandBinding_Executed" />
   </Window.CommandBindings>
   <Window.InputBindings>
@@ -42,10 +45,13 @@
           <MenuItem Name="mnuToolsDeleteRunResults"  Header="Zeiten löschen" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.DeleteRunResults" />
-          <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
+        <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.HandTime" />
-        </MenuItem>
+        <MenuItem Name="mnuToolsImportTime"  Header="Classement empfangen" 
+                    IsEnabled="{Binding HasActiveRace}"
+                    Command="rhcmd:RaceHorologyCommands.ImportTime" />
+      </MenuItem>
         <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
           <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
         </MenuItem>

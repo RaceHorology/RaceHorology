@@ -1154,7 +1154,20 @@ namespace RaceHorologyLib
     public bool JustModified
     {
       get { return _justModified; }
-      set { if (_justModified != value) { _justModified = value; NotifyPropertyChanged(); } }
+      set 
+      { 
+        if (_justModified != value) 
+        {
+          _justModified = value;
+          NotifyPropertyChanged();
+
+          // Reset after 5 sec
+          if (_justModified)
+          {
+            Task.Delay(5000).ContinueWith(t => { JustModified = false; });
+          }
+        }
+      }
     }
 
     public override string ToString()
@@ -1340,7 +1353,20 @@ namespace RaceHorologyLib
     public bool JustModified
     {
       get { return _justModified; }
-      set { if (_justModified != value) { _justModified = value; NotifyPropertyChanged(); } }
+      set
+      {
+        if (_justModified != value)
+        {
+          _justModified = value;
+          NotifyPropertyChanged();
+          
+          // Reset after 5 sec
+          if (_justModified)
+          {
+            Task.Delay(5000).ContinueWith(t => { JustModified = false; });
+          }
+        }
+      }
     }
 
 

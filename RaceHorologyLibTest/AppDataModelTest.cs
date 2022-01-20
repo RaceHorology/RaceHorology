@@ -603,6 +603,11 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Tests: 
+    /// - AddRaceRun() and DeleteRaceRun()
+    /// - PreviousRun()
+    /// </summary>
     [TestMethod]
     public void Race_ManageRun()
     {
@@ -619,8 +624,15 @@ namespace RaceHorologyLibTest
       Race race = dm.GetRace(0);
       Assert.AreEqual(1, race.GetMaxRun());
 
+      Assert.IsNull(race.GetPreviousRun(null));
+      Assert.IsNull(race.GetPreviousRun(race.GetRun(0)));
+
       race.AddRaceRun();
       Assert.AreEqual(2, race.GetMaxRun());
+
+      Assert.IsNull(race.GetPreviousRun(null));
+      Assert.IsNull(race.GetPreviousRun(race.GetRun(0)));
+      Assert.AreEqual(race.GetRun(0), race.GetPreviousRun(race.GetRun(1)));
 
       race.DeleteRaceRun();
       Assert.AreEqual(1, race.GetMaxRun());
@@ -628,8 +640,17 @@ namespace RaceHorologyLibTest
       race.UpdateNumberOfRuns(3);
       Assert.AreEqual(3, race.GetMaxRun());
 
+      Assert.IsNull(race.GetPreviousRun(null));
+      Assert.IsNull(race.GetPreviousRun(race.GetRun(0)));
+      Assert.AreEqual(race.GetRun(0), race.GetPreviousRun(race.GetRun(1)));
+      Assert.AreEqual(race.GetRun(1), race.GetPreviousRun(race.GetRun(2)));
+
       race.UpdateNumberOfRuns(2);
       Assert.AreEqual(2, race.GetMaxRun());
+
+      Assert.IsNull(race.GetPreviousRun(null));
+      Assert.IsNull(race.GetPreviousRun(race.GetRun(0)));
+      Assert.AreEqual(race.GetRun(0), race.GetPreviousRun(race.GetRun(1)));
     }
 
 

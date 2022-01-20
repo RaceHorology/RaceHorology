@@ -285,6 +285,7 @@ namespace RaceHorologyLib
       float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
       var result = tableHeader.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+      tableHeight = tableHeight * 1.02F;
 
       Rectangle rectTable = new Rectangle(
         pageSize.GetLeft() + _pageMargins.Left, pageSize.GetTop() - _pageMargins.Top - _bannerHeight - tableHeight,
@@ -649,7 +650,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Timing: {0}", "Alge TdC8001"))));
+        .Add(new Paragraph(string.Format("Timing: {0}", "Alge TdC8000/8001"))));
 
       return tableFooter;
     }
@@ -1863,7 +1864,7 @@ namespace RaceHorologyLib
 
     protected override string getTitle()
     {
-      return string.Format("OFFIZIELLE ERGEBNISLISTE");
+      return string.Format("ERGEBNISLISTE");
     }
 
 
@@ -2154,23 +2155,23 @@ namespace RaceHorologyLib
       // Render the chart (vector format WMF)
       OfflineChart fileHelper = new OfflineChart((int)areaChart.GetWidth(), (int)areaChart.GetHeight());
 
-      if (false)
-      {
-        MemoryStream chartStreamWMF = new MemoryStream();
-        fileHelper.RenderToWmf(chartStreamWMF, _race.GetResultViewProvider());
+      //if (false)
+      //{
+      //  MemoryStream chartStreamWMF = new MemoryStream();
+      //  fileHelper.RenderToWmf(chartStreamWMF, _race.GetResultViewProvider());
 
-        // Create an iText Image 
-        //WmfImageData imgData = new WmfImageData(chartStreamWMF.ToArray());
-        WmfImageData imgData = new WmfImageData(@"c:\trash\test.wmf");
-        var pdfFormxObj = new PdfFormXObject(imgData, pdf);
-        Image imgChart = new Image(pdfFormxObj);
-        // Render the image
-        PdfCanvas pdfCanvas = new PdfCanvas(page);
-        Canvas canvas = new Canvas(pdfCanvas, areaChart)
-          .SetHorizontalAlignment(HorizontalAlignment.CENTER)
-          .Add(imgChart.SetAutoScale(true));
-      }
-      else
+      //  // Create an iText Image 
+      //  //WmfImageData imgData = new WmfImageData(chartStreamWMF.ToArray());
+      //  WmfImageData imgData = new WmfImageData(@"c:\trash\test.wmf");
+      //  var pdfFormxObj = new PdfFormXObject(imgData, pdf);
+      //  Image imgChart = new Image(pdfFormxObj);
+      //  // Render the image
+      //  PdfCanvas pdfCanvas = new PdfCanvas(page);
+      //  Canvas canvas = new Canvas(pdfCanvas, areaChart)
+      //    .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+      //    .Add(imgChart.SetAutoScale(true));
+      //}
+      //else
       {
         MemoryStream imgStream = new MemoryStream();
         fileHelper.RenderToImage(imgStream, _race.GetResultViewProvider());
@@ -2194,11 +2195,6 @@ namespace RaceHorologyLib
   {
     public DSVSchoolRaceResultReport(Race race) : base(race)
     {
-    }
-
-    protected override string getTitle()
-    {
-      return string.Format("INOFFIZIELLE ERGEBNISLISTE");
     }
 
     protected override void addContent(PdfDocument pdf, Document document)

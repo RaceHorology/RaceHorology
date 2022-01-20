@@ -35,6 +35,8 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 
 namespace RaceHorologyLib
@@ -276,6 +278,9 @@ namespace RaceHorologyLib
     {
       if (values.Length != 2)
         throw new Exception("invalid number of argumnets");
+      
+      if (values.Any(x => x == DependencyProperty.UnsetValue))
+        return DependencyProperty.UnsetValue;
 
       try
       {
@@ -285,7 +290,6 @@ namespace RaceHorologyLib
         // Return time
         if (rc == RunResult.EResultCode.Normal)
           return t.ToRaceTimeString();
-
         if (rc == RunResult.EResultCode.NotSet)
           return "";
 

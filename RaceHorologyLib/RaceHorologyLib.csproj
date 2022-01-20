@@ -88,6 +88,7 @@
     <Compile Include="Export.cs" />
     <Compile Include="HandTiming.cs" />
     <Compile Include="Import.cs" />
+    <Compile Include="ImportTime.cs" />
     <Compile Include="JsonConversion.cs" />
     <Compile Include="LiveTiming.cs" />
     <Compile Include="LiveTimingMeasurement.cs" />
@@ -162,6 +163,42 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="COPYING" />
+    <None Include="raceconfigpresets\DSV Erwachsene.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\DSV Schüler U14-U16.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\FIS Rennen Women.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\FIS Rennen Men.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\Inline %28allgemein%29.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\Inline %28Punkte%29.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\KSC Ebersberg -U12.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\KSC Ebersberg U14-.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\SVM Schüler U12.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\SVM Schüler U8-U10.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\Vereinsrennen - BestOfTwo.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\Vereinsrennen - Summe.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

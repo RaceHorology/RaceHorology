@@ -1,0 +1,20 @@
+{
+  "InternalDSVAlpinCompetitionTypeWrite": 2,
+  "Runs": 2,
+  "ActiveFields": [
+    "Year",
+    "Club",
+    "Nation",
+    "Code",
+    "Points"
+  ],
+  "DefaultGrouping": "Participant.Class",
+  "RaceResultView": "RaceResult_Sum",
+  "RaceResultViewParams": null,
+  "Run1_StartistView": "Startlist_1stRun_Points_0",
+  "Run1_StartistViewGrouping": "Participant.Class",
+  "Run1_StartistViewParams": null,
+  "Run2_StartistView": "Startlist_2nd_PreviousRun_0_OnlyWithResults",
+  "Run2_StartistViewGrouping": "Participant.Class",
+  "Run2_StartistViewParams": null
+}

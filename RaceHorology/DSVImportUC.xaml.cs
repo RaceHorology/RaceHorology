@@ -106,6 +106,8 @@ namespace RaceHorology
 
         txtDSVSearch_TextChanged(null, null); // Update search
         dgDSVList_SelectionChanged(null, null); // Update button status
+        
+        fillSearchField();
       }
       else
       {
@@ -114,31 +116,85 @@ namespace RaceHorology
     }
 
 
+    private void fillSearchField()
+    {
+      DataTable table = _dsvData.Data.Tables[0];
+
+      cmbSearchField.Items.Clear();
+      cmbSearchField.SelectedValuePath = "Value";
+      cmbSearchField.Items.Add(new CBItem { Value = null, Text = "Alle" });
+      foreach (DataColumn column in table.Columns)
+      {
+        cmbSearchField.Items.Add(new CBItem { Value = column.ColumnName, Text = getHeaderName(column.ColumnName) });
+      }
+
+      cmbSearchField.SelectedIndex = 0;
+    }
+
+
+    private string getHeaderName(string property)
+    {
+      foreach( var col in dgDSVList.Columns)
+      {
+        if (col is DataGridBoundColumn dgbc)
+        {
+          if (dgbc.Binding is Binding binding)
+            if (binding.Path.Path == property)
+              return dgbc.Header.ToString();
+        }
+      }
+
+      return property; // Fallback
+    }
+
     private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        if (_dsvData?.Data != null)
-        {
-          DataTable table = _dsvData.Data.Tables[0];
-
-          string sFilterText = txtDSVSearch.Text;
-          if (string.IsNullOrEmpty(sFilterText))
-            table.DefaultView.RowFilter = string.Empty;
-          else
-          {
-            StringBuilder sb = new StringBuilder();
-            foreach (DataColumn column in table.Columns)
-            {
-              sb.AppendFormat("CONVERT({0}, System.String) Like '%{1}%' OR ", column.ColumnName, sFilterText);
-            }
-
-            sb.Remove(sb.Length - 3, 3); // Remove "OR "
-            table.DefaultView.RowFilter = sb.ToString();
-          }
-          _viewDSVList.View.Refresh();
-        }
+        applySearch();
       });
+    }
+
+
+    private void cmbSearchField_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      applySearch();
+    }
+
+    private void btnClearSearch_Click(object sender, RoutedEventArgs e)
+    {
+      txtDSVSearch.Text = "";
+      txtDSVSearch.Focus();
+    }
+
+
+    private void applySearch()
+    {
+      if (_dsvData?.Data != null)
+      {
+        DataTable table = _dsvData.Data.Tables[0];
+
+        string selectedSearchField = cmbSearchField.SelectedValue as string;
+
+        string sFilterText = txtDSVSearch.Text;
+        if (string.IsNullOrEmpty(sFilterText))
+          table.DefaultView.RowFilter = string.Empty;
+        else
+        {
+          StringBuilder sb = new StringBuilder();
+          foreach (DataColumn column in table.Columns)
+          {
+            if (selectedSearchField == null || selectedSearchField == column.ColumnName)
+              sb.AppendFormat("CONVERT({0}, System.String) Like '%{1}%' OR ", column.ColumnName, sFilterText);
+          }
+
+          if (sb.Length > 3)
+            sb.Remove(sb.Length - 3, 3); // Remove "OR "
+
+          table.DefaultView.RowFilter = sb.ToString();
+        }
+        _viewDSVList.View.Refresh();
+      }
     }
 
 

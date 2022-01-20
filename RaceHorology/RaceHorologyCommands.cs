@@ -26,6 +26,13 @@ namespace RaceHorology.Commands
 				typeof(RaceHorologyCommands)
 			);
 
+		public static readonly RoutedUICommand ImportTime = new RoutedUICommand
+			(
+				"ImportTime",
+				"ImportTime",
+				typeof(RaceHorologyCommands)
+			);
+
 		public static readonly RoutedUICommand DeleteRunResults = new RoutedUICommand
 			(
 				"DeleteRunResults",

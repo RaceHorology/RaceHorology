@@ -77,7 +77,7 @@ namespace RaceHorology
     public event SaveHandler Save;
   }
 
-
+  
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// Main entry point of the application
@@ -123,6 +123,7 @@ namespace RaceHorology
     {
       CloseDatabase();
       StopDSVAlpinServer();
+      RaceHorology.Properties.Settings.Default.Save(); // TODO: Need to add later on to ExitApplication function when it was merged.
     }
 
     /// <summary>
@@ -191,7 +192,22 @@ namespace RaceHorology
       dlg.Owner = this;
       dlg.Show();
     }
-    
+
+
+    private void ImportTimeCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      var race = _dataModel.GetCurrentRace();
+
+      if (race == null)
+        return;
+
+
+      ImportTimeDlg dlg = new ImportTimeDlg();
+      dlg.Init(_dataModel, race, _alge);
+      dlg.Owner = this;
+      dlg.Show();
+    }
+
 
     private void DeleteRunResultsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
