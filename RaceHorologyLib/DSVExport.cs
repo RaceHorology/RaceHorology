@@ -248,7 +248,7 @@ namespace RaceHorologyLib
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("timing");
-      _writer.WriteValue("Alge TdC8001"); // TODO: make variable
+      _writer.WriteValue("Alge TdC8000/8001"); // TODO: make variable
       _writer.WriteEndElement();
 
       if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer))
