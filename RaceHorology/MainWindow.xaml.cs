@@ -172,6 +172,16 @@ namespace RaceHorology
       CloseDatabase();
     }
 
+    /// <summary>
+    /// Applicaton Exit
+    /// </summary>
+    private void ApplicationClose(object sender, RoutedEventArgs e)
+    {
+      CloseDatabase();
+      StopDSVAlpinServer();
+      Environment.Exit(0);
+    }
+
     private void OptionsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       SettingsDlg dlg = new SettingsDlg();
@@ -570,6 +580,7 @@ namespace RaceHorology
     AppDataModel _dm;
 
     bool _hasActiveRace = false;
+    bool _hasDataLoaded = false;
 
     public void SetDataModel(AppDataModel dm)
     {
@@ -585,6 +596,8 @@ namespace RaceHorology
         _dm.CurrentRaceChanged += onCurrentRaceChanged;
       }
 
+      HasDataLoaded = _dm != null;
+
       onCurrentRaceChanged(null, null);
     }
 
@@ -598,7 +611,13 @@ namespace RaceHorology
     {
       get { return _hasActiveRace; }
       private set { _hasActiveRace = value; NotifyPropertyChanged(); }
-    } 
+    }
+
+    public bool HasDataLoaded
+    {
+      get { return _hasDataLoaded; }
+      private set { _hasDataLoaded = value; NotifyPropertyChanged(); }
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
     // This method is called by the Set accessor of each property.  
