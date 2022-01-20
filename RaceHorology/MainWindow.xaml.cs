@@ -117,7 +117,6 @@ namespace RaceHorology
       mnuMain.DataContext = _menuVM;
 
       StartDSVAlpinServer();
-      mnuClose.IsEnabled = false;
     }
 
     protected override void OnClosed(EventArgs e)
@@ -283,7 +282,6 @@ namespace RaceHorology
         _menuVM.SetDataModel(_dataModel);
 
         _mruList.AddFile(dbPath);
-        mnuClose.IsEnabled = true;
       }
       catch (Exception ex)
       {
@@ -312,7 +310,6 @@ namespace RaceHorology
       }
 
       updateAppTitle();
-      mnuClose.IsEnabled = false;
     }
 
     private void updateAppTitle()
@@ -582,6 +579,7 @@ namespace RaceHorology
     AppDataModel _dm;
 
     bool _hasActiveRace = false;
+    bool _hasDataLoaded = false;
 
     public void SetDataModel(AppDataModel dm)
     {
@@ -597,6 +595,8 @@ namespace RaceHorology
         _dm.CurrentRaceChanged += onCurrentRaceChanged;
       }
 
+      HasDataLoaded = _dm != null;
+
       onCurrentRaceChanged(null, null);
     }
 
@@ -610,7 +610,13 @@ namespace RaceHorology
     {
       get { return _hasActiveRace; }
       private set { _hasActiveRace = value; NotifyPropertyChanged(); }
-    } 
+    }
+
+    public bool HasDataLoaded
+    {
+      get { return _hasDataLoaded; }
+      private set { _hasDataLoaded = value; NotifyPropertyChanged(); }
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
     // This method is called by the Set accessor of each property.  
