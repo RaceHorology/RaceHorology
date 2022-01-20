@@ -23,7 +23,7 @@
     <KeyBinding Key="N" Modifiers="Control" Command="New"/>
     <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
     <KeyBinding Key="S" Modifiers="Control" Command="Save"/>
-    <KeyBinding Key="C" Modifiers="Control" Command="Close"/>
+    <KeyBinding Key="F4" Modifiers="Control" Command="Close"/>
   </Window.InputBindings>
 
   <Grid>
@@ -37,10 +37,10 @@
         <MenuItem Name="mnuNew" Header="_Neu anlegen" Command="New" InputGestureText="Ctrl+N"/>
         <MenuItem Name="mnuOpen" Header="Datei _öffnen" Command="Open" InputGestureText="Ctrl+O"/>
         <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
-        <MenuItem Name="mnuClose" Header="Schließen" Command="Close"
+        <MenuItem Name="mnuClose" Header="Schließen" Command="Close" InputGestureText="Ctrl+F4"
                     IsEnabled="{Binding HasActiveRace}" />
         <Separator/>
-        <MenuItem Name="mnuExit" Header="_Beenden" Click="ApplicationClose" />
+        <MenuItem Name="mnuExit" Header="_Beenden" Click="ApplicationClose" InputGestureText="Alt+F4"/>
       </MenuItem>
 
       <MenuItem Name="mnuTools"  Header="Werkzeuge">
