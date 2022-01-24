@@ -45,10 +45,10 @@ namespace RaceHorologyLib
   {
     public class TopTenResult
     {
-      public TopTenResult(RaceResultItem rri, double racePoints)
+      public TopTenResult(RaceResultItem rri, double consideredDsvPoints, double racePoints)
       {
         RRI = rri;
-        DSVPoints = rri.Participant.Points;
+        DSVPoints = consideredDsvPoints;
         RacePoints = racePoints;
         TopFive = false;
       }
@@ -66,6 +66,7 @@ namespace RaceHorologyLib
     private double _valueF;
     private double _valueA;
     private double _minPenalty;
+    private double _valueCutOff;
 
     private double _penaltyA;
     private double _penaltyB;
@@ -104,6 +105,8 @@ namespace RaceHorologyLib
       _valueA = race.RaceConfiguration.ValueA;
 
       _minPenalty = race.RaceConfiguration.MinimumPenalty;
+      _valueCutOff = race.RaceConfiguration.ValueCutOff;
+
       _penalty = _penaltyA = _penaltyB = _penaltyC = 0.0;
       _appliedPenalty = 0.0;
       _bestTime = null;
@@ -165,7 +168,7 @@ namespace RaceHorologyLib
         if (i==0)
           _bestTime = items[i].TotalTime;
 
-        _topTen.Add(new TopTenResult(items[i], CalculatePoints(items[i], false)));
+        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
       }
     }
 
@@ -184,9 +187,9 @@ namespace RaceHorologyLib
           if (item.TopFive)
             continue;
 
-          if (item.RRI.Participant.Points < nextBestValue)
+          if (item.DSVPoints < nextBestValue)
           {
-            nextBestValue = item.RRI.Participant.Points;
+            nextBestValue = item.DSVPoints;
             nextBest = j;
           }
 
@@ -206,7 +209,7 @@ namespace RaceHorologyLib
         var item = _topTen[j];
         if (item.TopFive == true)
         {
-          valueA += item.RRI.Participant.Points;
+          valueA += item.DSVPoints;
           valueC += item.RacePoints;
         }
       }
@@ -273,6 +276,10 @@ namespace RaceHorologyLib
       }
     }
 
+    double cutOffPoints(double points)
+    {
+      return points < _valueCutOff ? points : _valueCutOff;
+    }
 
     bool sexMatched(RaceResultItem rri)
     {
