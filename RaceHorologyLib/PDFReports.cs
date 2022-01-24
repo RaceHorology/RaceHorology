@@ -2315,7 +2315,7 @@ namespace RaceHorologyLib
           {
             table.AddCell(createCellForTable(TextAlignment.RIGHT)
               .SetBackgroundColor(bgColor)
-              .Add(createParagraph(formatPoints(item.RRI.Participant.Points))));
+              .Add(createParagraph(formatPoints(item.DSVPoints))));
             table.AddCell(createCellForTable(TextAlignment.RIGHT)
               .SetBackgroundColor(bgColor)
               .Add(createParagraph(formatPoints(item.RacePoints))));
