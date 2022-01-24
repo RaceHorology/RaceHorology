@@ -231,6 +231,9 @@
     <Content Include="TestDataBases\FullTestCases\Case4-DSV-less-participants\2801DSHS.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestDataBases\FullTestCases\Case5-DSV-less-qualified-CutOffPoints\2852MSBS.mdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDataBases\TestDB_DeactivatedParticipants.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

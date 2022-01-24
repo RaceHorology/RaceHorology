@@ -138,5 +138,29 @@ namespace RaceHorologyLibTest
       raceCalcM.CalculatePenalty();
       Assert.AreEqual(91.51, raceCalcM.CalculatedPenalty);
     }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case5-DSV-less-qualified-CutOffPoints\2852MSBS.mdb")]
+    public void CutOffPointsValidResults_Test()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"2852MSBS.mdb");
+
+      // Setup Data Model & Co
+      Database db = new Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      model.GetRace(0).RaceConfiguration.ValueCutOff = 250.0;
+
+      DSVRaceCalculation raceCalcW = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), 'W');
+      raceCalcW.CalculatePenalty();
+      Assert.AreEqual(32.12, raceCalcW.CalculatedPenalty);
+
+      DSVRaceCalculation raceCalcM = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), 'M');
+      raceCalcM.CalculatePenalty();
+      Assert.AreEqual(27.98, raceCalcM.CalculatedPenalty);
+    }
   }
 }
