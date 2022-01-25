@@ -179,7 +179,8 @@ namespace RaceHorologyLib
         int nextBest = int.MaxValue;
         double nextBestValue = double.MaxValue;
 
-        for( int j=0; j<_topTen.Count; j++)
+        // Iterate from back i.e., pick the worsest in case of same points (FIS Points Rules §4.4.4, §4.4.6) 
+        for ( int j = _topTen.Count-1;  j>=0; j--)
         {
           var item = _topTen[j];
 
