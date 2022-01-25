@@ -172,6 +172,7 @@ namespace RaceHorology
       txtValueF.Text = cfg.ValueF.ToString();
       txtValueA.Text = cfg.ValueA.ToString();
       txtMinPenalty.Text = cfg.MinimumPenalty.ToString();
+      txtValueCutOff.Text = cfg.ValueCutOff.ToString();
 
       chkConfigFieldsYear.IsChecked = cfg.ActiveFields.Contains("Year");
       chkConfigFieldsClub.IsChecked = cfg.ActiveFields.Contains("Club");
@@ -217,6 +218,7 @@ namespace RaceHorology
       try { cfg.ValueF = double.Parse(txtValueF.Text); } catch (Exception) { }
       try { cfg.ValueA = double.Parse(txtValueA.Text); } catch (Exception) { }
       try { cfg.MinimumPenalty = double.Parse(txtMinPenalty.Text); } catch (Exception) { }
+      try { cfg.ValueCutOff = double.Parse(txtValueCutOff.Text); } catch (Exception) { }
 
       void enableField(List<string> fieldList, string field, bool? enabled)
       {

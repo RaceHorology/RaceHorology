@@ -185,6 +185,14 @@
         <Label x:Name="lblMinPenalty" Margin="5" Content="Minimumzuschlag:" Grid.Column="0"/>
         <TextBox x:Name="txtMinPenalty" Margin="5" Grid.Column="1" />
       </Grid>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="lblValueCutOff" Margin="5" Content="Maximalwert:" Grid.Column="0"/>
+        <TextBox x:Name="txtValueCutOff" Margin="5" Grid.Column="1" />
+      </Grid>
     </StackPanel>
   </ScrollViewer>
 </UserControl>
