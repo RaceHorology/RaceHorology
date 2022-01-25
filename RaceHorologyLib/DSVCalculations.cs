@@ -285,7 +285,7 @@ namespace RaceHorologyLib
 
     double cutOffPoints(double points)
     {
-      return points < _valueCutOff ? points : _valueCutOff;
+      return 0.0 <= points && points < _valueCutOff ? points : _valueCutOff;
     }
 
     bool sexMatched(RaceResultItem rri)
