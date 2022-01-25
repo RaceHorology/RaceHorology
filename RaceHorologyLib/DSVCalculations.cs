@@ -186,7 +186,8 @@ namespace RaceHorologyLib
       }
 
       // Consider all participants at position 10 (have same time as the 10th)
-      while(i < items.Count)
+      // (FIS Points Rules §4.4.5)
+      while (i < items.Count)
       {
         if (lastTime10th != null && lastTime10th == items[i].TotalTime)
         _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
