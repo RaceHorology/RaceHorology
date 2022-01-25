@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -57,6 +57,12 @@ namespace RaceHorologyLib
       public double DSVPoints { get; set; }
       public double RacePoints { get; set; }
       public bool TopFive { get; set; }
+
+      public override string ToString()
+      {
+        return string.Format("Zeit: {0}, ListPoints: {1}, Best5Points {2}({4}), RacePoints: {3}", 
+          RRI.TotalTime, RRI.Participant.Points, DSVPoints, RacePoints, TopFive);
+      }
     }
 
     private Race _race;
