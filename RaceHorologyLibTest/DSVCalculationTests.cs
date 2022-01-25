@@ -49,9 +49,6 @@ namespace RaceHorologyLibTest
   {
     public DSVCalculationTests()
     {
-      //
-      // TODO: Add constructor logic here
-      //
     }
 
     private TestContext testContextInstance;
@@ -161,6 +158,111 @@ namespace RaceHorologyLibTest
       DSVRaceCalculation raceCalcM = new DSVRaceCalculation(model.GetRace(0), model.GetRace(0).GetResultViewProvider(), 'M');
       raceCalcM.CalculatePenalty();
       Assert.AreEqual(27.98, raceCalcM.CalculatedPenalty);
+    }
+
+
+    [TestMethod]
+    public void MockTests()
+    {
+      DSVRaceCalculation getCalc(List<TestData> td)
+      {
+        var race = createTestData(td);
+        race.RaceConfiguration.ValueCutOff = 250.0;
+        race.RaceConfiguration.ValueF = 0.0;
+        DSVRaceCalculation raceCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
+        raceCalcW.CalculatePenalty();
+
+        return raceCalcW;
+      }
+
+      var td1 = new List<TestData>
+      {
+        new TestData{ Points = 10.0, RunTime = 60.0},
+        new TestData{ Points = 11.0, RunTime = 59.0},
+        new TestData{ Points = 12.0, RunTime = 58.0},
+        new TestData{ Points = 13.0, RunTime = 57.0},
+        new TestData{ Points = 14.0, RunTime = 56.0},
+        new TestData{ Points = 15.0, RunTime = 55.0},
+        new TestData{ Points = 16.0, RunTime = 54.0},
+        new TestData{ Points = 17.0, RunTime = 53.0},
+        new TestData{ Points = 18.0, RunTime = 52.0},
+        new TestData{ Points = 19.0, RunTime = 51.0}
+      };
+      Assert.AreEqual(12.00, getCalc(td1).CalculatedPenalty);
+
+      var td2 = new List<TestData>
+      {
+        new TestData{ Points = 9999.0, RunTime = 60.0},
+        new TestData{ Points = 9999.0, RunTime = 59.0},
+        new TestData{ Points = 9999.0, RunTime = 58.0},
+        new TestData{ Points = 9999.0, RunTime = 57.0},
+        new TestData{ Points = 9999.0, RunTime = 56.0},
+        new TestData{ Points = -1.0, RunTime = 55.0},
+        new TestData{ Points = -1.0, RunTime = 54.0},
+        new TestData{ Points = -1.0, RunTime = 53.0},
+        new TestData{ Points = -1.0, RunTime = 52.0},
+        new TestData{ Points = -1.0, RunTime = 51.0}
+      };
+      Assert.AreEqual(124.5, getCalc(td2).CalculatedPenalty);
+
+      var td3 = new List<TestData>
+      {
+        new TestData{ Points = 9999.0, RunTime = 60.0},
+        new TestData{ Points = 9999.0, RunTime = 59.0},
+        new TestData{ Points = 9999.0, RunTime = 58.0},
+        new TestData{ Points = 9999.0, RunTime = 57.0},
+        new TestData{ Points = 9999.0, RunTime = 56.0},
+        new TestData{ Points = -1.0, RunTime = 55.0},
+        new TestData{ Points = -1.0, RunTime = 54.0},
+        new TestData{ Points = 10.0, RunTime = 53.0},
+        new TestData{ Points = 11.0, RunTime = 52.0},
+        new TestData{ Points = 12.0, RunTime = 51.0}
+      };
+      Assert.AreEqual(56.4, getCalc(td3).CalculatedPenalty);
+
+      // Test for FIS Points Rules §4.4.5 (more then 1 participant at position 10)
+      var td4 = new List<TestData>
+      {
+        new TestData{ Points = 9999.0, RunTime = 60.0},
+        new TestData{ Points = 10.0, RunTime = 60.0},
+        new TestData{ Points = 9999.0, RunTime = 59.0},
+        new TestData{ Points = 9999.0, RunTime = 58.0},
+        new TestData{ Points = 9999.0, RunTime = 57.0},
+        new TestData{ Points = 9999.0, RunTime = 56.0},
+        new TestData{ Points = -1.0, RunTime = 55.0},
+        new TestData{ Points = -1.0, RunTime = 54.0},
+        new TestData{ Points = 10.0, RunTime = 53.0},
+        new TestData{ Points = 11.0, RunTime = 52.0},
+        new TestData{ Points = 12.0, RunTime = 51.0}
+      };
+      Assert.AreEqual(11, getCalc(td4).TopTen.Count);
+      Assert.AreEqual(32.2, getCalc(td4).CalculatedPenalty);
+    }
+
+
+    class TestData 
+    { 
+      public double Points;
+      public double RunTime;
+    }
+
+    Race createTestData(IEnumerable<TestData> testData)
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      Race race = tg.Model.GetRace(0);
+
+      var rvp = new DSVSchoolRaceResultViewProvider();
+      rvp.Init(race, tg.Model);
+      race.SetResultViewProvider(rvp);
+
+      foreach (var td in testData)
+      {
+        var rp = tg.createRaceParticipant(cat: tg.findCat('W'));
+        rp.Points = td.Points;
+        race.GetRun(0).SetRunTime(rp, TimeSpan.FromSeconds(td.RunTime));
+      }
+      return race;
     }
   }
 }
