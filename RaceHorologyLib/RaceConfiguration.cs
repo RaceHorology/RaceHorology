@@ -72,6 +72,7 @@ namespace RaceHorologyLib
     public double ValueF;
     public double ValueA;
     public double MinimumPenalty;
+    public double ValueCutOff;
 
     public RaceConfiguration()
     {
@@ -100,6 +101,7 @@ namespace RaceHorologyLib
 
       ValueF = src.ValueF;
       ValueA = src.ValueA;
+      ValueCutOff = src.ValueCutOff;
       MinimumPenalty = src.MinimumPenalty;
     }
   }
