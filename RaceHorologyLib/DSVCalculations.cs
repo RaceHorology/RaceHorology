@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -168,13 +168,29 @@ namespace RaceHorologyLib
 
       _topTen = new List<TopTenResult>();
 
-      for (int i = 0; i < 10 && i < items.Count; i++)
+      int i = 0;
+      TimeSpan? lastTime10th = null;
+      while(i < 10 && i < items.Count)
       {
         // Store the best time
         if (i==0)
           _bestTime = items[i].TotalTime;
 
         _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
+        
+        // Remember time of 10th
+        if (_topTen.Count == 10)
+          lastTime10th = items[i].TotalTime;
+        
+        i++;
+      }
+
+      // Consider all participants at position 10 (have same time as the 10th)
+      while(i < items.Count)
+      {
+        if (lastTime10th != null && lastTime10th == items[i].TotalTime)
+        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
+        i++;
       }
     }
 
