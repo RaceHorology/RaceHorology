@@ -45,10 +45,10 @@ namespace RaceHorologyLib
   {
     public class TopTenResult
     {
-      public TopTenResult(RaceResultItem rri, double racePoints)
+      public TopTenResult(RaceResultItem rri, double consideredDsvPoints, double racePoints)
       {
         RRI = rri;
-        DSVPoints = rri.Participant.Points;
+        DSVPoints = consideredDsvPoints;
         RacePoints = racePoints;
         TopFive = false;
       }
@@ -57,6 +57,12 @@ namespace RaceHorologyLib
       public double DSVPoints { get; set; }
       public double RacePoints { get; set; }
       public bool TopFive { get; set; }
+
+      public override string ToString()
+      {
+        return string.Format("Zeit: {0}, ListPoints: {1}, Best5Points {2}({4}), RacePoints: {3}", 
+          RRI.TotalTime, RRI.Participant.Points, DSVPoints, RacePoints, TopFive);
+      }
     }
 
     private Race _race;
@@ -66,6 +72,7 @@ namespace RaceHorologyLib
     private double _valueF;
     private double _valueA;
     private double _minPenalty;
+    private double _valueCutOff;
 
     private double _penaltyA;
     private double _penaltyB;
@@ -104,6 +111,8 @@ namespace RaceHorologyLib
       _valueA = race.RaceConfiguration.ValueA;
 
       _minPenalty = race.RaceConfiguration.MinimumPenalty;
+      _valueCutOff = race.RaceConfiguration.ValueCutOff;
+
       _penalty = _penaltyA = _penaltyB = _penaltyC = 0.0;
       _appliedPenalty = 0.0;
       _bestTime = null;
@@ -159,13 +168,30 @@ namespace RaceHorologyLib
 
       _topTen = new List<TopTenResult>();
 
-      for (int i = 0; i < 10 && i < items.Count; i++)
+      int i = 0;
+      TimeSpan? lastTime10th = null;
+      while(i < 10 && i < items.Count)
       {
         // Store the best time
         if (i==0)
           _bestTime = items[i].TotalTime;
 
-        _topTen.Add(new TopTenResult(items[i], CalculatePoints(items[i], false)));
+        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
+        
+        // Remember time of 10th
+        if (_topTen.Count == 10)
+          lastTime10th = items[i].TotalTime;
+        
+        i++;
+      }
+
+      // Consider all participants at position 10 (have same time as the 10th)
+      // (FIS Points Rules §4.4.5)
+      while (i < items.Count)
+      {
+        if (lastTime10th != null && lastTime10th == items[i].TotalTime)
+        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
+        i++;
       }
     }
 
@@ -176,7 +202,8 @@ namespace RaceHorologyLib
         int nextBest = int.MaxValue;
         double nextBestValue = double.MaxValue;
 
-        for( int j=0; j<_topTen.Count; j++)
+        // Iterate from back i.e., pick the worsest in case of same points (FIS Points Rules §4.4.4, §4.4.6) 
+        for ( int j = _topTen.Count-1;  j>=0; j--)
         {
           var item = _topTen[j];
 
@@ -184,9 +211,9 @@ namespace RaceHorologyLib
           if (item.TopFive)
             continue;
 
-          if (item.RRI.Participant.Points < nextBestValue)
+          if (item.DSVPoints < nextBestValue)
           {
-            nextBestValue = item.RRI.Participant.Points;
+            nextBestValue = item.DSVPoints;
             nextBest = j;
           }
 
@@ -206,7 +233,7 @@ namespace RaceHorologyLib
         var item = _topTen[j];
         if (item.TopFive == true)
         {
-          valueA += item.RRI.Participant.Points;
+          valueA += item.DSVPoints;
           valueC += item.RacePoints;
         }
       }
@@ -273,6 +300,10 @@ namespace RaceHorologyLib
       }
     }
 
+    double cutOffPoints(double points)
+    {
+      return 0.0 <= points && points < _valueCutOff ? points : _valueCutOff;
+    }
 
     bool sexMatched(RaceResultItem rri)
     {
