@@ -2482,14 +2482,14 @@ namespace RaceHorologyLib
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createParagraph(string.Format("{0}", dsvCalc.CalculatedPenalty))));
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenalty))));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
           .Add(createParagraph("Angewandter Zuschlag:").SetFont(fontBold)));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createParagraph(string.Format("{0}", dsvCalc.AppliedPenalty)).SetFont(fontBold)));
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.AppliedPenalty)).SetFont(fontBold)));
 
         document.Add(table);
       }

@@ -63,7 +63,7 @@ namespace RaceHorologyLib
         case "missing raceid":
           return "Rennnummer fehlt";
         case "missing raceorganizer":
-          return "Rennoriganisator fehlt";
+          return "Rennorganisator fehlt";
         case "missing racename":
           return "Renndatum fehlt";
         case "missing raceplace":
