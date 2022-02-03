@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -2203,8 +2203,10 @@ namespace RaceHorologyLib
 
       DSVSchoolRaceResultViewProvider resultVP = _race.GetResultViewProvider() as DSVSchoolRaceResultViewProvider;
 
-      addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationWomen(), "Damen/Mädchen");
-      addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationMen(), "Herren/Buben");
+      if (resultVP.GetDSVRaceCalculationWomen().CalculationValid)
+        addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationWomen(), "Damen/Mädchen");
+      if (resultVP.GetDSVRaceCalculationMen().CalculationValid)
+        addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationMen(), "Herren/Buben");
     }
 
 
