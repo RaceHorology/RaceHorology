@@ -2483,14 +2483,37 @@ namespace RaceHorologyLib
           .Add(createParagraph("Gerundet:")));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
-        table.AddCell(createCellForTable(TextAlignment.LEFT)
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenalty))));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Kategorie-Adder:")));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueA))));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Korrekturwert (Z-Wert):")));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueZ))));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Punktezuschlag:").SetFont(fontBold)));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenaltyWithAdded)).SetFont(fontBold)));
+
+        table.AddCell(createCellForTable(9, TextAlignment.LEFT).Add(createParagraph(" ")));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
           .Add(createParagraph("Angewandter Zuschlag:").SetFont(fontBold)));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
-        table.AddCell(createCellForTable(TextAlignment.LEFT)
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.AppliedPenalty)).SetFont(fontBold)));
 
         document.Add(table);
