@@ -174,8 +174,16 @@
           <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label x:Name="lblValueA" Margin="5" Content="Adder:" Grid.Column="0"/>
+        <Label x:Name="lblValueA" Margin="5" Content="Kategorie-Adder:" Grid.Column="0"/>
         <TextBox x:Name="txtValueA" Margin="5" Grid.Column="1" />
+      </Grid>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="lblValueZ" Margin="5" Content="Korrekturwert (Z-Wert):" Grid.Column="0"/>
+        <TextBox x:Name="txtValueZ" Margin="5" Grid.Column="1" />
       </Grid>
       <Grid>
         <Grid.ColumnDefinitions>

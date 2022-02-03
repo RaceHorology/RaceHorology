@@ -71,6 +71,7 @@ namespace RaceHorologyLib
 
     public double ValueF;
     public double ValueA;
+    public double ValueZ;
     public double MinimumPenalty;
     public double ValueCutOff;
 
