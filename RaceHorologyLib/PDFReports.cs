@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -2215,7 +2215,7 @@ namespace RaceHorologyLib
       var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
       int fontSizeTitle = 16;
-      int fontSizeNormal = 10;
+      int fontSizeNormal = 9;
 
       Paragraph createHeaderParagraph(string text)
       {
@@ -2260,7 +2260,7 @@ namespace RaceHorologyLib
         );
 
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetWidth(UnitValue.CreatePercentValue(100))
           .SetBorder(Border.NO_BORDER);
@@ -2362,7 +2362,7 @@ namespace RaceHorologyLib
         );
 
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetWidth(UnitValue.CreatePercentValue(100))
           .SetBorder(Border.NO_BORDER);
@@ -2437,7 +2437,7 @@ namespace RaceHorologyLib
 
       {
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetBorder(Border.NO_BORDER);
 
