@@ -91,7 +91,7 @@ namespace RaceHorologyLib
       "Firstname",
       "Year",
       "Club",
-      "Nation",
+      "Verband",
       "Points",
       "Sex"
     };
