@@ -540,9 +540,9 @@ public class LiveTimingRM : ILiveTiming
     item = string.Format(
       customFormat,
       "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10:0.00}"
-      , particpant.Sex.Name
-      , particpant.Class.Group.Id
-      , particpant.Class.Id
+      , particpant.Sex?.Name
+      , particpant.Class?.Group?.Id
+      , particpant.Class?.Id
       , particpant.Participant.Id
       , particpant.StartNumber
       , particpant.Participant.CodeOrSvId // TODO: set to empty if not used
