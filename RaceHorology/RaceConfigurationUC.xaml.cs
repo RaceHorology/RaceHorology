@@ -171,6 +171,7 @@ namespace RaceHorology
       cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
       txtValueF.Text = cfg.ValueF.ToString();
       txtValueA.Text = cfg.ValueA.ToString();
+      txtValueZ.Text = cfg.ValueZ.ToString();
       txtMinPenalty.Text = cfg.MinimumPenalty.ToString();
       txtValueCutOff.Text = cfg.ValueCutOff.ToString();
 
@@ -217,6 +218,7 @@ namespace RaceHorology
 
       try { cfg.ValueF = double.Parse(txtValueF.Text); } catch (Exception) { }
       try { cfg.ValueA = double.Parse(txtValueA.Text); } catch (Exception) { }
+      try { cfg.ValueZ = double.Parse(txtValueZ.Text); } catch (Exception) { }
       try { cfg.MinimumPenalty = double.Parse(txtMinPenalty.Text); } catch (Exception) { }
       try { cfg.ValueCutOff = double.Parse(txtValueCutOff.Text); } catch (Exception) { }
 

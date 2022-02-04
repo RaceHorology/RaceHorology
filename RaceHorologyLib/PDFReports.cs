@@ -2203,8 +2203,10 @@ namespace RaceHorologyLib
 
       DSVSchoolRaceResultViewProvider resultVP = _race.GetResultViewProvider() as DSVSchoolRaceResultViewProvider;
 
-      addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationWomen(), "Damen/Mädchen");
-      addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationMen(), "Herren/Buben");
+      if (resultVP.GetDSVRaceCalculationWomen().CalculationValid)
+        addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationWomen(), "Damen/Mädchen");
+      if (resultVP.GetDSVRaceCalculationMen().CalculationValid)
+        addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationMen(), "Herren/Buben");
     }
 
 
@@ -2213,7 +2215,7 @@ namespace RaceHorologyLib
       var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
       int fontSizeTitle = 16;
-      int fontSizeNormal = 10;
+      int fontSizeNormal = 9;
 
       Paragraph createHeaderParagraph(string text)
       {
@@ -2258,7 +2260,7 @@ namespace RaceHorologyLib
         );
 
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetWidth(UnitValue.CreatePercentValue(100))
           .SetBorder(Border.NO_BORDER);
@@ -2360,7 +2362,7 @@ namespace RaceHorologyLib
         );
 
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetWidth(UnitValue.CreatePercentValue(100))
           .SetBorder(Border.NO_BORDER);
@@ -2435,7 +2437,7 @@ namespace RaceHorologyLib
 
       {
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetBorder(Border.NO_BORDER);
 
@@ -2481,14 +2483,37 @@ namespace RaceHorologyLib
           .Add(createParagraph("Gerundet:")));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
-        table.AddCell(createCellForTable(TextAlignment.LEFT)
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenalty))));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Kategorie-Adder:")));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueA))));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Korrekturwert (Z-Wert):")));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueZ))));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Punktezuschlag:").SetFont(fontBold)));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenaltyWithAdded)).SetFont(fontBold)));
+
+        table.AddCell(createCellForTable(9, TextAlignment.LEFT).Add(createParagraph(" ")));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
           .Add(createParagraph("Angewandter Zuschlag:").SetFont(fontBold)));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
-        table.AddCell(createCellForTable(TextAlignment.LEFT)
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.AppliedPenalty)).SetFont(fontBold)));
 
         document.Add(table);

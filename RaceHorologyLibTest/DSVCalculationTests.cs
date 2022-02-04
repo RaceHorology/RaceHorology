@@ -164,11 +164,14 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void MockTests()
     {
-      DSVRaceCalculation getCalc(List<TestData> td)
+      DSVRaceCalculation getCalc(List<TestData> td, double valueF = 0.0, double valueZ = 0.0, double valueA = 0.0, double minPenalty = 0.0)
       {
         var race = createTestData(td);
         race.RaceConfiguration.ValueCutOff = 250.0;
-        race.RaceConfiguration.ValueF = 0.0;
+        race.RaceConfiguration.ValueF = valueF;
+        race.RaceConfiguration.ValueA = valueA;
+        race.RaceConfiguration.ValueZ = valueZ;
+        race.RaceConfiguration.MinimumPenalty= minPenalty;
         DSVRaceCalculation raceCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
         raceCalcW.CalculatePenalty();
 
@@ -189,6 +192,19 @@ namespace RaceHorologyLibTest
         new TestData{ Points = 19.0, RunTime = 51.0}
       };
       Assert.AreEqual(12.00, getCalc(td1).CalculatedPenalty);
+
+      // Check some variants of valueA, valueZ, minPenalty
+      Assert.AreEqual(12.00, getCalc(td1, valueZ: 10.0).CalculatedPenalty);
+      Assert.AreEqual(22.00, getCalc(td1, valueZ: 10.0).CalculatedPenaltyWithAdded);
+      Assert.AreEqual(22.00, getCalc(td1, valueZ: 10.0).AppliedPenalty);
+
+      Assert.AreEqual(12.00, getCalc(td1, valueZ: 10.0, valueA: -5.0).CalculatedPenalty);
+      Assert.AreEqual(17.00, getCalc(td1, valueZ: 10.0, valueA: -5.0).CalculatedPenaltyWithAdded);
+      Assert.AreEqual(17.00, getCalc(td1, valueZ: 10.0, valueA: -5.0).AppliedPenalty);
+
+      Assert.AreEqual(12.00, getCalc(td1, valueZ: 10.0, valueA: -5.0, minPenalty: 25.0).CalculatedPenalty);
+      Assert.AreEqual(17.00, getCalc(td1, valueZ: 10.0, valueA: -5.0, minPenalty: 25.0).CalculatedPenaltyWithAdded);
+      Assert.AreEqual(25.00, getCalc(td1, valueZ: 10.0, valueA: -5.0, minPenalty: 25.0).AppliedPenalty);
 
       var td2 = new List<TestData>
       {
@@ -237,6 +253,14 @@ namespace RaceHorologyLibTest
       };
       Assert.AreEqual(11, getCalc(td4).TopTen.Count);
       Assert.AreEqual(32.2, getCalc(td4).CalculatedPenalty);
+
+      // CalculationValid checks
+      Assert.IsTrue(getCalc(td4).CalculationValid);
+      // Check whether calculation is invalid if no data is available
+      var td5 = new List<TestData>
+      {
+      };
+      Assert.IsFalse(getCalc(td5).CalculationValid);
     }
 
 

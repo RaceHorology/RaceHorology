@@ -71,6 +71,7 @@ namespace RaceHorologyLib
     
     private double _valueF;
     private double _valueA;
+    private double _valueZ;
     private double _minPenalty;
     private double _valueCutOff;
 
@@ -78,6 +79,9 @@ namespace RaceHorologyLib
     private double _penaltyB;
     private double _penaltyC;
     private double _penalty;
+    private double _penaltyRounded;
+    private double _penaltyWithAdder;
+    bool _calculationValid;
 
     private double _appliedPenalty;
 
@@ -88,11 +92,15 @@ namespace RaceHorologyLib
 
 
     public double ExactCalculatedPenalty { get { return _penalty; } }
-    public double CalculatedPenalty { get { return Math.Round(ExactCalculatedPenalty, 2); } }
+    public double CalculatedPenalty { get { return _penaltyRounded; } }
+    public double CalculatedPenaltyWithAdded { get { return _penaltyWithAdder; } }
     public double AppliedPenalty { get { return _appliedPenalty; } }
+
+    public bool CalculationValid { get { return _calculationValid; } }
 
     public double ValueF { get { return _valueF; } }
     public double ValueA { get { return _valueA; } }
+    public double ValueZ { get { return _valueZ; } }
     public double PenaltyA { get { return _penaltyA; } }
     public double PenaltyB { get { return _penaltyB; } }
     public double PenaltyC { get { return _penaltyC; } }
@@ -109,6 +117,7 @@ namespace RaceHorologyLib
 
       _valueF = race.RaceConfiguration.ValueF;
       _valueA = race.RaceConfiguration.ValueA;
+      _valueZ = race.RaceConfiguration.ValueZ;
 
       _minPenalty = race.RaceConfiguration.MinimumPenalty;
       _valueCutOff = race.RaceConfiguration.ValueCutOff;
@@ -126,7 +135,7 @@ namespace RaceHorologyLib
         penalty = _appliedPenalty;
 
       if (_bestTime != null && rri.TotalTime != null)
-        return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - _valueF + _valueA + penalty, 2);
+        return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - _valueF + penalty, 2);
 
       return -1.0;
     }
@@ -134,15 +143,28 @@ namespace RaceHorologyLib
 
     public void CalculatePenalty()
     {
-      findTopTen();
+      try
+      {
+        findTopTen();
 
-      markBestFive();
-      calculatePenaltyAC();
+        markBestFive();
+        calculatePenaltyAC();
 
-      findBestFiveDSV();
-      calculatePenaltyB();
+        findBestFiveDSV();
+        calculatePenaltyB();
 
-      calculatePenalty();
+        calculatePenalty();
+
+        if (_topTen.Count == 0)
+          _calculationValid = false;
+        else
+          _calculationValid = true;
+      }
+      catch (Exception e)
+      {
+        _calculationValid = false;
+        throw;
+      }
     }
 
 
@@ -258,7 +280,9 @@ namespace RaceHorologyLib
     void calculatePenalty()
     {
       _penalty = (_penaltyA + _penaltyB - _penaltyC) / 10.0;
-      _appliedPenalty = Math.Max(_minPenalty, CalculatedPenalty);
+      _penaltyRounded = Math.Round(_penalty, 2);
+      _penaltyWithAdder = _penaltyRounded + _valueA + _valueZ;
+      _appliedPenalty = Math.Max(_minPenalty, _penaltyWithAdder);
     }
 
 
