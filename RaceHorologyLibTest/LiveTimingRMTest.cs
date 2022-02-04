@@ -153,6 +153,100 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("  10000010,23\n  29000000,01\n  31999999,99\n  42999999,99\n  53999999,99", timingData);
     }
 
+
+    [TestMethod]
+    public void TestSerialization_SpecialCases1()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      // Create Participants without Class or Group
+      tg.createRaceParticipants(2);
+
+      LiveTimingRM cl = new LiveTimingRM();
+      Race race = tg.Model.GetRace(0);
+      cl.Race = race;
+
+      string classes = cl.getClasses();
+      string groups = cl.getGroups();
+      string categories = cl.getCategories();
+
+      string participants = cl.getParticipantsData();
+      Assert.AreEqual(
+        "|||1|1||Name 1, Firstname 1|0|||-1,00\n|||2|2||Name 2, Firstname 2|0|||-1,00", 
+        participants);
+
+      string startList = cl.getStartListData(race.GetRun(0));
+      Assert.AreEqual(
+        "  1\n  2",
+        startList);
+
+      string timingData = cl.getTimingData(race.GetRun(0));
+    }
+
+
+    [TestMethod]
+    public void TestSerialization_SpecialCases2()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      tg.createClasses();
+
+      // Create Participants without Class or Group
+      tg.createRaceParticipants(2, cla: tg.findClass("Class 2M (2010)"));
+
+      LiveTimingRM cl = new LiveTimingRM();
+      Race race = tg.Model.GetRace(0);
+      cl.Race = race;
+
+      string classes = cl.getClasses();
+      string groups = cl.getGroups();
+      string categories = cl.getCategories();
+
+      string participants = cl.getParticipantsData();
+      Assert.AreEqual(
+        "||1|1|1||Name 1, Firstname 1|0|||-1,00\n||1|2|2||Name 2, Firstname 2|0|||-1,00",
+        participants);
+
+      string startList = cl.getStartListData(race.GetRun(0));
+      Assert.AreEqual(
+        "  1\n  2",
+        startList);
+
+      string timingData = cl.getTimingData(race.GetRun(0));
+    }
+
+    [TestMethod]
+    public void TestSerialization_SpecialCases3()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      tg.createGroups();
+      tg.createClasses();
+
+      // Create Participants without Class or Group
+      tg.createRaceParticipants(2, cla: tg.findClass("Class 2M (2010)"));
+
+      LiveTimingRM cl = new LiveTimingRM();
+      Race race = tg.Model.GetRace(0);
+      cl.Race = race;
+
+      string classes = cl.getClasses();
+      string groups = cl.getGroups();
+      string categories = cl.getCategories();
+
+      string participants = cl.getParticipantsData();
+      Assert.AreEqual(
+        "|1|1|1|1||Name 1, Firstname 1|0|||-1,00\n|1|1|2|2||Name 2, Firstname 2|0|||-1,00",
+        participants);
+
+      string startList = cl.getStartListData(race.GetRun(0));
+      Assert.AreEqual(
+        "  1\n  2",
+        startList);
+
+      string timingData = cl.getTimingData(race.GetRun(0));
+    }
+
     [TestMethod]
     //[Ignore]
     [DeploymentItem(@"TestDataBases\TestDB_LessParticipants_LiveTiming.mdb")]
