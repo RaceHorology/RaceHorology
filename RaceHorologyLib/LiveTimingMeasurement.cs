@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -73,7 +73,22 @@ namespace RaceHorologyLib
     public bool BFinishTime;     // true if FinishTime is set
   }
 
+  public class StartnumberSelectedEventArgs: EventArgs
+  {
+    public enum EChannel { EUnknown, EStart, EFinish };
+
+    public StartnumberSelectedEventArgs()
+    {
+      StartNumber = 0;
+      Channel = EChannel.EUnknown;
+    }
+
+    public uint StartNumber;
+    public EChannel Channel;
+  }
+
   public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);
+  public delegate void StartnumberSelectedEventHandler(object sender, StartnumberSelectedEventArgs e);
   public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, bool isRunning);
 
 
