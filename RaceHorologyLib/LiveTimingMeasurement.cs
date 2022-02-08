@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -104,6 +104,11 @@ namespace RaceHorologyLib
     event TimeMeasurementEventHandler TimeMeasurementReceived;
 
     /// <summary>
+    /// If a startnumber has been selected - entered via keyboard of the device - this event is triggered.
+    /// </summary>
+    event StartnumberSelectedEventHandler StartnumberSelectedReceived;
+
+    /// <summary>
     /// Starts the timing device to measure.
     /// </summary>
     void Start();
@@ -204,6 +209,7 @@ namespace RaceHorologyLib
       if (_timingDevice != null)
       {
         _timingDevice.TimeMeasurementReceived -= OnTimeMeasurementReceived;
+        _timingDevice.StartnumberSelectedReceived -= OnStartnumberSelectedReceived;
         _timingDevice.StatusChanged -= OnTimerStatusChanged;
         _timingDevice = null;
       }
@@ -220,6 +226,7 @@ namespace RaceHorologyLib
       if (_timingDevice != null)
       {
         _timingDevice.TimeMeasurementReceived += OnTimeMeasurementReceived;
+        _timingDevice.StartnumberSelectedReceived += OnStartnumberSelectedReceived;
         _timingDevice.StatusChanged += OnTimerStatusChanged;
       }
       if (_liveDateTimeProvider != null)
@@ -300,6 +307,30 @@ namespace RaceHorologyLib
       }, null);
     }
 
+
+    /// <summary>
+    /// Callback of the timing device in case of timing data received 
+    /// </summary>
+    private void OnStartnumberSelectedReceived(object sender, StartnumberSelectedEventArgs e)
+    {
+      if (!_isRunning)
+        return;
+
+      _syncContext.Send(delegate
+      {
+        Race currentRace = _dm.GetCurrentRace();
+        RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
+        RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
+
+        if (participant != null)
+        {
+          if (e.Channel == StartnumberSelectedEventArgs.EChannel.EStart)
+            currentRaceRun.MarkStartMeasurement(participant);
+          else if (e.Channel == StartnumberSelectedEventArgs.EChannel.EFinish)
+            currentRaceRun.MarkFinishMeasurement(participant);
+        }
+      }, null);
+    }
 
     /// <summary>
     /// Callback to sync the clock with the clock of the timing device
