@@ -740,11 +740,13 @@ namespace RaceHorologyLib
   {
     protected RaceParticipant _participant;
     protected bool _started;
+    protected bool _markedForMeasurement;
 
     public StartListEntry(RaceParticipant participant)
     {
       _participant = participant;
       _started = false;
+      _markedForMeasurement = false;
       _participant.PropertyChanged += OnParticipantPropertyChanged;
     }
 
@@ -753,6 +755,7 @@ namespace RaceHorologyLib
     {
       StartListEntry copy = new StartListEntry(_participant);
       copy._started = _started;
+      copy._markedForMeasurement = _markedForMeasurement;
       return copy;
     }
 
@@ -781,6 +784,20 @@ namespace RaceHorologyLib
         if (_started != value)
         {
           _started = value;
+          NotifyPropertyChanged();
+        }
+      }
+    }
+
+    public bool MarkedForMeasurement
+    {
+      get => _markedForMeasurement;
+
+      set
+      {
+        if (value != _markedForMeasurement)
+        {
+          _markedForMeasurement = value;
           NotifyPropertyChanged();
         }
       }

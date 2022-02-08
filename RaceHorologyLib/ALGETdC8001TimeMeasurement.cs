@@ -46,6 +46,7 @@ namespace RaceHorologyLib
   public abstract class ALGETdC8001TimeMeasurementBase : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, IImportTime
   {
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
+    public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
     public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
 
     ALGETdC8001LineParser _parser;
@@ -99,14 +100,30 @@ namespace RaceHorologyLib
       {
         if (_parser.Mode == ALGETdC8001LineParser.EMode.LiveTiming)
         {
-          UpdateLiveDayTime(_parser.TimingData);
-
-          TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(_parser.TimingData);
-          if (timeMeasurmentData != null)
+          if (_parser.TimingData != null)
           {
-            // Trigger event
-            var handle = TimeMeasurementReceived;
-            handle?.Invoke(this, timeMeasurmentData);
+            if (_parser.TimingData.Flag == 's' || _parser.TimingData.Flag == 'n')
+            {
+              StartnumberSelectedEventArgs ssData = TransferToStartnumberSelectedData(_parser.TimingData);
+              if (ssData != null)
+              {
+                // Trigger event
+                var handle = StartnumberSelectedReceived;
+                handle?.Invoke(this, ssData);
+              }
+            }
+            else
+            {
+              UpdateLiveDayTime(_parser.TimingData);
+
+              TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(_parser.TimingData);
+              if (timeMeasurmentData != null)
+              {
+                // Trigger event
+                var handle = TimeMeasurementReceived;
+                handle?.Invoke(this, timeMeasurmentData);
+              }
+            }
           }
         }
         else if (_parser.Mode == ALGETdC8001LineParser.EMode.Classement)
@@ -128,9 +145,9 @@ namespace RaceHorologyLib
       TimeMeasurementEventArgs data = new TimeMeasurementEventArgs();
 
       // Sort out invalid data
-      if ( parsedData.Flag == 'p' 
-        || parsedData.Flag == '?' 
-        || parsedData.Flag == 'b' 
+      if ( parsedData.Flag == 'p'
+        || parsedData.Flag == '?'
+        || parsedData.Flag == 'b'
         || parsedData.Flag == 'm'
         || parsedData.Flag == 'n'
         || parsedData.Flag == 's')
@@ -154,7 +171,7 @@ namespace RaceHorologyLib
           data.BFinishTime = true;
           break;
 
-        case "RT":   
+        case "RT":
           data.RunTime = parsedDataTime;
           data.BRunTime = true;
           break;
@@ -162,6 +179,24 @@ namespace RaceHorologyLib
         case "TT":   // TotalTime, calculated automatically
           return null;
       }
+
+      return data;
+    }
+
+    public static StartnumberSelectedEventArgs TransferToStartnumberSelectedData(in ALGETdC8001LiveTimingData parsedData)
+    {
+      // Fill the data
+      StartnumberSelectedEventArgs data = new StartnumberSelectedEventArgs();
+
+      // Sort out invalid data
+      if (parsedData.Flag != 'n' && parsedData.Flag != 's')
+        return null;
+
+      data.StartNumber = parsedData.StartNumber;
+      if (parsedData.Flag == 'n')
+        data.Channel = StartnumberSelectedEventArgs.EChannel.EFinish;
+      if (parsedData.Flag == 's')
+        data.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
 
       return data;
     }

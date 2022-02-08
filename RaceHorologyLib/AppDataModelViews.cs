@@ -737,6 +737,9 @@ namespace RaceHorologyLib
       _viewList.CollectionChanged += OnStartListEntriesChanged;
       //_viewList.ItemChanged += OnStartListEntryItemChanged;
 
+      // Observe additional properties
+      _raceRun.PropertyChanged += OnRaceRun_PropertyChanged;
+
       // Create View with filtered items
       ObservableCollection<StartListEntry> startList = _viewList;
       _view.Source = startList;
@@ -745,6 +748,14 @@ namespace RaceHorologyLib
       _view.IsLiveFilteringRequested = true;
     }
 
+    private void OnRaceRun_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == "MarkedParticipantForStartMeasurement")
+      {
+        foreach (StartListEntry entry in _viewList)
+          UpdateStartListEntry(entry);
+      }
+    }
 
     public void SetDefaultGrouping(string propertyName)
     {
@@ -858,22 +869,28 @@ namespace RaceHorologyLib
     {
       StartListEntry se = _viewList.Where(r => r.Participant == result.Participant).FirstOrDefault();
       if (se != null)
+      {
         se.Started = false;
+        se.MarkedForMeasurement = _raceRun.IsMarkedForStartMeasurement(se.Participant);
+      }
     }
 
     private void UpdateStartListEntry(RunResult result)
     {
       StartListEntry se = _viewList.Where(r => r.Participant == result.Participant).FirstOrDefault();
       if (se != null)
+      {
         se.Started = _raceRun.IsOrWasOnTrack(result);
+        se.MarkedForMeasurement = _raceRun.IsMarkedForStartMeasurement(se.Participant);
+      }
     }
 
     private void UpdateStartListEntry(StartListEntry se)
     {
       RunResult result = _raceRun.GetResultList().Where(r => r.Participant == se.Participant).FirstOrDefault();
 
-      if (result != null)
-        se.Started = _raceRun.IsOrWasOnTrack(result);
+      se.MarkedForMeasurement = _raceRun.IsMarkedForStartMeasurement(se.Participant);
+      se.Started = result != null && _raceRun.IsOrWasOnTrack(result);
     }
 
     #endregion

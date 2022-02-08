@@ -730,7 +730,7 @@ namespace RaceHorologyLib
     public bool IsComplete
     {
       get { return _isComplete; }
-      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+      private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
     }
 
 
@@ -1281,8 +1281,23 @@ namespace RaceHorologyLib
     protected TimeSpan? _liveRunTime;
 
     RunResult _original;
+    bool _markedForMeasurement;
 
     public RunResult OriginalResult { get { return _original; } }
+
+    public bool MarkedForMeasurement 
+    { 
+      get => _markedForMeasurement;
+      
+      set 
+      { 
+        if (value != _markedForMeasurement)
+        {
+          _markedForMeasurement = value;
+          NotifyPropertyChanged();
+        }
+      } 
+    }
 
     /// <summary>
     /// Constructor
@@ -1348,6 +1363,9 @@ namespace RaceHorologyLib
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
     private ItemsChangeObservableCollection<RunResult> _inFinish;  // This list represents the particpants in finish.
 
+    private RaceParticipant _markedParticipantForStartMeasurement;
+    private RaceParticipant _markedParticipantForFinishMeasurement;
+
     private StartListViewProvider _slVP;
     private ResultViewProvider _rvp;
 
@@ -1370,6 +1388,9 @@ namespace RaceHorologyLib
       _inFinish = new ItemsChangeObservableCollection<RunResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
 
+      _markedParticipantForStartMeasurement = null;
+      _markedParticipantForFinishMeasurement = null;
+
       // Ensure the results always are in sync with participants
       _race.GetParticipants().CollectionChanged += onParticipantsChanged;
 
@@ -1391,8 +1412,21 @@ namespace RaceHorologyLib
     public bool IsComplete 
     {
       get { return _isComplete; }
-      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+      private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
     }
+
+    public RaceParticipant MarkedParticipantForStartMeasurement
+    {
+      get { return _markedParticipantForStartMeasurement; }
+      private set { if (_markedParticipantForStartMeasurement != value) { _markedParticipantForStartMeasurement = value; NotifyPropertyChanged(); } }
+    }
+
+    public RaceParticipant MarkedParticipantForFinishMeasurement
+    {
+      get { return _markedParticipantForFinishMeasurement; }
+      private set { if (_markedParticipantForFinishMeasurement != value) { _markedParticipantForFinishMeasurement = value; NotifyPropertyChanged(); } }
+    }
+
 
 
     /// <summary>
@@ -1570,6 +1604,27 @@ namespace RaceHorologyLib
     }
 
 
+    public void MarkStartMeasurement(RaceParticipant participant)
+    {
+      MarkedParticipantForStartMeasurement = participant;
+    }
+    public bool IsMarkedForStartMeasurement(RaceParticipant participant)
+    {
+      return _markedParticipantForStartMeasurement == participant;
+    }
+
+
+    public void MarkFinishMeasurement(RaceParticipant participant)
+    {
+      MarkedParticipantForFinishMeasurement = participant;
+      _UpdateOnTrackMarkedForMeasurement();
+    }
+    public bool IsMarkedForFinishMeasurement(RaceParticipant participant)
+    {
+      return _markedParticipantForFinishMeasurement == participant;
+    }
+
+
     private RunResult findOrCreateRunResult(RaceParticipant participant)
     {
       if (participant == null)
@@ -1725,6 +1780,14 @@ namespace RaceHorologyLib
           handler?.Invoke(this, r.Participant, null, r);
         }
       }
+
+      _UpdateOnTrackMarkedForMeasurement();
+    }
+
+    private void _UpdateOnTrackMarkedForMeasurement()
+    {
+      foreach (var r in _onTrack)
+        r.MarkedForMeasurement = IsMarkedForFinishMeasurement(r.Participant);
     }
 
 

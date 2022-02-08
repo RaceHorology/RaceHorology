@@ -34,7 +34,7 @@
       <ComboBox x:Name="cmbTotalResultGrouping" Margin="5" Grid.Column="2" SelectionChanged="CmbTotalResultGrouping_SelectionChanged"/>
     </Grid>
 
-    <DataGrid FontSize="12" x:Name="dgView" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+    <DataGrid FontSize="12" x:Name="dgView" Margin="5,0,5,0" Grid.Row="1" AlternationCount="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
       <DataGrid.Columns />
 
       
@@ -55,13 +55,20 @@
       </DataGrid.GroupStyle>
 
       <DataGrid.RowStyle>
-        <Style TargetType="DataGridRow">
+        <Style TargetType="{x:Type DataGridRow}">
           <Style.Triggers>
-            <DataTrigger Binding="{Binding JustModified}" Value="true">
-              <Setter Property="Background" Value="Orange" />
+            <Trigger Property="AlternationIndex" Value="0">
+              <Setter Property="Background" Value="White" />
+            </Trigger>
+            <Trigger Property="AlternationIndex" Value="1">
+              <Setter Property="Background" Value="#FFf8faf7" />
+            </Trigger>
+            <DataTrigger Binding="{Binding JustModified}" Value="True">
+              <DataTrigger.Setters>
+                <Setter Property="Background" Value="Orange" />
+              </DataTrigger.Setters>
             </DataTrigger>
           </Style.Triggers>
-          <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
       </DataGrid.RowStyle>
     </DataGrid>
