@@ -730,7 +730,7 @@ namespace RaceHorologyLib
     public bool IsComplete
     {
       get { return _isComplete; }
-      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+      private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
     }
 
 
