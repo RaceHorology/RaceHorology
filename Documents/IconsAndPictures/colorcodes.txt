@@ -1,0 +1,9 @@
+@colorBG1: #f8faf7;
+@colorBG2: #eff5f0;
+@colorBG3: #eaf1ea;
+@colorBG4: #e6eee5;
+
+@colorFG1: #3f434b;
+@colorFG2: #667583;
+@colorFG3: #8b9faf;
+@colorFG4: #b8c9d6;
