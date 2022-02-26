@@ -193,7 +193,7 @@ namespace RaceHorology
       bool enableOthers = !_participantFilter.View.IsEmpty;
 
       btnAssignCurrentGroup.IsEnabled = enableGroup && enableOthers;
-      cmbNextGroup.IsEnabled = enableGroup && enableOthers;
+      cmbNextGroup.IsEnabled = enableOthers;
 
       btnAssignAll.IsEnabled = enableOthers;
       btnAssign.IsEnabled = enableOthers;
@@ -327,6 +327,12 @@ namespace RaceHorology
         _rpSelector.Sorting = (ParticipantSelector.ISorting)direction.Value;
     }
 
+    private void cmbNextGroup_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      enableOrDisableControls();
+    }
+
+
     private void setAnzVerlosung()
     {
       try
@@ -375,6 +381,5 @@ namespace RaceHorology
 
       _startNUmberAssignmentFilter.View.Refresh();
     }
-
   }
 }
