@@ -75,7 +75,7 @@ namespace RaceHorologyLib
         case "missing racejury ChiefRace":
           return "Rennleiter fehlt";
         case "missing racejury Referee":
-          return "Schiedrichter fehlt";
+          return "Schiedsrichter fehlt";
         case "missing racejury RepresentativeTrainer":
           return "Trainervertreter fehlt";
         case "missing coursesetter":
