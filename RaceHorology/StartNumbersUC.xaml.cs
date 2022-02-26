@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -280,6 +280,10 @@ namespace RaceHorology
       try
       {
         _snaWorkspace.SetNextStartNumber(uint.Parse(txtNextStartNumber.Text));
+
+        if (cmbNextGroup.SelectedValue is CBItem nextGroup)
+          _rpSelector.SwitchToGroup(nextGroup.Value);
+
         _rpSelector.AssignParticipants();
         _rpSelector.SwitchToNextGroup();
       }
