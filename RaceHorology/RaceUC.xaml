@@ -130,7 +130,7 @@
             <Label x:Name="lblAnalyzer" Margin="5,0,0,0" Content="Auswertung / Zeitnahme:" Grid.Row="7" Grid.Column="0"/>
             <TextBox x:Name="txtAnalyzer" Margin="5" HorizontalAlignment="Stretch"  Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Analyzer}"/>
 
-            <Label x:Name="lblRaceDirector" Margin="5,0,0,0" Content="Schiedrichter:" Grid.Row="8" Grid.Column="0" />
+            <Label x:Name="lblRaceDirector" Margin="5,0,0,0" Content="Schiedsrichter:" Grid.Row="8" Grid.Column="0" />
             <TextBox x:Name="txtRaceDirector" Margin="5" HorizontalAlignment="Stretch" Grid.Row="8" Grid.Column="1" Text="{Binding Path=RaceReferee.Name}"/>
             <TextBox x:Name="txtRaceDirectorClub" Margin="5" HorizontalAlignment="Stretch" Grid.Row="8" Grid.Column="2"  Text="{Binding Path=RaceReferee.Club}"/>
 

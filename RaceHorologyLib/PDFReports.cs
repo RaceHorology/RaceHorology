@@ -930,7 +930,7 @@ namespace RaceHorologyLib
           .SetFont(fontBold)));
 
       table.AddCell(createCell()
-        .Add(new Paragraph("Schiedrichter:")
+        .Add(new Paragraph("Schiedsrichter:")
           .SetPaddingTop(6)
           .SetFont(fontBold)));
       table.AddCell(createCell()
