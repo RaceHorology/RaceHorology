@@ -185,7 +185,10 @@ namespace RaceHorologyLib
             return true;
         }
         else
-          return true;
+        {
+          if (p.StartNumber != 0)
+            return true;
+        }
       }
 
       return false;
