@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -204,7 +204,9 @@ namespace RaceHorology
     {
       // Refill the cmbNextGroup according to grouping
       cmbNextGroup.Items.Clear();
-      foreach (var g in _rpSelector.Group2Participant.Keys)
+      var groups = _rpSelector.Group2Participant.Keys.ToList();
+      groups.Sort();
+      foreach (var g in groups)
       {
         cmbNextGroup.Items.Add(new CBItem { Text = g.ToString(), Value = g });
       }
