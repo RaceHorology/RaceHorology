@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2021 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -167,6 +167,7 @@ namespace RaceHorology
     }
 
 
+    // Ensures, that cmbNextGroup is set to _rpSelector.CurrentGroup
     private void OnCurrentGroupChangedHandler(object source, EventArgs e)
     {
       // Selected current group
@@ -200,6 +201,7 @@ namespace RaceHorology
 
     private void OnGroupingChangedHandler(object source, EventArgs e)
     {
+      // Refill the cmbNextGroup according to grouping
       cmbNextGroup.Items.Clear();
       foreach (var g in _rpSelector.Group2Participant.Keys)
       {
