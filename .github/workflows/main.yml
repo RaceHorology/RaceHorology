@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: [windows-2019]
+    runs-on: [windows-latest]
     outputs:
       version: ${{ steps.version.outputs.version }}
       version_tag: ${{ steps.version.outputs.version_tag }}
@@ -68,9 +68,9 @@ jobs:
 
       - name: Build DotNET
         run: |
-           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-           .\MSBuild.exe /p:Configuration=Debug /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
-           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
+           #cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+           MSBuild.exe /p:Configuration=Debug /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
+           MSBuild.exe /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
 
       - name: Upload Test Programm
         uses: actions/upload-artifact@v2
@@ -81,8 +81,8 @@ jobs:
 
       - name: Build Installer
         run: |
-           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-           .\MSBuild.exe /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
+           #cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+           MSBuild.exe /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
 
       - name: Upload Installer
         uses: actions/upload-artifact@v2
@@ -95,7 +95,7 @@ jobs:
 
   run_test:
     needs: build
-    runs-on: [windows-2019]
+    runs-on: [windows-latest]
     steps:
       - name: Download Test Programm
         uses: actions/download-artifact@v2
@@ -120,7 +120,7 @@ jobs:
 
   run_test_dsv_online:
     needs: build
-    runs-on: [windows-2019]
+    runs-on: [windows-latest]
     steps:
       - name: Download Test Programm
         uses: actions/download-artifact@v2
@@ -146,7 +146,7 @@ jobs:
   upload_as_release:
     if: ${{ startsWith(github.ref, 'refs/heads/release') }}
     needs: [build, run_test]
-    runs-on: [windows-2019]
+    runs-on: [windows-latest]
     steps:
       - name: Download Installer
         uses: actions/download-artifact@v2
@@ -166,7 +166,7 @@ jobs:
   upload_as_pre-release:
     if: ${{ startsWith(github.ref, 'refs/heads/main') }}
     needs: [build, run_test]
-    runs-on: [windows-2019]
+    runs-on: [windows-latest]
     steps:
       - name: Download Installer
         uses: actions/download-artifact@v2
