@@ -149,6 +149,7 @@ namespace RaceHorology
 
         OnWorkspaceChanged(this, null);
         OnCurrentGroupChangedHandler(this, null);
+        OnNextStartnumberChanged(this, null);
       }
     }
 
@@ -167,6 +168,7 @@ namespace RaceHorology
     }
 
 
+    // Ensures, that cmbNextGroup is set to _rpSelector.CurrentGroup
     private void OnCurrentGroupChangedHandler(object source, EventArgs e)
     {
       // Selected current group
@@ -191,7 +193,7 @@ namespace RaceHorology
       bool enableOthers = !_participantFilter.View.IsEmpty;
 
       btnAssignCurrentGroup.IsEnabled = enableGroup && enableOthers;
-      cmbNextGroup.IsEnabled = enableGroup && enableOthers;
+      cmbNextGroup.IsEnabled = enableOthers;
 
       btnAssignAll.IsEnabled = enableOthers;
       btnAssign.IsEnabled = enableOthers;
@@ -200,8 +202,11 @@ namespace RaceHorology
 
     private void OnGroupingChangedHandler(object source, EventArgs e)
     {
+      // Refill the cmbNextGroup according to grouping
       cmbNextGroup.Items.Clear();
-      foreach (var g in _rpSelector.Group2Participant.Keys)
+      var groups = _rpSelector.Group2Participant.Keys.ToList();
+      groups.Sort();
+      foreach (var g in groups)
       {
         cmbNextGroup.Items.Add(new CBItem { Text = g.ToString(), Value = g });
       }
@@ -280,6 +285,10 @@ namespace RaceHorology
       try
       {
         _snaWorkspace.SetNextStartNumber(uint.Parse(txtNextStartNumber.Text));
+
+        if (cmbNextGroup.SelectedValue is CBItem nextGroup)
+          _rpSelector.SwitchToGroup(nextGroup.Value);
+
         _rpSelector.AssignParticipants();
         _rpSelector.SwitchToNextGroup();
       }
@@ -317,6 +326,12 @@ namespace RaceHorology
       if (cmbDirection.SelectedValue is CBItem direction)
         _rpSelector.Sorting = (ParticipantSelector.ISorting)direction.Value;
     }
+
+    private void cmbNextGroup_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      enableOrDisableControls();
+    }
+
 
     private void setAnzVerlosung()
     {
@@ -366,6 +381,5 @@ namespace RaceHorology
 
       _startNUmberAssignmentFilter.View.Refresh();
     }
-
   }
 }

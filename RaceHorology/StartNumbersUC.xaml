@@ -103,7 +103,7 @@
                                 <TextBox x:Name="txtNextStartNumber" Margin="5" Grid.Row="3" Grid.Column="1" VerticalContentAlignment="Center"/>
 
                                 <Label Content="Nächste Gruppe:" Margin="5" Grid.Row="4" Grid.Column="0"/>
-                                <ComboBox x:Name="cmbNextGroup" Margin="5" Grid.Row="4" Grid.Column="1"/>
+                                <ComboBox x:Name="cmbNextGroup" Margin="5" Grid.Row="4" Grid.Column="1" SelectionChanged="cmbNextGroup_SelectionChanged" />
 
                                 <Button x:Name="btnAssignCurrentGroup"  Content="Aktuelle Gruppe zuweisen" Margin="5" Padding="5" Grid.Row="5" Grid.Column="1" Click="btnAssignCurrentGroup_Click"/>
 
