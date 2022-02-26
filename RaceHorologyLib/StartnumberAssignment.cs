@@ -452,6 +452,19 @@ namespace RaceHorologyLib
     }
 
 
+    public bool SwitchToGroup(object group)
+    {
+      List<object> groups = _group2participant.Keys.ToList();
+
+      if (_group2participant.ContainsKey(group))
+        CurrentGroup = group;
+      else
+        CurrentGroup = null;
+
+      return CurrentGroup != null;
+    }
+
+
     public bool SwitchToNextGroup()
     {
       List<object> groups = _group2participant.Keys.ToList();
