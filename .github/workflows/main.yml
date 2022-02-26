@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: [windows-latest]
+    runs-on: [windows-2019]
     outputs:
       version: ${{ steps.version.outputs.version }}
       version_tag: ${{ steps.version.outputs.version_tag }}
@@ -95,7 +95,7 @@ jobs:
 
   run_test:
     needs: build
-    runs-on: [windows-latest]
+    runs-on: [windows-2019]
     steps:
       - name: Download Test Programm
         uses: actions/download-artifact@v2
@@ -120,7 +120,7 @@ jobs:
 
   run_test_dsv_online:
     needs: build
-    runs-on: [windows-latest]
+    runs-on: [windows-2019]
     steps:
       - name: Download Test Programm
         uses: actions/download-artifact@v2
@@ -146,7 +146,7 @@ jobs:
   upload_as_release:
     if: ${{ startsWith(github.ref, 'refs/heads/release') }}
     needs: [build, run_test]
-    runs-on: [windows-latest]
+    runs-on: [windows-2019]
     steps:
       - name: Download Installer
         uses: actions/download-artifact@v2
@@ -166,7 +166,7 @@ jobs:
   upload_as_pre-release:
     if: ${{ startsWith(github.ref, 'refs/heads/main') }}
     needs: [build, run_test]
-    runs-on: [windows-latest]
+    runs-on: [windows-2019]
     steps:
       - name: Download Installer
         uses: actions/download-artifact@v2
