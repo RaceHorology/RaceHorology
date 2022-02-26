@@ -157,7 +157,7 @@ namespace RaceHorologyLibTest
       }
       {
         IPDFReport report = new RaceResultReport(race);
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 2));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 6));
       }
     }
   }
