@@ -519,7 +519,7 @@ namespace RaceHorologyLib
         return null;
       }
 
-      if (dataLine.Length > 5)
+      if (dataLine.Length > 5+1) // +1 because of parallel slalow => identifier for 'b' (blue course) or 'r' (red course)
       {
         parsedData.Channel = dataLine.Substring(6, 2);
         parsedData.ChannelModifier = dataLine[8];
