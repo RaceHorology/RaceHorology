@@ -161,12 +161,14 @@ namespace RaceHorologyLib
 
       switch (parsedData.Channel)
       {
-        case "C0":
+        case "C0": // Standard 
+        case "C3": // Parallel Slalom
           data.StartTime = parsedDataTime;
           data.BStartTime = true;
           break;
 
-        case "C1":
+        case "C1": // Standard 
+        case "C4": // Parallel Slalom
           data.FinishTime = parsedDataTime;
           data.BFinishTime = true;
           break;
@@ -177,6 +179,7 @@ namespace RaceHorologyLib
           break;
 
         case "TT":   // TotalTime, calculated automatically
+        case "DT":   // DifferenceTime, parallel slalom, not used
           return null;
       }
 

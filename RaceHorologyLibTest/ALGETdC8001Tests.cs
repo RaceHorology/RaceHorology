@@ -261,7 +261,7 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
-    public void ParserTestParallel()
+    public void ParserTest_ParallelSlalom()
     {
 
       ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
@@ -590,8 +590,127 @@ namespace RaceHorologyLibTest
         var pd = ParseAndTransfer("s0003");
         Assert.IsNull(pd);
       }
+    }
+
+
+    [TestMethod]
+    public void ParserAndTransferToTimemeasurementDataTest_ParallelSlalom()
+    {
+
+      TimeMeasurementEventArgs ParseAndTransfer(string line)
+      {
+        ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
+        parser.Parse(line);
+        return ALGETdC8001TimeMeasurement.TransferToTimemeasurementData(parser.TimingData);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0016rC0  19:52:15.1620 09");
+        Assert.AreEqual(16U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BStartTime);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 15, 162), pd.StartTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0015bC3  19:52:15.1620 09");
+        Assert.AreEqual(15U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BStartTime);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 15, 162), pd.StartTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0016rC1  19:52:20.3900 09");
+        Assert.AreEqual(16U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BFinishTime);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 20, 390), pd.FinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0015bC4  19:52:23.4010 09");
+        Assert.AreEqual(15U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BFinishTime);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 23, 401), pd.FinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0016rRT  00:00:05.22   09");
+        Assert.AreEqual(16U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BRunTime);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 5, 220), pd.RunTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0015bRT  00:00:08.23   09");
+        Assert.AreEqual(15U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BRunTime);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 8, 230), pd.RunTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+      }
+
+      { // Disqualified
+        var pd = ParseAndTransfer("d0035 C0  21:46:36.3910 00");
+        Assert.AreEqual(35U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BStartTime);
+        Assert.AreEqual(null, pd.StartTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+      { // Cleared data
+        var pd = ParseAndTransfer("c0035 C0  21:46:36.3910 00");
+        Assert.AreEqual(35U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BStartTime);
+        Assert.AreEqual(null, pd.StartTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      // Ignored data (first character)
+      { // Invalid startnumber
+        var pd = ParseAndTransfer("?0034 C1M 21:46:48.3300 00");
+        Assert.IsNull(pd);
+      }
+      { // penalty time (parallelslalom)
+        var pd = ParseAndTransfer("p0034 C1M 21:46:48.3300 00");
+        Assert.IsNull(pd);
+      }
+      { // time was blocked with block key)
+        var pd = ParseAndTransfer("b0034 C1M 21:46:48.3300 00");
+        Assert.IsNull(pd);
+      }
+      { // parallel slalom: time difference run
+        var pd = ParseAndTransfer(" 0016rDTR 00:00:03.01   09");
+        Assert.IsNull(pd);
+      }
+      { // parallel slalom: time difference total
+        var pd = ParseAndTransfer(" 0008bDTT 10:12:45.23   09");
+        Assert.IsNull(pd);
+      }
+      {
+        var pd = ParseAndTransfer("n0000b");
+        Assert.IsNull(pd);
+      }
+      {
+        var pd = ParseAndTransfer("n0015b");
+        Assert.IsNull(pd);
+      }
+      {
+        var pd = ParseAndTransfer("n0016r");
+        Assert.IsNull(pd);
+      }
 
     }
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12.mdb")]
