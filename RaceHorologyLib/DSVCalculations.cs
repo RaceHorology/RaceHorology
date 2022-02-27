@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -160,7 +160,7 @@ namespace RaceHorologyLib
         else
           _calculationValid = true;
       }
-      catch (Exception e)
+      catch (Exception)
       {
         _calculationValid = false;
         throw;
