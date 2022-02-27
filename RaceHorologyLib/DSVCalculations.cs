@@ -160,7 +160,7 @@ namespace RaceHorologyLib
         else
           _calculationValid = true;
       }
-      catch (Exception e)
+      catch (Exception)
       {
         _calculationValid = false;
         throw;
