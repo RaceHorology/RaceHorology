@@ -110,6 +110,8 @@ namespace RaceHorologyLib
     protected XmlWriterSettings _xmlSettings;
     protected XmlWriter _writer;
 
+    protected bool _writePoints; // Flag to remember whether to export points or not, initialized in ExportXML()
+
     public DSVExport()
     {
       _xmlSettings = new XmlWriterSettings();
@@ -178,6 +180,8 @@ namespace RaceHorologyLib
 
     public void ExportXML(Stream output, Race race)
     {
+      _writePoints = race.RaceConfiguration.ActiveFields.Contains("Points");
+
       _writer = XmlWriter.Create(output, _xmlSettings);
 
       _writer.WriteStartDocument();
@@ -320,51 +324,50 @@ namespace RaceHorologyLib
       _writer.WriteValue(usedDSVList);
       _writer.WriteEndElement();
 
-      if (race.RaceConfiguration.ValueF == 0.0)
-        throw new DSVExportException("missing f-value");
-
-      _writer.WriteStartElement("fvalue");
-      _writer.WriteValue(race.RaceConfiguration.ValueF);
-      _writer.WriteEndElement();
-
       DSVSchoolRaceResultViewProvider dsvRaceVP = race.GetResultViewProvider() as DSVSchoolRaceResultViewProvider;
-      if (dsvRaceVP == null)
-        throw new DSVExportException("wrong raceresultview");
-
-      DSVRaceCalculation dsvCalcW = dsvRaceVP.GetDSVRaceCalculationWomen();
-      if (dsvCalcW != null)
+      if (dsvRaceVP != null)
       {
-        _writer.WriteStartElement("racepenalty");
-        _writer.WriteAttributeString("gender", "L");
+        if (race.RaceConfiguration.ValueF == 0.0)
+          throw new DSVExportException("missing f-value");
 
-        _writer.WriteStartElement("applied_penalty");
-        _writer.WriteValue(dsvCalcW.AppliedPenalty);
+        _writer.WriteStartElement("fvalue");
+        _writer.WriteValue(race.RaceConfiguration.ValueF);
         _writer.WriteEndElement();
 
-        _writer.WriteStartElement("calculated_penalty");
-        _writer.WriteValue(dsvCalcW.CalculatedPenalty);
-        _writer.WriteEndElement();
+        DSVRaceCalculation dsvCalcW = dsvRaceVP.GetDSVRaceCalculationWomen();
+        if (dsvCalcW != null)
+        {
+          _writer.WriteStartElement("racepenalty");
+          _writer.WriteAttributeString("gender", "L");
 
-        _writer.WriteEndElement();
+          _writer.WriteStartElement("applied_penalty");
+          _writer.WriteValue(dsvCalcW.AppliedPenalty);
+          _writer.WriteEndElement();
+
+          _writer.WriteStartElement("calculated_penalty");
+          _writer.WriteValue(dsvCalcW.CalculatedPenalty);
+          _writer.WriteEndElement();
+
+          _writer.WriteEndElement();
+        }
+
+        DSVRaceCalculation dsvCalcM = dsvRaceVP.GetDSVRaceCalculationMen();
+        if (dsvCalcM != null)
+        {
+          _writer.WriteStartElement("racepenalty");
+          _writer.WriteAttributeString("gender", "M");
+
+          _writer.WriteStartElement("applied_penalty");
+          _writer.WriteValue(dsvCalcM.AppliedPenalty);
+          _writer.WriteEndElement();
+
+          _writer.WriteStartElement("calculated_penalty");
+          _writer.WriteValue(dsvCalcM.CalculatedPenalty);
+          _writer.WriteEndElement();
+
+          _writer.WriteEndElement();
+        }
       }
-
-      DSVRaceCalculation dsvCalcM = dsvRaceVP.GetDSVRaceCalculationMen();
-      if (dsvCalcM != null)
-      { 
-        _writer.WriteStartElement("racepenalty");
-        _writer.WriteAttributeString("gender", "M");
-
-        _writer.WriteStartElement("applied_penalty");
-        _writer.WriteValue(dsvCalcM.AppliedPenalty);
-        _writer.WriteEndElement();
-
-        _writer.WriteStartElement("calculated_penalty");
-        _writer.WriteValue(dsvCalcM.CalculatedPenalty);
-        _writer.WriteEndElement();
-
-        _writer.WriteEndElement();
-      }
-
       if (race.AdditionalProperties?.RaceManager == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceManager).IsEmpty())
         throw new DSVExportException("missing racejury ChiefRace");
       writeJuryPerson(_writer, "ChiefRace", race.AdditionalProperties?.RaceManager);
@@ -650,7 +653,7 @@ namespace RaceHorologyLib
         _writer.WriteAttributeString("bib", rri.Participant.StartNumber.ToString());
 
         writeCompetitor(_writer, rri.Participant);
-        writeRaceResult(_writer, rri);
+        writeRaceResult(_writer, rri, _writePoints);
 
         _writer.WriteEndElement();
       }
@@ -678,9 +681,12 @@ namespace RaceHorologyLib
 
         writeCompetitor(_writer, rri.Participant);
 
-        _writer.WriteStartElement("dsvlistpoints");
-        _writer.WriteValue(rri.Participant.Points);
-        _writer.WriteEndElement();
+        if (_writePoints)
+        {
+          _writer.WriteStartElement("dsvlistpoints");
+          _writer.WriteValue(rri.Participant.Points);
+          _writer.WriteEndElement();
+        }
 
         _writer.WriteEndElement();
       }
@@ -724,21 +730,27 @@ namespace RaceHorologyLib
       writer.WriteEndElement();
     }
 
-    static void writeRaceResult(XmlWriter writer, RaceResultItem rri)
+    static void writeRaceResult(XmlWriter writer, RaceResultItem rri, bool writePoints)
     {
       writer.WriteStartElement("raceresult");
 
-      writer.WriteStartElement("dsvlistpoints");
-      writer.WriteValue(rri.Participant.Points);
-      writer.WriteEndElement();
+      if (writePoints)
+      {
+        writer.WriteStartElement("dsvlistpoints");
+        writer.WriteValue(rri.Participant.Points);
+        writer.WriteEndElement();
+      }
 
       writer.WriteStartElement("totaltime");
       writer.WriteValue(formatTime(rri.TotalTime));
       writer.WriteEndElement();
 
-      writer.WriteStartElement("racepoints");
-      writer.WriteValue(rri.Points);
-      writer.WriteEndElement();
+      if (writePoints)
+      {
+        writer.WriteStartElement("racepoints");
+        writer.WriteValue(rri.Points);
+        writer.WriteEndElement();
+      }
 
       foreach (var x in rri.SubResults)
       {
