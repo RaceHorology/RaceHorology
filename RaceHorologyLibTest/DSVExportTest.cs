@@ -137,27 +137,30 @@ namespace RaceHorologyLibTest
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       model.GetRace(0).AdditionalProperties.Location = "Test Location";
 
-
-
       xmlData = new MemoryStream();
       Assert.AreEqual("missing useddsvlist",
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       model.GetDB().StoreKeyValue("DSV_UsedDSVList", "123");
 
-      xmlData = new MemoryStream();
-      Assert.AreEqual("missing f-value",
-        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
-      model.GetRace(0).RaceConfiguration.ValueF = 720.0;
+      { // Checking ValueF dependent on the result view
+       
+        // Standard case, not complaining about missing f-value
+        xmlData = new MemoryStream();
+        Assert.AreEqual("missing racejury ChiefRace",
+          Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
 
-      xmlData = new MemoryStream();
-      Assert.AreEqual("wrong raceresultview",
-        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+        // Setting a reultview with point calculation => complain about missing f-value
+        var rvp = new DSVSchoolRaceResultViewProvider();
+        rvp.Init(model.GetRace(0), model);
+        model.GetRace(0).SetResultViewProvider(rvp);
 
-      var rvp = new DSVSchoolRaceResultViewProvider();
-      rvp.Init(model.GetRace(0), model);
-      model.GetRace(0).SetResultViewProvider(rvp);
-
-
+        xmlData = new MemoryStream();
+        Assert.AreEqual("missing f-value",
+          Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
+        model.GetRace(0).RaceConfiguration.ValueF = 720.0;
+        
+        // after this line there won't be complains about missing f-value
+      }
 
       xmlData = new MemoryStream();
       Assert.AreEqual("missing racejury ChiefRace",
