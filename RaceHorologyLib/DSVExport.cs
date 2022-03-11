@@ -96,8 +96,6 @@ namespace RaceHorologyLib
           return "Vorläufer fehlt";
         case "missing f-value":
           return "F-Wert nicht korrekt";
-        case "wrong raceresultview":
-          return "Ergebnisliste enthält keine Punktberechnung";
         default:
           return Message;
       }
