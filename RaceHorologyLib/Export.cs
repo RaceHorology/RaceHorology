@@ -158,6 +158,67 @@ namespace RaceHorologyLib
       AddField("Points", typeof(double), (Race race, RaceParticipant rp) => { return rp.Points; });
 
       addColumnsPerRun();
+
+      AddField(
+        "Totaltime",
+        typeof(TimeSpan),
+        (Race race, RaceParticipant rp) =>
+        {
+          var vp = race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          if (raceResult != null)
+            if (raceResult.TotalTime != null)
+              return raceResult.TotalTime;
+
+          return null;
+        }
+      );
+
+      AddField(
+        "Totaltime_Seconds",
+        typeof(double),
+        (Race race, RaceParticipant rp) =>
+        {
+          var vp = race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          if (raceResult != null)
+            if (raceResult.TotalTime != null)
+              return ((TimeSpan)raceResult.TotalTime).TotalSeconds;
+
+          return null;
+        }
+      );
+
+      AddField(
+        "Total_Position",
+        typeof(int),
+        (Race race, RaceParticipant rp) =>
+        {
+          var vp = race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          if (raceResult != null)
+            if (raceResult.TotalTime != null)
+              return raceResult.Position;
+
+          return null;
+        }
+      );
+
+      AddField(
+        "Total_RacePoints",
+        typeof(double),
+        (Race race, RaceParticipant rp) =>
+        {
+          var vp = race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          if (raceResult != null)
+            if (raceResult.Points >= 0.0)
+              return string.Format(new System.Globalization.CultureInfo("de-DE"), "{0:0.00}", raceResult.Points);
+
+          return null;
+        }
+      );
+
     }
 
     void addColumnsPerRun()
@@ -198,6 +259,7 @@ namespace RaceHorologyLib
         );
       }
     }
+
   }
 
 
@@ -259,7 +321,7 @@ namespace RaceHorologyLib
 
       AddField(
         "RPkte",
-        typeof(string),
+        typeof(double),
         (Race race, RaceParticipant rp) =>
         {
           var vp = race.GetResultViewProvider();
@@ -300,10 +362,10 @@ namespace RaceHorologyLib
       }
     }
 
-    string getResultString(RunResult.EResultCode code, uint run)
+    protected static string getResultString(RunResult.EResultCode code, uint run)
     {
       string str = string.Empty;
-      switch(code)
+      switch (code)
       {
         case RunResult.EResultCode.DIS: str = "DIS"; break;
         case RunResult.EResultCode.NaS: str = "NAS"; break;
