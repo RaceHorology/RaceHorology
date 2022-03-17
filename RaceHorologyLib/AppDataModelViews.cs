@@ -1785,6 +1785,66 @@ namespace RaceHorologyLib
   }
 
 
+
+
+  public class PointsViaTableRaceResultViewProvider : RaceResultViewProvider
+  {
+
+    Dictionary<uint, double> _pointsTable;
+
+    public PointsViaTableRaceResultViewProvider() : base(RaceResultViewProvider.TimeCombination.Sum)
+    {
+      _pointsTable = new Dictionary<uint, double>
+      {
+        { 1, 15 },
+        { 2, 12 },
+        { 3, 10 },
+        { 4,  8 },
+        { 5,  6 },
+        { 6,  5 },
+        { 7,  4 },
+        { 8,  3 },
+        { 9,  2 },
+        {10,  1 }
+      };
+
+
+    }
+
+    public override ViewProvider Clone()
+    {
+      return new PointsViaTableRaceResultViewProvider();
+    }
+
+    public override void Init(Race race, AppDataModel appDataModel)
+    {
+      base.Init(race, appDataModel);
+    }
+
+
+    protected override void ResortResults()
+    {
+      if (_viewList == null)
+        return;
+
+      base.ResortResults();
+
+      // Re-Update points
+      foreach (var sortedItem in _viewList)
+      {
+        sortedItem.Points = calculatePoints(sortedItem);
+      }
+    }
+
+    protected override double calculatePoints(RaceResultItem rri)
+    {
+      double points = 0.0;
+      _pointsTable.TryGetValue(rri.Position, out points);
+      return points;
+    }
+  }
+
+
   /* e.g. FamilienWertung
     public class SpecialRaceResultViewProvider : ResultViewProvider
     {
