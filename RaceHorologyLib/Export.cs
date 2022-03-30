@@ -321,7 +321,7 @@ namespace RaceHorologyLib
 
       AddField(
         "RPkte",
-        typeof(double),
+        typeof(string),
         (Race race, RaceParticipant rp) =>
         {
           var vp = race.GetResultViewProvider();
