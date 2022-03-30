@@ -38,6 +38,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -1781,6 +1782,92 @@ namespace RaceHorologyLib
         return _dsvCalcW.CalculatePoints(rri, true);
 
       return -1.0;
+    }
+  }
+
+
+
+
+  public class PointsViaTableRaceResultViewProvider : RaceResultViewProvider
+  {
+
+    Dictionary<uint, double> _pointsTable;
+
+    public PointsViaTableRaceResultViewProvider() : base(RaceResultViewProvider.TimeCombination.Sum)
+    {
+      // Default Points Table
+      _pointsTable = new Dictionary<uint, double>
+      {
+        { 1, 15 },
+        { 2, 12 },
+        { 3, 10 },
+        { 4,  8 },
+        { 5,  6 },
+        { 6,  5 },
+        { 7,  4 },
+        { 8,  3 },
+        { 9,  2 },
+        {10,  1 }
+      };
+
+    }
+
+    public override ViewProvider Clone()
+    {
+      return new PointsViaTableRaceResultViewProvider();
+    }
+
+    public override void Init(Race race, AppDataModel appDataModel)
+    {
+      try
+      {
+        string filePath = System.IO.Path.Combine(appDataModel.GetDB().GetDBPathDirectory(), "PointsTable.txt");
+        _pointsTable = readPointsTable(filePath);
+      }
+      catch (Exception)
+      { }
+
+      base.Init(race, appDataModel);
+    }
+
+    Dictionary<uint, double> readPointsTable(string filename)
+    {
+      Dictionary<uint, double> pointsTable = new Dictionary<uint, double>();
+
+      uint startNumber = 1;
+      using (TextReader reader = File.OpenText(filename))
+      {
+        string line = null;
+        while ((line = reader.ReadLine()) != null) 
+        { 
+          double points = double.Parse(line, System.Globalization.CultureInfo.InvariantCulture);
+          pointsTable.Add(startNumber, points);
+          startNumber++;
+        }
+      }
+      return pointsTable;
+    }
+
+
+    protected override void ResortResults()
+    {
+      if (_viewList == null)
+        return;
+
+      base.ResortResults();
+
+      // Re-Update points
+      foreach (var sortedItem in _viewList)
+      {
+        sortedItem.Points = calculatePoints(sortedItem);
+      }
+    }
+
+    protected override double calculatePoints(RaceResultItem rri)
+    {
+      double points = 0.0;
+      _pointsTable.TryGetValue(rri.Position, out points);
+      return points;
     }
   }
 

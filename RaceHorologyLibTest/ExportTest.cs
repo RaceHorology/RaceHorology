@@ -136,6 +136,10 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("Normal", ds.Tables[0].Rows[0]["Resultcode_2"]);
       Assert.AreEqual("NiZ", ds.Tables[0].Rows[2]["Resultcode_1"]);
 
+      Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 0), ds.Tables[0].Rows[0]["Totaltime"]);
+      Assert.AreEqual(60.0, ds.Tables[0].Rows[0]["Totaltime_Seconds"]);
+      Assert.AreEqual(1, ds.Tables[0].Rows[0]["Total_Position"]);
+      Assert.AreEqual(2, ds.Tables[0].Rows[1]["Total_Position"]);
 
       var excelExport = new ExcelExport();
       excelExport.Export(@"c:\trash\test.xlsx", ds);
