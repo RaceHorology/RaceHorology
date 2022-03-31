@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -2486,19 +2486,25 @@ namespace RaceHorologyLib
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenalty))));
 
-        table.AddCell(createCellForTable(TextAlignment.LEFT)
+        if (dsvCalc.ValueA > 0.0)
+        {
+          table.AddCell(createCellForTable(TextAlignment.LEFT)
           .Add(createParagraph("Kategorie-Adder:")));
-        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
-          .Add(createParagraph("")));
-        table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueA))));
+          table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+            .Add(createParagraph("")));
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueA))));
+        }
 
-        table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createParagraph("Korrekturwert (Z-Wert):")));
-        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
-          .Add(createParagraph("")));
-        table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueZ))));
+        if (dsvCalc.ValueZ > 0.0)
+        {
+          table.AddCell(createCellForTable(TextAlignment.LEFT)
+            .Add(createParagraph("Korrekturwert (Z-Wert):")));
+          table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+            .Add(createParagraph("")));
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueZ))));
+        }
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
           .Add(createParagraph("Punktezuschlag:").SetFont(fontBold)));
