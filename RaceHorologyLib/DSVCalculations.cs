@@ -260,8 +260,8 @@ namespace RaceHorologyLib
         }
       }
 
-      _penaltyA = Math.Round(valueA, 2);
-      _penaltyC = Math.Round(valueC, 2);
+      _penaltyA = Math.Round(valueA, 2, MidpointRounding.AwayFromZero);
+      _penaltyC = Math.Round(valueC, 2, MidpointRounding.AwayFromZero);
     }
 
 
@@ -274,13 +274,13 @@ namespace RaceHorologyLib
         valueB += rri.Participant.Points;
       }
 
-      _penaltyB = valueB;
+      _penaltyB = Math.Round(valueB, 2, MidpointRounding.AwayFromZero);
     }
 
     void calculatePenalty()
     {
       _penalty = (_penaltyA + _penaltyB - _penaltyC) / 10.0;
-      _penaltyRounded = Math.Round(_penalty, 2);
+      _penaltyRounded = Math.Round(_penalty, 2, MidpointRounding.AwayFromZero);
       _penaltyWithAdder = _penaltyRounded + _valueA + _valueZ;
       _appliedPenalty = Math.Max(_minPenalty, _penaltyWithAdder);
     }
