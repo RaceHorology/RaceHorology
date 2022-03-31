@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -2512,6 +2512,13 @@ namespace RaceHorologyLib
           .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenaltyWithAdded)).SetFont(fontBold)));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Minimumzuschlag:")));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.MinPenalty))));
 
         table.AddCell(createCellForTable(9, TextAlignment.LEFT).Add(createParagraph(" ")));
 

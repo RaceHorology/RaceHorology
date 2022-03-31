@@ -95,6 +95,7 @@ namespace RaceHorologyLib
     public double CalculatedPenalty { get { return _penaltyRounded; } }
     public double CalculatedPenaltyWithAdded { get { return _penaltyWithAdder; } }
     public double AppliedPenalty { get { return _appliedPenalty; } }
+    public double MinPenalty {  get { return _minPenalty; } }
 
     public bool CalculationValid { get { return _calculationValid; } }
 
