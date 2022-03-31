@@ -512,6 +512,8 @@ namespace RaceHorology
         }
 
         dgView.Columns.Add(createColumnTime("Total", "TotalTime", "ResultCode"));
+        dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
+        dgView.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
         dgView.Columns.Add(createColumnAnmerkung());
 
         setWarningLabelHandler(new RaceCompletedWarningLabelHandler(_thisRace, lblWarning));
