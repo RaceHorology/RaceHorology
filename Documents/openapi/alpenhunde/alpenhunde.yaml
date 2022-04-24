@@ -1,0 +1,96 @@
+openapi: 3.0.0
+info:
+  version: '0.0.1'
+  title: 'Alpenhunde API'
+  license:
+    name: MIT
+servers:
+  - url: http://finish.local/
+
+paths:
+  /timestamps:
+    get:
+      responses:
+        '200':
+          description: Returns all stored timestamps.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/TimestampItem'
+        '400':
+          description: error
+
+components:
+  schemas:
+
+    TimestampItem: 
+      description: This represents a timestamp definition.
+      type: object
+      required:
+        - id
+        - channel
+        - name
+        - timestamp
+        
+      properties:
+        id:
+          type: number
+          description: |
+            The running index of the timestamp
+          example: 876
+
+        channel:
+          type: number
+          minimum: 1
+          maximum: 255
+          description: |
+            The module that generated the timestamp. Following values are possible:
+            - 1:     Start
+            - 2..64: Intermediate
+            - 128:   Finish
+          example: 1
+
+        name:
+          type: string
+          description: |
+            The bib or shortname of the race participant.
+          example: '2'
+
+        timestamp:
+          type: string
+          format: HH:MM:SS.DCTZ
+          description: |
+            The day timestamp with millisecond precission.
+          example: 10:12:30.1234
+
+    TimestampItemOrg: 
+      description: This represents the current Alpenhunde JSON timestamp.
+      type: object
+      properties:
+        i:
+          type: number
+          description: |
+            The running index of the timestamp
+          example: 876
+
+        c:
+          type: number
+          minimum: 1
+          maximum: 255
+          description: |
+            The module that generated the timestamp.
+          example: 1
+
+        n:
+          type: string
+          description: |
+            The bib or shortname of the race participant.
+          example: '2'
+
+        m:
+          type: string
+          description: |
+            The timestamp in milliseconds since turning on.
+          example: 99429
