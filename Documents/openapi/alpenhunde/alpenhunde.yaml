@@ -1,71 +1,55 @@
 openapi: 3.0.0
 info:
-  version: '0.0.1'
+  version: 1.0.0
   title: 'Alpenhunde API'
   license:
     name: MIT
 servers:
-  - url: http://finish.local/
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/sven.flossmann/Alpenhunde/1.0.0
+  - description: Real Device
+    url: http://192.168.4.1/
 
 paths:
-  /timestamps:
+  # /timing/results/?action=all
+  /timing/results/:
     get:
+      summary: Queries all available timing results
+      parameters:
+        - in: query 
+          name: action
+          schema:
+            type: string
+            enum: [all]
+          required: true
+        - in: query 
+          name: limit
+          schema:
+            type: integer
+
       responses:
         '200':
           description: Returns all stored timestamps.
           content:
             application/json:
               schema:
-                type: array
-                items: 
-                  $ref: '#/components/schemas/TimestampItem'
+                $ref: '#/components/schemas/Times'
         '400':
           description: error
 
 components:
   schemas:
-
-    TimestampItem: 
-      description: This represents a timestamp definition.
+    Times:
+      description: This represents all times to query.
       type: object
-      required:
-        - id
-        - channel
-        - name
-        - timestamp
-        
       properties:
-        id:
-          type: number
-          description: |
-            The running index of the timestamp
-          example: 876
-
-        channel:
-          type: number
-          minimum: 1
-          maximum: 255
-          description: |
-            The module that generated the timestamp. Following values are possible:
-            - 1:     Start
-            - 2..64: Intermediate
-            - 128:   Finish
-          example: 1
-
-        name:
-          type: string
-          description: |
-            The bib or shortname of the race participant.
-          example: '2'
-
-        timestamp:
-          type: string
-          format: HH:MM:SS.DCTZ
-          description: |
-            The day timestamp with millisecond precission.
-          example: 10:12:30.1234
-
-    TimestampItemOrg: 
+        times:
+          type: array
+          items: 
+            $ref: '#/components/schemas/TimestampItem'
+          
+    TimestampItem: 
       description: This represents the current Alpenhunde JSON timestamp.
       type: object
       properties:
@@ -94,3 +78,10 @@ components:
           description: |
             The timestamp in milliseconds since turning on.
           example: 99429
+          
+        t:
+          type: string
+          format: HH:MM:SS.DCTZ
+          description: |
+            The day timestamp with millisecond precission.
+          example: 10:12:30.1234
