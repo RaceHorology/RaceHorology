@@ -100,33 +100,39 @@ namespace RaceHorologyLib
 
     public Image GetImage(string filenameWOExt)
     {
-      Image img = null;
-
-      string foundResource = null;
-      foundResource = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.StartsWith("RaceHorologyLib.resources.pdf." + filenameWOExt));
-      if (foundResource != null)
+      try
       {
-        byte[] ReadFully(Stream input)
+        Image img = null;
+
+        string foundResource = null;
+        foundResource = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.StartsWith("RaceHorologyLib.resources.pdf." + filenameWOExt));
+        if (foundResource != null)
         {
-          using (MemoryStream ms = new MemoryStream())
+          byte[] ReadFully(Stream input)
           {
-            input.CopyTo(ms);
-            return ms.ToArray();
+            using (MemoryStream ms = new MemoryStream())
+            {
+              input.CopyTo(ms);
+              return ms.ToArray();
+            }
           }
+
+          var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(foundResource);
+          img = new Image(ImageDataFactory.Create(ReadFully(stream)));
         }
 
-        var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(foundResource);
-        img = new Image(ImageDataFactory.Create(ReadFully(stream)));
-      }
+        if (img == null)
+        {
+          string imgPath = FindImage(filenameWOExt);
+          if (!string.IsNullOrEmpty(imgPath))
+            img = new Image(ImageDataFactory.Create(imgPath));
+        }
 
-      if (img == null)
+        return img;
+      }catch(Exception e)
       {
-        string imgPath = FindImage(filenameWOExt);
-        if (!string.IsNullOrEmpty(imgPath))
-          img = new Image(ImageDataFactory.Create(imgPath));
+        throw new Exception(string.Format("cannot load image {0}", filenameWOExt));
       }
-
-      return img;
     }
 
 
