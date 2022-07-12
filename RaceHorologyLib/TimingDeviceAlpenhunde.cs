@@ -15,21 +15,31 @@ namespace RaceHorologyLib
 
     private WebSocket _webSocket;
 
+    public event TimeMeasurementEventHandler TimeMeasurementReceived;
+    public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
+    public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
+    public event LiveDateTimeChangedHandler LiveDateTimeChanged;
+
     public TimingDeviceAlpenhunde(string baseUrl)
     {
       _baseUrl = baseUrl;
     }
 
 
+    private void setInternalStatus(EStatus status)
+    {
+      if (_status != status)
+      {
+        this._status = status;
+        var handler = StatusChanged;
+        handler?.Invoke(this, IsOnline);
+      }
+    }
+
     public bool IsOnline
     {
       get { return _status == EStatus.Connected; }
     } 
-
-    public event TimeMeasurementEventHandler TimeMeasurementReceived;
-    public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
-    public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
-    public event LiveDateTimeChangedHandler LiveDateTimeChanged;
 
     public TimeSpan GetCurrentDayTime()
     {
@@ -57,13 +67,13 @@ namespace RaceHorologyLib
       if (_webSocket != null)
         return;
 
-      _status = EStatus.Connecting;
+      setInternalStatus(EStatus.Connecting);
 
       _webSocket = new WebSocket(_baseUrl);
       _webSocket.EmitOnPing = true;
 
       _webSocket.OnOpen += (sender, e) => {
-        _status = EStatus.Connected;
+        setInternalStatus(EStatus.Connected);
       };
       _webSocket.OnMessage += (sender, e) => { 
         if (e.IsPing)
@@ -81,10 +91,10 @@ namespace RaceHorologyLib
       };
 
       _webSocket.OnClose += (sender, e) => {
-        _status = EStatus.NotConnected;
+        setInternalStatus(EStatus.NotConnected);
       };
       _webSocket.OnError += (sender, e) => {
-        _status = EStatus.NotConnected;
+        setInternalStatus(EStatus.NotConnected);
       };
 
       // Actually connect
