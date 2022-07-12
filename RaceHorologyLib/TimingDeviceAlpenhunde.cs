@@ -20,6 +20,8 @@ namespace RaceHorologyLib
     public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
     public event LiveDateTimeChangedHandler LiveDateTimeChanged;
 
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
     public TimingDeviceAlpenhunde(string baseUrl)
     {
       _baseUrl = baseUrl;
@@ -64,6 +66,7 @@ namespace RaceHorologyLib
 
     public void Start()
     {
+      Logger.Info("Start()");
       if (_webSocket != null)
         return;
 
@@ -73,36 +76,44 @@ namespace RaceHorologyLib
       _webSocket.EmitOnPing = true;
 
       _webSocket.OnOpen += (sender, e) => {
+        Logger.Info("connected");
         setInternalStatus(EStatus.Connected);
       };
       _webSocket.OnMessage += (sender, e) => { 
         if (e.IsPing)
         {
+          Logger.Info("ping received");
 
         }
         else if (e.IsText)
         {
+          Logger.Info("data received: ", e.Data);
           // e.Data
         }
         else
         {
+          Logger.Info("unknown data received");
           // Problem
         }
       };
 
       _webSocket.OnClose += (sender, e) => {
+        Logger.Info("onclose called");
         setInternalStatus(EStatus.NotConnected);
       };
       _webSocket.OnError += (sender, e) => {
+        Logger.Info("onerror called");
         setInternalStatus(EStatus.NotConnected);
       };
 
       // Actually connect
+      Logger.Info("start connecting");
       _webSocket.Connect();
     }
 
     public void Stop()
     {
+      Logger.Info("Stop()");
       if (_webSocket != null)
         _webSocket.Close();
     }
