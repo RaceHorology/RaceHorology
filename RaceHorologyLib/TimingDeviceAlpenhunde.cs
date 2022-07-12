@@ -7,9 +7,11 @@ using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
-  class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider
+  enum EStatus { NotConnected, Connecting, Connected };
+  public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider
   {
     private string _baseUrl;
+    private EStatus _status;
 
     private WebSocket _webSocket;
 
@@ -19,7 +21,10 @@ namespace RaceHorologyLib
     }
 
 
-    public bool IsOnline => throw new NotImplementedException();
+    public bool IsOnline
+    {
+      get { return _status == EStatus.Connected; }
+    } 
 
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
     public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
@@ -28,17 +33,23 @@ namespace RaceHorologyLib
 
     public TimeSpan GetCurrentDayTime()
     {
-      throw new NotImplementedException();
+      return DateTime.Now - DateTime.Today;
     }
 
     public string GetDeviceInfo()
     {
-      throw new NotImplementedException();
+      return "Alpenhunde";
     }
 
     public string GetStatusInfo()
     {
-      throw new NotImplementedException();
+      switch (_status)
+      {
+        case EStatus.NotConnected: return "nicht verbunden";
+        case EStatus.Connecting: return "verbinde ...";
+        case EStatus.Connected: return "verbunden";
+      }
+      return "unbekannt";
     }
 
     public void Start()
@@ -46,10 +57,14 @@ namespace RaceHorologyLib
       if (_webSocket != null)
         return;
 
+      _status = EStatus.Connecting;
+
       _webSocket = new WebSocket(_baseUrl);
       _webSocket.EmitOnPing = true;
 
-      _webSocket.OnOpen += (sender, e) => { };
+      _webSocket.OnOpen += (sender, e) => {
+        _status = EStatus.Connected;
+      };
       _webSocket.OnMessage += (sender, e) => { 
         if (e.IsPing)
         {
@@ -65,8 +80,12 @@ namespace RaceHorologyLib
         }
       };
 
-      _webSocket.OnClose += (sender, e) => { };
-      _webSocket.OnError += (sender, e) => { };
+      _webSocket.OnClose += (sender, e) => {
+        _status = EStatus.NotConnected;
+      };
+      _webSocket.OnError += (sender, e) => {
+        _status = EStatus.NotConnected;
+      };
 
       // Actually connect
       _webSocket.Connect();
