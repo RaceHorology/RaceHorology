@@ -108,7 +108,7 @@ namespace RaceHorologyLib
 
       // Actually connect
       Logger.Info("start connecting");
-      _webSocket.Connect();
+      _webSocket.ConnectAsync();
     }
 
     public void Stop()
