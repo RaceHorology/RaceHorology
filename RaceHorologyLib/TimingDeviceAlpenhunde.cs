@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ namespace RaceHorologyLib
     private EStatus _status;
 
     private WebSocket _webSocket;
+    private AlpenhundeParser _parser;
 
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
     public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
@@ -25,6 +27,7 @@ namespace RaceHorologyLib
     public TimingDeviceAlpenhunde(string baseUrl)
     {
       _baseUrl = baseUrl;
+      _parser = new AlpenhundeParser();
     }
 
 
@@ -88,7 +91,18 @@ namespace RaceHorologyLib
         else if (e.IsText)
         {
           Logger.Info("data received: ", e.Data);
-          // e.Data
+
+          var parsedData = _parser.ParseMessage(e.Data);
+          if (parsedData.type == "timestamp")
+          {
+            var timeMeasurmentData = ConvertToTimemeasurementData(parsedData.data);
+            if (timeMeasurmentData != null)
+            {
+              // Trigger event
+              var handle = TimeMeasurementReceived;
+              handle?.Invoke(this, timeMeasurmentData);
+            }
+          }
         }
         else
         {
@@ -116,6 +130,53 @@ namespace RaceHorologyLib
       Logger.Info("Stop()");
       if (_webSocket != null)
         _webSocket.Close();
+    }
+
+
+    public static TimeMeasurementEventArgs ConvertToTimemeasurementData(in AlpenhundeTimingData parsedData)
+    {
+      TimeMeasurementEventArgs data = new TimeMeasurementEventArgs();
+
+      TimeSpan parsedTime;
+      try
+      {
+        var timeStr = parsedData.t;
+        string[] formats = { @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff", @"hh\:mm\:ss\.f" };
+        timeStr = timeStr.Trim(' ');
+        parsedTime = TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
+      }
+      catch (FormatException e)
+      {
+        Logger.Error(e, "Error while parsing Alpenhunde 't'");
+        return null;
+      }
+
+      uint startNumber = 0;
+      try
+      {
+        startNumber = byte.Parse(parsedData.n);
+      }
+      catch (FormatException e)
+      {
+        Logger.Error(e, "Error while parsing Alpenhunde 'n'; assuming startnumber 0");
+      }
+
+      data.StartNumber = startNumber;
+      switch (parsedData.c)
+      {
+        case 1: // Start
+          data.BStartTime = true;
+          data.StartTime = parsedTime;
+          break;
+        case 128: // Finish
+          data.BFinishTime= true;
+          data.FinishTime = parsedTime;
+          break;
+        default:
+          return null;
+      }
+
+      return data;
     }
   }
 
@@ -147,7 +208,6 @@ namespace RaceHorologyLib
     public string type { get; set; }
     public AlpenhundeTimingData data { get; set; }
   }
-
 
 
   public class AlpenhundeParser

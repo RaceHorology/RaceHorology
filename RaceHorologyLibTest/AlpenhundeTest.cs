@@ -66,7 +66,35 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1, o.data.c);
       Assert.AreEqual("2", o.data.n);
       Assert.AreEqual("10:12:30.1234", o.data.t);
+    }
 
+    [TestMethod]
+    public void ConvertToTimestamp()
+    {
+      AlpenhundeParser parser = new AlpenhundeParser();
+      { // Start Case
+        var o = parser.ParseMessage("{ 'type': 'timestamp', 'data': { 'i': 876, 'c': 1, 'n': '2', 't': '10:12:30.1230' } }");
+        var t = TimingDeviceAlpenhunde.ConvertToTimemeasurementData(o.data);
+        Assert.AreEqual(2U, t.StartNumber);
+        Assert.AreEqual(new TimeSpan(0, 10, 12, 30, 123), t.StartTime);
+        Assert.IsTrue(t.BStartTime);
+        Assert.IsFalse(t.BRunTime);
+        Assert.IsFalse(t.BFinishTime);
+      }
+      { // Finish Case
+        var o = parser.ParseMessage("{ 'type': 'timestamp', 'data': { 'i': 876, 'c': 128, 'n': '2', 't': '10:12:30.1230' } }");
+        var t = TimingDeviceAlpenhunde.ConvertToTimemeasurementData(o.data);
+        Assert.AreEqual(2U, t.StartNumber);
+        Assert.AreEqual(new TimeSpan(0, 10, 12, 30, 123), t.FinishTime);
+        Assert.IsTrue(t.BFinishTime);
+        Assert.IsFalse(t.BRunTime);
+        Assert.IsFalse(t.BStartTime);
+      }
+      { // Intermediate Case
+        var o = parser.ParseMessage("{ 'type': 'timestamp', 'data': { 'i': 876, 'c': 2, 'n': '2', 't': '10:12:30.1230' } }");
+        var t = TimingDeviceAlpenhunde.ConvertToTimemeasurementData(o.data);
+        Assert.IsNull(t); // Not supported
+      }
     }
   }
 }
