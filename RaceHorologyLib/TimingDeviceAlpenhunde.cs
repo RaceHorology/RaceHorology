@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -118,4 +118,47 @@ namespace RaceHorologyLib
         _webSocket.Close();
     }
   }
+
+
+  public class AlpenhundeTimingData
+  {
+    public AlpenhundeTimingData()
+    {
+      i = 0;
+      c = 0;
+      n = "";
+      t = "";
+    }
+
+    public long i { get; set; }
+    public byte c { get; set; }
+    public string n { get; set; }
+    public string t { get; set; }
+  }
+
+  public class AlpenhundeEvent
+  {
+    public AlpenhundeEvent()
+    {
+      type = "";
+      data = null;
+    }
+
+    public string type { get; set; }
+    public AlpenhundeTimingData data { get; set; }
+  }
+
+
+
+  public class AlpenhundeParser
+  {
+
+    public void ParseMessage(string data)
+    {
+      //JsonConversion
+      object o = Newtonsoft.Json.JsonConvert.DeserializeObject<AlpenhundeEvent>(data);
+    }
+
+  }
+
 }
