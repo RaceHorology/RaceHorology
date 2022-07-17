@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,7 +41,7 @@ namespace RaceHorologyLib
     public bool IsOnline
     {
       get { return _status == EStatus.Connected; }
-    } 
+    }
 
     public TimeSpan GetCurrentDayTime()
     {
@@ -79,10 +79,10 @@ namespace RaceHorologyLib
         Logger.Info("connected");
         setInternalStatus(EStatus.Connected);
       };
-      _webSocket.OnMessage += (sender, e) => { 
+      _webSocket.OnMessage += (sender, e) => {
         if (e.IsPing)
         {
-          Logger.Info("ping received");
+          Logger.Debug("ping received");
 
         }
         else if (e.IsText)
@@ -92,7 +92,7 @@ namespace RaceHorologyLib
         }
         else
         {
-          Logger.Info("unknown data received");
+          Logger.Warn("unknown data received");
           // Problem
         }
       };
