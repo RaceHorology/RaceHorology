@@ -20,7 +20,6 @@ namespace RaceHorologyLib
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
     public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
     public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
-    public event LiveDateTimeChangedHandler LiveDateTimeChanged;
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -130,6 +129,25 @@ namespace RaceHorologyLib
       Logger.Info("Stop()");
       if (_webSocket != null)
         _webSocket.Close();
+    }
+
+
+    #region Implementation of ILiveDateTimeProvider
+    public event LiveDateTimeChangedHandler LiveDateTimeChanged;
+
+    TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
+    protected void UpdateLiveDayTime(in TimeMeasurementEventArgs justReceivedData)
+    {
+      TimeSpan? receivedTime = justReceivedData.StartTime != null ? justReceivedData.StartTime : (justReceivedData.FinishTime != null ? justReceivedData.FinishTime : null);
+
+      if (receivedTime != null)
+      {
+        TimeSpan tDiff = (DateTime.Now - DateTime.Today) - (TimeSpan)receivedTime;
+        _currentDayTimeDelta = tDiff;
+
+        var handler = LiveDateTimeChanged;
+        handler?.Invoke(this, new LiveDateTimeEventArgs((TimeSpan)receivedTime));
+      }
     }
 
 
