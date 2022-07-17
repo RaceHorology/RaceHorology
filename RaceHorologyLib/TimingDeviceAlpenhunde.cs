@@ -153,10 +153,11 @@ namespace RaceHorologyLib
   public class AlpenhundeParser
   {
 
-    public void ParseMessage(string data)
+    public AlpenhundeEvent ParseMessage(string data)
     {
       //JsonConversion
-      object o = Newtonsoft.Json.JsonConvert.DeserializeObject<AlpenhundeEvent>(data);
+      AlpenhundeEvent o = Newtonsoft.Json.JsonConvert.DeserializeObject<AlpenhundeEvent>(data);
+      return o;
     }
 
   }

@@ -60,8 +60,12 @@ namespace RaceHorologyLibTest
     public void ParseTest()
     {
       AlpenhundeParser parser = new AlpenhundeParser();
-      parser.ParseMessage("{ 'type': 'timestamp', 'data': { 'i': 876, 'c': 1, 'n': '2', 't': '10:12:30.1234' } }");
-
+      var o = parser.ParseMessage("{ 'type': 'timestamp', 'data': { 'i': 876, 'c': 1, 'n': '2', 't': '10:12:30.1234' } }");
+      Assert.AreEqual("timestamp", o.type);
+      Assert.AreEqual(876, o.data.i);
+      Assert.AreEqual(1, o.data.c);
+      Assert.AreEqual("2", o.data.n);
+      Assert.AreEqual("10:12:30.1234", o.data.t);
 
     }
   }
