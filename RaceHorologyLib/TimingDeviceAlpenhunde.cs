@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -207,16 +207,19 @@ namespace RaceHorologyLib
   {
     public AlpenhundeTimingData()
     {
-      i = 0;
-      c = 0;
-      n = "";
-      t = "";
+      i = 0;  // Index, unique identifier
+      c = 0;  // Module generating the timestamp (1: Start, 128: Finish)
+      n = ""; // (Short)Name of the race participant, usually the startnumber (BIB)
+      m = 0;  // Time in milliseconds
+      t = ""; // Time HH:MM:SS.ZHMT
     }
 
     public long i { get; set; }
     public byte c { get; set; }
     public string n { get; set; }
+    public long m { get; set; }
     public string t { get; set; }
+    public string d { get; set; }
   }
 
   public class AlpenhundeEvent
