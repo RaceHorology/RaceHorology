@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,10 +89,10 @@ namespace RaceHorologyLib
         }
         else if (e.IsText)
         {
-          Logger.Info("data received: ", e.Data);
+          Logger.Info("data received: {0}", e.Data);
 
           var parsedData = _parser.ParseMessage(e.Data);
-          if (parsedData.type == "timestamp")
+          if (parsedData != null && parsedData.type == "timestamp")
           {
             var timeMeasurmentData = ConvertToTimemeasurementData(parsedData.data);
             if (timeMeasurmentData != null)
@@ -102,11 +102,14 @@ namespace RaceHorologyLib
               handle?.Invoke(this, timeMeasurmentData);
             }
           }
+          else
+          {
+            Logger.Warn("could not parse received data: {0}", e.Data);
+          }
         }
         else
         {
           Logger.Warn("unknown data received");
-          // Problem
         }
       };
 
