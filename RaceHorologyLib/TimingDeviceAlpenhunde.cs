@@ -152,6 +152,7 @@ namespace RaceHorologyLib
         handler?.Invoke(this, new LiveDateTimeEventArgs((TimeSpan)receivedTime));
       }
     }
+    #endregion
 
 
     public static TimeMeasurementEventArgs ConvertToTimemeasurementData(in AlpenhundeTimingData parsedData)
