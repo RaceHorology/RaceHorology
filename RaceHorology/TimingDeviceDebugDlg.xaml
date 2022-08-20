@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RaceHorology"
         Background="#e6eee5"
         mc:Ignorable="d"
-        Title="ALGE Debug" Height="450" Width="800">
+        Title="Zeitmessung Fehleranalyse" Height="450" Width="800">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
@@ -16,7 +16,7 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-    <Label Content="RS 232 Protokoll:" Grid.Row="0"/>
+    <Label Content="Protokoll:" Grid.Row="0"/>
     <TextBox x:Name="tbAlgeLog" Grid.Row="1" Margin="5" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="True"/>
     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
       <Button x:Name="btnOk" Content="Close" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,0,0" IsDefault="True" Click="BtnOk_Click"/>
