@@ -196,10 +196,16 @@ namespace RaceHorologyLib
         return null;
 
       data.StartNumber = parsedData.StartNumber;
+
       if (parsedData.Flag == 'n')
         data.Channel = StartnumberSelectedEventArgs.EChannel.EFinish;
-      if (parsedData.Flag == 's')
+      else if (parsedData.Flag == 's')
         data.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
+
+      if (parsedData.StartNumberModifier == 'r')
+        data.Color = StartnumberSelectedEventArgs.EColor.Red;
+      else if (parsedData.StartNumberModifier == 'b')
+        data.Color = StartnumberSelectedEventArgs.EColor.Blue;
 
       return data;
     }
@@ -436,6 +442,7 @@ namespace RaceHorologyLib
     {
       Flag = ' ';
       StartNumber = 0;
+      StartNumberModifier = ' ';
       Channel = "";
       ChannelModifier = ' ';
       Time = new TimeSpan();
@@ -444,6 +451,7 @@ namespace RaceHorologyLib
 
     public char Flag { get; set; }
     public uint StartNumber { get; set; }
+    public char StartNumberModifier { get; set; }
     public string Channel { get; set; }
     public char ChannelModifier { get; set; }
     public TimeSpan Time { get; set; }
@@ -531,6 +539,11 @@ namespace RaceHorologyLib
       catch (FormatException)
       {
         return null;
+      }
+
+      if (dataLine.Length > 5)
+      {
+        parsedData.StartNumberModifier = dataLine[5];
       }
 
       if (dataLine.Length > 5+1) // +1 because of parallel slalow => identifier for 'b' (blue course) or 'r' (red course)
