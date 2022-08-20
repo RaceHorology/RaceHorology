@@ -66,7 +66,7 @@ namespace RaceHorologyLib
 
     public string GetDeviceInfo()
     {
-      return "Alpenhunde";
+      return String.Format("Alpenhunde ({0})", _hostname);
     }
 
     public string GetStatusInfo()
