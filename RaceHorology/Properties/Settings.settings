@@ -11,6 +11,12 @@
     <Setting Name="TimingDevice_Port" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="TimingDevice_Url" Type="System.String" Scope="User">
+      <Value Profile="(Default)">192.168.4.1</Value>
+    </Setting>
+    <Setting Name="TimingDevice_Debug_Dump" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="AutomaticNaSStarters" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
@@ -27,9 +33,6 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="AutoAddParticipants" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="TimingDevice_Debug_Dump" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

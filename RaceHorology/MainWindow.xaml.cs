@@ -211,11 +211,15 @@ namespace RaceHorology
       if (race == null)
         return;
 
-
-      ImportTimeDlg dlg = new ImportTimeDlg();
-      dlg.Init(_dataModel, race, _alge);
-      dlg.Owner = this;
-      dlg.Show();
+      if (_timingDevice is IImportTime importDevice)
+      {
+        ImportTimeDlg dlg = new ImportTimeDlg();
+        dlg.Init(_dataModel, race, importDevice);
+        dlg.Owner = this;
+        dlg.Show();
+      }
+      else
+        MessageBox.Show("Das aktuelle Zeitmessgeräte erlaubt kein Importieren von Zeiten.");
     }
 
 
@@ -434,7 +438,7 @@ namespace RaceHorology
 
     #region LiveTiming
 
-    ALGETdC8001TimeMeasurement _alge;
+    ILiveTimeMeasurementDevice _timingDevice;
     LiveTimingMeasurement _liveTimingMeasurement;
     System.Timers.Timer _liveTimingStatusTimer;
 
@@ -467,29 +471,34 @@ namespace RaceHorology
 
     private void InitializeTimingDevice()
     {
-      if (_alge != null)
+      if (_timingDevice != null)
         throw new Exception("timing device already initialized");
 
       string dumpDir = null;
       if (Properties.Settings.Default.TimingDevice_Debug_Dump)
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
-      _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE")) {
+        _timingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
+        var hostname = Properties.Settings.Default.TimingDevice_Url;
+        _timingDevice = new TimingDeviceAlpenhunde(hostname);
+      }
+      _liveTimingMeasurement.SetTimingDevice(_timingDevice, _timingDevice as ILiveDateTimeProvider);
 
-      _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
-
-      _alge.Start();
+      _timingDevice.Start();
     }
 
     private void DeInitializeTimingDevice()
     {
-      if (_alge != null)
+      if (_timingDevice != null)
       {
         _liveTimingMeasurement.SetTimingDevice(null, null);
 
-        _alge.Stop();
+        _timingDevice.Stop();
 
-        _alge = null;
+        _timingDevice = null;
       }
     }
 
@@ -511,6 +520,7 @@ namespace RaceHorology
           break;
         case "TimingDevice_Port":
         case "TimingDevice_Type":
+        case "TimingDevice_Url":
         case "TimingDevice_Debug_Dump":
           ReInitializeTimingDevice();
           break;
@@ -563,14 +573,17 @@ namespace RaceHorology
 
     private void btnTimingDeviceDebug_Click(object sender, RoutedEventArgs e)
     {
-      if (_alge == null)
+      if (_timingDevice == null)
       {
         MessageBox.Show("Zeitmessgerät nicht verfügbar.", "Protokoll", MessageBoxButton.OK, MessageBoxImage.Information);
         return;
       }
 
-      ALGEDebugDlg debugDlg = new ALGEDebugDlg(_alge);
-      debugDlg.Show();
+      if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+      {
+        TimingDeviceDebugDlg debugDlg = new TimingDeviceDebugDlg(debugableTimingDevice);
+        debugDlg.Show();
+      }
     }
   }
 

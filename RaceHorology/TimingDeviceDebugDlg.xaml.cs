@@ -19,17 +19,18 @@ namespace RaceHorology
   /// <summary>
   /// Interaction logic for ALGEDebugDlg.xaml
   /// </summary>
-  public partial class ALGEDebugDlg : Window
+  public partial class TimingDeviceDebugDlg : Window
   {
-    ALGETdC8001TimeMeasurement _algeDevice;
+    ILiveTimeMeasurementDeviceDebugInfo _debugableTimingDevice;
 
-    public ALGEDebugDlg(ALGETdC8001TimeMeasurement algeDevice)
+    public TimingDeviceDebugDlg(ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
     {
-      _algeDevice = algeDevice;
+      _debugableTimingDevice = debugableTimingDevice;
       InitializeComponent();
 
       connectToAlge();
-      tbAlgeLog.Text = _algeDevice.GetProtocol();
+      tbAlgeLog.Text = _debugableTimingDevice.GetProtocol();
+      ensureNewLineAtEnd();
 
       Closing += onWindowClosing;
     }
@@ -46,21 +47,28 @@ namespace RaceHorology
 
     private void connectToAlge()
     {
-      _algeDevice.RawMessageReceived += Alge_OnMessageReceived;
+      _debugableTimingDevice.RawMessageReceived += Alge_OnMessageReceived;
     }
 
     private void disconnectFromAlge()
     {
-      _algeDevice.RawMessageReceived -= Alge_OnMessageReceived;
+      _debugableTimingDevice.RawMessageReceived -= Alge_OnMessageReceived;
     }
 
     private void Alge_OnMessageReceived(object sender, string message)
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        tbAlgeLog.Text += message + "\n";
+        tbAlgeLog.Text += message;
+        ensureNewLineAtEnd();
         tbAlgeLog.ScrollToEnd();
       });
+    }
+
+    private void ensureNewLineAtEnd()
+    {
+      if (tbAlgeLog.Text.Length > 0 && !tbAlgeLog.Text.EndsWith("\n"))
+        tbAlgeLog.Text += "\n";
     }
 
   }
