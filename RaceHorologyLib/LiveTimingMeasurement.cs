@@ -140,6 +140,16 @@ namespace RaceHorologyLib
   }
 
 
+  public delegate void RawMessageReceivedEventHandler(object sender, string message);
+  public interface ILiveTimeMeasurementDeviceDebugInfo
+  {
+    string GetProtocol();
+    event RawMessageReceivedEventHandler RawMessageReceived;
+
+  }
+
+
+
 
   public class LiveDateTimeEventArgs : EventArgs
   {

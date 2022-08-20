@@ -233,12 +233,9 @@ namespace RaceHorologyLib
   }
 
 
-  public class ALGETdC8001TimeMeasurement : ALGETdC8001TimeMeasurementBase
+  public class ALGETdC8001TimeMeasurement : ALGETdC8001TimeMeasurementBase, ILiveTimeMeasurementDeviceDebugInfo
   {
     enum EInternalStatus { Stopped, Initializing, NoCOMPort, Running };
-
-    public delegate void RawMessageReceivedEventHandler(object sender, string message);
-    public event RawMessageReceivedEventHandler RawMessageReceived;
 
     private string _serialPortName;
     private SerialPort _serialPort;
@@ -300,11 +297,6 @@ namespace RaceHorologyLib
       }
     }
 
-
-    public string GetProtocol()
-    {
-      return _internalProtocol;
-    }
 
     private void startWritingToDumpFile()
     {
@@ -399,6 +391,14 @@ namespace RaceHorologyLib
     }
 
 
+    #region Implementation of ILiveTimeMeasurementDeviceDebugInfo
+    public event RawMessageReceivedEventHandler RawMessageReceived;
+
+    public string GetProtocol()
+    {
+      return _internalProtocol;
+    }
+
     void debugLine(string dataLine)
     {
       _dumpFile?.WriteLine(dataLine);
@@ -411,6 +411,7 @@ namespace RaceHorologyLib
       RawMessageReceivedEventHandler handler = RawMessageReceived;
       handler?.Invoke(this, dataLine);
     }
+    #endregion
 
   }
 

@@ -21,7 +21,7 @@ namespace RaceHorologyLib
   }
 
 
-  public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider
+  public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, ILiveTimeMeasurementDeviceDebugInfo
   {
     private string _hostname;
     private string _baseUrl;
@@ -41,6 +41,8 @@ namespace RaceHorologyLib
       _hostname = hostname;
       _baseUrl = String.Format("ws://{0}/ws/events", hostname);
       _parser = new AlpenhundeParser();
+
+      _internalProtocol = String.Empty;
     }
 
 
@@ -104,6 +106,7 @@ namespace RaceHorologyLib
         else if (e.IsText)
         {
           Logger.Info("data received: {0}", e.Data);
+          debugMessage(e.Data);
 
           var parsedData = _parser.ParseMessage(e.Data);
           if (parsedData != null && parsedData.type == "timestamp")
@@ -226,6 +229,30 @@ namespace RaceHorologyLib
 
       return data;
     }
+
+
+    #region Implementation of ILiveTimeMeasurementDeviceDebugInfo
+
+    public event RawMessageReceivedEventHandler RawMessageReceived;
+    private string _internalProtocol;
+
+    public string GetProtocol()
+    {
+      return _internalProtocol;
+    }
+
+    void debugMessage(string message)
+    {
+      if (!string.IsNullOrEmpty(_internalProtocol))
+        _internalProtocol += "\n";
+      _internalProtocol += message;
+
+      RawMessageReceivedEventHandler handler = RawMessageReceived;
+      handler?.Invoke(this, message);
+    }
+
+    #endregion
+
   }
 
 
