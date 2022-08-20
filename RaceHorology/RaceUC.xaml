@@ -444,9 +444,19 @@
                         <Trigger Property="AlternationIndex" Value="1">
                           <Setter Property="Background" Value="#FFf8faf7" />
                         </Trigger>
-                        <DataTrigger Binding="{Binding MarkedForMeasurement}" Value="True">
+                        <DataTrigger Binding="{Binding MarkedForMeasurement}" Value="0">
                           <DataTrigger.Setters>
                             <Setter Property="Background" Value="#b8c9d6" />
+                          </DataTrigger.Setters>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding MarkedForMeasurement}" Value="1">
+                          <DataTrigger.Setters>
+                            <Setter Property="Background" Value="OrangeRed" />
+                          </DataTrigger.Setters>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding MarkedForMeasurement}" Value="2">
+                          <DataTrigger.Setters>
+                            <Setter Property="Background" Value="LightBlue" />
                           </DataTrigger.Setters>
                         </DataTrigger>
                       </Style.Triggers>
@@ -556,9 +566,19 @@
                       <Trigger Property="AlternationIndex" Value="1">
                         <Setter Property="Background" Value="#FFf8faf7" />
                       </Trigger>
-                      <DataTrigger Binding="{Binding MarkedForMeasurement}" Value="True">
+                      <DataTrigger Binding="{Binding MarkedForMeasurement}" Value="0">
                         <DataTrigger.Setters>
                           <Setter Property="Background" Value="#b8c9d6" />
+                        </DataTrigger.Setters>
+                      </DataTrigger>
+                      <DataTrigger Binding="{Binding MarkedForMeasurement}" Value="1">
+                        <DataTrigger.Setters>
+                          <Setter Property="Background" Value="OrangeRed" />
+                        </DataTrigger.Setters>
+                      </DataTrigger>
+                      <DataTrigger Binding="{Binding MarkedForMeasurement}" Value="2">
+                        <DataTrigger.Setters>
+                          <Setter Property="Background" Value="LightBlue" />
                         </DataTrigger.Setters>
                       </DataTrigger>
                     </Style.Triggers>

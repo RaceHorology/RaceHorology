@@ -1281,11 +1281,11 @@ namespace RaceHorologyLib
     protected TimeSpan? _liveRunTime;
 
     RunResult _original;
-    bool _markedForMeasurement;
+    EParticipantColor? _markedForMeasurement;
 
     public RunResult OriginalResult { get { return _original; } }
 
-    public bool MarkedForMeasurement 
+    public EParticipantColor? MarkedForMeasurement 
     { 
       get => _markedForMeasurement;
       
@@ -1616,14 +1616,14 @@ namespace RaceHorologyLib
         NotifyPropertyChanged("MarkedParticipantForStartMeasurement");
       }
     }
-    public bool IsMarkedForStartMeasurement(RaceParticipant participant)
+    public EParticipantColor? IsMarkedForStartMeasurement(RaceParticipant participant)
     {
       foreach(var entry in _markedParticipantForStartMeasurement)
       {
         if (entry.Value == participant)
-          return true;
+          return entry.Key;
       }
-      return false;
+      return null;
     }
 
 
@@ -1639,14 +1639,14 @@ namespace RaceHorologyLib
         NotifyPropertyChanged("MarkedParticipantForFinishMeasurement");
       }
     }
-    public bool IsMarkedForFinishMeasurement(RaceParticipant participant)
+    public EParticipantColor? IsMarkedForFinishMeasurement(RaceParticipant participant)
     {
       foreach (var entry in _markedParticipantForFinishMeasurement)
       {
         if (entry.Value == participant)
-          return true;
+          return entry.Key;
       }
-      return false;
+      return null;
     }
 
 
