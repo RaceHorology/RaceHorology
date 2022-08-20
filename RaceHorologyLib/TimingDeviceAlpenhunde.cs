@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,18 @@ using WebSocketSharp;
 namespace RaceHorologyLib
 {
   enum EStatus { NotConnected, Connecting, Connected };
+
+  public class TimeMeasurementEventArgsAlpenhunde: TimeMeasurementEventArgs
+  {
+    public TimeMeasurementEventArgsAlpenhunde() : base()
+    {
+      Index = 0;
+    }
+    public long Index;
+
+  }
+
+
   public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider
   {
     private string _baseUrl;
@@ -97,7 +109,9 @@ namespace RaceHorologyLib
             var timeMeasurmentData = ConvertToTimemeasurementData(parsedData.data);
             if (timeMeasurmentData != null)
             {
-              // Trigger event
+              // Update internal clock for livetiming
+              UpdateLiveDayTime(timeMeasurmentData);
+              // Trigger time measurment event
               var handle = TimeMeasurementReceived;
               handle?.Invoke(this, timeMeasurmentData);
             }
@@ -139,25 +153,33 @@ namespace RaceHorologyLib
     public event LiveDateTimeChangedHandler LiveDateTimeChanged;
 
     TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
-    protected void UpdateLiveDayTime(in TimeMeasurementEventArgs justReceivedData)
+    long _lastReceivedIndex = 0;
+
+    protected void UpdateLiveDayTime(in TimeMeasurementEventArgsAlpenhunde justReceivedData)
     {
+      var currentIndex = justReceivedData.Index;
       TimeSpan? receivedTime = justReceivedData.StartTime != null ? justReceivedData.StartTime : (justReceivedData.FinishTime != null ? justReceivedData.FinishTime : null);
 
-      if (receivedTime != null)
+      // If an index is returned for the first time, use this as time synchronization
+      if ((    (currentIndex > _lastReceivedIndex)        // Standard case: next run
+            || (currentIndex < _lastReceivedIndex - 20 )) // Special case: reset of Alpenhunde system; assumption: a larger gap to the last received index is a reset
+           && receivedTime != null) 
       {
         TimeSpan tDiff = (DateTime.Now - DateTime.Today) - (TimeSpan)receivedTime;
         _currentDayTimeDelta = tDiff;
 
         var handler = LiveDateTimeChanged;
         handler?.Invoke(this, new LiveDateTimeEventArgs((TimeSpan)receivedTime));
+
+        _lastReceivedIndex = currentIndex;
       }
     }
     #endregion
 
 
-    public static TimeMeasurementEventArgs ConvertToTimemeasurementData(in AlpenhundeTimingData parsedData)
+    public static TimeMeasurementEventArgsAlpenhunde ConvertToTimemeasurementData(in AlpenhundeTimingData parsedData)
     {
-      TimeMeasurementEventArgs data = new TimeMeasurementEventArgs();
+      var data = new TimeMeasurementEventArgsAlpenhunde();
 
       TimeSpan parsedTime;
       try
@@ -182,6 +204,8 @@ namespace RaceHorologyLib
       {
         Logger.Error(e, "Error while parsing Alpenhunde 'n'; assuming startnumber 0");
       }
+
+      data.Index = parsedData.i;
 
       data.StartNumber = startNumber;
       switch (parsedData.c)
