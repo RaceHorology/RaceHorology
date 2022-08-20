@@ -129,7 +129,7 @@ namespace RaceHorologyLib
         }
 
         return img;
-      }catch(Exception e)
+      }catch(Exception /*e*/)
       {
         throw new Exception(string.Format("cannot load image {0}", filenameWOExt));
       }

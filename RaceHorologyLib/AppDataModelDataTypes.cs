@@ -439,6 +439,8 @@ namespace RaceHorologyLib
   }
 
 
+  public enum EParticipantColor { NoColor, Red, Blue };
+
   /// <summary>
   /// Represents a participant (or ski alpin racer)
   /// </summary>
@@ -740,13 +742,13 @@ namespace RaceHorologyLib
   {
     protected RaceParticipant _participant;
     protected bool _started;
-    protected bool _markedForMeasurement;
+    protected EParticipantColor? _markedForMeasurement;
 
     public StartListEntry(RaceParticipant participant)
     {
       _participant = participant;
       _started = false;
-      _markedForMeasurement = false;
+      _markedForMeasurement = null;
       _participant.PropertyChanged += OnParticipantPropertyChanged;
     }
 
@@ -789,7 +791,7 @@ namespace RaceHorologyLib
       }
     }
 
-    public bool MarkedForMeasurement
+    public EParticipantColor? MarkedForMeasurement
     {
       get => _markedForMeasurement;
 

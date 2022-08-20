@@ -110,6 +110,13 @@ namespace RaceHorologyLib
                 // Trigger event
                 var handle = StartnumberSelectedReceived;
                 handle?.Invoke(this, ssData);
+
+                // Send in addition a start event in case of parallel slalom (ALGE only sends a finish startnumber selected event)
+                if (ssData.Color != EParticipantColor.NoColor && ssData.Channel == StartnumberSelectedEventArgs.EChannel.EFinish)
+                {
+                  ssData.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
+                  handle?.Invoke(this, ssData);
+                }
               }
             }
             else
@@ -161,12 +168,14 @@ namespace RaceHorologyLib
 
       switch (parsedData.Channel)
       {
-        case "C0":
+        case "C0": // Standard 
+        case "C3": // Parallel Slalom
           data.StartTime = parsedDataTime;
           data.BStartTime = true;
           break;
 
-        case "C1":
+        case "C1": // Standard 
+        case "C4": // Parallel Slalom
           data.FinishTime = parsedDataTime;
           data.BFinishTime = true;
           break;
@@ -177,6 +186,7 @@ namespace RaceHorologyLib
           break;
 
         case "TT":   // TotalTime, calculated automatically
+        case "DT":   // DifferenceTime, parallel slalom, not used
           return null;
       }
 
@@ -193,10 +203,16 @@ namespace RaceHorologyLib
         return null;
 
       data.StartNumber = parsedData.StartNumber;
+
       if (parsedData.Flag == 'n')
         data.Channel = StartnumberSelectedEventArgs.EChannel.EFinish;
-      if (parsedData.Flag == 's')
+      else if (parsedData.Flag == 's')
         data.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
+
+      if (parsedData.StartNumberModifier == 'r')
+        data.Color = EParticipantColor.Red;
+      else if (parsedData.StartNumberModifier == 'b')
+        data.Color = EParticipantColor.Blue;
 
       return data;
     }
@@ -247,6 +263,9 @@ namespace RaceHorologyLib
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
 
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+
     public ALGETdC8001TimeMeasurement(string comport, string dumpDir) : base()
     {
       _serialPortName = comport;
@@ -264,6 +283,8 @@ namespace RaceHorologyLib
     {
       if (string.IsNullOrEmpty(_serialPortName))
         return;
+
+      Logger.Info("Start()");
 
       _statusText = "Starting";
 
@@ -285,6 +306,8 @@ namespace RaceHorologyLib
     
     public override void Stop()
     {
+      Logger.Info("Stop()");
+
       if (_instanceCaller != null)
       {
         _statusText = "Stopping";
@@ -310,6 +333,8 @@ namespace RaceHorologyLib
     {
       if (_internalStatus != value)
       {
+        Logger.Info("new status: {0} (old: {1})", value, _internalStatus);
+
         _internalStatus = value;
 
         var handler = StatusChanged;
@@ -345,6 +370,7 @@ namespace RaceHorologyLib
           setInternalStatus(EInternalStatus.Running);
 
           string dataLine = _serialPort.ReadLine();
+          Logger.Info("data received: {0}", dataLine);
 
           debugLine(dataLine);
           processLine(dataLine);
@@ -355,6 +381,7 @@ namespace RaceHorologyLib
         { }
       }
 
+      Logger.Info("closing serial port");
       _serialPort.Close();
 
       _statusText = "Stopped";
@@ -422,6 +449,7 @@ namespace RaceHorologyLib
     {
       Flag = ' ';
       StartNumber = 0;
+      StartNumberModifier = ' ';
       Channel = "";
       ChannelModifier = ' ';
       Time = new TimeSpan();
@@ -430,6 +458,7 @@ namespace RaceHorologyLib
 
     public char Flag { get; set; }
     public uint StartNumber { get; set; }
+    public char StartNumberModifier { get; set; }
     public string Channel { get; set; }
     public char ChannelModifier { get; set; }
     public TimeSpan Time { get; set; }
@@ -520,6 +549,11 @@ namespace RaceHorologyLib
       }
 
       if (dataLine.Length > 5)
+      {
+        parsedData.StartNumberModifier = dataLine[5];
+      }
+
+      if (dataLine.Length > 5+1) // +1 because of parallel slalow => identifier for 'b' (blue course) or 'r' (red course)
       {
         parsedData.Channel = dataLine.Substring(6, 2);
         parsedData.ChannelModifier = dataLine[8];

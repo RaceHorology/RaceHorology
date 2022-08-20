@@ -1281,11 +1281,11 @@ namespace RaceHorologyLib
     protected TimeSpan? _liveRunTime;
 
     RunResult _original;
-    bool _markedForMeasurement;
+    EParticipantColor? _markedForMeasurement;
 
     public RunResult OriginalResult { get { return _original; } }
 
-    public bool MarkedForMeasurement 
+    public EParticipantColor? MarkedForMeasurement 
     { 
       get => _markedForMeasurement;
       
@@ -1349,6 +1349,8 @@ namespace RaceHorologyLib
 
   }
 
+
+
   /// <summary>
   /// Represents a race run. Typically a race consists out of two race runs.
   /// </summary>
@@ -1363,8 +1365,8 @@ namespace RaceHorologyLib
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
     private ItemsChangeObservableCollection<RunResult> _inFinish;  // This list represents the particpants in finish.
 
-    private RaceParticipant _markedParticipantForStartMeasurement;
-    private RaceParticipant _markedParticipantForFinishMeasurement;
+    private Dictionary<EParticipantColor, RaceParticipant> _markedParticipantForStartMeasurement;
+    private Dictionary<EParticipantColor, RaceParticipant> _markedParticipantForFinishMeasurement;
 
     private StartListViewProvider _slVP;
     private ResultViewProvider _rvp;
@@ -1388,8 +1390,8 @@ namespace RaceHorologyLib
       _inFinish = new ItemsChangeObservableCollection<RunResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
 
-      _markedParticipantForStartMeasurement = null;
-      _markedParticipantForFinishMeasurement = null;
+      _markedParticipantForStartMeasurement = new Dictionary<EParticipantColor, RaceParticipant>();
+      _markedParticipantForFinishMeasurement = new Dictionary<EParticipantColor, RaceParticipant>();
 
       // Ensure the results always are in sync with participants
       _race.GetParticipants().CollectionChanged += onParticipantsChanged;
@@ -1415,16 +1417,14 @@ namespace RaceHorologyLib
       private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
     }
 
-    public RaceParticipant MarkedParticipantForStartMeasurement
+    public Dictionary<EParticipantColor, RaceParticipant> MarkedParticipantForStartMeasurement
     {
       get { return _markedParticipantForStartMeasurement; }
-      private set { if (_markedParticipantForStartMeasurement != value) { _markedParticipantForStartMeasurement = value; NotifyPropertyChanged(); } }
     }
 
-    public RaceParticipant MarkedParticipantForFinishMeasurement
+    public Dictionary<EParticipantColor, RaceParticipant> MarkedParticipantForFinishMeasurement
     {
       get { return _markedParticipantForFinishMeasurement; }
-      private set { if (_markedParticipantForFinishMeasurement != value) { _markedParticipantForFinishMeasurement = value; NotifyPropertyChanged(); } }
     }
 
 
@@ -1604,24 +1604,50 @@ namespace RaceHorologyLib
     }
 
 
-    public void MarkStartMeasurement(RaceParticipant participant)
+    public void MarkStartMeasurement(RaceParticipant participant, EParticipantColor color)
     {
-      MarkedParticipantForStartMeasurement = participant;
+      if (!_markedParticipantForStartMeasurement.ContainsKey(color) || _markedParticipantForStartMeasurement[color] != participant)
+      {
+        if (participant != null)
+          _markedParticipantForStartMeasurement[color] = participant;
+        else
+          _markedParticipantForStartMeasurement.Remove(color);
+
+        NotifyPropertyChanged("MarkedParticipantForStartMeasurement");
+      }
     }
-    public bool IsMarkedForStartMeasurement(RaceParticipant participant)
+    public EParticipantColor? IsMarkedForStartMeasurement(RaceParticipant participant)
     {
-      return _markedParticipantForStartMeasurement == participant;
+      foreach(var entry in _markedParticipantForStartMeasurement)
+      {
+        if (entry.Value == participant)
+          return entry.Key;
+      }
+      return null;
     }
 
 
-    public void MarkFinishMeasurement(RaceParticipant participant)
+    public void MarkFinishMeasurement(RaceParticipant participant, EParticipantColor color)
     {
-      MarkedParticipantForFinishMeasurement = participant;
-      _UpdateOnTrackMarkedForMeasurement();
+      if (!_markedParticipantForFinishMeasurement.ContainsKey(color) || _markedParticipantForFinishMeasurement[color] != participant)
+      {
+        if (participant != null)
+          _markedParticipantForFinishMeasurement[color] = participant;
+        else
+          _markedParticipantForFinishMeasurement.Remove(color);
+
+        NotifyPropertyChanged("MarkedParticipantForFinishMeasurement");
+        _UpdateOnTrackMarkedForMeasurement();
+      }
     }
-    public bool IsMarkedForFinishMeasurement(RaceParticipant participant)
+    public EParticipantColor? IsMarkedForFinishMeasurement(RaceParticipant participant)
     {
-      return _markedParticipantForFinishMeasurement == participant;
+      foreach (var entry in _markedParticipantForFinishMeasurement)
+      {
+        if (entry.Value == participant)
+          return entry.Key;
+      }
+      return null;
     }
 
 
