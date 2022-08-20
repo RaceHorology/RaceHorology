@@ -482,7 +482,8 @@ namespace RaceHorology
         _timingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
-        _timingDevice = new TimingDeviceAlpenhunde("ws://192.168.4.1/ws/events"); // 192.168.4.1, ws://finish.local/ws/events 
+        var hostname = Properties.Settings.Default.TimingDevice_Url;
+        _timingDevice = new TimingDeviceAlpenhunde(hostname);
       }
       _liveTimingMeasurement.SetTimingDevice(_timingDevice, _timingDevice as ILiveDateTimeProvider);
 
@@ -519,6 +520,7 @@ namespace RaceHorology
           break;
         case "TimingDevice_Port":
         case "TimingDevice_Type":
+        case "TimingDevice_Url":
         case "TimingDevice_Debug_Dump":
           ReInitializeTimingDevice();
           break;

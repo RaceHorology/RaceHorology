@@ -67,6 +67,8 @@ namespace RaceHorology
       cbTimingDevicePort.SelectedValuePath = "Port";
       cbTimingDevicePort.SelectedValue = Properties.Settings.Default.TimingDevice_Port;
 
+      txtTimingDeviceUrl.Text = Properties.Settings.Default.TimingDevice_Url;
+
       chkTimingDeviceDebugDump.IsChecked = Properties.Settings.Default.TimingDevice_Debug_Dump;
 
       cbTimingDevice.Items.Add("ALGE TdC8000/8001");
@@ -93,6 +95,9 @@ namespace RaceHorology
 
       if (Properties.Settings.Default.TimingDevice_Port != (string)cbTimingDevicePort.SelectedValue)
         Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
+
+      if (Properties.Settings.Default.TimingDevice_Url != txtTimingDeviceUrl.Text)
+        Properties.Settings.Default.TimingDevice_Url = txtTimingDeviceUrl.Text;
 
       if (Properties.Settings.Default.TimingDevice_Debug_Dump != chkTimingDeviceDebugDump.IsChecked == true )
         Properties.Settings.Default.TimingDevice_Debug_Dump = chkTimingDeviceDebugDump.IsChecked == true;
@@ -127,5 +132,15 @@ namespace RaceHorology
       DialogResult = true;
     }
 
+    private void cbTimingDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      bool displayUrl = cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
+
+      cbTimingDevicePort.Visibility = displayUrl ? Visibility.Collapsed : Visibility.Visible;
+      lblTimingDevicePort.Visibility = displayUrl ? Visibility.Collapsed : Visibility.Visible;
+
+      txtTimingDeviceUrl.Visibility = !displayUrl ? Visibility.Collapsed : Visibility.Visible;
+      lblTimingDeviceUrl.Visibility = !displayUrl ? Visibility.Collapsed : Visibility.Visible;
+    }
   }
 }

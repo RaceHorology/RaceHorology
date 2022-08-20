@@ -23,6 +23,7 @@ namespace RaceHorologyLib
 
   public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider
   {
+    private string _hostname;
     private string _baseUrl;
     private EStatus _status;
 
@@ -35,9 +36,10 @@ namespace RaceHorologyLib
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    public TimingDeviceAlpenhunde(string baseUrl)
+    public TimingDeviceAlpenhunde(string hostname)
     {
-      _baseUrl = baseUrl;
+      _hostname = hostname;
+      _baseUrl = String.Format("ws://{0}/ws/events", hostname);
       _parser = new AlpenhundeParser();
     }
 
