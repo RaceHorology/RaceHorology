@@ -76,18 +76,17 @@ namespace RaceHorologyLib
   public class StartnumberSelectedEventArgs: EventArgs
   {
     public enum EChannel { EUnknown, EStart, EFinish };
-    public enum EColor { NoColor, Red, Blue };
 
     public StartnumberSelectedEventArgs()
     {
       StartNumber = 0;
       Channel = EChannel.EUnknown;
-      Color = EColor.NoColor;
+      Color = EParticipantColor.NoColor;
     }
 
     public uint StartNumber;
     public EChannel Channel;
-    public EColor Color;
+    public EParticipantColor Color;
   }
 
   public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);
@@ -335,13 +334,10 @@ namespace RaceHorologyLib
         RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
         RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
 
-        if (participant != null)
-        {
-          if (e.Channel == StartnumberSelectedEventArgs.EChannel.EStart)
-            currentRaceRun.MarkStartMeasurement(participant);
-          else if (e.Channel == StartnumberSelectedEventArgs.EChannel.EFinish)
-            currentRaceRun.MarkFinishMeasurement(participant);
-        }
+        if (e.Channel == StartnumberSelectedEventArgs.EChannel.EStart)
+          currentRaceRun.MarkStartMeasurement(participant, e.Color);
+        else if (e.Channel == StartnumberSelectedEventArgs.EChannel.EFinish)
+          currentRaceRun.MarkFinishMeasurement(participant, e.Color);
       }, null);
     }
 

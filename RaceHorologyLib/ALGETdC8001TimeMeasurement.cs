@@ -110,6 +110,13 @@ namespace RaceHorologyLib
                 // Trigger event
                 var handle = StartnumberSelectedReceived;
                 handle?.Invoke(this, ssData);
+
+                // Send in addition a start event in case of parallel slalom (ALGE only sends a finish startnumber selected event)
+                if (ssData.Color != EParticipantColor.NoColor && ssData.Channel == StartnumberSelectedEventArgs.EChannel.EFinish)
+                {
+                  ssData.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
+                  handle?.Invoke(this, ssData);
+                }
               }
             }
             else
@@ -203,9 +210,9 @@ namespace RaceHorologyLib
         data.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
 
       if (parsedData.StartNumberModifier == 'r')
-        data.Color = StartnumberSelectedEventArgs.EColor.Red;
+        data.Color = EParticipantColor.Red;
       else if (parsedData.StartNumberModifier == 'b')
-        data.Color = StartnumberSelectedEventArgs.EColor.Blue;
+        data.Color = EParticipantColor.Blue;
 
       return data;
     }

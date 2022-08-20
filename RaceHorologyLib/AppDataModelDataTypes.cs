@@ -439,6 +439,8 @@ namespace RaceHorologyLib
   }
 
 
+  public enum EParticipantColor { NoColor, Red, Blue };
+
   /// <summary>
   /// Represents a participant (or ski alpin racer)
   /// </summary>
