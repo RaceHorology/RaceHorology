@@ -111,8 +111,8 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ALGEDebugDlg.xaml.cs">
-      <DependentUpon>ALGEDebugDlg.xaml</DependentUpon>
+    <Compile Include="TimingDeviceDebugDlg.xaml.cs">
+      <DependentUpon>TimingDeviceDebugDlg.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChartTestsUC.xaml.cs">
       <DependentUpon>ChartTestsUC.xaml</DependentUpon>
@@ -199,7 +199,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ALGEDebugDlg.xaml">
+    <Page Include="TimingDeviceDebugDlg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

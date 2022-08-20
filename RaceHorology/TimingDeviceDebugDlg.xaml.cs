@@ -19,11 +19,11 @@ namespace RaceHorology
   /// <summary>
   /// Interaction logic for ALGEDebugDlg.xaml
   /// </summary>
-  public partial class ALGEDebugDlg : Window
+  public partial class TimingDeviceDebugDlg : Window
   {
     ILiveTimeMeasurementDeviceDebugInfo _debugableTimingDevice;
 
-    public ALGEDebugDlg(ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+    public TimingDeviceDebugDlg(ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
     {
       _debugableTimingDevice = debugableTimingDevice;
       InitializeComponent();

@@ -581,7 +581,7 @@ namespace RaceHorology
 
       if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
       {
-        ALGEDebugDlg debugDlg = new ALGEDebugDlg(debugableTimingDevice);
+        TimingDeviceDebugDlg debugDlg = new TimingDeviceDebugDlg(debugableTimingDevice);
         debugDlg.Show();
       }
     }
