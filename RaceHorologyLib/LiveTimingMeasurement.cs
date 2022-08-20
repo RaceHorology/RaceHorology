@@ -76,15 +76,18 @@ namespace RaceHorologyLib
   public class StartnumberSelectedEventArgs: EventArgs
   {
     public enum EChannel { EUnknown, EStart, EFinish };
+    public enum EColor { NoColor, Red, Blue };
 
     public StartnumberSelectedEventArgs()
     {
       StartNumber = 0;
       Channel = EChannel.EUnknown;
+      Color = EColor.NoColor;
     }
 
     public uint StartNumber;
     public EChannel Channel;
+    public EColor Color;
   }
 
   public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);

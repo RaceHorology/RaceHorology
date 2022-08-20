@@ -250,6 +250,9 @@ namespace RaceHorologyLib
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
 
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+
     public ALGETdC8001TimeMeasurement(string comport, string dumpDir) : base()
     {
       _serialPortName = comport;
@@ -267,6 +270,8 @@ namespace RaceHorologyLib
     {
       if (string.IsNullOrEmpty(_serialPortName))
         return;
+
+      Logger.Info("Start()");
 
       _statusText = "Starting";
 
@@ -288,6 +293,8 @@ namespace RaceHorologyLib
     
     public override void Stop()
     {
+      Logger.Info("Stop()");
+
       if (_instanceCaller != null)
       {
         _statusText = "Stopping";
@@ -313,6 +320,8 @@ namespace RaceHorologyLib
     {
       if (_internalStatus != value)
       {
+        Logger.Info("new status: {0} (old: {1})", value, _internalStatus);
+
         _internalStatus = value;
 
         var handler = StatusChanged;
@@ -348,6 +357,7 @@ namespace RaceHorologyLib
           setInternalStatus(EInternalStatus.Running);
 
           string dataLine = _serialPort.ReadLine();
+          Logger.Info("data received: {0}", dataLine);
 
           debugLine(dataLine);
           processLine(dataLine);
@@ -358,6 +368,7 @@ namespace RaceHorologyLib
         { }
       }
 
+      Logger.Info("closing serial port");
       _serialPort.Close();
 
       _statusText = "Stopped";
