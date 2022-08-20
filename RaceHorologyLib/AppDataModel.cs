@@ -1637,6 +1637,7 @@ namespace RaceHorologyLib
           _markedParticipantForFinishMeasurement.Remove(color);
 
         NotifyPropertyChanged("MarkedParticipantForFinishMeasurement");
+        _UpdateOnTrackMarkedForMeasurement();
       }
     }
     public EParticipantColor? IsMarkedForFinishMeasurement(RaceParticipant participant)
