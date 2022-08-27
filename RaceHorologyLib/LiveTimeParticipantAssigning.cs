@@ -53,6 +53,16 @@ namespace RaceHorologyLib
     #endregion
   }
 
+
+  internal class TimestampComparerDesc : IComparer<Timestamp>
+  {
+    public int Compare(Timestamp a, Timestamp b)
+    {
+      return b.Time.CompareTo(a.Time);
+    }
+  }
+
+
   public class LiveTimeParticipantAssigning : ILiveTimeMeasurementDeviceBase, IDisposable
   {
     public enum EMeasurementPoint { Undefined, Start, Finish };
@@ -60,6 +70,8 @@ namespace RaceHorologyLib
     private EMeasurementPoint _measurementPoint;
     private ItemsChangeObservableCollection<Timestamp> _timestamps;
     private System.Threading.SynchronizationContext _syncContext;
+
+    private IComparer<Timestamp> _sorter = new TimestampComparerDesc();
 
     public LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice, EMeasurementPoint measurementPoint)
     {
@@ -91,7 +103,8 @@ namespace RaceHorologyLib
 
           ts.PropertyChanged += timeStamp_PropertyChanged;
 
-          _timestamps.Add(ts);
+          _timestamps.Insert(0, ts);
+          _timestamps.Sort<Timestamp>(_sorter);
         }
       }, null);
     }
