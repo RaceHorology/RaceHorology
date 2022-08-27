@@ -55,15 +55,18 @@ namespace RaceHorologyLib
 
   public class LiveTimeParticipantAssigning : ILiveTimeMeasurementDeviceBase, IDisposable
   {
+    public enum EMeasurementPoint { Undefined, Start, Finish };
     private ILiveTimeMeasurementDevice _timeMeasurementDevice;
+    private EMeasurementPoint _measurementPoint;
     private ItemsChangeObservableCollection<Timestamp> _timestamps;
     private System.Threading.SynchronizationContext _syncContext;
 
-    public LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice)
+    public LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice, EMeasurementPoint measurementPoint)
     {
       _syncContext = System.Threading.SynchronizationContext.Current;
 
       _timeMeasurementDevice = timeMeasurementDevice;
+      _measurementPoint = measurementPoint;
       _timestamps = new ItemsChangeObservableCollection<Timestamp>();
 
       _timeMeasurementDevice.TimeMeasurementReceived += timeMeasurementDevice_TimeMeasurementReceived;
@@ -79,8 +82,10 @@ namespace RaceHorologyLib
     {
       _syncContext.Send(delegate
       {
+        var measurementPoint = e.BStartTime ? EMeasurementPoint.Start: e.BFinishTime ? EMeasurementPoint.Finish : EMeasurementPoint.Undefined;
         var time = e.BStartTime ? e.StartTime : e.BFinishTime ? e.FinishTime : null;
-        if (time != null)
+        if ( (_measurementPoint == EMeasurementPoint.Undefined || measurementPoint == _measurementPoint) 
+             && time != null)
         {
           var ts = new Timestamp((TimeSpan)time, e, e.StartNumber);
 
