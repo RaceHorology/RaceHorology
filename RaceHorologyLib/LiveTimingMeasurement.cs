@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -105,17 +105,23 @@ namespace RaceHorologyLib
   public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, bool isRunning);
 
 
-  /// <summary>
-  /// This Interface must be implemented from a Live Timing Measurement Device which supports online time measurement during the race.
-  /// Most favourit device for now are the ALGE TdC8000/TdC8001 or ALGE Timy
-  /// </summary>
-  public interface ILiveTimeMeasurementDevice
+
+  public interface ILiveTimeMeasurementDeviceBase
   {
     /// <summary>
     /// If a time measurement happend, this event must be triggered.
     /// </summary>
     event TimeMeasurementEventHandler TimeMeasurementReceived;
 
+  }
+
+
+  /// <summary>
+  /// This Interface must be implemented from a Live Timing Measurement Device which supports online time measurement during the race.
+  /// Most favourit device for now are the ALGE TdC8000/TdC8001 or ALGE Timy
+  /// </summary>
+  public interface ILiveTimeMeasurementDevice : ILiveTimeMeasurementDeviceBase
+  {
     /// <summary>
     /// If a startnumber has been selected - entered via keyboard of the device - this event is triggered.
     /// </summary>
