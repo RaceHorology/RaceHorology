@@ -11,18 +11,18 @@ namespace RaceHorologyLib
 
   public class Timestamp : INotifyPropertyChanged
   {
-    private Timestamp _timeStamp;
+    private TimeSpan _timeStamp;
     private TimeMeasurementEventArgs _orgTimeData;
     private uint _startnumber;
 
-    public Timestamp(Timestamp timeStamp, TimeMeasurementEventArgs orgTimeData, uint startnumber = 0, RaceParticipant participant = null)
+    public Timestamp(TimeSpan timeStamp, TimeMeasurementEventArgs orgTimeData, uint startnumber = 0)
     {
       _timeStamp = timeStamp;
       _orgTimeData = orgTimeData;
       _startnumber = startnumber;
     }
 
-    public Timestamp Time
+    public TimeSpan Time
     {
       get => _timeStamp;
     }
@@ -53,7 +53,7 @@ namespace RaceHorologyLib
     #endregion
   }
 
-  public class LiveTimeParticipantAssigning : ILiveTimeMeasurementDeviceBase
+  public class LiveTimeParticipantAssigning : ILiveTimeMeasurementDeviceBase, IDisposable
   {
     private ILiveTimeMeasurementDevice _timeMeasurementDevice;
     private ItemsChangeObservableCollection<Timestamp> _timestamps;
@@ -62,6 +62,24 @@ namespace RaceHorologyLib
     {
       _timeMeasurementDevice = timeMeasurementDevice;
       _timestamps = new ItemsChangeObservableCollection<Timestamp>();
+
+      _timeMeasurementDevice.TimeMeasurementReceived += timeMeasurementDevice_TimeMeasurementReceived;
+    }
+
+    public void Dispose()
+    {
+      _timeMeasurementDevice.TimeMeasurementReceived -= timeMeasurementDevice_TimeMeasurementReceived;
+    }
+
+
+    private void timeMeasurementDevice_TimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
+    {
+      var time = e.BStartTime ? e.StartTime : e.BFinishTime ? e.FinishTime : null;
+      if (time != null)
+      {
+        var ts = new Timestamp((TimeSpan)time, e, e.StartNumber);
+        _timestamps.Add(ts);
+      }
     }
 
     public ItemsChangeObservableCollection<Timestamp> Timestamps
@@ -92,6 +110,7 @@ namespace RaceHorologyLib
       data.StartNumber = timestamp.StartNumber;
       return data;
     }
+
 
     #region Implementation of ILiveTimeMeasurementDeviceBase
 
