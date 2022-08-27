@@ -344,6 +344,8 @@
               <RowDefinition Height="2*"/>
               <RowDefinition Height="5"/>
               <RowDefinition Height="3*"/>
+              <RowDefinition Height="5"/>
+              <RowDefinition Height="3*"/>
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
@@ -464,7 +466,7 @@
                   </DataGrid.RowStyle>
                 </DataGrid>
               </Grid>
-              <Grid Grid.Row="3" >
+              <Grid Grid.Row="2" >
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
@@ -644,8 +646,30 @@
 
               </DataGrid>
             </Grid>
-          </Grid>
 
+            <GridSplitter x:Name="gridSplitter3" HorizontalAlignment="Stretch" Height="5" Grid.Row="5" />
+
+            <Grid Grid.Row="6">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid Width="Auto">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblParticipantAssigning" Content="Zeitstempel" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              </Grid>
+              <DataGrid x:Name="dgParticipantAssigning" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+                <DataGrid.Style>
+                  <Style TargetType="DataGrid">
+                    <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
+                  </Style>
+                </DataGrid.Style>
+              </DataGrid>
+            </Grid>
+          </Grid>
         </Grid>
 
       </TabItem>
@@ -656,7 +680,7 @@
       </TabItem>
     </TabControl>
 
-    <GridSplitter x:Name="gridSplitter3" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
+    <GridSplitter x:Name="gridSplitter4" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
 
     <local:RaceListsUC x:Name="ucRaceLists" Grid.Column="2"/>
 
