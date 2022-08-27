@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -53,7 +53,52 @@ namespace RaceHorologyLib
     #endregion
   }
 
-  public class LiveTimeParticipantAssigning
+  public class LiveTimeParticipantAssigning : ILiveTimeMeasurementDeviceBase
   {
+    private ILiveTimeMeasurementDevice _timeMeasurementDevice;
+    private ItemsChangeObservableCollection<Timestamp> _timestamps;
+
+    LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice)
+    {
+      _timeMeasurementDevice = timeMeasurementDevice;
+      _timestamps = new ItemsChangeObservableCollection<Timestamp>();
+    }
+
+    public ItemsChangeObservableCollection<Timestamp> Timestamps
+    {
+      get { return _timestamps; }
+    }
+
+    public void Assign(Timestamp timestamp, uint startnumber)
+    {
+      if (_timestamps.FirstOrDefault(item => item == timestamp) == null) // Just check whether the item is in the container
+        return;
+
+      // Check if the startnumber is already used by another timestamp
+      var inUse = startnumber == 0 ? null : _timestamps.FirstOrDefault(item => item.StartNumber == startnumber);
+      if (inUse != null && inUse != timestamp)
+        inUse.StartNumber = 0;
+
+      timestamp.StartNumber = startnumber;
+
+      // Trigger TimeMeasurementReceived event with updated startnumber
+      var handle = TimeMeasurementReceived;
+      handle?.Invoke(this, createTimeMeasurement(timestamp));
+    }
+
+    private TimeMeasurementEventArgs createTimeMeasurement(Timestamp timestamp)
+    {
+      var data = new TimeMeasurementEventArgs(timestamp.OrgTimeData);
+      data.StartNumber = timestamp.StartNumber;
+      return data;
+    }
+
+    #region Implementation of ILiveTimeMeasurementDeviceBase
+
+    public event TimeMeasurementEventHandler TimeMeasurementReceived;
+
+    #endregion
+
+
   }
 }
