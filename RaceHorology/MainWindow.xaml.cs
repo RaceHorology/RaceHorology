@@ -46,6 +46,7 @@ using System.Collections.ObjectModel;
 using QRCoder;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace RaceHorology
 {
@@ -439,13 +440,15 @@ namespace RaceHorology
     #region LiveTiming
 
     ILiveTimeMeasurementDevice _timingDevice;
-    LiveTimeParticipantAssigning _timingDevicePartcipantAssigner;
+    List<LiveTimeParticipantAssigning> _timingDevicePartcipantAssigner;
     LiveTimingMeasurement _liveTimingMeasurement;
     System.Timers.Timer _liveTimingStatusTimer;
 
     private void InitializeTiming()
     {
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
+
+      _timingDevicePartcipantAssigner = new List<LiveTimeParticipantAssigning>();
 
       _liveTimingStatusTimer = new System.Timers.Timer(300);
       _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
@@ -491,10 +494,11 @@ namespace RaceHorology
       if (newTimingDevice != null)
       {
         // Cleanup old devices
-        if (_timingDevicePartcipantAssigner != null)
+        while(_timingDevicePartcipantAssigner.Count > 0)
         {
-          _timingDevicePartcipantAssigner.Dispose();
-          _timingDevicePartcipantAssigner = null;
+          var tdpa = _timingDevicePartcipantAssigner[0];
+          _timingDevicePartcipantAssigner.Remove(tdpa);
+          tdpa.Dispose();
         }
         if (_timingDevice != null)
         {
@@ -503,9 +507,13 @@ namespace RaceHorology
         }
 
         // Create new devices
-        _timingDevicePartcipantAssigner = new LiveTimeParticipantAssigning(newTimingDevice);
         _liveTimingMeasurement.AddTimingDevice(newTimingDevice, true);
-        _liveTimingMeasurement.AddTimingDevice(_timingDevicePartcipantAssigner, false);
+
+        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, LiveTimeParticipantAssigning.EMeasurementPoint.Start));
+        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, LiveTimeParticipantAssigning.EMeasurementPoint.Finish));
+        foreach(var tdpa in _timingDevicePartcipantAssigner)
+          _liveTimingMeasurement.AddTimingDevice(tdpa, false);
+        
         if (newTimingDevice is ILiveDateTimeProvider)
           _liveTimingMeasurement.SetLiveDateTimeProvider(newTimingDevice as ILiveDateTimeProvider);
 
@@ -524,11 +532,12 @@ namespace RaceHorology
         _timingDevice.Stop();
         _timingDevice = null;
       }
-      if (_timingDevicePartcipantAssigner != null)
+      // Cleanup old devices
+      while (_timingDevicePartcipantAssigner.Count > 0)
       {
-        _liveTimingMeasurement.RemoveTimingDevice(_timingDevicePartcipantAssigner);
-        _timingDevicePartcipantAssigner.Dispose();
-        _timingDevicePartcipantAssigner = null;
+        var tdpa = _timingDevicePartcipantAssigner[0];
+        _timingDevicePartcipantAssigner.Remove(tdpa);
+        tdpa.Dispose();
       }
     }
 

@@ -656,18 +656,37 @@
               </Grid.RowDefinitions>
               <Grid Width="Auto">
                 <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="1*"/>
+                  <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="lblParticipantAssigning" Content="Zeitstempel" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+                <Label x:Name="lblParticipantAssigning" Content="Zeitmess-Protokoll" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
               </Grid>
-              <DataGrid x:Name="dgParticipantAssigning" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="True" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
-                <DataGrid.Style>
-                  <Style TargetType="DataGrid">
-                    <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
-                  </Style>
-                </DataGrid.Style>
-              </DataGrid>
+              <Grid Width="Auto" Grid.Row="6">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="1*"/>
+                  <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblParticipantAssigningStart" Content="Start" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" FontSize="14"/>
+                <DataGrid x:Name="dgParticipantAssigningStart" Margin="5" Grid.Row="1"  Grid.Column="0" Grid.ColumnSpan="1" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="True" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+                  <DataGrid.Style>
+                    <Style TargetType="DataGrid">
+                      <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
+                    </Style>
+                  </DataGrid.Style>
+                </DataGrid>
+                <Label x:Name="lblParticipantAssigningFinish" Content="Ziel" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" FontSize="14"/>
+                <DataGrid x:Name="dgParticipantAssigningFinish" Margin="5" Grid.Row="1" Grid.Column="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="True" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+                  <DataGrid.Style>
+                    <Style TargetType="DataGrid">
+                      <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
+                    </Style>
+                  </DataGrid.Style>
+                </DataGrid>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
