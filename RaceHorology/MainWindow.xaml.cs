@@ -518,11 +518,10 @@ namespace RaceHorology
     {
       if (_timingDevice != null)
       {
-        _timingDevice.Stop();
-
         _liveTimingMeasurement.RemoveTimingDevice(_timingDevice);
         _liveTimingMeasurement.SetLiveDateTimeProvider(null);
 
+        _timingDevice.Stop();
         _timingDevice = null;
       }
       if (_timingDevicePartcipantAssigner != null)
