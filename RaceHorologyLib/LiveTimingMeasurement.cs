@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -62,6 +62,17 @@ namespace RaceHorologyLib
       BStartTime = false;
       FinishTime = null;
       BFinishTime = false;
+    }
+
+    public TimeMeasurementEventArgs(TimeMeasurementEventArgs org)
+    {
+      StartNumber = org.StartNumber;
+      RunTime = org.RunTime;
+      BRunTime = org.BRunTime;
+      StartTime = org.StartTime;
+      BStartTime = org.BStartTime;
+      FinishTime = org.FinishTime;
+      BFinishTime = org.BFinishTime;
     }
 
     public uint StartNumber;
