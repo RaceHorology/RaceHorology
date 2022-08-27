@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -13,13 +13,11 @@ namespace RaceHorologyLib
   {
     private Timestamp _timeStamp;
     private uint _startnumber;
-    private RaceParticipant _participant;
 
     public Timestamp(Timestamp timeStamp, uint startnumber = 0, RaceParticipant participant = null)
     {
       _timeStamp = timeStamp;
       _startnumber = startnumber;
-      _participant = participant;
     }
 
     public Timestamp Time
@@ -32,11 +30,6 @@ namespace RaceHorologyLib
     {
       get => _startnumber;
       set { if (_startnumber != value) { _startnumber = value; NotifyPropertyChanged(); } }
-    }
-    public RaceParticipant Participant
-    {
-      get => _participant;
-      set { if (_participant != value) { _participant = value; NotifyPropertyChanged(); } }
     }
 
 
