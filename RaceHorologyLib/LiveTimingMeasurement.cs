@@ -287,6 +287,11 @@ namespace RaceHorologyLib
       }
     }
 
+    public List<ILiveTimeMeasurementDeviceBase> GetTimingDevices()
+    {
+      return _timingDevices;
+    }
+
 
     /// <summary>
     /// Property to get the used timing device

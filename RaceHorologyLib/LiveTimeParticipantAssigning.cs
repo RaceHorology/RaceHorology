@@ -57,9 +57,12 @@ namespace RaceHorologyLib
   {
     private ILiveTimeMeasurementDevice _timeMeasurementDevice;
     private ItemsChangeObservableCollection<Timestamp> _timestamps;
+    private System.Threading.SynchronizationContext _syncContext;
 
     public LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice)
     {
+      _syncContext = System.Threading.SynchronizationContext.Current;
+
       _timeMeasurementDevice = timeMeasurementDevice;
       _timestamps = new ItemsChangeObservableCollection<Timestamp>();
 
@@ -74,12 +77,15 @@ namespace RaceHorologyLib
 
     private void timeMeasurementDevice_TimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
-      var time = e.BStartTime ? e.StartTime : e.BFinishTime ? e.FinishTime : null;
-      if (time != null)
+      _syncContext.Send(delegate
       {
-        var ts = new Timestamp((TimeSpan)time, e, e.StartNumber);
-        _timestamps.Add(ts);
-      }
+        var time = e.BStartTime ? e.StartTime : e.BFinishTime ? e.FinishTime : null;
+        if (time != null)
+        {
+          var ts = new Timestamp((TimeSpan)time, e, e.StartNumber);
+          _timestamps.Add(ts);
+        }
+      }, null);
     }
 
     public ItemsChangeObservableCollection<Timestamp> Timestamps

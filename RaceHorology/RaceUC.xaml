@@ -661,7 +661,7 @@
                 </Grid.ColumnDefinitions>
                 <Label x:Name="lblParticipantAssigning" Content="Zeitstempel" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
               </Grid>
-              <DataGrid x:Name="dgParticipantAssigning" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+              <DataGrid x:Name="dgParticipantAssigning" Margin="5" Grid.Row="1" AlternationCount="2" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="True" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.Style>
                   <Style TargetType="DataGrid">
                     <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>

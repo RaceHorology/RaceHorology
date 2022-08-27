@@ -362,6 +362,14 @@ namespace RaceHorology
 
       _thisRace.RunsChanged += OnRaceRunsChanged;
 
+      foreach(var td in _liveTimingMeasurement.GetTimingDevices())
+      {
+        if (td is LiveTimeParticipantAssigning tdAssigning)
+        {
+          dgParticipantAssigning.ItemsSource = tdAssigning.Timestamps;
+        }
+      }
+
       UpdateLiveTimingStartStopButtons(false); // Initial status
     }
 
