@@ -504,11 +504,12 @@ namespace RaceHorology
 
         // Create new devices
         _timingDevicePartcipantAssigner = new LiveTimeParticipantAssigning(newTimingDevice);
-        _liveTimingMeasurement.AddTimingDevice(_timingDevice, true);
+        _liveTimingMeasurement.AddTimingDevice(newTimingDevice, true);
         _liveTimingMeasurement.AddTimingDevice(_timingDevicePartcipantAssigner, false);
-        if (_timingDevice is ILiveDateTimeProvider)
-          _liveTimingMeasurement.SetLiveDateTimeProvider(_timingDevice as ILiveDateTimeProvider);
+        if (newTimingDevice is ILiveDateTimeProvider)
+          _liveTimingMeasurement.SetLiveDateTimeProvider(newTimingDevice as ILiveDateTimeProvider);
 
+        _timingDevice = newTimingDevice;
         _timingDevice.Start();
       }
     }
