@@ -439,6 +439,7 @@ namespace RaceHorology
     #region LiveTiming
 
     ILiveTimeMeasurementDevice _timingDevice;
+    LiveTimeParticipantAssigning _timingDevicePartcipantAssigner;
     LiveTimingMeasurement _liveTimingMeasurement;
     System.Timers.Timer _liveTimingStatusTimer;
 
@@ -478,27 +479,56 @@ namespace RaceHorology
       if (Properties.Settings.Default.TimingDevice_Debug_Dump)
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
+      ILiveTimeMeasurementDevice newTimingDevice = null;
       if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE")) {
-        _timingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+        newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
         var hostname = Properties.Settings.Default.TimingDevice_Url;
-        _timingDevice = new TimingDeviceAlpenhunde(hostname);
+        newTimingDevice = new TimingDeviceAlpenhunde(hostname);
       }
-      _liveTimingMeasurement.SetTimingDevice(_timingDevice, _timingDevice as ILiveDateTimeProvider);
 
-      _timingDevice.Start();
+      if (newTimingDevice != null)
+      {
+        // Cleanup old devices
+        if (_timingDevicePartcipantAssigner != null)
+        {
+          _timingDevicePartcipantAssigner.Dispose();
+          _timingDevicePartcipantAssigner = null;
+        }
+        if (_timingDevice != null)
+        {
+          _liveTimingMeasurement.RemoveTimingDevice(_timingDevice);
+          _liveTimingMeasurement.SetLiveDateTimeProvider(null);
+        }
+
+        // Create new devices
+        _timingDevicePartcipantAssigner = new LiveTimeParticipantAssigning(newTimingDevice);
+        _liveTimingMeasurement.AddTimingDevice(_timingDevice, true);
+        _liveTimingMeasurement.AddTimingDevice(_timingDevicePartcipantAssigner, false);
+        if (_timingDevice is ILiveDateTimeProvider)
+          _liveTimingMeasurement.SetLiveDateTimeProvider(_timingDevice as ILiveDateTimeProvider);
+
+        _timingDevice.Start();
+      }
     }
 
     private void DeInitializeTimingDevice()
     {
       if (_timingDevice != null)
       {
-        _liveTimingMeasurement.SetTimingDevice(null, null);
-
         _timingDevice.Stop();
 
+        _liveTimingMeasurement.RemoveTimingDevice(_timingDevice);
+        _liveTimingMeasurement.SetLiveDateTimeProvider(null);
+
         _timingDevice = null;
+      }
+      if (_timingDevicePartcipantAssigner != null)
+      {
+        _liveTimingMeasurement.RemoveTimingDevice(_timingDevicePartcipantAssigner);
+        _timingDevicePartcipantAssigner.Dispose();
+        _timingDevicePartcipantAssigner = null;
       }
     }
 

@@ -58,7 +58,7 @@ namespace RaceHorologyLib
     private ILiveTimeMeasurementDevice _timeMeasurementDevice;
     private ItemsChangeObservableCollection<Timestamp> _timestamps;
 
-    LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice)
+    public LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice)
     {
       _timeMeasurementDevice = timeMeasurementDevice;
       _timestamps = new ItemsChangeObservableCollection<Timestamp>();

@@ -763,7 +763,8 @@ namespace RaceHorologyLibTest
         LiveTimingMeasurement liveTimingMeasurement = new LiveTimingMeasurement(modelWork);
 
         ALGETdC8001TimeMeasurementSimulate algeSimulator = new ALGETdC8001TimeMeasurementSimulate(testfile);
-        liveTimingMeasurement.SetTimingDevice(algeSimulator, algeSimulator);
+        liveTimingMeasurement.AddTimingDevice(algeSimulator, true);
+        liveTimingMeasurement.SetLiveDateTimeProvider(algeSimulator);
         algeSimulator.Start();
 
         modelWork.SetCurrentRaceRun(modelWork.GetRace(0).GetRun(run));

@@ -203,7 +203,8 @@ namespace RaceHorologyLib
     AppDataModel _dm;
     SynchronizationContext _syncContext;
 
-    ILiveTimeMeasurementDevice _timingDevice;
+    List<ILiveTimeMeasurementDeviceBase> _timingDevices;
+    ILiveTimeMeasurementDevice _timingDeviceMain;
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
     bool _autoAddParticipants;
@@ -217,6 +218,9 @@ namespace RaceHorologyLib
     {
       _dm = dm;
       _syncContext = System.Threading.SynchronizationContext.Current;
+
+      _timingDevices = new List<ILiveTimeMeasurementDeviceBase>();
+
       _isRunning = false;
       _autoAddParticipants = autoAddParticipants;
     }
@@ -232,42 +236,62 @@ namespace RaceHorologyLib
     /// <summary>
     /// Sets the Timing Device to use
     /// </summary>
-    public void SetTimingDevice(ILiveTimeMeasurementDevice timingDevice, ILiveDateTimeProvider liveDateTimeProvider)
+    public void SetLiveDateTimeProvider(ILiveDateTimeProvider liveDateTimeProvider)
     {
       // Cleanup if already used
-      if (_timingDevice != null)
-      {
-        _timingDevice.TimeMeasurementReceived -= OnTimeMeasurementReceived;
-        _timingDevice.StartnumberSelectedReceived -= OnStartnumberSelectedReceived;
-        _timingDevice.StatusChanged -= OnTimerStatusChanged;
-        _timingDevice = null;
-      }
-
       if (_liveDateTimeProvider != null)
       { 
         _liveDateTimeProvider.LiveDateTimeChanged -= OnLiveDateTimeChanged;
         _liveDateTimeProvider = null;
       }
 
-      _timingDevice = timingDevice;
       _liveDateTimeProvider = liveDateTimeProvider;
 
-      if (_timingDevice != null)
-      {
-        _timingDevice.TimeMeasurementReceived += OnTimeMeasurementReceived;
-        _timingDevice.StartnumberSelectedReceived += OnStartnumberSelectedReceived;
-        _timingDevice.StatusChanged += OnTimerStatusChanged;
-      }
       if (_liveDateTimeProvider != null)
       {
         _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
       }
     }
 
+    public void AddTimingDevice(ILiveTimeMeasurementDeviceBase timingDevice, bool mainDevice)
+    {
+      if (timingDevice != null)
+      {
+        timingDevice.TimeMeasurementReceived += OnTimeMeasurementReceived;
+        if (timingDevice is ILiveTimeMeasurementDevice tdFull){
+          tdFull.StartnumberSelectedReceived += OnStartnumberSelectedReceived;
+          tdFull.StatusChanged += OnTimerStatusChanged;
+          if (mainDevice)
+            _timingDeviceMain = tdFull;
+        }
+      }
+
+      _timingDevices.Add(timingDevice);
+    }
+
+    public void RemoveTimingDevice(ILiveTimeMeasurementDeviceBase timingDevice)
+    {
+      var idx = _timingDevices.IndexOf(timingDevice);
+      if (idx != -1)
+      {
+        timingDevice.TimeMeasurementReceived -= OnTimeMeasurementReceived;
+        if (timingDevice is ILiveTimeMeasurementDevice tdFull)
+        {
+          tdFull.StartnumberSelectedReceived -= OnStartnumberSelectedReceived;
+          tdFull.StatusChanged -= OnTimerStatusChanged;
+          if (_timingDeviceMain == timingDevice)
+            _timingDeviceMain = null;
+        }
+        _timingDevices.Remove(timingDevice);
+
+      }
+    }
+
+
     /// <summary>
     /// Property to get the used timing device
     /// </summary>
-    public ILiveTimeMeasurementDevice LiveTimingDevice { get => _timingDevice; }
+    public ILiveTimeMeasurementDevice LiveTimingDevice { get => _timingDeviceMain; }
     public ILiveDateTimeProvider LiveDateTimeProvider { get => _liveDateTimeProvider; }
 
     public void Start()
@@ -287,7 +311,7 @@ namespace RaceHorologyLib
       handler?.Invoke(this, IsRunning);
     }
 
-    public bool IsRunning { get => _isRunning && _timingDevice?.IsOnline == true; }
+    public bool IsRunning { get => _isRunning && _timingDeviceMain?.IsOnline == true; }
 
     #endregion
 
