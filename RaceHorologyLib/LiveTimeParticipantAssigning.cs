@@ -12,18 +12,24 @@ namespace RaceHorologyLib
   public class Timestamp : INotifyPropertyChanged
   {
     private Timestamp _timeStamp;
+    private TimeMeasurementEventArgs _orgTimeData;
     private uint _startnumber;
 
-    public Timestamp(Timestamp timeStamp, uint startnumber = 0, RaceParticipant participant = null)
+    public Timestamp(Timestamp timeStamp, TimeMeasurementEventArgs orgTimeData, uint startnumber = 0, RaceParticipant participant = null)
     {
       _timeStamp = timeStamp;
+      _orgTimeData = orgTimeData;
       _startnumber = startnumber;
     }
 
     public Timestamp Time
     {
       get => _timeStamp;
-      set { if (_timeStamp != value) { _timeStamp = value; NotifyPropertyChanged(); } }
+    }
+
+    public TimeMeasurementEventArgs OrgTimeData
+    {
+      get => _orgTimeData;
     }
 
     public uint StartNumber
