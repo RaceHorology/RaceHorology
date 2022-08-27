@@ -83,9 +83,20 @@ namespace RaceHorologyLib
         if (time != null)
         {
           var ts = new Timestamp((TimeSpan)time, e, e.StartNumber);
+
+          ts.PropertyChanged += timeStamp_PropertyChanged;
+
           _timestamps.Add(ts);
         }
       }, null);
+    }
+
+    private void timeStamp_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is Timestamp ts)
+      {
+        NotifyChange(ts, ts.StartNumber);
+      }
     }
 
     public ItemsChangeObservableCollection<Timestamp> Timestamps
@@ -93,17 +104,10 @@ namespace RaceHorologyLib
       get { return _timestamps; }
     }
 
-    public void Assign(Timestamp timestamp, uint startnumber)
+    public void NotifyChange(Timestamp timestamp, uint startnumber)
     {
       if (_timestamps.FirstOrDefault(item => item == timestamp) == null) // Just check whether the item is in the container
         return;
-
-      // Check if the startnumber is already used by another timestamp
-      var inUse = startnumber == 0 ? null : _timestamps.FirstOrDefault(item => item.StartNumber == startnumber);
-      if (inUse != null && inUse != timestamp)
-        inUse.StartNumber = 0;
-
-      timestamp.StartNumber = startnumber;
 
       // Trigger TimeMeasurementReceived event with updated startnumber
       var handle = TimeMeasurementReceived;
