@@ -68,6 +68,11 @@ namespace RaceHorology
       catch (Exception) { }
     }
 
-
+    private void dgParticipantAssigning_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (dgParticipantAssigning.SelectedItem is Timestamp ts){
+        txtStartNumber.Text = ts.StartNumber.ToString();
+      }
+    }
   }
 }
