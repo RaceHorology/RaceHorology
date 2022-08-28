@@ -153,7 +153,6 @@ namespace RaceHorologyLib
 
       // Sort out invalid data
       if ( parsedData.Flag == 'p'
-        || parsedData.Flag == '?'
         || parsedData.Flag == 'b'
         || parsedData.Flag == 'm'
         || parsedData.Flag == 'n'
@@ -164,6 +163,7 @@ namespace RaceHorologyLib
         || parsedData.Flag == 'c')
         parsedDataTime = null;
 
+      data.Valid = parsedData.Flag != '?';
       data.StartNumber = parsedData.StartNumber;
 
       switch (parsedData.Channel)

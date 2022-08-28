@@ -129,7 +129,9 @@ namespace RaceHorologyLib
 
       // Trigger TimeMeasurementReceived event with updated startnumber
       var handle = TimeMeasurementReceived;
-      handle?.Invoke(this, createTimeMeasurement(timestamp));
+      var newEvent = createTimeMeasurement(timestamp);
+      newEvent.Valid = true; // Make this event a valid one, because it's intended to be (manuelly triggered)
+      handle?.Invoke(this, newEvent);
     }
 
     private TimeMeasurementEventArgs createTimeMeasurement(Timestamp timestamp)

@@ -62,6 +62,7 @@ namespace RaceHorologyLib
       BStartTime = false;
       FinishTime = null;
       BFinishTime = false;
+      Valid = false;
     }
 
     public TimeMeasurementEventArgs(TimeMeasurementEventArgs org)
@@ -73,6 +74,7 @@ namespace RaceHorologyLib
       BStartTime = org.BStartTime;
       FinishTime = org.FinishTime;
       BFinishTime = org.BFinishTime;
+      Valid = org.Valid;
     }
 
     public uint StartNumber;
@@ -82,6 +84,7 @@ namespace RaceHorologyLib
     public bool BStartTime;      // true if StartTime is set
     public TimeSpan? FinishTime; // if null and corresponding time property is set true => time shall be deleted
     public bool BFinishTime;     // true if FinishTime is set
+    public bool Valid;           // true if timestamp is valid, false if time measurementdevice marked it as invalid
   }
 
   public class StartnumberSelectedEventArgs: EventArgs
@@ -338,6 +341,10 @@ namespace RaceHorologyLib
     private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
       if (!_isRunning)
+        return;
+
+      // Only accept valid timemeasurements
+      if (!e.Valid) 
         return;
 
       _syncContext.Send(delegate
