@@ -982,6 +982,7 @@ namespace RaceHorologyLib
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
+
     public virtual TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
     {
       if (!considerResultCode || _resultCode == EResultCode.Normal)
@@ -1015,6 +1016,10 @@ namespace RaceHorologyLib
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
 
+      // Delete RunTime if it was set to enusre consistency
+      if (_runTime != null)
+        _runTime = null;
+
       NotifyPropertyChanged(propertyName: nameof(StartTime));
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
@@ -1028,6 +1033,10 @@ namespace RaceHorologyLib
 
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
+
+      // Delete RunTime if it was set to enusre consistency
+      if (_runTime != null)
+        _runTime = null;
 
       NotifyPropertyChanged(propertyName: nameof(FinishTime));
       NotifyPropertyChanged(propertyName: nameof(Runtime));
