@@ -14,12 +14,14 @@ namespace RaceHorologyLib
     private TimeSpan _timeStamp;
     private TimeMeasurementEventArgs _orgTimeData;
     private uint _startnumber;
+    private bool _valid;
 
     public Timestamp(TimeSpan timeStamp, TimeMeasurementEventArgs orgTimeData, uint startnumber = 0)
     {
       _timeStamp = timeStamp;
       _orgTimeData = orgTimeData;
       _startnumber = startnumber;
+      _valid = orgTimeData.Valid;
     }
 
     public TimeSpan Time
@@ -34,7 +36,8 @@ namespace RaceHorologyLib
 
     public bool Valid
     {
-      get => _orgTimeData.Valid;
+      get => _valid;
+      set { if (_valid != value) { _valid = value; NotifyPropertyChanged(); } }
     }
 
     public uint StartNumber
@@ -106,7 +109,8 @@ namespace RaceHorologyLib
         {
           var ts = new Timestamp((TimeSpan)time, e, e.StartNumber);
 
-          ts.PropertyChanged += timeStamp_PropertyChanged;
+          if (ts.Valid && e.StartNumber > 0)
+            invalidateOtherWithSameStartnumber(ts, e.StartNumber);
 
           _timestamps.Insert(0, ts);
           _timestamps.Sort<Timestamp>(_sorter);
@@ -114,23 +118,23 @@ namespace RaceHorologyLib
       }, null);
     }
 
-    private void timeStamp_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      if (sender is Timestamp ts)
-      {
-        NotifyChange(ts, ts.StartNumber);
-      }
-    }
 
     public ItemsChangeObservableCollection<Timestamp> Timestamps
     {
       get { return _timestamps; }
     }
 
-    public void NotifyChange(Timestamp timestamp, uint startnumber)
+
+    public void Assign(Timestamp timestamp, uint startnumber)
     {
       if (_timestamps.FirstOrDefault(item => item == timestamp) == null) // Just check whether the item is in the container
         return;
+
+      // Check if the startnumber is already used by another timestamp
+      invalidateOtherWithSameStartnumber(timestamp, startnumber);
+
+      timestamp.StartNumber = startnumber;
+      timestamp.Valid = true;
 
       // Trigger TimeMeasurementReceived event with updated startnumber
       var handle = TimeMeasurementReceived;
@@ -138,6 +142,16 @@ namespace RaceHorologyLib
       newEvent.Valid = true; // Make this event a valid one, because it's intended to be (manuelly triggered)
       handle?.Invoke(this, newEvent);
     }
+
+    private void invalidateOtherWithSameStartnumber(Timestamp timestamp, uint startnumber)
+    {
+      foreach (var inUse in _timestamps.Where(item => item.StartNumber == startnumber))
+      {
+        if (inUse != null && inUse != timestamp)
+          inUse.Valid = false;
+      }
+    }
+
 
     private TimeMeasurementEventArgs createTimeMeasurement(Timestamp timestamp)
     {

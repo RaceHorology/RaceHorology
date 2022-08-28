@@ -368,9 +368,9 @@ namespace RaceHorology
         if (td is LiveTimeParticipantAssigning tdAssigning)
         {
           if (idx == 0)
-            mlapaStart.SetLTPA(tdAssigning);
+            mlapaStart.Init(tdAssigning, _thisRace);
           if (idx == 1)
-            mlapaFinish.SetLTPA(tdAssigning);
+            mlapaFinish.Init(tdAssigning, _thisRace);
           idx++;
         }
       }

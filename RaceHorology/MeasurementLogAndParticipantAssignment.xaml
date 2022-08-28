@@ -6,25 +6,49 @@
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Width="Auto" Grid.Row="6">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="1*"/>
-      </Grid.ColumnDefinitions>
-      <DataGrid x:Name="dgParticipantAssigning" Margin="5" Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="1" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
-        <DataGrid.Columns>
+  <Grid Width="Auto" Grid.Row="6">
+    <Grid.RowDefinitions>
+      <RowDefinition/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="1*"/>
+    </Grid.ColumnDefinitions>
+    <DataGrid x:Name="dgParticipantAssigning" Margin="5" Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="1" AlternatingRowBackground="#FFf8faf7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserSortColumns="False" SelectionMode="Single" EnableColumnVirtualization="True" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+      <DataGrid.Columns>
         <DataGridTextColumn local:DataGridUtil.Name="Time" Header="Zeit" Binding="{Binding Time, Mode=OneWay, StringFormat=\{0:hh\\:mm\\:ss\\\,ffff\}}"/>
         <DataGridTextColumn local:DataGridUtil.Name="Valid" Header="Gültig" Binding="{Binding Valid, Mode=OneWay}"/>
         <DataGridTextColumn local:DataGridUtil.Name="StartNumber" Header="StNr" Binding="{Binding StartNumber, Mode=OneWay}"/>
       </DataGrid.Columns>
-        <DataGrid.Style>
-          <Style TargetType="DataGrid">
-            <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
-          </Style>
-        </DataGrid.Style>
-      </DataGrid>
+      <DataGrid.Style>
+        <Style TargetType="DataGrid">
+          <Setter Property="AlternatingRowBackground" Value="#FFf8faf7"/>
+        </Style>
+      </DataGrid.Style>
+      <DataGrid.CellStyle>
+        <Style TargetType="{x:Type DataGridCell}">
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding Valid}" Value="False" >
+              <Setter Property="Foreground" Value="#202020" />
+              <Setter Property="FontStyle" Value="Italic" />
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </DataGrid.CellStyle>
+    </DataGrid>
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <Label Content="Korrektur - StNr:" Grid.Row="0" Grid.Column="0"/>
+      <TextBox x:Name="txtStartNumber" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1" Margin="5,0,5,0" Width="80" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Right" TextChanged="TxtStartNumber_TextChanged" GotFocus="Txt_GotFocus_SelectAll"/>
+      <TextBox x:Name="txtParticipant" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="1" Margin="5,0,5,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False"/>
+      <Button x:Name="btnStore" Grid.Row="0" Grid.Column="3" Content="Zuweisen" Margin="5,0,5,0"  VerticalAlignment="Center" Click="BtnStore_Click"/>
     </Grid>
+  </Grid>
 </UserControl>
