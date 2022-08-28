@@ -32,6 +32,11 @@ namespace RaceHorologyLib
       get => _orgTimeData;
     }
 
+    public bool Valid
+    {
+      get => _orgTimeData.Valid;
+    }
+
     public uint StartNumber
     {
       get => _startnumber;
