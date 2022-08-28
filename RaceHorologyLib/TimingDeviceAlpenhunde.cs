@@ -213,6 +213,7 @@ namespace RaceHorologyLib
       data.Index = parsedData.i;
 
       data.StartNumber = startNumber;
+      data.Valid = startNumber > 0;
       switch (parsedData.c)
       {
         case 1: // Start
