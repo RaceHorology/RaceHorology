@@ -537,6 +537,7 @@ namespace RaceHorology
       {
         var tdpa = _timingDevicePartcipantAssigner[0];
         _timingDevicePartcipantAssigner.Remove(tdpa);
+        _liveTimingMeasurement.RemoveTimingDevice(tdpa);
         tdpa.Dispose();
       }
     }

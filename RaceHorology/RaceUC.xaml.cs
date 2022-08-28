@@ -72,6 +72,7 @@ namespace RaceHorology
       _thisRace = race;
       _liveTimingMeasurement = liveTimingMeasurement;
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
+      _liveTimingMeasurement.LiveTimingConfigChanged += OnLiveTimingMeasurementConfigChanged;
 
       _txtLiveTimingStatus = txtLiveTimingStatus;
       _txtLiveTimingStatus.TextChanged += new DelayedEventHandler(
@@ -362,6 +363,11 @@ namespace RaceHorology
 
       _thisRace.RunsChanged += OnRaceRunsChanged;
 
+      InitializeTiming2();
+    }
+
+    private void InitializeTiming2()
+    {
       int idx = 0;
       foreach (var td in _liveTimingMeasurement.GetTimingDevices())
       {
@@ -376,6 +382,11 @@ namespace RaceHorology
       }
 
       UpdateLiveTimingStartStopButtons(false); // Initial status
+    }
+
+    private void OnLiveTimingMeasurementConfigChanged(object sender, bool changed)
+    {
+      InitializeTiming2();
     }
 
 

@@ -235,6 +235,9 @@ namespace RaceHorologyLib
     public delegate void LiveTimingMeasurementStatusEventHandler(object sender, bool isRunning);
     public event LiveTimingMeasurementStatusEventHandler LiveTimingMeasurementStatusChanged;
 
+    public delegate void LiveTimingMeasurementConfigChangedEventHandler(object sender, bool configChanged);
+    public event LiveTimingMeasurementConfigChangedEventHandler LiveTimingConfigChanged;
+
 
     /// <summary>
     /// Sets the Timing Device to use
@@ -270,6 +273,9 @@ namespace RaceHorologyLib
       }
 
       _timingDevices.Add(timingDevice);
+
+      var handler = LiveTimingConfigChanged;
+      handler?.Invoke(this, true);
     }
 
     public void RemoveTimingDevice(ILiveTimeMeasurementDeviceBase timingDevice)
@@ -287,6 +293,8 @@ namespace RaceHorologyLib
         }
         _timingDevices.Remove(timingDevice);
 
+        var handler = LiveTimingConfigChanged;
+        handler?.Invoke(this, true);
       }
     }
 
