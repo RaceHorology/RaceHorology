@@ -252,6 +252,9 @@ namespace RaceHorology
     LiveTimingAutoNiZ _liveTimingAutoNiZ;
     LiveTimingAutoNaS _liveTimingAutoNaS;
     LiveTimingStartCountDown _liveTimingStartCountDown;
+    DataGridColumnVisibilityContextMenu _dgColVisRemainingStarters;
+    DataGridColumnVisibilityContextMenu _dgColVisRunning;
+    DataGridColumnVisibilityContextMenu _dgColVisFinish;
 
     public class LiveTimingStartCountDown : IDisposable
     {
@@ -462,12 +465,15 @@ namespace RaceHorology
         _rslVP  = (new ViewConfigurator(_thisRace)).GetRemainingStartersViewProvider(raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRemainingStarters);
+        _dgColVisRemainingStarters = new DataGridColumnVisibilityContextMenu(dgRemainingStarters, "timing_remaining_starter");
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRunning);
+        _dgColVisRunning = new DataGridColumnVisibilityContextMenu(dgRunning, "timing_running");
 
         dgFinish.ItemsSource = raceRun.GetInFinishList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgFinish);
+        _dgColVisFinish = new DataGridColumnVisibilityContextMenu(dgFinish, "timing_finish");
 
         lblStartList.DataContext = _rslVP.GetView();
       }

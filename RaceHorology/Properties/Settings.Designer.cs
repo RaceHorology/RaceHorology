@@ -154,5 +154,17 @@ namespace RaceHorology.Properties {
                 this["AutoAddParticipants"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string _DataGridColumnVisibility {
+            get {
+                return ((string)(this["_DataGridColumnVisibility"]));
+            }
+            set {
+                this["_DataGridColumnVisibility"] = value;
+            }
+        }
     }
 }

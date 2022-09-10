@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -174,6 +175,141 @@ namespace RaceHorology
     public static readonly DependencyProperty NameProperty =
         DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridUtil), new UIPropertyMetadata(""));
 
+  }
+
+
+  internal class VisibilityConfig
+  {
+    class Internal : Dictionary<string, Dictionary<string, bool>> 
+    {};
+
+    Internal _representation;
+
+    public VisibilityConfig()
+    {
+      _representation = new Internal();
+      load();
+    }
+
+    private void load()
+    {
+      try
+      {
+        string visbilityConfig = Properties.Settings.Default._DataGridColumnVisibility;
+        Newtonsoft.Json.JsonConvert.PopulateObject(visbilityConfig, _representation);
+      }
+      catch (Exception) { }
+    }
+    private void save()
+    {
+      string visbilityConfig = Newtonsoft.Json.JsonConvert.SerializeObject(_representation, Newtonsoft.Json.Formatting.Indented);
+      Properties.Settings.Default._DataGridColumnVisibility = visbilityConfig;
+      Properties.Settings.Default.Save();
+    }
+
+    public bool IsVisible(string dataGridIdentifier, string column)
+    {
+      if (!_representation.ContainsKey(dataGridIdentifier))
+        return true;
+
+      if (!_representation[dataGridIdentifier].ContainsKey(column))
+        return true;
+
+      return _representation[dataGridIdentifier][column];
+    }
+
+    public void SetVisible(string dataGridIdentifier, string column, bool visibility)
+    {
+      if (!_representation.ContainsKey(dataGridIdentifier))
+        _representation[dataGridIdentifier] = new Dictionary<string, bool>();
+      _representation[dataGridIdentifier][column] = visibility;
+
+      save();
+    }
+  };
+
+  public class DataGridColumnVisibilityContextMenu
+  {
+    private DataGrid _grid;
+    private ContextMenu _cxMenu;
+    private string _dataGridIdentifier;
+    private VisibilityConfig _visibilityConfig;
+
+
+    public DataGridColumnVisibilityContextMenu(DataGrid grid, string dataGridIdentifier)
+    {
+      _dataGridIdentifier = dataGridIdentifier;
+      _grid = grid;
+      _visibilityConfig = new VisibilityConfig();
+      _cxMenu = createContextMenu(grid);
+
+      _grid.MouseRightButtonUp += grid_MouseRightButtonUp;
+
+    }
+
+    private void grid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    {
+      var depObj = e.OriginalSource as DependencyObject;
+      while ((depObj != null) && !(depObj is DataGridColumnHeader))
+        depObj = VisualTreeHelper.GetParent(depObj);
+
+      if (depObj is DataGridColumnHeader dgColHdr)
+        dgColHdr.ContextMenu = _cxMenu;
+    }
+
+    private ContextMenu createContextMenu(DataGrid grid)
+    {
+      var cxMenu = new ContextMenu();
+
+      foreach (var col in grid.Columns)
+      {
+        if (col.Header.ToString() == "")
+          continue;
+
+        var mnuCol = new MenuItem();
+        var colName = col.Header.ToString();
+        mnuCol.Header = colName;
+
+        var shallBeVisible = col.Visibility == Visibility.Visible && _visibilityConfig.IsVisible(_dataGridIdentifier, colName);
+
+        mnuCol.IsChecked = shallBeVisible;
+        if (col.Visibility == Visibility.Visible != shallBeVisible)
+          col.Visibility = shallBeVisible ? Visibility.Visible : Visibility.Collapsed;
+        
+        mnuCol.Click += MnuCol_Click;
+        mnuCol.Checked += MnuCol_Checked;
+        mnuCol.Unchecked += MnuCol_Unchecked;
+        cxMenu.Items.Add(mnuCol);
+      }
+
+      return cxMenu;
+    }
+
+    private void setVisibility(MenuItem mnuItem, bool visible)
+    {
+      foreach (var col in _grid.Columns)
+        if (mnuItem.Header.ToString() == col.Header.ToString())
+        {
+          col.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+          _visibilityConfig.SetVisible(_dataGridIdentifier, mnuItem.Header.ToString(), visible);
+        }
+    }
+
+    private void MnuCol_Unchecked(object sender, RoutedEventArgs e)
+    {
+      setVisibility(sender as MenuItem, false);
+    }
+
+    private void MnuCol_Checked(object sender, RoutedEventArgs e)
+    {
+      setVisibility(sender as MenuItem, true);
+    }
+
+    private void MnuCol_Click(object sender, RoutedEventArgs e)
+    {
+      var mnuItem = sender as MenuItem;
+      mnuItem.IsChecked = !mnuItem.IsChecked;
+    }
   }
 
 

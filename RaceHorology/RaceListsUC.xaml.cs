@@ -185,8 +185,11 @@ namespace RaceHorology
 
     IWarningLabelHandler _lblHandler;
 
+    DataGridColumnVisibilityContextMenu _gridColumnHandler;
+
     public RaceListsUC()
     {
+      _gridColumnHandler = null;
       InitializeComponent();
     }
 
@@ -350,11 +353,11 @@ namespace RaceHorology
     }
 
 
-    DataGridTextColumn createColumnPosition(string columnName, string property, bool inParantheses)
+    DataGridTextColumn createColumnPosition(string header, string columnName, string property, bool inParantheses)
     {
       DataGridTextColumn dgc = new DataGridTextColumn
       {
-        Header = "Pos"
+        Header = header
       };
       Binding b = new Binding(property)
       {
@@ -479,7 +482,7 @@ namespace RaceHorology
         return;
 
       if (!(_viewProvider is StartListViewProvider))
-        dgView.Columns.Add(createColumnPosition("Position", "Position", false));
+        dgView.Columns.Add(createColumnPosition("Pos", "Position", "Position", false));
 
       dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
       dgView.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
@@ -508,7 +511,7 @@ namespace RaceHorology
           dgView.Columns.Add(createColumnTime(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
           dgView.Columns.Add(createColumnDiff(string.Format("Diff {0}", r.Run), string.Format("SubResults[{0}].DiffToFirst", r.Run)));
           dgView.Columns.Add(createColumnDiffInPercentage(string.Format("[%] {0}", r.Run), string.Format("SubResults[{0}].DiffToFirstPercentage", r.Run)));
-          dgView.Columns.Add(createColumnPosition(string.Format("SubResults[{0}].Position", r.Run), string.Format("SubResults[{0}].Position", r.Run), true));
+          dgView.Columns.Add(createColumnPosition(string.Format("Pos {0}", r.Run), string.Format("SubResults[{0}].Position", r.Run), string.Format("SubResults[{0}].Position", r.Run), true));
         }
 
         dgView.Columns.Add(createColumnTime("Total", "TotalTime", "ResultCode"));
@@ -536,7 +539,9 @@ namespace RaceHorology
       cmbTotalResultGrouping.SelectCBItem(_viewProvider.ActiveGrouping);
 
       UiUtilities.EnableOrDisableColumns(_thisRace, dgView);
+      _gridColumnHandler = new DataGridColumnVisibilityContextMenu(dgView, "racelist");
     }
+
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
     {
