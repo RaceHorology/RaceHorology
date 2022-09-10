@@ -207,6 +207,9 @@ namespace RaceHorology
 
       foreach (var col in grid.Columns)
       {
+        if (col.Header.ToString() == "")
+          continue;
+
         var mnuCol = new MenuItem();
         mnuCol.Header = col.Header.ToString();
         mnuCol.IsChecked = mnuCol.Visibility == Visibility.Visible;
