@@ -539,7 +539,7 @@ namespace RaceHorology
       cmbTotalResultGrouping.SelectCBItem(_viewProvider.ActiveGrouping);
 
       UiUtilities.EnableOrDisableColumns(_thisRace, dgView);
-      _gridColumnHandler = new DataGridColumnVisibilityContextMenu(dgView);
+      _gridColumnHandler = new DataGridColumnVisibilityContextMenu(dgView, "racelist");
     }
 
 
