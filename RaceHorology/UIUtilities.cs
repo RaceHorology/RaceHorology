@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -174,6 +175,72 @@ namespace RaceHorology
     public static readonly DependencyProperty NameProperty =
         DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridUtil), new UIPropertyMetadata(""));
 
+  }
+
+
+  public class DataGridColumnVisibilityContextMenu
+  {
+    private DataGrid _grid;
+    private ContextMenu _cxMenu;
+
+    public DataGridColumnVisibilityContextMenu(DataGrid grid)
+    {
+      _grid = grid;
+      _cxMenu = createContextMenu(grid);
+
+      _grid.MouseRightButtonUp += grid_MouseRightButtonUp;
+    }
+
+    private void grid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    {
+      var depObj = e.OriginalSource as DependencyObject;
+      while ((depObj != null) && !(depObj is DataGridColumnHeader))
+        depObj = VisualTreeHelper.GetParent(depObj);
+
+      if (depObj is DataGridColumnHeader dgColHdr)
+        dgColHdr.ContextMenu = _cxMenu;
+    }
+
+    private ContextMenu createContextMenu(DataGrid grid)
+    {
+      var cxMenu = new ContextMenu();
+
+      foreach (var col in grid.Columns)
+      {
+        var mnuCol = new MenuItem();
+        mnuCol.Header = col.Header.ToString();
+        mnuCol.IsChecked = mnuCol.Visibility == Visibility.Visible;
+        mnuCol.IsChecked = col.Visibility == Visibility.Visible;
+        mnuCol.Click += MnuCol_Click;
+        mnuCol.Checked += MnuCol_Checked;
+        mnuCol.Unchecked += MnuCol_Unchecked;
+        cxMenu.Items.Add(mnuCol);
+      }
+
+      return cxMenu;
+    }
+
+    private void MnuCol_Unchecked(object sender, RoutedEventArgs e)
+    {
+      var mnuItem = sender as MenuItem;
+      foreach (var col in _grid.Columns)
+        if (mnuItem.Header.ToString() == col.Header.ToString())
+          col.Visibility = Visibility.Collapsed;
+    }
+
+    private void MnuCol_Checked(object sender, RoutedEventArgs e)
+    {
+      var mnuItem = sender as MenuItem;
+      foreach (var col in _grid.Columns)
+        if (mnuItem.Header.ToString() == col.Header.ToString())
+          col.Visibility = Visibility.Visible;
+    }
+
+    private void MnuCol_Click(object sender, RoutedEventArgs e)
+    {
+      var mnuItem = sender as MenuItem;
+      mnuItem.IsChecked = !mnuItem.IsChecked;
+    }
   }
 
 

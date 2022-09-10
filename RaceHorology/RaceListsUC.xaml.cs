@@ -185,8 +185,11 @@ namespace RaceHorology
 
     IWarningLabelHandler _lblHandler;
 
+    DataGridColumnVisibilityContextMenu _gridColumnHandler;
+
     public RaceListsUC()
     {
+      _gridColumnHandler = null;
       InitializeComponent();
     }
 
@@ -536,7 +539,9 @@ namespace RaceHorology
       cmbTotalResultGrouping.SelectCBItem(_viewProvider.ActiveGrouping);
 
       UiUtilities.EnableOrDisableColumns(_thisRace, dgView);
+      _gridColumnHandler = new DataGridColumnVisibilityContextMenu(dgView);
     }
+
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
     {
