@@ -392,35 +392,7 @@ namespace RaceHorology
     /// </remarks>
     private void DisplayURL()
     {
-      if (_alpinServer == null)
-      {
-        imgQRCode.Source = null;
-      }
-      else
-      {
-        string url = _alpinServer.GetUrl();
-
-        if (!string.IsNullOrEmpty(url))
-        {
-          QRCodeGenerator qrGenerator = new QRCodeGenerator();
-          QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
-          QRCode qrCode = new QRCode(qrCodeData);
-          System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
-
-          BitmapImage bitmapimage = new BitmapImage();
-          using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
-          {
-            bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-            memory.Position = 0;
-            bitmapimage.BeginInit();
-            bitmapimage.StreamSource = memory;
-            bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapimage.EndInit();
-          }
-
-          imgQRCode.Source = bitmapimage;
-        }
-      }
+      imgQRCode.Source = QRCodeUtils.GetUrlQR(_alpinServer);
     }
 
 
@@ -432,7 +404,11 @@ namespace RaceHorology
     private void LblURL_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
       if (_alpinServer != null)
-        System.Diagnostics.Process.Start(_alpinServer.GetUrl());
+      {
+        QRCodeDlg dlg = new QRCodeDlg(_alpinServer);
+        dlg.Owner = Window.GetWindow(this);
+        dlg.ShowDialog();
+      }
     }
 
 
