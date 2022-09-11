@@ -365,7 +365,7 @@ namespace RaceHorology
 
     private void dgParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      if (e.OriginalSource == dgParticipants) // for some reason, comboboxes within the data grid send the same signal
+      if (!_withinStoreParticipant) // for some reason, comboboxes within the data grid send the same signal
         updatePartcipantEditFields();
     }
 
@@ -484,8 +484,11 @@ namespace RaceHorology
     }
 
 
+    private bool _withinStoreParticipant = false;
     private void storeParticipant()
     {
+      _withinStoreParticipant = true;
+
       IList<ParticipantEdit> items = dgParticipants.SelectedItems.Cast<ParticipantEdit>().ToList();
 
       storePartcipantEditField(txtName, items, "Name");
@@ -512,6 +515,8 @@ namespace RaceHorology
       }
     }
 
+      _withinStoreParticipant = false;
+    }
 
     private void storePartcipantEditField(TextBox control, IList<ParticipantEdit> items, string propertyName)
     {
