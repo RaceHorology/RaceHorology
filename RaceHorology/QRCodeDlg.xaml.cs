@@ -23,5 +23,11 @@ namespace RaceHorology
     {
       InitializeComponent();
     }
+
+    private void onClickQRCode(object sender, MouseButtonEventArgs e)
+    {
+      //System.Diagnostics.Process.Start(_alpinServer.GetUrl());
+
+    }
   }
 }

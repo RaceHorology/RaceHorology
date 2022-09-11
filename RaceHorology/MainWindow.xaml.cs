@@ -432,7 +432,10 @@ namespace RaceHorology
     private void LblURL_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
       if (_alpinServer != null)
-        System.Diagnostics.Process.Start(_alpinServer.GetUrl());
+      {
+        QRCodeDlg dlg = new QRCodeDlg();
+        dlg.ShowDialog();
+      }
     }
 
 
