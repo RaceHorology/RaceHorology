@@ -513,7 +513,13 @@ namespace RaceHorology
           }
         }
       }
-    }
+
+      if (items.Count == 1 && items[0].Class == null)
+      {
+        ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
+        ca.Assign(items[0].Participant);
+        updatePartcipantEditFields();
+      }
 
       _withinStoreParticipant = false;
     }
