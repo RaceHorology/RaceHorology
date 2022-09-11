@@ -365,7 +365,8 @@ namespace RaceHorology
 
     private void dgParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      updatePartcipantEditFields();
+      if (e.OriginalSource == dgParticipants) // for some reason, comboboxes within the data grid send the same signal
+        updatePartcipantEditFields();
     }
 
 
