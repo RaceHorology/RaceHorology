@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RaceHorology"
         mc:Ignorable="d"
-        Title="QR Code für Sprecheransicht" Height="450" Width="800">
+        Title="QR Code für Sprecheransicht" Height="300" Width="300">
     <Grid>
-    <Image x:Name="imgQRCode" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Stretch="Uniform" PreviewMouseDown="onClickQRCode"/>
+      <Image x:Name="imgQRCode" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Stretch="Uniform" PreviewMouseDown="onClickQRCode"/>
     </Grid>
 </Window>
