@@ -485,9 +485,12 @@ namespace RaceHorology
         var hostname = Properties.Settings.Default.TimingDevice_Url;
         _timingDevice = new TimingDeviceAlpenhunde(hostname);
       }
-      _liveTimingMeasurement.SetTimingDevice(_timingDevice, _timingDevice as ILiveDateTimeProvider);
 
-      _timingDevice.Start();
+      if (_timingDevice != null)
+      {
+        _liveTimingMeasurement.SetTimingDevice(_timingDevice, _timingDevice as ILiveDateTimeProvider);
+        _timingDevice.Start();
+      }
     }
 
     private void DeInitializeTimingDevice()

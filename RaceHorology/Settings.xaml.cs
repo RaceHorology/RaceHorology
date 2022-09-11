@@ -71,6 +71,7 @@ namespace RaceHorology
 
       chkTimingDeviceDebugDump.IsChecked = Properties.Settings.Default.TimingDevice_Debug_Dump;
 
+      //cbTimingDevice.Items.Add("---");
       cbTimingDevice.Items.Add("ALGE TdC8000/8001");
       cbTimingDevice.Items.Add("Alpenhunde");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
