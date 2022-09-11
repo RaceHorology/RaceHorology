@@ -613,6 +613,8 @@ namespace RaceHorology
 
       ParticipantEdit item = _editParticipants.FirstOrDefault(p => p.Participant == participant);
       dgParticipants.SelectedItem = item;
+
+      txtName.Focus();
     }
 
     private void btnDeleteParticipant_Click(object sender, RoutedEventArgs e)
