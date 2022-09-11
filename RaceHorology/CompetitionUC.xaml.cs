@@ -665,6 +665,11 @@ namespace RaceHorology
 
     #endregion
 
+    private void txtControlGotFocus(object sender, RoutedEventArgs e)
+    {
+      if (sender is TextBox tb)
+        tb.SelectAll();
+    }
   }
 
 

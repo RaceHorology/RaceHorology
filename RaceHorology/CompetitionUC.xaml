@@ -161,29 +161,29 @@
                     </Grid.RowDefinitions>
 
                     <Label Content="Name:" Grid.Row="0" Grid.Column="0"/>
-                    <TextBox x:Name="txtName" Margin="5" Grid.Row="0" Grid.Column="1"/>
+                    <TextBox x:Name="txtName" Margin="5" Grid.Row="0" Grid.Column="1" GotFocus="txtControlGotFocus"/>
 
                     <Label Content="Vorname:" Grid.Row="1" Grid.Column="0"/>
-                    <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1"/>
+                    <TextBox x:Name="txtFirstname" Margin="5" Grid.Row="1" Grid.Column="1" GotFocus="txtControlGotFocus"/>
 
                     <Label Content="Kategorie:" Grid.Row="2" Grid.Column="0"/>
                     <ComboBox x:Name="cmbSex" Margin="5" Grid.Row="2" Grid.Column="1"
                             ItemsSource="{Binding Path=ParticipantCategories, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
 
                     <Label Content="Jahrgang:" Grid.Row="3" Grid.Column="0"/>
-                    <TextBox x:Name="txtYear" Margin="5" Grid.Row="3" Grid.Column="1"/>
+                    <TextBox x:Name="txtYear" Margin="5" Grid.Row="3" Grid.Column="1" GotFocus="txtControlGotFocus"/>
 
                     <Label Content="Verein:" Grid.Row="4" Grid.Column="0"/>
-                    <TextBox x:Name="txtClub" Margin="5" Grid.Row="4" Grid.Column="1"/>
+                    <TextBox x:Name="txtClub" Margin="5" Grid.Row="4" Grid.Column="1" GotFocus="txtControlGotFocus"/>
 
                     <Label Content="Skiverband-Id:" Grid.Row="5" Grid.Column="0"/>
-                    <TextBox x:Name="txtSvId" Margin="5" Grid.Row="5" Grid.Column="1"/>
+                    <TextBox x:Name="txtSvId" Margin="5" Grid.Row="5" Grid.Column="1" GotFocus="txtControlGotFocus"/>
 
                     <Label Content="Code:" Grid.Row="6" Grid.Column="0"/>
-                    <TextBox x:Name="txtCode" Margin="5" Grid.Row="6" Grid.Column="1"/>
+                    <TextBox x:Name="txtCode" Margin="5" Grid.Row="6" Grid.Column="1" GotFocus="txtControlGotFocus"/>
 
                     <Label Content="Nation:" Grid.Row="7" Grid.Column="0"/>
-                    <TextBox x:Name="txtNation" Margin="5" Grid.Row="7" Grid.Column="1"/>
+                    <TextBox x:Name="txtNation" Margin="5" Grid.Row="7" Grid.Column="1" GotFocus="txtControlGotFocus"/>
 
                     <Label Content="Klasse:" Grid.Row="8" Grid.Column="0"/>
                     <Grid HorizontalAlignment="Stretch" Margin="0" Grid.Row="8" Grid.Column="1">
