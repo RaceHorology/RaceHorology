@@ -33,6 +33,7 @@
  * 
  */
 
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -189,6 +190,35 @@ namespace RaceHorology
     {
       _thisRace.AdditionalProperties = _addRaceProps.Copy();
     }
+
+    private void btnLoadProp_Click(object sender, RoutedEventArgs ea)
+    {
+      try
+      {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter =
+          "Race Horology Daten|*.mdb|DSValpin Daten|*.mdb";
+        if (openFileDialog.ShowDialog() == true)
+        {
+          Database importDB = new Database();
+          importDB.Connect(openFileDialog.FileName);
+          AppDataModel importModel = new AppDataModel(importDB);
+
+          if (importModel.GetRaces().Count() > 0)
+          {
+            var race = importModel.GetRace(0);
+            _addRaceProps = race.AdditionalProperties.Copy();
+            tabItemRaceProperties.DataContext = _addRaceProps;
+          }
+          else
+            throw new Exception(string.Format("Die Bewerbsdatei {0} enthält keine Rennen.", openFileDialog.FileName));
+        }
+      }catch(Exception e)
+      {
+        MessageBox.Show("Die Daten konnten nicht importiert werden.\n\nFehlermeldung: " + e.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+      }
+    }
+
 
 
     #endregion
