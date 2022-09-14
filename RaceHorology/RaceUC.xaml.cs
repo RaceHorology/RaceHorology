@@ -190,6 +190,12 @@ namespace RaceHorology
       _thisRace.AdditionalProperties = _addRaceProps.Copy();
     }
 
+    private void btnLoadProp_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+
 
     #endregion
 
