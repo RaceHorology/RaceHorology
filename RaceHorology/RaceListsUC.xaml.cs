@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -599,6 +599,8 @@ namespace RaceHorology
           filePath = openFileDialog.FileName;
           DSVExport dsvExport = new DSVExport();
           dsvExport.Export(filePath, _thisRace);
+
+          MessageBox.Show(string.Format("Der DSV Export war erfolgreich."), "DSV Export");
         }
       }
       catch (DSVExportException ex)
