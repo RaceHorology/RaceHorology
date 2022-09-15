@@ -33,6 +33,7 @@
  * 
  */
 
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -191,6 +192,35 @@ namespace RaceHorology
       _thisRace.AdditionalProperties = _addRaceProps.Copy();
     }
 
+    private void btnLoadProp_Click(object sender, RoutedEventArgs ea)
+    {
+      try
+      {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter =
+          "Race Horology Daten|*.mdb|DSValpin Daten|*.mdb";
+        if (openFileDialog.ShowDialog() == true)
+        {
+          Database importDB = new Database();
+          importDB.Connect(openFileDialog.FileName);
+          AppDataModel importModel = new AppDataModel(importDB);
+
+          if (importModel.GetRaces().Count() > 0)
+          {
+            var race = importModel.GetRace(0);
+            _addRaceProps = race.AdditionalProperties.Copy();
+            tabItemRaceProperties.DataContext = _addRaceProps;
+          }
+          else
+            throw new Exception(string.Format("Die Bewerbsdatei {0} enthält keine Rennen.", openFileDialog.FileName));
+        }
+      }catch(Exception e)
+      {
+        MessageBox.Show("Die Daten konnten nicht importiert werden.\n\nFehlermeldung: " + e.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+      }
+    }
+
+
 
     #endregion
 
@@ -253,6 +283,9 @@ namespace RaceHorology
     LiveTimingAutoNiZ _liveTimingAutoNiZ;
     LiveTimingAutoNaS _liveTimingAutoNaS;
     LiveTimingStartCountDown _liveTimingStartCountDown;
+    DataGridColumnVisibilityContextMenu _dgColVisRemainingStarters;
+    DataGridColumnVisibilityContextMenu _dgColVisRunning;
+    DataGridColumnVisibilityContextMenu _dgColVisFinish;
 
     public class LiveTimingStartCountDown : IDisposable
     {
@@ -486,12 +519,15 @@ namespace RaceHorology
         _rslVP  = (new ViewConfigurator(_thisRace)).GetRemainingStartersViewProvider(raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRemainingStarters);
+        _dgColVisRemainingStarters = new DataGridColumnVisibilityContextMenu(dgRemainingStarters, "timing_remaining_starter");
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRunning);
+        _dgColVisRunning = new DataGridColumnVisibilityContextMenu(dgRunning, "timing_running");
 
         dgFinish.ItemsSource = raceRun.GetInFinishList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgFinish);
+        _dgColVisFinish = new DataGridColumnVisibilityContextMenu(dgFinish, "timing_finish");
 
         lblStartList.DataContext = _rslVP.GetView();
       }

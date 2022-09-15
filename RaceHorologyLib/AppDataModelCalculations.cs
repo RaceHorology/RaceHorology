@@ -32,12 +32,14 @@ namespace RaceHorologyLib
     /// <param name="participants">The participants to assign the class</param>
     public void Assign(IList<Participant> participants)
     {
-      foreach(var p in participants)
-      {
-        var c = DetermineClass(p);
-        p.Class = c;
-      }
+      foreach (var p in participants)
+        Assign(p);
+    }
 
+    public void Assign(Participant participant)
+    {
+      var c = DetermineClass(participant);
+      participant.Class = c;
     }
 
     /// <summary>

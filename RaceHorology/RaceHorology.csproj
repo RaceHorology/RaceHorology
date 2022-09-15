@@ -111,6 +111,9 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="QRCodeDlg.xaml.cs">
+      <DependentUpon>QRCodeDlg.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MeasurementLogAndParticipantAssignment.xaml.cs">
       <DependentUpon>MeasurementLogAndParticipantAssignment.xaml</DependentUpon>
     </Compile>
@@ -199,6 +202,10 @@
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QRCodeDlg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
