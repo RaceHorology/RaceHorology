@@ -509,7 +509,7 @@ namespace RaceHorology
         _timingDevice = null;
       }
       // Cleanup old devices
-      while (_timingDevicePartcipantAssigner.Count > 0)
+      while (_timingDevicePartcipantAssigner != null && _timingDevicePartcipantAssigner.Count > 0)
       {
         var tdpa = _timingDevicePartcipantAssigner[0];
         _timingDevicePartcipantAssigner.Remove(tdpa);
