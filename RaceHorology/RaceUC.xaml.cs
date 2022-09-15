@@ -496,6 +496,7 @@ namespace RaceHorology
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRemainingStarters);
         _dgColVisRemainingStarters = new DataGridColumnVisibilityContextMenu(dgRemainingStarters, "timing_remaining_starter");
+        dgRemainingStarters.SelectedItem = null;
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRunning);
