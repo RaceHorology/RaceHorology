@@ -151,6 +151,8 @@ namespace RaceHorologyLib
       Logger.Info("Stop()");
       if (_webSocket != null)
         _webSocket.Close();
+
+      _webSocket = null;
     }
 
 
