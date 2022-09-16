@@ -1,4 +1,4 @@
-<Window x:Class="RaceHorology.MainWindow"
+﻿<Window x:Class="RaceHorology.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,7 +8,7 @@
         xmlns:Settings="clr-namespace:RaceHorology.Settings" 
         Settings:WindowSettings.Save="True"
         mc:Ignorable="d"
-        Title="Race Horology" WindowState="Maximized">
+        Title="Race Horology" WindowState="Maximized" d:DesignHeight="800" d:DesignWidth="1024">
 
   <Window.CommandBindings>
     <CommandBinding Command="New"  Executed="NewCommandBinding_Executed" />
