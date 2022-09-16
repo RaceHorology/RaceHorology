@@ -118,6 +118,8 @@ namespace RaceHorology
       mnuMain.DataContext = _menuVM;
 
       StartDSVAlpinServer();
+
+      UpdateLiveTimingDeviceStatus(null, null);
     }
 
     protected override void OnClosed(EventArgs e)
@@ -546,37 +548,41 @@ namespace RaceHorology
     }
 
 
-    private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
+    private void btnTimingDeviceStartStop_Click(object sender, RoutedEventArgs e)
     {
       if (_liveTimingMeasurement == null)
         return;
 
-      _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
-      _liveTimingMeasurement.Start();
+      var timingDevice = _liveTimingMeasurement.LiveTimingDevice;
+      if (timingDevice == null)
+        return;
+
+      if (timingDevice.IsOnline)
+        timingDevice.Stop();
+      else
+        timingDevice.Start();
     }
 
-    private void LiveTimingStop_Click(object sender, RoutedEventArgs e)
-    {
-      if (_liveTimingMeasurement == null)
-        return;
-     
-      _liveTimingMeasurement.Stop();
-    }
 
     private void UpdateLiveTimingDeviceStatus(object sender, System.Timers.ElapsedEventArgs e)
     {
-      var timingDevice = _liveTimingMeasurement.LiveTimingDevice;
-      var dateTimeProvider = _liveTimingMeasurement.LiveDateTimeProvider;
+      bool timingDeviceOnline = false;
+      var timingDevice = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveTimingDevice : null;
+      var dateTimeProvider = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveDateTimeProvider : null;
 
-      string str = "kein Zeitmessgerät ausgewählt";
+      string str = "---";
       if (timingDevice!=null && dateTimeProvider!=null)
       { 
         str = timingDevice.GetDeviceInfo() + ", " + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss");
+        timingDeviceOnline = timingDevice.IsOnline;
       }
 
       Application.Current.Dispatcher.Invoke(() =>
       {
         lblTimingDevice.Content = str;
+        btnTimingDeviceStartStop.Content = timingDeviceOnline ? "Trennen" : "Verbinden";
+        btnTimingDeviceStartStop.IsEnabled = timingDevice != null;
+        btnTimingDeviceDebug.IsEnabled = timingDevice != null;
       });
     }
 
