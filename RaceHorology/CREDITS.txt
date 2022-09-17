@@ -6,9 +6,14 @@ Race Horology Logo
 Beratung und Consulting während der Entwicklung
   Bernd Altmann - http://www.rennmeldung.de
 
+Benutzerhandbuch (online) 
+  Michael Stenz
+
 Testen und Ausprobieren während der Entwicklung
   Andreas Ewert (SV Germering)
   Bernd Klostermeyer (Niedersächsischer Skiverband)
   Dieter Limmer (WSV München)
   Klaus Breitschaft (WSV Glonn)
+  Michael Stenz (TSV Schwangau / ASV)
   Nils Schüller (WSV Glonn)
+  Wilfried Däuber (TD FIS, SK Berchtesgaden)

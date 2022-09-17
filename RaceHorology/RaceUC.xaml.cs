@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -33,6 +33,7 @@
  * 
  */
 
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -105,7 +106,7 @@ namespace RaceHorology
     {
       _thisRace.PropertyChanged += thisRace_PropertyChanged;
 
-      ucRaceConfig.Init(_thisRace.RaceConfiguration);
+      ucRaceConfig.Init(_thisRace.RaceConfiguration, _thisRace.RaceType);
 
       ucRaceConfigSaveOrReset.Init(
         "Konfigurationsänderungen",
@@ -149,7 +150,7 @@ namespace RaceHorology
       ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       viewConfigurator.ConfigureRace(_thisRace);
 
-      ucRaceConfig.Init(_thisRace.RaceConfiguration);
+      ucRaceConfig.Init(_thisRace.RaceConfiguration, _thisRace.RaceType);
 
       imgTabHeaderConfiguration.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(
         _thisRace.IsRaceConfigurationLocal ? "/Icons/icons8-umkreist-l-50.png" : "/Icons/icons8-umkreist-g-50.png", 
@@ -189,6 +190,35 @@ namespace RaceHorology
     {
       _thisRace.AdditionalProperties = _addRaceProps.Copy();
     }
+
+    private void btnLoadProp_Click(object sender, RoutedEventArgs ea)
+    {
+      try
+      {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter =
+          "Race Horology Daten|*.mdb|DSValpin Daten|*.mdb";
+        if (openFileDialog.ShowDialog() == true)
+        {
+          Database importDB = new Database();
+          importDB.Connect(openFileDialog.FileName);
+          AppDataModel importModel = new AppDataModel(importDB);
+
+          if (importModel.GetRaces().Count() > 0)
+          {
+            var race = importModel.GetRace(0);
+            _addRaceProps = race.AdditionalProperties.Copy();
+            tabItemRaceProperties.DataContext = _addRaceProps;
+          }
+          else
+            throw new Exception(string.Format("Die Bewerbsdatei {0} enthält keine Rennen.", openFileDialog.FileName));
+        }
+      }catch(Exception e)
+      {
+        MessageBox.Show("Die Daten konnten nicht importiert werden.\n\nFehlermeldung: " + e.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+      }
+    }
+
 
 
     #endregion
@@ -252,6 +282,9 @@ namespace RaceHorology
     LiveTimingAutoNiZ _liveTimingAutoNiZ;
     LiveTimingAutoNaS _liveTimingAutoNaS;
     LiveTimingStartCountDown _liveTimingStartCountDown;
+    DataGridColumnVisibilityContextMenu _dgColVisRemainingStarters;
+    DataGridColumnVisibilityContextMenu _dgColVisRunning;
+    DataGridColumnVisibilityContextMenu _dgColVisFinish;
 
     public class LiveTimingStartCountDown : IDisposable
     {
@@ -462,12 +495,16 @@ namespace RaceHorology
         _rslVP  = (new ViewConfigurator(_thisRace)).GetRemainingStartersViewProvider(raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRemainingStarters);
+        _dgColVisRemainingStarters = new DataGridColumnVisibilityContextMenu(dgRemainingStarters, "timing_remaining_starter");
+        dgRemainingStarters.SelectedItem = null;
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRunning);
+        _dgColVisRunning = new DataGridColumnVisibilityContextMenu(dgRunning, "timing_running");
 
         dgFinish.ItemsSource = raceRun.GetInFinishList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgFinish);
+        _dgColVisFinish = new DataGridColumnVisibilityContextMenu(dgFinish, "timing_finish");
 
         lblStartList.DataContext = _rslVP.GetView();
       }

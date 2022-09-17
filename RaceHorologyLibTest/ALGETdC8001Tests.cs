@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -166,6 +166,7 @@ namespace RaceHorologyLibTest
         parser.Parse(" 0035 C0M 21:46:36.3900 00");
         Assert.AreEqual(' ', parser.TimingData.Flag);
         Assert.AreEqual(35U, parser.TimingData.StartNumber);
+        Assert.AreEqual(' ', parser.TimingData.StartNumberModifier);
         Assert.AreEqual("C0", parser.TimingData.Channel);
         Assert.AreEqual('M', parser.TimingData.ChannelModifier);
         Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 390), parser.TimingData.Time);
@@ -176,6 +177,7 @@ namespace RaceHorologyLibTest
         parser.Parse(" 0035 C0  21:46:36.3910 00");
         Assert.AreEqual(' ', parser.TimingData.Flag);
         Assert.AreEqual(35U, parser.TimingData.StartNumber);
+        Assert.AreEqual(' ', parser.TimingData.StartNumberModifier);
         Assert.AreEqual("C0", parser.TimingData.Channel);
         Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
         Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 391), parser.TimingData.Time);
@@ -186,6 +188,7 @@ namespace RaceHorologyLibTest
         parser.Parse("?0034 C1M 21:46:48.3300 00");
         Assert.AreEqual('?', parser.TimingData.Flag);
         Assert.AreEqual(34U, parser.TimingData.StartNumber);
+        Assert.AreEqual(' ', parser.TimingData.StartNumberModifier);
         Assert.AreEqual("C1", parser.TimingData.Channel);
         Assert.AreEqual('M', parser.TimingData.ChannelModifier);
         Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 330), parser.TimingData.Time);
@@ -196,6 +199,7 @@ namespace RaceHorologyLibTest
         parser.Parse("n0034");
         Assert.AreEqual('n', parser.TimingData.Flag);
         Assert.AreEqual(34U, parser.TimingData.StartNumber);
+        Assert.AreEqual(' ', parser.TimingData.StartNumberModifier);
         Assert.AreEqual("", parser.TimingData.Channel);
         Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
         Assert.AreEqual(new TimeSpan(), parser.TimingData.Time);
@@ -257,6 +261,135 @@ namespace RaceHorologyLibTest
       }
       #endregion
 
+    }
+
+
+    [TestMethod]
+    public void ParserTest_ParallelSlalom()
+    {
+
+      ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
+
+      {
+        parser.Parse("n0000b");
+        Assert.AreEqual('n', parser.TimingData.Flag);
+        Assert.AreEqual(0U, parser.TimingData.StartNumber);
+        Assert.AreEqual('b', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse("n0015b");
+        Assert.AreEqual('n', parser.TimingData.Flag);
+        Assert.AreEqual(15U, parser.TimingData.StartNumber);
+        Assert.AreEqual('b', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse("n0000r");
+        Assert.AreEqual('n', parser.TimingData.Flag);
+        Assert.AreEqual(0U, parser.TimingData.StartNumber);
+        Assert.AreEqual('r', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse("n0016r");
+        Assert.AreEqual('n', parser.TimingData.Flag);
+        Assert.AreEqual(16U, parser.TimingData.StartNumber);
+        Assert.AreEqual('r', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse(" 0016rC0  19:52:15.1620 09");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(16U, parser.TimingData.StartNumber);
+        Assert.AreEqual('r', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("C0", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 15, 162), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse(" 0015bC3  19:52:15.1620 09");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(15U, parser.TimingData.StartNumber);
+        Assert.AreEqual('b', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("C3", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 15, 162), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse(" 0016rC1  19:52:20.3900 09");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(16U, parser.TimingData.StartNumber);
+        Assert.AreEqual('r', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("C1", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 20, 390), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse(" 0016rRT  00:00:05.22   09");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(16U, parser.TimingData.StartNumber);
+        Assert.AreEqual('r', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("RT", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 5, 220), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse(" 0015bC4  19:52:23.4010 09");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(15U, parser.TimingData.StartNumber);
+        Assert.AreEqual('b', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("C4", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 23, 401), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse(" 0015bRT  00:00:08.23   09");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(15U, parser.TimingData.StartNumber);
+        Assert.AreEqual('b', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("RT", parser.TimingData.Channel);
+        Assert.AreEqual(' ', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 8, 230), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse(" 0016rDTR 00:00:03.01   09");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(16U, parser.TimingData.StartNumber);
+        Assert.AreEqual('r', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("DT", parser.TimingData.Channel);
+        Assert.AreEqual('R', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 3, 010), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
+      {
+        parser.Parse(" 0008bDTT 10:12:45.23   09");
+        Assert.AreEqual(' ', parser.TimingData.Flag);
+        Assert.AreEqual(8U, parser.TimingData.StartNumber);
+        Assert.AreEqual('b', parser.TimingData.StartNumberModifier);
+        Assert.AreEqual("DT", parser.TimingData.Channel);
+        Assert.AreEqual('T', parser.TimingData.ChannelModifier);
+        Assert.AreEqual(new TimeSpan(0, 10, 12, 45, 230), parser.TimingData.Time);
+        Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
+      }
 
     }
 
@@ -473,8 +606,127 @@ namespace RaceHorologyLibTest
         var pd = ParseAndTransfer("s0003");
         Assert.IsNull(pd);
       }
+    }
+
+
+    [TestMethod]
+    public void ParserAndTransferToTimemeasurementDataTest_ParallelSlalom()
+    {
+
+      TimeMeasurementEventArgs ParseAndTransfer(string line)
+      {
+        ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
+        parser.Parse(line);
+        return ALGETdC8001TimeMeasurement.TransferToTimemeasurementData(parser.TimingData);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0016rC0  19:52:15.1620 09");
+        Assert.AreEqual(16U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BStartTime);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 15, 162), pd.StartTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0015bC3  19:52:15.1620 09");
+        Assert.AreEqual(15U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BStartTime);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 15, 162), pd.StartTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0016rC1  19:52:20.3900 09");
+        Assert.AreEqual(16U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BFinishTime);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 20, 390), pd.FinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0015bC4  19:52:23.4010 09");
+        Assert.AreEqual(15U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BFinishTime);
+        Assert.AreEqual(new TimeSpan(0, 19, 52, 23, 401), pd.FinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0016rRT  00:00:05.22   09");
+        Assert.AreEqual(16U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BRunTime);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 5, 220), pd.RunTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+      }
+
+      {
+        var pd = ParseAndTransfer(" 0015bRT  00:00:08.23   09");
+        Assert.AreEqual(15U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BRunTime);
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 8, 230), pd.RunTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BStartTime);
+      }
+
+      { // Disqualified
+        var pd = ParseAndTransfer("d0035 C0  21:46:36.3910 00");
+        Assert.AreEqual(35U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BStartTime);
+        Assert.AreEqual(null, pd.StartTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+      { // Cleared data
+        var pd = ParseAndTransfer("c0035 C0  21:46:36.3910 00");
+        Assert.AreEqual(35U, pd.StartNumber);
+        Assert.AreEqual(true, pd.BStartTime);
+        Assert.AreEqual(null, pd.StartTime);
+        Assert.AreEqual(false, pd.BFinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+      }
+
+      // Ignored data (first character)
+      { // Invalid startnumber
+        var pd = ParseAndTransfer("?0034 C1M 21:46:48.3300 00");
+        Assert.IsNull(pd);
+      }
+      { // penalty time (parallelslalom)
+        var pd = ParseAndTransfer("p0034 C1M 21:46:48.3300 00");
+        Assert.IsNull(pd);
+      }
+      { // time was blocked with block key)
+        var pd = ParseAndTransfer("b0034 C1M 21:46:48.3300 00");
+        Assert.IsNull(pd);
+      }
+      { // parallel slalom: time difference run
+        var pd = ParseAndTransfer(" 0016rDTR 00:00:03.01   09");
+        Assert.IsNull(pd);
+      }
+      { // parallel slalom: time difference total
+        var pd = ParseAndTransfer(" 0008bDTT 10:12:45.23   09");
+        Assert.IsNull(pd);
+      }
+      {
+        var pd = ParseAndTransfer("n0000b");
+        Assert.IsNull(pd);
+      }
+      {
+        var pd = ParseAndTransfer("n0015b");
+        Assert.IsNull(pd);
+      }
+      {
+        var pd = ParseAndTransfer("n0016r");
+        Assert.IsNull(pd);
+      }
 
     }
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case1\KSC4--U12.mdb")]

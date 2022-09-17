@@ -12,9 +12,39 @@
   "RaceResultView": "RaceResult_SumDSVPointsSchool",
   "RaceResultViewParams": null,
   "Run1_StartistView": "Startlist_1stRun_Points_15",
-  "Run1_StartistViewGrouping": "Participant.Group",
+  "Run1_StartistViewGrouping": "Participant.Class",
   "Run1_StartistViewParams": null,
   "Run2_StartistView": "Startlist_2nd_PreviousRun_30_OnlyWithResults",
   "Run2_StartistViewGrouping": "Participant.Sex",
-  "Run2_StartistViewParams": null
+  "Run2_StartistViewParams": null,
+  "PointCalcParamTemplate": {
+    "1": {
+      "ValueF": 1190,
+      "ValueA": 0,
+      "ValueZ": 0,
+      "MinimumPenalty": 25,
+      "ValueCutOff": 250
+    },
+    "2": {
+      "ValueF": 1010,
+      "ValueA": 0,
+      "ValueZ": 0,
+      "MinimumPenalty": 25,
+      "ValueCutOff": 250
+    },
+    "3": {
+      "ValueF": 730,
+      "ValueA": 0,
+      "ValueZ": 0,
+      "MinimumPenalty": 25,
+      "ValueCutOff": 250
+    },
+    "5": {
+      "ValueF": 1190,
+      "ValueA": 0,
+      "ValueZ": 0,
+      "MinimumPenalty": 25,
+      "ValueCutOff": 250
+    }
+  }
 }

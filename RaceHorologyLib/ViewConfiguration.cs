@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -73,6 +73,7 @@ namespace RaceHorologyLib
       _prototypes["RaceResult_Sum"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
       _prototypes["RaceResult_SumBest2"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumBest2);
       _prototypes["RaceResult_SumDSVPointsSchool"] = new DSVSchoolRaceResultViewProvider();
+      _prototypes["RaceResult_SumPointsViaTable"] = new PointsViaTableRaceResultViewProvider();
 
       _prototypes["RaceRunResult"] = new RaceRunResultViewProvider();
 

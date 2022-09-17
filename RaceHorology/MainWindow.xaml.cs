@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -172,6 +172,16 @@ namespace RaceHorology
       CloseDatabase();
     }
 
+    /// <summary>
+    /// Applicaton Exit
+    /// </summary>
+    private void ApplicationClose(object sender, RoutedEventArgs e)
+    {
+      CloseDatabase();
+      StopDSVAlpinServer();
+      Environment.Exit(0);
+    }
+
     private void OptionsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       SettingsDlg dlg = new SettingsDlg();
@@ -201,11 +211,15 @@ namespace RaceHorology
       if (race == null)
         return;
 
-
-      ImportTimeDlg dlg = new ImportTimeDlg();
-      dlg.Init(_dataModel, race, _alge);
-      dlg.Owner = this;
-      dlg.Show();
+      if (_timingDevice is IImportTime importDevice)
+      {
+        ImportTimeDlg dlg = new ImportTimeDlg();
+        dlg.Init(_dataModel, race, importDevice);
+        dlg.Owner = this;
+        dlg.Show();
+      }
+      else
+        MessageBox.Show("Das aktuelle Zeitmessgeräte erlaubt kein Importieren von Zeiten.");
     }
 
 
@@ -259,7 +273,15 @@ namespace RaceHorology
 
         // ... and create the corresponding data model
         _dataModel = new AppDataModel(db);
+      }
+      catch (Exception ex)
+      {
+        MessageBox.Show(string.Format("Die Datei konnte nicht geöffnet werden.\n\n{0}", ex.Message), "Fehler beim Öffnen", MessageBoxButton.OK, MessageBoxImage.Error);
+        Logger.Error(ex, "during database loading");
+      }
 
+      if (_dataModel != null)
+      {
         updateAppTitle();
 
         InitializeTiming();
@@ -273,11 +295,6 @@ namespace RaceHorology
         _menuVM.SetDataModel(_dataModel);
 
         _mruList.AddFile(dbPath);
-      }
-      catch (Exception ex)
-      {
-        MessageBox.Show(string.Format("Die Datei konnte nicht geöffnet werden.\n\n{0}", ex.Message), "Fehler beim Öffnen", MessageBoxButton.OK, MessageBoxImage.Error);
-        Logger.Error(ex, "during database loading");
       }
     }
 
@@ -378,35 +395,7 @@ namespace RaceHorology
     /// </remarks>
     private void DisplayURL()
     {
-      if (_alpinServer == null)
-      {
-        imgQRCode.Source = null;
-      }
-      else
-      {
-        string url = _alpinServer.GetUrl();
-
-        if (!string.IsNullOrEmpty(url))
-        {
-          QRCodeGenerator qrGenerator = new QRCodeGenerator();
-          QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
-          QRCode qrCode = new QRCode(qrCodeData);
-          System.Drawing.Bitmap bitmap = qrCode.GetGraphic(10);
-
-          BitmapImage bitmapimage = new BitmapImage();
-          using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
-          {
-            bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-            memory.Position = 0;
-            bitmapimage.BeginInit();
-            bitmapimage.StreamSource = memory;
-            bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapimage.EndInit();
-          }
-
-          imgQRCode.Source = bitmapimage;
-        }
-      }
+      imgQRCode.Source = QRCodeUtils.GetUrlQR(_alpinServer);
     }
 
 
@@ -418,13 +407,17 @@ namespace RaceHorology
     private void LblURL_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
       if (_alpinServer != null)
-        System.Diagnostics.Process.Start(_alpinServer.GetUrl());
+      {
+        QRCodeDlg dlg = new QRCodeDlg(_alpinServer);
+        dlg.Owner = Window.GetWindow(this);
+        dlg.ShowDialog();
+      }
     }
 
 
     #region LiveTiming
 
-    ALGETdC8001TimeMeasurement _alge;
+    ILiveTimeMeasurementDevice _timingDevice;
     LiveTimingMeasurement _liveTimingMeasurement;
     System.Timers.Timer _liveTimingStatusTimer;
 
@@ -457,29 +450,37 @@ namespace RaceHorology
 
     private void InitializeTimingDevice()
     {
-      if (_alge != null)
+      if (_timingDevice != null)
         throw new Exception("timing device already initialized");
 
       string dumpDir = null;
       if (Properties.Settings.Default.TimingDevice_Debug_Dump)
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
-      _alge = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE")) {
+        _timingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
+        var hostname = Properties.Settings.Default.TimingDevice_Url;
+        _timingDevice = new TimingDeviceAlpenhunde(hostname);
+      }
 
-      _liveTimingMeasurement.SetTimingDevice(_alge, _alge);
-
-      _alge.Start();
+      if (_timingDevice != null)
+      {
+        _liveTimingMeasurement.SetTimingDevice(_timingDevice, _timingDevice as ILiveDateTimeProvider);
+        _timingDevice.Start();
+      }
     }
 
     private void DeInitializeTimingDevice()
     {
-      if (_alge != null)
+      if (_timingDevice != null)
       {
         _liveTimingMeasurement.SetTimingDevice(null, null);
 
-        _alge.Stop();
+        _timingDevice.Stop();
 
-        _alge = null;
+        _timingDevice = null;
       }
     }
 
@@ -501,6 +502,7 @@ namespace RaceHorology
           break;
         case "TimingDevice_Port":
         case "TimingDevice_Type":
+        case "TimingDevice_Url":
         case "TimingDevice_Debug_Dump":
           ReInitializeTimingDevice();
           break;
@@ -553,14 +555,17 @@ namespace RaceHorology
 
     private void btnTimingDeviceDebug_Click(object sender, RoutedEventArgs e)
     {
-      if (_alge == null)
+      if (_timingDevice == null)
       {
         MessageBox.Show("Zeitmessgerät nicht verfügbar.", "Protokoll", MessageBoxButton.OK, MessageBoxImage.Information);
         return;
       }
 
-      ALGEDebugDlg debugDlg = new ALGEDebugDlg(_alge);
-      debugDlg.Show();
+      if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+      {
+        TimingDeviceDebugDlg debugDlg = new TimingDeviceDebugDlg(debugableTimingDevice);
+        debugDlg.Show();
+      }
     }
   }
 
@@ -570,6 +575,7 @@ namespace RaceHorology
     AppDataModel _dm;
 
     bool _hasActiveRace = false;
+    bool _hasDataLoaded = false;
 
     public void SetDataModel(AppDataModel dm)
     {
@@ -585,6 +591,8 @@ namespace RaceHorology
         _dm.CurrentRaceChanged += onCurrentRaceChanged;
       }
 
+      HasDataLoaded = _dm != null;
+
       onCurrentRaceChanged(null, null);
     }
 
@@ -598,7 +606,13 @@ namespace RaceHorology
     {
       get { return _hasActiveRace; }
       private set { _hasActiveRace = value; NotifyPropertyChanged(); }
-    } 
+    }
+
+    public bool HasDataLoaded
+    {
+      get { return _hasDataLoaded; }
+      private set { _hasDataLoaded = value; NotifyPropertyChanged(); }
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
     // This method is called by the Set accessor of each property.  

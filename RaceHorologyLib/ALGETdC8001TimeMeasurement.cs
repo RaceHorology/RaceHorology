@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -46,6 +46,7 @@ namespace RaceHorologyLib
   public abstract class ALGETdC8001TimeMeasurementBase : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, IImportTime
   {
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
+    public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
     public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
 
     ALGETdC8001LineParser _parser;
@@ -99,14 +100,37 @@ namespace RaceHorologyLib
       {
         if (_parser.Mode == ALGETdC8001LineParser.EMode.LiveTiming)
         {
-          UpdateLiveDayTime(_parser.TimingData);
-
-          TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(_parser.TimingData);
-          if (timeMeasurmentData != null)
+          if (_parser.TimingData != null)
           {
-            // Trigger event
-            var handle = TimeMeasurementReceived;
-            handle?.Invoke(this, timeMeasurmentData);
+            if (_parser.TimingData.Flag == 's' || _parser.TimingData.Flag == 'n')
+            {
+              StartnumberSelectedEventArgs ssData = TransferToStartnumberSelectedData(_parser.TimingData);
+              if (ssData != null)
+              {
+                // Trigger event
+                var handle = StartnumberSelectedReceived;
+                handle?.Invoke(this, ssData);
+
+                // Send in addition a start event in case of parallel slalom (ALGE only sends a finish startnumber selected event)
+                if (ssData.Color != EParticipantColor.NoColor && ssData.Channel == StartnumberSelectedEventArgs.EChannel.EFinish)
+                {
+                  ssData.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
+                  handle?.Invoke(this, ssData);
+                }
+              }
+            }
+            else
+            {
+              UpdateLiveDayTime(_parser.TimingData);
+
+              TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(_parser.TimingData);
+              if (timeMeasurmentData != null)
+              {
+                // Trigger event
+                var handle = TimeMeasurementReceived;
+                handle?.Invoke(this, timeMeasurmentData);
+              }
+            }
           }
         }
         else if (_parser.Mode == ALGETdC8001LineParser.EMode.Classement)
@@ -128,9 +152,9 @@ namespace RaceHorologyLib
       TimeMeasurementEventArgs data = new TimeMeasurementEventArgs();
 
       // Sort out invalid data
-      if ( parsedData.Flag == 'p' 
-        || parsedData.Flag == '?' 
-        || parsedData.Flag == 'b' 
+      if ( parsedData.Flag == 'p'
+        || parsedData.Flag == '?'
+        || parsedData.Flag == 'b'
         || parsedData.Flag == 'm'
         || parsedData.Flag == 'n'
         || parsedData.Flag == 's')
@@ -144,24 +168,51 @@ namespace RaceHorologyLib
 
       switch (parsedData.Channel)
       {
-        case "C0":
+        case "C0": // Standard 
+        case "C3": // Parallel Slalom
           data.StartTime = parsedDataTime;
           data.BStartTime = true;
           break;
 
-        case "C1":
+        case "C1": // Standard 
+        case "C4": // Parallel Slalom
           data.FinishTime = parsedDataTime;
           data.BFinishTime = true;
           break;
 
-        case "RT":   
+        case "RT":
           data.RunTime = parsedDataTime;
           data.BRunTime = true;
           break;
 
         case "TT":   // TotalTime, calculated automatically
+        case "DT":   // DifferenceTime, parallel slalom, not used
           return null;
       }
+
+      return data;
+    }
+
+    public static StartnumberSelectedEventArgs TransferToStartnumberSelectedData(in ALGETdC8001LiveTimingData parsedData)
+    {
+      // Fill the data
+      StartnumberSelectedEventArgs data = new StartnumberSelectedEventArgs();
+
+      // Sort out invalid data
+      if (parsedData.Flag != 'n' && parsedData.Flag != 's')
+        return null;
+
+      data.StartNumber = parsedData.StartNumber;
+
+      if (parsedData.Flag == 'n')
+        data.Channel = StartnumberSelectedEventArgs.EChannel.EFinish;
+      else if (parsedData.Flag == 's')
+        data.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
+
+      if (parsedData.StartNumberModifier == 'r')
+        data.Color = EParticipantColor.Red;
+      else if (parsedData.StartNumberModifier == 'b')
+        data.Color = EParticipantColor.Blue;
 
       return data;
     }
@@ -198,12 +249,9 @@ namespace RaceHorologyLib
   }
 
 
-  public class ALGETdC8001TimeMeasurement : ALGETdC8001TimeMeasurementBase
+  public class ALGETdC8001TimeMeasurement : ALGETdC8001TimeMeasurementBase, ILiveTimeMeasurementDeviceDebugInfo
   {
     enum EInternalStatus { Stopped, Initializing, NoCOMPort, Running };
-
-    public delegate void RawMessageReceivedEventHandler(object sender, string message);
-    public event RawMessageReceivedEventHandler RawMessageReceived;
 
     private string _serialPortName;
     private SerialPort _serialPort;
@@ -214,6 +262,9 @@ namespace RaceHorologyLib
 
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
+
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
 
     public ALGETdC8001TimeMeasurement(string comport, string dumpDir) : base()
     {
@@ -232,6 +283,8 @@ namespace RaceHorologyLib
     {
       if (string.IsNullOrEmpty(_serialPortName))
         return;
+
+      Logger.Info("Start()");
 
       _statusText = "Starting";
 
@@ -253,6 +306,8 @@ namespace RaceHorologyLib
     
     public override void Stop()
     {
+      Logger.Info("Stop()");
+
       if (_instanceCaller != null)
       {
         _statusText = "Stopping";
@@ -266,11 +321,6 @@ namespace RaceHorologyLib
     }
 
 
-    public string GetProtocol()
-    {
-      return _internalProtocol;
-    }
-
     private void startWritingToDumpFile()
     {
       string dumpFilename = String.Format(@"ALGETdC800x-{0}.dump", DateTime.Now.ToString("yyyyMMddHHmm"));
@@ -283,6 +333,8 @@ namespace RaceHorologyLib
     {
       if (_internalStatus != value)
       {
+        Logger.Info("new status: {0} (old: {1})", value, _internalStatus);
+
         _internalStatus = value;
 
         var handler = StatusChanged;
@@ -318,6 +370,7 @@ namespace RaceHorologyLib
           setInternalStatus(EInternalStatus.Running);
 
           string dataLine = _serialPort.ReadLine();
+          Logger.Info("data received: {0}", dataLine);
 
           debugLine(dataLine);
           processLine(dataLine);
@@ -328,6 +381,7 @@ namespace RaceHorologyLib
         { }
       }
 
+      Logger.Info("closing serial port");
       _serialPort.Close();
 
       _statusText = "Stopped";
@@ -364,6 +418,14 @@ namespace RaceHorologyLib
     }
 
 
+    #region Implementation of ILiveTimeMeasurementDeviceDebugInfo
+    public event RawMessageReceivedEventHandler RawMessageReceived;
+
+    public string GetProtocol()
+    {
+      return _internalProtocol;
+    }
+
     void debugLine(string dataLine)
     {
       _dumpFile?.WriteLine(dataLine);
@@ -376,6 +438,7 @@ namespace RaceHorologyLib
       RawMessageReceivedEventHandler handler = RawMessageReceived;
       handler?.Invoke(this, dataLine);
     }
+    #endregion
 
   }
 
@@ -386,6 +449,7 @@ namespace RaceHorologyLib
     {
       Flag = ' ';
       StartNumber = 0;
+      StartNumberModifier = ' ';
       Channel = "";
       ChannelModifier = ' ';
       Time = new TimeSpan();
@@ -394,6 +458,7 @@ namespace RaceHorologyLib
 
     public char Flag { get; set; }
     public uint StartNumber { get; set; }
+    public char StartNumberModifier { get; set; }
     public string Channel { get; set; }
     public char ChannelModifier { get; set; }
     public TimeSpan Time { get; set; }
@@ -484,6 +549,11 @@ namespace RaceHorologyLib
       }
 
       if (dataLine.Length > 5)
+      {
+        parsedData.StartNumberModifier = dataLine[5];
+      }
+
+      if (dataLine.Length > 5+1) // +1 because of parallel slalow => identifier for 'b' (blue course) or 'r' (red course)
       {
         parsedData.Channel = dataLine.Substring(6, 2);
         parsedData.ChannelModifier = dataLine[8];

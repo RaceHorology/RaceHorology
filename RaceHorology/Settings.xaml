@@ -20,19 +20,23 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Label x:Name="lblTimingDevice" Content="Zeitmeßgerät:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
-          <ComboBox x:Name="cbTimingDevice" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          <ComboBox x:Name="cbTimingDevice" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionChanged="cbTimingDevice_SelectionChanged"/>
 
           <Label x:Name="lblTimingDevicePort" Content="Schnittstelle:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="1" Grid.Column="0"/>
           <ComboBox x:Name="cbTimingDevicePort" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-        
-          <Label x:Name="lblTimingDeviceDebug" Content="Debug Funktionen:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="2" Grid.Column="0"/>
-          <CheckBox x:Name="chkTimingDeviceDebugDump" Content="Speichern der Kommunikation als Dump-File" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+          <Label x:Name="lblTimingDeviceUrl" Content="IP-Addresse:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="2" Grid.Column="0"/>
+          <TextBox x:Name="txtTimingDeviceUrl" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+          <Label x:Name="lblTimingDeviceDebug" Content="Debug Funktionen:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="3" Grid.Column="0"/>
+          <CheckBox x:Name="chkTimingDeviceDebugDump" Content="Speichern der Kommunikation als Dump-File" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
         </Grid>
       </TabItem>
@@ -82,7 +86,7 @@
 
           <Label Content="Nicht zu vergebene Startnummern:&#xD;&#xA;(durch Komma getrennt)" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
           <TextBox x:Name="txtNotToBeAssigned" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="50" />
-          
+
         </Grid>
       </TabItem>
     </TabControl>

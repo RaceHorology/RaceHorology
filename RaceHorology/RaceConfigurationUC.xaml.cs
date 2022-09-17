@@ -23,6 +23,7 @@ namespace RaceHorology
   {
 
     RaceConfiguration _raceConfiguration;
+    Race.ERaceType? _raceType;
     RaceConfigurationPresets _raceConfigurationPresets;
 
 
@@ -32,11 +33,12 @@ namespace RaceHorology
     }
 
 
-    public void Init(RaceConfiguration raceConfig)
+    public void Init(RaceConfiguration raceConfig, Race.ERaceType? raceType )
     {
       // ApplicationFolder + raceconfigpresets
       _raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
       _raceConfiguration = raceConfig.Copy();
+      _raceType = raceType;
 
       refreshConfigPresetsUI();
 
@@ -57,6 +59,7 @@ namespace RaceHorology
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe der besten 2 Durchgänge", Value = "RaceResult_SumBest2" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach DSV Schülerreglement", Value = "RaceResult_SumDSVPointsSchool" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach Tabelle", Value = "RaceResult_SumPointsViaTable" });
 
       // Run 1
       UiUtilities.FillGrouping(cmbConfigStartlist1Grouping);
@@ -93,7 +96,7 @@ namespace RaceHorology
         if (selected.Value is string configName)
         {
           RaceConfiguration config = _raceConfigurationPresets.GetConfiguration(configName);
-          RaceConfiguration configToSet = RaceConfigurationMerger.MainConfig(_raceConfiguration, config);
+          RaceConfiguration configToSet = RaceConfigurationMerger.MainConfig(_raceConfiguration, config, _raceType);
 
           ResetConfigurationSelectionUI(configToSet);
         }
@@ -171,7 +174,9 @@ namespace RaceHorology
       cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
       txtValueF.Text = cfg.ValueF.ToString();
       txtValueA.Text = cfg.ValueA.ToString();
+      txtValueZ.Text = cfg.ValueZ.ToString();
       txtMinPenalty.Text = cfg.MinimumPenalty.ToString();
+      txtValueCutOff.Text = cfg.ValueCutOff.ToString();
 
       chkConfigFieldsYear.IsChecked = cfg.ActiveFields.Contains("Year");
       chkConfigFieldsClub.IsChecked = cfg.ActiveFields.Contains("Club");
@@ -216,7 +221,9 @@ namespace RaceHorology
 
       try { cfg.ValueF = double.Parse(txtValueF.Text); } catch (Exception) { }
       try { cfg.ValueA = double.Parse(txtValueA.Text); } catch (Exception) { }
+      try { cfg.ValueZ = double.Parse(txtValueZ.Text); } catch (Exception) { }
       try { cfg.MinimumPenalty = double.Parse(txtMinPenalty.Text); } catch (Exception) { }
+      try { cfg.ValueCutOff = double.Parse(txtValueCutOff.Text); } catch (Exception) { }
 
       void enableField(List<string> fieldList, string field, bool? enabled)
       {

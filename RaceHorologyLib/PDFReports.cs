@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -100,33 +100,39 @@ namespace RaceHorologyLib
 
     public Image GetImage(string filenameWOExt)
     {
-      Image img = null;
-
-      string foundResource = null;
-      foundResource = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.StartsWith("RaceHorologyLib.resources.pdf." + filenameWOExt));
-      if (foundResource != null)
+      try
       {
-        byte[] ReadFully(Stream input)
+        Image img = null;
+
+        string foundResource = null;
+        foundResource = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.StartsWith("RaceHorologyLib.resources.pdf." + filenameWOExt));
+        if (foundResource != null)
         {
-          using (MemoryStream ms = new MemoryStream())
+          byte[] ReadFully(Stream input)
           {
-            input.CopyTo(ms);
-            return ms.ToArray();
+            using (MemoryStream ms = new MemoryStream())
+            {
+              input.CopyTo(ms);
+              return ms.ToArray();
+            }
           }
+
+          var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(foundResource);
+          img = new Image(ImageDataFactory.Create(ReadFully(stream)));
         }
 
-        var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(foundResource);
-        img = new Image(ImageDataFactory.Create(ReadFully(stream)));
-      }
+        if (img == null)
+        {
+          string imgPath = FindImage(filenameWOExt);
+          if (!string.IsNullOrEmpty(imgPath))
+            img = new Image(ImageDataFactory.Create(imgPath));
+        }
 
-      if (img == null)
+        return img;
+      }catch(Exception /*e*/)
       {
-        string imgPath = FindImage(filenameWOExt);
-        if (!string.IsNullOrEmpty(imgPath))
-          img = new Image(ImageDataFactory.Create(imgPath));
+        throw new Exception(string.Format("cannot load image {0}", filenameWOExt));
       }
-
-      return img;
     }
 
 
@@ -930,7 +936,7 @@ namespace RaceHorologyLib
           .SetFont(fontBold)));
 
       table.AddCell(createCell()
-        .Add(new Paragraph("Schiedrichter:")
+        .Add(new Paragraph("Schiedsrichter:")
           .SetPaddingTop(6)
           .SetFont(fontBold)));
       table.AddCell(createCell()
@@ -2203,8 +2209,10 @@ namespace RaceHorologyLib
 
       DSVSchoolRaceResultViewProvider resultVP = _race.GetResultViewProvider() as DSVSchoolRaceResultViewProvider;
 
-      addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationWomen(), "Damen/Mädchen");
-      addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationMen(), "Herren/Buben");
+      if (resultVP.GetDSVRaceCalculationWomen().CalculationValid)
+        addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationWomen(), "Damen/Mädchen");
+      if (resultVP.GetDSVRaceCalculationMen().CalculationValid)
+        addPenaltyCalculation(pdf, document, resultVP.GetDSVRaceCalculationMen(), "Herren/Buben");
     }
 
 
@@ -2213,7 +2221,7 @@ namespace RaceHorologyLib
       var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
       int fontSizeTitle = 16;
-      int fontSizeNormal = 10;
+      int fontSizeNormal = 9;
 
       Paragraph createHeaderParagraph(string text)
       {
@@ -2258,7 +2266,7 @@ namespace RaceHorologyLib
         );
 
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetWidth(UnitValue.CreatePercentValue(100))
           .SetBorder(Border.NO_BORDER);
@@ -2315,7 +2323,7 @@ namespace RaceHorologyLib
           {
             table.AddCell(createCellForTable(TextAlignment.RIGHT)
               .SetBackgroundColor(bgColor)
-              .Add(createParagraph(formatPoints(item.RRI.Participant.Points))));
+              .Add(createParagraph(formatPoints(item.DSVPoints))));
             table.AddCell(createCellForTable(TextAlignment.RIGHT)
               .SetBackgroundColor(bgColor)
               .Add(createParagraph(formatPoints(item.RacePoints))));
@@ -2360,7 +2368,7 @@ namespace RaceHorologyLib
         );
 
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetWidth(UnitValue.CreatePercentValue(100))
           .SetBorder(Border.NO_BORDER);
@@ -2435,7 +2443,7 @@ namespace RaceHorologyLib
 
       {
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 })
-          .SetFontSize(10)
+          .SetFontSize(fontSizeNormal)
           .SetFont(fontNormal)
           .SetBorder(Border.NO_BORDER);
 
@@ -2481,15 +2489,51 @@ namespace RaceHorologyLib
           .Add(createParagraph("Gerundet:")));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenalty))));
+
+        if (dsvCalc.ValueA > 0.0)
+        {
+          table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Kategorie-Adder:")));
+          table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+            .Add(createParagraph("")));
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueA))));
+        }
+
+        if (dsvCalc.ValueZ > 0.0)
+        {
+          table.AddCell(createCellForTable(TextAlignment.LEFT)
+            .Add(createParagraph("Korrekturwert (Z-Wert):")));
+          table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+            .Add(createParagraph("")));
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.ValueZ))));
+        }
+
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createParagraph(string.Format("{0}", dsvCalc.CalculatedPenalty))));
+          .Add(createParagraph("Punktezuschlag:").SetFont(fontBold)));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenaltyWithAdded)).SetFont(fontBold)));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Minimumzuschlag:")));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.MinPenalty))));
+
+        table.AddCell(createCellForTable(9, TextAlignment.LEFT).Add(createParagraph(" ")));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
           .Add(createParagraph("Angewandter Zuschlag:").SetFont(fontBold)));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
-        table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createParagraph(string.Format("{0}", dsvCalc.AppliedPenalty)).SetFont(fontBold)));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.AppliedPenalty)).SetFont(fontBold)));
 
         document.Add(table);
       }

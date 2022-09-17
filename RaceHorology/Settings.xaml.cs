@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -67,9 +67,13 @@ namespace RaceHorology
       cbTimingDevicePort.SelectedValuePath = "Port";
       cbTimingDevicePort.SelectedValue = Properties.Settings.Default.TimingDevice_Port;
 
+      txtTimingDeviceUrl.Text = Properties.Settings.Default.TimingDevice_Url;
+
       chkTimingDeviceDebugDump.IsChecked = Properties.Settings.Default.TimingDevice_Debug_Dump;
 
+      //cbTimingDevice.Items.Add("---");
       cbTimingDevice.Items.Add("ALGE TdC8000/8001");
+      cbTimingDevice.Items.Add("Alpenhunde");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
 
       txtAutomaticNiZTimeout.Text = Properties.Settings.Default.AutomaticNiZTimeout.ToString();
@@ -78,6 +82,8 @@ namespace RaceHorology
       chkAutoAddParticipant.IsChecked = Properties.Settings.Default.AutoAddParticipants;
 
       txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
+
+      cbTimingDevice_SelectionChanged(null, null);
     }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
@@ -92,6 +98,9 @@ namespace RaceHorology
 
       if (Properties.Settings.Default.TimingDevice_Port != (string)cbTimingDevicePort.SelectedValue)
         Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
+
+      if (Properties.Settings.Default.TimingDevice_Url != txtTimingDeviceUrl.Text)
+        Properties.Settings.Default.TimingDevice_Url = txtTimingDeviceUrl.Text;
 
       if (Properties.Settings.Default.TimingDevice_Debug_Dump != chkTimingDeviceDebugDump.IsChecked == true )
         Properties.Settings.Default.TimingDevice_Debug_Dump = chkTimingDeviceDebugDump.IsChecked == true;
@@ -126,5 +135,19 @@ namespace RaceHorology
       DialogResult = true;
     }
 
+    private void cbTimingDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      bool displayUrl = cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
+      bool displayComPort= cbTimingDevice.SelectedValue.ToString().Contains("ALGE");
+
+      cbTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
+      lblTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
+
+      txtTimingDeviceUrl.Visibility = displayUrl ? Visibility.Visible : Visibility.Collapsed;
+      lblTimingDeviceUrl.Visibility = displayUrl ? Visibility.Visible : Visibility.Collapsed;
+
+      lblTimingDeviceDebug.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
+      chkTimingDeviceDebugDump.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
+    }
   }
 }

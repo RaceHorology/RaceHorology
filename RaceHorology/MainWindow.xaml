@@ -25,7 +25,7 @@
     <KeyBinding Key="N" Modifiers="Control" Command="New"/>
     <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
     <KeyBinding Key="S" Modifiers="Control" Command="Save"/>
-    <KeyBinding Key="C" Modifiers="Control" Command="Close"/>
+    <KeyBinding Key="F4" Modifiers="Control" Command="Close"/>
   </Window.InputBindings>
 
   <Grid>
@@ -34,15 +34,19 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-      <Menu x:Name="mnuMain" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
-        <MenuItem Name="mnuFile" Header="Datei">
-          <MenuItem Name="mnuNew" Header="_Neu anlegen" Command="New" InputGestureText="Ctrl+N"/>
-          <MenuItem Name="mnuOpen" Header="Datei _öffnen" Command="Open" InputGestureText="Ctrl+O"/>
-          <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
-          <MenuItem Name="mnuClose" Header="S_chließen" Command="Close" InputGestureText="Ctrl+C"/>
-        </MenuItem>
-        <MenuItem Name="mnuTools"  Header="Werkzeuge">
-          <MenuItem Name="mnuToolsDeleteRunResults"  Header="Zeiten löschen" 
+    <Menu x:Name="mnuMain" Width="Auto" Margin="0,0,0,0" Grid.Row="0" Height="Auto" VerticalAlignment="Top" Background="#ffe6eee5">
+      <MenuItem Name="mnuFile" Header="Datei">
+        <MenuItem Name="mnuNew" Header="_Neu anlegen" Command="New" InputGestureText="Ctrl+N"/>
+        <MenuItem Name="mnuOpen" Header="Datei _öffnen" Command="Open" InputGestureText="Ctrl+O"/>
+        <MenuItem Name="mnuRecentFiles" Header="Letzte Dateien" />
+        <MenuItem Name="mnuClose" Header="Schließen" Command="Close" InputGestureText="Ctrl+F4"
+                    IsEnabled="{Binding HasActiveRace}" />
+        <Separator/>
+        <MenuItem Name="mnuExit" Header="_Beenden" Click="ApplicationClose" InputGestureText="Alt+F4"/>
+      </MenuItem>
+
+      <MenuItem Name="mnuTools"  Header="Werkzeuge">
+        <MenuItem Name="mnuToolsDeleteRunResults"  Header="Zeiten löschen" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.DeleteRunResults" />
         <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
@@ -52,11 +56,11 @@
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.ImportTime" />
       </MenuItem>
-        <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
-          <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
-        </MenuItem>
-        <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
-      </Menu>
+      <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
+        <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
+      </MenuItem>
+      <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
+    </Menu>
     <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffe6eee5">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />

@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -540,9 +540,9 @@ public class LiveTimingRM : ILiveTiming
     item = string.Format(
       customFormat,
       "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10:0.00}"
-      , particpant.Sex.Name
-      , particpant.Class.Group.Id
-      , particpant.Class.Id
+      , particpant.Sex?.Name
+      , particpant.Class?.Group?.Id
+      , particpant.Class?.Id
       , particpant.Participant.Id
       , particpant.StartNumber
       , particpant.Participant.CodeOrSvId // TODO: set to empty if not used
@@ -597,7 +597,7 @@ public class LiveTimingRM : ILiveTiming
 
   protected void sendTiming(RaceRun raceRun)
   {
-    // iiiehhmmss,zh
+    // iiiehhmmss,zhdistext
     // iii Id des Teilnehmers(muss in Datei mit Teilnehmerdaten vorhanden sein)
     // e ErgCode: 0 = Läufer im Ziel Laufzeit = hhmmss,zh
     //            1 = Nicht am Start Laufzeit = 999999,99
@@ -606,6 +606,7 @@ public class LiveTimingRM : ILiveTiming
     //            4 = Nicht qualifiziert Laufzeit = 999999,99
     //            9 = Läufer auf der Strecke Laufzeit = 000000,01
     // hhmmss,zh Laufzeit
+    // distext   Disqualifikationstext
 
     string data = "";
 
@@ -620,7 +621,7 @@ public class LiveTimingRM : ILiveTiming
 
   internal string getTimingData(RaceRun raceRun)
   {
-    // iiiehhmmss,zh
+    // iiiehhmmss,zhdistext
     // iii Id des Teilnehmers(muss in Datei mit Teilnehmerdaten vorhanden sein)
     // e ErgCode: 0 = Läufer im Ziel Laufzeit = hhmmss,zh
     //            1 = Nicht am Start Laufzeit = 999999,99
@@ -629,15 +630,17 @@ public class LiveTimingRM : ILiveTiming
     //            4 = Nicht qualifiziert Laufzeit = 999999,99
     //            9 = Läufer auf der Strecke Laufzeit = 000000,01
     // hhmmss,zh Laufzeit
+    // distext   Disqualifikationstext
 
     string result = "";
 
     List<RunResult> results = raceRun.GetResultList().OrderBy(o => o.StartNumber).ToList();
     foreach (var r in results)
     {
-      string item, time;
+      string item, time, distext;
       int eCode;
 
+      distext = "";
       if (r.ResultCode == RunResult.EResultCode.Normal)
       {
         if (r.Runtime != null)
@@ -661,15 +664,16 @@ public class LiveTimingRM : ILiveTiming
         {
           case RunResult.EResultCode.NaS: eCode = 1; break;
           case RunResult.EResultCode.NiZ: eCode = 2; break;
-          case RunResult.EResultCode.DIS: eCode = 3; break;
+          case RunResult.EResultCode.DIS: eCode = 3; distext = r.DisqualText; break;
           case RunResult.EResultCode.NQ:  eCode = 4; break;
           default:
             // No useful data => skip
             continue;
         }
+        
       }
 
-      item = string.Format("{0,3}{1,1}{2}", r.Participant.Id, eCode, time);
+      item = string.Format("{0,3}{1,1}{2}{3}", r.Participant.Id, eCode, time, distext);
 
       if (!string.IsNullOrEmpty(result))
         result += "\n";
@@ -790,7 +794,7 @@ public class LTTransferStatus : LTTransfer
   public override void performTask()
   {
     _currentLvStruct.InfoText = _data;
-    _lv.StartLiveTiming(ref _currentLvStruct);
+    _lv.SendInfo(ref _currentLvStruct);
   }
 
 }

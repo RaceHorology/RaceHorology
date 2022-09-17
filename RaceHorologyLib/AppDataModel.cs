@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -730,7 +730,7 @@ namespace RaceHorologyLib
     public bool IsComplete
     {
       get { return _isComplete; }
-      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+      private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
     }
 
 
@@ -1281,8 +1281,23 @@ namespace RaceHorologyLib
     protected TimeSpan? _liveRunTime;
 
     RunResult _original;
+    EParticipantColor? _markedForMeasurement;
 
     public RunResult OriginalResult { get { return _original; } }
+
+    public EParticipantColor? MarkedForMeasurement 
+    { 
+      get => _markedForMeasurement;
+      
+      set 
+      { 
+        if (value != _markedForMeasurement)
+        {
+          _markedForMeasurement = value;
+          NotifyPropertyChanged();
+        }
+      } 
+    }
 
     /// <summary>
     /// Constructor
@@ -1334,6 +1349,8 @@ namespace RaceHorologyLib
 
   }
 
+
+
   /// <summary>
   /// Represents a race run. Typically a race consists out of two race runs.
   /// </summary>
@@ -1347,6 +1364,9 @@ namespace RaceHorologyLib
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
     private ItemsChangeObservableCollection<RunResult> _inFinish;  // This list represents the particpants in finish.
+
+    private Dictionary<EParticipantColor, RaceParticipant> _markedParticipantForStartMeasurement;
+    private Dictionary<EParticipantColor, RaceParticipant> _markedParticipantForFinishMeasurement;
 
     private StartListViewProvider _slVP;
     private ResultViewProvider _rvp;
@@ -1370,6 +1390,9 @@ namespace RaceHorologyLib
       _inFinish = new ItemsChangeObservableCollection<RunResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
 
+      _markedParticipantForStartMeasurement = new Dictionary<EParticipantColor, RaceParticipant>();
+      _markedParticipantForFinishMeasurement = new Dictionary<EParticipantColor, RaceParticipant>();
+
       // Ensure the results always are in sync with participants
       _race.GetParticipants().CollectionChanged += onParticipantsChanged;
 
@@ -1391,8 +1414,19 @@ namespace RaceHorologyLib
     public bool IsComplete 
     {
       get { return _isComplete; }
-      set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
+      private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
     }
+
+    public Dictionary<EParticipantColor, RaceParticipant> MarkedParticipantForStartMeasurement
+    {
+      get { return _markedParticipantForStartMeasurement; }
+    }
+
+    public Dictionary<EParticipantColor, RaceParticipant> MarkedParticipantForFinishMeasurement
+    {
+      get { return _markedParticipantForFinishMeasurement; }
+    }
+
 
 
     /// <summary>
@@ -1570,6 +1604,53 @@ namespace RaceHorologyLib
     }
 
 
+    public void MarkStartMeasurement(RaceParticipant participant, EParticipantColor color)
+    {
+      if (!_markedParticipantForStartMeasurement.ContainsKey(color) || _markedParticipantForStartMeasurement[color] != participant)
+      {
+        if (participant != null)
+          _markedParticipantForStartMeasurement[color] = participant;
+        else
+          _markedParticipantForStartMeasurement.Remove(color);
+
+        NotifyPropertyChanged("MarkedParticipantForStartMeasurement");
+      }
+    }
+    public EParticipantColor? IsMarkedForStartMeasurement(RaceParticipant participant)
+    {
+      foreach(var entry in _markedParticipantForStartMeasurement)
+      {
+        if (entry.Value == participant)
+          return entry.Key;
+      }
+      return null;
+    }
+
+
+    public void MarkFinishMeasurement(RaceParticipant participant, EParticipantColor color)
+    {
+      if (!_markedParticipantForFinishMeasurement.ContainsKey(color) || _markedParticipantForFinishMeasurement[color] != participant)
+      {
+        if (participant != null)
+          _markedParticipantForFinishMeasurement[color] = participant;
+        else
+          _markedParticipantForFinishMeasurement.Remove(color);
+
+        NotifyPropertyChanged("MarkedParticipantForFinishMeasurement");
+        _UpdateOnTrackMarkedForMeasurement();
+      }
+    }
+    public EParticipantColor? IsMarkedForFinishMeasurement(RaceParticipant participant)
+    {
+      foreach (var entry in _markedParticipantForFinishMeasurement)
+      {
+        if (entry.Value == participant)
+          return entry.Key;
+      }
+      return null;
+    }
+
+
     private RunResult findOrCreateRunResult(RaceParticipant participant)
     {
       if (participant == null)
@@ -1725,6 +1806,14 @@ namespace RaceHorologyLib
           handler?.Invoke(this, r.Participant, null, r);
         }
       }
+
+      _UpdateOnTrackMarkedForMeasurement();
+    }
+
+    private void _UpdateOnTrackMarkedForMeasurement()
+    {
+      foreach (var r in _onTrack)
+        r.MarkedForMeasurement = IsMarkedForFinishMeasurement(r.Participant);
     }
 
 

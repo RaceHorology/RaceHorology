@@ -33,7 +33,7 @@
     <Label Content="Gruppen" Grid.Column="2" FontSize="16" Foreground="BlueViolet"/>
     <Label Content="Kategorien" Grid.Column="4" FontSize="16" Foreground="DarkOliveGreen"/>
 
-    <DataGrid x:Name="dgClasses" Grid.Row="1" Grid.Column="0" AutoGenerateColumns="False"
+    <DataGrid x:Name="dgClasses" Margin="5,0,0,0" Grid.Row="1" Grid.Column="0" AutoGenerateColumns="False"
               ItemsSource="{Binding ClassViewModel.Items}"
               CanUserSortColumns="False" CanUserAddRows="True" CanUserDeleteRows="True"
               dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" dd:DragDrop.UseDefaultDragAdorner="True" dd:DragDrop.UseDefaultEffectDataTemplate="True" 
@@ -116,8 +116,8 @@
         </DataGridTemplateColumn>
       </DataGrid.Columns>
     </DataGrid>
-    
-    <DataGrid x:Name="dgCategories" Grid.Row="1" Grid.Column="4" AutoGenerateColumns="False"
+
+    <DataGrid x:Name="dgCategories" Margin="0,0,5,0" Grid.Row="1" Grid.Column="4" AutoGenerateColumns="False"
               ItemsSource="{Binding CategoryViewModel.Items}"
               CanUserSortColumns="False" CanUserAddRows="True" CanUserDeleteRows="True"
               dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" dd:DragDrop.UseDefaultDragAdorner="True" dd:DragDrop.UseDefaultEffectDataTemplate="True" 
@@ -149,7 +149,7 @@
         <Button x:Name="btnImport" Content="Importieren und Ersetzen" Margin="5" Padding="5" Click="BtnImport_Click"/>
         <Button x:Name="btnImportAdd" Content="Importieren und Hinzufügen" Margin="5" Padding="5" Click="BtnImportAdd_Click"/>
       </StackPanel>
-      <local:SaveOrResetUC x:Name="ucSaveOrReset" Grid.Column="1" HorizontalAlignment="Left" />
+      <local:SaveOrResetUC x:Name="ucSaveOrReset"  Margin="5" Grid.Column="1" HorizontalAlignment="Left" />
     </Grid>
 
   </Grid>

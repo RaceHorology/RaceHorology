@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -214,6 +214,13 @@ namespace RaceHorologyLibTest
       sna.LoadFromRace(race);
       Assert.IsFalse(sna.DifferentToRace(race));
       sna.DeleteAll();
+      Assert.IsTrue(sna.DifferentToRace(race));
+
+      // Issue #311: If nothing is assigned, DifferentToRace() returns always true
+      sna.DeleteAll();
+      sna.SaveToRace(race);
+      Assert.IsFalse(sna.DifferentToRace(race));
+      sna.Assign(1000, race.GetParticipants()[0]);
       Assert.IsTrue(sna.DifferentToRace(race));
     }
 

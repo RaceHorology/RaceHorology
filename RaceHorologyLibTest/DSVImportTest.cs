@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -229,6 +229,7 @@ namespace RaceHorologyLibTest
     }
 
     [TestMethod, TestCategory("IntegrationDsvOnline")]
+    [Ignore]
     public void ImportPointListViaWeb_U18()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);

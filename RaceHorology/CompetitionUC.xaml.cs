@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -365,7 +365,8 @@ namespace RaceHorology
 
     private void dgParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      updatePartcipantEditFields();
+      if (!_withinStoreParticipant) // for some reason, comboboxes within the data grid send the same signal
+        updatePartcipantEditFields();
     }
 
 
@@ -483,8 +484,11 @@ namespace RaceHorology
     }
 
 
+    private bool _withinStoreParticipant = false;
     private void storeParticipant()
     {
+      _withinStoreParticipant = true;
+
       IList<ParticipantEdit> items = dgParticipants.SelectedItems.Cast<ParticipantEdit>().ToList();
 
       storePartcipantEditField(txtName, items, "Name");
@@ -509,8 +513,16 @@ namespace RaceHorology
           }
         }
       }
-    }
 
+      if (items.Count == 1 && items[0].Class == null)
+      {
+        ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
+        ca.Assign(items[0].Participant);
+        updatePartcipantEditFields();
+      }
+
+      _withinStoreParticipant = false;
+    }
 
     private void storePartcipantEditField(TextBox control, IList<ParticipantEdit> items, string propertyName)
     {
@@ -583,7 +595,7 @@ namespace RaceHorology
       }
     }
 
-    private void btnAssignClasses_Click(object sender, RoutedEventArgs e)
+    private void btnAssignAllClasses_Click(object sender, RoutedEventArgs e)
     {
       ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
       ca.Assign(_dm.GetParticipants());
@@ -607,6 +619,8 @@ namespace RaceHorology
 
       ParticipantEdit item = _editParticipants.FirstOrDefault(p => p.Participant == participant);
       dgParticipants.SelectedItem = item;
+
+      txtName.Focus();
     }
 
     private void btnDeleteParticipant_Click(object sender, RoutedEventArgs e)
@@ -636,7 +650,7 @@ namespace RaceHorology
 
     private void InitializeGlobalConfig()
     {
-      ucRaceConfig.Init(_dm.GlobalRaceConfig);
+      ucRaceConfig.Init(_dm.GlobalRaceConfig, null);
 
       ucRaceConfigSaveOrReset.Init(
         "Konfigurationsänderungen",
@@ -655,7 +669,7 @@ namespace RaceHorology
       RaceConfiguration cfg = ucRaceConfig.GetConfig();
       _dm.GlobalRaceConfig = cfg;
 
-      ucRaceConfig.Init(_dm.GlobalRaceConfig);
+      ucRaceConfig.Init(_dm.GlobalRaceConfig, null);
     }
 
     private void globalConfig_ResetChanges()
@@ -665,6 +679,11 @@ namespace RaceHorology
 
     #endregion
 
+    private void txtControlGotFocus(object sender, RoutedEventArgs e)
+    {
+      if (sender is TextBox tb)
+        tb.SelectAll();
+    }
   }
 
 
@@ -740,6 +759,19 @@ namespace RaceHorology
     {
       _participant = p;
       _races = races;
+
+      for(int i = 0; i < _races.Count; i++)
+      {
+        var rp = getRaceParticipant(i);
+        rp.PropertyChanged += RaceParticipant_PropertyChanged;
+      }
+
+
+    }
+
+    private void RaceParticipant_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      NotifyPropertyChanged("Item");
     }
 
     private RaceParticipant getRaceParticipant(int i)

@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -185,7 +185,10 @@ namespace RaceHorologyLib
             return true;
         }
         else
-          return true;
+        {
+          if (p.StartNumber != 0)
+            return true;
+        }
       }
 
       return false;
@@ -445,6 +448,19 @@ namespace RaceHorologyLib
 
       if (groups.Count > 0)
         CurrentGroup = groups[0];
+      else
+        CurrentGroup = null;
+
+      return CurrentGroup != null;
+    }
+
+
+    public bool SwitchToGroup(object group)
+    {
+      List<object> groups = _group2participant.Keys.ToList();
+
+      if (_group2participant.ContainsKey(group))
+        CurrentGroup = group;
       else
         CurrentGroup = null;
 

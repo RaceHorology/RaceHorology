@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -60,7 +60,7 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Firstname");
       writer.WriteValue(value.Firstname);
       writer.WritePropertyName("Sex");
-      writer.WriteValue(value.Sex.Name);
+      writer.WriteValue(value.Sex?.Name);
       writer.WritePropertyName("Year");
       writer.WriteValue(value.Year);
       writer.WritePropertyName("Club");
@@ -98,7 +98,7 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Firstname");
       writer.WriteValue(value.Firstname);
       writer.WritePropertyName("Sex");
-      writer.WriteValue(value.Sex.Name);
+      writer.WriteValue(value.Sex?.Name);
       writer.WritePropertyName("Year");
       writer.WriteValue(value.Year);
       writer.WritePropertyName("Club");
@@ -157,7 +157,7 @@ namespace RaceHorologyLib
         writer.WritePropertyName("Firstname");
         writer.WriteValue(value.Firstname);
         writer.WritePropertyName("Sex");
-        writer.WriteValue(value.Sex.Name);
+        writer.WriteValue(value.Sex?.Name);
         writer.WritePropertyName("Year");
         writer.WriteValue(value.Year);
         writer.WritePropertyName("Club");
@@ -212,7 +212,7 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Firstname");
       writer.WriteValue(value.Participant.Firstname);
       writer.WritePropertyName("Sex");
-      writer.WriteValue(value.Participant.Sex.Name);
+      writer.WriteValue(value.Participant.Sex?.Name);
       writer.WritePropertyName("Year");
       writer.WriteValue(value.Participant.Year);
       writer.WritePropertyName("Club");
@@ -275,7 +275,7 @@ namespace RaceHorologyLib
       writer.WritePropertyName("Firstname");
       writer.WriteValue(value.Firstname);
       writer.WritePropertyName("Sex");
-      writer.WriteValue(value.Sex.Name);
+      writer.WriteValue(value.Sex?.Name);
       writer.WritePropertyName("Year");
       writer.WriteValue(value.Year);
       writer.WritePropertyName("Club");

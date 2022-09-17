@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -439,6 +439,8 @@ namespace RaceHorologyLib
   }
 
 
+  public enum EParticipantColor { NoColor, Red, Blue };
+
   /// <summary>
   /// Represents a participant (or ski alpin racer)
   /// </summary>
@@ -702,7 +704,7 @@ namespace RaceHorologyLib
     public double Points // Points prior to the race
     {
       get => _points;
-      set { _points = value; NotifyPropertyChanged(); }
+      set { if (_points != value) { _points = value; NotifyPropertyChanged(); } }
     }
 
     public override string ToString()
@@ -740,11 +742,13 @@ namespace RaceHorologyLib
   {
     protected RaceParticipant _participant;
     protected bool _started;
+    protected EParticipantColor? _markedForMeasurement;
 
     public StartListEntry(RaceParticipant participant)
     {
       _participant = participant;
       _started = false;
+      _markedForMeasurement = null;
       _participant.PropertyChanged += OnParticipantPropertyChanged;
     }
 
@@ -753,6 +757,7 @@ namespace RaceHorologyLib
     {
       StartListEntry copy = new StartListEntry(_participant);
       copy._started = _started;
+      copy._markedForMeasurement = _markedForMeasurement;
       return copy;
     }
 
@@ -781,6 +786,20 @@ namespace RaceHorologyLib
         if (_started != value)
         {
           _started = value;
+          NotifyPropertyChanged();
+        }
+      }
+    }
+
+    public EParticipantColor? MarkedForMeasurement
+    {
+      get => _markedForMeasurement;
+
+      set
+      {
+        if (value != _markedForMeasurement)
+        {
+          _markedForMeasurement = value;
           NotifyPropertyChanged();
         }
       }
@@ -1164,7 +1183,9 @@ namespace RaceHorologyLib
           // Reset after 5 sec
           if (_justModified)
           {
-            Task.Delay(5000).ContinueWith(t => { JustModified = false; });
+            Task.Delay(5000).ContinueWith(t => {
+              JustModified = false; 
+            }/* TODO: , TaskScheduler.FromCurrentSynchronizationContext()*/);
           }
         }
       }

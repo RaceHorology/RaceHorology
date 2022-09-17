@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2021 by Sven Flossmann
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -45,10 +45,10 @@ namespace RaceHorologyLib
   {
     public class TopTenResult
     {
-      public TopTenResult(RaceResultItem rri, double racePoints)
+      public TopTenResult(RaceResultItem rri, double consideredDsvPoints, double racePoints)
       {
         RRI = rri;
-        DSVPoints = rri.Participant.Points;
+        DSVPoints = consideredDsvPoints;
         RacePoints = racePoints;
         TopFive = false;
       }
@@ -57,6 +57,12 @@ namespace RaceHorologyLib
       public double DSVPoints { get; set; }
       public double RacePoints { get; set; }
       public bool TopFive { get; set; }
+
+      public override string ToString()
+      {
+        return string.Format("Zeit: {0}, ListPoints: {1}, Best5Points {2}({4}), RacePoints: {3}", 
+          RRI.TotalTime, RRI.Participant.Points, DSVPoints, RacePoints, TopFive);
+      }
     }
 
     private Race _race;
@@ -65,12 +71,17 @@ namespace RaceHorologyLib
     
     private double _valueF;
     private double _valueA;
+    private double _valueZ;
     private double _minPenalty;
+    private double _valueCutOff;
 
     private double _penaltyA;
     private double _penaltyB;
     private double _penaltyC;
     private double _penalty;
+    private double _penaltyRounded;
+    private double _penaltyWithAdder;
+    bool _calculationValid;
 
     private double _appliedPenalty;
 
@@ -81,11 +92,16 @@ namespace RaceHorologyLib
 
 
     public double ExactCalculatedPenalty { get { return _penalty; } }
-    public double CalculatedPenalty { get { return Math.Round(ExactCalculatedPenalty, 2); } }
+    public double CalculatedPenalty { get { return _penaltyRounded; } }
+    public double CalculatedPenaltyWithAdded { get { return _penaltyWithAdder; } }
     public double AppliedPenalty { get { return _appliedPenalty; } }
+    public double MinPenalty {  get { return _minPenalty; } }
+
+    public bool CalculationValid { get { return _calculationValid; } }
 
     public double ValueF { get { return _valueF; } }
     public double ValueA { get { return _valueA; } }
+    public double ValueZ { get { return _valueZ; } }
     public double PenaltyA { get { return _penaltyA; } }
     public double PenaltyB { get { return _penaltyB; } }
     public double PenaltyC { get { return _penaltyC; } }
@@ -102,8 +118,11 @@ namespace RaceHorologyLib
 
       _valueF = race.RaceConfiguration.ValueF;
       _valueA = race.RaceConfiguration.ValueA;
+      _valueZ = race.RaceConfiguration.ValueZ;
 
       _minPenalty = race.RaceConfiguration.MinimumPenalty;
+      _valueCutOff = race.RaceConfiguration.ValueCutOff;
+
       _penalty = _penaltyA = _penaltyB = _penaltyC = 0.0;
       _appliedPenalty = 0.0;
       _bestTime = null;
@@ -117,7 +136,7 @@ namespace RaceHorologyLib
         penalty = _appliedPenalty;
 
       if (_bestTime != null && rri.TotalTime != null)
-        return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - _valueF + _valueA + penalty, 2);
+        return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - _valueF + penalty, 2);
 
       return -1.0;
     }
@@ -125,15 +144,28 @@ namespace RaceHorologyLib
 
     public void CalculatePenalty()
     {
-      findTopTen();
+      try
+      {
+        findTopTen();
 
-      markBestFive();
-      calculatePenaltyAC();
+        markBestFive();
+        calculatePenaltyAC();
 
-      findBestFiveDSV();
-      calculatePenaltyB();
+        findBestFiveDSV();
+        calculatePenaltyB();
 
-      calculatePenalty();
+        calculatePenalty();
+
+        if (_topTen.Count == 0)
+          _calculationValid = false;
+        else
+          _calculationValid = true;
+      }
+      catch (Exception)
+      {
+        _calculationValid = false;
+        throw;
+      }
     }
 
 
@@ -159,13 +191,30 @@ namespace RaceHorologyLib
 
       _topTen = new List<TopTenResult>();
 
-      for (int i = 0; i < 10 && i < items.Count; i++)
+      int i = 0;
+      TimeSpan? lastTime10th = null;
+      while(i < 10 && i < items.Count)
       {
         // Store the best time
         if (i==0)
           _bestTime = items[i].TotalTime;
 
-        _topTen.Add(new TopTenResult(items[i], CalculatePoints(items[i], false)));
+        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
+        
+        // Remember time of 10th
+        if (_topTen.Count == 10)
+          lastTime10th = items[i].TotalTime;
+        
+        i++;
+      }
+
+      // Consider all participants at position 10 (have same time as the 10th)
+      // (FIS Points Rules §4.4.5)
+      while (i < items.Count)
+      {
+        if (lastTime10th != null && lastTime10th == items[i].TotalTime)
+        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
+        i++;
       }
     }
 
@@ -176,7 +225,8 @@ namespace RaceHorologyLib
         int nextBest = int.MaxValue;
         double nextBestValue = double.MaxValue;
 
-        for( int j=0; j<_topTen.Count; j++)
+        // Iterate from back i.e., pick the worsest in case of same points (FIS Points Rules §4.4.4, §4.4.6) 
+        for ( int j = _topTen.Count-1;  j>=0; j--)
         {
           var item = _topTen[j];
 
@@ -184,9 +234,9 @@ namespace RaceHorologyLib
           if (item.TopFive)
             continue;
 
-          if (item.RRI.Participant.Points < nextBestValue)
+          if (item.DSVPoints < nextBestValue)
           {
-            nextBestValue = item.RRI.Participant.Points;
+            nextBestValue = item.DSVPoints;
             nextBest = j;
           }
 
@@ -206,13 +256,13 @@ namespace RaceHorologyLib
         var item = _topTen[j];
         if (item.TopFive == true)
         {
-          valueA += item.RRI.Participant.Points;
+          valueA += item.DSVPoints;
           valueC += item.RacePoints;
         }
       }
 
-      _penaltyA = Math.Round(valueA, 2);
-      _penaltyC = Math.Round(valueC, 2);
+      _penaltyA = Math.Round(valueA, 2, MidpointRounding.AwayFromZero);
+      _penaltyC = Math.Round(valueC, 2, MidpointRounding.AwayFromZero);
     }
 
 
@@ -225,13 +275,15 @@ namespace RaceHorologyLib
         valueB += rri.Participant.Points;
       }
 
-      _penaltyB = valueB;
+      _penaltyB = Math.Round(valueB, 2, MidpointRounding.AwayFromZero);
     }
 
     void calculatePenalty()
     {
       _penalty = (_penaltyA + _penaltyB - _penaltyC) / 10.0;
-      _appliedPenalty = Math.Max(_minPenalty, CalculatedPenalty);
+      _penaltyRounded = Math.Round(_penalty, 2, MidpointRounding.AwayFromZero);
+      _penaltyWithAdder = _penaltyRounded + _valueA + _valueZ;
+      _appliedPenalty = Math.Max(_minPenalty, _penaltyWithAdder);
     }
 
 
@@ -273,6 +325,10 @@ namespace RaceHorologyLib
       }
     }
 
+    double cutOffPoints(double points)
+    {
+      return 0.0 <= points && points < _valueCutOff ? points : _valueCutOff;
+    }
 
     bool sexMatched(RaceResultItem rri)
     {
