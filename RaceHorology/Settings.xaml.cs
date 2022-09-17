@@ -82,6 +82,8 @@ namespace RaceHorology
       chkAutoAddParticipant.IsChecked = Properties.Settings.Default.AutoAddParticipants;
 
       txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
+
+      cbTimingDevice_SelectionChanged(null, null);
     }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
@@ -136,12 +138,16 @@ namespace RaceHorology
     private void cbTimingDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       bool displayUrl = cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
+      bool displayComPort= cbTimingDevice.SelectedValue.ToString().Contains("ALGE");
 
-      cbTimingDevicePort.Visibility = displayUrl ? Visibility.Collapsed : Visibility.Visible;
-      lblTimingDevicePort.Visibility = displayUrl ? Visibility.Collapsed : Visibility.Visible;
+      cbTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
+      lblTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
 
-      txtTimingDeviceUrl.Visibility = !displayUrl ? Visibility.Collapsed : Visibility.Visible;
-      lblTimingDeviceUrl.Visibility = !displayUrl ? Visibility.Collapsed : Visibility.Visible;
+      txtTimingDeviceUrl.Visibility = displayUrl ? Visibility.Visible : Visibility.Collapsed;
+      lblTimingDeviceUrl.Visibility = displayUrl ? Visibility.Visible : Visibility.Collapsed;
+
+      lblTimingDeviceDebug.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
+      chkTimingDeviceDebugDump.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
     }
   }
 }
