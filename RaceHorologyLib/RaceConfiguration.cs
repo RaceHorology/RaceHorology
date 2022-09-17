@@ -47,6 +47,16 @@ namespace RaceHorologyLib
   /// </summary>
   public class RaceConfiguration
   {
+    public class PointCalcParams
+    {
+      public double ValueF;
+      public double ValueA;
+      public double ValueZ;
+      public double MinimumPenalty;
+      public double ValueCutOff;
+    }
+
+
     public string Name;
     public CompetitionProperties.ECompetitionType? InternalDSVAlpinCompetitionTypeWrite;
 
@@ -69,6 +79,8 @@ namespace RaceHorologyLib
 
     public Dictionary<string, string> LivetimingParams;
 
+    public Dictionary<Race.ERaceType, PointCalcParams> PointCalcParamTemplate;
+
     public double ValueF;
     public double ValueA;
     public double ValueZ;
@@ -78,7 +90,9 @@ namespace RaceHorologyLib
     public RaceConfiguration()
     {
       ActiveFields = new List<string>();
+      PointCalcParamTemplate = new Dictionary<Race.ERaceType, PointCalcParams>();
     }
+
     public RaceConfiguration(RaceConfiguration src)
     {
       Name = src.Name;
@@ -109,7 +123,7 @@ namespace RaceHorologyLib
 
   public static class RaceConfigurationMerger
   {
-    public static RaceConfiguration MainConfig(RaceConfiguration baseConfig, RaceConfiguration newConfig)
+    public static RaceConfiguration MainConfig(RaceConfiguration baseConfig, RaceConfiguration newConfig, Race.ERaceType? raceType)
     {
       RaceConfiguration mergedConfig = new RaceConfiguration(baseConfig);
 
@@ -127,6 +141,16 @@ namespace RaceHorologyLib
       mergedConfig.Run2_StartistView = newConfig.Run2_StartistView;
       mergedConfig.Run2_StartistViewGrouping = newConfig.Run2_StartistViewGrouping;
       mergedConfig.Run2_StartistViewParams = newConfig.Run2_StartistViewParams.Copy<Dictionary<string, object>>();
+
+      if (raceType != null && newConfig.PointCalcParamTemplate.ContainsKey((Race.ERaceType)raceType))
+      {
+        var pointTemplate = newConfig.PointCalcParamTemplate[(Race.ERaceType)raceType];
+        mergedConfig.ValueF = pointTemplate.ValueF;
+        mergedConfig.ValueA = pointTemplate.ValueA;
+        mergedConfig.ValueZ = pointTemplate.ValueZ;
+        mergedConfig.MinimumPenalty = pointTemplate.MinimumPenalty;
+        mergedConfig.ValueCutOff = pointTemplate.ValueCutOff;
+      }
 
       return mergedConfig;
     }
