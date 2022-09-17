@@ -1183,7 +1183,9 @@ namespace RaceHorologyLib
           // Reset after 5 sec
           if (_justModified)
           {
-            Task.Delay(5000).ContinueWith(t => { JustModified = false; });
+            Task.Delay(5000).ContinueWith(t => {
+              JustModified = false; 
+            }, TaskScheduler.FromCurrentSynchronizationContext());
           }
         }
       }
