@@ -760,13 +760,46 @@ namespace RaceHorology
       _participant = p;
       _races = races;
 
-      for(int i = 0; i < _races.Count; i++)
+      foreach(var r in _races)
+        r.GetParticipants().CollectionChanged += RaceParticipants_CollectionChanged;
+
+      observeRaces();
+    }
+    private static bool relatedTo(NotifyCollectionChangedEventArgs e, Participant p)
+    {
+      bool relatedTo(System.Collections.IList list, Participant lp)
       {
-        var rp = getRaceParticipant(i);
-        rp.PropertyChanged += RaceParticipant_PropertyChanged;
+        if (list != null)
+          foreach (var i in list)
+            if (i is RaceParticipant rp)
+              if (rp.Participant == lp)
+                return true;
+        return false;
       }
 
+      if (relatedTo(e.NewItems, p))
+        return true;
 
+      if (relatedTo(e.OldItems, p))
+        return true;
+
+      return false;
+    }
+
+    private void RaceParticipants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (relatedTo(e, _participant))
+        observeRaces();
+    }
+
+    private void observeRaces()
+    {
+      for (int i = 0; i < _races.Count; i++)
+      {
+        var rp = getRaceParticipant(i);
+        if (rp != null)
+          rp.PropertyChanged += RaceParticipant_PropertyChanged;
+      }
     }
 
     private void RaceParticipant_PropertyChanged(object sender, PropertyChangedEventArgs e)
