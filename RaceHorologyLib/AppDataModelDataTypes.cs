@@ -1185,7 +1185,7 @@ namespace RaceHorologyLib
           {
             Task.Delay(5000).ContinueWith(t => {
               JustModified = false; 
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            }/* TODO: , TaskScheduler.FromCurrentSynchronizationContext()*/);
           }
         }
       }
