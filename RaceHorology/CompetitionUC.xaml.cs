@@ -759,6 +759,19 @@ namespace RaceHorology
     {
       _participant = p;
       _races = races;
+
+      for(int i = 0; i < _races.Count; i++)
+      {
+        var rp = getRaceParticipant(i);
+        rp.PropertyChanged += RaceParticipant_PropertyChanged;
+      }
+
+
+    }
+
+    private void RaceParticipant_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      NotifyPropertyChanged("Item");
     }
 
     private RaceParticipant getRaceParticipant(int i)
