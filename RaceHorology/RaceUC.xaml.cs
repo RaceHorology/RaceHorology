@@ -477,6 +477,8 @@ namespace RaceHorology
       if (Properties.Settings.Default.StartTimeIntervall > 0 && _currentRaceRun != null)
       {
         lblStartCountDown.Visibility = Visibility.Visible;
+        if (_liveTimingStartCountDown != null)
+          _liveTimingStartCountDown.Dispose();
         _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
       }
       else

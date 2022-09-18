@@ -137,8 +137,8 @@ namespace RaceHorology
 
     private void cbTimingDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      bool displayUrl = cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
-      bool displayComPort= cbTimingDevice.SelectedValue.ToString().Contains("ALGE");
+      bool displayUrl = cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
+      bool displayComPort= cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("ALGE");
 
       cbTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
       lblTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
