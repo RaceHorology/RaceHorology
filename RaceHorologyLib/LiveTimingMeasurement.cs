@@ -62,6 +62,19 @@ namespace RaceHorologyLib
       BStartTime = false;
       FinishTime = null;
       BFinishTime = false;
+      Valid = false;
+    }
+
+    public TimeMeasurementEventArgs(TimeMeasurementEventArgs org)
+    {
+      StartNumber = org.StartNumber;
+      RunTime = org.RunTime;
+      BRunTime = org.BRunTime;
+      StartTime = org.StartTime;
+      BStartTime = org.BStartTime;
+      FinishTime = org.FinishTime;
+      BFinishTime = org.BFinishTime;
+      Valid = org.Valid;
     }
 
     public uint StartNumber;
@@ -71,6 +84,7 @@ namespace RaceHorologyLib
     public bool BStartTime;      // true if StartTime is set
     public TimeSpan? FinishTime; // if null and corresponding time property is set true => time shall be deleted
     public bool BFinishTime;     // true if FinishTime is set
+    public bool Valid;           // true if timestamp is valid, false if time measurementdevice marked it as invalid
   }
 
   public class StartnumberSelectedEventArgs: EventArgs
@@ -94,17 +108,23 @@ namespace RaceHorologyLib
   public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, bool isRunning);
 
 
-  /// <summary>
-  /// This Interface must be implemented from a Live Timing Measurement Device which supports online time measurement during the race.
-  /// Most favourit device for now are the ALGE TdC8000/TdC8001 or ALGE Timy
-  /// </summary>
-  public interface ILiveTimeMeasurementDevice
+
+  public interface ILiveTimeMeasurementDeviceBase
   {
     /// <summary>
     /// If a time measurement happend, this event must be triggered.
     /// </summary>
     event TimeMeasurementEventHandler TimeMeasurementReceived;
 
+  }
+
+
+  /// <summary>
+  /// This Interface must be implemented from a Live Timing Measurement Device which supports online time measurement during the race.
+  /// Most favourit device for now are the ALGE TdC8000/TdC8001 or ALGE Timy
+  /// </summary>
+  public interface ILiveTimeMeasurementDevice : ILiveTimeMeasurementDeviceBase
+  {
     /// <summary>
     /// If a startnumber has been selected - entered via keyboard of the device - this event is triggered.
     /// </summary>
@@ -186,7 +206,8 @@ namespace RaceHorologyLib
     AppDataModel _dm;
     SynchronizationContext _syncContext;
 
-    ILiveTimeMeasurementDevice _timingDevice;
+    List<ILiveTimeMeasurementDeviceBase> _timingDevices;
+    ILiveTimeMeasurementDevice _timingDeviceMain;
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
     bool _autoAddParticipants;
@@ -200,6 +221,9 @@ namespace RaceHorologyLib
     {
       _dm = dm;
       _syncContext = System.Threading.SynchronizationContext.Current;
+
+      _timingDevices = new List<ILiveTimeMeasurementDeviceBase>();
+
       _isRunning = false;
       _autoAddParticipants = autoAddParticipants;
     }
@@ -211,46 +235,79 @@ namespace RaceHorologyLib
     public delegate void LiveTimingMeasurementStatusEventHandler(object sender, bool isRunning);
     public event LiveTimingMeasurementStatusEventHandler LiveTimingMeasurementStatusChanged;
 
+    public delegate void LiveTimingMeasurementConfigChangedEventHandler(object sender, bool configChanged);
+    public event LiveTimingMeasurementConfigChangedEventHandler LiveTimingConfigChanged;
+
 
     /// <summary>
     /// Sets the Timing Device to use
     /// </summary>
-    public void SetTimingDevice(ILiveTimeMeasurementDevice timingDevice, ILiveDateTimeProvider liveDateTimeProvider)
+    public void SetLiveDateTimeProvider(ILiveDateTimeProvider liveDateTimeProvider)
     {
       // Cleanup if already used
-      if (_timingDevice != null)
-      {
-        _timingDevice.TimeMeasurementReceived -= OnTimeMeasurementReceived;
-        _timingDevice.StartnumberSelectedReceived -= OnStartnumberSelectedReceived;
-        _timingDevice.StatusChanged -= OnTimerStatusChanged;
-        _timingDevice = null;
-      }
-
       if (_liveDateTimeProvider != null)
       { 
         _liveDateTimeProvider.LiveDateTimeChanged -= OnLiveDateTimeChanged;
         _liveDateTimeProvider = null;
       }
 
-      _timingDevice = timingDevice;
       _liveDateTimeProvider = liveDateTimeProvider;
 
-      if (_timingDevice != null)
-      {
-        _timingDevice.TimeMeasurementReceived += OnTimeMeasurementReceived;
-        _timingDevice.StartnumberSelectedReceived += OnStartnumberSelectedReceived;
-        _timingDevice.StatusChanged += OnTimerStatusChanged;
-      }
       if (_liveDateTimeProvider != null)
       {
         _liveDateTimeProvider.LiveDateTimeChanged += OnLiveDateTimeChanged;
       }
     }
 
+    public void AddTimingDevice(ILiveTimeMeasurementDeviceBase timingDevice, bool mainDevice)
+    {
+      if (timingDevice != null)
+      {
+        timingDevice.TimeMeasurementReceived += OnTimeMeasurementReceived;
+        if (timingDevice is ILiveTimeMeasurementDevice tdFull){
+          tdFull.StartnumberSelectedReceived += OnStartnumberSelectedReceived;
+          tdFull.StatusChanged += OnTimerStatusChanged;
+          if (mainDevice)
+            _timingDeviceMain = tdFull;
+        }
+      }
+
+      _timingDevices.Add(timingDevice);
+
+      var handler = LiveTimingConfigChanged;
+      handler?.Invoke(this, true);
+    }
+
+    public void RemoveTimingDevice(ILiveTimeMeasurementDeviceBase timingDevice)
+    {
+      var idx = _timingDevices.IndexOf(timingDevice);
+      if (idx != -1)
+      {
+        timingDevice.TimeMeasurementReceived -= OnTimeMeasurementReceived;
+        if (timingDevice is ILiveTimeMeasurementDevice tdFull)
+        {
+          tdFull.StartnumberSelectedReceived -= OnStartnumberSelectedReceived;
+          tdFull.StatusChanged -= OnTimerStatusChanged;
+          if (_timingDeviceMain == timingDevice)
+            _timingDeviceMain = null;
+        }
+        _timingDevices.Remove(timingDevice);
+
+        var handler = LiveTimingConfigChanged;
+        handler?.Invoke(this, true);
+      }
+    }
+
+    public List<ILiveTimeMeasurementDeviceBase> GetTimingDevices()
+    {
+      return _timingDevices;
+    }
+
+
     /// <summary>
     /// Property to get the used timing device
     /// </summary>
-    public ILiveTimeMeasurementDevice LiveTimingDevice { get => _timingDevice; }
+    public ILiveTimeMeasurementDevice LiveTimingDevice { get => _timingDeviceMain; }
     public ILiveDateTimeProvider LiveDateTimeProvider { get => _liveDateTimeProvider; }
 
     public void Start()
@@ -270,7 +327,7 @@ namespace RaceHorologyLib
       handler?.Invoke(this, IsRunning);
     }
 
-    public bool IsRunning { get => _isRunning && _timingDevice?.IsOnline == true; }
+    public bool IsRunning { get => _isRunning && _timingDeviceMain?.IsOnline == true; }
 
     #endregion
 
@@ -292,6 +349,10 @@ namespace RaceHorologyLib
     private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
       if (!_isRunning)
+        return;
+
+      // Only accept valid timemeasurements
+      if (!e.Valid) 
         return;
 
       _syncContext.Send(delegate

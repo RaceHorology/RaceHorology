@@ -46,6 +46,7 @@ using System.Collections.ObjectModel;
 using QRCoder;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace RaceHorology
 {
@@ -117,6 +118,8 @@ namespace RaceHorology
       mnuMain.DataContext = _menuVM;
 
       StartDSVAlpinServer();
+
+      UpdateLiveTimingDeviceStatus(null, null);
     }
 
     protected override void OnClosed(EventArgs e)
@@ -418,12 +421,15 @@ namespace RaceHorology
     #region LiveTiming
 
     ILiveTimeMeasurementDevice _timingDevice;
+    List<LiveTimeParticipantAssigning> _timingDevicePartcipantAssigner;
     LiveTimingMeasurement _liveTimingMeasurement;
     System.Timers.Timer _liveTimingStatusTimer;
 
     private void InitializeTiming()
     {
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
+
+      _timingDevicePartcipantAssigner = new List<LiveTimeParticipantAssigning>();
 
       _liveTimingStatusTimer = new System.Timers.Timer(300);
       _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
@@ -457,17 +463,42 @@ namespace RaceHorology
       if (Properties.Settings.Default.TimingDevice_Debug_Dump)
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
+      ILiveTimeMeasurementDevice newTimingDevice = null;
       if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE")) {
-        _timingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+        newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
         var hostname = Properties.Settings.Default.TimingDevice_Url;
-        _timingDevice = new TimingDeviceAlpenhunde(hostname);
+        newTimingDevice = new TimingDeviceAlpenhunde(hostname);
       }
 
-      if (_timingDevice != null)
+      if (newTimingDevice != null)
       {
-        _liveTimingMeasurement.SetTimingDevice(_timingDevice, _timingDevice as ILiveDateTimeProvider);
+        // Cleanup old devices
+        while(_timingDevicePartcipantAssigner.Count > 0)
+        {
+          var tdpa = _timingDevicePartcipantAssigner[0];
+          _timingDevicePartcipantAssigner.Remove(tdpa);
+          tdpa.Dispose();
+        }
+        if (_timingDevice != null)
+        {
+          _liveTimingMeasurement.RemoveTimingDevice(_timingDevice);
+          _liveTimingMeasurement.SetLiveDateTimeProvider(null);
+        }
+
+        // Create new devices
+        _liveTimingMeasurement.AddTimingDevice(newTimingDevice, true);
+
+        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, LiveTimeParticipantAssigning.EMeasurementPoint.Start));
+        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, LiveTimeParticipantAssigning.EMeasurementPoint.Finish));
+        foreach(var tdpa in _timingDevicePartcipantAssigner)
+          _liveTimingMeasurement.AddTimingDevice(tdpa, false);
+        
+        if (newTimingDevice is ILiveDateTimeProvider)
+          _liveTimingMeasurement.SetLiveDateTimeProvider(newTimingDevice as ILiveDateTimeProvider);
+
+        _timingDevice = newTimingDevice;
         _timingDevice.Start();
       }
     }
@@ -476,11 +507,19 @@ namespace RaceHorology
     {
       if (_timingDevice != null)
       {
-        _liveTimingMeasurement.SetTimingDevice(null, null);
+        _liveTimingMeasurement.RemoveTimingDevice(_timingDevice);
+        _liveTimingMeasurement.SetLiveDateTimeProvider(null);
 
         _timingDevice.Stop();
-
         _timingDevice = null;
+      }
+      // Cleanup old devices
+      while (_timingDevicePartcipantAssigner != null && _timingDevicePartcipantAssigner.Count > 0)
+      {
+        var tdpa = _timingDevicePartcipantAssigner[0];
+        _timingDevicePartcipantAssigner.Remove(tdpa);
+        _liveTimingMeasurement.RemoveTimingDevice(tdpa);
+        tdpa.Dispose();
       }
     }
 
@@ -512,37 +551,41 @@ namespace RaceHorology
     }
 
 
-    private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
+    private void btnTimingDeviceStartStop_Click(object sender, RoutedEventArgs e)
     {
       if (_liveTimingMeasurement == null)
         return;
 
-      _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
-      _liveTimingMeasurement.Start();
+      var timingDevice = _liveTimingMeasurement.LiveTimingDevice;
+      if (timingDevice == null)
+        return;
+
+      if (timingDevice.IsOnline)
+        timingDevice.Stop();
+      else
+        timingDevice.Start();
     }
 
-    private void LiveTimingStop_Click(object sender, RoutedEventArgs e)
-    {
-      if (_liveTimingMeasurement == null)
-        return;
-     
-      _liveTimingMeasurement.Stop();
-    }
 
     private void UpdateLiveTimingDeviceStatus(object sender, System.Timers.ElapsedEventArgs e)
     {
-      var timingDevice = _liveTimingMeasurement.LiveTimingDevice;
-      var dateTimeProvider = _liveTimingMeasurement.LiveDateTimeProvider;
+      bool timingDeviceOnline = false;
+      var timingDevice = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveTimingDevice : null;
+      var dateTimeProvider = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveDateTimeProvider : null;
 
-      string str = "kein Zeitmessgerät ausgewählt";
+      string str = "---";
       if (timingDevice!=null && dateTimeProvider!=null)
       { 
         str = timingDevice.GetDeviceInfo() + ", " + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss");
+        timingDeviceOnline = timingDevice.IsOnline;
       }
 
       Application.Current.Dispatcher.Invoke(() =>
       {
         lblTimingDevice.Content = str;
+        btnTimingDeviceStartStop.Content = timingDeviceOnline ? "Trennen" : "Verbinden";
+        btnTimingDeviceStartStop.IsEnabled = timingDevice != null;
+        btnTimingDeviceDebug.IsEnabled = timingDevice != null;
       });
     }
 

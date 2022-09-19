@@ -73,6 +73,7 @@ namespace RaceHorology
       _thisRace = race;
       _liveTimingMeasurement = liveTimingMeasurement;
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
+      _liveTimingMeasurement.LiveTimingConfigChanged += OnLiveTimingMeasurementConfigChanged;
 
       _txtLiveTimingStatus = txtLiveTimingStatus;
       _txtLiveTimingStatus.TextChanged += new DelayedEventHandler(
@@ -395,7 +396,45 @@ namespace RaceHorology
 
       _thisRace.RunsChanged += OnRaceRunsChanged;
 
+      InitializeTiming2();
+    }
+
+    private void InitializeTiming2()
+    {
+      bool showParticipantAssignment = false;
+
+      int idx = 0;
+      foreach (var td in _liveTimingMeasurement.GetTimingDevices())
+      {
+        if (td is LiveTimeParticipantAssigning tdAssigning)
+        {
+          if (idx == 0)
+            mlapaStart.Init(tdAssigning, _thisRace);
+          if (idx == 1)
+            mlapaFinish.Init(tdAssigning, _thisRace);
+          idx++;
+        }
+        if (td is TimingDeviceAlpenhunde)
+          showParticipantAssignment = true;
+      }
+
       UpdateLiveTimingStartStopButtons(false); // Initial status
+
+      if (showParticipantAssignment)
+      {
+        grdTimingMain.RowDefinitions[5].Height = new GridLength(5);
+        grdTimingMain.RowDefinitions[6].Height = new GridLength(3, GridUnitType.Star);
+      }
+      else
+      {
+        grdTimingMain.RowDefinitions[5].Height = new GridLength(0);
+        grdTimingMain.RowDefinitions[6].Height = new GridLength(0);
+      }
+    }
+
+    private void OnLiveTimingMeasurementConfigChanged(object sender, bool changed)
+    {
+      InitializeTiming2();
     }
 
 

@@ -151,6 +151,8 @@ namespace RaceHorologyLib
       Logger.Info("Stop()");
       if (_webSocket != null)
         _webSocket.Close();
+
+      _webSocket = null;
     }
 
 
@@ -213,6 +215,7 @@ namespace RaceHorologyLib
       data.Index = parsedData.i;
 
       data.StartNumber = startNumber;
+      data.Valid = startNumber > 0;
       switch (parsedData.c)
       {
         case 1: // Start

@@ -344,13 +344,15 @@
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
 
-          <Grid Grid.Column="0">
+          <Grid Grid.Column="0" x:Name="grdTimingMain">
             <Grid.RowDefinitions>
               <RowDefinition Height="3*"/>
               <RowDefinition Height="5"/>
               <RowDefinition Height="2*"/>
               <RowDefinition Height="5"/>
               <RowDefinition Height="3*"/>
+              <RowDefinition Height="5"/>
+              <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
@@ -471,7 +473,7 @@
                   </DataGrid.RowStyle>
                 </DataGrid>
               </Grid>
-              <Grid Grid.Row="3" >
+              <Grid Grid.Row="2" >
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
@@ -651,8 +653,37 @@
 
               </DataGrid>
             </Grid>
-          </Grid>
 
+            <GridSplitter x:Name="gridSplitter3" HorizontalAlignment="Stretch" Height="5" Grid.Row="5" />
+
+            <Grid x:Name="grdParticipantAssignment" Grid.Row="6">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid Width="Auto">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="1*"/>
+                  <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblParticipantAssigning" Content="Zeitmess-Protokoll" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              </Grid>
+              <Grid Width="Auto" Grid.Row="6">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="1*"/>
+                  <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblParticipantAssigningStart" Content="Start" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" FontSize="14"/>
+                <local:MeasurementLogAndParticipantAssignment x:Name="mlapaStart" Grid.Row="1" Grid.Column="0" />
+                <Label x:Name="lblParticipantAssigningFinish" Content="Ziel" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" FontSize="14"/>
+                <local:MeasurementLogAndParticipantAssignment x:Name="mlapaFinish" Grid.Row="1" Grid.Column="1" />
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
 
       </TabItem>
@@ -663,7 +694,7 @@
       </TabItem>
     </TabControl>
 
-    <GridSplitter x:Name="gridSplitter3" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
+    <GridSplitter x:Name="gridSplitter4" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
 
     <local:RaceListsUC x:Name="ucRaceLists" Grid.Column="2"/>
 
