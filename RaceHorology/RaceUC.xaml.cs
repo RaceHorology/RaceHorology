@@ -107,7 +107,7 @@ namespace RaceHorology
     {
       _thisRace.PropertyChanged += thisRace_PropertyChanged;
 
-      ucRaceConfig.Init(_thisRace.RaceConfiguration);
+      ucRaceConfig.Init(_thisRace.RaceConfiguration, _thisRace.RaceType);
 
       ucRaceConfigSaveOrReset.Init(
         "Konfigurationsänderungen",
@@ -151,7 +151,7 @@ namespace RaceHorology
       ViewConfigurator viewConfigurator = new ViewConfigurator(_thisRace);
       viewConfigurator.ConfigureRace(_thisRace);
 
-      ucRaceConfig.Init(_thisRace.RaceConfiguration);
+      ucRaceConfig.Init(_thisRace.RaceConfiguration, _thisRace.RaceType);
 
       imgTabHeaderConfiguration.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(
         _thisRace.IsRaceConfigurationLocal ? "/Icons/icons8-umkreist-l-50.png" : "/Icons/icons8-umkreist-g-50.png", 
@@ -501,6 +501,8 @@ namespace RaceHorology
       if (Properties.Settings.Default.StartTimeIntervall > 0 && _currentRaceRun != null)
       {
         lblStartCountDown.Visibility = Visibility.Visible;
+        if (_liveTimingStartCountDown != null)
+          _liveTimingStartCountDown.Dispose();
         _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
       }
       else
@@ -520,6 +522,7 @@ namespace RaceHorology
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRemainingStarters);
         _dgColVisRemainingStarters = new DataGridColumnVisibilityContextMenu(dgRemainingStarters, "timing_remaining_starter");
+        dgRemainingStarters.SelectedItem = null;
 
         dgRunning.ItemsSource = raceRun.GetOnTrackList();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRunning);

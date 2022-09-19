@@ -704,7 +704,7 @@ namespace RaceHorologyLib
     public double Points // Points prior to the race
     {
       get => _points;
-      set { _points = value; NotifyPropertyChanged(); }
+      set { if (_points != value) { _points = value; NotifyPropertyChanged(); } }
     }
 
     public override string ToString()
@@ -1192,7 +1192,9 @@ namespace RaceHorologyLib
           // Reset after 5 sec
           if (_justModified)
           {
-            Task.Delay(5000).ContinueWith(t => { JustModified = false; });
+            Task.Delay(5000).ContinueWith(t => {
+              JustModified = false; 
+            }/* TODO: , TaskScheduler.FromCurrentSynchronizationContext()*/);
           }
         }
       }

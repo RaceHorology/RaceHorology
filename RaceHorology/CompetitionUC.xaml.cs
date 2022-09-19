@@ -650,7 +650,7 @@ namespace RaceHorology
 
     private void InitializeGlobalConfig()
     {
-      ucRaceConfig.Init(_dm.GlobalRaceConfig);
+      ucRaceConfig.Init(_dm.GlobalRaceConfig, null);
 
       ucRaceConfigSaveOrReset.Init(
         "Konfigurationsänderungen",
@@ -669,7 +669,7 @@ namespace RaceHorology
       RaceConfiguration cfg = ucRaceConfig.GetConfig();
       _dm.GlobalRaceConfig = cfg;
 
-      ucRaceConfig.Init(_dm.GlobalRaceConfig);
+      ucRaceConfig.Init(_dm.GlobalRaceConfig, null);
     }
 
     private void globalConfig_ResetChanges()
@@ -759,6 +759,52 @@ namespace RaceHorology
     {
       _participant = p;
       _races = races;
+
+      foreach(var r in _races)
+        r.GetParticipants().CollectionChanged += RaceParticipants_CollectionChanged;
+
+      observeRaces();
+    }
+    private static bool relatedTo(NotifyCollectionChangedEventArgs e, Participant p)
+    {
+      bool relatedTo(System.Collections.IList list, Participant lp)
+      {
+        if (list != null)
+          foreach (var i in list)
+            if (i is RaceParticipant rp)
+              if (rp.Participant == lp)
+                return true;
+        return false;
+      }
+
+      if (relatedTo(e.NewItems, p))
+        return true;
+
+      if (relatedTo(e.OldItems, p))
+        return true;
+
+      return false;
+    }
+
+    private void RaceParticipants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (relatedTo(e, _participant))
+        observeRaces();
+    }
+
+    private void observeRaces()
+    {
+      for (int i = 0; i < _races.Count; i++)
+      {
+        var rp = getRaceParticipant(i);
+        if (rp != null)
+          rp.PropertyChanged += RaceParticipant_PropertyChanged;
+      }
+    }
+
+    private void RaceParticipant_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      NotifyPropertyChanged("Item");
     }
 
     private RaceParticipant getRaceParticipant(int i)

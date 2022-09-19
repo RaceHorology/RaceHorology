@@ -143,7 +143,7 @@ namespace RaceHorologyLibTest
       };
 
 
-      RaceConfiguration mergedConfig = RaceConfigurationMerger.MainConfig(baseConfig, newConfig);
+      RaceConfiguration mergedConfig = RaceConfigurationMerger.MainConfig(baseConfig, newConfig, null);
 
       Assert.AreEqual("NewName", mergedConfig.Name);
 

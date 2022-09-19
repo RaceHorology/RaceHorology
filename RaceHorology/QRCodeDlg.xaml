@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RaceHorology"
+        WindowStartupLocation="CenterOwner"
         mc:Ignorable="d"
         Title="QR Code für Sprecheransicht" Height="300" Width="300">
     <Grid>

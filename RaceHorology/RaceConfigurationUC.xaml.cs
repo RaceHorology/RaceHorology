@@ -23,6 +23,7 @@ namespace RaceHorology
   {
 
     RaceConfiguration _raceConfiguration;
+    Race.ERaceType? _raceType;
     RaceConfigurationPresets _raceConfigurationPresets;
 
 
@@ -32,11 +33,12 @@ namespace RaceHorology
     }
 
 
-    public void Init(RaceConfiguration raceConfig)
+    public void Init(RaceConfiguration raceConfig, Race.ERaceType? raceType )
     {
       // ApplicationFolder + raceconfigpresets
       _raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
       _raceConfiguration = raceConfig.Copy();
+      _raceType = raceType;
 
       refreshConfigPresetsUI();
 
@@ -94,7 +96,7 @@ namespace RaceHorology
         if (selected.Value is string configName)
         {
           RaceConfiguration config = _raceConfigurationPresets.GetConfiguration(configName);
-          RaceConfiguration configToSet = RaceConfigurationMerger.MainConfig(_raceConfiguration, config);
+          RaceConfiguration configToSet = RaceConfigurationMerger.MainConfig(_raceConfiguration, config, _raceType);
 
           ResetConfigurationSelectionUI(configToSet);
         }

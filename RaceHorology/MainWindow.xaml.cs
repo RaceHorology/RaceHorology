@@ -276,7 +276,15 @@ namespace RaceHorology
 
         // ... and create the corresponding data model
         _dataModel = new AppDataModel(db);
+      }
+      catch (Exception ex)
+      {
+        MessageBox.Show(string.Format("Die Datei konnte nicht geöffnet werden.\n\n{0}", ex.Message), "Fehler beim Öffnen", MessageBoxButton.OK, MessageBoxImage.Error);
+        Logger.Error(ex, "during database loading");
+      }
 
+      if (_dataModel != null)
+      {
         updateAppTitle();
 
         InitializeTiming();
@@ -290,11 +298,6 @@ namespace RaceHorology
         _menuVM.SetDataModel(_dataModel);
 
         _mruList.AddFile(dbPath);
-      }
-      catch (Exception ex)
-      {
-        MessageBox.Show(string.Format("Die Datei konnte nicht geöffnet werden.\n\n{0}", ex.Message), "Fehler beim Öffnen", MessageBoxButton.OK, MessageBoxImage.Error);
-        Logger.Error(ex, "during database loading");
       }
     }
 
