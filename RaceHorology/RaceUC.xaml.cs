@@ -401,6 +401,8 @@ namespace RaceHorology
 
     private void InitializeTiming2()
     {
+      bool showParticipantAssignment = false;
+
       int idx = 0;
       foreach (var td in _liveTimingMeasurement.GetTimingDevices())
       {
@@ -412,9 +414,22 @@ namespace RaceHorology
             mlapaFinish.Init(tdAssigning, _thisRace);
           idx++;
         }
+        if (td is TimingDeviceAlpenhunde)
+          showParticipantAssignment = true;
       }
 
       UpdateLiveTimingStartStopButtons(false); // Initial status
+
+      if (showParticipantAssignment)
+      {
+        grdTimingMain.RowDefinitions[5].Height = new GridLength(5);
+        grdTimingMain.RowDefinitions[6].Height = new GridLength(3, GridUnitType.Star);
+      }
+      else
+      {
+        grdTimingMain.RowDefinitions[5].Height = new GridLength(0);
+        grdTimingMain.RowDefinitions[6].Height = new GridLength(0);
+      }
     }
 
     private void OnLiveTimingMeasurementConfigChanged(object sender, bool changed)

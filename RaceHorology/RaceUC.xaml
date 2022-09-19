@@ -344,7 +344,7 @@
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
 
-          <Grid Grid.Column="0">
+          <Grid Grid.Column="0" x:Name="grdTimingMain">
             <Grid.RowDefinitions>
               <RowDefinition Height="3*"/>
               <RowDefinition Height="5"/>
@@ -352,7 +352,7 @@
               <RowDefinition Height="5"/>
               <RowDefinition Height="3*"/>
               <RowDefinition Height="5"/>
-              <RowDefinition Height="3*"/>
+              <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
@@ -656,7 +656,7 @@
 
             <GridSplitter x:Name="gridSplitter3" HorizontalAlignment="Stretch" Height="5" Grid.Row="5" />
 
-            <Grid Grid.Row="6">
+            <Grid x:Name="grdParticipantAssignment" Grid.Row="6">
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
