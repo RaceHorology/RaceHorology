@@ -572,19 +572,21 @@ namespace RaceHorology
       bool timingDeviceOnline = false;
       var timingDevice = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveTimingDevice : null;
       var dateTimeProvider = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveDateTimeProvider : null;
+      bool connectInProgress = false;
 
       string str = "---";
       if (timingDevice!=null && dateTimeProvider!=null)
       { 
         str = timingDevice.GetDeviceInfo() + ", " + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss");
         timingDeviceOnline = timingDevice.IsOnline;
+        connectInProgress = timingDevice.IsStarted != timingDevice.IsOnline;
       }
 
       Application.Current.Dispatcher.Invoke(() =>
       {
         lblTimingDevice.Content = str;
         btnTimingDeviceStartStop.Content = timingDeviceOnline ? "Trennen" : "Verbinden";
-        btnTimingDeviceStartStop.IsEnabled = timingDevice != null;
+        btnTimingDeviceStartStop.IsEnabled = timingDevice != null && !connectInProgress;
         btnTimingDeviceDebug.IsEnabled = timingDevice != null;
       });
     }
