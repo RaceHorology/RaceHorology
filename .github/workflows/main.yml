@@ -99,7 +99,7 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Test Programm
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -124,7 +124,7 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Test Programm
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -150,7 +150,7 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Installer
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: installer_RaceHorology
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
@@ -170,7 +170,7 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Installer
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: installer_RaceHorology
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
