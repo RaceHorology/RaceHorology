@@ -83,6 +83,7 @@ namespace RaceHorologyLibTest
     }
 
     public override bool IsOnline { get => true; }
+    public override bool IsStarted { get => _dumpFile != null; }
     public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 

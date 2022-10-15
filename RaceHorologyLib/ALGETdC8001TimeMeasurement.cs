@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -81,6 +81,7 @@ namespace RaceHorologyLib
     public abstract void Stop();
 
     public abstract bool IsOnline { get; }
+    public abstract bool IsStarted { get; }
     public abstract event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
@@ -345,6 +346,13 @@ namespace RaceHorologyLib
     public override bool IsOnline { 
       get { return _serialPort != null && _internalStatus == EInternalStatus.Running; } 
     }
+
+    public override bool IsStarted {
+      get {
+        return _serialPort != null && !_stopRequest;
+      }
+    }
+
 
     public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
