@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -291,14 +291,6 @@ namespace RaceHorologyLib
 
       _stopRequest = false;
 
-      if (_dumpDir != null)
-        startWritingToDumpFile();
-
-      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
-      _serialPort.NewLine = "\r"; // CR, ASCII(13)
-      _serialPort.Handshake = Handshake.RequestToSend;
-      _serialPort.ReadTimeout = 1000;
-
       // Start processing in a separate Thread
       _instanceCaller = new System.Threading.Thread(
           new System.Threading.ThreadStart(this.MainLoop));
@@ -314,10 +306,7 @@ namespace RaceHorologyLib
         _statusText = "Stopping";
 
         _stopRequest = true;
-        _instanceCaller.Join(); // Wait until thread has been terminated
-
-        if (_dumpFile!=null)
-          _dumpFile.Close();
+        _instanceCaller = null;
       }
     }
 
@@ -361,6 +350,14 @@ namespace RaceHorologyLib
     {
       setInternalStatus(EInternalStatus.Initializing);
 
+      if (_dumpDir != null)
+        startWritingToDumpFile();
+
+      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
+      _serialPort.NewLine = "\r"; // CR, ASCII(13)
+      _serialPort.Handshake = Handshake.RequestToSend;
+      _serialPort.ReadTimeout = 1000;
+
       while (!_stopRequest)
       {
         if (!EnsureOpenPort())
@@ -391,6 +388,15 @@ namespace RaceHorologyLib
 
       Logger.Info("closing serial port");
       _serialPort.Close();
+      _serialPort.Dispose();
+      _serialPort = null;
+
+      if (_dumpFile != null)
+      {
+        _dumpFile.Close();
+        _dumpFile.Dispose();
+        _dumpFile = null;
+      }
 
       _statusText = "Stopped";
       setInternalStatus(EInternalStatus.Stopped);
