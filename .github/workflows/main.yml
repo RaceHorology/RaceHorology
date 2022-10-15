@@ -24,7 +24,7 @@ jobs:
       commit: ${{ env.GITHUB_SHA }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -51,7 +51,7 @@ jobs:
           Write-Host "Output of patch: ${{ steps.version.outputs.patch }}"         
 
 
-      - uses: actions/cache@v1
+      - uses: actions/cache@v3
         id: cache
         with:
           path: ~/.nuget/packages
@@ -75,7 +75,7 @@ jobs:
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
 
       - name: Upload Test Programm
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -86,7 +86,7 @@ jobs:
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
 
       - name: Upload Installer
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: installer_RaceHorology
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
@@ -114,7 +114,7 @@ jobs:
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory!=HardwareDependent&TestCategory!=IntegrationDsvOnline" /logger:trx
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: unittest_RaceHorologyLibTest_Results
           path: ${{ github.workspace }}\TestResults\**\*.trx 
@@ -139,7 +139,7 @@ jobs:
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory=IntegrationDsvOnline" /logger:trx
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: unittest_RaceHorologyLibTest_Results_DsvOnline
           path: ${{ github.workspace }}\TestResults\**\*.trx 
