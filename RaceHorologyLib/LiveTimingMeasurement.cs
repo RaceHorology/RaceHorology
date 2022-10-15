@@ -134,6 +134,7 @@ namespace RaceHorologyLib
     /// Starts the timing device to measure.
     /// </summary>
     void Start();
+    bool IsStarted { get; }
     /// <summary>
     /// Stops the timing device to measure.
     /// </summary>

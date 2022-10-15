@@ -135,10 +135,12 @@ namespace RaceHorologyLib
       _webSocket.OnClose += (sender, e) => {
         Logger.Info("onclose called");
         setInternalStatus(EStatus.NotConnected);
+        cleanup();
       };
       _webSocket.OnError += (sender, e) => {
         Logger.Info("onerror called");
         setInternalStatus(EStatus.NotConnected);
+        cleanup();
       };
 
       // Actually connect
@@ -146,9 +148,20 @@ namespace RaceHorologyLib
       _webSocket.ConnectAsync();
     }
 
+    public bool IsStarted
+    {
+      get { return _webSocket != null && _status != EStatus.NotConnected; }
+    }
+
+
     public void Stop()
     {
       Logger.Info("Stop()");
+      cleanup();
+    }
+
+    private void cleanup()
+    {
       if (_webSocket != null)
         _webSocket.Close();
 
