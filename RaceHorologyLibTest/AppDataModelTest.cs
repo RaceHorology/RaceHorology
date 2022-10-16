@@ -154,6 +154,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(1, race.GetParticipants().Count);
         Assert.AreEqual(1, race.GetRun(0).GetResultList().Count);
         Assert.AreEqual("N1", race.GetRun(0).GetResultList()[0].Participant.Name);
+        Assert.AreEqual(1U, race.GetRun(0).GetResultList()[0].StartNumber);
       }
 
       void verifyParticpants_2()
@@ -163,11 +164,13 @@ namespace RaceHorologyLibTest
         {
           var rr = race.GetRun(0).GetResultList().First((p) => p.Name == "N1");
           Assert.AreEqual("N1", rr.Participant.Name);
+          Assert.AreEqual(1U, rr.Participant.StartNumber);
           Assert.IsNotNull(rr.Runtime);
         }
         {
           var rr = race.GetRun(0).GetResultList().First((p) => p.Name == "N2");
           Assert.AreEqual("N2", rr.Participant.Name);
+          Assert.AreEqual(2U, rr.Participant.StartNumber);
           Assert.IsNotNull(rr.Runtime);
         }
       }
