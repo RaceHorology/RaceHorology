@@ -1342,13 +1342,9 @@ namespace RaceHorologyLib
       foreach (RaceRun r in _raceRuns)
       {
         RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
+        // Watch for changes
         rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
-
-        //var notifier = new ItemsChangedNotifier(rrVP.GetViewList());
-        //_runResultsNotifier.Add(notifier);
-        //notifier.CollectionChanged += OnResultListCollectionChanged;
-        //notifier.ItemChanged += OnResultListItemChanged;
-
+        // Initial update
         OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
 
@@ -1474,13 +1470,6 @@ namespace RaceHorologyLib
 
       bool significantChange = false;
 
-      RaceResultItem rri = _viewList.SingleOrDefault(x => x.Participant == participant);
-      if (rri == null)
-      {
-        rri = new RaceResultItem(participant);
-        _viewList.Add(rri);
-      }
-
       // Look for the sub-result
       Dictionary<uint, RunResultWithPosition> results = new Dictionary<uint, RunResultWithPosition>();
       foreach (RaceRun run in _lastConsideredRuns)
@@ -1489,6 +1478,24 @@ namespace RaceHorologyLib
         RunResultWithPosition result = rrVP.GetViewList().SingleOrDefault(x => x.Participant == participant);
         results.Add(run.Run, result);
       }
+      var includeParticipant = _race.GetParticipants().SingleOrDefault(x => x == participant) != null;
+
+      RaceResultItem rri = _viewList.SingleOrDefault(x => x.Participant == participant);
+      if (rri == null && includeParticipant)
+      { // Add Entry
+        rri = new RaceResultItem(participant);
+        _viewList.Add(rri);
+        significantChange = true;
+      } 
+      else if (rri != null && !includeParticipant)
+      { 
+        // Remove Entry
+        _viewList.Remove(rri);
+        significantChange = true;
+      }
+
+      if (rri == null)
+        return significantChange;
 
       // Combine and update the race result
       foreach (var res in results)

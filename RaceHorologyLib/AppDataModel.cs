@@ -1112,6 +1112,13 @@ namespace RaceHorologyLib
         if (raceParticipantDB != null)
           points = raceParticipantDB.Points;
       }
+      if (startnumber == 0)
+      {
+        // Update startnumber from DB if existing
+        var raceParticipantDB = _db.GetRaceParticipants(this, true).FirstOrDefault(r => r.Participant == participant);
+        if (raceParticipantDB != null)
+          startnumber = raceParticipantDB.StartNumber;
+      }
 
       RaceParticipant raceParticipant = GetParticipant(participant);
 
