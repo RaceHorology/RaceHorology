@@ -1342,13 +1342,9 @@ namespace RaceHorologyLib
       foreach (RaceRun r in _raceRuns)
       {
         RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
+        // Watch for changes
         rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
-
-        //var notifier = new ItemsChangedNotifier(rrVP.GetViewList());
-        //_runResultsNotifier.Add(notifier);
-        //notifier.CollectionChanged += OnResultListCollectionChanged;
-        //notifier.ItemChanged += OnResultListItemChanged;
-
+        // Initial update
         OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
 
