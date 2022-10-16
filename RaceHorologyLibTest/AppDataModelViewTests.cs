@@ -1650,6 +1650,21 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
       Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
       Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+
+      // Delete Participant
+      tg.Model.GetParticipants().RemoveAt(0);
+      Assert.AreEqual("Name 2", vpS.GetView().ViewToList<RaceResultItem>()[i=0].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 3", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
+      Assert.AreEqual("Name 4", vpS.GetView().ViewToList<RaceResultItem>()[++i].Participant.Name);
+      Assert.AreEqual(0U, vpS.GetView().ViewToList<RaceResultItem>()[i].Position);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].TotalTime);
+      Assert.AreEqual(null, vpS.GetView().ViewToList<RaceResultItem>()[i].DiffToFirst);
     }
 
 
