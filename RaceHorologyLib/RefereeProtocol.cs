@@ -16,6 +16,7 @@ namespace RaceHorologyLib
     const int ColumnsForStartnumberTable = 13;
     const int MinRowsForNaS = 2;
     const int MinRowsForNiZ = 3;
+    const int MinRowsForDIS = 10;
 
     public RefereeProtocol(Race race)
       : base(race) 
@@ -33,7 +34,7 @@ namespace RaceHorologyLib
     protected void addRaceRun(Document document, RaceRun rr)
     {
       {
-        document.Add(new Paragraph("Nicht am Start"));
+        document.Add(new Paragraph("Nicht am Start").SetBold());
         Table table = getStartnumberTable(
           rr.GetResultList().Where(r => r.ResultCode == RunResult.EResultCode.NaS).Select(r => r.StartNumber), 
           ColumnsForStartnumberTable, MinRowsForNaS);
@@ -41,12 +42,22 @@ namespace RaceHorologyLib
       }
 
       {
-        document.Add(new Paragraph("Nicht im Ziel"));
+        document.Add(new Paragraph("Nicht im Ziel").SetBold());
         Table table = getStartnumberTable(
           rr.GetResultList().Where(r => r.ResultCode == RunResult.EResultCode.NiZ).Select(r => r.StartNumber),
           ColumnsForStartnumberTable, MinRowsForNiZ);
         document.Add(table);
       }
+
+      {
+        document.Add(new Paragraph("Nicht im Ziel").SetBold());
+        Table table = getDisqualifiedTable(
+          rr.GetResultList().Where(r => r.ResultCode == RunResult.EResultCode.DIS),
+          MinRowsForDIS);
+        document.Add(table);
+      }
+
+      
 
     }
 
@@ -90,6 +101,87 @@ namespace RaceHorologyLib
       table.SetBorder(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick));
 
       return table;
+    }
+
+
+    protected Table getDisqualifiedTable(IEnumerable<RunResult> items, uint minRows = 10)
+    {
+      var table = new Table(Enumerable.Repeat(1.0F, 5).ToArray());
+      table.SetWidth(UnitValue.CreatePercentValue(100));
+
+      addDisqualifiedTableHeader(table);
+      addDisqualifiedItems(table, items, minRows);
+
+      table.SetBorder(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick));
+
+      return table;
+    }
+
+
+    private static Cell createCellDis()
+    {
+      return new Cell()
+      .SetBorder(new SolidBorder(PDFHelper.SolidBorderThin))
+      .SetMinHeight(UnitValue.CreatePointValue(1.0F / 2.54F * 72))
+      .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+    }
+
+    void addDisqualifiedTableHeader(Table table)
+    {
+      table.AddCell(createCellDis()
+        .SetTextAlignment(TextAlignment.CENTER)
+        .Add(new Paragraph("StNr").SetBold())
+      );
+      table.AddCell(createCellDis()
+        .SetTextAlignment(TextAlignment.LEFT)
+        .Add(new Paragraph("Name").SetBold())
+      );
+      table.AddCell(createCellDis()
+        .SetTextAlignment(TextAlignment.CENTER)
+        .Add(new Paragraph("Tor").SetBold())
+      );
+      table.AddCell(createCellDis()
+        .SetTextAlignment(TextAlignment.LEFT)
+        .Add(new Paragraph("Torrichter").SetBold())
+      );
+      table.AddCell(createCellDis()
+        .SetTextAlignment(TextAlignment.LEFT)
+        .Add(new Paragraph("Bemerkung").SetBold())
+      );
+    }
+
+    void addDisqualifiedItems(Table table, IEnumerable<RunResult> items, uint minRows = 10)
+    {
+      var item = items.GetEnumerator();
+      bool moreValues = true;
+      uint i = 0;
+      while (moreValues || i < minRows)
+      {
+        moreValues = item.MoveNext();
+        RunResult rr = moreValues ? item.Current : null;
+
+        table.AddCell(createCellDis()
+          .SetTextAlignment(TextAlignment.CENTER)
+          .Add(new Paragraph(rr != null ? string.Format("{0}", rr?.StartNumber) : ""))
+        );
+        table.AddCell(createCellDis()
+          .SetTextAlignment(TextAlignment.LEFT)
+          .Add(new Paragraph(rr != null ? rr?.Participant.Fullname : ""))
+        );
+        table.AddCell(createCellDis()
+          .SetTextAlignment(TextAlignment.CENTER)
+          .Add(new Paragraph(rr != null ? rr?.GetDisqualifyGoal() : ""))
+        );
+        table.AddCell(createCellDis()
+          .SetTextAlignment(TextAlignment.LEFT)
+        );
+        table.AddCell(createCellDis()
+          .SetTextAlignment(TextAlignment.LEFT)
+          .Add(new Paragraph(rr != null ? rr?.GetDisqualifyText() : ""))
+        );
+
+        i++;
+      }
     }
   }
 }
