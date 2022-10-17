@@ -13,6 +13,10 @@ namespace RaceHorologyLib
 {
   public class RefereeProtocol : PDFRaceReport
   {
+    const int ColumnsForStartnumberTable = 13;
+    const int MinRowsForNaS = 2;
+    const int MinRowsForNiZ = 3;
+
     public RefereeProtocol(Race race)
       : base(race) 
     {
@@ -20,11 +24,30 @@ namespace RaceHorologyLib
 
     protected override void addContent(PdfDocument pdf, Document document)
     {
+      foreach(var rr in _race.GetRuns())
+      {
+        addRaceRun(document, rr);
+      }
+    }
 
-      document.Add(new Paragraph("Nicht am Start"));
-      //List<uint> stnr = new List<uint>()[1, 2, 3, 4, 5, 6, 7];
-      Table table = getStartnumberTable(new uint[] { 1U, 2U, 3U, 4U, 5U, 6U, 7U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 1U, 2U, 3U, 4U, 5U, 6U, 100U }, 13, 2);
-      document.Add(table);
+    protected void addRaceRun(Document document, RaceRun rr)
+    {
+      {
+        document.Add(new Paragraph("Nicht am Start"));
+        Table table = getStartnumberTable(
+          rr.GetResultList().Where(r => r.ResultCode == RunResult.EResultCode.NaS).Select(r => r.StartNumber), 
+          ColumnsForStartnumberTable, MinRowsForNaS);
+        document.Add(table);
+      }
+
+      {
+        document.Add(new Paragraph("Nicht im Ziel"));
+        Table table = getStartnumberTable(
+          rr.GetResultList().Where(r => r.ResultCode == RunResult.EResultCode.NiZ).Select(r => r.StartNumber),
+          ColumnsForStartnumberTable, MinRowsForNiZ);
+        document.Add(table);
+      }
+
     }
 
     protected override string getReportName()

@@ -58,8 +58,6 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
-    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
-    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
     public void RefereeProtocol_Empty()
     {
       string workingDir = TestUtilities.CreateWorkingFolder(testContextInstance.TestDeploymentDir);
@@ -76,5 +74,27 @@ namespace RaceHorologyLibTest
         //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
       }
     }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    public void RefereeProtocol_IntegrationTest()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+      {
+        IPDFReport report = new RefereeProtocol(model.GetRace(0));
+
+        string filenameOutput = report.ProposeFilePath();
+        report.Generate(filenameOutput);
+        System.Diagnostics.Process.Start(filenameOutput);
+
+
+        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
+      }
+    }
+
   }
 }
