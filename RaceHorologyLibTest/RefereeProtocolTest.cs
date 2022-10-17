@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,9 +14,6 @@ namespace RaceHorologyLibTest
   {
     public RefereeProtocolTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
     }
 
     private TestContext testContextInstance;
@@ -58,12 +56,25 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+
     [TestMethod]
-    public void TestMethod1()
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    public void RefereeProtocol_Empty()
     {
-      //
-      // TODO: Add test logic here
-      //
+      string workingDir = TestUtilities.CreateWorkingFolder(testContextInstance.TestDeploymentDir);
+
+      TestDataGenerator tg = new TestDataGenerator(workingDir);
+      {
+        IPDFReport report = new RefereeProtocol(tg.Model.GetRace(0));
+
+        string filenameOutput = report.ProposeFilePath();
+        report.Generate(filenameOutput);
+        System.Diagnostics.Process.Start(filenameOutput);
+        
+
+        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
+      }
     }
   }
 }
