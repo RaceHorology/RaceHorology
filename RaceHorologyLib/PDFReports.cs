@@ -710,6 +710,7 @@ namespace RaceHorologyLib
   {
     protected Race _race;
     protected AppDataModel _dm;
+    protected Document _document;
 
     protected PDFHelper _pdfHelper;
     PointsConverter _pointsConverter;
@@ -718,6 +719,7 @@ namespace RaceHorologyLib
     {
       _race = race;
       _dm = race.GetDataModel();
+      _document = null;
 
       _pdfHelper = new PDFHelper(_dm);
       _pointsConverter = new PointsConverter();
@@ -751,6 +753,7 @@ namespace RaceHorologyLib
       Margins pageMargins = new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
 
       var document = new Document(pdf, PageSize.A4);
+      _document = document;
 
       var header = new ReportHeader(pdf, document, _pdfHelper, _race, getTitle(), pageMargins);
       var footer = new ReportFooter(pdf, document, _pdfHelper, _race, getTitle(), pageMargins);
@@ -763,6 +766,7 @@ namespace RaceHorologyLib
       document.SetMargins(header.Height + pageMargins.Top, pageMargins.Right, pageMargins.Bottom + footer.Height, pageMargins.Left);
 
       addContent(pdf, document);
+      _document = null;
 
       //pageXofY.WriteTotal(pdf);
       document.Close();
