@@ -58,26 +58,22 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
+    [DeploymentItem(@"TestOutputs\RefereeProtocol_Empty.pdf")]
     public void RefereeProtocol_Empty()
     {
       string workingDir = TestUtilities.CreateWorkingFolder(testContextInstance.TestDeploymentDir);
 
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
-        IPDFReport report = new RefereeProtocol(tg.Model.GetRace(0));
-
-        string filenameOutput = report.ProposeFilePath();
-        report.Generate(filenameOutput);
-        System.Diagnostics.Process.Start(filenameOutput);
-        
-
-        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
+        IPDFReport report = new RefereeProtocol(tg.Model.GetRace(0).GetRun(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 1));
       }
     }
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Schiedsrichterprotokoll 1. Durchgang.pdf")]
     public void RefereeProtocol_IntegrationTest()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
@@ -85,14 +81,8 @@ namespace RaceHorologyLibTest
       db.Connect(dbFilename);
       AppDataModel model = new AppDataModel(db);
       {
-        IPDFReport report = new RefereeProtocol(model.GetRace(0));
-
-        string filenameOutput = report.ProposeFilePath();
-        report.Generate(filenameOutput);
-        System.Diagnostics.Process.Start(filenameOutput);
-
-
-        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
+        IPDFReport report = new RefereeProtocol(model.GetRace(0).GetRun(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Schiedsrichterprotokoll 1. Durchgang.pdf", 2));
       }
     }
 

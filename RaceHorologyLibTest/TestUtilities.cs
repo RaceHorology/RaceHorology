@@ -123,6 +123,12 @@ namespace RaceHorologyLibTest
     {
       string filenameOutput = report.ProposeFilePath();
       report.Generate(filenameOutput);
+
+#pragma warning disable CS0162 // Unreachable code detected
+      if (false)
+        System.Diagnostics.Process.Start(filenameOutput);
+#pragma warning restore CS0162 // Unreachable code detected
+
       return CompareAgainstPdf(testContext, filenameOutput, filenameShall, nAcceptedDifferences);
     }
 
