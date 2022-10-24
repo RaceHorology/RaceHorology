@@ -59,6 +59,9 @@
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
         <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
       </MenuItem>
+      
+      <MenuItem Name="mnuOutputs"  Header="Berichte und Reports" Command="Properties" />
+
       <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
     </Menu>
     <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffe6eee5">
