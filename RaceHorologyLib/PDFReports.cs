@@ -63,6 +63,7 @@ namespace RaceHorologyLib
 
   public interface IPDFReport
   {
+    void Generate(Stream stream);
     void Generate(string filePath);
 
     string ProposeFilePath();
@@ -740,6 +741,36 @@ namespace RaceHorologyLib
       );
 
       return path;
+    }
+
+
+    public void Generate(Stream stream)
+    {
+      determineTableFontAndSize();
+
+      var writer = new PdfWriter(stream);
+      var pdf = new PdfDocument(writer);
+
+      Margins pageMargins = new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
+
+      var document = new Document(pdf, PageSize.A4);
+      _document = document;
+
+      var header = new ReportHeader(pdf, document, _pdfHelper, _race, getTitle(), pageMargins);
+      var footer = new ReportFooter(pdf, document, _pdfHelper, _race, getTitle(), pageMargins);
+
+      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, header);
+      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, footer);
+      //var pageXofY = new PageXofY(pdf);
+      //pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, pageXofY);
+
+      document.SetMargins(header.Height + pageMargins.Top, pageMargins.Right, pageMargins.Bottom + footer.Height, pageMargins.Left);
+
+      addContent(pdf, document);
+      _document = null;
+
+      //pageXofY.WriteTotal(pdf);
+      document.Close();
     }
 
 

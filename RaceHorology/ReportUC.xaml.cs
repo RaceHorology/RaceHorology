@@ -1,6 +1,7 @@
 ﻿using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace RaceHorology
       List<ReportItem> items = new List<ReportItem>();
       items.Add(new ReportItem { Text = "Ergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return new RaceResultReport(r); } });
       items.Add(new ReportItem { Text = "Teilergebnisliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RaceRunResultReport(rr); } });
-      items.Add(new ReportItem { Text = "Startliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport) new StartListReport(rr) : (IPDFReport) new StartListReport2ndRun(rr); } });
+      items.Add(new ReportItem { Text = "Startliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new StartListReport(rr) : (IPDFReport)new StartListReport2ndRun(rr); } });
       items.Add(new ReportItem { Text = "Schiedsrichter Report", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
 
       cmbReport.ItemsSource = items;
@@ -68,7 +69,15 @@ namespace RaceHorology
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
     {
+      var reportGenerator = getSelectedReport();
+      if (reportGenerator != null)
+      {
+        MemoryStream ms = new MemoryStream();
+        reportGenerator.Generate(ms);
+        var ms2 = new MemoryStream(ms.ToArray(), false);
 
+        pdfViewer.Load(ms2);
+      }
     }
 
     private void cmbReport_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -89,6 +98,11 @@ namespace RaceHorology
 
     private void GenerateReportPreview()
     {
+      RaceListsUC.CreateAndOpenReport(getSelectedReport());
+    }
+
+    private IPDFReport getSelectedReport()
+    {
       if (cmbReport.SelectedItem is ReportItem ri)
       {
         RaceRun selectedRaceRun = null;
@@ -98,9 +112,9 @@ namespace RaceHorology
           selectedRaceRun = selected?.Value as RaceRun;
         }
 
-        IPDFReport pdfReport = ri.CreateReport(_race, selectedRaceRun);
-        RaceListsUC.CreateAndOpenReport(pdfReport);
+        return ri.CreateReport(_race, selectedRaceRun);
       }
+      return null;
     }
   }
 }
