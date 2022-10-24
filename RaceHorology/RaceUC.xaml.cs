@@ -95,6 +95,7 @@ namespace RaceHorology
       InitializeTiming();
 
       ucRaceLists.Init(_thisRace);
+      ucReports.Init(_thisRace);
     }
 
     public Race GetRace() { return _thisRace; }
