@@ -24,5 +24,30 @@ namespace RaceHorology
     {
       InitializeComponent();
     }
+
+    private void btnSave_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void btnPrint_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void btnRefresh_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void cmbReport_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+
+    }
+
+    private void cmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+
+    }
   }
 }

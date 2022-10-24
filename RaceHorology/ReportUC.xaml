@@ -20,10 +20,10 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <ComboBox x:Name="cmbReport" Margin="5" Grid.Column="0"/>
-      <ComboBox x:Name="cmbRaceRun" Margin="5" Grid.Column="1" />
+      <ComboBox x:Name="cmbReport" Margin="5" Grid.Column="0" SelectionChanged="cmbReport_SelectionChanged"/>
+      <ComboBox x:Name="cmbRaceRun" Margin="5" Grid.Column="1" SelectionChanged="cmbRaceRun_SelectionChanged"/>
       <Label x:Name="lblWarning" Grid.Column="2" Content="***** Warning *****" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Red" FontSize="16" VerticalAlignment="Center"/>
-      <Button x:Name="btnRefresh" Margin="5" Grid.Column="3" Content="Aktualisieren" />
+      <Button x:Name="btnRefresh" Margin="5" Grid.Column="3" Content="Aktualisieren" Click="btnRefresh_Click" />
     </Grid>
 
     <Grid Width="Auto" Grid.Row="2">
@@ -32,8 +32,8 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Button x:Name="btnSave" Margin="5" Padding="5" Grid.Column="1" Content="Speichern (PDF)" />
-      <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="2" Content="Drucken" />
+      <Button x:Name="btnSave" Margin="5" Padding="5" Grid.Column="1" Content="Speichern (PDF)" Click="btnSave_Click"/>
+      <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="2" Content="Drucken" Click="btnPrint_Click"/>
     </Grid>
 
   </Grid>
