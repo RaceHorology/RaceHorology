@@ -1,4 +1,5 @@
 using RaceHorologyLib;
+using Syncfusion.Windows.PdfViewer;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -69,6 +70,7 @@ namespace RaceHorology
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
     {
+      customizePdfControl();
       var reportGenerator = getSelectedReport();
       if (reportGenerator != null)
       {
@@ -117,6 +119,49 @@ namespace RaceHorology
         return ri.CreateReport(_race, selectedRaceRun);
       }
       return null;
+    }
+
+    private void customizePdfControl()
+    {
+      hidePdfControls(new List<string> {
+        "PART_FileToggleButton",
+        "Part_NavigationToolsSeparator",
+        "Part_ZoomToolsSeparator_0",
+        "Part_ZoomToolsSeparator_1",
+        "PART_AnnotationToolsSeparator",
+        "PART_StickyNote",
+        "PART_Ink",
+        "PART_InkEraser",
+        "PART_Highlight",
+        "PART_Underline",
+        "PART_Strikethrough",
+        "PART_Shapes",
+        "PART_Fill",
+        "PART_FreeText",
+        "PART_ButtonTextBoxFont",
+        "PART_AnnotationsSeparator",
+        "PART_Stamp",
+        "PART_ButtonSignature",
+        "PART_SelectTool",
+        "PART_HandTool",
+        "PART_MarqueeZoom",
+        "Part_CursorTools",
+        "PART_ButtonTextSearch",
+        "PART_TextMarkupAnnotationTool" // TODO: Figure out
+      });
+    }
+
+    private void hidePdfControls(IList<string> ids)
+    {
+      DocumentToolbar toolbar = pdfViewer.Template.FindName("PART_Toolbar", pdfViewer) as DocumentToolbar;
+      foreach(var id in ids)
+      {
+        var item = toolbar.Template.FindName(id, toolbar);
+        if (item is UIElement c)
+          c.Visibility = Visibility.Collapsed;
+        else
+          ;
+      }
     }
   }
 }
