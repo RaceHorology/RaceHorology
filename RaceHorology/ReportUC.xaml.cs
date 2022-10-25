@@ -1,4 +1,4 @@
-using RaceHorologyLib;
+﻿using RaceHorologyLib;
 using Syncfusion.Windows.PdfViewer;
 using System;
 using System.Collections.Generic;
@@ -43,6 +43,20 @@ namespace RaceHorology
       InitializeComponent();
     }
 
+    private bool pdfControlCustimized = false;
+    protected override void OnRender(DrawingContext drawingContext)
+    {
+      base.OnRender(drawingContext);
+      // Disable some controls ...
+      // Note: All other events did not work, the OnRender method seems to be late enough so that the PDFControl got initialized
+      if (!pdfControlCustimized)
+      {
+        customizePdfControl();
+        pdfControlCustimized = true;
+      }
+    }
+
+
     public void Init(Race race)
     {
       _race = race;
@@ -54,6 +68,7 @@ namespace RaceHorology
       items.Add(new ReportItem { Text = "Schiedsrichter Protokoll", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
 
       cmbReport.ItemsSource = items;
+      cmbReport.SelectedIndex = 0;
 
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
     }
@@ -127,14 +142,10 @@ namespace RaceHorology
         "PART_FileToggleButton",
         "Part_NavigationToolsSeparator",
         "Part_ZoomToolsSeparator_0",
-        "Part_ZoomToolsSeparator_1",
         "PART_AnnotationToolsSeparator",
         "PART_StickyNote",
         "PART_Ink",
         "PART_InkEraser",
-        "PART_Highlight",
-        "PART_Underline",
-        "PART_Strikethrough",
         "PART_Shapes",
         "PART_Fill",
         "PART_FreeText",
@@ -147,7 +158,7 @@ namespace RaceHorology
         "PART_MarqueeZoom",
         "Part_CursorTools",
         "PART_ButtonTextSearch",
-        "PART_TextMarkupAnnotationTool" // TODO: Figure out
+        "PART_TextMarkup"
       });
     }
 
@@ -160,7 +171,7 @@ namespace RaceHorology
         if (item is UIElement c)
           c.Visibility = Visibility.Collapsed;
         else
-          ;
+          System.Diagnostics.Debug.Assert(false);
       }
     }
   }
