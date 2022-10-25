@@ -86,6 +86,9 @@ namespace RaceHorologyLib
   }
 
 
+  // TODO:
+  // - Unterschriftenzeile,
+
   public class RefereeProtocol : PDFRaceReport
   {
     const int ColumnsForStartnumberTable = 13;
@@ -100,6 +103,15 @@ namespace RaceHorologyLib
       : base(rr.GetRace()) 
     {
       _raceRun = rr;
+    }
+
+    protected override ReportHeader createHeader()
+    {
+      return new ReportHeader(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins, false);
+    }
+    protected override ReportFooter createFooter()
+    {
+      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins, false);
     }
 
     protected override void addContent(PdfDocument pdf, Document document)
