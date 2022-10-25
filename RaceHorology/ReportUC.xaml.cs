@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -64,7 +64,7 @@ namespace RaceHorology
 
     private void btnPrint_Click(object sender, RoutedEventArgs e)
     {
-
+      pdfViewer.Print(true);
     }
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
