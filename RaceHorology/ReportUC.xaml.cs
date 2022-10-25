@@ -77,6 +77,8 @@ namespace RaceHorology
         var ms2 = new MemoryStream(ms.ToArray(), false);
 
         pdfViewer.Load(ms2);
+        pdfViewer.ZoomMode = ZoomMode.FitPage;
+        pdfViewer.CursorMode = PdfViewerCursorMode.HandTool;
       }
     }
 
