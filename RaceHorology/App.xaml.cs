@@ -48,5 +48,9 @@ namespace RaceHorology
   /// </summary>
   public partial class App : Application
   {
+    public App()
+    {
+      Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NzQ3MDMwQDMyMzAyZTMzMmUzMEZLR3FUVEFRTURXbTRwdll5WlZWM3VsRENTWEs3dlgxWjhWeXhKbk5BeFU9");
+    }
   }
 }
