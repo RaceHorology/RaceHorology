@@ -41,6 +41,10 @@ namespace RaceHorology
     public ReportUC()
     {
       InitializeComponent();
+
+      var pdfWorkDir = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RaceHorology", "PDFViewer");
+      System.IO.Directory.CreateDirectory(pdfWorkDir);
+      pdfViewer.ReferencePath = pdfWorkDir;
     }
 
     private bool pdfControlCustimized = false;
