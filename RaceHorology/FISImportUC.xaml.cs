@@ -151,10 +151,7 @@ namespace RaceHorology
 
     private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        applySearch();
-      });
+      applySearch();
     }
 
 

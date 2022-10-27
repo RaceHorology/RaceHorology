@@ -249,14 +249,10 @@ namespace RaceHorology
     protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
     {
       string text = "";
-      Application.Current.Dispatcher.Invoke(() =>
+      if (sender is TextBox textBox)
       {
-        if (sender is TextBox textBox)
-        {
-          text = textBox.Text;
-        }
-      });
-
+        text = textBox.Text;
+      }
 
       if (liveTimingRMUC._liveTimingRM != null)
         liveTimingRMUC._liveTimingRM.UpdateStatus(text);

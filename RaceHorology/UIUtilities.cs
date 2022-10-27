@@ -368,7 +368,10 @@ namespace RaceHorology
 
         if (handler != null)
         {
-          handler(this.forwardSender, this.forwardArgs);
+          Application.Current.Dispatcher.Invoke(() =>
+          {
+            handler(this.forwardSender, this.forwardArgs);
+          });
         }
       });
 

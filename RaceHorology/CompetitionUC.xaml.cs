@@ -545,45 +545,42 @@ namespace RaceHorology
 
     private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
-      Application.Current.Dispatcher.Invoke(() =>
+      if (_viewParticipantsFilterHandler != null)
+        _viewParticipants.Filter -= _viewParticipantsFilterHandler;
+
+      string sFilter = txtSearch.Text;
+
+      _viewParticipantsFilterHandler = null;
+      if (!string.IsNullOrEmpty(sFilter))
       {
-        if (_viewParticipantsFilterHandler != null)
-          _viewParticipants.Filter -= _viewParticipantsFilterHandler;
-
-        string sFilter = txtSearch.Text;
-
-        _viewParticipantsFilterHandler = null;
-        if (!string.IsNullOrEmpty(sFilter))
+        _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
         {
-          _viewParticipantsFilterHandler = new FilterEventHandler(delegate (object s, FilterEventArgs ea)
+          bool contains(string bigString, string part)
           {
-            bool contains(string bigString, string part)
-            {
-              if (string.IsNullOrEmpty(bigString))
-                return false;
+            if (string.IsNullOrEmpty(bigString))
+              return false;
 
-              return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
-            }
+            return System.Threading.Thread.CurrentThread.CurrentCulture.CompareInfo.IndexOf(bigString, part, CompareOptions.IgnoreCase) >= 0;
+          }
 
-            ParticipantEdit p = (ParticipantEdit)ea.Item;
+          ParticipantEdit p = (ParticipantEdit)ea.Item;
 
-            ea.Accepted =
-                 contains(p.Name, sFilter)
-              || contains(p.Firstname, sFilter)
-              || contains(p.Club, sFilter)
-              || contains(p.Nation, sFilter)
-              || contains(p.Year.ToString(), sFilter)
-              || contains(p.Code, sFilter)
-              || contains(p.SvId, sFilter)
-              || contains(p.Class?.ToString(), sFilter)
-              || contains(p.Group?.ToString(), sFilter);
-          });
-        }
-        if (_viewParticipantsFilterHandler != null)
-          _viewParticipants.Filter += _viewParticipantsFilterHandler;
+          ea.Accepted =
+                contains(p.Name, sFilter)
+            || contains(p.Firstname, sFilter)
+            || contains(p.Club, sFilter)
+            || contains(p.Nation, sFilter)
+            || contains(p.Year.ToString(), sFilter)
+            || contains(p.Code, sFilter)
+            || contains(p.SvId, sFilter)
+            || contains(p.Class?.ToString(), sFilter)
+            || contains(p.Group?.ToString(), sFilter);
+        });
+      }
+      if (_viewParticipantsFilterHandler != null)
+        _viewParticipants.Filter += _viewParticipantsFilterHandler;
 
-        _viewParticipants.View.Refresh();
-      });
+      _viewParticipants.View.Refresh();
     }
 
     private void KeyDownHandler(object sender, KeyEventArgs e)
