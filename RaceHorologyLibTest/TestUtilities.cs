@@ -52,8 +52,7 @@ namespace RaceHorologyLibTest
     {
       string srcPath = Path.Combine(srcDirectory, srcFilename);
 
-      string dstDirectory = Path.Combine(srcDirectory, Path.GetRandomFileName());
-      Directory.CreateDirectory(dstDirectory);
+      string dstDirectory = CreateWorkingFolder(srcDirectory);
 
       string dstPath = Path.Combine(dstDirectory, srcFilename);
       File.Copy(srcPath, dstPath);
@@ -69,6 +68,13 @@ namespace RaceHorologyLibTest
       }
 
       return dstPath;
+    }
+
+    public static string CreateWorkingFolder(string srcDirectory)
+    {
+      string dstDirectory = Path.Combine(srcDirectory, Path.GetRandomFileName());
+      Directory.CreateDirectory(dstDirectory);
+      return dstDirectory;
     }
 
     public static string Copy(string srcFilepath, string dstFilename)
@@ -117,6 +123,12 @@ namespace RaceHorologyLibTest
     {
       string filenameOutput = report.ProposeFilePath();
       report.Generate(filenameOutput);
+
+#pragma warning disable CS0162 // Unreachable code detected
+      if (false)
+        System.Diagnostics.Process.Start(filenameOutput);
+#pragma warning restore CS0162 // Unreachable code detected
+
       return CompareAgainstPdf(testContext, filenameOutput, filenameShall, nAcceptedDifferences);
     }
 

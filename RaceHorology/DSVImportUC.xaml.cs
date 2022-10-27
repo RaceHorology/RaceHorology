@@ -149,10 +149,7 @@ namespace RaceHorology
 
     private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        applySearch();
-      });
+      applySearch();
     }
 
 

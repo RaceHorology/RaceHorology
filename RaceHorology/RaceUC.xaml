@@ -696,7 +696,14 @@
 
     <GridSplitter x:Name="gridSplitter4" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
 
-    <local:RaceListsUC x:Name="ucRaceLists" Grid.Column="2"/>
+    <TabControl Grid.Column="2" Height="Auto" Margin="10" Width="Auto">
+      <TabItem Header="Live Listen" FontSize="12">
+        <local:RaceListsUC x:Name="ucRaceLists" />
+      </TabItem>
+      <TabItem Header="Berichte und Drucken" FontSize="12">
+        <local:ReportUC x:Name="ucReports" />
+      </TabItem>
+    </TabControl>
 
   </Grid>
 </UserControl>

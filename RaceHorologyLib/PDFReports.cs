@@ -63,9 +63,28 @@ namespace RaceHorologyLib
 
   public interface IPDFReport
   {
-    void Generate(string filePath);
+    void Generate(Stream stream);
 
     string ProposeFilePath();
+  }
+
+
+  public static class IPdfReportUtils {
+    static public void Generate(this IPDFReport report, string filePath)
+    {
+      using (var mStream = new MemoryStream())
+      {
+        report.Generate(mStream);
+        using (var ms2 = new MemoryStream(mStream.ToArray(), false))
+        {
+          using (var fStream = new FileStream(filePath, FileMode.Create))
+          {
+            ms2.WriteTo(fStream);
+            fStream.Close();
+          }
+        }
+      }
+    }
   }
 
 
@@ -191,7 +210,7 @@ namespace RaceHorologyLib
 
 
 
-  class ReportHeader : IEventHandler
+  public class ReportHeader : IEventHandler
   {
     PdfDocument _pdfDoc;
     Document _doc;
@@ -211,7 +230,7 @@ namespace RaceHorologyLib
     Image _logoRH;
 
 
-    public ReportHeader(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins)
+    public ReportHeader(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true)
     {
       _pdfDoc = pdfDoc;
       _doc = doc;
@@ -222,7 +241,7 @@ namespace RaceHorologyLib
 
       var pageSize = PageSize.A4; // Assumption
 
-      _banner = _pdfHelper.GetImage("Banner1");
+      _banner = displayBanner ? _pdfHelper.GetImage("Banner1") : null;
       if (_banner != null)
         _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _banner.GetImageHeight() / _banner.GetImageWidth();
 
@@ -426,7 +445,7 @@ namespace RaceHorologyLib
 
 
 
-  class ReportFooter : IEventHandler
+  public class ReportFooter : IEventHandler
   {
     PdfDocument _pdfDoc;
     Document _doc;
@@ -445,7 +464,7 @@ namespace RaceHorologyLib
     float _bannerHeight = 0F;
     Image _logoRH;
 
-    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins)
+    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true)
     {
       _pdfDoc = pdfDoc;
       _doc = doc;
@@ -456,9 +475,11 @@ namespace RaceHorologyLib
 
       var pageSize = PageSize.A4; // Assumption
 
-      _banner = _pdfHelper.GetImage("Banner2");
+      
+      _banner = displayBanner ? _pdfHelper.GetImage("Banner2") : null;
       if (_banner!=null)
         _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _banner.GetImageHeight() / _banner.GetImageWidth();
+
       _logoRH = _pdfHelper.GetImage("LogoRH");
 
       calculateFooter();
@@ -710,6 +731,9 @@ namespace RaceHorologyLib
   {
     protected Race _race;
     protected AppDataModel _dm;
+    protected PdfDocument _pdfDocument;
+    protected Document _document;
+    protected Margins _pageMargins;
 
     protected PDFHelper _pdfHelper;
     PointsConverter _pointsConverter;
@@ -718,6 +742,8 @@ namespace RaceHorologyLib
     {
       _race = race;
       _dm = race.GetDataModel();
+      _pdfDocument = null;
+      _document = null;
 
       _pdfHelper = new PDFHelper(_dm);
       _pointsConverter = new PointsConverter();
@@ -741,33 +767,47 @@ namespace RaceHorologyLib
     }
 
 
-    public void Generate(string filePath)
+    public void Generate(Stream stream)
     {
       determineTableFontAndSize();
 
-      var writer = new PdfWriter(filePath);
-      var pdf = new PdfDocument(writer);
+      var writer = new PdfWriter(stream);
+      
+      _pdfDocument = new PdfDocument(writer);
+      _document = new Document(_pdfDocument, PageSize.A4);
 
-      Margins pageMargins = new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
+      _pageMargins = new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
 
-      var document = new Document(pdf, PageSize.A4);
 
-      var header = new ReportHeader(pdf, document, _pdfHelper, _race, getTitle(), pageMargins);
-      var footer = new ReportFooter(pdf, document, _pdfHelper, _race, getTitle(), pageMargins);
+      var header = createHeader();
+      var footer = createFooter();
 
-      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, header);
-      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, footer);
+      _pdfDocument.AddEventHandler(PdfDocumentEvent.END_PAGE, header);
+      _pdfDocument.AddEventHandler(PdfDocumentEvent.END_PAGE, footer);
       //var pageXofY = new PageXofY(pdf);
       //pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, pageXofY);
 
-      document.SetMargins(header.Height + pageMargins.Top, pageMargins.Right, pageMargins.Bottom + footer.Height, pageMargins.Left);
+      _document.SetMargins(header.Height + _pageMargins.Top, _pageMargins.Right, _pageMargins.Bottom + footer.Height, _pageMargins.Left);
 
-      addContent(pdf, document);
-
+      addContent(_pdfDocument, _document);
+      
       //pageXofY.WriteTotal(pdf);
-      document.Close();
+
+      _document.Close();
+
+      _document = null;
+      _pdfDocument = null;
+
     }
 
+    protected virtual ReportHeader createHeader()
+    {
+      return new ReportHeader(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins);
+    }
+    protected virtual ReportFooter createFooter()
+    {
+      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins);
+    }
 
 
     protected PdfFont _tableFont;

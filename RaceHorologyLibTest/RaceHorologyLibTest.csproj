@@ -193,6 +193,7 @@
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />
     <Compile Include="RaceConfigurationTest.cs" />
+    <Compile Include="RefereeProtocolTest.cs" />
     <Compile Include="StartNumberTest.cs" />
     <Compile Include="TagHeuerTests.cs" />
     <Compile Include="TestUtilities.cs" />
@@ -301,6 +302,9 @@
     <None Include="TestOutputs\1554MSBS\1554MSBS - Ergebnis Gesamt.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Schiedsrichterprotokoll 1. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestOutputs\1554MSBS\1554MSBS - Startliste 1. Durchgang.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -311,6 +315,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestOutputs\HandTimingCalc_Report.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\RefereeProtocol_Empty.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

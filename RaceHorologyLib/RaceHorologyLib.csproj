@@ -99,6 +99,7 @@
     <Compile Include="Progress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaceConfiguration.cs" />
+    <Compile Include="RefereeProtocol.cs" />
     <Compile Include="ResultCharts.cs" />
     <Compile Include="StartnumberAssignment.cs" />
     <Compile Include="TagHeuer.cs" />
