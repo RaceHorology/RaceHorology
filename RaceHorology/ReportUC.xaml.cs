@@ -37,6 +37,7 @@ namespace RaceHorology
   public partial class ReportUC : UserControl
   {
     private Race _race;
+    private DelayedEventHandler refreshDelay;
 
     public ReportUC()
     {
@@ -45,6 +46,18 @@ namespace RaceHorology
       var pdfWorkDir = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RaceHorology", "PDFViewer");
       System.IO.Directory.CreateDirectory(pdfWorkDir);
       pdfViewer.ReferencePath = pdfWorkDir;
+
+      refreshDelay = new DelayedEventHandler(300, refreshTimout);
+
+      IsVisibleChanged += ReportUC_IsVisibleChanged;
+    }
+
+    private void ReportUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+      if (!(bool)e.OldValue && (bool)e.NewValue)
+      {
+        triggerRefresh();
+      }
     }
 
     private bool pdfControlCustimized = false;
@@ -89,7 +102,42 @@ namespace RaceHorology
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
     {
-      customizePdfControl();
+      refreshPdf();
+    }
+
+    private void cmbReport_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (cmbReport.SelectedItem is ReportItem ri)
+      {
+        cmbRaceRun.IsEnabled = ri.NeedsRaceRun;
+
+        triggerRefresh();
+      }
+    }
+
+    private void cmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
+      RaceRun selectedRaceRun = selected?.Value as RaceRun;
+
+      triggerRefresh();
+    }
+
+
+    private void GenerateReportPreview()
+    {
+      RaceListsUC.CreateAndOpenReport(getSelectedReport());
+    }
+
+
+    private void triggerRefresh()
+    {
+      if (IsVisible)
+        refreshDelay.Delayed(null, null);
+    }
+
+    private void refreshPdf()
+    {
       var reportGenerator = getSelectedReport();
       if (reportGenerator != null)
       {
@@ -103,25 +151,9 @@ namespace RaceHorology
       }
     }
 
-    private void cmbReport_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void refreshTimout(object sender, TextChangedEventArgs e)
     {
-      if (cmbReport.SelectedItem is ReportItem ri)
-      {
-        cmbRaceRun.IsEnabled = ri.NeedsRaceRun;
-      }
-    }
-
-    private void cmbRaceRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      CBItem selected = (sender as ComboBox).SelectedValue as CBItem;
-      RaceRun selectedRaceRun = selected?.Value as RaceRun;
-
-    }
-
-
-    private void GenerateReportPreview()
-    {
-      RaceListsUC.CreateAndOpenReport(getSelectedReport());
+      refreshPdf();
     }
 
     private IPDFReport getSelectedReport()
