@@ -21,10 +21,10 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <ComboBox x:Name="cmbReport" Margin="5" Grid.Column="0" SelectionChanged="cmbReport_SelectionChanged"/>
-      <ComboBox x:Name="cmbRaceRun" Margin="5" Grid.Column="1" SelectionChanged="cmbRaceRun_SelectionChanged"/>
+      <ComboBox x:Name="cmbReport" Margin="5" MinWidth="150" HorizontalContentAlignment="Left" Grid.Column="0" FontSize="16" SelectionChanged="cmbReport_SelectionChanged"/>
+      <ComboBox x:Name="cmbRaceRun" Margin="5" MinWidth="150" HorizontalContentAlignment="Center" Grid.Column="1" FontSize="16" SelectionChanged="cmbRaceRun_SelectionChanged"/>
       <Label x:Name="lblWarning" Grid.Column="2" Content="***** Warning *****" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Red" FontSize="16" VerticalAlignment="Center"/>
-      <Button x:Name="btnRefresh" Margin="5" Grid.Column="3" Content="Aktualisieren" Click="btnRefresh_Click" />
+      <Button x:Name="btnRefresh" Margin="5" Padding="5" Grid.Column="3" Content="Aktualisieren" Click="btnRefresh_Click" />
     </Grid>
 
     <Grid Width="Auto" Grid.Row="2">
