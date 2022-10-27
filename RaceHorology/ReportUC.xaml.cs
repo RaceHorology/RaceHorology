@@ -56,6 +56,9 @@ namespace RaceHorology
     {
       if (!(bool)e.OldValue && (bool)e.NewValue)
       {
+        UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
+        cmbRaceRun.SelectCBItem(_race.GetDataModel().GetCurrentRaceRun());
+
         triggerRefresh();
       }
     }
