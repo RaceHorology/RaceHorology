@@ -37,7 +37,9 @@ namespace RaceHorology
   public partial class ReportUC : UserControl
   {
     private Race _race;
-    private DelayedEventHandler refreshDelay;
+    private DelayedEventHandler _refreshDelay;
+    IWarningLabelHandler _lblHandler;
+
 
     public ReportUC()
     {
@@ -47,7 +49,7 @@ namespace RaceHorology
       System.IO.Directory.CreateDirectory(pdfWorkDir);
       pdfViewer.ReferencePath = pdfWorkDir;
 
-      refreshDelay = new DelayedEventHandler(300, refreshTimout);
+      _refreshDelay = new DelayedEventHandler(300, refreshTimout);
 
       IsVisibleChanged += ReportUC_IsVisibleChanged;
     }
@@ -91,6 +93,9 @@ namespace RaceHorology
       cmbReport.SelectedIndex = 0;
 
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
+
+      _lblHandler = new RaceCompletedWarningLabelHandler(_race, lblWarning);
+
     }
 
     private void btnSave_Click(object sender, RoutedEventArgs e)
@@ -136,7 +141,7 @@ namespace RaceHorology
     private void triggerRefresh()
     {
       if (IsVisible)
-        refreshDelay.Delayed(null, null);
+        _refreshDelay.Delayed(null, null);
     }
 
     private void refreshPdf()
