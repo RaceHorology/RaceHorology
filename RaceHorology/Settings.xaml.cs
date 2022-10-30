@@ -72,7 +72,8 @@ namespace RaceHorology
       chkTimingDeviceDebugDump.IsChecked = Properties.Settings.Default.TimingDevice_Debug_Dump;
 
       //cbTimingDevice.Items.Add("---");
-      cbTimingDevice.Items.Add("ALGE TdC8000/8001");
+      cbTimingDevice.Items.Add("ALGE TdC8000/8001, ALGE Timy via RS232");
+      cbTimingDevice.Items.Add("ALGE Timy (via USB)");
       cbTimingDevice.Items.Add("Alpenhunde");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
 
@@ -138,7 +139,7 @@ namespace RaceHorology
     private void cbTimingDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       bool displayUrl = cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
-      bool displayComPort= cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("ALGE");
+      bool displayComPort= cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("ALGE TdC");
 
       cbTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
       lblTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;

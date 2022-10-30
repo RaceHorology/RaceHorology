@@ -467,8 +467,12 @@ namespace RaceHorology
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
       ILiveTimeMeasurementDevice newTimingDevice = null;
-      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE")) {
+      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE TdC")) {
         newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE Timy (via USB)"))
+      {
+        newTimingDevice = new RHAlgeTimyUSB.AlgeTimyUSB();
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
         var hostname = Properties.Settings.Default.TimingDevice_Url;
