@@ -95,6 +95,7 @@ namespace RaceHorology
     DSVAlpin2HTTPServer _alpinServer;
     string _appTitle;
 
+    RHAlgeTimyUSB.AlgeTimyUSB _timyUSB;
 
     /// <summary>
     /// Constructor of MainWindow
@@ -120,6 +121,8 @@ namespace RaceHorology
       StartDSVAlpinServer();
 
       UpdateLiveTimingDeviceStatus(null, null);
+
+      _timyUSB = new RHAlgeTimyUSB.AlgeTimyUSB();
     }
 
     protected override void OnClosed(EventArgs e)

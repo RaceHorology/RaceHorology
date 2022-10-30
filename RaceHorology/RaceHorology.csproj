@@ -8,12 +8,13 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>RaceHorology</RootNamespace>
     <AssemblyName>RaceHorology</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -409,6 +410,10 @@
     <ProjectReference Include="..\LiveTimingRM\LiveTimingRM.csproj">
       <Project>{1819ca78-97eb-4488-ac18-c65c9d2baf0f}</Project>
       <Name>LiveTimingRM</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RHAlgeTimyUSB\RHAlgeTimyUSB.csproj">
+      <Project>{a9b6ec93-fad0-4a49-b0e5-ebfd1a0ac302}</Project>
+      <Name>RHAlgeTimyUSB</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
