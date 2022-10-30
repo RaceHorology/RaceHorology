@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RaceHorologyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace RHAlgeTimyUSB
 {
-  public class AlgeTimyUSB
+  public class AlgeTimyUSB : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, IImportTime, IHandTiming
   {
     Alge.TimyUsb _timy;
+
     public AlgeTimyUSB()
     {
       _timy = new Alge.TimyUsb();
@@ -33,5 +35,76 @@ namespace RHAlgeTimyUSB
     {
       System.Diagnostics.Trace.WriteLine("Device connected");
     }
+
+
+    #region ILiveTimeMeasurementDevice
+
+    public bool IsStarted => throw new NotImplementedException();
+
+    public bool IsOnline => throw new NotImplementedException();
+
+    public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
+    public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
+    public event TimeMeasurementEventHandler TimeMeasurementReceived;
+    public event LiveDateTimeChangedHandler LiveDateTimeChanged;
+    public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
+
+    public void Start()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void Stop()
+    {
+      throw new NotImplementedException();
+    }
+
+    public string GetDeviceInfo()
+    {
+      throw new NotImplementedException();
+    }
+
+    public string GetStatusInfo()
+    {
+      throw new NotImplementedException();
+    }
+    #endregion
+
+    public TimeSpan GetCurrentDayTime()
+    {
+      throw new NotImplementedException();
+    }
+
+    #region IHandTiming
+    public void Connect()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void Disconnect()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void StartGetTimingData()
+    {
+      throw new NotImplementedException();
+    }
+
+    public IEnumerable<TimingData> TimingData()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void Dispose()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void DoProgressReport(IProgress<StdProgress> progress)
+    {
+      throw new NotImplementedException();
+    }
+    #endregion
   }
 }

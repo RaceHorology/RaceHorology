@@ -53,5 +53,11 @@
     <Content Include="AlgeTimyUsb.x64.dll" />
     <Content Include="AlgeTimyUsb.x86.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RaceHorologyLib\RaceHorologyLib.csproj">
+      <Project>{ca9c930b-baea-480d-ab69-2df107b9ccb5}</Project>
+      <Name>RaceHorologyLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
