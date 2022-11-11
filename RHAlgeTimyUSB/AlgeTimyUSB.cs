@@ -42,73 +42,121 @@ using System.Threading.Tasks;
 
 namespace RHAlgeTimyUSB
 {
-  public class AlgeTimyUSB : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, IImportTime, IHandTiming
+  public class AlgeTimyUSB : ALGETdC8001TimeMeasurementBase, ILiveTimeMeasurementDeviceDebugInfo
   {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+    enum EInternalStatus { Stopped, Initializing, NoDevice, Running };
+    private EInternalStatus _internalStatus;
+    private string _internalProtocol;
+
     Alge.TimyUsb _timy;
 
     public AlgeTimyUSB()
     {
+      _internalProtocol = string.Empty;
+    }
+
+    public override string GetDeviceInfo()
+    {
+      return "ALGE Timy (USB)";
+    }
+
+
+    private void _timy_LineReceived(object sender, Alge.DataReceivedEventArgs e)
+    {
+      try
+      {
+        string dataLine = e.Data;
+        Logger.Info("data received: {0}", dataLine);
+
+        debugLine(dataLine);
+        processLine(dataLine);
+      }
+      catch (Exception err)
+      {
+        Logger.Info("Exception catched: {0}", err.ToString());
+      }
+    }
+
+    private void _timy_DeviceDisconnected(object sender, Alge.DeviceChangedEventArgs e)
+    {
+      Logger.Info("timy dis-connected: {0}", e.Device.ToString());
+      setInternalStatus(EInternalStatus.NoDevice);
+    }
+
+    private void _timy_DeviceConnected(object sender, Alge.DeviceChangedEventArgs e)
+    {
+      Logger.Info("timy connected: {0}", e.Device.ToString());
+      setInternalStatus(EInternalStatus.Running);
+    }
+
+
+    public override void Start()
+    {
+      Logger.Info("Start()");
+      setInternalStatus(EInternalStatus.Initializing);
+
       _timy = new Alge.TimyUsb();
 
       _timy.DeviceConnected += _timy_DeviceConnected;
       _timy.DeviceDisconnected += _timy_DeviceDisconnected;
       _timy.LineReceived += _timy_LineReceived;
       _timy.Start();
+      _internalProtocol = string.Empty;
     }
 
-    private void _timy_LineReceived(object sender, Alge.DataReceivedEventArgs e)
+    public override void Stop()
     {
-      System.Diagnostics.Trace.WriteLine(e.Data);
+      Logger.Info("Stop()");
+
+      setInternalStatus(EInternalStatus.Stopped);
+
+      _timy.DeviceConnected -= _timy_DeviceConnected;
+      _timy.DeviceDisconnected -= _timy_DeviceDisconnected;
+      _timy.LineReceived -= _timy_LineReceived;
+      _timy.Stop();
+      _timy.Dispose();
+      _timy = null;
     }
 
-    private void _timy_DeviceDisconnected(object sender, Alge.DeviceChangedEventArgs e)
+    private void setInternalStatus(EInternalStatus value)
     {
-      System.Diagnostics.Trace.WriteLine("Device dis-connected");
+      if (_internalStatus != value)
+      {
+        Logger.Info("new status: {0} (old: {1})", value, _internalStatus);
+
+        _internalStatus = value;
+        switch (_internalStatus)
+        {
+          case EInternalStatus.Running:
+            _statusText = "Verbunden"; break;
+          case EInternalStatus.Stopped:
+            _statusText = "nicht verbunden"; break;
+          case EInternalStatus.Initializing:
+            _statusText = "Verbinde ..."; break;
+          case EInternalStatus.NoDevice:
+            _statusText = "kein Gerät gefunden"; break;
+        }
+
+        var handler = StatusChanged;
+        handler?.Invoke(this, IsOnline);
+      }
     }
 
-    private void _timy_DeviceConnected(object sender, Alge.DeviceChangedEventArgs e)
+    public override bool IsOnline
     {
-      System.Diagnostics.Trace.WriteLine("Device connected");
+      get { return _internalStatus == EInternalStatus.Running; }
     }
 
-
-    #region ILiveTimeMeasurementDevice
-
-    public bool IsStarted => throw new NotImplementedException();
-
-    public bool IsOnline => throw new NotImplementedException();
-
-    public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
-    public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
-    public event TimeMeasurementEventHandler TimeMeasurementReceived;
-    public event LiveDateTimeChangedHandler LiveDateTimeChanged;
-    public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
-
-    public void Start()
+    public override bool IsStarted
     {
-      throw new NotImplementedException();
+      get
+      {
+        return _timy != null;
+      }
     }
-
-    public void Stop()
-    {
-      throw new NotImplementedException();
-    }
-
-    public string GetDeviceInfo()
-    {
-      throw new NotImplementedException();
-    }
-
-    public string GetStatusInfo()
-    {
-      throw new NotImplementedException();
-    }
-    #endregion
-
-    public TimeSpan GetCurrentDayTime()
-    {
-      throw new NotImplementedException();
-    }
+    public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
     #region IHandTiming
     public void Connect()
@@ -139,6 +187,25 @@ namespace RHAlgeTimyUSB
     public void DoProgressReport(IProgress<StdProgress> progress)
     {
       throw new NotImplementedException();
+    }
+    #endregion
+
+    #region Implementation of ILiveTimeMeasurementDeviceDebugInfo
+    public event RawMessageReceivedEventHandler RawMessageReceived;
+
+    public string GetProtocol()
+    {
+      return _internalProtocol;
+    }
+
+    void debugLine(string dataLine)
+    {
+      if (!string.IsNullOrEmpty(_internalProtocol))
+        _internalProtocol += "\n";
+      _internalProtocol += dataLine;
+
+      RawMessageReceivedEventHandler handler = RawMessageReceived;
+      handler?.Invoke(this, dataLine);
     }
     #endregion
   }
