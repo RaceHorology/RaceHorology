@@ -42,7 +42,7 @@ using System.Threading.Tasks;
 
 namespace RHAlgeTimyUSB
 {
-  public class AlgeTimyUSB : ALGETdC8001TimeMeasurementBase, ILiveTimeMeasurementDeviceDebugInfo
+  public class AlgeTimyUSB : ALGETdC8001TimeMeasurementBase, ILiveTimeMeasurementDeviceDebugInfo, IHandTiming
   {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
