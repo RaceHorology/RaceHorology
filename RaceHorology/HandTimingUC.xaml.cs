@@ -31,7 +31,7 @@ namespace RaceHorology
           handTiming = new ALGETimy(devicePort);
           break;
         case "ALGETimyUSB":
-          handTiming = new AlgeTimyUSB();
+          handTiming = new AlgeTimyHTUSB();
           break;
         case "TagHeuerPPro":
           handTiming = new TagHeuer(devicePort);
