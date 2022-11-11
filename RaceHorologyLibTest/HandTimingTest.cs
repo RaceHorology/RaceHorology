@@ -165,17 +165,6 @@ namespace RaceHorologyLibTest
       //Assert.IsTrue(lastProgress.Finished);
     }
 
-    /// <summary>
-    /// Tests creation of corresponding IHandTiming object for specific handtiming sources (e.g. File, ALGE, TagHeuer)
-    /// </summary>
-    [TestMethod]
-    public void CreateHandTiming()
-    {
-      Assert.AreEqual(typeof(FromFileHandTiming), HandTiming.CreateHandTiming("File", "abc").GetType());
-      Assert.AreEqual(typeof(TagHeuer), HandTiming.CreateHandTiming("TagHeuerPPro", "abc").GetType());
-      Assert.AreEqual(typeof(ALGETimy), HandTiming.CreateHandTiming("ALGETimy", "abc").GetType());
-    }
-
 
     /// <summary>
     /// Tests the automatic correlation of hand timestamps with start/finish time stamps
