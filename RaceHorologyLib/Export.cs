@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -570,4 +570,17 @@ namespace RaceHorologyLib
       }
     }
   }
+
+
+  public class AlpenhundeStartlistExport : ViewExportBase<StartListEntry>
+  {
+    public AlpenhundeStartlistExport(ICollectionView view)
+      : base(view)
+    {
+      AddField("Short Name", typeof(uint), (item) => { return item.item.Participant.StartNumber; });
+      AddField("Full Name", typeof(string), (item) => { return item.item.Participant.Fullname; });
+      AddField("Team", typeof(string), (item) => { return item.group; });
+    }
+  }
+
 }

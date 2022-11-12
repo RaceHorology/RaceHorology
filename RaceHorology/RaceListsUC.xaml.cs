@@ -637,6 +637,22 @@ namespace RaceHorology
     }
 
 
+    private void BtnExportAlpenhunde_Click(object sender, RoutedEventArgs e)
+    {
+      exportToTextFile
+        ("Alpenhunde - UTF-8 CSV (.csv)|*.csv", ".csv",
+        (Race race, string filePath, bool utf8) =>
+        {
+          var exp = new AlpenhundeStartlistExport(dgView.ItemsSource as ICollectionView);
+          var tsvExp = new CsvExport();
+          tsvExp.Export(filePath, exp.ExportToDataSet(), utf8, ";");
+        }
+      );
+    }
+
+    
+
+
     private void BtnExportCsv_Click(object sender, RoutedEventArgs e)
     {
 
