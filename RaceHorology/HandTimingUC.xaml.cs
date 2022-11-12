@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using RaceHorologyLib;
+using RHAlgeTimyUSB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,36 @@ using System.Windows.Shapes;
 
 namespace RaceHorology
 {
+
+  public class HandTimingDevices
+  {
+    public static IHandTiming CreateHandTiming(string device, string devicePort)
+    {
+      IHandTiming handTiming = null;
+
+      switch (device)
+      {
+        case "ALGETimy":
+          handTiming = new ALGETimy(devicePort);
+          break;
+        case "ALGETimyUSB":
+          handTiming = new AlgeTimyHTUSB();
+          break;
+        case "TagHeuerPPro":
+          handTiming = new TagHeuer(devicePort);
+          break;
+        case "File":
+          handTiming = new FromFileHandTiming(devicePort);
+          break;
+      }
+
+      return handTiming;
+    }
+  }
+
+
+
+
   /// <summary>
   /// Interaction logic for HandTimingUC.xaml
   /// </summary>
@@ -93,7 +124,8 @@ namespace RaceHorology
 
     private void fillComboDevices()
     {
-      cmbDevice.Items.Add(new CBItem { Text = "ALGE Timy", Value = "ALGETimy" });
+      cmbDevice.Items.Add(new CBItem { Text = "ALGE Timy (RS-232)", Value = "ALGETimy" });
+      cmbDevice.Items.Add(new CBItem { Text = "ALGE Timy (USB)", Value = "ALGETimyUSB" });
       cmbDevice.Items.Add(new CBItem { Text = "Tag Heuer (Pocket Pro)", Value = "TagHeuerPPro" });
       cmbDevice.Items.Add(new CBItem { Text = "Datei", Value = "File" });
     }
@@ -122,9 +154,10 @@ namespace RaceHorology
 
     private void cmbDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-      bool bFile= object.Equals((cmbDevice.SelectedItem as CBItem)?.Value, "File");
+      bool bFile = object.Equals((cmbDevice.SelectedItem as CBItem)?.Value, "File");
+      bool bAlgeUSB= object.Equals((cmbDevice.SelectedItem as CBItem)?.Value, "ALGETimyUSB");
 
-      cmbDevicePort.IsEnabled = !bFile;
+      cmbDevicePort.IsEnabled = !bFile && !bAlgeUSB;
     }
 
     private void btnDeviceLoad_Click(object sender, RoutedEventArgs e)
@@ -144,7 +177,7 @@ namespace RaceHorology
           return;
       }
 
-      IHandTiming handTiming = HandTiming.CreateHandTiming(device, devicePort);
+      IHandTiming handTiming = HandTimingDevices.CreateHandTiming(device, devicePort);
 
       Progress<StdProgress> progress = new Progress<StdProgress>();
       StdProgressDlg dlgProgress = new StdProgressDlg();
