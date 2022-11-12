@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace RHAlgeTimyUSB
 {
@@ -189,6 +190,7 @@ namespace RHAlgeTimyUSB
 
     ALGETdC8001LineParser _parser;
     Alge.TimyUsb _timy;
+    BufferBlock<string> _buffer;
 
     public AlgeTimyHTUSB()
     {
@@ -199,11 +201,12 @@ namespace RHAlgeTimyUSB
     {
       Logger.Info("Connect()");
 
+      _buffer = new BufferBlock<string>();
       _timy = new Alge.TimyUsb();
 
-      _timy.DeviceConnected += _timy_DeviceConnected; ;
-      _timy.DeviceDisconnected += _timy_DeviceDisconnected; ;
-      _timy.LineReceived += _timy_LineReceived; ;
+      _timy.DeviceConnected += _timy_DeviceConnected;
+      _timy.DeviceDisconnected += _timy_DeviceDisconnected;
+      _timy.LineReceived += _timy_LineReceived;
       _timy.Start();
     }
 
@@ -220,12 +223,16 @@ namespace RHAlgeTimyUSB
       _timy.Stop();
       _timy.Dispose();
       _timy = null;
+      _buffer = null;
+
     }
 
     private void _timy_LineReceived(object sender, Alge.DataReceivedEventArgs e)
     {
       string dataLine = e.Data;
       Logger.Info("data received: {0}", dataLine);
+
+      _buffer.Post(dataLine);
     }
 
     private void _timy_DeviceDisconnected(object sender, Alge.DeviceChangedEventArgs e)
@@ -240,19 +247,45 @@ namespace RHAlgeTimyUSB
 
     public void StartGetTimingData()
     {
-      _timy.Send("RSM");
+      _timy.Send("");    // Sending an empty command, let the Timy answer for the second time ... no clue why this is the case ...
+      _timy.Send("RSM"); // RSM transfers the stored times
     }
 
     public IEnumerable<TimingData> TimingData()
     {
-      int i = 100;
-      while (i>=0)
+      do
       {
-        TimingData td = new TimingData();
-        System.Threading.Thread.Sleep(200);
-        yield return td;
-        i--;
-      }
+        try
+        {
+          string dataLine = _buffer.Receive(new TimeSpan(0, 0, 10));
+          if (dataLine.StartsWith("  ALGE-TIMING")) // END marker
+          {
+            // End of data => read two more lines
+            _buffer.Receive(); // "  TIMY V 1982"
+            _buffer.Receive(); // "20-10-04  16:54"
+            break;
+          }
+          _parser.Parse(dataLine);
+        }
+        catch (TimeoutException)
+        {
+          break; // no new data
+        }
+        catch (Exception)
+        { }
+
+        if (_parser.TimingData != null)
+        {
+          TimingData td = new TimingData
+          {
+            Time = _parser.TimingData.Time
+          };
+
+          reportProgress(td.Time.ToString());
+
+          yield return td;
+        }
+      } while (true);
 
       reportFinal();
     }
