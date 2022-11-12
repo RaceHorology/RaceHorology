@@ -192,6 +192,8 @@ namespace RHAlgeTimyUSB
     Alge.TimyUsb _timy;
     BufferBlock<string> _buffer;
 
+    TaskCompletionSource<string> _connectSignal = new TaskCompletionSource<string>();
+
     public AlgeTimyHTUSB()
     {
       _parser = new ALGETdC8001LineParser();
@@ -208,6 +210,9 @@ namespace RHAlgeTimyUSB
       _timy.DeviceDisconnected += _timy_DeviceDisconnected;
       _timy.LineReceived += _timy_LineReceived;
       _timy.Start();
+
+      if (!_connectSignal.Task.Wait(2000))
+        throw new Exception("Verbindung zu ALGE Timy kann nicht aufgebaut werden");
     }
 
     public void Disconnect()
@@ -243,6 +248,8 @@ namespace RHAlgeTimyUSB
     private void _timy_DeviceConnected(object sender, Alge.DeviceChangedEventArgs e)
     {
       Logger.Info("timy connected: {0}", e.Device.ToString());
+
+      _connectSignal.SetResult(e.Device.ToString());
     }
 
     public void StartGetTimingData()
