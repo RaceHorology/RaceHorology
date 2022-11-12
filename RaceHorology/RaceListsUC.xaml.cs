@@ -646,7 +646,7 @@ namespace RaceHorology
         ,".csv",
         (Race race, string filePath, bool utf8) =>
         {
-          Export exp = new Export(race);
+          RaceExport exp = new RaceExport(race);
           CsvExport csvExp = new CsvExport();
           csvExp.Export(filePath, exp.ExportToDataSet(), utf8);
         }
@@ -660,7 +660,7 @@ namespace RaceHorology
         ".xlsx",
         (Race race, string filePath, bool utf8) =>
         {
-          Export exp = new Export(race);
+          RaceExport exp = new RaceExport(race);
           ExcelExport csvExp = new ExcelExport();
           csvExp.Export(filePath, exp.ExportToDataSet());
         }

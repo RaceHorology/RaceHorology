@@ -46,7 +46,7 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
-  public class ExportBase
+  public class RaceExportBase
   {
     public delegate object GetterFunc(Race race, RaceParticipant rp);
 
@@ -63,7 +63,7 @@ namespace RaceHorologyLib
     protected Race _race;
 
 
-    protected ExportBase(Race race)
+    protected RaceExportBase(Race race)
     {
       _race = race;
 
@@ -129,9 +129,9 @@ namespace RaceHorologyLib
 
 
 
-  public class Export : ExportBase
+  public class RaceExport : RaceExportBase
   {
-    public Export(Race race)
+    public RaceExport(Race race)
       : base(race)
     {
       addColumns();
@@ -263,7 +263,7 @@ namespace RaceHorologyLib
   }
 
 
-  public class DSVAlpinExport : ExportBase
+  public class DSVAlpinExport : RaceExportBase
   {
     public DSVAlpinExport(Race race)
       : base(race)

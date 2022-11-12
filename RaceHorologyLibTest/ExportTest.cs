@@ -118,7 +118,7 @@ namespace RaceHorologyLibTest
       rr1.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 1, 1));
       rr1.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);
 
-      Export export = new Export(tg.Model.GetRace(0));
+      RaceExport export = new RaceExport(tg.Model.GetRace(0));
       DataSet ds = export.ExportToDataSet();
 
       Assert.AreEqual("Name 1", ds.Tables[0].Rows[0]["Name"]);
