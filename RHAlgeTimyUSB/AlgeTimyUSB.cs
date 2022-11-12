@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace RHAlgeTimyUSB
 {
@@ -110,6 +111,9 @@ namespace RHAlgeTimyUSB
     {
       Logger.Info("Stop()");
 
+      if (_timy == null)
+        return;
+
       setInternalStatus(EInternalStatus.Stopped);
 
       _timy.DeviceConnected -= _timy_DeviceConnected;
@@ -158,38 +162,6 @@ namespace RHAlgeTimyUSB
     }
     public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
-    #region IHandTiming
-    public void Connect()
-    {
-      throw new NotImplementedException();
-    }
-
-    public void Disconnect()
-    {
-      throw new NotImplementedException();
-    }
-
-    public void StartGetTimingData()
-    {
-      throw new NotImplementedException();
-    }
-
-    public IEnumerable<TimingData> TimingData()
-    {
-      throw new NotImplementedException();
-    }
-
-    public void Dispose()
-    {
-      throw new NotImplementedException();
-    }
-
-    public void DoProgressReport(IProgress<StdProgress> progress)
-    {
-      throw new NotImplementedException();
-    }
-    #endregion
-
     #region Implementation of ILiveTimeMeasurementDeviceDebugInfo
     public event RawMessageReceivedEventHandler RawMessageReceived;
 
@@ -209,4 +181,167 @@ namespace RHAlgeTimyUSB
     }
     #endregion
   }
+
+
+
+  public class AlgeTimyHTUSB : IHandTiming
+  {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+    ALGETdC8001LineParser _parser;
+    Alge.TimyUsb _timy;
+    BufferBlock<string> _buffer;
+
+    TaskCompletionSource<string> _connectSignal = new TaskCompletionSource<string>();
+
+    public AlgeTimyHTUSB()
+    {
+      _parser = new ALGETdC8001LineParser();
+    }
+
+    public void Connect()
+    {
+      Logger.Info("Connect()");
+
+      _buffer = new BufferBlock<string>();
+      _timy = new Alge.TimyUsb();
+
+      _timy.DeviceConnected += _timy_DeviceConnected;
+      _timy.DeviceDisconnected += _timy_DeviceDisconnected;
+      _timy.LineReceived += _timy_LineReceived;
+      _timy.Start();
+
+      if (!_connectSignal.Task.Wait(2000))
+        throw new Exception("Verbindung zu ALGE Timy kann nicht aufgebaut werden");
+    }
+
+    public void Disconnect()
+    {
+      Logger.Info("Disconnect()");
+
+      if (_timy == null)
+        return;
+
+      _timy.DeviceConnected -= _timy_DeviceConnected;
+      _timy.DeviceDisconnected -= _timy_DeviceDisconnected;
+      _timy.LineReceived -= _timy_LineReceived;
+      _timy.Stop();
+      _timy.Dispose();
+      _timy = null;
+      _buffer = null;
+
+    }
+
+    private void _timy_LineReceived(object sender, Alge.DataReceivedEventArgs e)
+    {
+      string dataLine = e.Data;
+      Logger.Info("data received: {0}", dataLine);
+
+      _buffer.Post(dataLine);
+    }
+
+    private void _timy_DeviceDisconnected(object sender, Alge.DeviceChangedEventArgs e)
+    {
+      Logger.Info("timy dis-connected: {0}", e.Device.ToString());
+    }
+
+    private void _timy_DeviceConnected(object sender, Alge.DeviceChangedEventArgs e)
+    {
+      Logger.Info("timy connected: {0}", e.Device.ToString());
+
+      _connectSignal.SetResult(e.Device.ToString());
+    }
+
+    public void StartGetTimingData()
+    {
+      _timy.Send("");    // Sending an empty command, let the Timy answer for the second time ... no clue why this is the case ...
+      _timy.Send("RSM"); // RSM transfers the stored times
+    }
+
+    public IEnumerable<TimingData> TimingData()
+    {
+      do
+      {
+        try
+        {
+          string dataLine = _buffer.Receive(new TimeSpan(0, 0, 10));
+          if (dataLine.StartsWith("  ALGE-TIMING")) // END marker
+          {
+            // End of data => read two more lines
+            _buffer.Receive(); // "  TIMY V 1982"
+            _buffer.Receive(); // "20-10-04  16:54"
+            break;
+          }
+          _parser.Parse(dataLine);
+        }
+        catch (TimeoutException)
+        {
+          break; // no new data
+        }
+        catch (Exception)
+        { }
+
+        if (_parser.TimingData != null)
+        {
+          TimingData td = new TimingData
+          {
+            Time = _parser.TimingData.Time
+          };
+
+          reportProgress(td.Time.ToString());
+
+          yield return td;
+        }
+      } while (true);
+
+      reportFinal();
+    }
+
+    #region IDispose
+
+    private bool disposedValue;
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        if (disposing)
+        {
+          reportFinal();
+          Disconnect();
+        }
+
+        disposedValue = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+      Dispose(disposing: true);
+      GC.SuppressFinalize(this);
+    }
+
+    #endregion
+
+    #region IHasProgress implementation
+
+    IProgress<StdProgress> _progress;
+
+    public void DoProgressReport(IProgress<StdProgress> progress)
+    {
+      _progress = progress;
+    }
+
+    private void reportProgress(string current)
+    {
+      _progress?.Report(new StdProgress { CurrentStatus = current });
+    }
+    private void reportFinal()
+    {
+      _progress?.Report(new StdProgress { Finished = true });
+    }
+    #endregion
+  }
+
+
 }
