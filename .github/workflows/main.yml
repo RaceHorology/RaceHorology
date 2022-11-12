@@ -159,7 +159,7 @@ jobs:
       - name: Create release entry on GitHub
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-*.msi
           prerelease: false
           tag: ${{ needs.build.outputs.version_tag }}
           commit: ${{ needs.build.outputs.commit }}
@@ -179,7 +179,7 @@ jobs:
       - name: Upload as pre-release 
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-*.msi
           prerelease: true
           tag: pre-${{ needs.build.outputs.version }}
           name: Automatic build from main pre-${{ needs.build.outputs.version }}
