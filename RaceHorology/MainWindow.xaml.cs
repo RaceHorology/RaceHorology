@@ -95,6 +95,7 @@ namespace RaceHorology
     DSVAlpin2HTTPServer _alpinServer;
     string _appTitle;
 
+    RHAlgeTimyUSB.AlgeTimyUSB _timyUSB;
 
     /// <summary>
     /// Constructor of MainWindow
@@ -120,6 +121,8 @@ namespace RaceHorology
       StartDSVAlpinServer();
 
       UpdateLiveTimingDeviceStatus(null, null);
+
+      _timyUSB = new RHAlgeTimyUSB.AlgeTimyUSB();
     }
 
     protected override void OnClosed(EventArgs e)
@@ -464,8 +467,12 @@ namespace RaceHorology
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
       ILiveTimeMeasurementDevice newTimingDevice = null;
-      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE")) {
+      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE TdC")) {
         newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE Timy (via USB)"))
+      {
+        newTimingDevice = new RHAlgeTimyUSB.AlgeTimyUSB();
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
         var hostname = Properties.Settings.Default.TimingDevice_Url;

@@ -84,12 +84,13 @@ jobs:
       - name: Build Installer
         run: |
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
+           ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
 
       - name: Upload Installer
         uses: actions/upload-artifact@v3
         with:
           name: installer_RaceHorology
-          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup*.msi
           retention-days: 21
 
 
@@ -158,7 +159,7 @@ jobs:
       - name: Create release entry on GitHub
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
           prerelease: false
           tag: ${{ needs.build.outputs.version_tag }}
           commit: ${{ needs.build.outputs.commit }}
@@ -178,7 +179,7 @@ jobs:
       - name: Upload as pre-release 
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
           prerelease: true
           tag: pre-${{ needs.build.outputs.version }}
           name: Automatic build from main pre-${{ needs.build.outputs.version }}
