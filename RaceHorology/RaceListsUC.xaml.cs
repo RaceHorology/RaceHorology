@@ -642,8 +642,9 @@ namespace RaceHorology
       List<ExportConfig> exportConfigs = new List<ExportConfig>
       {
         { new ExportConfig { Name = "Alpenhunde - Startliste", ExportFunc = ExportUI.ExportAlpenhundeStartList, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
+        { new ExportConfig { Name = "Excel - Startliste", ExportFunc = ExportUI.ExportGenericStartListXLSX, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
+        { new ExportConfig { Name = "CSV - Startliste", ExportFunc = ExportUI.ExportGenericStartListCSV, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
       };
-
       mbtnExport.Items.Clear();
       foreach (var config in exportConfigs)
       {

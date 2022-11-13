@@ -583,4 +583,30 @@ namespace RaceHorologyLib
     }
   }
 
+  public class GenericStartlistExport : ViewExportBase<StartListEntry>
+  {
+    public GenericStartlistExport(ICollectionView view)
+      : base(view)
+    {
+      AddField("StartNumber", typeof(uint), (item) => { return item.item.Participant.StartNumber; });
+
+      AddField("StartGroup", typeof(string), (item) => { return item.group; });
+
+      AddField("Id", typeof(string), (item) => { return item.item.Participant.Id; });
+      AddField("CodeOrId", typeof(string), (item) => { return item.item.Participant.Participant.CodeOrSvId; });
+
+      AddField("Name", typeof(string), (item) => { return item.item.Participant.Name; });
+      AddField("Firstname", typeof(string), (item) => { return item.item.Participant.Firstname; });
+      AddField("Fullname", typeof(string), (item) => { return item.item.Participant.Fullname; });
+      AddField("Category", typeof(string), (item) => { return item.item.Participant.Sex; });
+      AddField("Year", typeof(uint), (item) => { return item.item.Participant.Year; });
+      AddField("Club", typeof(string), (item) => { return item.item.Participant.Club; });
+      AddField("Nation", typeof(string), (item) => { return item.item.Participant.Nation; });
+
+      AddField("Class", typeof(string), (item) => { return item.item.Participant.Class; });
+      AddField("Group", typeof(string), (item) => { return item.item.Participant.Group; });
+    }
+  }
+
+
 }

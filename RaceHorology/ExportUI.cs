@@ -147,10 +147,42 @@ namespace RaceHorology
         );
     }
 
+    public static string ExportGenericStartListCSV(Race race, ICollectionView view)
+    {
+      return ExportHelper<ICollectionView>.ExportToTextFile(
+        race, view,
+        "Comma Separated Text File (.csv)|*.csv|" +
+        "Comma Separated Text File - UTF-8 (.csv)|*.csv",
+        ".csv",
+        (obj, filePath, utf8) =>
+        {
+          var exp = new GenericStartlistExport(obj);
+          var tsvExp = new CsvExport();
+          tsvExp.Export(filePath, exp.ExportToDataSet(), utf8);
+        }
+      );
+    }
+    public static string ExportGenericStartListXLSX(Race race, ICollectionView view)
+    {
+      return ExportHelper<ICollectionView>.ExportToTextFile(
+        race, view,
+          "Microsoft Excel (.xlsx)|*.xslx", ".xlsx",
+          (obj, filePath, utf8) =>
+          {
+            var exp = new GenericStartlistExport(obj);
+            var tsvExp = new ExcelExport();
+            tsvExp.Export(filePath, exp.ExportToDataSet());
+          }
+        );
+    }
+
+
+
+
   }
 
 
-public static class ExportHelper<Type>
+  public static class ExportHelper<Type>
   {
     public delegate void exportDelegate(Type exportObject, string filepath, bool utf8);
     public static string ExportToTextFile(Race race, Type exportObject, string fileDialogFilter, string suffix, exportDelegate expDelegate)
