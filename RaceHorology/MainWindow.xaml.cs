@@ -650,7 +650,6 @@ namespace RaceHorology
 
     private void exportMenu_Click(object sender, RoutedEventArgs e)
     {
-      // Get the corresponding FileInfo object.
       MenuItem menu_item = sender as MenuItem;
       if (menu_item != null && menu_item.Tag != null)
       {

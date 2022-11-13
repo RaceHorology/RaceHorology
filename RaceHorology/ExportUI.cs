@@ -36,6 +36,7 @@
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -131,10 +132,25 @@ namespace RaceHorology
         }
       );
     }
+
+    public static string ExportAlpenhundeStartList(Race race, ICollectionView view)
+    {
+      return ExportHelper<ICollectionView>.ExportToTextFile(
+        race, view,
+          "Alpenhunde - UTF-8 CSV (.csv)|*.csv", ".csv",
+          (obj, filePath, utf8) =>
+          {
+            var exp = new AlpenhundeStartlistExport(obj);
+            var tsvExp = new CsvExport();
+            tsvExp.Export(filePath, exp.ExportToDataSet(), utf8, ";");
+          }
+        );
+    }
+
   }
 
 
-  public static class ExportHelper<Type>
+public static class ExportHelper<Type>
   {
     public delegate void exportDelegate(Type exportObject, string filepath, bool utf8);
     public static string ExportToTextFile(Race race, Type exportObject, string fileDialogFilter, string suffix, exportDelegate expDelegate)

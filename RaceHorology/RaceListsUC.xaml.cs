@@ -42,6 +42,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Ribbon;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -233,6 +234,7 @@ namespace RaceHorology
       _thisRace = race;
 
       initialize();
+      configureExport();
     }
 
     public void UpdateAll()
@@ -617,23 +619,46 @@ namespace RaceHorology
     }
 
 
-
-
-    private void BtnExportAlpenhunde_Click(object sender, RoutedEventArgs e)
+    struct ExportConfig
     {
-      ExportHelper<ICollectionView>.ExportToTextFile(
-        _thisRace, dgView.ItemsSource as ICollectionView,
-        "Alpenhunde - UTF-8 CSV (.csv)|*.csv", ".csv",
-        (obj, filePath, utf8) =>
-        {
-          var exp = new AlpenhundeStartlistExport(obj);
-          var tsvExp = new CsvExport();
-          tsvExp.Export(filePath, exp.ExportToDataSet(), utf8, ";");
-        }
-      );
+      public string Name;
+      public Func<bool> MatchSelectedListFunc;
+      public Func<Race, ICollectionView, string> ExportFunc;
+    };
+
+
+    private void configureExport()
+    {
+      List<ExportConfig> exportConfigs = new List<ExportConfig>
+      {
+        { new ExportConfig { Name = "Alpenhunde - Startliste", ExportFunc = ExportUI.ExportAlpenhundeStartList } },
+      };
+
+      foreach (var config in exportConfigs)
+      {
+        var item = new RibbonMenuItem();
+        item.Header = config.Name;
+        item.Click += ExportItem_Click;
+        item.Tag = config;
+        mbtnExport.Items.Add(item);
+      }
     }
 
-    
+    private void ExportItem_Click(object sender, RoutedEventArgs e)
+    {
+      MenuItem menu_item = sender as MenuItem;
+      if (menu_item != null && menu_item.Tag != null)
+      {
+        ExportConfig exportConfig = (ExportConfig)menu_item.Tag;
+        var exportedFile = exportConfig.ExportFunc(_thisRace, dgView.ItemsSource as ICollectionView);
+        if (exportedFile != null)
+        {
+          var dlg = new ExportResultDlg(String.Format("Export - {0}", exportConfig.Name), exportedFile, string.Format("Der Export war erfolgreich."));
+          dlg.Owner = Window.GetWindow(this);
+          dlg.ShowDialog();
+        }
+      }
+    }
 
 
     public static void CreateAndOpenReport(IPDFReport report)
