@@ -625,7 +625,7 @@ namespace RaceHorology
     struct ExportConfig
     {
       public string Name;
-      public Action<Race> ExportFunc;
+      public Func<Race, string> ExportFunc;
     };
 
     private void configureEpxortMenu(MenuItem menuExport)
@@ -657,7 +657,11 @@ namespace RaceHorology
         var race = _dataModel.GetCurrentRace();
         ExportConfig exportConfig = (ExportConfig)menu_item.Tag;
         if (race != null)
-          exportConfig.ExportFunc(race);
+        {
+          var exportedFile = exportConfig.ExportFunc(race);
+          if (exportedFile != null)
+            MessageBox.Show(string.Format("Der Export war erfolgreich."), String.Format("Export - {0}", exportConfig.Name));
+        }
       }
     }
   }

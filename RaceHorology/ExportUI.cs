@@ -45,7 +45,7 @@ namespace RaceHorology
 {
   public static class ExportUI
   {
-    public static void ExportDsv(Race race)
+    public static string ExportDsv(Race race)
     {
       string filePath = System.IO.Path.Combine(
         race.GetDataModel().GetDB().GetDBPathDirectory(),
@@ -64,7 +64,7 @@ namespace RaceHorology
           DSVExport dsvExport = new DSVExport();
           dsvExport.Export(filePath, race);
 
-          MessageBox.Show(string.Format("Der DSV Export war erfolgreich."), "DSV Export");
+          return filePath;
         }
       }
       catch (DSVExportException ex)
@@ -81,12 +81,13 @@ namespace RaceHorology
           "Fehler",
           System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
       }
+      return null;
     }
 
 
-    public static void ExportDsvAlpin(Race race)
+    public static string ExportDsvAlpin(Race race)
     {
-      ExportHelper<Race>.ExportToTextFile(
+      return ExportHelper<Race>.ExportToTextFile(
         race, race,
         "DSVAlpin - Tab Separated Text File (.txt)|*.txt|" +
         "DSVAlpin - Tab Separated Text File - UTF-8 (.txt)|*.txt",
@@ -101,9 +102,9 @@ namespace RaceHorology
     }
 
 
-    public static void ExportCSV(Race race)
+    public static string ExportCSV(Race race)
     {
-      ExportHelper<Race>.ExportToTextFile(
+      return ExportHelper<Race>.ExportToTextFile(
         race, race,
         "Comma Separated Text File (.csv)|*.csv|" +
         "Comma Separated Text File - UTF-8 (.csv)|*.csv",
@@ -117,9 +118,9 @@ namespace RaceHorology
       );
     }
 
-    public static void ExportXLSX(Race race)
+    public static string ExportXLSX(Race race)
     {
-      ExportHelper<Race>.ExportToTextFile(
+      return ExportHelper<Race>.ExportToTextFile(
         race, race,
         "Microsoft Excel (.xlsx)|*.xslx", ".xlsx",
         (locRace, filePath, utf8) =>
@@ -136,7 +137,7 @@ namespace RaceHorology
   public static class ExportHelper<Type>
   {
     public delegate void exportDelegate(Type exportObject, string filepath, bool utf8);
-    public static void ExportToTextFile(Race race, Type exportObject, string fileDialogFilter, string suffix, exportDelegate expDelegate)
+    public static string ExportToTextFile(Race race, Type exportObject, string fileDialogFilter, string suffix, exportDelegate expDelegate)
     {
       string filePath = System.IO.Path.Combine(
         race.GetDataModel().GetDB().GetDBPathDirectory(),
@@ -159,6 +160,7 @@ namespace RaceHorology
           bool utf8 = appliedFilter.Contains("UTF-8");
 
           expDelegate(exportObject, filePath, utf8);
+          return filePath;
         }
       }
       catch (Exception ex)
@@ -168,6 +170,8 @@ namespace RaceHorology
           "Fehler",
           System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
       }
+
+      return null;
     }
   }
 
