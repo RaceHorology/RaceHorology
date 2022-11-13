@@ -88,10 +88,6 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Button x:Name="btnExportAlpenhunde" Content="Export Alpenhunde" Padding="5" Margin="5" Grid.Row="0" Grid.Column="1" Click="BtnExportAlpenhunde_Click"/>
-      <Button x:Name="btnExportDSVAlpin" Content="Export DSVAlpin" Padding="5" Margin="5" Grid.Row="0" Grid.Column="2" Click="BtnExportDsvAlpin_Click"/>
-      <Button x:Name="btnExportCSV" Content="Export CSV" Margin="5" Padding="5" Grid.Row="0" Grid.Column="3" Click="BtnExportCsv_Click"/>
-      <Button x:Name="btnExportXLSX" Content="Export Excel" Margin="5" Padding="5" Grid.Row="0" Grid.Column="4" Click="BtnExportXlsx_Click"/>
-      <Button x:Name="btnExport" Content="Export DSV" Margin="5" Padding="5" Grid.Row="0" Grid.Column="5" Click="BtnExportDsv_Click"/>
       <Button x:Name="btnPrint" Content="Drucken" Margin="5" Padding="5" Grid.Row="0" Grid.Column="6" Click="BtnPrint_Click"/>
 
       <CheckBox x:Name="chkPrintOptionWithRaceHeader" Content="Rennkopf drucken" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2"/>

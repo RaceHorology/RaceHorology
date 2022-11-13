@@ -127,6 +127,7 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ExportUI.cs" />
     <Compile Include="QRCodeDlg.xaml.cs">
       <DependentUpon>QRCodeDlg.xaml</DependentUpon>
     </Compile>
