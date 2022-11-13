@@ -660,7 +660,11 @@ namespace RaceHorology
         {
           var exportedFile = exportConfig.ExportFunc(race);
           if (exportedFile != null)
-            MessageBox.Show(string.Format("Der Export war erfolgreich."), String.Format("Export - {0}", exportConfig.Name));
+          {
+            var dlg = new ExportResultDlg(String.Format("Export - {0}", exportConfig.Name), exportedFile, string.Format("Der Export war erfolgreich."));
+            dlg.Owner = Window.GetWindow(this);
+            dlg.ShowDialog();
+          }
         }
       }
     }
