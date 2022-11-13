@@ -1,3 +1,38 @@
+/*
+ *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  
+ *  This file is part of Race Horology.
+ *
+ *  Race Horology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ * 
+ *  Race Horology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Race Horology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Diese Datei ist Teil von Race Horology.
+ *
+ *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  der GNU Affero General Public License, wie von der Free Software Foundation,
+ *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+ *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *
+ *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
+ *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License für weitere Details.
+ *
+ *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
+ *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ * 
+ */
+
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -7,6 +42,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Ribbon;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -198,6 +234,7 @@ namespace RaceHorology
       _thisRace = race;
 
       initialize();
+      configureExport(null);
     }
 
     public void UpdateAll()
@@ -282,6 +319,8 @@ namespace RaceHorology
           displayView(selObj.RaceRun.GetResultViewProvider());
         else if (selObj.Type == "startlist_run")
           displayView(selObj.RaceRun.GetStartListProvider());
+
+        configureExport(selected);
       }
     }
 
@@ -581,128 +620,59 @@ namespace RaceHorology
       }
     }
 
-    private void BtnExportDsv_Click(object sender, RoutedEventArgs e)
+
+    struct ExportConfig
     {
-      string filePath = System.IO.Path.Combine(
-        _thisRace.GetDataModel().GetDB().GetDBPathDirectory(),
-        System.IO.Path.GetFileNameWithoutExtension(_thisRace.GetDataModel().GetDB().GetDBFileName()) + ".zip");
+      public string Name;
+      public Func<CBItem, bool> MatchSelectedListFunc;
+      public Func<Race, ICollectionView, string> ExportFunc;
+    };
 
-      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
-      openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
-      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
-      openFileDialog.DefaultExt = ".zip";
-      openFileDialog.Filter = "DSV Results (.zip)|*.zip";
-      try
-      {
-        if (openFileDialog.ShowDialog() == true)
-        {
-          filePath = openFileDialog.FileName;
-          DSVExport dsvExport = new DSVExport();
-          dsvExport.Export(filePath, _thisRace);
-
-          MessageBox.Show(string.Format("Der DSV Export war erfolgreich."), "DSV Export");
-        }
-      }
-      catch (DSVExportException ex)
-      {
-        System.Windows.MessageBox.Show(
-          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\nFehlermeldung: " + ex.GetHumanReadableError(),
-          "Fehler",
-          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
-      }
-      catch (Exception ex)
-      {
-        System.Windows.MessageBox.Show(
-          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
-          "Fehler",
-          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
-      }
+    private static bool MatchSelected(CBItem selected, string type)
+    {
+      CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
+      if (selObj != null && selObj.Type == type)
+        return true;
+      return false;
     }
 
 
-    private void BtnExportDsvAlpin_Click(object sender, RoutedEventArgs e)
+    private void configureExport(CBItem selectedList)
     {
-
-      exportToTextFile
-        ("DSVAlpin - Tab Separated Text File (.txt)|*.txt|" +
-         "DSVAlpin - Tab Separated Text File - UTF-8 (.txt)|*.txt"
-        ,".txt",
-        (Race race, string filePath, bool utf8) =>
-        {
-          DSVAlpinExport exp = new DSVAlpinExport(race);
-          TsvExport tsvExp = new TsvExport();
-          tsvExp.Export(filePath, exp.ExportToDataSet(), utf8);
-        }
-      );
-    }
-
-
-    private void BtnExportCsv_Click(object sender, RoutedEventArgs e)
-    {
-
-      exportToTextFile
-        ("Comma Separated Text File (.csv)|*.csv|" +
-         "Comma Separated Text File - UTF-8 (.csv)|*.csv"
-        ,".csv",
-        (Race race, string filePath, bool utf8) =>
-        {
-          Export exp = new Export(race);
-          CsvExport csvExp = new CsvExport();
-          csvExp.Export(filePath, exp.ExportToDataSet(), utf8);
-        }
-      );
-    }
-
-    private void BtnExportXlsx_Click(object sender, RoutedEventArgs e)
-    {
-      exportToTextFile
-        ("Microsoft Excel (.xlsx)|*.xslx",
-        ".xlsx",
-        (Race race, string filePath, bool utf8) =>
-        {
-          Export exp = new Export(race);
-          ExcelExport csvExp = new ExcelExport();
-          csvExp.Export(filePath, exp.ExportToDataSet());
-        }
-      );
-    }
-
-
-    delegate void exportDelegate(Race race, string filepath, bool utf8);
-    private void exportToTextFile(string fileDialogFilter, string suffix, exportDelegate expDelegate)
-    {
-      string filePath = System.IO.Path.Combine(
-        _thisRace.GetDataModel().GetDB().GetDBPathDirectory(),
-        System.IO.Path.GetFileNameWithoutExtension(_thisRace.GetDataModel().GetDB().GetDBFileName()) + suffix);
-
-      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
-      openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
-      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
-      openFileDialog.DefaultExt = suffix;
-      openFileDialog.Filter = fileDialogFilter;
-      try
+      List<ExportConfig> exportConfigs = new List<ExportConfig>
       {
-        if (openFileDialog.ShowDialog() == true)
-        {
-          filePath = openFileDialog.FileName;
-
-          string appliedFilter;
-          string[] filterstring = openFileDialog.Filter.Split('|');
-          appliedFilter = filterstring[(openFileDialog.FilterIndex - 1) * 2];
-          bool utf8 = appliedFilter.Contains("UTF-8");
-
-          expDelegate(_thisRace, filePath, utf8);
-        }
-      }
-      catch (Exception ex)
+        { new ExportConfig { Name = "Alpenhunde - Startliste", ExportFunc = ExportUI.ExportAlpenhundeStartList, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
+        { new ExportConfig { Name = "Excel - Startliste", ExportFunc = ExportUI.ExportGenericStartListXLSX, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
+        { new ExportConfig { Name = "CSV - Startliste", ExportFunc = ExportUI.ExportGenericStartListCSV, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
+      };
+      mbtnExport.Items.Clear();
+      foreach (var config in exportConfigs)
       {
-        System.Windows.MessageBox.Show(
-          "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
-          "Fehler",
-          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+        bool enabled = selectedList != null && config.MatchSelectedListFunc(selectedList);
+        var item = new RibbonMenuItem();
+        item.Header = config.Name;
+        item.Click += ExportItem_Click;
+        item.Tag = config;
+        item.IsEnabled = enabled;
+        mbtnExport.Items.Add(item);
       }
     }
 
+    private void ExportItem_Click(object sender, RoutedEventArgs e)
+    {
+      MenuItem menu_item = sender as MenuItem;
+      if (menu_item != null && menu_item.Tag != null)
+      {
+        ExportConfig exportConfig = (ExportConfig)menu_item.Tag;
+        var exportedFile = exportConfig.ExportFunc(_thisRace, dgView.ItemsSource as ICollectionView);
+        if (exportedFile != null)
+        {
+          var dlg = new ExportResultDlg(String.Format("Export - {0}", exportConfig.Name), exportedFile, string.Format("Der Export war erfolgreich."));
+          dlg.Owner = Window.GetWindow(this);
+          dlg.ShowDialog();
+        }
+      }
+    }
 
 
     public static void CreateAndOpenReport(IPDFReport report)

@@ -37,45 +37,56 @@ using ClosedXML.Excel;
 using CsvHelper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace RaceHorologyLib
 {
 
-  public class ExportBase
+  interface IDataSetExporter
   {
-    public delegate object GetterFunc(Race race, RaceParticipant rp);
+    DataSet ExportToDataSet();
+  }
 
-    class ExportField
+
+  public abstract class ExportBase<GetterBaseType> : IDataSetExporter
+  {
+    public delegate object GetterFunc(GetterBaseType input);
+
+    protected class ExportField
     {
       public string Name;
-
       public Type @Type;
-
       public GetterFunc Getter;
     }
 
-    List<ExportField> _exportField;
-    protected Race _race;
+    protected List<ExportField> _exportField;
 
-
-    protected ExportBase(Race race)
+    protected ExportBase()
     {
-      _race = race;
-
       _exportField = new List<ExportField>();
     }
-
 
     public void AddField(string name, Type type, GetterFunc getter)
     {
       _exportField.Add(new ExportField { Name = name, Type = type, Getter = getter });
     }
 
+
+    protected void addColumns(DataTable table)
+    {
+      foreach (var ef in _exportField)
+      {
+        table.Columns.Add(ef.Name, ef.Type);
+      }
+    }
+
+    abstract protected void exportData(DataTable table);
 
     virtual protected DataTable createTable(DataSet ds)
     {
@@ -84,13 +95,29 @@ namespace RaceHorologyLib
       return table;
     }
 
-    virtual protected void addColumns(DataTable table)
+    public DataSet ExportToDataSet()
     {
-      foreach( var ef in _exportField)
-      {
-        table.Columns.Add(ef.Name, ef.Type);
-      }
+      DataSet ds = new DataSet();
+      DataTable table = createTable(ds);
+      exportData(table);
+      return ds;
     }
+  }
+
+  public class RaceExportBase : ExportBase<RaceExportBase.BaseType>
+  {
+    public struct BaseType {
+      public Race race; 
+      public RaceParticipant rp;
+    }
+
+    protected Race _race;
+
+    protected RaceExportBase(Race race)
+    {
+      _race = race;
+    }
+
 
     virtual protected DataRow createDataRow(DataTable table, RaceParticipant rp)
     {
@@ -98,7 +125,8 @@ namespace RaceHorologyLib
 
       foreach (var ef in _exportField)
       {
-        var val = ef.Getter(_race, rp);
+        var toGet = new BaseType { race = _race, rp = rp };
+        var val = ef.Getter( toGet );
         if (val != null)
           row[ef.Name] = val;
         else
@@ -108,30 +136,87 @@ namespace RaceHorologyLib
       return row;
     }
 
-
-    public DataSet ExportToDataSet()
+    override protected void exportData(DataTable table)
     {
-      DataSet ds = new DataSet();
-
-      DataTable table = createTable(ds);
-
       foreach (var rp in _race.GetParticipants())
       {
         DataRow row = createDataRow(table, rp);
         table.Rows.Add(row);
       }
+    }
+  }
 
-      return ds;
+  public class ViewExportBase<LineType> : ExportBase<ViewExportBase<LineType>.BaseType> where LineType : class
+  {
+    public struct BaseType
+    {
+      public LineType item;
+      public string group;
     }
 
+
+
+    ICollectionView _view;
+
+    public ViewExportBase(ICollectionView view)
+    {
+      _view = view;
+    }
+
+
+    virtual protected DataRow createDataRow(DataTable table, BaseType item)
+    {
+      DataRow row = table.NewRow();
+
+      foreach (var ef in _exportField)
+      {
+        var val = ef.Getter(item);
+        if (val != null)
+          row[ef.Name] = val;
+        else
+          row[ef.Name] = DBNull.Value;
+      }
+
+      return row;
+    }
+
+    ICollectionView getView()
+    {
+      return _view;
+    }
+
+    override protected void exportData(DataTable table)
+    {
+      void addRow(DataRow row)
+      {
+        table.Rows.Add(row);
+      }
+
+      var results = getView();
+      var lr = results as ListCollectionView;
+      if (results.Groups != null)
+      {
+        foreach (var group in results.Groups)
+        {
+          var cvGroup = group as CollectionViewGroup;
+          foreach (var item in cvGroup.Items)
+            addRow(createDataRow(table, new BaseType { item = item as LineType, group = cvGroup.GetName() }));
+        }
+      }
+      else
+      {
+        foreach (var item in results.SourceCollection)
+          addRow(createDataRow(table, new BaseType { item = item as LineType }));
+      }
+    }
   }
 
 
 
 
-  public class Export : ExportBase
+  public class RaceExport : RaceExportBase
   {
-    public Export(Race race)
+    public RaceExport(Race race)
       : base(race)
     {
       addColumns();
@@ -140,32 +225,32 @@ namespace RaceHorologyLib
 
     void addColumns()
     {
-      AddField("Id", typeof(string), (Race race, RaceParticipant rp) => { return rp.Id; });
-      AddField("CodeOrId", typeof(string), (Race race, RaceParticipant rp) => { return rp.Participant.CodeOrSvId; });
+      AddField("Id", typeof(string), (item) => { return item.rp.Id; });
+      AddField("CodeOrId", typeof(string), (item) => { return item.rp.Participant.CodeOrSvId; });
 
-      AddField("Name", typeof(string), (Race race, RaceParticipant rp) => { return rp.Name; });
-      AddField("Firstname", typeof(string), (Race race, RaceParticipant rp) => { return rp.Firstname; });
-      AddField("Fullname", typeof(string), (Race race, RaceParticipant rp) => { return rp.Fullname; });
-      AddField("Category", typeof(string), (Race race, RaceParticipant rp) => { return rp.Sex; });
-      AddField("Year", typeof(uint), (Race race, RaceParticipant rp) => { return rp.Year; });
-      AddField("Club", typeof(string), (Race race, RaceParticipant rp) => { return rp.Club; });
-      AddField("Nation", typeof(string), (Race race, RaceParticipant rp) => { return rp.Nation; });
+      AddField("Name", typeof(string), (item) => { return item.rp.Name; });
+      AddField("Firstname", typeof(string), (item) => { return item.rp.Firstname; });
+      AddField("Fullname", typeof(string), (item) => { return item.rp.Fullname; });
+      AddField("Category", typeof(string), (item) => { return item.rp.Sex; });
+      AddField("Year", typeof(uint), (item) => { return item.rp.Year; });
+      AddField("Club", typeof(string), (item) => { return item.rp.Club; });
+      AddField("Nation", typeof(string), (item) => { return item.rp.Nation; });
 
-      AddField("Class", typeof(string), (Race race, RaceParticipant rp) => { return rp.Class; });
-      AddField("Group", typeof(string), (Race race, RaceParticipant rp) => { return rp.Group; });
+      AddField("Class", typeof(string), (item) => { return item.rp.Class; });
+      AddField("Group", typeof(string), (item) => { return item.rp.Group; });
 
-      AddField("StartNumber", typeof(uint), (Race race, RaceParticipant rp) => { return rp.StartNumber; });
-      AddField("Points", typeof(double), (Race race, RaceParticipant rp) => { return rp.Points; });
+      AddField("StartNumber", typeof(uint), (item) => { return item.rp.StartNumber; });
+      AddField("Points", typeof(double), (item) => { return item.rp.Points; });
 
       addColumnsPerRun();
 
       AddField(
         "Totaltime",
         typeof(TimeSpan),
-        (Race race, RaceParticipant rp) =>
+        (item) =>
         {
-          var vp = race.GetResultViewProvider();
-          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          var vp = item.race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == item.rp);
           if (raceResult != null)
             if (raceResult.TotalTime != null)
               return raceResult.TotalTime;
@@ -177,10 +262,10 @@ namespace RaceHorologyLib
       AddField(
         "Totaltime_Seconds",
         typeof(double),
-        (Race race, RaceParticipant rp) =>
+        (item) =>
         {
-          var vp = race.GetResultViewProvider();
-          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          var vp = item.race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == item.rp);
           if (raceResult != null)
             if (raceResult.TotalTime != null)
               return ((TimeSpan)raceResult.TotalTime).TotalSeconds;
@@ -192,10 +277,10 @@ namespace RaceHorologyLib
       AddField(
         "Total_Position",
         typeof(int),
-        (Race race, RaceParticipant rp) =>
+        (item) =>
         {
-          var vp = race.GetResultViewProvider();
-          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          var vp = item.race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == item.rp);
           if (raceResult != null)
             if (raceResult.TotalTime != null)
               return raceResult.Position;
@@ -207,10 +292,10 @@ namespace RaceHorologyLib
       AddField(
         "Total_RacePoints",
         typeof(double),
-        (Race race, RaceParticipant rp) =>
+        (item) =>
         {
-          var vp = race.GetResultViewProvider();
-          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          var vp = item.race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == item.rp);
           if (raceResult != null)
             if (raceResult.Points >= 0.0)
               return string.Format(new System.Globalization.CultureInfo("de-DE"), "{0:0.00}", raceResult.Points);
@@ -228,9 +313,9 @@ namespace RaceHorologyLib
         AddField(
           string.Format("Runtime_{0}", rr.Run), 
           typeof(TimeSpan), 
-          (Race race, RaceParticipant rp) => 
+          (item) => 
           {
-            if (rr.GetRunResult(rp) is RunResult runRes)
+            if (rr.GetRunResult(item.rp) is RunResult runRes)
               return runRes.RuntimeWOResultCode;
             return null;
           }
@@ -239,9 +324,9 @@ namespace RaceHorologyLib
         AddField(
           string.Format("RuntimeSeconds_{0}", rr.Run),
           typeof(double),
-          (Race race, RaceParticipant rp) =>
+          (item) =>
           {
-            if (rr.GetRunResult(rp) is RunResult runRes && runRes.RuntimeWOResultCode != null)
+            if (rr.GetRunResult(item.rp) is RunResult runRes && runRes.RuntimeWOResultCode != null)
               return ((TimeSpan)runRes.RuntimeWOResultCode).TotalSeconds;
             return null;
           }
@@ -250,9 +335,9 @@ namespace RaceHorologyLib
         AddField(
           string.Format("Resultcode_{0}", rr.Run),
           typeof(string),
-          (Race race, RaceParticipant rp) =>
+          (item) =>
           {
-            if (rr.GetRunResult(rp) is RunResult runRes && runRes.ResultCode != RunResult.EResultCode.NotSet)
+            if (rr.GetRunResult(item.rp) is RunResult runRes && runRes.ResultCode != RunResult.EResultCode.NotSet)
               return runRes.ResultCode;
             return null;
           }
@@ -263,7 +348,7 @@ namespace RaceHorologyLib
   }
 
 
-  public class DSVAlpinExport : ExportBase
+  public class DSVAlpinExport : RaceExportBase
   {
     public DSVAlpinExport(Race race)
       : base(race)
@@ -273,25 +358,25 @@ namespace RaceHorologyLib
 
     void addColumns()
     {
-      AddField("Idnr", typeof(string), (Race race, RaceParticipant rp) => { return rp.Id; });
-      AddField("Stnr", typeof(uint), (Race race, RaceParticipant rp) => { return rp.StartNumber; });
-      AddField("DSV-ID", typeof(string), (Race race, RaceParticipant rp) => { return rp.Participant.CodeOrSvId; });
+      AddField("Idnr", typeof(string), (item) => { return item.rp.Id; });
+      AddField("Stnr", typeof(uint), (item) => { return item.rp.StartNumber; });
+      AddField("DSV-ID", typeof(string), (item) => { return item.rp.Participant.CodeOrSvId; });
 
-      AddField("Name", typeof(string), (Race race, RaceParticipant rp) => { return rp.Fullname; });
-      AddField("Kateg", typeof(string), (Race race, RaceParticipant rp) => { return rp.Sex.Name.ToString(); });
-      AddField("JG", typeof(uint), (Race race, RaceParticipant rp) => { return rp.Year; });
+      AddField("Name", typeof(string), (item) => { return item.rp.Fullname; });
+      AddField("Kateg", typeof(string), (item) => { return item.rp.Sex.Name.ToString(); });
+      AddField("JG", typeof(uint), (item) => { return item.rp.Year; });
 
-      AddField("V/G", typeof(string), (Race race, RaceParticipant rp) => { return rp.Nation; });
-      AddField("Verein", typeof(string), (Race race, RaceParticipant rp) => { return rp.Club; });
-      AddField("LPkte", typeof(string), (Race race, RaceParticipant rp) => { return string.Format(new System.Globalization.CultureInfo("de-DE"), "{0:0.00}", rp.Points); });
+      AddField("V/G", typeof(string), (item) => { return item.rp.Nation; });
+      AddField("Verein", typeof(string), (item) => { return item.rp.Club; });
+      AddField("LPkte", typeof(string), (item) => { return string.Format(new System.Globalization.CultureInfo("de-DE"), "{0:0.00}", item.rp.Points); });
 
       AddField(
         "Total", 
         typeof(string), 
-        (Race race, RaceParticipant rp) => 
+        (item) => 
         {
-          var vp = race.GetResultViewProvider();
-          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          var vp = item.race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == item.rp);
           if (raceResult != null)
           {
             if (raceResult.TotalTime != null)
@@ -316,16 +401,16 @@ namespace RaceHorologyLib
 
       addColumnsPerRun();
 
-      AddField("Klasse", typeof(string), (Race race, RaceParticipant rp) => { return rp.Class; });
-      AddField("Gruppe", typeof(string), (Race race, RaceParticipant rp) => { return rp.Group; });
+      AddField("Klasse", typeof(string), (item) => { return item.rp.Class; });
+      AddField("Gruppe", typeof(string), (item) => { return item.rp.Group; });
 
       AddField(
         "RPkte",
         typeof(string),
-        (Race race, RaceParticipant rp) =>
+        (item) =>
         {
-          var vp = race.GetResultViewProvider();
-          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == rp);
+          var vp = item.race.GetResultViewProvider();
+          var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == item.rp);
           if (raceResult != null)
           {
             if (raceResult.Points >= 0.0)
@@ -344,9 +429,9 @@ namespace RaceHorologyLib
         AddField(
           string.Format("Zeit {0}", rr.Run),
           typeof(string),
-          (Race race, RaceParticipant rp) =>
+          (item) =>
           {
-            if (rr.GetRunResult(rp) is RunResult runRes)
+            if (rr.GetRunResult(item.rp) is RunResult runRes)
               if (runRes.ResultCode == RunResult.EResultCode.Normal)
               {
                 if (runRes.RuntimeWOResultCode != null)
@@ -406,7 +491,7 @@ namespace RaceHorologyLib
 
   public class CsvExport
   {
-    public void Export(string path, DataSet ds, bool utf8)
+    public void Export(string path, DataSet ds, bool utf8, string delimiter = ",")
     {
       Encoding encoding;
       if (utf8)
@@ -414,8 +499,11 @@ namespace RaceHorologyLib
       else
         encoding = Encoding.GetEncoding("windows-1252");
 
+      var csvConfig = new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture);
+      csvConfig.Delimiter = delimiter;
+
       using (var textWriter = new StreamWriter(File.Open(path, FileMode.Create), encoding))
-      using (var csv = new CsvWriter(textWriter, System.Globalization.CultureInfo.InvariantCulture))
+      using (var csv = new CsvWriter(textWriter, csvConfig))
       {
         var dt = ds.Tables[0];
 
@@ -482,4 +570,43 @@ namespace RaceHorologyLib
       }
     }
   }
+
+
+  public class AlpenhundeStartlistExport : ViewExportBase<StartListEntry>
+  {
+    public AlpenhundeStartlistExport(ICollectionView view)
+      : base(view)
+    {
+      AddField("Short Name", typeof(uint), (item) => { return item.item.Participant.StartNumber; });
+      AddField("Full Name", typeof(string), (item) => { return item.item.Participant.Fullname; });
+      AddField("Team", typeof(string), (item) => { return item.group; });
+    }
+  }
+
+  public class GenericStartlistExport : ViewExportBase<StartListEntry>
+  {
+    public GenericStartlistExport(ICollectionView view)
+      : base(view)
+    {
+      AddField("StartNumber", typeof(uint), (item) => { return item.item.Participant.StartNumber; });
+
+      AddField("StartGroup", typeof(string), (item) => { return item.group; });
+
+      AddField("Id", typeof(string), (item) => { return item.item.Participant.Id; });
+      AddField("CodeOrId", typeof(string), (item) => { return item.item.Participant.Participant.CodeOrSvId; });
+
+      AddField("Name", typeof(string), (item) => { return item.item.Participant.Name; });
+      AddField("Firstname", typeof(string), (item) => { return item.item.Participant.Firstname; });
+      AddField("Fullname", typeof(string), (item) => { return item.item.Participant.Fullname; });
+      AddField("Category", typeof(string), (item) => { return item.item.Participant.Sex; });
+      AddField("Year", typeof(uint), (item) => { return item.item.Participant.Year; });
+      AddField("Club", typeof(string), (item) => { return item.item.Participant.Club; });
+      AddField("Nation", typeof(string), (item) => { return item.item.Participant.Nation; });
+
+      AddField("Class", typeof(string), (item) => { return item.item.Participant.Class; });
+      AddField("Group", typeof(string), (item) => { return item.item.Participant.Group; });
+    }
+  }
+
+
 }

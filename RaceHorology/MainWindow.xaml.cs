@@ -118,6 +118,8 @@ namespace RaceHorology
       _menuVM = new MainWindowMenuVM();
       mnuMain.DataContext = _menuVM;
 
+      configureEpxortMenu(mnuExport);
+
       StartDSVAlpinServer();
 
       UpdateLiveTimingDeviceStatus(null, null);
@@ -617,6 +619,52 @@ namespace RaceHorology
       {
         TimingDeviceDebugDlg debugDlg = new TimingDeviceDebugDlg(debugableTimingDevice);
         debugDlg.Show();
+      }
+    }
+
+    struct ExportConfig
+    {
+      public string Name;
+      public Func<Race, string> ExportFunc;
+    };
+
+    private void configureEpxortMenu(MenuItem menuExport)
+    {
+      List<ExportConfig> exportConfigs = new List<ExportConfig> {
+        { new ExportConfig { Name = "DSV (XML Format)", ExportFunc = ExportUI.ExportDsv } },
+        { new ExportConfig { Name = "Excel Export to DSV (XML)", ExportFunc = ExportUI.ExportXLSX } },
+        { new ExportConfig { Name = "CSV - Export", ExportFunc = ExportUI.ExportCSV } },
+        { new ExportConfig { Name = "rennmeldung.de", ExportFunc = ExportUI.ExportDsvAlpin } },
+        { new ExportConfig { Name = "DSV-Alpin (altes Format)", ExportFunc = ExportUI.ExportDsvAlpin } },
+      };
+
+      foreach (var config in exportConfigs)
+      {
+        MenuItem subMenu = new MenuItem();
+        subMenu.Header = config.Name;
+        subMenu.Tag = config;
+        subMenu.Click += exportMenu_Click;
+        menuExport.Items.Add(subMenu);
+      }
+    }
+
+    private void exportMenu_Click(object sender, RoutedEventArgs e)
+    {
+      MenuItem menu_item = sender as MenuItem;
+      if (menu_item != null && menu_item.Tag != null)
+      {
+        var race = _dataModel.GetCurrentRace();
+        ExportConfig exportConfig = (ExportConfig)menu_item.Tag;
+        if (race != null)
+        {
+          var exportedFile = exportConfig.ExportFunc(race);
+          if (exportedFile != null)
+          {
+            var dlg = new ExportResultDlg(String.Format("Export - {0}", exportConfig.Name), exportedFile, string.Format("Der Export war erfolgreich."));
+            dlg.Owner = Window.GetWindow(this);
+            dlg.ShowDialog();
+          }
+        }
       }
     }
   }

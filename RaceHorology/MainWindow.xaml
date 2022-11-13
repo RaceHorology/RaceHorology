@@ -59,8 +59,8 @@
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
         <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
       </MenuItem>
-      
-      <MenuItem Name="mnuOutputs"  Header="Berichte und Reports" Command="Properties" />
+
+      <MenuItem Name="mnuExport" Header="Daten-Export" IsEnabled="{Binding HasActiveRace}" />
 
       <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
     </Menu>

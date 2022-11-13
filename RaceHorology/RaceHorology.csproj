@@ -127,6 +127,10 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ExportResultDlg.xaml.cs">
+      <DependentUpon>ExportResultDlg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ExportUI.cs" />
     <Compile Include="QRCodeDlg.xaml.cs">
       <DependentUpon>QRCodeDlg.xaml</DependentUpon>
     </Compile>
@@ -221,6 +225,10 @@
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ExportResultDlg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
