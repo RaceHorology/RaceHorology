@@ -60,7 +60,7 @@
         <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
       </MenuItem>
 
-      <MenuItem Name="mnuExport" Header="Export" IsEnabled="{Binding HasActiveRace}" />
+      <MenuItem Name="mnuExport" Header="Daten-Export" IsEnabled="{Binding HasActiveRace}" />
 
       <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
     </Menu>
