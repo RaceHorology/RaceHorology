@@ -234,7 +234,7 @@ namespace RaceHorology
       _thisRace = race;
 
       initialize();
-      configureExport();
+      configureExport(null);
     }
 
     public void UpdateAll()
@@ -319,6 +319,8 @@ namespace RaceHorology
           displayView(selObj.RaceRun.GetResultViewProvider());
         else if (selObj.Type == "startlist_run")
           displayView(selObj.RaceRun.GetStartListProvider());
+
+        configureExport(selected);
       }
     }
 
@@ -622,24 +624,35 @@ namespace RaceHorology
     struct ExportConfig
     {
       public string Name;
-      public Func<bool> MatchSelectedListFunc;
+      public Func<CBItem, bool> MatchSelectedListFunc;
       public Func<Race, ICollectionView, string> ExportFunc;
     };
 
+    private static bool MatchSelected(CBItem selected, string type)
+    {
+      CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
+      if (selObj != null && selObj.Type == type)
+        return true;
+      return false;
+    }
 
-    private void configureExport()
+
+    private void configureExport(CBItem selectedList)
     {
       List<ExportConfig> exportConfigs = new List<ExportConfig>
       {
-        { new ExportConfig { Name = "Alpenhunde - Startliste", ExportFunc = ExportUI.ExportAlpenhundeStartList } },
+        { new ExportConfig { Name = "Alpenhunde - Startliste", ExportFunc = ExportUI.ExportAlpenhundeStartList, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
       };
 
+      mbtnExport.Items.Clear();
       foreach (var config in exportConfigs)
       {
+        bool enabled = selectedList != null && config.MatchSelectedListFunc(selectedList);
         var item = new RibbonMenuItem();
         item.Header = config.Name;
         item.Click += ExportItem_Click;
         item.Tag = config;
+        item.IsEnabled = enabled;
         mbtnExport.Items.Add(item);
       }
     }
