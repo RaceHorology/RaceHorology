@@ -632,7 +632,7 @@ namespace RaceHorology
     {
       List<ExportConfig> exportConfigs = new List<ExportConfig> {
         { new ExportConfig { Name = "DSV (XML Format)", ExportFunc = ExportUI.ExportDsv } },
-        { new ExportConfig { Name = "Excel Export to DSV (XML)", ExportFunc = ExportUI.ExportXLSX } },
+        { new ExportConfig { Name = "Excel Export", ExportFunc = ExportUI.ExportXLSX } },
         { new ExportConfig { Name = "CSV - Export", ExportFunc = ExportUI.ExportCSV } },
         { new ExportConfig { Name = "rennmeldung.de", ExportFunc = ExportUI.ExportDsvAlpin } },
         { new ExportConfig { Name = "DSV-Alpin (altes Format)", ExportFunc = ExportUI.ExportDsvAlpin } },
