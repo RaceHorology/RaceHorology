@@ -27,7 +27,7 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Label x:Name="lblTimingDevice" Content="Zeitmeßgerät:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
-          <ComboBox x:Name="cbTimingDevice" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionChanged="cbTimingDevice_SelectionChanged"/>
+          <ComboBox x:Name="cbTimingDevice" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="200" SelectionChanged="cbTimingDevice_SelectionChanged"/>
 
           <Label x:Name="lblTimingDevicePort" Content="Schnittstelle:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="1" Grid.Column="0"/>
           <ComboBox x:Name="cbTimingDevicePort" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
