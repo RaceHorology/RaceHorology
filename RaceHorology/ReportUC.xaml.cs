@@ -153,9 +153,16 @@ namespace RaceHorology
         reportGenerator.Generate(ms);
         var ms2 = new MemoryStream(ms.ToArray(), false);
 
+        var tempFile = System.IO.Path.GetTempFileName() + ".pdf";
+        FileStream fs = new FileStream(tempFile, FileMode.Create);
+        ms2.CopyTo(fs);
+        fs.Close();
+        cefBrower.LoadUrl(string.Format("file://{0}", tempFile));
+
         pdfViewer.Load(ms2);
         pdfViewer.ZoomMode = ZoomMode.FitPage;
         pdfViewer.CursorMode = PdfViewerCursorMode.HandTool;
+
       }
     }
 
