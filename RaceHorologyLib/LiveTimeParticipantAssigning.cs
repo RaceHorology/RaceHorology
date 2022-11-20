@@ -24,19 +24,26 @@ namespace RaceHorologyLib
       _valid = valid;
     }
 
-    public Timestamp(TimeSpan timeStamp, TimeMeasurementEventArgs orgTimeData, uint startnumber = 0)
+    public Timestamp(TimeMeasurementEventArgs orgTimeData)
     {
-      _timeStamp = timeStamp;
-      _startnumber = startnumber;
+      _startnumber = orgTimeData.StartNumber;
 
       if (orgTimeData.StartTime != null && orgTimeData.FinishTime == null)
+      {
         _measurementPoint = EMeasurementPoint.Start;
+        _timeStamp = (TimeSpan) orgTimeData.StartTime;
+      }
       else if (orgTimeData.StartTime == null && orgTimeData.FinishTime != null)
+      {
         _measurementPoint = EMeasurementPoint.Finish;
+        _timeStamp = (TimeSpan)orgTimeData.FinishTime;
+      }
       else
+      {
         _measurementPoint = EMeasurementPoint.Undefined;
+      }
 
-      _valid = orgTimeData != null ? orgTimeData.Valid : true;
+      _valid = orgTimeData.Valid;
     }
 
     public TimeSpan Time
@@ -117,12 +124,9 @@ namespace RaceHorologyLib
     {
       _syncContext.Send(delegate
       {
-        var measurementPoint = e.BStartTime ? EMeasurementPoint.Start: e.BFinishTime ? EMeasurementPoint.Finish : EMeasurementPoint.Undefined;
-        var time = e.BStartTime ? e.StartTime : e.BFinishTime ? e.FinishTime : null;
-        if ( (_measurementPoint == EMeasurementPoint.Undefined || measurementPoint == _measurementPoint) 
-             && time != null)
+        if (e.BStartTime || e.BFinishTime)
         {
-          var ts = new Timestamp((TimeSpan)time, e, e.StartNumber);
+          var ts = new Timestamp(e);
 
           if (ts.Valid && e.StartNumber > 0)
             invalidateOtherWithSameStartnumber(ts, e.StartNumber);

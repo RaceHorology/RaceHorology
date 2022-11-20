@@ -273,7 +273,7 @@ namespace RaceHorologyLibTest
 
     public void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp) { }
 
-    public List<Timestamp> GetTimestamps(RaceRun raceRun) { return new List<Timestamp>(); }
+    public List<Timestamp> GetTimestamps(Race race, uint run) { return new List<Timestamp>(); }
 
     public void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp) { }
   }

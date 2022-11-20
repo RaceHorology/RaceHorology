@@ -1744,6 +1744,12 @@ namespace RaceHorologyLib
       return _timestamps;
     }
 
+    public Timestamp AddTimestamp(Timestamp ts)
+    {
+      _timestamps.Add(ts);
+      return ts;
+    }
+
 
     // Helper definition for a participant is on track
     private bool IsOnTrack(RunResult r)

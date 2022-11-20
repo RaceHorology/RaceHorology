@@ -356,18 +356,20 @@ namespace RaceHorologyLib
     /// </summary>
     private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
-      if (!_isRunning)
-        return;
-
-      // Only accept valid timemeasurements
-      if (!e.Valid) 
-        return;
-
       _syncContext.Send(delegate
       {
         Race currentRace = _dm.GetCurrentRace();
         RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
         RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
+
+        if (e.BStartTime || e.BFinishTime)
+          currentRaceRun.AddTimestamp(new Timestamp(e));
+
+        if (!_isRunning)
+          return;
+
+        if (!e.Valid) // Only accept valid timemeasurements i.e. without "?"
+          return;
 
         // Create participant if desired
         if (participant == null)
