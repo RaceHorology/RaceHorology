@@ -1995,6 +1995,16 @@ namespace RaceHorologyLib
     void UpdateRace(Race race, bool active);
 
 
+
+    void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp);
+    List<Timestamp> GetTimestamps(RaceRun raceRun);
+    void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp);
+
+
+
+
+
+
     void StoreKeyValue(string key, string value);
     string GetKeyValue(string key);
   };
