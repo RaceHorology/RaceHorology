@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,16 +12,23 @@ namespace RaceHorologyLib
   public class Timestamp : INotifyPropertyChanged
   {
     private TimeSpan _timeStamp;
-    private TimeMeasurementEventArgs _orgTimeData;
+    private EMeasurementPoint _measurementPoint;
     private uint _startnumber;
     private bool _valid;
 
     public Timestamp(TimeSpan timeStamp, TimeMeasurementEventArgs orgTimeData, uint startnumber = 0)
     {
       _timeStamp = timeStamp;
-      _orgTimeData = orgTimeData;
       _startnumber = startnumber;
-      _valid = orgTimeData.Valid;
+
+      if (orgTimeData.StartTime != null && orgTimeData.FinishTime == null)
+        _measurementPoint = EMeasurementPoint.Start;
+      else if (orgTimeData.StartTime == null && orgTimeData.FinishTime != null)
+        _measurementPoint = EMeasurementPoint.Finish;
+      else
+        _measurementPoint = EMeasurementPoint.Undefined;
+
+      _valid = orgTimeData != null ? orgTimeData.Valid : true;
     }
 
     public TimeSpan Time
@@ -29,10 +36,11 @@ namespace RaceHorologyLib
       get => _timeStamp;
     }
 
-    public TimeMeasurementEventArgs OrgTimeData
+    public EMeasurementPoint MeasurementPoint
     {
-      get => _orgTimeData;
+      get => _measurementPoint;
     }
+
 
     public bool Valid
     {
@@ -154,8 +162,24 @@ namespace RaceHorologyLib
 
     private TimeMeasurementEventArgs createTimeMeasurement(Timestamp timestamp)
     {
-      var data = new TimeMeasurementEventArgs(timestamp.OrgTimeData);
+      var data = new TimeMeasurementEventArgs();
+
       data.StartNumber = timestamp.StartNumber;
+      if (timestamp.MeasurementPoint == EMeasurementPoint.Start)
+      {
+        data.StartTime = timestamp.Time;
+        data.BStartTime = true;
+      }
+      else if (timestamp.MeasurementPoint == EMeasurementPoint.Finish)
+      {
+        data.FinishTime = timestamp.Time;
+        data.BFinishTime = true;
+      }
+      else
+        throw new NotImplementedException();
+
+      data.Valid = timestamp.Valid;
+
       return data;
     }
 
