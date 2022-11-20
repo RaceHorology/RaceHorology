@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -94,51 +95,27 @@ namespace RaceHorologyLib
   }
 
 
-  public class LiveTimeParticipantAssigning : ILiveTimeMeasurementDeviceBase, IDisposable
+  public class LiveTimeParticipantAssigning : IDisposable
   {
-    private ILiveTimeMeasurementDevice _timeMeasurementDevice;
+    private RaceRun _raceRun;
     private EMeasurementPoint _measurementPoint;
-    private ItemsChangeObservableCollection<Timestamp> _timestamps;
-    private System.Threading.SynchronizationContext _syncContext;
+    private ObservableCollection<Timestamp> _timestamps;
 
     private IComparer<Timestamp> _sorter = new TimestampComparerDesc();
 
-    public LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice, EMeasurementPoint measurementPoint)
+    public LiveTimeParticipantAssigning(RaceRun rr, EMeasurementPoint measurementPoint)
     {
-      _syncContext = System.Threading.SynchronizationContext.Current;
-
-      _timeMeasurementDevice = timeMeasurementDevice;
+      _raceRun = rr;
       _measurementPoint = measurementPoint;
-      _timestamps = new ItemsChangeObservableCollection<Timestamp>();
-
-      _timeMeasurementDevice.TimeMeasurementReceived += timeMeasurementDevice_TimeMeasurementReceived;
+      _timestamps = new FilterObservableCollection<Timestamp>(rr.GetTimestamps(), (v) => { return v.MeasurementPoint == measurementPoint; });
     }
 
     public void Dispose()
     {
-      _timeMeasurementDevice.TimeMeasurementReceived -= timeMeasurementDevice_TimeMeasurementReceived;
     }
 
 
-    private void timeMeasurementDevice_TimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
-    {
-      _syncContext.Send(delegate
-      {
-        if (e.BStartTime || e.BFinishTime)
-        {
-          var ts = new Timestamp(e);
-
-          if (ts.Valid && e.StartNumber > 0)
-            invalidateOtherWithSameStartnumber(ts, e.StartNumber);
-
-          _timestamps.Insert(0, ts);
-          _timestamps.Sort<Timestamp>(_sorter);
-        }
-      }, null);
-    }
-
-
-    public ItemsChangeObservableCollection<Timestamp> Timestamps
+    public ObservableCollection<Timestamp> Timestamps
     {
       get { return _timestamps; }
     }
