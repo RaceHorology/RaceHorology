@@ -225,6 +225,33 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Schema_V0.3.mdb")]
+    public void DatabaseUpgradeSchema_RHTimestamps()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Schema_V0.3.mdb");
+
+      Assert.IsFalse(existsTable(dbFilename, "RHTimestamps"));
+
+      // Open first time, upgrade will be performed
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsTable(dbFilename, "RHTimestamps"));
+
+      // open second time (when upgrade was performed)
+      db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(checkDBVersion(dbFilename));
+      Assert.IsTrue(existsTable(dbFilename, "RHTimestamps"));
+    }
+
+
+
+
     bool existsTable(string dbFilename, string tableName)
     {
       OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };

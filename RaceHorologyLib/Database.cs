@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -155,6 +155,7 @@ namespace RaceHorologyLib
     {
       checkOrUpgradeSchema_RHMisc();
       checkOrUpgradeSchema_tblKategorie();
+      checkOrUpgradeSchema_RHTimestamps();
       checkOrUpgradeDBVersion();
     }
 
@@ -177,6 +178,24 @@ namespace RaceHorologyLib
 
       // Create TABLE RHMisc 
       string sql = @"ALTER TABLE tblKategorie ADD RHSynonyms TEXT(255) DEFAULT NULL";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
+    }
+
+    void checkOrUpgradeSchema_RHTimestamps()
+    {
+      // Check if table already existing
+      if (existsTable("RHTimestamps"))
+        return;
+
+      // Create TABLE RHMisc 
+      string sql = @"
+        CREATE TABLE RHTimestamps (
+          [disziplin] BYTE NOT NULL, 
+          [durchgang] BYTE NOT NULL, 
+          [zeit] DOUBLE NOT NULL, 
+          [impuls] TEXT(10) NOT NULL
+        )";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
     }
