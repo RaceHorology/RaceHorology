@@ -1382,22 +1382,87 @@ namespace RaceHorologyLibTest
       }
 
 
+      // Create timestamp
       var ts1 = new Timestamp(new TimeSpan(0, 12, 0, 0, 0), EMeasurementPoint.Start, 1, true);
       db.CreateOrUpdateTimestamp(rr1, ts1);
       DBCacheWorkaround();
       Assert.IsTrue(CheckTimestamp(dbFilename, ts1, rr1, EMeasurementPoint.Start));
+      Assert.AreEqual(1, db.GetTimestamps(race, 1).Count);
 
+      // Create timestamp
       var ts2 = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, true);
       db.CreateOrUpdateTimestamp(rr1, ts2);
       DBCacheWorkaround();
       Assert.IsTrue(CheckTimestamp(dbFilename, ts2, rr1, EMeasurementPoint.Finish));
 
       Assert.AreNotEqual(ts1.Time, ts2.Time);
+      Assert.AreEqual(2, db.GetTimestamps(race, 1).Count);
 
-
-      var timestamps = db.GetTimestamps(rr1);
+      // Modify timestamp
+      var ts2b = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 10, true);
+      db.CreateOrUpdateTimestamp(rr1, ts2b);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckTimestamp(dbFilename, ts2b, rr1, EMeasurementPoint.Finish));
+      Assert.AreEqual(2, db.GetTimestamps(race, 1).Count);
     }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void AppDataModelTest_Timestamps()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel dataModel = new AppDataModel(db);
+      Race race = dataModel.GetCurrentRace();
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
+
+      void DBCacheWorkaround()  // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+      {
+        db.Close();
+        db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        dataModel = new AppDataModel(db);
+        race = dataModel.GetCurrentRace();
+        rr1 = race.GetRun(0);
+        rr2 = race.GetRun(1);
+      }
+
+      rr1.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 12, 0, 0, 0), EMeasurementPoint.Start, 1, true));
+      rr1.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, true));
+      rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 0), EMeasurementPoint.Start, 2, true));
+      rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 1), EMeasurementPoint.Start, 0, true));
+        
+      DBCacheWorkaround();
+      Assert.AreEqual(2, rr1.GetTimestamps().Count);
+      Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1.GetTimestamps()[0].Time);
+      Assert.AreEqual(1U, rr1.GetTimestamps()[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 1), rr1.GetTimestamps()[1].Time);
+      Assert.AreEqual(1U, rr1.GetTimestamps()[1].StartNumber);
+
+      Assert.AreEqual(2, rr2.GetTimestamps().Count);
+      Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 0), rr2.GetTimestamps()[0].Time);
+      Assert.AreEqual(2U, rr2.GetTimestamps()[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 1), rr2.GetTimestamps()[1].Time);
+      Assert.AreEqual(0U, rr2.GetTimestamps()[1].StartNumber);
+
+      rr2.GetTimestamps().First(t => t.StartNumber == 0).StartNumber = 10;
+      DBCacheWorkaround();
+      Assert.AreEqual(2, rr1.GetTimestamps().Count);
+      Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1.GetTimestamps()[0].Time);
+      Assert.AreEqual(1U, rr1.GetTimestamps()[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 1), rr1.GetTimestamps()[1].Time);
+      Assert.AreEqual(1U, rr1.GetTimestamps()[1].StartNumber);
+
+      Assert.AreEqual(2, rr2.GetTimestamps().Count);
+      Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 0), rr2.GetTimestamps()[0].Time);
+      Assert.AreEqual(2U, rr2.GetTimestamps()[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 1), rr2.GetTimestamps()[1].Time);
+      Assert.AreEqual(10U, rr2.GetTimestamps()[1].StartNumber);
+
+    }
 
     private bool CheckTimestamp(string dbFilename, Timestamp ts, RaceRun raceRun, EMeasurementPoint measurementPoint)
     {
@@ -1418,6 +1483,9 @@ namespace RaceHorologyLibTest
         {
           bRes &= (byte)raceRun.GetRace().RaceType == reader.GetByte(reader.GetOrdinal("disziplin"));
           bRes &= (byte)raceRun.Run == reader.GetByte(reader.GetOrdinal("durchgang"));
+          
+          uint stnr = (uint)(int)reader.GetValue(reader.GetOrdinal("startnummer"));
+          bRes &= ts.StartNumber == stnr;
 
           TimeSpan? time = null;
           if (!reader.IsDBNull(reader.GetOrdinal("zeit")))

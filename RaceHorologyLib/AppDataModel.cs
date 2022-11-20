@@ -957,6 +957,7 @@ namespace RaceHorologyLib
 
       // Fill the data from the DB initially (TODO: to be done better)
       rr.InsertResults(_db.GetRaceRun(this, run));
+      rr.InsertTimestamps(_db.GetTimestamps(this, run));
 
       // Get notification if a result got modified and trigger storage in DB
       DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
@@ -1368,6 +1369,7 @@ namespace RaceHorologyLib
     private AppDataModel _appDataModel;
 
     private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
+    private ItemsChangeObservableCollection<Timestamp> _timestamps;
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
     private ItemsChangeObservableCollection<RunResult> _inFinish;  // This list represents the particpants in finish.
@@ -1396,6 +1398,7 @@ namespace RaceHorologyLib
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
       _inFinish = new ItemsChangeObservableCollection<RunResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
+      _timestamps = new ItemsChangeObservableCollection<Timestamp>();
 
       _markedParticipantForStartMeasurement = new Dictionary<EParticipantColor, RaceParticipant>();
       _markedParticipantForFinishMeasurement = new Dictionary<EParticipantColor, RaceParticipant>();
@@ -1730,6 +1733,17 @@ namespace RaceHorologyLib
       _UpdateInternals();
     }
 
+    public void InsertTimestamps(List<Timestamp> timestamps)
+    {
+      foreach(var item in timestamps)
+        _timestamps.Add(item);
+    }
+
+    public ItemsChangeObservableCollection<Timestamp> GetTimestamps()
+    {
+      return _timestamps;
+    }
+
 
     // Helper definition for a participant is on track
     private bool IsOnTrack(RunResult r)
@@ -1997,7 +2011,7 @@ namespace RaceHorologyLib
 
 
     void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp);
-    List<Timestamp> GetTimestamps(RaceRun raceRun);
+    List<Timestamp> GetTimestamps(Race raceRun, uint run);
     void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp);
 
 

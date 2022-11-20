@@ -1249,10 +1249,34 @@ namespace RaceHorologyLib
         }
       }
 
-      string sql = @"INSERT INTO RHTimestamps (disziplin, durchgang, zeit, kanal) " +
-                   @"VALUES (@disziplin, @durchgang, @zeit, @kanal) ";
+
+      bool bNew = true;
+      using (OleDbCommand cmdQ= new OleDbCommand("SELECT COUNT(*) FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal", _conn))
+      {
+        cmdQ.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+        cmdQ.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+        cmdQ.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
+        cmdQ.Parameters.Add(new OleDbParameter("@kanal", kanal(timestamp.MeasurementPoint)));
+        object oId = cmdQ.ExecuteScalar();
+
+        bNew = (oId == DBNull.Value || (int)oId == 0);
+      }
+
       OleDbCommand cmd;
-      cmd = new OleDbCommand(sql, _conn);
+      if (!bNew)
+      {
+        string sql = @"UPDATE RHTimestamps " +
+                     @"SET startnummer = @startnummer " +
+                     @"WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        string sql = @"INSERT INTO RHTimestamps (startnummer, disziplin, durchgang, zeit, kanal) " +
+                     @"VALUES (@startnummer, @disziplin, @durchgang, @zeit, @kanal) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      cmd.Parameters.Add(new OleDbParameter("@startnummer", timestamp.StartNumber));
       cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
       cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
       cmd.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
@@ -1272,7 +1296,7 @@ namespace RaceHorologyLib
       }
     }
 
-    public List<Timestamp> GetTimestamps(RaceRun raceRun)
+    public List<Timestamp> GetTimestamps(Race race, uint run)
     {
       EMeasurementPoint measurementPoint(string dbText){
         switch (dbText)
@@ -1290,8 +1314,8 @@ namespace RaceHorologyLib
                    @"WHERE disziplin = @disziplin AND durchgang = @durchgang";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      command.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
-      command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+      command.Parameters.Add(new OleDbParameter("@durchgang", run));
 
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())

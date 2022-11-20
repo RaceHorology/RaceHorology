@@ -63,6 +63,9 @@ namespace RaceHorologyLib
 
       rr.GetResultList().ItemChanged += OnItemChanged;
       rr.GetResultList().CollectionChanged += OnCollectionChanged;
+
+      rr.GetTimestamps().ItemChanged += OnTimestampItemChanged;
+      rr.GetTimestamps().CollectionChanged += OnTimestampCollectionChanged;
     }
 
     private void OnItemChanged(object sender, PropertyChangedEventArgs e)
@@ -95,6 +98,32 @@ namespace RaceHorologyLib
           // Data is only deleted if the RunResult is set to empty (see above)
           break;
 
+        case NotifyCollectionChangedAction.Reset:
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+          throw new Exception("not implemented");
+      }
+    }
+
+
+    private void OnTimestampItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      var ts = (Timestamp)sender;
+      _db.CreateOrUpdateTimestamp(_rr, ts);
+    }
+
+    private void OnTimestampCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (Timestamp v in e.NewItems)
+          {
+            _db.CreateOrUpdateTimestamp(_rr, v);
+          }
+          break;
+
+        case NotifyCollectionChangedAction.Remove:
         case NotifyCollectionChangedAction.Reset:
         case NotifyCollectionChangedAction.Move:
         case NotifyCollectionChangedAction.Replace:
