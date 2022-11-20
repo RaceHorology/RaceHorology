@@ -1,4 +1,5 @@
-﻿using RaceHorologyLib;
+﻿using CefSharp;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -123,13 +124,15 @@ namespace RaceHorology
       {
         MemoryStream ms = new MemoryStream();
         reportGenerator.Generate(ms);
-        var ms2 = new MemoryStream(ms.ToArray(), false);
 
-        var tempFile = System.IO.Path.GetTempFileName() + ".pdf";
-        FileStream fs = new FileStream(tempFile, FileMode.Create);
-        ms2.CopyTo(fs);
-        fs.Close();
-        cefBrower.LoadUrl(string.Format("file://{0}", tempFile));
+        if (cefBrower.ResourceRequestHandlerFactory == null)
+          cefBrower.ResourceRequestHandlerFactory = new ResourceRequestHandlerFactory();
+        var handler = cefBrower.ResourceRequestHandlerFactory as ResourceRequestHandlerFactory;
+        string url = string.Format("file://{0}", reportGenerator.ProposeFilePath());
+        if (handler != null)
+          handler.RegisterHandler(url, ms.ToArray(), "application/pdf", true);
+
+        cefBrower.Load(url);
       }
     }
 
