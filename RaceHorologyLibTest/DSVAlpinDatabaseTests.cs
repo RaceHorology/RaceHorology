@@ -385,7 +385,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(10.0, competitionProps.Nenngeld);
 
         db.UpdateCompetitionProperties(competitionProps);
-        var propIs = db.GetCompetitionProperties(); 
+        var propIs = db.GetCompetitionProperties();
         TestUtilities.AreEqualByJson(competitionProps, propIs);
       }
       {
@@ -527,7 +527,7 @@ namespace RaceHorologyLibTest
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
 
-      { 
+      {
         RaceHorologyLib.Database db = new RaceHorologyLib.Database();
         db.Connect(dbFilename);
         AppDataModel model = new AppDataModel(db);
@@ -1018,7 +1018,7 @@ namespace RaceHorologyLibTest
           bRes &= checkStringAgainstDB(categShall.PrettyName, reader["kname"]);
           bRes &= checkStringAgainstDB(categShall.Synonyms, reader["RHSynonyms"]);
           bRes &= categShall.SortPos == (double)reader["sortpos"];
-          
+
         }
         else
           bRes = false;
@@ -1027,7 +1027,7 @@ namespace RaceHorologyLibTest
 
       return bRes;
     }
-    
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
@@ -1226,7 +1226,7 @@ namespace RaceHorologyLibTest
       {
         if (reader.Read())
         {
-          bRes &= (byte) runResult.ResultCode == reader.GetByte(reader.GetOrdinal("ergcode"));
+          bRes &= (byte)runResult.ResultCode == reader.GetByte(reader.GetOrdinal("ergcode"));
 
           TimeSpan? runTime = null, startTime = null, finishTime = null;
           if (!reader.IsDBNull(reader.GetOrdinal("netto")))
@@ -1320,7 +1320,7 @@ namespace RaceHorologyLibTest
         RunResult rr1res1 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 1").FirstOrDefault();
         Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1res1.GetStartTime());
         Assert.AreEqual(new TimeSpan(0, 12, 1, 0, 0), rr1res1.GetFinishTime());
-        Assert.AreEqual(new TimeSpan(0,  0, 1, 0, 0), rr1res1.GetRunTime());
+        Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 0), rr1res1.GetRunTime());
         // Participant 1 / Test 2
         Assert.IsTrue(CheckRunResult(dbFilename, rr1res1, 1, 1));
 
@@ -1344,13 +1344,98 @@ namespace RaceHorologyLibTest
 
         // Participant 4 / Test 1
         RunResult rr1res4 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 4").FirstOrDefault();
-        Assert.AreEqual(new TimeSpan(0, 12, 4,  0, 0), rr1res4.GetStartTime());
+        Assert.AreEqual(new TimeSpan(0, 12, 4, 0, 0), rr1res4.GetStartTime());
         Assert.AreEqual(new TimeSpan(0, 12, 4, 30, 0), rr1res4.GetFinishTime());
-        Assert.AreEqual(new TimeSpan(0,  0, 0, 30, 0), rr1res4.GetRunTime());
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 30, 0), rr1res4.GetRunTime());
         //Assert.Equals(RunResult.EResultCode.Normal, rr1res4.ResultCode);
         // Participant 4 / Test 2
         Assert.IsTrue(CheckRunResult(dbFilename, rr1res4, 4, 1));
       }
+    }
+
+    #endregion
+
+    #region TimeStamps
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void CreateAndUpdateTimestamps()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel dataModel = new AppDataModel(db);
+      Race race = dataModel.GetCurrentRace();
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
+
+      void DBCacheWorkaround()  // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+      {
+        db.Close();
+        db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        dataModel = new AppDataModel(db);
+        race = dataModel.GetCurrentRace();
+        rr1 = race.GetRun(0);
+        rr2 = race.GetRun(1);
+      }
+
+
+      var ts1 = new Timestamp(new TimeSpan(0, 12, 0, 0, 0), null, 1);
+      db.CreateOrUpdateTimestamp(rr1, ts1);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckTimestamp(dbFilename, ts1, rr1));
+
+      var ts2 = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), null, 1);
+      db.CreateOrUpdateTimestamp(rr1, ts2);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckTimestamp(dbFilename, ts2, rr1));
+
+      Assert.AreNotEqual(ts1.Time, ts2.Time);
+    }
+
+
+    private bool CheckTimestamp(string dbFilename, Timestamp ts, RaceRun raceRun)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      OleDbCommand command = new OleDbCommand("SELECT * FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit", conn);
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+      command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+      command.Parameters.Add(new OleDbParameter("@zeit", Database.FractionForTimeSpan(ts.Time)));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= (byte)raceRun.GetRace().RaceType == reader.GetByte(reader.GetOrdinal("disziplin"));
+          bRes &= (byte)raceRun.Run == reader.GetByte(reader.GetOrdinal("durchgang"));
+
+          TimeSpan? time = null;
+          if (!reader.IsDBNull(reader.GetOrdinal("zeit")))
+            time = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("zeit")));
+          bRes &= ts.Time == time;
+
+          //if (!reader.IsDBNull(reader.GetOrdinal("kanal")))
+          //  bRes &= ts.Channel == reader["kanal"].ToString();
+        }
+        else
+        {
+          if (ts == null)
+            bRes = true;
+          else
+            bRes = false;
+        }
+      }
+
+      conn.Close();
+
+      return bRes;
     }
 
     #endregion

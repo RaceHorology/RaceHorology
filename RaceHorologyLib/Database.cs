@@ -194,7 +194,7 @@ namespace RaceHorologyLib
           [disziplin] BYTE NOT NULL, 
           [durchgang] BYTE NOT NULL, 
           [zeit] DOUBLE NOT NULL, 
-          [impuls] TEXT(10) NOT NULL
+          [kanal] TEXT(10) NOT NULL
         )";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
@@ -1234,6 +1234,44 @@ namespace RaceHorologyLib
         Logger.Warn(e, "UpdateCompetitionProperties() failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
+
+
+    public void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp)
+    {
+      string sql = @"INSERT INTO RHTimestamps (disziplin, durchgang, zeit, kanal) " +
+                   @"VALUES (@disziplin, @durchgang, @zeit, @kanal) ";
+      OleDbCommand cmd;
+      cmd = new OleDbCommand(sql, _conn);
+      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+      cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+      cmd.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
+      cmd.Parameters.Add(new OleDbParameter("@kanal", "---"));
+
+      cmd.CommandType = CommandType.Text;
+      try
+      {
+        Logger.Debug("CreateOrUpdateTimestamp(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateTimestamp failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public List<Timestamp> GetTimestamps(RaceRun raceRun)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp)
+    {
+      throw new NotImplementedException();
+    }
+
+
 
     #endregion
 
