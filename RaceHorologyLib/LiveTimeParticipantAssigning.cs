@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -73,7 +73,6 @@ namespace RaceHorologyLib
 
   public class LiveTimeParticipantAssigning : ILiveTimeMeasurementDeviceBase, IDisposable
   {
-    public enum EMeasurementPoint { Undefined, Start, Finish };
     private ILiveTimeMeasurementDevice _timeMeasurementDevice;
     private EMeasurementPoint _measurementPoint;
     private ItemsChangeObservableCollection<Timestamp> _timestamps;

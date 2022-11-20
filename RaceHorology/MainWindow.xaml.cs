@@ -499,8 +499,8 @@ namespace RaceHorology
         // Create new devices
         _liveTimingMeasurement.AddTimingDevice(newTimingDevice, true);
 
-        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, LiveTimeParticipantAssigning.EMeasurementPoint.Start));
-        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, LiveTimeParticipantAssigning.EMeasurementPoint.Finish));
+        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, EMeasurementPoint.Start));
+        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, EMeasurementPoint.Finish));
         foreach(var tdpa in _timingDevicePartcipantAssigner)
           _liveTimingMeasurement.AddTimingDevice(tdpa, false);
         
