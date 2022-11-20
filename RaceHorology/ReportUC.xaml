@@ -5,14 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
              xmlns:cef="clr-namespace:CefSharp;assembly=CefSharp.Core"
-             xmlns:syncfusion="clr-namespace:Syncfusion.Windows.PdfViewer;assembly=Syncfusion.PdfViewer.WPF"
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
@@ -30,7 +28,7 @@
       <Button x:Name="btnRefresh" Margin="5" Padding="5" Grid.Column="3" Content="Aktualisieren" Click="btnRefresh_Click" />
     </Grid>
 
-    <Grid Width="Auto" Grid.Row="3">
+    <Grid Width="Auto" Grid.Row="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
@@ -40,7 +38,6 @@
       <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="2" Content="Drucken" Click="btnPrint_Click"/>
     </Grid>
 
-    <syncfusion:PdfViewerControl x:Name="pdfViewer" Grid.Row="1" Grid.Column="0" />
-    <wpf:ChromiumWebBrowser x:Name="cefBrower" Grid.Row="2" />
+    <wpf:ChromiumWebBrowser x:Name="cefBrower" Grid.Row="1" Margin="5" />
   </Grid>
 </UserControl>

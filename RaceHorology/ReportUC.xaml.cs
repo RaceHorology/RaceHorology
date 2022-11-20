@@ -1,20 +1,10 @@
 ﻿using RaceHorologyLib;
-using Syncfusion.Windows.PdfViewer;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace RaceHorology
 {
@@ -45,10 +35,6 @@ namespace RaceHorology
     {
       InitializeComponent();
 
-      var pdfWorkDir = System.IO.Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RaceHorology", "PDFViewer");
-      System.IO.Directory.CreateDirectory(pdfWorkDir);
-      pdfViewer.ReferencePath = pdfWorkDir;
-
       _refreshDelay = new DelayedEventHandler(300, refreshTimout);
 
       IsVisibleChanged += ReportUC_IsVisibleChanged;
@@ -64,20 +50,6 @@ namespace RaceHorology
         triggerRefresh();
       }
     }
-
-    private bool pdfControlCustimized = false;
-    protected override void OnRender(DrawingContext drawingContext)
-    {
-      base.OnRender(drawingContext);
-      // Disable some controls ...
-      // Note: All other events did not work, the OnRender method seems to be late enough so that the PDFControl got initialized
-      if (!pdfControlCustimized)
-      {
-        customizePdfControl();
-        pdfControlCustimized = true;
-      }
-    }
-
 
     public void Init(Race race)
     {
@@ -105,7 +77,7 @@ namespace RaceHorology
 
     private void btnPrint_Click(object sender, RoutedEventArgs e)
     {
-      pdfViewer.Print(true);
+      cefBrower.PrintCommand.Execute(null);
     }
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
@@ -158,11 +130,6 @@ namespace RaceHorology
         ms2.CopyTo(fs);
         fs.Close();
         cefBrower.LoadUrl(string.Format("file://{0}", tempFile));
-
-        pdfViewer.Load(ms2);
-        pdfViewer.ZoomMode = ZoomMode.FitPage;
-        pdfViewer.CursorMode = PdfViewerCursorMode.HandTool;
-
       }
     }
 
@@ -185,45 +152,6 @@ namespace RaceHorology
         return ri.CreateReport(_race, selectedRaceRun);
       }
       return null;
-    }
-
-    private void customizePdfControl()
-    {
-      hidePdfControls(new List<string> {
-        "PART_FileToggleButton",
-        "Part_NavigationToolsSeparator",
-        "Part_ZoomToolsSeparator_0",
-        "PART_AnnotationToolsSeparator",
-        "PART_StickyNote",
-        "PART_Ink",
-        "PART_InkEraser",
-        "PART_Shapes",
-        "PART_Fill",
-        "PART_FreeText",
-        "PART_ButtonTextBoxFont",
-        "PART_AnnotationsSeparator",
-        "PART_Stamp",
-        "PART_ButtonSignature",
-        "PART_SelectTool",
-        "PART_HandTool",
-        "PART_MarqueeZoom",
-        "Part_CursorTools",
-        "PART_ButtonTextSearch",
-        "PART_TextMarkup"
-      });
-    }
-
-    private void hidePdfControls(IList<string> ids)
-    {
-      DocumentToolbar toolbar = pdfViewer.Template.FindName("PART_Toolbar", pdfViewer) as DocumentToolbar;
-      foreach(var id in ids)
-      {
-        var item = toolbar.Template.FindName(id, toolbar);
-        if (item is UIElement c)
-          c.Visibility = Visibility.Collapsed;
-        else
-          System.Diagnostics.Debug.Assert(false);
-      }
     }
   }
 }
