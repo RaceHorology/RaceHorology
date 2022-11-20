@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -1238,6 +1238,16 @@ namespace RaceHorologyLib
 
     public void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp)
     {
+      string kanal(EMeasurementPoint m)
+      {
+        switch (m)
+        {
+          case EMeasurementPoint.Start: return "START";
+          case EMeasurementPoint.Finish: return "ZIEL";
+          default: return "---";
+        }
+      }
+
       string sql = @"INSERT INTO RHTimestamps (disziplin, durchgang, zeit, kanal) " +
                    @"VALUES (@disziplin, @durchgang, @zeit, @kanal) ";
       OleDbCommand cmd;
@@ -1245,7 +1255,7 @@ namespace RaceHorologyLib
       cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
       cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
       cmd.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
-      cmd.Parameters.Add(new OleDbParameter("@kanal", "---"));
+      cmd.Parameters.Add(new OleDbParameter("@kanal", kanal(timestamp.MeasurementPoint)));
 
       cmd.CommandType = CommandType.Text;
       try

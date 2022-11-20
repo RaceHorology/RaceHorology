@@ -16,6 +16,14 @@ namespace RaceHorologyLib
     private uint _startnumber;
     private bool _valid;
 
+    public Timestamp(TimeSpan timeStamp, EMeasurementPoint measurementPoint, uint startnumber = 0, bool valid = true)
+    {
+      _timeStamp = timeStamp;
+      _startnumber = startnumber;
+      _measurementPoint = measurementPoint;
+      _valid = valid;
+    }
+
     public Timestamp(TimeSpan timeStamp, TimeMeasurementEventArgs orgTimeData, uint startnumber = 0)
     {
       _timeStamp = timeStamp;

@@ -1382,21 +1382,21 @@ namespace RaceHorologyLibTest
       }
 
 
-      var ts1 = new Timestamp(new TimeSpan(0, 12, 0, 0, 0), null, 1);
+      var ts1 = new Timestamp(new TimeSpan(0, 12, 0, 0, 0), EMeasurementPoint.Start, 1, true);
       db.CreateOrUpdateTimestamp(rr1, ts1);
       DBCacheWorkaround();
-      Assert.IsTrue(CheckTimestamp(dbFilename, ts1, rr1));
+      Assert.IsTrue(CheckTimestamp(dbFilename, ts1, rr1, EMeasurementPoint.Start));
 
-      var ts2 = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), null, 1);
+      var ts2 = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, true);
       db.CreateOrUpdateTimestamp(rr1, ts2);
       DBCacheWorkaround();
-      Assert.IsTrue(CheckTimestamp(dbFilename, ts2, rr1));
+      Assert.IsTrue(CheckTimestamp(dbFilename, ts2, rr1, EMeasurementPoint.Finish));
 
       Assert.AreNotEqual(ts1.Time, ts2.Time);
     }
 
 
-    private bool CheckTimestamp(string dbFilename, Timestamp ts, RaceRun raceRun)
+    private bool CheckTimestamp(string dbFilename, Timestamp ts, RaceRun raceRun, EMeasurementPoint measurementPoint)
     {
       bool bRes = true;
 
@@ -1421,8 +1421,7 @@ namespace RaceHorologyLibTest
             time = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("zeit")));
           bRes &= ts.Time == time;
 
-          //if (!reader.IsDBNull(reader.GetOrdinal("kanal")))
-          //  bRes &= ts.Channel == reader["kanal"].ToString();
+          bRes &= reader["kanal"].ToString() == (measurementPoint == EMeasurementPoint.Start ? "START":"ZIEL");
         }
         else
         {
