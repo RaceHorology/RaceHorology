@@ -315,6 +315,77 @@ namespace RaceHorologyLib
 
   }
 
+
+  public class FilterObservableCollection<T> : ObservableCollection<T>
+  {
+    protected Func<T, bool> _predicate;
+    protected ObservableCollection<T> _source;
+
+    public FilterObservableCollection(ObservableCollection<T> source, Func<T, bool> predicate)
+    {
+      _source = source;
+      _predicate = predicate;
+
+      _source.CollectionChanged += onSource_CollectionChanged;
+      this.InsertRange(_source.Where(_predicate));
+    }
+
+    ~FilterObservableCollection()
+    {
+      _source.CollectionChanged -= onSource_CollectionChanged;
+    }
+
+    protected void onSource_ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is T sourceItem)
+      {
+        if (_predicate(sourceItem))
+        {
+          if (IndexOf(sourceItem) == -1)
+            Add(sourceItem);
+        }
+        else
+        {
+          if (IndexOf(sourceItem) != -1)
+            Remove(sourceItem);
+        }
+      }
+    }
+
+
+    private void onSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      // Unhook from PropertyChanged
+      if (e.OldItems != null)
+        foreach (T item in e.OldItems)
+        {
+          if (item is INotifyPropertyChanged item2)
+            item2.PropertyChanged -= onSource_ItemPropertyChanged;
+        }
+
+      // Sync Lists
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+        case NotifyCollectionChangedAction.Remove:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+        case NotifyCollectionChangedAction.Move:
+          this.ClearItems();
+          this.InsertRange(_source.Where(_predicate));
+          break;
+      }
+
+      // Hook to PropertyChanged
+      if (e.NewItems != null)
+        foreach (T item in e.NewItems)
+        {
+          if (item is INotifyPropertyChanged item2)
+            item2.PropertyChanged += onSource_ItemPropertyChanged;
+        }
+    }
+  }
+
   public static class ObservableCollectionExtensions
   {
     /// <summary>
