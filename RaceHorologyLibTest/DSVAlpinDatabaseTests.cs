@@ -1393,6 +1393,9 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(CheckTimestamp(dbFilename, ts2, rr1, EMeasurementPoint.Finish));
 
       Assert.AreNotEqual(ts1.Time, ts2.Time);
+
+
+      var timestamps = db.GetTimestamps(rr1);
     }
 
 

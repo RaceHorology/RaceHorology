@@ -194,6 +194,7 @@ namespace RaceHorologyLib
           [disziplin] BYTE NOT NULL, 
           [durchgang] BYTE NOT NULL, 
           [zeit] DOUBLE NOT NULL, 
+          [startnummer] LONG,
           [kanal] TEXT(10) NOT NULL
         )";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
@@ -1273,7 +1274,45 @@ namespace RaceHorologyLib
 
     public List<Timestamp> GetTimestamps(RaceRun raceRun)
     {
-      throw new NotImplementedException();
+      EMeasurementPoint measurementPoint(string dbText){
+        switch (dbText)
+        {
+          case "START": return EMeasurementPoint.Start;
+          case "ZIEL": return EMeasurementPoint.Finish;
+        }
+        return EMeasurementPoint.Undefined;
+      }
+
+
+      List<Timestamp> result = new List<Timestamp>();
+
+      string sql = @"SELECT * FROM RHTimestamps " +
+                   @"WHERE disziplin = @disziplin AND durchgang = @durchgang";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+      command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          TimeSpan? time = null;
+          if (!reader.IsDBNull(reader.GetOrdinal("zeit")))
+            time = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("zeit")));
+
+          EMeasurementPoint mp = measurementPoint(reader["kanal"].ToString());
+          uint stnr = 0;
+          if (!reader.IsDBNull(reader.GetOrdinal("startnummer")))
+            stnr = (uint)(int)reader.GetValue(reader.GetOrdinal("startnummer"));
+
+          if (time != null)
+            result.Add(new Timestamp((TimeSpan)time, mp, stnr, true));
+        }
+      }
+
+      return result;
     }
 
     public void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp)
