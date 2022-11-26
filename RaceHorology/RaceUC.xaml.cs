@@ -397,10 +397,10 @@ namespace RaceHorology
     List<LiveTimeParticipantAssigning> _ltpa = new List<LiveTimeParticipantAssigning>();
     private void ReInitLtpa()
     {
-      bool showParticipantAssignment = true;
-      foreach (var td in _liveTimingMeasurement.GetTimingDevices())
-        if (td is TimingDeviceAlpenhunde)
-          showParticipantAssignment = true;
+      if (_currentRaceRun == null)
+        return;
+
+      bool showParticipantAssignment = Properties.Settings.Default.Timing_DisplayPartcipantAssignment;
 
       while(_ltpa.Count > 0)
       {
@@ -481,6 +481,9 @@ namespace RaceHorology
         case "AutomaticNaSStarters":
         case "StartTimeIntervall":
           ConfigureTimingHelper();
+          break;
+        case "Timing_DisplayPartcipantAssignment":
+          ReInitLtpa();
           break;
         default:
           break;
