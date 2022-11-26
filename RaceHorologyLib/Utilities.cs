@@ -320,14 +320,25 @@ namespace RaceHorologyLib
   {
     protected Func<T, bool> _predicate;
     protected ObservableCollection<T> _source;
+    protected IComparer<T> _compare;
 
-    public FilterObservableCollection(ObservableCollection<T> source, Func<T, bool> predicate)
+    public FilterObservableCollection(ObservableCollection<T> source, Func<T, bool> predicate, IComparer<T> compare)
     {
       _source = source;
       _predicate = predicate;
+      _compare = compare;
 
       _source.CollectionChanged += onSource_CollectionChanged;
-      this.InsertRange(_source.Where(_predicate));
+      
+      copyItems();
+    }
+
+    private void copyItems()
+    {
+      if (_compare != null)
+        this.InsertRange(_source.Where(_predicate).OrderBy(v => v, _compare));
+      else
+        this.InsertRange(_source.Where(_predicate));
     }
 
     ~FilterObservableCollection()
@@ -342,7 +353,10 @@ namespace RaceHorologyLib
         if (_predicate(sourceItem))
         {
           if (IndexOf(sourceItem) == -1)
-            Add(sourceItem);
+            if (_compare != null)
+              this.InsertSorted<T>(sourceItem, _compare);
+            else
+              this.Add(sourceItem);
         }
         else
         {
@@ -371,8 +385,8 @@ namespace RaceHorologyLib
         case NotifyCollectionChangedAction.Replace:
         case NotifyCollectionChangedAction.Reset:
         case NotifyCollectionChangedAction.Move:
-          this.ClearItems();
-          this.InsertRange(_source.Where(_predicate));
+          ClearItems();
+          copyItems();
           break;
       }
 

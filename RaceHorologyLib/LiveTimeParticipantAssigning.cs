@@ -107,7 +107,10 @@ namespace RaceHorologyLib
     {
       _raceRun = rr;
       _measurementPoint = measurementPoint;
-      _timestamps = new FilterObservableCollection<Timestamp>(rr.GetTimestamps(), (v) => { return v.MeasurementPoint == measurementPoint; });
+      _timestamps = new FilterObservableCollection<Timestamp>(
+        rr.GetTimestamps(), 
+        (v) => { return v.MeasurementPoint == measurementPoint; },
+        _sorter);
     }
 
     public void Dispose()
