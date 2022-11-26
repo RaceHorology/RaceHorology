@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -12,15 +13,37 @@ namespace RaceHorologyLib
   public class Timestamp : INotifyPropertyChanged
   {
     private TimeSpan _timeStamp;
-    private TimeMeasurementEventArgs _orgTimeData;
+    private EMeasurementPoint _measurementPoint;
     private uint _startnumber;
     private bool _valid;
 
-    public Timestamp(TimeSpan timeStamp, TimeMeasurementEventArgs orgTimeData, uint startnumber = 0)
+    public Timestamp(TimeSpan timeStamp, EMeasurementPoint measurementPoint, uint startnumber = 0, bool valid = true)
     {
       _timeStamp = timeStamp;
-      _orgTimeData = orgTimeData;
       _startnumber = startnumber;
+      _measurementPoint = measurementPoint;
+      _valid = valid;
+    }
+
+    public Timestamp(TimeMeasurementEventArgs orgTimeData)
+    {
+      _startnumber = orgTimeData.StartNumber;
+
+      if (orgTimeData.StartTime != null && orgTimeData.FinishTime == null)
+      {
+        _measurementPoint = EMeasurementPoint.Start;
+        _timeStamp = (TimeSpan) orgTimeData.StartTime;
+      }
+      else if (orgTimeData.StartTime == null && orgTimeData.FinishTime != null)
+      {
+        _measurementPoint = EMeasurementPoint.Finish;
+        _timeStamp = (TimeSpan)orgTimeData.FinishTime;
+      }
+      else
+      {
+        _measurementPoint = EMeasurementPoint.Undefined;
+      }
+
       _valid = orgTimeData.Valid;
     }
 
@@ -29,10 +52,11 @@ namespace RaceHorologyLib
       get => _timeStamp;
     }
 
-    public TimeMeasurementEventArgs OrgTimeData
+    public EMeasurementPoint MeasurementPoint
     {
-      get => _orgTimeData;
+      get => _measurementPoint;
     }
+
 
     public bool Valid
     {
@@ -71,55 +95,30 @@ namespace RaceHorologyLib
   }
 
 
-  public class LiveTimeParticipantAssigning : ILiveTimeMeasurementDeviceBase, IDisposable
+  public class LiveTimeParticipantAssigning : IDisposable
   {
-    public enum EMeasurementPoint { Undefined, Start, Finish };
-    private ILiveTimeMeasurementDevice _timeMeasurementDevice;
+    private RaceRun _raceRun;
     private EMeasurementPoint _measurementPoint;
-    private ItemsChangeObservableCollection<Timestamp> _timestamps;
-    private System.Threading.SynchronizationContext _syncContext;
+    private ObservableCollection<Timestamp> _timestamps;
 
     private IComparer<Timestamp> _sorter = new TimestampComparerDesc();
 
-    public LiveTimeParticipantAssigning(ILiveTimeMeasurementDevice timeMeasurementDevice, EMeasurementPoint measurementPoint)
+    public LiveTimeParticipantAssigning(RaceRun rr, EMeasurementPoint measurementPoint)
     {
-      _syncContext = System.Threading.SynchronizationContext.Current;
-
-      _timeMeasurementDevice = timeMeasurementDevice;
+      _raceRun = rr;
       _measurementPoint = measurementPoint;
-      _timestamps = new ItemsChangeObservableCollection<Timestamp>();
-
-      _timeMeasurementDevice.TimeMeasurementReceived += timeMeasurementDevice_TimeMeasurementReceived;
+      _timestamps = new FilterObservableCollection<Timestamp>(
+        rr.GetTimestamps(), 
+        (v) => { return v.MeasurementPoint == measurementPoint; },
+        _sorter);
     }
 
     public void Dispose()
     {
-      _timeMeasurementDevice.TimeMeasurementReceived -= timeMeasurementDevice_TimeMeasurementReceived;
     }
 
 
-    private void timeMeasurementDevice_TimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
-    {
-      _syncContext.Send(delegate
-      {
-        var measurementPoint = e.BStartTime ? EMeasurementPoint.Start: e.BFinishTime ? EMeasurementPoint.Finish : EMeasurementPoint.Undefined;
-        var time = e.BStartTime ? e.StartTime : e.BFinishTime ? e.FinishTime : null;
-        if ( (_measurementPoint == EMeasurementPoint.Undefined || measurementPoint == _measurementPoint) 
-             && time != null)
-        {
-          var ts = new Timestamp((TimeSpan)time, e, e.StartNumber);
-
-          if (ts.Valid && e.StartNumber > 0)
-            invalidateOtherWithSameStartnumber(ts, e.StartNumber);
-
-          _timestamps.Insert(0, ts);
-          _timestamps.Sort<Timestamp>(_sorter);
-        }
-      }, null);
-    }
-
-
-    public ItemsChangeObservableCollection<Timestamp> Timestamps
+    public ObservableCollection<Timestamp> Timestamps
     {
       get { return _timestamps; }
     }
@@ -136,11 +135,9 @@ namespace RaceHorologyLib
       timestamp.StartNumber = startnumber;
       timestamp.Valid = true;
 
-      // Trigger TimeMeasurementReceived event with updated startnumber
-      var handle = TimeMeasurementReceived;
-      var newEvent = createTimeMeasurement(timestamp);
-      newEvent.Valid = true; // Make this event a valid one, because it's intended to be (manuelly triggered)
-      handle?.Invoke(this, newEvent);
+      var rp = _raceRun.GetRace().GetParticipant(startnumber);
+      if (rp != null)
+        _raceRun.SetTime(_measurementPoint, rp, timestamp.Time);
     }
 
     private void invalidateOtherWithSameStartnumber(Timestamp timestamp, uint startnumber)
@@ -151,22 +148,5 @@ namespace RaceHorologyLib
           inUse.Valid = false;
       }
     }
-
-
-    private TimeMeasurementEventArgs createTimeMeasurement(Timestamp timestamp)
-    {
-      var data = new TimeMeasurementEventArgs(timestamp.OrgTimeData);
-      data.StartNumber = timestamp.StartNumber;
-      return data;
-    }
-
-
-    #region Implementation of ILiveTimeMeasurementDeviceBase
-
-    public event TimeMeasurementEventHandler TimeMeasurementReceived;
-
-    #endregion
-
-
   }
 }

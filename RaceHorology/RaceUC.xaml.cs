@@ -73,7 +73,6 @@ namespace RaceHorology
       _thisRace = race;
       _liveTimingMeasurement = liveTimingMeasurement;
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
-      _liveTimingMeasurement.LiveTimingConfigChanged += OnLiveTimingMeasurementConfigChanged;
 
       _txtLiveTimingStatus = txtLiveTimingStatus;
       _txtLiveTimingStatus.TextChanged += new DelayedEventHandler(
@@ -392,28 +391,26 @@ namespace RaceHorology
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
 
       _thisRace.RunsChanged += OnRaceRunsChanged;
-
-      InitializeTiming2();
     }
 
-    private void InitializeTiming2()
-    {
-      bool showParticipantAssignment = false;
 
-      int idx = 0;
-      foreach (var td in _liveTimingMeasurement.GetTimingDevices())
+    List<LiveTimeParticipantAssigning> _ltpa = new List<LiveTimeParticipantAssigning>();
+    private void ReInitLtpa()
+    {
+      if (_currentRaceRun == null)
+        return;
+
+      bool showParticipantAssignment = Properties.Settings.Default.Timing_DisplayPartcipantAssignment;
+
+      while(_ltpa.Count > 0)
       {
-        if (td is LiveTimeParticipantAssigning tdAssigning)
-        {
-          if (idx == 0)
-            mlapaStart.Init(tdAssigning, _thisRace);
-          if (idx == 1)
-            mlapaFinish.Init(tdAssigning, _thisRace);
-          idx++;
-        }
-        if (td is TimingDeviceAlpenhunde)
-          showParticipantAssignment = true;
+        _ltpa[_ltpa.Count - 1].Dispose();
+        _ltpa.RemoveAt(_ltpa.Count - 1);
       }
+      _ltpa.Add(new LiveTimeParticipantAssigning(_currentRaceRun, EMeasurementPoint.Start));
+      _ltpa.Add(new LiveTimeParticipantAssigning(_currentRaceRun, EMeasurementPoint.Finish));
+      mlapaStart.Init(_ltpa[0], _thisRace);
+      mlapaFinish.Init(_ltpa[1], _thisRace);
 
       UpdateLiveTimingStartStopButtons(false); // Initial status
 
@@ -427,11 +424,6 @@ namespace RaceHorology
         grdTimingMain.RowDefinitions[5].Height = new GridLength(0);
         grdTimingMain.RowDefinitions[6].Height = new GridLength(0);
       }
-    }
-
-    private void OnLiveTimingMeasurementConfigChanged(object sender, bool changed)
-    {
-      InitializeTiming2();
     }
 
 
@@ -469,6 +461,7 @@ namespace RaceHorology
 
         // Remember new race run
         _currentRaceRun = selectedRaceRun;
+        
 
         if (_currentRaceRun != null)
           if (_dataModel.GetCurrentRace() == _currentRaceRun.GetRace())
@@ -488,6 +481,9 @@ namespace RaceHorology
         case "AutomaticNaSStarters":
         case "StartTimeIntervall":
           ConfigureTimingHelper();
+          break;
+        case "Timing_DisplayPartcipantAssignment":
+          ReInitLtpa();
           break;
         default:
           break;
@@ -545,6 +541,8 @@ namespace RaceHorology
         _dgColVisFinish = new DataGridColumnVisibilityContextMenu(dgFinish, "timing_finish");
 
         lblStartList.DataContext = _rslVP.GetView();
+
+        ReInitLtpa();
       }
       else
       {

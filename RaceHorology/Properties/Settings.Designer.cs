@@ -85,7 +85,7 @@ namespace RaceHorology.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("9999")]
         public uint AutomaticNaSStarters {
             get {
                 return ((uint)(this["AutomaticNaSStarters"]));
@@ -164,6 +164,18 @@ namespace RaceHorology.Properties {
             }
             set {
                 this["_DataGridColumnVisibility"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Timing_DisplayPartcipantAssignment {
+            get {
+                return ((bool)(this["Timing_DisplayPartcipantAssignment"]));
+            }
+            set {
+                this["Timing_DisplayPartcipantAssignment"] = value;
             }
         }
     }

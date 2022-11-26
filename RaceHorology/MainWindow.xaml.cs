@@ -426,15 +426,12 @@ namespace RaceHorology
     #region LiveTiming
 
     ILiveTimeMeasurementDevice _timingDevice;
-    List<LiveTimeParticipantAssigning> _timingDevicePartcipantAssigner;
     LiveTimingMeasurement _liveTimingMeasurement;
     System.Timers.Timer _liveTimingStatusTimer;
 
     private void InitializeTiming()
     {
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
-
-      _timingDevicePartcipantAssigner = new List<LiveTimeParticipantAssigning>();
 
       _liveTimingStatusTimer = new System.Timers.Timer(300);
       _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
@@ -484,12 +481,6 @@ namespace RaceHorology
       if (newTimingDevice != null)
       {
         // Cleanup old devices
-        while(_timingDevicePartcipantAssigner.Count > 0)
-        {
-          var tdpa = _timingDevicePartcipantAssigner[0];
-          _timingDevicePartcipantAssigner.Remove(tdpa);
-          tdpa.Dispose();
-        }
         if (_timingDevice != null)
         {
           _liveTimingMeasurement.RemoveTimingDevice(_timingDevice);
@@ -499,11 +490,6 @@ namespace RaceHorology
         // Create new devices
         _liveTimingMeasurement.AddTimingDevice(newTimingDevice, true);
 
-        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, LiveTimeParticipantAssigning.EMeasurementPoint.Start));
-        _timingDevicePartcipantAssigner.Add(new LiveTimeParticipantAssigning(newTimingDevice, LiveTimeParticipantAssigning.EMeasurementPoint.Finish));
-        foreach(var tdpa in _timingDevicePartcipantAssigner)
-          _liveTimingMeasurement.AddTimingDevice(tdpa, false);
-        
         if (newTimingDevice is ILiveDateTimeProvider)
           _liveTimingMeasurement.SetLiveDateTimeProvider(newTimingDevice as ILiveDateTimeProvider);
 
@@ -521,14 +507,6 @@ namespace RaceHorology
 
         _timingDevice.Stop();
         _timingDevice = null;
-      }
-      // Cleanup old devices
-      while (_timingDevicePartcipantAssigner != null && _timingDevicePartcipantAssigner.Count > 0)
-      {
-        var tdpa = _timingDevicePartcipantAssigner[0];
-        _timingDevicePartcipantAssigner.Remove(tdpa);
-        _liveTimingMeasurement.RemoveTimingDevice(tdpa);
-        tdpa.Dispose();
       }
     }
 

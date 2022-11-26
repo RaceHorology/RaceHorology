@@ -270,8 +270,13 @@ namespace RaceHorologyLibTest
       _keyValueStore.TryGetValue(key, out value);
       return value; 
     }
-  };
 
+    public void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp) { }
+
+    public List<Timestamp> GetTimestamps(Race race, uint run) { return new List<Timestamp>(); }
+
+    public void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp) { }
+  }
 
 
   public class TestDataGenerator

@@ -18,7 +18,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="AutomaticNaSStarters" Type="System.UInt32" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">9999</Value>
     </Setting>
     <Setting Name="StartTimeIntervall" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">25</Value>
@@ -37,6 +37,9 @@
     </Setting>
     <Setting Name="_DataGridColumnVisibility" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Timing_DisplayPartcipantAssignment" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

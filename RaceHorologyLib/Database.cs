@@ -155,6 +155,7 @@ namespace RaceHorologyLib
     {
       checkOrUpgradeSchema_RHMisc();
       checkOrUpgradeSchema_tblKategorie();
+      checkOrUpgradeSchema_RHTimestamps();
       checkOrUpgradeDBVersion();
     }
 
@@ -177,6 +178,26 @@ namespace RaceHorologyLib
 
       // Create TABLE RHMisc 
       string sql = @"ALTER TABLE tblKategorie ADD RHSynonyms TEXT(255) DEFAULT NULL";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
+    }
+
+    void checkOrUpgradeSchema_RHTimestamps()
+    {
+      // Check if table already existing
+      if (existsTable("RHTimestamps"))
+        return;
+
+      // Create TABLE 
+      string sql = @"
+        CREATE TABLE RHTimestamps (
+          [disziplin] BYTE NOT NULL, 
+          [durchgang] BYTE NOT NULL, 
+          [zeit] DOUBLE NOT NULL, 
+          [startnummer] LONG,
+          [valid] BIT,
+          [kanal] TEXT(10) NOT NULL
+        )";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
     }
@@ -1215,6 +1236,121 @@ namespace RaceHorologyLib
         Logger.Warn(e, "UpdateCompetitionProperties() failed, SQL: {0}", GetDebugSqlString(cmd));
       }
     }
+
+
+    public void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp)
+    {
+      string kanal(EMeasurementPoint m)
+      {
+        switch (m)
+        {
+          case EMeasurementPoint.Start: return "START";
+          case EMeasurementPoint.Finish: return "ZIEL";
+          default: return "---";
+        }
+      }
+
+
+      bool bNew = true;
+      using (OleDbCommand cmdQ= new OleDbCommand("SELECT COUNT(*) FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal", _conn))
+      {
+        cmdQ.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+        cmdQ.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+        cmdQ.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
+        cmdQ.Parameters.Add(new OleDbParameter("@kanal", kanal(timestamp.MeasurementPoint)));
+        object oId = cmdQ.ExecuteScalar();
+
+        bNew = (oId == DBNull.Value || (int)oId == 0);
+      }
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE RHTimestamps " +
+                     @"SET startnummer = @startnummer, valid = @valid " +
+                     @"WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        string sql = @"INSERT INTO RHTimestamps (startnummer, valid, disziplin, durchgang, zeit, kanal) " +
+                     @"VALUES (@startnummer, @valid, @disziplin, @durchgang, @zeit, @kanal) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      cmd.Parameters.Add(new OleDbParameter("@startnummer", timestamp.StartNumber));
+      cmd.Parameters.Add(new OleDbParameter("@valid", timestamp.Valid));
+      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+      cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+      cmd.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
+      cmd.Parameters.Add(new OleDbParameter("@kanal", kanal(timestamp.MeasurementPoint)));
+
+      cmd.CommandType = CommandType.Text;
+      try
+      {
+        Logger.Debug("CreateOrUpdateTimestamp(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+        Debug.Assert(temp == 1, "Database could not be updated");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateTimestamp failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public List<Timestamp> GetTimestamps(Race race, uint run)
+    {
+      EMeasurementPoint measurementPoint(string dbText){
+        switch (dbText)
+        {
+          case "START": return EMeasurementPoint.Start;
+          case "ZIEL": return EMeasurementPoint.Finish;
+        }
+        return EMeasurementPoint.Undefined;
+      }
+
+
+      List<Timestamp> result = new List<Timestamp>();
+
+      string sql = @"SELECT * FROM RHTimestamps " +
+                   @"WHERE disziplin = @disziplin AND durchgang = @durchgang";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+      command.Parameters.Add(new OleDbParameter("@durchgang", run));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          TimeSpan? time = null;
+          if (!reader.IsDBNull(reader.GetOrdinal("zeit")))
+            time = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("zeit")));
+
+          bool valid = false;
+          if (!reader.IsDBNull(reader.GetOrdinal("valid")))
+            valid = reader.GetBoolean(reader.GetOrdinal("valid"));
+
+            EMeasurementPoint mp = measurementPoint(reader["kanal"].ToString());
+          uint stnr = 0;
+          if (!reader.IsDBNull(reader.GetOrdinal("startnummer")))
+            stnr = (uint)(int)reader.GetValue(reader.GetOrdinal("startnummer"));
+
+          if (time != null)
+            result.Add(new Timestamp((TimeSpan)time, mp, stnr, valid));
+        }
+      }
+
+      return result;
+    }
+
+    public void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp)
+    {
+      throw new NotImplementedException();
+    }
+
+
 
     #endregion
 

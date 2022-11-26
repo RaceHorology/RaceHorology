@@ -45,6 +45,15 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
+  public enum EMeasurementPoint { 
+    Undefined, 
+    Start, 
+    Finish 
+  };
+
+
+
+
   /// <summary>
   /// Main data structure to transfer the measured time data from the Live Timing Measurement Device to the application 
   /// It contains all fields to identify the runner, start / finish time as well as potentailly calculated runtime.
@@ -89,17 +98,15 @@ namespace RaceHorologyLib
 
   public class StartnumberSelectedEventArgs: EventArgs
   {
-    public enum EChannel { EUnknown, EStart, EFinish };
-
     public StartnumberSelectedEventArgs()
     {
       StartNumber = 0;
-      Channel = EChannel.EUnknown;
+      Channel = EMeasurementPoint.Undefined;
       Color = EParticipantColor.NoColor;
     }
 
     public uint StartNumber;
-    public EChannel Channel;
+    public EMeasurementPoint Channel;
     public EParticipantColor Color;
   }
 
@@ -349,18 +356,20 @@ namespace RaceHorologyLib
     /// </summary>
     private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
-      if (!_isRunning)
-        return;
-
-      // Only accept valid timemeasurements
-      if (!e.Valid) 
-        return;
-
       _syncContext.Send(delegate
       {
         Race currentRace = _dm.GetCurrentRace();
         RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
         RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
+
+        if (e.BStartTime || e.BFinishTime)
+          currentRaceRun.AddTimestamp(new Timestamp(e));
+
+        if (!_isRunning)
+          return;
+
+        if (!e.Valid) // Only accept valid timemeasurements i.e. without "?"
+          return;
 
         // Create participant if desired
         if (participant == null)
@@ -396,9 +405,9 @@ namespace RaceHorologyLib
         RaceRun currentRaceRun = _dm.GetCurrentRaceRun();
         RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
 
-        if (e.Channel == StartnumberSelectedEventArgs.EChannel.EStart)
+        if (e.Channel == EMeasurementPoint.Start)
           currentRaceRun.MarkStartMeasurement(participant, e.Color);
-        else if (e.Channel == StartnumberSelectedEventArgs.EChannel.EFinish)
+        else if (e.Channel == EMeasurementPoint.Finish)
           currentRaceRun.MarkFinishMeasurement(participant, e.Color);
       }, null);
     }

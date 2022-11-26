@@ -70,6 +70,7 @@ namespace RaceHorology
       txtTimingDeviceUrl.Text = Properties.Settings.Default.TimingDevice_Url;
 
       chkTimingDeviceDebugDump.IsChecked = Properties.Settings.Default.TimingDevice_Debug_Dump;
+      chkTimingDisplayPartcipantAssignment.IsChecked = Properties.Settings.Default.Timing_DisplayPartcipantAssignment;
 
       //cbTimingDevice.Items.Add("---");
       cbTimingDevice.Items.Add("ALGE TdC8000/8001, ALGE Timy via RS232");
@@ -106,6 +107,9 @@ namespace RaceHorology
       if (Properties.Settings.Default.TimingDevice_Debug_Dump != chkTimingDeviceDebugDump.IsChecked == true )
         Properties.Settings.Default.TimingDevice_Debug_Dump = chkTimingDeviceDebugDump.IsChecked == true;
 
+      if (Properties.Settings.Default.Timing_DisplayPartcipantAssignment != chkTimingDisplayPartcipantAssignment.IsChecked == true)
+        Properties.Settings.Default.Timing_DisplayPartcipantAssignment = chkTimingDisplayPartcipantAssignment.IsChecked == true;
+
       try
       {
         if (Properties.Settings.Default.AutomaticNiZTimeout != uint.Parse(txtAutomaticNiZTimeout.Text))
@@ -138,6 +142,10 @@ namespace RaceHorology
 
     private void cbTimingDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      // Enable ParticipantAssignment for Alpenhunde
+      if (cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde") && !Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde"))
+        chkTimingDisplayPartcipantAssignment.IsChecked = true;
+
       bool displayUrl = cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
       bool displayComPort= cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("ALGE TdC");
 
