@@ -132,11 +132,9 @@ namespace RaceHorologyLib
       timestamp.StartNumber = startnumber;
       timestamp.Valid = true;
 
-      // Trigger TimeMeasurementReceived event with updated startnumber
-      var handle = TimeMeasurementReceived;
-      var newEvent = createTimeMeasurement(timestamp);
-      newEvent.Valid = true; // Make this event a valid one, because it's intended to be (manuelly triggered)
-      handle?.Invoke(this, newEvent);
+      var rp = _raceRun.GetRace().GetParticipant(startnumber);
+      if (rp != null)
+        _raceRun.SetTime(_measurementPoint, rp, timestamp.Time);
     }
 
     private void invalidateOtherWithSameStartnumber(Timestamp timestamp, uint startnumber)
@@ -147,38 +145,5 @@ namespace RaceHorologyLib
           inUse.Valid = false;
       }
     }
-
-
-    private TimeMeasurementEventArgs createTimeMeasurement(Timestamp timestamp)
-    {
-      var data = new TimeMeasurementEventArgs();
-
-      data.StartNumber = timestamp.StartNumber;
-      if (timestamp.MeasurementPoint == EMeasurementPoint.Start)
-      {
-        data.StartTime = timestamp.Time;
-        data.BStartTime = true;
-      }
-      else if (timestamp.MeasurementPoint == EMeasurementPoint.Finish)
-      {
-        data.FinishTime = timestamp.Time;
-        data.BFinishTime = true;
-      }
-      else
-        throw new NotImplementedException();
-
-      data.Valid = timestamp.Valid;
-
-      return data;
-    }
-
-
-    #region Implementation of ILiveTimeMeasurementDeviceBase
-
-    public event TimeMeasurementEventHandler TimeMeasurementReceived;
-
-    #endregion
-
-
   }
 }
