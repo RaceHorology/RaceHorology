@@ -1551,6 +1551,21 @@ namespace RaceHorologyLib
       _UpdateInternals();
     }
 
+
+    /// <summary>
+    /// Sets the measured times for a participant based on start and finish time.
+    /// </summary>
+    /// <param name="participant">The participant</param>
+    /// <param name="startTime">Start time</param>
+    /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
+    public void SetTime(EMeasurementPoint measurementPoint, RaceParticipant participant, TimeSpan? time)
+    {
+      if (measurementPoint == EMeasurementPoint.Start)
+        SetStartTime(participant, time);
+      else if (measurementPoint == EMeasurementPoint.Finish)
+        SetFinishTime(participant, time);
+    }
+
     /// <summary>
     /// Sets the measured times for a participant based on start and finish time.
     /// </summary>
