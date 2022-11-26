@@ -1390,7 +1390,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1, db.GetTimestamps(race, 1).Count);
 
       // Create timestamp
-      var ts2 = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, true);
+      var ts2 = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, false);
       db.CreateOrUpdateTimestamp(rr1, ts2);
       DBCacheWorkaround();
       Assert.IsTrue(CheckTimestamp(dbFilename, ts2, rr1, EMeasurementPoint.Finish));
@@ -1433,7 +1433,7 @@ namespace RaceHorologyLibTest
       rr1.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 12, 0, 0, 0), EMeasurementPoint.Start, 1, true));
       rr1.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, true));
       rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 0), EMeasurementPoint.Start, 2, true));
-      rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 1), EMeasurementPoint.Start, 0, true));
+      rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 1), EMeasurementPoint.Start, 0, false));
         
       DBCacheWorkaround();
       Assert.AreEqual(2, rr1.GetTimestamps().Count);
@@ -1441,14 +1441,18 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1U, rr1.GetTimestamps()[0].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 1), rr1.GetTimestamps()[1].Time);
       Assert.AreEqual(1U, rr1.GetTimestamps()[1].StartNumber);
+      Assert.AreEqual(true, rr1.GetTimestamps()[1].Valid);
 
       Assert.AreEqual(2, rr2.GetTimestamps().Count);
       Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 0), rr2.GetTimestamps()[0].Time);
       Assert.AreEqual(2U, rr2.GetTimestamps()[0].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 1), rr2.GetTimestamps()[1].Time);
       Assert.AreEqual(0U, rr2.GetTimestamps()[1].StartNumber);
+      Assert.AreEqual(false, rr2.GetTimestamps()[1].Valid);
 
-      rr2.GetTimestamps().First(t => t.StartNumber == 0).StartNumber = 10;
+      var temp = rr2.GetTimestamps().First(t => t.StartNumber == 0);
+      temp.StartNumber = 10;
+      temp.Valid = true;
       DBCacheWorkaround();
       Assert.AreEqual(2, rr1.GetTimestamps().Count);
       Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1.GetTimestamps()[0].Time);
@@ -1461,6 +1465,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(2U, rr2.GetTimestamps()[0].StartNumber);
       Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 1), rr2.GetTimestamps()[1].Time);
       Assert.AreEqual(10U, rr2.GetTimestamps()[1].StartNumber);
+      Assert.AreEqual(true, rr2.GetTimestamps()[1].Valid);
 
     }
 
@@ -1483,9 +1488,12 @@ namespace RaceHorologyLibTest
         {
           bRes &= (byte)raceRun.GetRace().RaceType == reader.GetByte(reader.GetOrdinal("disziplin"));
           bRes &= (byte)raceRun.Run == reader.GetByte(reader.GetOrdinal("durchgang"));
-          
+
           uint stnr = (uint)(int)reader.GetValue(reader.GetOrdinal("startnummer"));
           bRes &= ts.StartNumber == stnr;
+
+          bool valid = reader.GetBoolean(reader.GetOrdinal("valid"));
+          bRes &= ts.Valid == valid;
 
           TimeSpan? time = null;
           if (!reader.IsDBNull(reader.GetOrdinal("zeit")))

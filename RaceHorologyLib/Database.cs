@@ -188,13 +188,14 @@ namespace RaceHorologyLib
       if (existsTable("RHTimestamps"))
         return;
 
-      // Create TABLE RHMisc 
+      // Create TABLE 
       string sql = @"
         CREATE TABLE RHTimestamps (
           [disziplin] BYTE NOT NULL, 
           [durchgang] BYTE NOT NULL, 
           [zeit] DOUBLE NOT NULL, 
           [startnummer] LONG,
+          [valid] BIT,
           [kanal] TEXT(10) NOT NULL
         )";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
@@ -1266,17 +1267,18 @@ namespace RaceHorologyLib
       if (!bNew)
       {
         string sql = @"UPDATE RHTimestamps " +
-                     @"SET startnummer = @startnummer " +
+                     @"SET startnummer = @startnummer, valid = @valid " +
                      @"WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal";
         cmd = new OleDbCommand(sql, _conn);
       }
       else
       {
-        string sql = @"INSERT INTO RHTimestamps (startnummer, disziplin, durchgang, zeit, kanal) " +
-                     @"VALUES (@startnummer, @disziplin, @durchgang, @zeit, @kanal) ";
+        string sql = @"INSERT INTO RHTimestamps (startnummer, valid, disziplin, durchgang, zeit, kanal) " +
+                     @"VALUES (@startnummer, @valid, @disziplin, @durchgang, @zeit, @kanal) ";
         cmd = new OleDbCommand(sql, _conn);
       }
       cmd.Parameters.Add(new OleDbParameter("@startnummer", timestamp.StartNumber));
+      cmd.Parameters.Add(new OleDbParameter("@valid", timestamp.Valid));
       cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
       cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
       cmd.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
@@ -1326,13 +1328,17 @@ namespace RaceHorologyLib
           if (!reader.IsDBNull(reader.GetOrdinal("zeit")))
             time = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("zeit")));
 
-          EMeasurementPoint mp = measurementPoint(reader["kanal"].ToString());
+          bool valid = false;
+          if (!reader.IsDBNull(reader.GetOrdinal("valid")))
+            valid = reader.GetBoolean(reader.GetOrdinal("valid"));
+
+            EMeasurementPoint mp = measurementPoint(reader["kanal"].ToString());
           uint stnr = 0;
           if (!reader.IsDBNull(reader.GetOrdinal("startnummer")))
             stnr = (uint)(int)reader.GetValue(reader.GetOrdinal("startnummer"));
 
           if (time != null)
-            result.Add(new Timestamp((TimeSpan)time, mp, stnr, true));
+            result.Add(new Timestamp((TimeSpan)time, mp, stnr, valid));
         }
       }
 
