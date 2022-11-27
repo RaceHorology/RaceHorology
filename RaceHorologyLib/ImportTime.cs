@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -210,11 +210,21 @@ namespace RaceHorologyLib
     public void AddEntry(ImportTimeEntry entry)
     {
       var existingEntry = _importEntries.FirstOrDefault(x => x.StartNumber == entry.StartNumber);
-      if (existingEntry != null)
-        _importEntries.Remove(existingEntry);
+      ImportTimeEntryWithParticipant e = null;
+      if (entry.StartNumber != 0 && existingEntry != null)
+      {
+        if (entry.StartTime != null)
+          existingEntry.setStartTime((TimeSpan)entry.StartTime);
+        if (entry.FinishTime != null)
+          existingEntry.setFinishTime((TimeSpan)entry.FinishTime);
+        if (entry.RunTime != null)
+          e = new ImportTimeEntryWithParticipant(entry, _race);
+      }
+      else
+        e = new ImportTimeEntryWithParticipant(entry, _race);
 
-      var e = new ImportTimeEntryWithParticipant(entry, _race);
-      _importEntries.Add(e);
+      if (e != null)
+        _importEntries.Add(e);
     }
 
 
