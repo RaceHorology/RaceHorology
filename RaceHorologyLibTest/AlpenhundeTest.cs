@@ -132,6 +132,17 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(128, data[4].c);
       Assert.AreEqual("", data[4].n);
       Assert.AreEqual("00:47:34.9711", data[4].t);
+    }
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\Alpenhunde\events_all.json")]
+    public void ParseEventsJson2()
+    {
+      var eventsJson = System.IO.File.ReadAllText(@"events_all.json");
+
+      AlpenhundeParser parser = new AlpenhundeParser();
+      var data = parser.ParseEvents(eventsJson);
+
+      Assert.AreEqual(64, data.Count);
 
     }
   }

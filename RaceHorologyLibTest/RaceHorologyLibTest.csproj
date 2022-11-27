@@ -213,6 +213,9 @@
     <None Include="TestDataBases\Alpenhunde\events_01.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestDataBases\Alpenhunde\events_all.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDataBases\FullTestCases\Case1\ALGETdC8001-202002020841.dump">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
