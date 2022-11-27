@@ -209,15 +209,18 @@ namespace RaceHorologyLib
 
     public void AddEntry(ImportTimeEntry entry)
     {
-      var existingEntry = _importEntries.FirstOrDefault(x => x.StartNumber == entry.StartNumber);
+      var existingEntry = _importEntries.LastOrDefault(x => x.StartNumber == entry.StartNumber);
       ImportTimeEntryWithParticipant e = null;
       if (entry.StartNumber != 0 && existingEntry != null)
       {
-        if (entry.StartTime != null)
+        var idx = _importEntries.IndexOf(existingEntry);
+        if (_importEntries.Count - idx > 10 || entry.RunTime != null)
+          e = new ImportTimeEntryWithParticipant(entry, _race);
+        else if (entry.StartTime != null && existingEntry.StartTime == null)
           existingEntry.setStartTime((TimeSpan)entry.StartTime);
-        if (entry.FinishTime != null)
+        else if (entry.FinishTime != null && existingEntry.FinishTime == null)
           existingEntry.setFinishTime((TimeSpan)entry.FinishTime);
-        if (entry.RunTime != null)
+        else
           e = new ImportTimeEntryWithParticipant(entry, _race);
       }
       else
