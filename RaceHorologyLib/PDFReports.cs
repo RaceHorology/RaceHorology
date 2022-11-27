@@ -333,7 +333,6 @@ namespace RaceHorologyLib
       float[] cols = { 0.0F, 100.0F };
       Table tableHeader = new Table(UnitValue.CreatePercentArray(cols));
       tableHeader.SetWidth(UnitValue.CreatePercentValue(100));
-      tableHeader.SetBorder(Border.NO_BORDER);
       //.SetPaddingBottom(0)
       //.SetMarginBottom(0);
 
@@ -354,7 +353,6 @@ namespace RaceHorologyLib
           //.SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          //.SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(fontBold)
           .Add(_logo1.SetMaxHeight(maxHeightCol1)));
@@ -362,7 +360,6 @@ namespace RaceHorologyLib
         tableHeader.AddCell(new Cell()
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          //.SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           );
 
       // Main Table -> First Row -> Nested Table 1 (Race Description and RH Logo)
@@ -373,11 +370,10 @@ namespace RaceHorologyLib
       float[] nestedtable1Cols = { 100.0F, 0.0F };
       Table nestedtable1 = new Table(UnitValue.CreatePercentArray(nestedtable1Cols));
       nestedtable1.SetWidth(UnitValue.CreatePercentValue(100));
-      nestedtable1.SetBorder(Border.NO_BORDER);
 
       // Cell 1 (Race Description)
       Cell nestedtable1cell1 = new Cell();
-      if (!string.IsNullOrEmpty(_race.Description)) {
+      if (!string.IsNullOrEmpty(_race.Description))
         nestedtable1cell1.SetTextAlignment(TextAlignment.LEFT)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
           .SetBorder(Border.NO_BORDER)
@@ -385,9 +381,9 @@ namespace RaceHorologyLib
           .SetFont(fontTitle)
           .SetFontSize(fontSizeTitle)
           .Add(new Paragraph(_race.Description));
-      } else {
+      else
         nestedtable1cell1.SetBorder(Border.NO_BORDER);
-      }
+
       nestedtable1.AddCell(nestedtable1cell1);
 
       // Cell 2 (RH Logo)
@@ -435,7 +431,6 @@ namespace RaceHorologyLib
       float[] nestedtable2Cols = { 60.0F, 40.0F };
       Table nestedtable2 = new Table(UnitValue.CreatePercentArray(nestedtable2Cols));
       nestedtable2.SetWidth(UnitValue.CreatePercentValue(100));
-      nestedtable2.SetBorder(Border.NO_BORDER);
 
       // Cell 1 (List name)
       Cell nestedtable2cell1 = new Cell();
