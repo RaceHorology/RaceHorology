@@ -38,6 +38,8 @@ namespace RaceHorology
 
       cmbRun.SelectedValuePath = "Value";
       UiUtilities.FillCmbRaceRun(cmbRun, race);
+
+      importTimeDevice.DownloadImportTimes();
     }
 
     private void DeInit()
