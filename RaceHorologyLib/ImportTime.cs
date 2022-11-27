@@ -60,11 +60,19 @@ namespace RaceHorologyLib
   {
     protected uint _startNumber;
     protected TimeSpan? _runTime;
+    protected TimeSpan? _startTime;
+    protected TimeSpan? _finishTime;
 
     public ImportTimeEntry(uint startNumber, TimeSpan? runTime)
     {
       _startNumber = startNumber;
       _runTime = runTime;
+    }
+    public ImportTimeEntry(uint startNumber, TimeSpan? startTime, TimeSpan? finishTime)
+    {
+      _startNumber = startNumber;
+      _startTime = startTime;
+      _finishTime = finishTime;
     }
 
     virtual public uint StartNumber
@@ -73,11 +81,16 @@ namespace RaceHorologyLib
       set { if (_startNumber != value) { _startNumber = value; } }
     }
 
-    public TimeSpan? RunTime
-    {
-      get { return _runTime; }
-      set { if (_runTime != value) { _runTime = value; } }
-    }
+    // Methods for reading properties and setting
+    // Note: Setting is intentionally done via setFunction and not property accessors in order to avoid chainging the time accidentally (e.g. via a DataGridView)
+    public TimeSpan? RunTime { get { return _runTime; } }
+    public void setRunTime(TimeSpan value) { if (_runTime != value) { _runTime = value; } }
+
+    public TimeSpan? StartTime { get { return _startTime; } }
+    public void setStartTime(TimeSpan value) { if (_startTime != value) { _startTime = value; } }
+
+    public TimeSpan? FinishTime { get { return _finishTime; } }
+    public void setFinishTime(TimeSpan value) { if (_finishTime != value) { _finishTime = value; } }
   }
 
 
