@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2022 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -66,6 +66,14 @@ namespace RaceHorologyLib
     protected TimeSpan? _startTime;
     protected TimeSpan? _finishTime;
 
+    protected ImportTimeEntry(ImportTimeEntry that)
+    {
+      _startNumber = that._startNumber;
+      _runTime = that._runTime;
+      _startTime = that._startTime;
+      _finishTime = that._finishTime;
+    }
+
     public ImportTimeEntry(uint startNumber, TimeSpan? runTime)
     {
       _startNumber = startNumber;
@@ -87,13 +95,13 @@ namespace RaceHorologyLib
     // Methods for reading properties and setting
     // Note: Setting is intentionally done via setFunction and not property accessors in order to avoid chainging the time accidentally (e.g. via a DataGridView)
     public TimeSpan? RunTime { get { return _runTime; } }
-    public void setRunTime(TimeSpan value) { if (_runTime != value) { _runTime = value; } }
+    public virtual void setRunTime(TimeSpan value) { if (_runTime != value) { _runTime = value; } }
 
     public TimeSpan? StartTime { get { return _startTime; } }
-    public void setStartTime(TimeSpan value) { if (_startTime != value) { _startTime = value; } }
+    public virtual void setStartTime(TimeSpan value) { if (_startTime != value) { _startTime = value; } }
 
     public TimeSpan? FinishTime { get { return _finishTime; } }
-    public void setFinishTime(TimeSpan value) { if (_finishTime != value) { _finishTime = value; } }
+    public virtual void setFinishTime(TimeSpan value) { if (_finishTime != value) { _finishTime = value; } }
   }
 
 
@@ -104,7 +112,7 @@ namespace RaceHorologyLib
     RaceParticipant _rp;
 
     public ImportTimeEntryWithParticipant(ImportTimeEntry ie, Race race)
-      : base(ie.StartNumber, ie.RunTime)
+      : base(ie)
     {
       _race = race;
       _rp = _race.GetParticipant(_startNumber);
@@ -126,6 +134,13 @@ namespace RaceHorologyLib
         } 
       }
     }
+
+    public override void setRunTime(TimeSpan value) { if (_runTime != value) { _runTime = value; NotifyPropertyChanged("RunTime"); } }
+
+    public override void setStartTime(TimeSpan value) { if (_startTime != value) { _startTime = value; NotifyPropertyChanged("StartTime"); } }
+
+    public override void setFinishTime(TimeSpan value) { if (_finishTime != value) { _finishTime = value; NotifyPropertyChanged("FinishTime"); } }
+
 
 
     public string Name { get => _rp?.Name; }
