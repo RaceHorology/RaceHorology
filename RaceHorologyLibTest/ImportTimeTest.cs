@@ -51,10 +51,15 @@ namespace RaceHorologyLibTest
     {
       public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
 
+      public void DownloadImportTimes()
+      {
+      }
+
       public void TriggerImportTimeEntryReceived(ImportTimeEntry entry)
       {
         ImportTimeEntryReceived.Invoke(this, entry);
       }
+
     }
 
 

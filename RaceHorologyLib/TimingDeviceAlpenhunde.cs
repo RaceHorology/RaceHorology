@@ -21,7 +21,7 @@ namespace RaceHorologyLib
   }
 
 
-  public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, ILiveTimeMeasurementDeviceDebugInfo
+  public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, ILiveTimeMeasurementDeviceDebugInfo, IImportTime
   {
     private string _hostname;
     private string _baseUrl;
@@ -45,6 +45,8 @@ namespace RaceHorologyLib
       _internalProtocol = String.Empty;
     }
 
+
+    #region Implementation of ILiveTimeMeasurementDevice
 
     private void setInternalStatus(EStatus status)
     {
@@ -168,6 +170,21 @@ namespace RaceHorologyLib
       _webSocket = null;
     }
 
+    #endregion
+
+
+    #region Implementation of IImportTime
+
+    public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
+
+    public void DownloadImportTimes()
+    {
+
+    }
+
+
+    #endregion
+
 
     #region Implementation of ILiveDateTimeProvider
     public event LiveDateTimeChangedHandler LiveDateTimeChanged;
@@ -250,6 +267,7 @@ namespace RaceHorologyLib
     #region Implementation of ILiveTimeMeasurementDeviceDebugInfo
 
     public event RawMessageReceivedEventHandler RawMessageReceived;
+
     private string _internalProtocol;
 
     public string GetProtocol()

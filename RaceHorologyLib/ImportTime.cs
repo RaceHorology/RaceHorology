@@ -50,6 +50,9 @@ namespace RaceHorologyLib
   public interface IImportTime
   {
     event ImportTimeEntryEventHandler ImportTimeEntryReceived;
+
+    void DownloadImportTimes();
+
   }
 
 

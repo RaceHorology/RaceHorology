@@ -218,6 +218,8 @@ namespace RaceHorologyLib
       return data;
     }
 
+    // Nothing to implement, download is initiated interactively on ALGE device via Classment transfer
+    public void DownloadImportTimes(){}
 
 
     #region Implementation of ILiveDateTimeProvider
