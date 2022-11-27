@@ -41,6 +41,22 @@
         </DataGridTextColumn>
         <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
         <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
+        <DataGridTextColumn Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+        <DataGridTextColumn Header="Zielzeit" Binding="{Binding FinishTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="HorizontalAlignment" Value="Right" />
+              <Setter Property="Margin" Value="5,0,5,0" />
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
         <DataGridTextColumn Header="Laufzeit" Binding="{Binding RunTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
