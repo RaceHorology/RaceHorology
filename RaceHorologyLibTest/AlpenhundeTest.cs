@@ -1,4 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -74,7 +74,7 @@ namespace RaceHorologyLibTest
       AlpenhundeParser parser = new AlpenhundeParser();
       { // Start Case
         var o = parser.ParseMessage("{ 'type': 'timestamp', 'data': { 'i': 876, 'c': 1, 'n': '2', 't': '10:12:30.1230' } }");
-        var t = TimingDeviceAlpenhunde.ConvertToTimemeasurementData(o.data);
+        var t = AlpenhundeParser.ConvertToTimemeasurementData(o.data);
         Assert.AreEqual(2U, t.StartNumber);
         Assert.AreEqual(new TimeSpan(0, 10, 12, 30, 123), t.StartTime);
         Assert.IsTrue(t.BStartTime);
@@ -83,7 +83,7 @@ namespace RaceHorologyLibTest
       }
       { // Finish Case
         var o = parser.ParseMessage("{ 'type': 'timestamp', 'data': { 'i': 876, 'c': 128, 'n': '2', 't': '10:12:30.1230' } }");
-        var t = TimingDeviceAlpenhunde.ConvertToTimemeasurementData(o.data);
+        var t = AlpenhundeParser.ConvertToTimemeasurementData(o.data);
         Assert.AreEqual(2U, t.StartNumber);
         Assert.AreEqual(new TimeSpan(0, 10, 12, 30, 123), t.FinishTime);
         Assert.IsTrue(t.BFinishTime);
@@ -92,14 +92,14 @@ namespace RaceHorologyLibTest
       }
       { // Intermediate Case
         var o = parser.ParseMessage("{ 'type': 'timestamp', 'data': { 'i': 876, 'c': 2, 'n': '2', 't': '10:12:30.1230' } }");
-        var t = TimingDeviceAlpenhunde.ConvertToTimemeasurementData(o.data);
+        var t = AlpenhundeParser.ConvertToTimemeasurementData(o.data);
         Assert.IsNull(t); // Not supported
       }
     }
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\Alpenhunde\events_01.json")]
-    public void ParseEventsJson()
+    public void ParseEventsJson1()
     {
       var eventsJson = System.IO.File.ReadAllText(@"events_01.json");
 
@@ -143,7 +143,15 @@ namespace RaceHorologyLibTest
       var data = parser.ParseEvents(eventsJson);
 
       Assert.AreEqual(64, data.Count);
+    }
 
+    [TestMethod, TestCategory("HardwareDependent")]
+    public void DownloadTimestampes()
+    {
+      var device = new TimingDeviceAlpenhunde("192.168.4.1");
+      device.DownloadImportTimes();
+
+      System.Threading.Thread.Sleep(60000);
     }
   }
 }

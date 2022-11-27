@@ -1,7 +1,9 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using WebSocketSharp;
@@ -23,10 +25,13 @@ namespace RaceHorologyLib
 
   public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, ILiveTimeMeasurementDeviceDebugInfo, IImportTime
   {
+    private System.Threading.SynchronizationContext _syncContext;
     private string _hostname;
     private string _baseUrl;
+    private string _baseUrlWs;
     private EStatus _status;
 
+    private HttpClient _webClient;
     private WebSocket _webSocket;
     private AlpenhundeParser _parser;
 
@@ -38,8 +43,11 @@ namespace RaceHorologyLib
 
     public TimingDeviceAlpenhunde(string hostname)
     {
+      _syncContext = System.Threading.SynchronizationContext.Current;
+
       _hostname = hostname;
-      _baseUrl = String.Format("ws://{0}/ws/events", hostname);
+      _baseUrl = String.Format("http://{0}/", hostname);
+      _baseUrlWs = String.Format("ws://{0}/ws/events", hostname);
       _parser = new AlpenhundeParser();
 
       _internalProtocol = String.Empty;
@@ -92,7 +100,7 @@ namespace RaceHorologyLib
 
       setInternalStatus(EStatus.Connecting);
 
-      _webSocket = new WebSocket(_baseUrl);
+      _webSocket = new WebSocket(_baseUrlWs);
       _webSocket.EmitOnPing = true;
 
       _webSocket.OnOpen += (sender, e) => {
@@ -113,14 +121,17 @@ namespace RaceHorologyLib
           var parsedData = _parser.ParseMessage(e.Data);
           if (parsedData != null && parsedData.type == "timestamp")
           {
-            var timeMeasurmentData = ConvertToTimemeasurementData(parsedData.data);
+            var timeMeasurmentData = AlpenhundeParser.ConvertToTimemeasurementData(parsedData.data);
             if (timeMeasurmentData != null)
             {
               // Update internal clock for livetiming
               UpdateLiveDayTime(timeMeasurmentData);
               // Trigger time measurment event
-              var handle = TimeMeasurementReceived;
-              handle?.Invoke(this, timeMeasurmentData);
+              _syncContext.Send(delegate
+              {
+                var handle = TimeMeasurementReceived;
+                handle?.Invoke(this, timeMeasurmentData);
+              }, null);
             }
           }
           else
@@ -179,7 +190,32 @@ namespace RaceHorologyLib
 
     public void DownloadImportTimes()
     {
+      if (_webClient == null)
+      {
+        _webClient = new HttpClient();
+        _webClient.BaseAddress = new Uri(_baseUrl);
+      }
 
+      _webClient.GetAsync("timing/results/?action=all_events")
+        .ContinueWith((response) =>
+        {
+          response.Result.Content.ReadAsStringAsync().ContinueWith((data) =>
+          {
+            var events = _parser.ParseEvents(data.Result);
+            Logger.Debug(data.Result);
+
+            foreach(var i in events)
+            {
+              var te = AlpenhundeParser.ConvertToImportTimeEntry(i);
+              // Trigger time measurment event
+              _syncContext.Send(delegate
+              {
+                var handle = ImportTimeEntryReceived;
+                handle?.Invoke(this, te);
+              }, null);
+            }
+          });
+        });
     }
 
 
@@ -212,56 +248,6 @@ namespace RaceHorologyLib
       }
     }
     #endregion
-
-
-    public static TimeMeasurementEventArgsAlpenhunde ConvertToTimemeasurementData(in AlpenhundeTimingData parsedData)
-    {
-      var data = new TimeMeasurementEventArgsAlpenhunde();
-
-      TimeSpan parsedTime;
-      try
-      {
-        var timeStr = parsedData.t;
-        string[] formats = { @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff", @"hh\:mm\:ss\.f" };
-        timeStr = timeStr.Trim(' ');
-        parsedTime = TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
-      }
-      catch (FormatException e)
-      {
-        Logger.Error(e, "Error while parsing Alpenhunde 't'");
-        return null;
-      }
-
-      uint startNumber = 0;
-      try
-      {
-        startNumber = byte.Parse(parsedData.n);
-      }
-      catch (FormatException e)
-      {
-        Logger.Error(e, "Error while parsing Alpenhunde 'n'; assuming startnumber 0");
-      }
-
-      data.Index = parsedData.i;
-
-      data.StartNumber = startNumber;
-      data.Valid = startNumber > 0;
-      switch (parsedData.c)
-      {
-        case 1: // Start
-          data.BStartTime = true;
-          data.StartTime = parsedTime;
-          break;
-        case 128: // Finish
-          data.BFinishTime= true;
-          data.FinishTime = parsedTime;
-          break;
-        default:
-          return null;
-      }
-
-      return data;
-    }
 
 
     #region Implementation of ILiveTimeMeasurementDeviceDebugInfo
@@ -324,6 +310,8 @@ namespace RaceHorologyLib
 
   public class AlpenhundeParser
   {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
 
     public AlpenhundeEvent ParseMessage(string data)
     {
@@ -337,6 +325,102 @@ namespace RaceHorologyLib
       //JsonConversion
       var parsedData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<AlpenhundeTimingData>>>(data);
       return parsedData["events"];
+    }
+
+
+
+    public static TimeMeasurementEventArgsAlpenhunde ConvertToTimemeasurementData(in AlpenhundeTimingData parsedData)
+    {
+      var data = new TimeMeasurementEventArgsAlpenhunde();
+
+      TimeSpan? parsedTime = AlpenhundeParser.ParseTime(parsedData);
+      if (parsedTime == null) return null;
+
+      uint startNumber = AlpenhundeParser.ParseStartNumber(parsedData);
+      data.Index = parsedData.i;
+
+      data.StartNumber = startNumber;
+      data.Valid = startNumber > 0;
+      switch (AlpenhundeParser.GetMeasurementPoint(parsedData))
+      {
+        case EMeasurementPoint.Start:
+          data.BStartTime = true;
+          data.StartTime = parsedTime;
+          break;
+        case EMeasurementPoint.Finish:
+          data.BFinishTime = true;
+          data.FinishTime = parsedTime;
+          break;
+        default:
+          return null;
+      }
+
+      return data;
+    }
+
+
+    public static ImportTimeEntry ConvertToImportTimeEntry(in AlpenhundeTimingData parsedData)
+    {
+      var parsedTime = AlpenhundeParser.ParseTime(parsedData);
+      uint startNumber = AlpenhundeParser.ParseStartNumber(parsedData);
+
+      ImportTimeEntry data;
+      switch (AlpenhundeParser.GetMeasurementPoint(parsedData))
+      {
+        case EMeasurementPoint.Start:
+          data = new ImportTimeEntry(startNumber, parsedTime, null);
+          break;
+        case EMeasurementPoint.Finish:
+          data = new ImportTimeEntry(startNumber, null, parsedTime);
+          break;
+        default:
+          return null;
+      }
+
+      return data;
+    }
+
+
+    public static TimeSpan? ParseTime(in AlpenhundeTimingData parsedData)
+    {
+      var timeStr = parsedData.t;
+      try
+      {
+        string[] formats = { @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff", @"hh\:mm\:ss\.f" };
+        timeStr = timeStr.Trim(' ');
+        return TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
+      }
+      catch (FormatException e)
+      {
+        Logger.Error(e, "Error while parsing Alpenhunde 't'");
+        return null;
+      }
+    }
+
+    public static EMeasurementPoint GetMeasurementPoint(in AlpenhundeTimingData parsedData)
+    {
+      switch (parsedData.c)
+      {
+        case 1: // Start
+          return EMeasurementPoint.Start;
+        case 128: // Finish
+          return EMeasurementPoint.Finish;
+      }
+      return EMeasurementPoint.Undefined;
+    }
+
+    public static uint ParseStartNumber(in AlpenhundeTimingData parsedData)
+    {
+      uint startNumber = 0;
+      try
+      {
+        startNumber = uint.Parse(parsedData.n);
+      }
+      catch (FormatException e)
+      {
+        Logger.Error(e, "Error while parsing Alpenhunde 'n'; assuming startnumber 0");
+      }
+      return startNumber;
     }
 
   }
