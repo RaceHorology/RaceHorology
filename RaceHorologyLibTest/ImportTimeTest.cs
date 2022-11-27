@@ -115,15 +115,16 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator();
       var rp = tg.createRaceParticipant();
 
-      ImportTimeEntry ie = new ImportTimeEntry(1U, new TimeSpan(0, 0, 10));
+      ImportTimeEntry ie1 = new ImportTimeEntry(1U, new TimeSpan(0, 0, 10));
 
-      ImportTimeEntryWithParticipant entry1 = new ImportTimeEntryWithParticipant(ie, tg.Model.GetRace(0));
+      ImportTimeEntryWithParticipant entry1 = new ImportTimeEntryWithParticipant(ie1, tg.Model.GetRace(0));
       Assert.AreEqual(1U, entry1.StartNumber);
       Assert.AreEqual("Name 1", entry1.Name);
 
-      // ImportTimeEntryWithParticipant and no patient
-      ImportTimeEntryWithParticipant entry2 = new ImportTimeEntryWithParticipant(ie, null);
-      Assert.AreEqual(1U, entry2.StartNumber);
+      ImportTimeEntry ie2 = new ImportTimeEntry(99999U, new TimeSpan(0, 0, 10));
+      // ImportTimeEntryWithParticipant and no valid startnumber participant
+      ImportTimeEntryWithParticipant entry2 = new ImportTimeEntryWithParticipant(ie2, tg.Model.GetRace(0));
+      Assert.AreEqual(99999U, entry2.StartNumber);
       Assert.AreEqual(null, entry2.Name);
     }
 
