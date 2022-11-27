@@ -214,14 +214,19 @@ namespace RaceHorologyLib
       if (entry.StartNumber != 0 && existingEntry != null)
       {
         var idx = _importEntries.IndexOf(existingEntry);
-        if (_importEntries.Count - idx > 10 || entry.RunTime != null)
-          e = new ImportTimeEntryWithParticipant(entry, _race);
-        else if (entry.StartTime != null && existingEntry.StartTime == null)
-          existingEntry.setStartTime((TimeSpan)entry.StartTime);
-        else if (entry.FinishTime != null && existingEntry.FinishTime == null)
-          existingEntry.setFinishTime((TimeSpan)entry.FinishTime);
+        if (entry.RunTime != null && entry.StartTime == null && entry.FinishTime == null)
+          existingEntry.setRunTime((TimeSpan)entry.RunTime);
         else
-          e = new ImportTimeEntryWithParticipant(entry, _race);
+        {
+          if (_importEntries.Count - idx > 10)
+            e = new ImportTimeEntryWithParticipant(entry, _race);
+          else if (entry.StartTime != null && existingEntry.StartTime == null)
+            existingEntry.setStartTime((TimeSpan)entry.StartTime);
+          else if (entry.FinishTime != null && existingEntry.FinishTime == null)
+            existingEntry.setFinishTime((TimeSpan)entry.FinishTime);
+          else
+            e = new ImportTimeEntryWithParticipant(entry, _race);
+        }
       }
       else
         e = new ImportTimeEntryWithParticipant(entry, _race);
@@ -234,13 +239,24 @@ namespace RaceHorologyLib
     /// <summary>
     /// Saves all runtimes to the race run specified
     /// </summary>
-    public void Save(RaceRun raceRun)
+    public int Save(RaceRun raceRun, IEnumerable<ImportTimeEntryWithParticipant> items)
     {
-      foreach( var entry in _importEntries)
+      int count = 0;
+      foreach( var entry in items)
       {
         if (entry.Participant != null)
-          raceRun.SetRunTime(entry.Participant, entry.RunTime);
+        {
+          if (entry.StartTime != null)
+            raceRun.SetStartTime(entry.Participant, entry.StartTime);
+          if (entry.FinishTime != null)
+            raceRun.SetFinishTime(entry.Participant, entry.FinishTime);
+          if (entry.RunTime != null)
+            raceRun.SetRunTime(entry.Participant, entry.RunTime);
+
+          count++;
+        }
       }
+      return count;
     }
 
 

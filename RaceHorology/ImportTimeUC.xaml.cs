@@ -42,8 +42,9 @@ namespace RaceHorology
       importTimeDevice.DownloadImportTimes();
     }
 
-    private void DeInit()
+    private void close()
     {
+      Finished?.Invoke(this, new EventArgs());
       _importTimeVM.Dispose();
       _importTimeVM = null;
     }
@@ -51,16 +52,24 @@ namespace RaceHorology
     private void btnSave_Click(object sender, RoutedEventArgs e)
     {
       if (cmbRun.SelectedValue is RaceRun rr)
-        _importTimeVM.Save(rr);
+      {
+        if (dgImportTime.SelectedItems.Count > 0)
+        {
+          List<ImportTimeEntryWithParticipant> entries = new List<ImportTimeEntryWithParticipant>();
+          foreach (var i in dgImportTime.SelectedItems)
+            entries.Add(i as ImportTimeEntryWithParticipant);
 
-      DeInit();
-      Finished?.Invoke(this, new EventArgs());
+          var count = _importTimeVM.Save(rr, entries);
+          MessageBox.Show(String.Format("Es wurden {0} Einträge in Durchgang {1} importiert.", count, rr.Run), "Import von Zeiten", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        else
+          MessageBox.Show("Kein Eintrag ausgewählt.\n\nBitte wähle die Einträge aus, die Importiert werden sollen.", "Kein Eintrag ausgewählt", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
     }
 
-    private void btnCancel_Click(object sender, RoutedEventArgs e)
+    private void btnClose_Click(object sender, RoutedEventArgs e)
     {
-      DeInit();
-      Finished?.Invoke(this, new EventArgs());
+      close();
     }
 
     private void cmbRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
