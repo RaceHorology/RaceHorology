@@ -58,8 +58,8 @@ namespace RaceHorologyLib
   /// </summary>
   public class ImportTimeEntry
   {
-    uint _startNumber;
-    TimeSpan? _runTime;
+    protected uint _startNumber;
+    protected TimeSpan? _runTime;
 
     public ImportTimeEntry(uint startNumber, TimeSpan? runTime)
     {
@@ -67,7 +67,7 @@ namespace RaceHorologyLib
       _runTime = runTime;
     }
 
-    public uint StartNumber
+    virtual public uint StartNumber
     {
       get { return _startNumber; }
       set { if (_startNumber != value) { _startNumber = value; } }
@@ -82,21 +82,35 @@ namespace RaceHorologyLib
 
 
 
-  public class ImportTimeEntryWithParticipant : ImportTimeEntry
+  public class ImportTimeEntryWithParticipant : ImportTimeEntry, INotifyPropertyChanged
   {
+    Race _race;
     RaceParticipant _rp;
 
-    public ImportTimeEntryWithParticipant(ImportTimeEntry ie, RaceParticipant rp)
+    public ImportTimeEntryWithParticipant(ImportTimeEntry ie, Race race)
       : base(ie.StartNumber, ie.RunTime)
     {
-      _rp = rp;
+      _race = race;
+      _rp = _race.GetParticipant(_startNumber);
     }
 
     public RaceParticipant Participant
     {
       get { return _rp; }
-      set { if (_rp != value) { _rp = value; } }
     }
+
+    override public uint StartNumber
+    {
+      get { return base.StartNumber; }
+      set { 
+        if (_startNumber != value) { 
+          _startNumber = value;
+          _rp = _race.GetParticipant(_startNumber);
+          NotifyAllPropertiesChanged();
+        } 
+      }
+    }
+
 
     public string Name { get => _rp?.Name; }
     public string Firstname { get => _rp?.Firstname; }
@@ -109,6 +123,25 @@ namespace RaceHorologyLib
     public string Code { get => _rp?.Code; }
     public ParticipantClass Class { get => _rp?.Class; }
     public ParticipantGroup Group { get => _rp?.Group; }
+
+
+
+    #region INotifyPropertyChanged implementation
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    protected void NotifyAllPropertiesChanged()
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+    }
+
+    #endregion
   }
 
 
@@ -149,8 +182,7 @@ namespace RaceHorologyLib
       if (existingEntry != null)
         _importEntries.Remove(existingEntry);
 
-      var participant = _race.GetParticipant(entry.StartNumber);
-      var e = new ImportTimeEntryWithParticipant(entry, participant);
+      var e = new ImportTimeEntryWithParticipant(entry, _race);
       _importEntries.Add(e);
     }
 

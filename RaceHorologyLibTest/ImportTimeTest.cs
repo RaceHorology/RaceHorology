@@ -117,7 +117,7 @@ namespace RaceHorologyLibTest
 
       ImportTimeEntry ie = new ImportTimeEntry(1U, new TimeSpan(0, 0, 10));
 
-      ImportTimeEntryWithParticipant entry1 = new ImportTimeEntryWithParticipant(ie, rp);
+      ImportTimeEntryWithParticipant entry1 = new ImportTimeEntryWithParticipant(ie, tg.Model.GetRace(0));
       Assert.AreEqual(1U, entry1.StartNumber);
       Assert.AreEqual("Name 1", entry1.Name);
 
