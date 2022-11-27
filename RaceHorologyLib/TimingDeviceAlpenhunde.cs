@@ -332,6 +332,13 @@ namespace RaceHorologyLib
       return o;
     }
 
+    public List<AlpenhundeTimingData> ParseEvents(string data)
+    {
+      //JsonConversion
+      var parsedData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<AlpenhundeTimingData>>>(data);
+      return parsedData["events"];
+    }
+
   }
 
 }
