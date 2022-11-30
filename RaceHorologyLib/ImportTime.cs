@@ -47,11 +47,13 @@ namespace RaceHorologyLib
 
   public delegate void ImportTimeEntryEventHandler(object sender, ImportTimeEntry e);
 
+  public enum EImportTimeFlags { None = 0x0, RemoteDownload = 0x1, RunTime = 0x2, StartFinishTime = 0x4 }
   public interface IImportTime
   {
     event ImportTimeEntryEventHandler ImportTimeEntryReceived;
 
     void DownloadImportTimes();
+    EImportTimeFlags SupportedImportTimeFlags();
 
   }
 
@@ -205,6 +207,11 @@ namespace RaceHorologyLib
     public ObservableCollection<ImportTimeEntryWithParticipant> ImportEntries
     {
       get { return _importEntries; }
+    }
+
+    public void Clear()
+    {
+      _importEntries.Clear();
     }
 
     public void AddEntry(ImportTimeEntry entry)

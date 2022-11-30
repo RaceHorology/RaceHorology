@@ -23,6 +23,7 @@ namespace RaceHorology
   {
 
     ImportTimeEntryVM _importTimeVM;
+    IImportTime _importTimeDevice;
     public event EventHandler Finished;
 
     public ImportTimeUC()
@@ -33,13 +34,35 @@ namespace RaceHorology
     public void Init(AppDataModel dm, Race race, IImportTime importTimeDevice)
     {
       _importTimeVM = new ImportTimeEntryVM(race, importTimeDevice);
+      _importTimeDevice = importTimeDevice;
 
       dgImportTime.ItemsSource = _importTimeVM.ImportEntries;
 
       cmbRun.SelectedValuePath = "Value";
       UiUtilities.FillCmbRaceRun(cmbRun, race);
 
-      importTimeDevice.DownloadImportTimes();
+      if ((importTimeDevice.SupportedImportTimeFlags() & EImportTimeFlags.RemoteDownload) != EImportTimeFlags.None)
+      {
+        importTimeDevice.DownloadImportTimes();
+        lblHeader.Content = "Drücke Download um den Transfer erneut zu starten.";
+      }
+      else
+      {
+        lblHeader.Content = "Starte den Transfer über das Zeitnahmegerät (Classement Senden)";
+        btnDownload.Visibility = Visibility.Collapsed;
+        lblHeader.HorizontalAlignment = HorizontalAlignment.Center;
+      }
+
+      if ((importTimeDevice.SupportedImportTimeFlags() & EImportTimeFlags.StartFinishTime) != EImportTimeFlags.None)
+      {
+        dgImportTime.ColumnByName("RunTime").Visibility = Visibility.Collapsed;
+      }
+      else
+      {
+        dgImportTime.ColumnByName("StartTime").Visibility = Visibility.Collapsed;
+        dgImportTime.ColumnByName("FinishTime").Visibility = Visibility.Collapsed;
+      }
+
     }
 
     private void close()
@@ -75,6 +98,12 @@ namespace RaceHorology
     private void cmbRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
 
+    }
+
+    private void btnDownload_Click(object sender, RoutedEventArgs e)
+    {
+      _importTimeVM.Clear();
+      _importTimeDevice.DownloadImportTimes();
     }
   }
 }

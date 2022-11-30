@@ -52,6 +52,7 @@ namespace RaceHorologyLibTest
     {
       public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
 
+      public EImportTimeFlags SupportedImportTimeFlags() { return 0; }
       public void DownloadImportTimes()
       {
       }

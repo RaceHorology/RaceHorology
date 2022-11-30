@@ -25,7 +25,8 @@
       <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
 
-    <Label Content="Classement über Zeitnahmegerät senden." Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" FontSize="16" HorizontalAlignment="Center"/>
+    <Label x:Name="lblHeader" Content="Starte den Transfer über das Zeitnahmegerät (Classement Senden)" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" FontSize="16" HorizontalAlignment="Left"/>
+    <Button x:Name="btnDownload" Content="Download" Grid.Row="0" Grid.Column="2" Margin="5" Padding="5" Click="btnDownload_Click"/>
     
     <DataGrid x:Name="dgImportTime" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" AutoGenerateColumns="False" CanUserSortColumns="true">
       <DataGrid.Columns>
@@ -39,7 +40,7 @@
         </DataGridTextColumn>
         <DataGridTextColumn local:DataGridUtil.Name="Name" Header="Name" Binding="{Binding Name, Mode=OneWay}" />
         <DataGridTextColumn local:DataGridUtil.Name="Firstname" Header="Vorname" Binding="{Binding Firstname, Mode=OneWay}" />
-        <DataGridTextColumn Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+        <DataGridTextColumn local:DataGridUtil.Name="StartTime" Header="Startzeit" Binding="{Binding StartTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
@@ -47,7 +48,7 @@
             </Style>
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
-        <DataGridTextColumn Header="Zielzeit" Binding="{Binding FinishTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+        <DataGridTextColumn local:DataGridUtil.Name="FinishTime" Header="Zielzeit" Binding="{Binding FinishTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />
@@ -55,7 +56,7 @@
             </Style>
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
-        <DataGridTextColumn Header="Laufzeit" Binding="{Binding RunTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
+        <DataGridTextColumn local:DataGridUtil.Name="RunTime" Header="Laufzeit" Binding="{Binding RunTime, Mode=OneWay, Converter={StaticResource TimeSpanConverter}}">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
               <Setter Property="HorizontalAlignment" Value="Right" />

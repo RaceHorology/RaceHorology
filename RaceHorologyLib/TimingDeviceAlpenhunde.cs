@@ -188,6 +188,8 @@ namespace RaceHorologyLib
 
     public event ImportTimeEntryEventHandler ImportTimeEntryReceived;
 
+    public EImportTimeFlags SupportedImportTimeFlags() { return EImportTimeFlags.RemoteDownload | EImportTimeFlags.StartFinishTime; }
+
     public void DownloadImportTimes()
     {
       if (_webClient == null)

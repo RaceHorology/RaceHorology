@@ -219,6 +219,7 @@ namespace RaceHorologyLib
     }
 
     // Nothing to implement, download is initiated interactively on ALGE device via Classment transfer
+    public EImportTimeFlags SupportedImportTimeFlags() { return EImportTimeFlags.RunTime; }
     public void DownloadImportTimes(){}
 
 
