@@ -136,7 +136,7 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
-    public void ImportTimeEntryVM_Runtime()
+    public void ImportTimeEntryVM_RunTime()
     {
       TestDataGenerator tg = new TestDataGenerator();
       tg.createRaceParticipants(5);
@@ -199,6 +199,8 @@ namespace RaceHorologyLibTest
       save.Add(vm.ImportEntries[0]);
       vm.Save(rr1, save);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 11), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
+      Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(1)).StartTime);
+      Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(1)).FinishTime);
       Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(2))?.Runtime);
       Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(3))?.Runtime);
 
@@ -210,6 +212,58 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(new TimeSpan(0, 0, 0, 11), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
       Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(2))?.Runtime);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 13), rr1.GetRunResult(race.GetParticipant(3)).Runtime);
+    }
+
+    [TestMethod]
+    public void ImportTimeEntryVM_StartFinishTime()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipants(5);
+      var race = tg.Model.GetRace(0);
+
+      ImportTimeMock importTimeMock = new ImportTimeMock();
+
+      ImportTimeEntryVM vm = new ImportTimeEntryVM(race, importTimeMock);
+      vm.AddEntry(new ImportTimeEntry(1, new TimeSpan(8, 0, 1), null));
+      vm.AddEntry(new ImportTimeEntry(1, null, new TimeSpan(8, 0, 2)));
+
+      vm.AddEntry(new ImportTimeEntry(3, new TimeSpan(8, 2, 0), new TimeSpan(8, 2, 30)));
+      Assert.AreEqual(2, vm.ImportEntries.Count);
+
+      vm.AddEntry(new ImportTimeEntry(0, new TimeSpan(8, 0, 1), null));
+      vm.AddEntry(new ImportTimeEntry(0, null, new TimeSpan(8, 0, 2)));
+      Assert.AreEqual(4, vm.ImportEntries.Count);
+
+      // Save to racerun, only time for real participants should be taken over
+      // StNr 1, 3 have time
+      // StNr 2 doesn't have a time
+      var rr1 = race.GetRun(0);
+      Assert.IsTrue(rr1.GetRunResult(race.GetParticipant(1))?.Runtime == null && rr1.GetRunResult(race.GetParticipant(1))?.StartTime == null && rr1.GetRunResult(race.GetParticipant(1))?.FinishTime == null);
+      Assert.IsTrue(rr1.GetRunResult(race.GetParticipant(2))?.Runtime == null && rr1.GetRunResult(race.GetParticipant(2))?.StartTime == null && rr1.GetRunResult(race.GetParticipant(2))?.FinishTime == null);
+      Assert.IsTrue(rr1.GetRunResult(race.GetParticipant(3))?.Runtime == null && rr1.GetRunResult(race.GetParticipant(3))?.StartTime == null && rr1.GetRunResult(race.GetParticipant(3))?.FinishTime == null);
+
+      var save = new List<ImportTimeEntryWithParticipant>();
+      save.Add(vm.ImportEntries[0]);
+      vm.Save(rr1, save);
+      Assert.AreEqual(new TimeSpan(8, 0, 1), rr1.GetRunResult(race.GetParticipant(1)).StartTime);
+      Assert.AreEqual(new TimeSpan(8, 0, 2), rr1.GetRunResult(race.GetParticipant(1)).FinishTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
+      Assert.IsTrue(rr1.GetRunResult(race.GetParticipant(2))?.Runtime == null && rr1.GetRunResult(race.GetParticipant(2))?.StartTime == null && rr1.GetRunResult(race.GetParticipant(2))?.FinishTime == null);
+      Assert.IsTrue(rr1.GetRunResult(race.GetParticipant(3))?.Runtime == null && rr1.GetRunResult(race.GetParticipant(3))?.StartTime == null && rr1.GetRunResult(race.GetParticipant(3))?.FinishTime == null);
+
+      save.Clear();
+      save.Add(vm.ImportEntries[1]);
+      save.Add(vm.ImportEntries[2]);
+      save.Add(vm.ImportEntries[3]);
+      vm.Save(rr1, save);
+
+      Assert.AreEqual(new TimeSpan(8, 0, 1), rr1.GetRunResult(race.GetParticipant(1)).StartTime);
+      Assert.AreEqual(new TimeSpan(8, 0, 2), rr1.GetRunResult(race.GetParticipant(1)).FinishTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 1), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
+      Assert.IsTrue(rr1.GetRunResult(race.GetParticipant(2))?.Runtime == null && rr1.GetRunResult(race.GetParticipant(2))?.StartTime == null && rr1.GetRunResult(race.GetParticipant(2))?.FinishTime == null);
+      Assert.AreEqual(new TimeSpan(8, 2, 0), rr1.GetRunResult(race.GetParticipant(3)).StartTime);
+      Assert.AreEqual(new TimeSpan(8, 2, 30), rr1.GetRunResult(race.GetParticipant(3)).FinishTime);
+      Assert.AreEqual(new TimeSpan(0, 0, 30), rr1.GetRunResult(race.GetParticipant(3)).Runtime);
     }
   }
 }
