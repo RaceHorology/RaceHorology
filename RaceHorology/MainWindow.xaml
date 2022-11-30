@@ -52,7 +52,7 @@
         <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.HandTime" />
-        <MenuItem Name="mnuToolsImportTime"  Header="Classement empfangen" 
+        <MenuItem Name="mnuToolsImportTime"  Header="Zeiten von Zeitmeßgerät importieren" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.ImportTime" />
       </MenuItem>

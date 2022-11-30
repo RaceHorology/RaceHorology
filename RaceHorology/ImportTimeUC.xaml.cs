@@ -23,6 +23,7 @@ namespace RaceHorology
   {
 
     ImportTimeEntryVM _importTimeVM;
+    IImportTime _importTimeDevice;
     public event EventHandler Finished;
 
     public ImportTimeUC()
@@ -33,15 +34,40 @@ namespace RaceHorology
     public void Init(AppDataModel dm, Race race, IImportTime importTimeDevice)
     {
       _importTimeVM = new ImportTimeEntryVM(race, importTimeDevice);
+      _importTimeDevice = importTimeDevice;
 
       dgImportTime.ItemsSource = _importTimeVM.ImportEntries;
 
       cmbRun.SelectedValuePath = "Value";
       UiUtilities.FillCmbRaceRun(cmbRun, race);
+
+      if ((importTimeDevice.SupportedImportTimeFlags() & EImportTimeFlags.RemoteDownload) != EImportTimeFlags.None)
+      {
+        importTimeDevice.DownloadImportTimes();
+        lblHeader.Content = "Drücke Download um den Transfer erneut zu starten.";
+      }
+      else
+      {
+        lblHeader.Content = "Starte den Transfer über das Zeitnahmegerät (Classement Senden)";
+        btnDownload.Visibility = Visibility.Collapsed;
+        lblHeader.HorizontalAlignment = HorizontalAlignment.Center;
+      }
+
+      if ((importTimeDevice.SupportedImportTimeFlags() & EImportTimeFlags.StartFinishTime) != EImportTimeFlags.None)
+      {
+        dgImportTime.ColumnByName("RunTime").Visibility = Visibility.Collapsed;
+      }
+      else
+      {
+        dgImportTime.ColumnByName("StartTime").Visibility = Visibility.Collapsed;
+        dgImportTime.ColumnByName("FinishTime").Visibility = Visibility.Collapsed;
+      }
+
     }
 
-    private void DeInit()
+    private void close()
     {
+      Finished?.Invoke(this, new EventArgs());
       _importTimeVM.Dispose();
       _importTimeVM = null;
     }
@@ -49,21 +75,35 @@ namespace RaceHorology
     private void btnSave_Click(object sender, RoutedEventArgs e)
     {
       if (cmbRun.SelectedValue is RaceRun rr)
-        _importTimeVM.Save(rr);
+      {
+        if (dgImportTime.SelectedItems.Count > 0)
+        {
+          List<ImportTimeEntryWithParticipant> entries = new List<ImportTimeEntryWithParticipant>();
+          foreach (var i in dgImportTime.SelectedItems)
+            entries.Add(i as ImportTimeEntryWithParticipant);
 
-      DeInit();
-      Finished?.Invoke(this, new EventArgs());
+          var count = _importTimeVM.Save(rr, entries);
+          MessageBox.Show(String.Format("Es wurden {0} Einträge in Durchgang {1} importiert.", count, rr.Run), "Import von Zeiten", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        else
+          MessageBox.Show("Kein Eintrag ausgewählt.\n\nBitte wähle die Einträge aus, die Importiert werden sollen.", "Kein Eintrag ausgewählt", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
     }
 
-    private void btnCancel_Click(object sender, RoutedEventArgs e)
+    private void btnClose_Click(object sender, RoutedEventArgs e)
     {
-      DeInit();
-      Finished?.Invoke(this, new EventArgs());
+      close();
     }
 
     private void cmbRun_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
 
+    }
+
+    private void btnDownload_Click(object sender, RoutedEventArgs e)
+    {
+      _importTimeVM.Clear();
+      _importTimeDevice.DownloadImportTimes();
     }
   }
 }
