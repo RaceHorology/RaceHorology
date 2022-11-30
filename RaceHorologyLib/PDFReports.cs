@@ -774,6 +774,7 @@ namespace RaceHorologyLib
       var writer = new PdfWriter(stream);
       
       _pdfDocument = new PdfDocument(writer);
+      _pdfDocument.GetDocumentInfo().SetAuthor("Race Horology").SetTitle(getReportName());
       _document = new Document(_pdfDocument, PageSize.A4);
 
       _pageMargins = new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
