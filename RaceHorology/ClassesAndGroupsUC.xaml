@@ -142,14 +142,20 @@
     <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="0"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <StackPanel Orientation="Horizontal"  Grid.Column="2" HorizontalAlignment="Right" >
+      <StackPanel Orientation="Horizontal"  Grid.Column="0" HorizontalAlignment="Right" Margin="0,0,50,0" >
+        <Button x:Name="btnYearPlus" Content="Jahrgang + 1" Margin="5" Padding="5" Click="btnYearPlus_Click"/>
+        <Button x:Name="btnYearMinus" Content="Jahrgang - 1" Margin="5" Padding="5" Click="btnYearMinus_Click"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal"  Grid.Column="4" HorizontalAlignment="Right" >
         <Button x:Name="btnImport" Content="Importieren und Ersetzen" Margin="5" Padding="5" Click="BtnImport_Click"/>
         <Button x:Name="btnImportAdd" Content="Importieren und Hinzufügen" Margin="5" Padding="5" Click="BtnImportAdd_Click"/>
       </StackPanel>
-      <local:SaveOrResetUC x:Name="ucSaveOrReset"  Margin="5" Grid.Column="1" HorizontalAlignment="Left" />
+      <local:SaveOrResetUC x:Name="ucSaveOrReset"  Margin="5" Grid.Column="2" HorizontalAlignment="Left" />
     </Grid>
 
   </Grid>
