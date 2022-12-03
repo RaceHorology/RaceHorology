@@ -329,11 +329,12 @@ namespace RaceHorologyLib
 
     Table createHeaderTable()
     {
-      float[] cols = { 15.0F, 70.0F, 15.0F };
+      //Main Table
+      float[] cols = { 0.0F, 100.0F };
       Table tableHeader = new Table(UnitValue.CreatePercentArray(cols));
       tableHeader.SetWidth(UnitValue.CreatePercentValue(100));
-        //.SetPaddingBottom(0)
-        //.SetMarginBottom(0);
+      //.SetPaddingBottom(0)
+      //.SetMarginBottom(0);
 
       float padding = 1F;
       float maxHeightCol1 = 56.0F;
@@ -344,7 +345,7 @@ namespace RaceHorologyLib
       int fontSizeTitle = 16;
       int fontSizeNormal = 10;
 
-
+      // Main Table -> First Row -> First Cell (Logo1)
       if (_logo1 != null)
         tableHeader.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.LEFT)
@@ -352,7 +353,6 @@ namespace RaceHorologyLib
           //.SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(fontBold)
           .Add(_logo1.SetMaxHeight(maxHeightCol1)));
@@ -360,84 +360,103 @@ namespace RaceHorologyLib
         tableHeader.AddCell(new Cell()
           .SetBorder(Border.NO_BORDER)
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
+          );
 
+      // Main Table -> First Row -> Nested Table 1 (Race Description and RH Logo)
+      Cell nestedtable1cell = new Cell()
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick));
 
+      float[] nestedtable1Cols = { 100.0F, 0.0F };
+      Table nestedtable1 = new Table(UnitValue.CreatePercentArray(nestedtable1Cols));
+      nestedtable1.SetWidth(UnitValue.CreatePercentValue(100));
+
+      // Cell 1 (Race Description)
+      Cell nestedtable1cell1 = new Cell();
       if (!string.IsNullOrEmpty(_race.Description))
-        // Race Titles
-        tableHeader.AddCell(new Cell()
-          .SetTextAlignment(TextAlignment.CENTER)
+        nestedtable1cell1.SetTextAlignment(TextAlignment.LEFT)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
           .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(fontTitle)
           .SetFontSize(fontSizeTitle)
-          .Add(new Paragraph(_race.Description)));
+          .Add(new Paragraph(_race.Description));
       else
-        tableHeader.AddCell(new Cell()
-          .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
+        nestedtable1cell1.SetBorder(Border.NO_BORDER);
 
-      if (_logoRH != null)
-        tableHeader.AddCell(new Cell()
-          .SetTextAlignment(TextAlignment.RIGHT)
-          .SetHorizontalAlignment(HorizontalAlignment.RIGHT)
-          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
-          .SetPadding(padding)
-          .SetFont(fontBold)
-          .Add(_logoRH.SetMaxHeight(maxHeightCol1*0.8F)));
-      else
-        tableHeader.AddCell(new Cell()
-          .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
+      nestedtable1.AddCell(nestedtable1cell1);
 
-
-      // Second row
-      if (_logo2 != null)
-      {
-        tableHeader.AddCell(new Cell()
-          .SetTextAlignment(TextAlignment.LEFT)
-          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          
-          .SetBorder(Border.NO_BORDER)
-          .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetPadding(padding)
-          .SetFont(fontBold)
-          .Add(_logo2.SetMaxHeight(maxHeightCol2)));
-      }
-      else
-        tableHeader.AddCell(new Cell()
-          .SetBorder(Border.NO_BORDER)
-          .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick)));
-
-      // List Name
-      tableHeader.AddCell(new Cell()
-        .SetTextAlignment(TextAlignment.CENTER)
+      // Cell 2 (RH Logo)
+      Cell nestedtable1cell2 = new Cell();
+      if (_logoRH != null) 
+        nestedtable1cell2.SetTextAlignment(TextAlignment.RIGHT)
+        .SetHorizontalAlignment(HorizontalAlignment.RIGHT)
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
+        .SetPadding(padding)
+        .SetFont(fontBold)
+        .Add(_logoRH.SetMaxHeight(maxHeightCol1 * 0.8F).SetHorizontalAlignment(HorizontalAlignment.RIGHT));
+      else 
+        nestedtable1cell2.SetBorder(Border.NO_BORDER);
+
+      nestedtable1.AddCell(nestedtable1cell2);
+      nestedtable1cell.Add(nestedtable1);
+      tableHeader.AddCell(nestedtable1cell);
+
+      // Main Table -> Second Row -> First Cell (Logo2)
+      if (_logo2 != null)
+        tableHeader.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.CENTER)
+          .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetPadding(padding)
+          .SetFont(fontBold)
+          .Add(_logo2.SetMaxHeight(maxHeightCol2).SetHorizontalAlignment(HorizontalAlignment.CENTER)));
+      else
+        tableHeader.AddCell(new Cell()
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick)));
+
+      // Main Table -> Second Row -> Nested Table 1 (List Name and Date/Location)
+      Cell nestedtable2cell = new Cell()
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+        .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick)
+        );
+
+      float[] nestedtable2Cols = { 60.0F, 40.0F };
+      Table nestedtable2 = new Table(UnitValue.CreatePercentArray(nestedtable2Cols));
+      nestedtable2.SetWidth(UnitValue.CreatePercentValue(100));
+
+      // Cell 1 (List name)
+      Cell nestedtable2cell1 = new Cell();
+      nestedtable2cell1.SetTextAlignment(TextAlignment.LEFT)
+        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(fontTitle)
         .SetFontSize(fontSizeTitle)
-        .Add(new Paragraph(_listName)));
+        .Add(new Paragraph(_listName));
 
-      // Race Date & Time
-      tableHeader.AddCell(new Cell()
-        .SetTextAlignment(TextAlignment.RIGHT)
+      nestedtable2.AddCell(nestedtable2cell1);
+
+      // Cell 2 (Race Date and Location)
+      Cell nestedtable2cell2 = new Cell();
+      nestedtable2cell2.SetTextAlignment(TextAlignment.RIGHT)
         .SetVerticalAlignment(VerticalAlignment.TOP)
         .SetBorder(Border.NO_BORDER)
-        .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties?.Location ?? ""))));
+        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties?.Location ?? "")));
+
+      nestedtable2.AddCell(nestedtable2cell2);
+      nestedtable2cell.Add(nestedtable2);
+      tableHeader.AddCell(nestedtable2cell);
 
       return tableHeader;
     }
