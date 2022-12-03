@@ -57,7 +57,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Label Content="Zeit bis Läufer automatisch als NiZ gewertet wird [s]:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
+          <Label Content="Zeit bis Läufer automatisch als NIZ gewertet wird [s]:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
           <TextBox x:Name="txtAutomaticNiZTimeout" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Right" MinWidth="50" />
 
           <Label Content="Anzahl Starter bis ein nichtgestarter Läufer als NaS gewertet wird:" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
