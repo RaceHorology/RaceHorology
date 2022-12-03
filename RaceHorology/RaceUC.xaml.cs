@@ -332,7 +332,10 @@ namespace RaceHorology
         else
           _status = EStatus.StartFree;
 
-        updateStatus();
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          updateStatus();
+        });
       }
 
       private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
