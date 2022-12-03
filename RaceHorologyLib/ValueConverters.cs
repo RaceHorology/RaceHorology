@@ -161,10 +161,7 @@ namespace RaceHorologyLib
       {
         RunResult.EResultCode rc = (RunResult.EResultCode)value;
 
-        if (rc == RunResult.EResultCode.Normal)
-          return "";
-
-        return rc.ToString();
+        return rc.Format();
       }
       catch (Exception)
       {
@@ -195,7 +192,7 @@ namespace RaceHorologyLib
             return "keine Zeit oder Ausscheidung";
 
           default:
-            return rc.ToString();
+            return rc.Format();
         }
       }
       catch (Exception)
@@ -255,9 +252,9 @@ namespace RaceHorologyLib
           return "";
 
         if (string.IsNullOrEmpty(comment))
-          return rc.ToString();
+          return rc.Format();
         else
-          return string.Format("{0} ({1})", rc.ToString(), comment);
+          return string.Format("{0} ({1})", rc.Format(), comment);
       }
       catch(Exception)
       {
@@ -290,11 +287,8 @@ namespace RaceHorologyLib
         // Return time
         if (rc == RunResult.EResultCode.Normal)
           return t.ToRaceTimeString();
-        if (rc == RunResult.EResultCode.NotSet)
-          return "";
-
         // Return result code
-        return rc.ToString();
+        return rc.Format();
       }
       catch (Exception)
       {
@@ -391,5 +385,25 @@ namespace RaceHorologyLib
   }
 
 
+  public static class EResultCodeUtil
+  {
+    public static string Format(this RunResult.EResultCode code)
+    {
+      return StrResultCode(code);
+    }
 
+    public static string StrResultCode(RunResult.EResultCode code)
+    {
+      switch (code)
+      {
+        case RunResult.EResultCode.NotSet: return "---";
+        case RunResult.EResultCode.Normal: return "";
+        case RunResult.EResultCode.NaS: return "NAS";
+        case RunResult.EResultCode.NiZ: return "NIZ";
+        case RunResult.EResultCode.DIS: return "DIS";
+        case RunResult.EResultCode.NQ: return "NQ";
+      }
+      return "???";
+    }
+  }
 }
