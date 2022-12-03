@@ -332,7 +332,7 @@
           <local:LiveTimingFISUC x:Name="liveTimingFISUC" Grid.Row="3" />
         </Grid>
       </TabItem>
-      <TabItem FontSize="12">
+      <TabItem x:Name="tabItemTiming" FontSize="12">
         <TabItem.Header>
           <StackPanel Orientation="Horizontal">
             <TextBlock x:Name="lblTabHeaderTiming" Text="Zeitnahme" Margin="0,0,3,0" VerticalAlignment="Center" FontSize="12" />
@@ -687,7 +687,7 @@
         </Grid>
 
       </TabItem>
-      <TabItem Header="Ausscheidungen" FontSize="12">
+      <TabItem x:Name="tabItemDisqualify" Header="Ausscheidungen" FontSize="12">
         <local:DisqualifyUC x:Name="ucDisqualify">
 
         </local:DisqualifyUC>

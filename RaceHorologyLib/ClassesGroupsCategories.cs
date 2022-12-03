@@ -156,6 +156,13 @@ namespace RaceHorologyLib
     }
 
 
+    public void AdaptYear(int difference)
+    {
+      foreach (var c in Items)
+        c.Year = (uint)(c.Year + difference);
+    }
+
+
     public void Add(IList<ParticipantClass> classes)
     {
       Items.InsertRange(classes);
@@ -242,6 +249,12 @@ namespace RaceHorologyLib
     public void Reset()
     {
       initialize();
+    }
+
+
+    public void AdaptYear(int difference)
+    {
+      ClassViewModel.AdaptYear(difference);
     }
 
 

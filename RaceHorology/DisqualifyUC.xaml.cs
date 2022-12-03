@@ -210,6 +210,9 @@ namespace RaceHorology
 
     private void Timing_KeyDown(object sender, KeyEventArgs e)
     {
+      if (!IsVisible)
+        return;
+
       if (e.Key == Key.M && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
       {
         txtStartNumber.Focus();
@@ -255,11 +258,13 @@ namespace RaceHorology
 
     private void BtnStore_Click(object sender, RoutedEventArgs e)
     {
+      if (cmbDisqualify.SelectedIndex == -1)
+        return;
+
       uint startNumber = 0U;
       try { startNumber = uint.Parse(txtStartNumber.Text); } catch (Exception) { }
 
       RaceParticipant participant = _race.GetParticipant(startNumber);
-
 
       string disqualifyText = RunResultExtension.JoinDisqualifyText(cmbDisqualifyReason.Text, txtDisqualify.Text);
 

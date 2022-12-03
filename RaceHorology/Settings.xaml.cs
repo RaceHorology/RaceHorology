@@ -72,7 +72,7 @@ namespace RaceHorology
       chkTimingDeviceDebugDump.IsChecked = Properties.Settings.Default.TimingDevice_Debug_Dump;
       chkTimingDisplayPartcipantAssignment.IsChecked = Properties.Settings.Default.Timing_DisplayPartcipantAssignment;
 
-      cbTimingDevice.Items.Add("---");
+      //cbTimingDevice.Items.Add("---");
       cbTimingDevice.Items.Add("ALGE TdC8000/8001, ALGE Timy via RS232");
       cbTimingDevice.Items.Add("ALGE Timy (via USB)");
       cbTimingDevice.Items.Add("Alpenhunde");
@@ -95,10 +95,10 @@ namespace RaceHorology
 
     private void BtnOk_Click(object sender, RoutedEventArgs e)
     {
-      if (Properties.Settings.Default.TimingDevice_Type != (string)cbTimingDevice.SelectedValue)
+      if (cbTimingDevice.SelectedValue != null && Properties.Settings.Default.TimingDevice_Type != (string)cbTimingDevice.SelectedValue)
         Properties.Settings.Default.TimingDevice_Type = (string)cbTimingDevice.SelectedValue;
 
-      if (Properties.Settings.Default.TimingDevice_Port != (string)cbTimingDevicePort.SelectedValue)
+      if (cbTimingDevicePort.SelectedValue != null && Properties.Settings.Default.TimingDevice_Port != (string)cbTimingDevicePort.SelectedValue)
         Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
 
       if (Properties.Settings.Default.TimingDevice_Url != txtTimingDeviceUrl.Text)
@@ -143,7 +143,8 @@ namespace RaceHorology
     private void cbTimingDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       // Enable ParticipantAssignment for Alpenhunde
-      if (cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde") && !Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde"))
+      if (cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde") 
+        && !(Properties.Settings.Default.TimingDevice_Type != null && Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")))
         chkTimingDisplayPartcipantAssignment.IsChecked = true;
 
       bool displayUrl = cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
