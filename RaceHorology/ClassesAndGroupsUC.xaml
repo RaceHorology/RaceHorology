@@ -31,7 +31,7 @@
 
     <Label Content="Klassen" Margin="0" FontSize="16"/>
     <Label Content="Gruppen" Grid.Column="2" FontSize="16" Foreground="BlueViolet"/>
-    <Label Content="Kategorien" Grid.Column="4" FontSize="16" Foreground="DarkOliveGreen"/>
+    <Label Content="Kategorien (Geschlecht)" Grid.Column="4" FontSize="16" Foreground="DarkOliveGreen"/>
 
     <DataGrid x:Name="dgClasses" Margin="5,0,0,0" Grid.Row="1" Grid.Column="0" AutoGenerateColumns="False"
               ItemsSource="{Binding ClassViewModel.Items}"
