@@ -698,6 +698,9 @@ namespace RaceHorology
 
     private void Timing_KeyDown(object sender, KeyEventArgs e)
     {
+      if (tabControlRace1.SelectedItem != tabItemTiming)
+        return;
+
       if (e.Key == Key.M && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
       {
         txtStartNumber.Focus();
