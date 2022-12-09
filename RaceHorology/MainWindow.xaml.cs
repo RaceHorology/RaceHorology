@@ -157,7 +157,7 @@ namespace RaceHorology
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.DefaultExt = ".mdb";
-      openFileDialog.Filter = "Race Horology Daten|*.mdb";
+      openFileDialog.Filter = "Race Horology Dateien|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
@@ -260,6 +260,11 @@ namespace RaceHorology
       dlg.ShowDialog();
     }
 
+
+    private void OnlineDocumentationCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      System.Diagnostics.Process.Start("https://docs.race-horology.com");
+    }
 
     /// <summary>
     /// Opens the database and does all jobs to work with the application (connect DatagRids, start web server, ...)
