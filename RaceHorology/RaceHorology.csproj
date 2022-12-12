@@ -466,6 +466,9 @@
     <Resource Include="Icons\icons8-stop-52-red.png" />
     <Resource Include="Icons\icons8-umkreist-g-50.png" />
     <Resource Include="Icons\icons8-umkreist-l-50.png" />
+    <Content Include="ExtSources\VC_redist.x86.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

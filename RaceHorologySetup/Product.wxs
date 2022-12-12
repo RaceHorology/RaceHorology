@@ -1,53 +1,677 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="!(bind.FileVersion.fil0899BEEFD8A0DD156CB85C27767C4216)" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
-		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+  <?define RaceHorology_TargetDir=$(var.RaceHorology.TargetDir)?>
 
-		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
-		<MediaTemplate EmbedCab='yes'/>
+  <Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="!(bind.fileVersion.RaceHorology.exe)" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
-		<Feature Id="MainProgram" Title="Race Horology" Level="1">
-			<ComponentGroupRef Id="RaceHorologyComponents" />
-			<ComponentRef Id="ApplicationShortcut" />   
-		</Feature>
+    <MajorUpgrade Schedule="afterInstallExecute" AllowDowngrades="yes" />
+    <!-- 		<MajorUpgrade AllowDowngrades="yes" DowngradeErrorMessage="A newer version of [ProductName] is already installed." />-->
+    <MediaTemplate EmbedCab="yes" />
 
-		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-		<UIRef Id="WixUI_InstallDir" />
-		<UIRef Id="WixUI_ErrorProgressText" />
-		<WixVariable Id="WixUILicenseRtf" Value="RaceHorologyLicense.rtf" />
+    <Feature Id="MainProgram" Title="Race Horology" Level="1">
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentGroupRef Id="locales_files" />
+      <ComponentGroupRef Id="runtimes_win_x86_native_files" />
+      <ComponentGroupRef Id="webroot_css_files" />
+      <ComponentGroupRef Id="webroot_img_files" />
+      <ComponentGroupRef Id="webroot_files" />
+      <ComponentGroupRef Id="webroot_Js_files" />
+      <ComponentGroupRef Id="INSTALLFOLDER_files" />
+      <ComponentGroupRef Id="raceconfigpresets_files" />
+      <ComponentGroupRef Id="dbtemplates_files" />
+      <ComponentGroupRef Id="resources_files" />
+      <ComponentGroupRef Id="resources_pdf_files" />
+    </Feature>
 
-		<WixVariable Id="WixUIBannerBmp" Value="WixUIBannerBmp.bmp"/>
-		<WixVariable Id="WixUIDialogBmp" Value="WixUIDialogBmp.bmp"/>
-	</Product>
+    <Feature Id="ThirdParty" Title="3rd Party" Level="1">
+      <ComponentGroupRef Id="ThirdPartyComponents" />
+    </Feature>
 
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_462_OR_LATER_INSTALLED" />
+    <Condition Message="This application requires .NET Framework 4.6.2. Please install the .NET Framework then run this installer again.">
+      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_462_OR_LATER_INSTALLED]]>
+    </Condition>
 
-	<Fragment>
-		<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="ProgramFilesFolder">
-				<Directory Id="INSTALLFOLDER" Name="RaceHorology" />
-			</Directory>
-			<!-- Start Menu -->
-			<Directory Id="ProgramMenuFolder">
-					<Directory Id="ApplicationProgramsFolder" Name="Race Horology"/>
-			</Directory>			
-		</Directory>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+    <WixVariable Id="WixUILicenseRtf" Value="RaceHorologyLicense.rtf" />
 
-		<DirectoryRef Id="ApplicationProgramsFolder">
-				<Component Id="ApplicationShortcut">
-						<Shortcut Id="ApplicationStartMenuShortcut" 
-									Name="Race Horology" 
-								Description="Zeitnahme einfach gemacht"
-								Target="[#fil0899BEEFD8A0DD156CB85C27767C4216]"
-											WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
-						<RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
-						<RegistryValue Root="HKCU" Key="Software\RaceHorology\RaceHorology" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
-				</Component>
-		</DirectoryRef>		
-	</Fragment>
+    <WixVariable Id="WixUIBannerBmp" Value="WixUIBannerBmp.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="WixUIDialogBmp.bmp" />
+  </Product>
 
-	<Fragment>
-		<ComponentGroup Id="RaceHorologyComponents" Directory="INSTALLFOLDER">
-		  <ComponentGroupRef Id="HeatGeneratedInstallFiles" />
-		</ComponentGroup>
-	</Fragment>
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="RaceHorology">
+          <Directory Id="runtimes" Name="runtimes">
+            <Directory Id="runtimes_win_x86" Name="win-x86">
+              <Directory Id="runtimes_win_x86_native" Name="native" />
+            </Directory>
+          </Directory>
+          <Directory Id="locales" Name="locales" />
+          <Directory Id="webroot" Name="webroot">
+            <Directory Id="webroot_css" Name="css" />
+            <Directory Id="webroot_img" Name="img" />
+            <Directory Id="webroot_Js" Name="Js" />
+          </Directory>
+          <Directory Id="ExtSources" Name="ExtSources" />
+          <Directory Id="raceconfigpresets" Name="raceconfigpresets" />
+          <Directory Id="dbtemplates" Name="dbtemplates" />
+          <Directory Id="resources" Name="resources">
+            <Directory Id="resources_pdf" Name="pdf" />
+          </Directory>
+        </Directory>
+      </Directory>
+      <!-- Start Menu -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Race Horology" />
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="0832e3e0-a1cd-4a38-b014-e311e8184581">
+        <Shortcut Id="ApplicationStartMenuShortcut" Name="Race Horology" Description="Zeitnahme einfach gemacht" Target="[#RaceHorology.exe]" WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\RaceHorology\RaceHorology" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+  </Fragment>
+
+  <Fragment>
+    
+    <Property Id="VCREDISTINSTALLED">
+      <RegistrySearch Id="VCRedistInstalledSearch"
+                      Root="HKCR"
+                      Key="Installer\Dependencies\VC,redist.x86,x86,14.34,bundle"
+                      Name="Version"
+                      Type="raw" 
+                      Win64="no"/>
+    </Property>
+
+    <ComponentGroup Id="ThirdPartyComponents" Directory="ExtSources">
+      <Component Id="Component_VC_redist_x86" Guid="2B80F89A-990A-438E-A475-9E72d8A0198A" >
+        <File Id="ExtSources_VC_redist.x86.exe" Name="VC_redist.x86.exe" Source="$(var.RaceHorology_TargetDir)ExtSources\VC_redist.x86.exe" />
+      </Component>
+    </ComponentGroup>
+
+    <CustomAction Id="Install_VC_redist_x86"
+      Execute="immediate"
+      Return="asyncNoWait"
+      FileKey="ExtSources_VC_redist.x86.exe"
+      ExeCommand="/quiet" />
+
+      <InstallExecuteSequence>
+        <Custom Action="Install_VC_redist_x86" After="InstallFinalize"><![CDATA[VCREDISTINSTALLED < "14.34.31931.0" AND NOT REMOVE]]></Custom>
+      </InstallExecuteSequence>
+
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="INSTALLFOLDER_files" Directory="INSTALLFOLDER">
+      <Component Id="LICENSES_THIRD_PARTY.txt" Guid="234fcc47-ebfd-4dc1-8190-faeb21b23a28">
+        <File Id="LICENSES_THIRD_PARTY.txt" KeyPath="yes" Source="$(var.HarvestPath)\LICENSES_THIRD_PARTY.txt" />
+      </Component>
+      <Component Id="COPYING_MAIN.txt" Guid="8525d66d-90c4-4392-97f5-53402ad9f37c">
+        <File Id="COPYING_MAIN.txt" KeyPath="yes" Source="$(var.HarvestPath)\COPYING_MAIN.txt" />
+      </Component>
+      <Component Id="COPYING" Guid="90fb64fa-eb68-48e1-9bc9-06dbd33e97fd">
+        <File Id="COPYING" KeyPath="yes" Source="$(var.HarvestPath)\COPYING" />
+      </Component>
+      <Component Id="CREDITS.txt" Guid="823d565e-7fed-4b24-806a-c67d735b1d5e">
+        <File Id="CREDITS.txt" KeyPath="yes" Source="$(var.HarvestPath)\CREDITS.txt" />
+      </Component>
+      <Component Id="AlgeTimyUsb.x86.dll" Guid="29626894-0c6a-45fb-86c8-71669cb84e0e">
+        <File Id="AlgeTimyUsb.x86.dll" Name="AlgeTimyUsb.x86.dll" Source="$(var.RaceHorology_TargetDir)AlgeTimyUsb.x86.dll" />
+      </Component>
+      <Component Id="AutoUpdater.NET.dll" Guid="a542ac89-e655-464a-943a-d1e97de24334">
+        <File Id="AutoUpdater.NET.dll" Name="AutoUpdater.NET.dll" Source="$(var.RaceHorology_TargetDir)AutoUpdater.NET.dll" />
+      </Component>
+      <Component Id="BouncyCastle.Crypto.dll" Guid="66c3ec19-3d5e-435f-91c7-46410abaaf00">
+        <File Id="BouncyCastle.Crypto.dll" Name="BouncyCastle.Crypto.dll" Source="$(var.RaceHorology_TargetDir)BouncyCastle.Crypto.dll" />
+      </Component>
+      <Component Id="CefSharp.BrowserSubprocess.Core.dll" Guid="1f50ffa3-3279-412d-8487-e6c42d49acae">
+        <File Id="CefSharp.BrowserSubprocess.Core.dll" Name="CefSharp.BrowserSubprocess.Core.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.BrowserSubprocess.Core.dll" />
+      </Component>
+      <Component Id="CefSharp.BrowserSubprocess.Core.pdb" Guid="21e754a4-7f6e-4b86-acf8-75371984bcb6">
+        <File Id="CefSharp.BrowserSubprocess.Core.pdb" Name="CefSharp.BrowserSubprocess.Core.pdb" Source="$(var.RaceHorology_TargetDir)CefSharp.BrowserSubprocess.Core.pdb" />
+      </Component>
+      <Component Id="CefSharp.BrowserSubprocess.exe" Guid="c541d791-673a-4e23-b2ba-92093cf29d24">
+        <File Id="CefSharp.BrowserSubprocess.exe" Name="CefSharp.BrowserSubprocess.exe" Source="$(var.RaceHorology_TargetDir)CefSharp.BrowserSubprocess.exe" />
+      </Component>
+      <Component Id="CefSharp.BrowserSubprocess.pdb" Guid="6b683eb4-1509-4614-a007-3145f0a2249c">
+        <File Id="CefSharp.BrowserSubprocess.pdb" Name="CefSharp.BrowserSubprocess.pdb" Source="$(var.RaceHorology_TargetDir)CefSharp.BrowserSubprocess.pdb" />
+      </Component>
+      <Component Id="CefSharp.Core.dll" Guid="14b11b27-75f0-4fe0-a97f-2e11dce2da37">
+        <File Id="CefSharp.Core.dll" Name="CefSharp.Core.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.dll" />
+      </Component>
+      <Component Id="CefSharp.Core.Runtime.dll" Guid="a4b1a267-c063-466f-b08d-a7afcfcf02fd">
+        <File Id="CefSharp.Core.Runtime.dll" Name="CefSharp.Core.Runtime.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.Runtime.dll" />
+      </Component>
+      <Component Id="CefSharp.Core.Runtime.pdb" Guid="692e2783-50fe-45bc-be63-3468bd62dde4">
+        <File Id="CefSharp.Core.Runtime.pdb" Name="CefSharp.Core.Runtime.pdb" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.Runtime.pdb" />
+      </Component>
+      <Component Id="CefSharp.Core.Runtime.xml" Guid="41559d72-3ae6-4c4b-8836-ac1949d80524">
+        <File Id="CefSharp.Core.Runtime.xml" Name="CefSharp.Core.Runtime.xml" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.Runtime.xml" />
+      </Component>
+      <Component Id="CefSharp.dll" Guid="503349f4-3c32-491f-b29f-d9aaeacd6ddb">
+        <File Id="CefSharp.dll" Name="CefSharp.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.dll" />
+      </Component>
+      <Component Id="CefSharp.Wpf.dll" Guid="80713620-3068-4fcb-a7cf-c3cc0bf406e4">
+        <File Id="CefSharp.Wpf.dll" Name="CefSharp.Wpf.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.Wpf.dll" />
+      </Component>
+      <Component Id="chrome_100_percent.pak" Guid="3309855a-1891-4828-9bc4-6e6fe70f1053">
+        <File Id="chrome_100_percent.pak" Name="chrome_100_percent.pak" Source="$(var.RaceHorology_TargetDir)chrome_100_percent.pak" />
+      </Component>
+      <Component Id="chrome_200_percent.pak" Guid="5dd6c8bf-4342-4c91-9d01-ca9e009ac4a0">
+        <File Id="chrome_200_percent.pak" Name="chrome_200_percent.pak" Source="$(var.RaceHorology_TargetDir)chrome_200_percent.pak" />
+      </Component>
+      <Component Id="chrome_elf.dll" Guid="b61fd755-e166-4649-ae4e-09f631db7fcd">
+        <File Id="chrome_elf.dll" Name="chrome_elf.dll" Source="$(var.RaceHorology_TargetDir)chrome_elf.dll" />
+      </Component>
+      <Component Id="ClosedXML.dll" Guid="ac6b7696-74a4-4c76-8ecb-df03675aa3b0">
+        <File Id="ClosedXML.dll" Name="ClosedXML.dll" Source="$(var.RaceHorology_TargetDir)ClosedXML.dll" />
+      </Component>
+      <Component Id="CsvHelper.dll" Guid="b698fea1-ff08-44a6-bed4-1ac56d19430d">
+        <File Id="CsvHelper.dll" Name="CsvHelper.dll" Source="$(var.RaceHorology_TargetDir)CsvHelper.dll" />
+      </Component>
+      <Component Id="d3dcompiler_47.dll" Guid="16217224-f7eb-4f1e-a4b2-65430eaf07e1">
+        <File Id="d3dcompiler_47.dll" Name="d3dcompiler_47.dll" Source="$(var.RaceHorology_TargetDir)d3dcompiler_47.dll" />
+      </Component>
+      <Component Id="DocumentFormat.OpenXml.dll" Guid="1562d6f1-74b3-4fa6-9468-e06d21d3d8af">
+        <File Id="DocumentFormat.OpenXml.dll" Name="DocumentFormat.OpenXml.dll" Source="$(var.RaceHorology_TargetDir)DocumentFormat.OpenXml.dll" />
+      </Component>
+      <Component Id="ExcelDataReader.DataSet.dll" Guid="76abf04e-83e8-4256-83f2-f2e691975f1e">
+        <File Id="ExcelDataReader.DataSet.dll" Name="ExcelDataReader.DataSet.dll" Source="$(var.RaceHorology_TargetDir)ExcelDataReader.DataSet.dll" />
+      </Component>
+      <Component Id="ExcelDataReader.dll" Guid="42fd324d-4bbb-4dd6-a92d-5377f2427122">
+        <File Id="ExcelDataReader.dll" Name="ExcelDataReader.dll" Source="$(var.RaceHorology_TargetDir)ExcelDataReader.dll" />
+      </Component>
+      <Component Id="ExcelNumberFormat.dll" Guid="402276ad-6d21-46e2-af8d-40a2bf5b8b5e">
+        <File Id="ExcelNumberFormat.dll" Name="ExcelNumberFormat.dll" Source="$(var.RaceHorology_TargetDir)ExcelNumberFormat.dll" />
+      </Component>
+      <Component Id="GongSolutions.WPF.DragDrop.dll" Guid="ca12b7c5-2572-4d19-b120-e51eeb5c7686">
+        <File Id="GongSolutions.WPF.DragDrop.dll" Name="GongSolutions.WPF.DragDrop.dll" Source="$(var.RaceHorology_TargetDir)GongSolutions.WPF.DragDrop.dll" />
+      </Component>
+      <Component Id="icudtl.dat" Guid="c92f6aad-1e33-40d8-9740-32a1038891d1">
+        <File Id="icudtl.dat" Name="icudtl.dat" Source="$(var.RaceHorology_TargetDir)icudtl.dat" />
+      </Component>
+      <Component Id="itext.commons.dll" Guid="51534a33-a32f-47f5-9489-7092155c8804">
+        <File Id="itext.commons.dll" Name="itext.commons.dll" Source="$(var.RaceHorology_TargetDir)itext.commons.dll" />
+      </Component>
+      <Component Id="itext.io.dll" Guid="76fa4b6a-83aa-4551-a9c9-c7086a838dae">
+        <File Id="itext.io.dll" Name="itext.io.dll" Source="$(var.RaceHorology_TargetDir)itext.io.dll" />
+      </Component>
+      <Component Id="itext.kernel.dll" Guid="1fe873d0-5498-472f-ac23-0793e243b389">
+        <File Id="itext.kernel.dll" Name="itext.kernel.dll" Source="$(var.RaceHorology_TargetDir)itext.kernel.dll" />
+      </Component>
+      <Component Id="itext.layout.dll" Guid="fb239c3c-bad7-40c4-8d43-0753c2949655">
+        <File Id="itext.layout.dll" Name="itext.layout.dll" Source="$(var.RaceHorology_TargetDir)itext.layout.dll" />
+      </Component>
+      <Component Id="libcef.dll" Guid="62d2cabc-b65d-4049-9326-35d20b6659cb">
+        <File Id="libcef.dll" Name="libcef.dll" Source="$(var.RaceHorology_TargetDir)libcef.dll" />
+      </Component>
+      <Component Id="libEGL.dll" Guid="ac1b46c8-838d-4344-a391-495af223ca07">
+        <File Id="libEGL.dll" Name="libEGL.dll" Source="$(var.RaceHorology_TargetDir)libEGL.dll" />
+      </Component>
+      <Component Id="libGLESv2.dll" Guid="2be0e442-c51f-40b1-a078-0c5848c9cb5f">
+        <File Id="libGLESv2.dll" Name="libGLESv2.dll" Source="$(var.RaceHorology_TargetDir)libGLESv2.dll" />
+      </Component>
+      <Component Id="LICENSE.txt" Guid="226d8a3d-8eee-4a5e-867e-9a6bd76360c0">
+        <File Id="LICENSE.txt" Name="LICENSE.txt" Source="$(var.RaceHorology_TargetDir)LICENSE.txt" />
+      </Component>
+      <Component Id="LiveTimingFIS.dll" Guid="ca2f58d9-4871-4b35-87a5-194f3e430604">
+        <File Id="LiveTimingFIS.dll" Name="LiveTimingFIS.dll" Source="$(var.RaceHorology_TargetDir)LiveTimingFIS.dll" />
+      </Component>
+      <Component Id="LiveTimingFIS.pdb" Guid="c02e93c1-0649-4221-a46e-9868c6dd82d5">
+        <File Id="LiveTimingFIS.pdb" Name="LiveTimingFIS.pdb" Source="$(var.RaceHorology_TargetDir)LiveTimingFIS.pdb" />
+      </Component>
+      <Component Id="LiveTimingRM.dll" Guid="2f39dabd-535f-4e4e-9a39-939d48f37793">
+        <File Id="LiveTimingRM.dll" Name="LiveTimingRM.dll" Source="$(var.RaceHorology_TargetDir)LiveTimingRM.dll" />
+      </Component>
+      <Component Id="LiveTimingRM.pdb" Guid="0b032d64-e038-4e78-a2a2-da7f8412cbd6">
+        <File Id="LiveTimingRM.pdb" Name="LiveTimingRM.pdb" Source="$(var.RaceHorology_TargetDir)LiveTimingRM.pdb" />
+      </Component>
+      <Component Id="Microsoft.Bcl.AsyncInterfaces.dll" Guid="2fbc5cc9-f2fe-4e0e-ba06-aca5b182d12d">
+        <File Id="Microsoft.Bcl.AsyncInterfaces.dll" Name="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
+      </Component>
+      <Component Id="Microsoft.Bcl.HashCode.dll" Guid="838c108c-223a-4c5a-a065-fdc6a37d07c7">
+        <File Id="Microsoft.Bcl.HashCode.dll" Name="Microsoft.Bcl.HashCode.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Bcl.HashCode.dll" />
+      </Component>
+      <Component Id="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Guid="c4a43567-2e90-4918-8aad-e953bb0947bc">
+        <File Id="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      </Component>
+      <Component Id="Microsoft.Extensions.DependencyInjection.dll" Guid="be26e33d-7f3e-4b40-a59d-36c9c0d90c47">
+        <File Id="Microsoft.Extensions.DependencyInjection.dll" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Extensions.DependencyInjection.dll" />
+      </Component>
+      <Component Id="Microsoft.Extensions.Logging.Abstractions.dll" Guid="784cad2b-b6cf-47a1-a04d-5f7adeebaf75">
+        <File Id="Microsoft.Extensions.Logging.Abstractions.dll" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" />
+      </Component>
+      <Component Id="Microsoft.Extensions.Logging.dll" Guid="f7a396ee-e8cc-40da-9308-bb4577482cab">
+        <File Id="Microsoft.Extensions.Logging.dll" Name="Microsoft.Extensions.Logging.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Extensions.Logging.dll" />
+      </Component>
+      <Component Id="Microsoft.Extensions.Options.dll" Guid="32a576a9-4ed6-4152-b8ed-df24d50c5087">
+        <File Id="Microsoft.Extensions.Options.dll" Name="Microsoft.Extensions.Options.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Extensions.Options.dll" />
+      </Component>
+      <Component Id="Microsoft.Extensions.Primitives.dll" Guid="40ed5da7-9bcc-4f34-89d6-579ee0f2bd16">
+        <File Id="Microsoft.Extensions.Primitives.dll" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Extensions.Primitives.dll" />
+      </Component>
+      <Component Id="Microsoft.Web.WebView2.Core.dll" Guid="f4f8caac-c509-4ed1-9024-e9d27976fe8d">
+        <File Id="Microsoft.Web.WebView2.Core.dll" Name="Microsoft.Web.WebView2.Core.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.Core.dll" />
+      </Component>
+      <Component Id="Microsoft.Web.WebView2.WinForms.dll" Guid="c81563f4-25c7-4af7-80fd-1544a3fb2daf">
+        <File Id="Microsoft.Web.WebView2.WinForms.dll" Name="Microsoft.Web.WebView2.WinForms.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.WinForms.dll" />
+      </Component>
+      <Component Id="Newtonsoft.Json.dll" Guid="a4f40607-4aa3-4e35-a9d4-8b7c8219c026">
+        <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.RaceHorology_TargetDir)Newtonsoft.Json.dll" />
+      </Component>
+      <Component Id="NLog.dll" Guid="4b16229a-ab5f-4324-a5f8-eb480bc28d9a">
+        <File Id="NLog.dll" Name="NLog.dll" Source="$(var.RaceHorology_TargetDir)NLog.dll" />
+      </Component>
+      <Component Id="QRCoder.dll" Guid="b5d4d866-d7bf-4524-bee0-0fdab03e846d">
+        <File Id="QRCoder.dll" Name="QRCoder.dll" Source="$(var.RaceHorology_TargetDir)QRCoder.dll" />
+      </Component>
+      <Component Id="RaceHorology.exe" Guid="df4ac0a1-6576-4534-ba1d-127a4ff291d9">
+        <File Id="RaceHorology.exe" Name="RaceHorology.exe" Source="$(var.RaceHorology_TargetDir)RaceHorology.exe" />
+      </Component>
+      <Component Id="RaceHorology.exe.config" Guid="815ade25-f993-4cd3-9ac6-6e4e69e631ea">
+        <File Id="RaceHorology.exe.config" Name="RaceHorology.exe.config" Source="$(var.RaceHorology_TargetDir)RaceHorology.exe.config" />
+      </Component>
+      <Component Id="RaceHorology.pdb" Guid="e2a22db3-f050-4056-9374-100e245e7d2e">
+        <File Id="RaceHorology.pdb" Name="RaceHorology.pdb" Source="$(var.RaceHorology_TargetDir)RaceHorology.pdb" />
+      </Component>
+      <Component Id="RaceHorologyLib.dll" Guid="caade635-099c-494f-9cee-c11920e088f2">
+        <File Id="RaceHorologyLib.dll" Name="RaceHorologyLib.dll" Source="$(var.RaceHorology_TargetDir)RaceHorologyLib.dll" />
+      </Component>
+      <Component Id="RaceHorologyLib.pdb" Guid="47ccab44-478f-4006-ba13-2758699ada28">
+        <File Id="RaceHorologyLib.pdb" Name="RaceHorologyLib.pdb" Source="$(var.RaceHorology_TargetDir)RaceHorologyLib.pdb" />
+      </Component>
+      <Component Id="README.txt" Guid="da7b5dc3-389a-4d38-a34d-67dd4ee843ef">
+        <File Id="README.txt" Name="README.txt" Source="$(var.RaceHorology_TargetDir)README.txt" />
+      </Component>
+      <Component Id="resources.pak" Guid="2f5772b5-8c03-4427-b213-32c30131fc19">
+        <File Id="resources.pak" Name="resources.pak" Source="$(var.RaceHorology_TargetDir)resources.pak" />
+      </Component>
+      <Component Id="RHAlgeTimyUSB.dll" Guid="255400a9-fc64-4204-8f14-c2f346924f20">
+        <File Id="RHAlgeTimyUSB.dll" Name="RHAlgeTimyUSB.dll" Source="$(var.RaceHorology_TargetDir)RHAlgeTimyUSB.dll" />
+      </Component>
+      <Component Id="RHAlgeTimyUSB.pdb" Guid="3738e635-c6d9-410f-9ab8-0638c9afbeb0">
+        <File Id="RHAlgeTimyUSB.pdb" Name="RHAlgeTimyUSB.pdb" Source="$(var.RaceHorology_TargetDir)RHAlgeTimyUSB.pdb" />
+      </Component>
+      <Component Id="rmlt.dll" Guid="ff52d697-2387-4ecc-9716-a191bdded463">
+        <File Id="rmlt.dll" Name="rmlt.dll" Source="$(var.RaceHorology_TargetDir)rmlt.dll" />
+      </Component>
+      <Component Id="snapshot_blob.bin" Guid="5fd94445-757b-4361-b13f-166a1d727c29">
+        <File Id="snapshot_blob.bin" Name="snapshot_blob.bin" Source="$(var.RaceHorology_TargetDir)snapshot_blob.bin" />
+      </Component>
+      <Component Id="StringComparison.dll" Guid="5b878adf-fd78-4a13-ba31-6acd4ca96923">
+        <File Id="StringComparison.dll" Name="StringComparison.dll" Source="$(var.RaceHorology_TargetDir)StringComparison.dll" />
+      </Component>
+      <Component Id="System.Buffers.dll" Guid="7424f1e3-ea4a-467c-896d-36911e4bc45c">
+        <File Id="System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.RaceHorology_TargetDir)System.Buffers.dll" />
+      </Component>
+      <Component Id="System.Diagnostics.DiagnosticSource.dll" Guid="3fb78236-8f14-4abb-a643-bbcd83d14209">
+        <File Id="System.Diagnostics.DiagnosticSource.dll" Name="System.Diagnostics.DiagnosticSource.dll" Source="$(var.RaceHorology_TargetDir)System.Diagnostics.DiagnosticSource.dll" />
+      </Component>
+      <Component Id="System.Memory.dll" Guid="aadb7fea-c584-4037-9f87-b3cecf3df26c">
+        <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.RaceHorology_TargetDir)System.Memory.dll" />
+      </Component>
+      <Component Id="System.Numerics.Vectors.dll" Guid="a2939049-1f38-4c59-85a2-564f75be45d8">
+        <File Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.RaceHorology_TargetDir)System.Numerics.Vectors.dll" />
+      </Component>
+      <Component Id="System.Runtime.CompilerServices.Unsafe.dll" Guid="054f1391-fe7a-4eb9-b34c-f2db87732a80">
+        <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.RaceHorology_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+      </Component>
+      <Component Id="System.Threading.Tasks.Dataflow.dll" Guid="676b84d4-c411-4ffd-9fc0-572347471b93">
+        <File Id="System.Threading.Tasks.Dataflow.dll" Name="System.Threading.Tasks.Dataflow.dll" Source="$(var.RaceHorology_TargetDir)System.Threading.Tasks.Dataflow.dll" />
+      </Component>
+      <Component Id="System.Threading.Tasks.Extensions.dll" Guid="3082fa6e-f82f-420f-b713-3c84a65680b3">
+        <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.RaceHorology_TargetDir)System.Threading.Tasks.Extensions.dll" />
+      </Component>
+      <Component Id="System.ValueTuple.dll" Guid="1057759a-88ce-4fd2-9d79-c05fab2689e8">
+        <File Id="System.ValueTuple.dll" Name="System.ValueTuple.dll" Source="$(var.RaceHorology_TargetDir)System.ValueTuple.dll" />
+      </Component>
+      <Component Id="v8_context_snapshot.bin" Guid="7097b761-a1b9-4f63-a9fb-27f740c0a602">
+        <File Id="v8_context_snapshot.bin" Name="v8_context_snapshot.bin" Source="$(var.RaceHorology_TargetDir)v8_context_snapshot.bin" />
+      </Component>
+      <Component Id="vk_swiftshader.dll" Guid="6e6e2f88-9a28-4201-a44b-afcb37bfc259">
+        <File Id="vk_swiftshader.dll" Name="vk_swiftshader.dll" Source="$(var.RaceHorology_TargetDir)vk_swiftshader.dll" />
+      </Component>
+      <Component Id="vk_swiftshader_icd.json" Guid="4314e69d-b5ea-4c8f-9112-9f4591bf3679">
+        <File Id="vk_swiftshader_icd.json" Name="vk_swiftshader_icd.json" Source="$(var.RaceHorology_TargetDir)vk_swiftshader_icd.json" />
+      </Component>
+      <Component Id="vulkan_1.dll" Guid="6dec627c-f0fe-4da4-bad4-5f927df216aa">
+        <File Id="vulkan_1.dll" Name="vulkan-1.dll" Source="$(var.RaceHorology_TargetDir)vulkan-1.dll" />
+      </Component>
+      <Component Id="websocket_sharp.dll" Guid="33605eb0-bcf0-4e00-a7df-2060431157c3">
+        <File Id="websocket_sharp.dll" Name="websocket-sharp.dll" Source="$(var.RaceHorology_TargetDir)websocket-sharp.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="locales_files" Directory="locales">
+      <Component Id="locales_af.pak" Guid="a1c6a7f4-c533-403d-ae1f-3e0b52ce9da6">
+        <File Id="locales_af.pak" Name="af.pak" Source="$(var.RaceHorology_TargetDir)locales\af.pak" />
+      </Component>
+      <Component Id="locales_am.pak" Guid="fad7c6f1-094b-4287-ad6c-491cbd09b807">
+        <File Id="locales_am.pak" Name="am.pak" Source="$(var.RaceHorology_TargetDir)locales\am.pak" />
+      </Component>
+      <Component Id="locales_ar.pak" Guid="b875e3af-e400-4b1a-a09b-40e726978a14">
+        <File Id="locales_ar.pak" Name="ar.pak" Source="$(var.RaceHorology_TargetDir)locales\ar.pak" />
+      </Component>
+      <Component Id="locales_bg.pak" Guid="cfd41560-de57-45b5-8d43-47b62b594a51">
+        <File Id="locales_bg.pak" Name="bg.pak" Source="$(var.RaceHorology_TargetDir)locales\bg.pak" />
+      </Component>
+      <Component Id="locales_bn.pak" Guid="a916a4e4-deda-496f-8fc4-042c2b52b4fe">
+        <File Id="locales_bn.pak" Name="bn.pak" Source="$(var.RaceHorology_TargetDir)locales\bn.pak" />
+      </Component>
+      <Component Id="locales_ca.pak" Guid="4b301d17-1879-4c50-b8ed-3fb271c93173">
+        <File Id="locales_ca.pak" Name="ca.pak" Source="$(var.RaceHorology_TargetDir)locales\ca.pak" />
+      </Component>
+      <Component Id="locales_cs.pak" Guid="61e8a354-2b57-4578-80ec-f28bb6a77dc9">
+        <File Id="locales_cs.pak" Name="cs.pak" Source="$(var.RaceHorology_TargetDir)locales\cs.pak" />
+      </Component>
+      <Component Id="locales_da.pak" Guid="7f629469-86e9-42c6-8012-b40542c35a17">
+        <File Id="locales_da.pak" Name="da.pak" Source="$(var.RaceHorology_TargetDir)locales\da.pak" />
+      </Component>
+      <Component Id="locales_de.pak" Guid="bf1afac4-2129-4a94-8c2b-5358b44d9f4d">
+        <File Id="locales_de.pak" Name="de.pak" Source="$(var.RaceHorology_TargetDir)locales\de.pak" />
+      </Component>
+      <Component Id="locales_el.pak" Guid="0f88fb8c-fa93-4e97-9e56-670c8242f4f1">
+        <File Id="locales_el.pak" Name="el.pak" Source="$(var.RaceHorology_TargetDir)locales\el.pak" />
+      </Component>
+      <Component Id="locales_en_GB.pak" Guid="f3c39cc4-9199-4917-96c9-1af8f73478eb">
+        <File Id="locales_en_GB.pak" Name="en-GB.pak" Source="$(var.RaceHorology_TargetDir)locales\en-GB.pak" />
+      </Component>
+      <Component Id="locales_en_US.pak" Guid="2f34de9b-90a7-48a0-9e73-40cc1564095c">
+        <File Id="locales_en_US.pak" Name="en-US.pak" Source="$(var.RaceHorology_TargetDir)locales\en-US.pak" />
+      </Component>
+      <Component Id="locales_es.pak" Guid="950ebb86-d62b-478e-b656-f98aff9a9871">
+        <File Id="locales_es.pak" Name="es.pak" Source="$(var.RaceHorology_TargetDir)locales\es.pak" />
+      </Component>
+      <Component Id="locales_es_419.pak" Guid="419f89fd-55f5-47b7-a7a2-e44a59990fb3">
+        <File Id="locales_es_419.pak" Name="es-419.pak" Source="$(var.RaceHorology_TargetDir)locales\es-419.pak" />
+      </Component>
+      <Component Id="locales_et.pak" Guid="f0be98ac-e3eb-4066-b450-74e8430a8377">
+        <File Id="locales_et.pak" Name="et.pak" Source="$(var.RaceHorology_TargetDir)locales\et.pak" />
+      </Component>
+      <Component Id="locales_fa.pak" Guid="3ae9dcb9-83e0-4df3-9486-7148f471bb3f">
+        <File Id="locales_fa.pak" Name="fa.pak" Source="$(var.RaceHorology_TargetDir)locales\fa.pak" />
+      </Component>
+      <Component Id="locales_fi.pak" Guid="8164321b-0477-4ce3-b725-9ea1921f0b99">
+        <File Id="locales_fi.pak" Name="fi.pak" Source="$(var.RaceHorology_TargetDir)locales\fi.pak" />
+      </Component>
+      <Component Id="locales_fil.pak" Guid="f49a66e3-8a83-4be0-8701-2dc2b2067683">
+        <File Id="locales_fil.pak" Name="fil.pak" Source="$(var.RaceHorology_TargetDir)locales\fil.pak" />
+      </Component>
+      <Component Id="locales_fr.pak" Guid="48210250-58ba-46c7-91b7-61f2645ed431">
+        <File Id="locales_fr.pak" Name="fr.pak" Source="$(var.RaceHorology_TargetDir)locales\fr.pak" />
+      </Component>
+      <Component Id="locales_gu.pak" Guid="a4fec834-6016-424c-8ecb-d13318cad805">
+        <File Id="locales_gu.pak" Name="gu.pak" Source="$(var.RaceHorology_TargetDir)locales\gu.pak" />
+      </Component>
+      <Component Id="locales_he.pak" Guid="65cb8ebf-0f29-4418-854a-ccf799b8042e">
+        <File Id="locales_he.pak" Name="he.pak" Source="$(var.RaceHorology_TargetDir)locales\he.pak" />
+      </Component>
+      <Component Id="locales_hi.pak" Guid="ab74aa72-edb1-44a0-8e93-77e175009d16">
+        <File Id="locales_hi.pak" Name="hi.pak" Source="$(var.RaceHorology_TargetDir)locales\hi.pak" />
+      </Component>
+      <Component Id="locales_hr.pak" Guid="0bd442ac-44ca-446f-8073-cd941cfa2f8d">
+        <File Id="locales_hr.pak" Name="hr.pak" Source="$(var.RaceHorology_TargetDir)locales\hr.pak" />
+      </Component>
+      <Component Id="locales_hu.pak" Guid="085aaf30-d1ec-4901-927e-b77d02fe80f3">
+        <File Id="locales_hu.pak" Name="hu.pak" Source="$(var.RaceHorology_TargetDir)locales\hu.pak" />
+      </Component>
+      <Component Id="locales_id.pak" Guid="00cf8e90-918f-4fba-a4d9-d6b783b9821b">
+        <File Id="locales_id.pak" Name="id.pak" Source="$(var.RaceHorology_TargetDir)locales\id.pak" />
+      </Component>
+      <Component Id="locales_it.pak" Guid="0e21d12d-310a-48dd-bf98-e17ef2fc86b6">
+        <File Id="locales_it.pak" Name="it.pak" Source="$(var.RaceHorology_TargetDir)locales\it.pak" />
+      </Component>
+      <Component Id="locales_ja.pak" Guid="78c8ae53-1cf5-4423-924a-332e407370d6">
+        <File Id="locales_ja.pak" Name="ja.pak" Source="$(var.RaceHorology_TargetDir)locales\ja.pak" />
+      </Component>
+      <Component Id="locales_kn.pak" Guid="3adc8350-c3b2-434e-bbfc-6ac899e30622">
+        <File Id="locales_kn.pak" Name="kn.pak" Source="$(var.RaceHorology_TargetDir)locales\kn.pak" />
+      </Component>
+      <Component Id="locales_ko.pak" Guid="7ba78b31-280f-4a7b-b97f-3e6d2436bba9">
+        <File Id="locales_ko.pak" Name="ko.pak" Source="$(var.RaceHorology_TargetDir)locales\ko.pak" />
+      </Component>
+      <Component Id="locales_lt.pak" Guid="16d469e9-f6f8-4f39-b12b-3c8c20beb809">
+        <File Id="locales_lt.pak" Name="lt.pak" Source="$(var.RaceHorology_TargetDir)locales\lt.pak" />
+      </Component>
+      <Component Id="locales_lv.pak" Guid="7f7d4819-c2fd-4f42-b05e-cab6b2f13e69">
+        <File Id="locales_lv.pak" Name="lv.pak" Source="$(var.RaceHorology_TargetDir)locales\lv.pak" />
+      </Component>
+      <Component Id="locales_ml.pak" Guid="4b9ae5a9-2686-47ec-a572-79a0cb1d97f0">
+        <File Id="locales_ml.pak" Name="ml.pak" Source="$(var.RaceHorology_TargetDir)locales\ml.pak" />
+      </Component>
+      <Component Id="locales_mr.pak" Guid="85379348-14c8-4dc7-8b6f-752a7d476b03">
+        <File Id="locales_mr.pak" Name="mr.pak" Source="$(var.RaceHorology_TargetDir)locales\mr.pak" />
+      </Component>
+      <Component Id="locales_ms.pak" Guid="ca201ea0-441b-4d0e-a16d-91efcb7ef3a5">
+        <File Id="locales_ms.pak" Name="ms.pak" Source="$(var.RaceHorology_TargetDir)locales\ms.pak" />
+      </Component>
+      <Component Id="locales_nb.pak" Guid="1bf818cc-0059-43a7-b2c8-834c80637dd9">
+        <File Id="locales_nb.pak" Name="nb.pak" Source="$(var.RaceHorology_TargetDir)locales\nb.pak" />
+      </Component>
+      <Component Id="locales_nl.pak" Guid="b782a6e7-7e79-41e9-a26b-58dff1e783d3">
+        <File Id="locales_nl.pak" Name="nl.pak" Source="$(var.RaceHorology_TargetDir)locales\nl.pak" />
+      </Component>
+      <Component Id="locales_pl.pak" Guid="4c4db08b-4cb0-469b-a6eb-9875e7b3a5ac">
+        <File Id="locales_pl.pak" Name="pl.pak" Source="$(var.RaceHorology_TargetDir)locales\pl.pak" />
+      </Component>
+      <Component Id="locales_pt_BR.pak" Guid="b671324b-7240-43e1-ade9-bb6ef53611d8">
+        <File Id="locales_pt_BR.pak" Name="pt-BR.pak" Source="$(var.RaceHorology_TargetDir)locales\pt-BR.pak" />
+      </Component>
+      <Component Id="locales_pt_PT.pak" Guid="7fdfee03-5dcb-46cb-82d2-2a3d7f53cde4">
+        <File Id="locales_pt_PT.pak" Name="pt-PT.pak" Source="$(var.RaceHorology_TargetDir)locales\pt-PT.pak" />
+      </Component>
+      <Component Id="locales_ro.pak" Guid="0aeaa6b6-fd95-4cb1-b6e4-fcadaf21275b">
+        <File Id="locales_ro.pak" Name="ro.pak" Source="$(var.RaceHorology_TargetDir)locales\ro.pak" />
+      </Component>
+      <Component Id="locales_ru.pak" Guid="bba38462-9d7f-4958-90dd-10bec94411e8">
+        <File Id="locales_ru.pak" Name="ru.pak" Source="$(var.RaceHorology_TargetDir)locales\ru.pak" />
+      </Component>
+      <Component Id="locales_sk.pak" Guid="dd6b14bd-c94e-4b17-a549-7447d9050142">
+        <File Id="locales_sk.pak" Name="sk.pak" Source="$(var.RaceHorology_TargetDir)locales\sk.pak" />
+      </Component>
+      <Component Id="locales_sl.pak" Guid="e35b3d60-44ed-4a6a-a5e2-d556ca0861a5">
+        <File Id="locales_sl.pak" Name="sl.pak" Source="$(var.RaceHorology_TargetDir)locales\sl.pak" />
+      </Component>
+      <Component Id="locales_sr.pak" Guid="4ea4aba5-21fb-4c80-ac44-16073854c53b">
+        <File Id="locales_sr.pak" Name="sr.pak" Source="$(var.RaceHorology_TargetDir)locales\sr.pak" />
+      </Component>
+      <Component Id="locales_sv.pak" Guid="b3ba4d66-af28-4f31-b046-a237f80abfd1">
+        <File Id="locales_sv.pak" Name="sv.pak" Source="$(var.RaceHorology_TargetDir)locales\sv.pak" />
+      </Component>
+      <Component Id="locales_sw.pak" Guid="674e163a-fdfe-41d3-9d66-1c9367f33c73">
+        <File Id="locales_sw.pak" Name="sw.pak" Source="$(var.RaceHorology_TargetDir)locales\sw.pak" />
+      </Component>
+      <Component Id="locales_ta.pak" Guid="6fc11f02-7810-472a-b013-f75ea9547324">
+        <File Id="locales_ta.pak" Name="ta.pak" Source="$(var.RaceHorology_TargetDir)locales\ta.pak" />
+      </Component>
+      <Component Id="locales_te.pak" Guid="8e1c5029-792b-4d49-85fb-bd28008e2b47">
+        <File Id="locales_te.pak" Name="te.pak" Source="$(var.RaceHorology_TargetDir)locales\te.pak" />
+      </Component>
+      <Component Id="locales_th.pak" Guid="dac66170-0680-407d-a1f2-a4b81377b7ac">
+        <File Id="locales_th.pak" Name="th.pak" Source="$(var.RaceHorology_TargetDir)locales\th.pak" />
+      </Component>
+      <Component Id="locales_tr.pak" Guid="47d7df95-507a-4c1f-bbf9-b3927ae1ee82">
+        <File Id="locales_tr.pak" Name="tr.pak" Source="$(var.RaceHorology_TargetDir)locales\tr.pak" />
+      </Component>
+      <Component Id="locales_uk.pak" Guid="daf20699-f0ef-4273-a272-e6c9bd0beff7">
+        <File Id="locales_uk.pak" Name="uk.pak" Source="$(var.RaceHorology_TargetDir)locales\uk.pak" />
+      </Component>
+      <Component Id="locales_ur.pak" Guid="6c6d129c-2914-496a-8f6b-bbcf84b39f16">
+        <File Id="locales_ur.pak" Name="ur.pak" Source="$(var.RaceHorology_TargetDir)locales\ur.pak" />
+      </Component>
+      <Component Id="locales_vi.pak" Guid="8c844e8a-8754-427e-adbe-48f21fa9c32b">
+        <File Id="locales_vi.pak" Name="vi.pak" Source="$(var.RaceHorology_TargetDir)locales\vi.pak" />
+      </Component>
+      <Component Id="locales_zh_CN.pak" Guid="6a8a37bd-e49a-42e1-ac8a-fe9997e22105">
+        <File Id="locales_zh_CN.pak" Name="zh-CN.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-CN.pak" />
+      </Component>
+      <Component Id="locales_zh_TW.pak" Guid="c21f1058-aa77-455a-b650-0e73315c6b44">
+        <File Id="locales_zh_TW.pak" Name="zh-TW.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-TW.pak" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="runtimes_win_x86_native_files" Directory="runtimes_win_x86_native">
+      <Component Id="runtimes_win_x86_native_WebView2Loader.dll" Guid="d6437c0c-fd08-43d7-bad2-898c4102ba44">
+        <File Id="runtimes_win_x86_native_WebView2Loader.dll" Name="WebView2Loader.dll" Source="$(var.RaceHorology_TargetDir)runtimes\win-x86\native\WebView2Loader.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="webroot_css_files" Directory="webroot_css">
+      <Component Id="webroot_css_bootstrap.min.css" Guid="1f0af17d-0ab2-4c8b-9d8d-2472f57ad294">
+        <File Id="webroot_css_bootstrap.min.css" Name="bootstrap.min.css" Source="$(var.RaceHorology_TargetDir)webroot\css\bootstrap.min.css" />
+      </Component>
+      <Component Id="webroot_css_bootstrap_vue.min.css" Guid="6f09fde2-0a89-43cc-bf1a-ac25613e41be">
+        <File Id="webroot_css_bootstrap_vue.min.css" Name="bootstrap-vue.min.css" Source="$(var.RaceHorology_TargetDir)webroot\css\bootstrap-vue.min.css" />
+      </Component>
+      <Component Id="webroot_css_styles.css" Guid="1ce54bdd-9882-4dff-93c4-3fdca17e117f">
+        <File Id="webroot_css_styles.css" Name="styles.css" Source="$(var.RaceHorology_TargetDir)webroot\css\styles.css" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="webroot_img_files" Directory="webroot_img">
+      <Component Id="webroot_img_RH_LOGO.svg" Guid="7ea022e6-cc64-4ac0-a830-faded4227508">
+        <File Id="webroot_img_RH_LOGO.svg" Name="RH-LOGO.svg" Source="$(var.RaceHorology_TargetDir)webroot\img\RH-LOGO.svg" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="webroot_files" Directory="webroot">
+      <Component Id="webroot_index.html" Guid="2f768f6c-5b94-4985-8b20-6f4a35956af1">
+        <File Id="webroot_index.html" Name="index.html" Source="$(var.RaceHorology_TargetDir)webroot\index.html" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="dbtemplates_files" Directory="dbtemplates">
+      <Component Id="dbtemplates_TemplateDB_Standard.mdb" Guid="40eba8ff-d986-4c32-91f1-6ef06577954d">
+        <File Id="dbtemplates_TemplateDB_Standard.mdb" Name="TemplateDB_Standard.mdb" KeyPath="yes" Source="$(var.HarvestPath)\dbtemplates\TemplateDB_Standard.mdb" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="resources_files" Directory="resources">
+      <Component Id="resources_count_down_high_long.wav" Guid="991ee225-3268-4c0e-a6d1-e6abc3fb385c">
+        <File Id="resources_count_down_high_long.wav" KeyPath="yes" Source="$(var.HarvestPath)\resources\count_down_high_long.wav" />
+      </Component>
+      <Component Id="resources_count_down_low.wav" Guid="751c654c-9000-4b6c-b607-f06245d57202">
+        <File Id="resources_count_down_low.wav" KeyPath="yes" Source="$(var.HarvestPath)\resources\count_down_low.wav" />
+      </Component>
+      </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="resources_pdf_files" Directory="resources_pdf">
+      <Component Id="resources_pdf_LogoRH.pn" Guid="b7011b6a-4658-47e6-a91f-37291cebe210">
+        <File Id="resources_pdf_LogoRH.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRH.png" />
+      </Component>
+      <Component Id="resources_pdf_LogoRHShort.png" Guid="41f6a0ee-3b6d-4dec-89c3-c842bea48168">
+        <File Id="resources_pdf_LogoRHShort.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.png" />
+      </Component>
+      <Component Id="resources_pdf_LogoRHShort.svg" Guid="26a70459-3794-4c8c-a503-1e1c149cb576">
+        <File Id="resources_pdf_LogoRHShort.svg" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.svg" />
+      </Component>
+      <Component Id="resources_pdf_LogoRHShortM.png" Guid="ffcf83b7-7bb6-4d61-bc06-9a7f65003cbc">
+        <File Id="resources_pdf_LogoRHShortM.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.png" />
+      </Component>
+      <Component Id="resources_pdf_LogoRHShortM.svg" Guid="bdf4bc90-3e80-41cd-937e-6b08ffc93589">
+        <File Id="resources_pdf_LogoRHShortM.svg" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.svg" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="raceconfigpresets_files" Directory="raceconfigpresets">
+      <Component Id="raceconfigpresets_DSV_Erwachsene.preset" Guid="2441b4bb-3295-4133-b838-5f0ca156cddd">
+        <File Id="raceconfigpresets_DSV_Erwachsene.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\DSV Erwachsene.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_DSV_Schueler_U14U16.preset" Guid="d79bbe75-144f-4656-900f-cef0078f9aaf">
+        <File Id="raceconfigpresets_DSV_Schueler_U14U16.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\DSV Schüler U14-U16.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_FISRennenMen.preset" Guid="f1d8be12-ebcb-456f-b0ef-29bba7d25c6e">
+        <File Id="raceconfigpresets_FISRennenMen.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\FIS Rennen Men.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_FISRennenWomen.preset" Guid="303ecd1d-f33d-4838-b003-7919ce70e5b9">
+        <File Id="raceconfigpresets_FISRennenWomen.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\FIS Rennen Women.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_Inline_allgemein.preset" Guid="333d019f-e30e-4460-a70c-c94049f787c1">
+        <File Id="raceconfigpresets_Inline_allgemein.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Inline (allgemein).preset" />
+      </Component>
+      <Component Id="raceconfigpresets_Inline_Punkte.preset" Guid="dfcd9f9f-e5b9-4911-9669-a2cb82f8de30">
+        <File Id="raceconfigpresets_Inline_Punkte.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Inline (Punkte).preset" />
+      </Component>
+      <Component Id="raceconfigpresets_KSC_Ebersberg_U12.preset" Guid="af63e03a-d9fb-4ac1-8acf-f8417e94feae">
+        <File Id="raceconfigpresets_KSC_Ebersberg_U12.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\KSC Ebersberg -U12.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_KSC_Ebersberg_U14.preset" Guid="433763f9-0331-4e0d-965d-cbc526aaf6b8">
+        <File Id="raceconfigpresets_KSC_Ebersberg_U14.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\KSC Ebersberg U14-.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_SVM_Schueler_U12.preset" Guid="626a106a-366f-4e2d-8cf1-2979cf34f648">
+        <File Id="raceconfigpresets_SVM_Schueler_U12.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\SVM Schüler U12.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_SVMSchuelerU8_U10.preset" Guid="5726a7a8-fd7c-463d-90aa-7df83ec22b33">
+        <File Id="raceconfigpresets_SVMSchuelerU8_U10.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\SVM Schüler U8-U10.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_Vereinsrennen_BestOfTwo.preset" Guid="9c320518-ec06-463c-b272-4ca18c681d61">
+        <File Id="raceconfigpresets_Vereinsrennen_BestOfTwo.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Vereinsrennen - BestOfTwo.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_Vereinsrennen_Summe.preset" Guid="b4950a60-83c5-409d-afb7-3523245a573e">
+        <File Id="raceconfigpresets_Vereinsrennen_Summe.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Vereinsrennen - Summe.preset" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="webroot_Js_files" Directory="webroot_Js">
+      <Component Id="webroot_Js_bootstrap.bundle.min.js" Guid="e493d423-4d1d-4093-b6c9-622aecb3fcf4">
+        <File Id="webroot_Js_bootstrap.bundle.min.js" Name="bootstrap.bundle.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\bootstrap.bundle.min.js" />
+      </Component>
+      <Component Id="webroot_Js_bootstrap.min.js" Guid="b77fc248-b55a-4d28-887a-479275b2da4c">
+        <File Id="webroot_Js_bootstrap.min.js" Name="bootstrap.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\bootstrap.min.js" />
+      </Component>
+      <Component Id="webroot_Js_bootstrap_vue.min.js" Guid="e462332d-3faf-4e77-b305-dae5db09e4a9">
+        <File Id="webroot_Js_bootstrap_vue.min.js" Name="bootstrap-vue.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\bootstrap-vue.min.js" />
+      </Component>
+      <Component Id="webroot_Js_DSVAlpin2.js" Guid="8ac1a7c5-ae90-44b4-aeb8-d5b59bb97ae8">
+        <File Id="webroot_Js_DSVAlpin2.js" Name="DSVAlpin2.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\DSVAlpin2.js" />
+      </Component>
+      <Component Id="webroot_Js_echotest.js" Guid="0c77922e-25a9-436c-aec2-5e5d72d5b0a7">
+        <File Id="webroot_Js_echotest.js" Name="echotest.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\echotest.js" />
+      </Component>
+      <Component Id="webroot_Js_jquery_3.4.1.min.js" Guid="d039c2f0-f057-4a8c-a75e-af58e0213ee3">
+        <File Id="webroot_Js_jquery_3.4.1.min.js" Name="jquery-3.4.1.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\jquery-3.4.1.min.js" />
+      </Component>
+      <Component Id="webroot_Js_jquery_3.4.1.slim.min.js" Guid="0cfc49ab-c2d7-4219-882c-d688c9fa6d00">
+        <File Id="webroot_Js_jquery_3.4.1.slim.min.js" Name="jquery-3.4.1.slim.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\jquery-3.4.1.slim.min.js" />
+      </Component>
+      <Component Id="webroot_Js_popper.min.js" Guid="b33904db-b0bf-4eb7-8d4b-13c470ca343c">
+        <File Id="webroot_Js_popper.min.js" Name="popper.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\popper.min.js" />
+      </Component>
+      <Component Id="webroot_Js_vue.js" Guid="10d6e086-e2aa-456b-a97f-d9d07d796dc2">
+        <File Id="webroot_Js_vue.js" Name="vue.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\vue.js" />
+      </Component>
+      <Component Id="webroot_Js_vue.min.js" Guid="04c1df54-9e26-49ab-bc16-3ebd33f09bb0">
+        <File Id="webroot_Js_vue.min.js" Name="vue.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\vue.min.js" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
 </Wix>

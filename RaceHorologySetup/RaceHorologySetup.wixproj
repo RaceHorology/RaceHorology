@@ -14,8 +14,10 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>Debug</DefineConstants>
+    <DefineConstants>Debug;HarvestPath=..\RaceHorology\bin\x86\Debug</DefineConstants>
     <Cultures>de-DE</Cultures>
+    <CompilerAdditionalOptions>
+    </CompilerAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -28,7 +30,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product.wxs" />
-    <Compile Include="HeatGeneratedFileList.wxs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RaceHorology\RaceHorology.csproj">
@@ -41,10 +42,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <WixExtension Include="WixNetFxExtension">
+      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
     <WixExtension Include="WixUIExtension">
       <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
       <Name>WixUIExtension</Name>
     </WixExtension>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="RaceHorologySetup.wax" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
@@ -52,7 +60,7 @@
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
   <Target Name="BeforeBuild">
-    <HeatDirectory Directory="..\RaceHorology\bin\x86\$(Configuration)" PreprocessorVariable="var.HarvestPath" OutputFile="HeatGeneratedFileList.wxs" ComponentGroupName="HeatGeneratedInstallFiles" DirectoryRefId="INSTALLFOLDER" AutogenerateGuids="true" ToolPath="$(WixToolPath)" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" />
+    <HeatDirectory RunAsSeparateProcess="$(RunWixToolsOutOfProc)" Directory="..\RaceHorology\bin\x86\$(Configuration)" PreprocessorVariable="var.HarvestPath" OutputFile="HeatGeneratedFileList.wxs" ComponentGroupName="HeatGeneratedInstallFiles" DirectoryRefId="INSTALLFOLDER" AutogenerateGuids="true" ToolPath="$(WixToolPath)" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" />
   </Target>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
