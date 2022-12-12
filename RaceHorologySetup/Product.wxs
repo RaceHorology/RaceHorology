@@ -5,6 +5,9 @@
   <Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="!(bind.fileVersion.RaceHorology.exe)" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
+    <Icon Id="RHLOGOFINAPP.ico" SourceFile="RH-LOGO-FIN-APP2.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="RHLOGOFINAPP.ico" />
+
     <MajorUpgrade Schedule="afterInstallExecute" AllowDowngrades="yes" />
     <!-- 		<MajorUpgrade AllowDowngrades="yes" DowngradeErrorMessage="A newer version of [ProductName] is already installed." />-->
     <MediaTemplate EmbedCab="yes" />
@@ -102,7 +105,7 @@
       Execute="immediate"
       Return="asyncNoWait"
       FileKey="ExtSources_VC_redist.x86.exe"
-      ExeCommand="/quiet" />
+      ExeCommand="/quiet /norestart" />
 
       <InstallExecuteSequence>
         <Custom Action="Install_VC_redist_x86" After="InstallFinalize"><![CDATA[VCREDISTINSTALLED < "14.34.31931.0" AND NOT REMOVE]]></Custom>
@@ -113,16 +116,16 @@
   <Fragment>
     <ComponentGroup Id="INSTALLFOLDER_files" Directory="INSTALLFOLDER">
       <Component Id="LICENSES_THIRD_PARTY.txt" Guid="234fcc47-ebfd-4dc1-8190-faeb21b23a28">
-        <File Id="LICENSES_THIRD_PARTY.txt" KeyPath="yes" Source="$(var.HarvestPath)\LICENSES_THIRD_PARTY.txt" />
+        <File Id="LICENSES_THIRD_PARTY.txt" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\LICENSES_THIRD_PARTY.txt" />
       </Component>
       <Component Id="COPYING_MAIN.txt" Guid="8525d66d-90c4-4392-97f5-53402ad9f37c">
-        <File Id="COPYING_MAIN.txt" KeyPath="yes" Source="$(var.HarvestPath)\COPYING_MAIN.txt" />
+        <File Id="COPYING_MAIN.txt" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\COPYING_MAIN.txt" />
       </Component>
       <Component Id="COPYING" Guid="90fb64fa-eb68-48e1-9bc9-06dbd33e97fd">
-        <File Id="COPYING" KeyPath="yes" Source="$(var.HarvestPath)\COPYING" />
+        <File Id="COPYING" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\COPYING" />
       </Component>
       <Component Id="CREDITS.txt" Guid="823d565e-7fed-4b24-806a-c67d735b1d5e">
-        <File Id="CREDITS.txt" KeyPath="yes" Source="$(var.HarvestPath)\CREDITS.txt" />
+        <File Id="CREDITS.txt" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\CREDITS.txt" />
       </Component>
       <Component Id="AlgeTimyUsb.x86.dll" Guid="29626894-0c6a-45fb-86c8-71669cb84e0e">
         <File Id="AlgeTimyUsb.x86.dll" Name="AlgeTimyUsb.x86.dll" Source="$(var.RaceHorology_TargetDir)AlgeTimyUsb.x86.dll" />
