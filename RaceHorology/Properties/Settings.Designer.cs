@@ -178,20 +178,5 @@ namespace RaceHorology.Properties {
                 this["Timing_DisplayPartcipantAssignment"] = value;
             }
         }
-
-    [global::System.Configuration.UserScopedSettingAttribute()]
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    [global::System.Configuration.DefaultSettingValueAttribute("Stabil")]
-    public string UpdateChannel
-    {
-      get
-      {
-        return ((string)(this["UpdateChannel"]));
-      }
-      set
-      {
-        this["UpdateChannel"] = value;
-      }
-    }
   }
 }
