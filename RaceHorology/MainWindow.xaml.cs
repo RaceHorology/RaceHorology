@@ -47,7 +47,6 @@ using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 
 using System.IO;
-using AutoUpdaterDotNET;
 
 using System.Diagnostics;
 using System.Reflection;
@@ -106,31 +105,9 @@ namespace RaceHorology
     /// </summary>
     public MainWindow()
     {
-      string version;
       Logger.Info("Application started");
 
       InitializeComponent();
-
-      //autoUpdater
-      Assembly assembly = Assembly.GetEntryAssembly();
-      if (assembly == null)
-        assembly = Assembly.GetExecutingAssembly();
-
-      if (assembly != null)
-      {
-        FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-        version = fvi.ProductVersion;
-      } else
-      {
-        version = "0.0.0.0";
-      }
-      AutoUpdater.ReportErrors = true;
-      AutoUpdater.InstalledVersion = new Version(version);
-      AutoUpdater.UpdateFormSize = new System.Drawing.Size(800, 600);
-      AutoUpdater.ShowRemindLaterButton = false;
-      AutoUpdater.PersistenceProvider = new JsonFilePersistenceProvider(Path.Combine(Environment.CurrentDirectory, "autoUpdateSettings.json"));
-      AutoUpdater.Synchronous = true;
-      AutoUpdater.Mandatory = true;
 
       // Remember the Application Name
       _appTitle = this.Title;
@@ -291,24 +268,6 @@ namespace RaceHorology
     private void OnlineDocumentationCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       System.Diagnostics.Process.Start("https://docs.race-horology.com");
-    }
-
-    private void AutoUpdaterCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
-    {
-      string channel;
-      string updateURL;
-
-      if (Properties.Settings.Default.UpdateChannel == "Test")
-      {
-        channel = "beta";
-      } else
-      {
-        channel = "stable";
-      }
-
-      updateURL = "https://docs.race-horology.com/rh.versions/" + channel + "-channel.xml";
-
-      AutoUpdater.Start(updateURL);
     }
 
     /// <summary>

@@ -84,9 +84,6 @@ namespace RaceHorology
       chkAutoAddParticipant.IsChecked = Properties.Settings.Default.AutoAddParticipants;
 
       txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
-      cbUpdateChannel.Items.Add("Stabil");
-      cbUpdateChannel.Items.Add("Test");
-      cbUpdateChannel.SelectedValue = Properties.Settings.Default.UpdateChannel;
 
       cbTimingDevice_SelectionChanged(null, null);
     }
@@ -126,9 +123,6 @@ namespace RaceHorology
           Properties.Settings.Default.AutomaticNaSStarters = uint.Parse(txtAutomaticNaSStarters.Text); 
       }
       catch (Exception) { }
-
-      if (cbUpdateChannel.SelectedValue != null && Properties.Settings.Default.UpdateChannel != (string)cbUpdateChannel.SelectedValue)
-        Properties.Settings.Default.UpdateChannel = (string)cbUpdateChannel.SelectedValue;
 
       try 
       { 

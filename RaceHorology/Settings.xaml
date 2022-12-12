@@ -87,9 +87,7 @@
           </Grid.ColumnDefinitions>
 
           <Label Content="Nicht zu vergebene Startnummern:&#xD;&#xA;(durch Komma getrennt)" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
-          <TextBox x:Name="txtNotToBeAssigned" VerticalAlignment="Center" MinWidth="50" Grid.ColumnSpan="2" Height="22" Margin="195,0,5,0" />
-          <Label Content="Programmaktualisierungskanal:" HorizontalAlignment="Stretch" Margin="0,0,0,-42" RenderTransformOrigin="0.743,0.826" Grid.Row="6" />
-          <ComboBox x:Name="cbUpdateChannel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="200" Grid.ColumnSpan="2" Margin="195,0,276,0" Grid.Row="6" />
+          <TextBox x:Name="txtNotToBeAssigned" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="50" />
         </Grid>
       </TabItem>
     </TabControl>

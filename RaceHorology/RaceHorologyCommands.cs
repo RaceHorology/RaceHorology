@@ -47,13 +47,6 @@ namespace RaceHorology.Commands
         typeof(RaceHorologyCommands)
       );
 
-    public static readonly RoutedUICommand AutoUpdate = new RoutedUICommand
-      (
-        "AutoUpdate",
-        "AutoUpdate",
-        typeof(RaceHorologyCommands)
-      );
-
     //Define more commands here, just like the one above
   }
 }
