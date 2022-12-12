@@ -127,9 +127,9 @@
       <Component Id="AlgeTimyUsb.x86.dll" Guid="29626894-0c6a-45fb-86c8-71669cb84e0e">
         <File Id="AlgeTimyUsb.x86.dll" Name="AlgeTimyUsb.x86.dll" Source="$(var.RaceHorology_TargetDir)AlgeTimyUsb.x86.dll" />
       </Component>
-      <Component Id="AutoUpdater.NET.dll" Guid="a542ac89-e655-464a-943a-d1e97de24334">
+      <!--<Component Id="AutoUpdater.NET.dll" Guid="a542ac89-e655-464a-943a-d1e97de24334">
         <File Id="AutoUpdater.NET.dll" Name="AutoUpdater.NET.dll" Source="$(var.RaceHorology_TargetDir)AutoUpdater.NET.dll" />
-      </Component>
+      </Component>-->
       <Component Id="BouncyCastle.Crypto.dll" Guid="66c3ec19-3d5e-435f-91c7-46410abaaf00">
         <File Id="BouncyCastle.Crypto.dll" Name="BouncyCastle.Crypto.dll" Source="$(var.RaceHorology_TargetDir)BouncyCastle.Crypto.dll" />
       </Component>
@@ -259,12 +259,12 @@
       <Component Id="Microsoft.Extensions.Primitives.dll" Guid="40ed5da7-9bcc-4f34-89d6-579ee0f2bd16">
         <File Id="Microsoft.Extensions.Primitives.dll" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Extensions.Primitives.dll" />
       </Component>
-      <Component Id="Microsoft.Web.WebView2.Core.dll" Guid="f4f8caac-c509-4ed1-9024-e9d27976fe8d">
+      <!--<Component Id="Microsoft.Web.WebView2.Core.dll" Guid="f4f8caac-c509-4ed1-9024-e9d27976fe8d">
         <File Id="Microsoft.Web.WebView2.Core.dll" Name="Microsoft.Web.WebView2.Core.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.Core.dll" />
       </Component>
       <Component Id="Microsoft.Web.WebView2.WinForms.dll" Guid="c81563f4-25c7-4af7-80fd-1544a3fb2daf">
         <File Id="Microsoft.Web.WebView2.WinForms.dll" Name="Microsoft.Web.WebView2.WinForms.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.WinForms.dll" />
-      </Component>
+      </Component>-->
       <Component Id="Newtonsoft.Json.dll" Guid="a4f40607-4aa3-4e35-a9d4-8b7c8219c026">
         <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.RaceHorology_TargetDir)Newtonsoft.Json.dll" />
       </Component>
@@ -524,9 +524,9 @@
 
   <Fragment>
     <ComponentGroup Id="runtimes_win_x86_native_files" Directory="runtimes_win_x86_native">
-      <Component Id="runtimes_win_x86_native_WebView2Loader.dll" Guid="d6437c0c-fd08-43d7-bad2-898c4102ba44">
+      <!--<Component Id="runtimes_win_x86_native_WebView2Loader.dll" Guid="d6437c0c-fd08-43d7-bad2-898c4102ba44">
         <File Id="runtimes_win_x86_native_WebView2Loader.dll" Name="WebView2Loader.dll" Source="$(var.RaceHorology_TargetDir)runtimes\win-x86\native\WebView2Loader.dll" />
-      </Component>
+      </Component>-->
     </ComponentGroup>
   </Fragment>
 

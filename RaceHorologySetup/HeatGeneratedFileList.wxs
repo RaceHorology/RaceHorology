@@ -5,15 +5,6 @@
             <Component Id="cmp91580C5F3F0980DD8B3188F209956F4E" Guid="*">
                 <File Id="fil754A38B8BA46BDC971DE991A3F182B38" KeyPath="yes" Source="$(var.HarvestPath)\AlgeTimyUsb.x86.dll" />
             </Component>
-            <Component Id="cmp62A610FDDE92CF51D05322BEF0E226B2" Guid="*">
-                <File Id="fil734562E1142DB06F0A4D7B4FFCE2E13D" KeyPath="yes" Source="$(var.HarvestPath)\AutoUpdater.NET.dll" />
-            </Component>
-            <Component Id="cmp61E08E9DA2169E9D0B7479D269E2F559" Guid="*">
-                <File Id="filF69CE18CE066EC67ED032A25C0AECBBE" KeyPath="yes" Source="$(var.HarvestPath)\AutoUpdater.NET.pdb" />
-            </Component>
-            <Component Id="cmp28ACA6D79CCC4A4B06C42CB54A9C7BF5" Guid="*">
-                <File Id="fil972AEA20C0E982B52D610B17131C1E43" KeyPath="yes" Source="$(var.HarvestPath)\AutoUpdater.NET.xml" />
-            </Component>
             <Component Id="cmpCF9B3A227754E55B2A4622BDADF51333" Guid="*">
                 <File Id="fil244CDAED28510644E512EA1DBCB9390F" KeyPath="yes" Source="$(var.HarvestPath)\BouncyCastle.Crypto.dll" />
             </Component>
@@ -94,6 +85,9 @@
             </Component>
             <Component Id="cmp41DC9741013CA4AD62A4A5FF421F08BC" Guid="*">
                 <File Id="fil84B847A9F8DABE6B95AF875695C9E6D1" KeyPath="yes" Source="$(var.HarvestPath)\d3dcompiler_47.dll" />
+            </Component>
+            <Component Id="cmp606EB7ABF006368C60735078DEFF8B91" Guid="*">
+                <File Id="filDF37FFDBAF794FB705610E0A82AF4AEA" KeyPath="yes" Source="$(var.HarvestPath)\debug.log" />
             </Component>
             <Component Id="cmp8E0BA9345D6467C6CE87127468E2DA60" Guid="*">
                 <File Id="fil425B2C707904C74CBB8D3C690296B481" KeyPath="yes" Source="$(var.HarvestPath)\DocumentFormat.OpenXml.dll" />
@@ -187,24 +181,6 @@
             </Component>
             <Component Id="cmp946145B53A7DCDFA822B0EFD2314FAB6" Guid="*">
                 <File Id="fil773F29942324AAB2A7E1977E1AC63609" KeyPath="yes" Source="$(var.HarvestPath)\Microsoft.Extensions.Primitives.dll" />
-            </Component>
-            <Component Id="cmp57D856C08E480EBC080FF86FAEB1DDA3" Guid="*">
-                <File Id="fil75A9AC5DE23858DE4AD4EE64AEAE4B4A" KeyPath="yes" Source="$(var.HarvestPath)\Microsoft.Web.WebView2.Core.dll" />
-            </Component>
-            <Component Id="cmpA9C0A5064C7652736B794F30EB0F0482" Guid="*">
-                <File Id="filFAFCF00A105B7F2D9F8CF5F97A7F969E" KeyPath="yes" Source="$(var.HarvestPath)\Microsoft.Web.WebView2.Core.xml" />
-            </Component>
-            <Component Id="cmp39AA4117FE66423F7F7B55B38D21DDEB" Guid="*">
-                <File Id="fil1FD222D755CE0EA2DA473BD88AB86236" KeyPath="yes" Source="$(var.HarvestPath)\Microsoft.Web.WebView2.WinForms.dll" />
-            </Component>
-            <Component Id="cmpD629F351794BCD7B907DBFED11EC5D28" Guid="*">
-                <File Id="fil5E3CE67A32792E1F61B9FF6523BF8962" KeyPath="yes" Source="$(var.HarvestPath)\Microsoft.Web.WebView2.WinForms.xml" />
-            </Component>
-            <Component Id="cmp52904F0CB40D279B8F2C7E92B0EFE70C" Guid="*">
-                <File Id="fil5CCB07B1FCCECF7CA118B8F160F410A7" KeyPath="yes" Source="$(var.HarvestPath)\Microsoft.Web.WebView2.Wpf.dll" />
-            </Component>
-            <Component Id="cmp0C051A17C01ED8AB5F70EF67C876BF4A" Guid="*">
-                <File Id="filF31FDF0BFC806D040F41E6C9DD682172" KeyPath="yes" Source="$(var.HarvestPath)\Microsoft.Web.WebView2.Wpf.xml" />
             </Component>
             <Component Id="cmpBC4FC00A26E7D32479D42D3411317FC5" Guid="*">
                 <File Id="fil90A8AAD9FC612906D405476D61CEA3F4" KeyPath="yes" Source="$(var.HarvestPath)\Newtonsoft.Json.dll" />
@@ -311,6 +287,23 @@
             <Component Id="cmp16C1BCAA951D19F64A3F49C867F11A4D" Guid="*">
                 <File Id="fil658540A7DF7A8EBC1F4845BE99C3E371" KeyPath="yes" Source="$(var.HarvestPath)\websocket-sharp.xml" />
             </Component>
+            <Directory Id="dirAAB9F8D1AE4F94408B3201D0145FEF09" Name="DawnCache">
+                <Component Id="cmp9ED6BB07A5DAB7B8AED0A22939EC6EE9" Guid="*">
+                    <File Id="fil997AF25FDBF4AE861BEE9F264719231F" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\data_0" />
+                </Component>
+                <Component Id="cmpF82D97909A472B05BA5FE2AB4250C840" Guid="*">
+                    <File Id="filDECD08581E989FA6BDF9793CEFE1603B" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\data_1" />
+                </Component>
+                <Component Id="cmp433989B2E4180E1EC1008E11123F3229" Guid="*">
+                    <File Id="fil52F572800F947BBDCB52873E7B867A51" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\data_2" />
+                </Component>
+                <Component Id="cmp60103F5F0AA4E5D2BE9190DDD8C53284" Guid="*">
+                    <File Id="fil1A1DB2661B2033A9212EB432F22E6546" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\data_3" />
+                </Component>
+                <Component Id="cmp9EA9421624FC4FD8E04F71FB3E08A098" Guid="*">
+                    <File Id="fil11A8A17035D9202D709BF77A442FCB45" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\index" />
+                </Component>
+            </Directory>
             <Directory Id="dir636058F130D9D2B5F5E67FEF841EE4BC" Name="dbtemplates">
                 <Component Id="cmpEB2A893F73ABC18DA37A5710F061B67A" Guid="*">
                     <File Id="fil1A62B9EE25172E14D17DBEBC32D598EA" KeyPath="yes" Source="$(var.HarvestPath)\dbtemplates\TemplateDB_Standard.mdb" />
@@ -319,6 +312,23 @@
             <Directory Id="dir37304199BBDE0FEF2649EDD37727E43A" Name="ExtSources">
                 <Component Id="cmp0581840ED220E056E777EDE380AA81B9" Guid="*">
                     <File Id="filFC247F23DAC7B4DF3FA246109C3507B5" KeyPath="yes" Source="$(var.HarvestPath)\ExtSources\VC_redist.x86.exe" />
+                </Component>
+            </Directory>
+            <Directory Id="dirCA02E4A7CC6C21D952C5059DC56408F4" Name="GPUCache">
+                <Component Id="cmpD98D5A90C5CF76F1CF3ABB6B654DE9BB" Guid="*">
+                    <File Id="fil72C8998E84524852D93DAE53BDD96DCC" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\data_0" />
+                </Component>
+                <Component Id="cmp5F4053DB10BABA21190A2AC13E40B62F" Guid="*">
+                    <File Id="fil7BFFC2B6D94359068CFF6FB407C977ED" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\data_1" />
+                </Component>
+                <Component Id="cmp7999F54A3D4545C6540F010CD9BFF92F" Guid="*">
+                    <File Id="filBA3BD400D0DFB7304CEB577521B97A35" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\data_2" />
+                </Component>
+                <Component Id="cmp7FB19E27B662424B82391A756DD9965E" Guid="*">
+                    <File Id="fil982A836EC9CB30E83EE561E12828CD57" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\data_3" />
+                </Component>
+                <Component Id="cmp3B66DCEB0789C8C518943D089A4199DD" Guid="*">
+                    <File Id="fil28E93CE868CB9B868ADCBF0F50DDA1ED" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\index" />
                 </Component>
             </Directory>
             <Directory Id="dir07100F2E598E14B511BAF734827AE4AB" Name="locales">
@@ -556,15 +566,6 @@
                     </Component>
                 </Directory>
             </Directory>
-            <Directory Id="dir58E8247E2885C01898CAD009F9EFD8BA" Name="runtimes">
-                <Directory Id="dir92F336DAA82E5A629052407A3F87EF27" Name="win-x86">
-                    <Directory Id="dir2B43AAE918D399CEF13EC6CBA2D3D5EA" Name="native">
-                        <Component Id="cmp4F7DF7219262D6FC5265D99235D5A68A" Guid="*">
-                            <File Id="filCB5B16D1774F1A284B9490C5CB978E18" KeyPath="yes" Source="$(var.HarvestPath)\runtimes\win-x86\native\WebView2Loader.dll" />
-                        </Component>
-                    </Directory>
-                </Directory>
-            </Directory>
             <Directory Id="dir2149C40F34DEC080F4A9D1894147C416" Name="webroot">
                 <Component Id="cmp0AB3103D396C9FF961C0F43BE5C9A726" Guid="*">
                     <File Id="fil3FC3AB3C4D00C961A30EF97AC1BA2578" KeyPath="yes" Source="$(var.HarvestPath)\webroot\index.html" />
@@ -623,9 +624,6 @@
     <Fragment>
         <ComponentGroup Id="HeatGeneratedInstallFiles">
             <ComponentRef Id="cmp91580C5F3F0980DD8B3188F209956F4E" />
-            <ComponentRef Id="cmp62A610FDDE92CF51D05322BEF0E226B2" />
-            <ComponentRef Id="cmp61E08E9DA2169E9D0B7479D269E2F559" />
-            <ComponentRef Id="cmp28ACA6D79CCC4A4B06C42CB54A9C7BF5" />
             <ComponentRef Id="cmpCF9B3A227754E55B2A4622BDADF51333" />
             <ComponentRef Id="cmp79286F884DB1708DC01E1AF310348896" />
             <ComponentRef Id="cmp819F6CC21E1387D6074049360A688F72" />
@@ -653,6 +651,7 @@
             <ComponentRef Id="cmp717D12A2DE576FB488EC1DCDD249B49A" />
             <ComponentRef Id="cmp37F97E8A777E3CEBB4AC18F97A562CF1" />
             <ComponentRef Id="cmp41DC9741013CA4AD62A4A5FF421F08BC" />
+            <ComponentRef Id="cmp606EB7ABF006368C60735078DEFF8B91" />
             <ComponentRef Id="cmp8E0BA9345D6467C6CE87127468E2DA60" />
             <ComponentRef Id="cmp657FC5FC3DD7C4BB7C841F2AB5180BD7" />
             <ComponentRef Id="cmp7174102D2A59DBA4FD9C494ED11F9726" />
@@ -684,12 +683,6 @@
             <ComponentRef Id="cmp835034F744990576E31C2DBC7C9293BF" />
             <ComponentRef Id="cmp3279C150AE8DF554FD7EEE2085672A2B" />
             <ComponentRef Id="cmp946145B53A7DCDFA822B0EFD2314FAB6" />
-            <ComponentRef Id="cmp57D856C08E480EBC080FF86FAEB1DDA3" />
-            <ComponentRef Id="cmpA9C0A5064C7652736B794F30EB0F0482" />
-            <ComponentRef Id="cmp39AA4117FE66423F7F7B55B38D21DDEB" />
-            <ComponentRef Id="cmpD629F351794BCD7B907DBFED11EC5D28" />
-            <ComponentRef Id="cmp52904F0CB40D279B8F2C7E92B0EFE70C" />
-            <ComponentRef Id="cmp0C051A17C01ED8AB5F70EF67C876BF4A" />
             <ComponentRef Id="cmpBC4FC00A26E7D32479D42D3411317FC5" />
             <ComponentRef Id="cmp125C379E185231EFADA4CB4301BD0A9E" />
             <ComponentRef Id="cmp42CE9AE95732AA34478329FB9DE90B9C" />
@@ -725,8 +718,18 @@
             <ComponentRef Id="cmp66B8AECB6A5283B537E7C1F119DDD25B" />
             <ComponentRef Id="cmp7D2A50E4143D4DA7283AF1D716615988" />
             <ComponentRef Id="cmp16C1BCAA951D19F64A3F49C867F11A4D" />
+            <ComponentRef Id="cmp9ED6BB07A5DAB7B8AED0A22939EC6EE9" />
+            <ComponentRef Id="cmpF82D97909A472B05BA5FE2AB4250C840" />
+            <ComponentRef Id="cmp433989B2E4180E1EC1008E11123F3229" />
+            <ComponentRef Id="cmp60103F5F0AA4E5D2BE9190DDD8C53284" />
+            <ComponentRef Id="cmp9EA9421624FC4FD8E04F71FB3E08A098" />
             <ComponentRef Id="cmpEB2A893F73ABC18DA37A5710F061B67A" />
             <ComponentRef Id="cmp0581840ED220E056E777EDE380AA81B9" />
+            <ComponentRef Id="cmpD98D5A90C5CF76F1CF3ABB6B654DE9BB" />
+            <ComponentRef Id="cmp5F4053DB10BABA21190A2AC13E40B62F" />
+            <ComponentRef Id="cmp7999F54A3D4545C6540F010CD9BFF92F" />
+            <ComponentRef Id="cmp7FB19E27B662424B82391A756DD9965E" />
+            <ComponentRef Id="cmp3B66DCEB0789C8C518943D089A4199DD" />
             <ComponentRef Id="cmpB9603F36768BB7B27EA6039D6671BCB8" />
             <ComponentRef Id="cmp93B53FD801CE3270DE5D9AF01811CD8F" />
             <ComponentRef Id="cmpD2797D63574120F1A02B6E6185F4B7E2" />
@@ -802,7 +805,6 @@
             <ComponentRef Id="cmp98C834C81A30A6D2468D42308AAC1F11" />
             <ComponentRef Id="cmpEF8CFEC3E9D62AC49DF334F5E354B96E" />
             <ComponentRef Id="cmpF496B3C08A251BFC2BCB4FA2CDD68800" />
-            <ComponentRef Id="cmp4F7DF7219262D6FC5265D99235D5A68A" />
             <ComponentRef Id="cmp0AB3103D396C9FF961C0F43BE5C9A726" />
             <ComponentRef Id="cmpF67FAD183481C95F9FA93FD1EBC40C30" />
             <ComponentRef Id="cmp6E00057B5E286329F2495B3F54C47BD6" />
