@@ -530,8 +530,6 @@
     <Error Condition="!Exists('..\packages\cef.redist.x86.107.1.9\build\cef.redist.x86.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cef.redist.x86.107.1.9\build\cef.redist.x86.props'))" />
     <Error Condition="!Exists('..\packages\CefSharp.Common.107.1.90\build\CefSharp.Common.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.107.1.90\build\CefSharp.Common.props'))" />
     <Error Condition="!Exists('..\packages\CefSharp.Common.107.1.90\build\CefSharp.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.107.1.90\build\CefSharp.Common.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Web.WebView2.1.0.1462.37\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Web.WebView2.1.0.1462.37\build\Microsoft.Web.WebView2.targets'))" />
   </Target>
   <Import Project="..\packages\CefSharp.Common.107.1.90\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.107.1.90\build\CefSharp.Common.targets')" />
-  <Import Project="..\packages\Microsoft.Web.WebView2.1.0.1462.37\build\Microsoft.Web.WebView2.targets" Condition="Exists('..\packages\Microsoft.Web.WebView2.1.0.1462.37\build\Microsoft.Web.WebView2.targets')" />
 </Project>
