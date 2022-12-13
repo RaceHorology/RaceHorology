@@ -122,7 +122,7 @@ namespace RaceHorology
         version = fvi.ProductVersion;
       } else
       {
-        version = "0.0.0.0";
+        version = "0.0.0.0"; // for Local Debug use
       }
       AutoUpdater.ReportErrors = true;
       AutoUpdater.InstalledVersion = new Version(version);
@@ -306,7 +306,7 @@ namespace RaceHorology
         channel = "stable";
       }
 
-      updateURL = "https://docs.race-horology.com/rh.versions/" + channel + "-channel.xml";
+      updateURL = "https://update.race-horology.com/channels/" + channel + "-channel.xml";
 
       AutoUpdater.Start(updateURL);
     }
