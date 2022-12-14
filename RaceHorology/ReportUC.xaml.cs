@@ -1,4 +1,6 @@
 ﻿using CefSharp;
+using CefSharp.Wpf;
+using RaceHorology.Properties;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -78,7 +80,7 @@ namespace RaceHorology
 
     private void btnPrint_Click(object sender, RoutedEventArgs e)
     {
-      cefBrower.PrintCommand.Execute(null);
+      cefBrowser.PrintCommand.Execute(null);
     }
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
@@ -125,14 +127,25 @@ namespace RaceHorology
         MemoryStream ms = new MemoryStream();
         reportGenerator.Generate(ms);
 
-        if (cefBrower.ResourceRequestHandlerFactory == null)
-          cefBrower.ResourceRequestHandlerFactory = new ResourceRequestHandlerFactory();
-        var handler = cefBrower.ResourceRequestHandlerFactory as ResourceRequestHandlerFactory;
+        var settings = new CefSettings();
+        settings.CefCommandLineArgs.Add("no-proxy-server", "1"); //Don't use a proxy server, always make direct connections. Overrides any other proxy server flags that are passed.
+        settings.UserAgent = "Race Horology"; // RH User Agent
+        settings.CefCommandLineArgs.Add("disable-plugins-discovery", "1"); //Disable discovering third-party plugins. Effectively loading only ones shipped with the browser plus third-party ones as specified by --extra-plugin-dir and --load-plugin switches
+        settings.SetOffScreenRenderingBestPerformanceArgs();
+        settings.CefCommandLineArgs.Add("disable-direct-write", "1");
+        settings.CefCommandLineArgs.Add("disable-gpu-vsync", "1"); //Disable Vsync
+        settings.CefCommandLineArgs.Add("disable-extensions", "1"); //Extension support can be disabled
+
+        settings.WindowlessRenderingEnabled = true;
+
+        if (cefBrowser.ResourceRequestHandlerFactory == null)
+          cefBrowser.ResourceRequestHandlerFactory = new ResourceRequestHandlerFactory();
+        var handler = cefBrowser.ResourceRequestHandlerFactory as ResourceRequestHandlerFactory;
         string url = string.Format("file://{0}", reportGenerator.ProposeFilePath());
         if (handler != null)
           handler.RegisterHandler(url, ms.ToArray(), "application/pdf", true);
 
-        cefBrower.Load(url);
+        cefBrowser.Load(url);
       }
     }
 

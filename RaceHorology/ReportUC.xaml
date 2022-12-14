@@ -38,6 +38,6 @@
       <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="2" Content="Drucken" Click="btnPrint_Click"/>
     </Grid>
 
-    <wpf:ChromiumWebBrowser x:Name="cefBrower" Grid.Row="1" Margin="5" />
+    <wpf:ChromiumWebBrowser x:Name="cefBrowser" Grid.Row="1" Margin="5" />
   </Grid>
 </UserControl>
