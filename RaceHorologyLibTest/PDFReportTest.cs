@@ -173,6 +173,7 @@ namespace RaceHorologyLibTest
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
     [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 1. Durchgang.pdf")]
+
     [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
     [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
     [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]

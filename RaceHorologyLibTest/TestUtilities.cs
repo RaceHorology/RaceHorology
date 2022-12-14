@@ -125,7 +125,7 @@ namespace RaceHorologyLibTest
       report.Generate(filenameOutput);
 
 #pragma warning disable CS0162 // Unreachable code detected
-      if (true)
+      if (false)
         System.Diagnostics.Process.Start(filenameOutput);
 #pragma warning restore CS0162 // Unreachable code detected
 
