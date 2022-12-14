@@ -229,6 +229,7 @@ namespace RaceHorologyLib
     Image _logo2;
     Image _logoRH;
 
+    TextAlignment _headerAllignment = TextAlignment.CENTER;
 
     public ReportHeader(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true)
     {
@@ -238,6 +239,7 @@ namespace RaceHorologyLib
       _race = race;
       _listName = listName;
       _pageMargins = pageMargins;
+
 
       var pageSize = PageSize.A4; // Assumption
 
@@ -348,7 +350,7 @@ namespace RaceHorologyLib
       // Main Table -> First Row -> First Cell (Logo1)
       if (_logo1 != null)
         tableHeader.AddCell(new Cell()
-          .SetTextAlignment(TextAlignment.LEFT)
+          .SetTextAlignment(_headerAllignment)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
           //.SetMaxHeight(maxHeightCol1)
           .SetBorder(Border.NO_BORDER)
@@ -374,7 +376,7 @@ namespace RaceHorologyLib
       // Cell 1 (Race Description)
       Cell nestedtable1cell1 = new Cell();
       if (!string.IsNullOrEmpty(_race.Description))
-        nestedtable1cell1.SetTextAlignment(TextAlignment.LEFT)
+        nestedtable1cell1.SetTextAlignment(_headerAllignment)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
           .SetBorder(Border.NO_BORDER)
           .SetPadding(padding)
@@ -434,7 +436,7 @@ namespace RaceHorologyLib
 
       // Cell 1 (List name)
       Cell nestedtable2cell1 = new Cell();
-      nestedtable2cell1.SetTextAlignment(TextAlignment.LEFT)
+      nestedtable2cell1.SetTextAlignment(_headerAllignment)
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
