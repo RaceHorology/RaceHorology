@@ -269,11 +269,12 @@ namespace RaceHorologyLib
     protected virtual void determineFont()
     {
 
+      //FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
       FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
       _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
       FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
       _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontOblique");
+      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
       _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
 
     }
@@ -514,7 +515,7 @@ namespace RaceHorologyLib
       _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
       FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
       _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontOblique");
+      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
       _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
 
     }
@@ -847,7 +848,6 @@ namespace RaceHorologyLib
 
     protected virtual void determineTableFontAndSize()
     {
-
       FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
       FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
       _tableFont = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
@@ -1321,7 +1321,7 @@ namespace RaceHorologyLib
       _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
       FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
       _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontOblique");
+      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
       _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
 
     }
@@ -1484,7 +1484,7 @@ namespace RaceHorologyLib
       _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
       FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
       _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontOblique");
+      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
       _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
 
     }
@@ -1761,7 +1761,7 @@ namespace RaceHorologyLib
       _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
       FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
       _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontOblique");
+      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
       _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
 
     }
@@ -2002,7 +2002,7 @@ namespace RaceHorologyLib
       _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
       FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
       _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontOblique");
+      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
       _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
 
     }
