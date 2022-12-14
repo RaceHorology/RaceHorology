@@ -930,6 +930,9 @@ namespace RaceHorologyLib
       var fontNormal = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
 
+      int paddingTopDefault = 0;
+      int paddingTopSpace = 4;
+
       Cell createCell(int rs=1, int cs=1)
       {
         return new Cell(rs, cs)
@@ -957,43 +960,43 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph("Organisator:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,4)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Organizer))
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,3)
         .Add(new Paragraph("KAMPFGERICHT / JURY")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,2)
         //.SetBorder(Border.NO_BORDER)
         .Add(new Paragraph("TECHNISCHE DATEN")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Schiedsrichter:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceReferee.Name))
-          .SetPaddingTop(6)));
+          .SetPaddingTop(paddingTopDefault)));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceReferee.Club))
-          .SetPaddingTop(6)));
+          .SetPaddingTop(paddingTopDefault)));
       table.AddCell(createCell()
         .Add(new Paragraph("Streckenname:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.CoarseName))
-          .SetPaddingTop(6)));
+          .SetPaddingTop(paddingTopDefault)));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Rennleiter:")
@@ -1003,11 +1006,17 @@ namespace RaceHorologyLib
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceManager.Club))));
       table.AddCell(createCell()
-        .Add(new Paragraph("Start:")
+        .Add(new Paragraph("Start/Ziel/Differenz:")
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph(_race.AdditionalProperties.StartHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight):"")));
+        .Add(new Paragraph(String.Concat(
+          _race.AdditionalProperties.StartHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight):"",
+          " / ", 
+          _race.AdditionalProperties.FinishHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.FinishHeight) : "",
+          " / ",
+          (_race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) : ""
+          ))));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Trainervertreter:")
@@ -1017,33 +1026,17 @@ namespace RaceHorologyLib
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.TrainerRepresentative.Club))));
       table.AddCell(createCell()
-        .Add(new Paragraph("Ziel:")
-          .SetFont(fontBold)));
-      table.AddCell(createCell()
-        .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph(_race.AdditionalProperties.FinishHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.FinishHeight):"")));
-
-      table.AddCell(createCell()
-        .Add(new Paragraph("Auswertung / Zeitnahme:")
-          .SetFont(fontBold)));
-      table.AddCell(createCell(1, 2)
-        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Analyzer))));
-      table.AddCell(createCell()
-        .Add(new Paragraph("Höhendifferenz:")
-          .SetFont(fontBold)));
-      table.AddCell(createCell()
-        .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph((_race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) : "")));
-
-      table.AddCell(createCell(1, 3));
-      table.AddCell(createCell()
         .Add(new Paragraph("Streckenlänge:")
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .Add(new Paragraph(_race.AdditionalProperties.CoarseLength > 0 ? string.Format("{0} m", _race.AdditionalProperties.CoarseLength) : "")));
 
-      table.AddCell(createCell(1, 3));
+      table.AddCell(createCell()
+        .Add(new Paragraph("Auswertung / Zeitnahme:")
+          .SetFont(fontBold)));
+      table.AddCell(createCell(1, 2)
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Analyzer))));
       if (string.IsNullOrEmpty(_race.AdditionalProperties.CoarseHomologNo))
       {
         table.AddCell(createCell(1, 2));
@@ -1061,16 +1054,16 @@ namespace RaceHorologyLib
       table.AddCell(createCell(1, 1));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph("1. Durchgang")
-          .SetPaddingTop(12)
+          .SetPaddingTop(paddingTopSpace)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph("2. Durchgang")
-          .SetPaddingTop(12)
+          .SetPaddingTop(paddingTopSpace)
           .SetFont(fontBold)));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Kurssetzer:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.CoarseSetter.Name))));
@@ -1083,7 +1076,7 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph("Tore / R.-Änder.:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(
@@ -1098,7 +1091,7 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph("Vorläufer:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.Forerunner1.Name))));
@@ -1131,7 +1124,7 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph("Startzeit:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.StartTime))));
@@ -1161,22 +1154,22 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph(formatWeatherHeading())
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(formatWeather())));
       table.AddCell(createCell()
         .Add(new Paragraph("Temperatur (Start/Ziel):")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .Add(new Paragraph(string.Format("{0} °C / {1} °C", _race.AdditionalProperties.TempStart, _race.AdditionalProperties.TempFinish))));
 
       table.AddCell(createCell(1, 5)
-        .SetPaddingTop(12)
+        .SetPaddingTop(paddingTopSpace)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick)));
       table.AddCell(createCell(1, 5)
-        .SetPaddingTop(12));
+        .SetPaddingTop(paddingTopSpace));
 
       return table;
     }
