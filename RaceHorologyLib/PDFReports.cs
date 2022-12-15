@@ -88,9 +88,6 @@ namespace RaceHorologyLib
     }
   }
 
-
-
-
   public class PDFHelper
   {
     AppDataModel _dm;
@@ -209,8 +206,6 @@ namespace RaceHorologyLib
     public float Bottom;
   }
 
-
-
   public class ReportHeader : IEventHandler
   {
     PdfDocument _pdfDoc;
@@ -222,7 +217,7 @@ namespace RaceHorologyLib
 
     string _header1;
     bool _debugAreas = false;
-    float _height = 110;
+    float _height = 0;
     Image _banner;
     float _bannerHeight = 0F;
 
@@ -260,7 +255,7 @@ namespace RaceHorologyLib
     }
 
 
-    public float Height { get { return _height + 2 + 2; } }
+    public float Height { get { return _height + 0 + 2; } }
 
     protected PdfFont _Font;
     protected PdfFont _FontBold;
@@ -289,7 +284,7 @@ namespace RaceHorologyLib
       var result = tableHeader.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
 
-      _height = _bannerHeight + tableHeight + 7;
+      _height = _bannerHeight + tableHeight + 0;
     }
 
 
@@ -458,8 +453,6 @@ namespace RaceHorologyLib
     }
   }
 
-
-
   public class ReportFooter : IEventHandler
   {
     PdfDocument _pdfDoc;
@@ -474,9 +467,9 @@ namespace RaceHorologyLib
     string _footerWebsite;
     string _footerCopyright;
     bool _debugAreas = false;
-    float _height = 110;
+    float _height = 0;
     Image _banner;
-    float _bannerHeight = 0F;
+    float _bannerHeight = 0;
     Image _logoRH;
 
     public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true)
@@ -486,7 +479,7 @@ namespace RaceHorologyLib
       _pdfHelper = pdfHelper;
       _race = race;
       _listName = listName;
-      _pageMargins = pageMargins;
+      _pageMargins = new Margins { Top = 0, Bottom = 0, Left = 24.0F, Right = 24.0F };
 
       var pageSize = PageSize.A4; // Assumption
 
@@ -523,14 +516,14 @@ namespace RaceHorologyLib
     private void calculateHeight()
     {
 
-      Table tableFooter = createFooterTable(0);
+      Table tableFooter = createFooterTable(1);
 
       var pageSize = PageSize.A4; // Assumption
       float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
       var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
 
-      _height = _bannerHeight + tableHeight + 7;
+      _height = _bannerHeight + tableHeight + 0;
     }
 
 
@@ -548,9 +541,9 @@ namespace RaceHorologyLib
         var copyrightYear = fvi.LegalCopyright;
         var productVersion = fvi.ProductVersion;
 
-        _footerVersion = productVersion;
+        _footerVersion = (productVersion == "0.0.0.0") ? "" : "Version " + productVersion;
         _footerWebsite = "www.race-horology.com";
-        _footerCopyright = string.Format("{1} by {2}\nVersion {0}", productVersion, copyrightYear, companyName);
+        _footerCopyright = string.Format("{1} by {2}\n{0}", _footerVersion, copyrightYear, companyName);
       }
       else
         _footerVersion = _footerWebsite = _footerCopyright = "";
@@ -568,12 +561,16 @@ namespace RaceHorologyLib
       Rectangle pageSize = page.GetPageSize();
       PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
 
+      _pageMargins = new Margins { Top = 0, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
+
       // Footer
       if (_banner != null)
       {
         Rectangle area3 = new Rectangle(
-          pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom, 
-          pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right, _bannerHeight);
+          pageSize.GetLeft() + _pageMargins.Left,
+          pageSize.GetBottom() + _pageMargins.Bottom, 
+          pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right,
+          _bannerHeight);
         Canvas canvas = new Canvas(pdfCanvas, area3).Add(_banner);
 
         if (_debugAreas)
@@ -591,7 +588,7 @@ namespace RaceHorologyLib
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
 
       Rectangle rectTable = new Rectangle(
-        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _bannerHeight,
+        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _bannerHeight,
         tableWidth, tableHeight);
 
       new Canvas(pdfCanvas, rectTable)
@@ -652,7 +649,6 @@ namespace RaceHorologyLib
         .Add(parPage));
      
 
-
       float middleHeight = 35.0F;
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.LEFT)
@@ -665,7 +661,6 @@ namespace RaceHorologyLib
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .Add(_logoRH.SetMaxHeight(16.0F)));
-        //.Add(new Paragraph(_footerVersion)));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -713,7 +708,6 @@ namespace RaceHorologyLib
     }
   }
 
-
   class PageXofY : IEventHandler
   {
     protected PdfFormXObject placeholder;
@@ -752,10 +746,6 @@ namespace RaceHorologyLib
       canvas.ShowTextAligned(pdfDoc.GetNumberOfPages().ToString(), 0, descent, TextAlignment.LEFT);
     }
   }
-
-
-
-
 
   public abstract class PDFRaceReport : IPDFReport
   {
@@ -807,7 +797,7 @@ namespace RaceHorologyLib
       _pdfDocument.GetDocumentInfo().SetAuthor("Race Horology").SetTitle(getReportName());
       _document = new Document(_pdfDocument, PageSize.A4);
 
-      _pageMargins = new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
+      _pageMargins = new Margins { Top = 24.0F, Bottom = 0, Left = 24.0F, Right = 24.0F };
 
 
       var header = createHeader();
@@ -917,9 +907,6 @@ namespace RaceHorologyLib
       return startNumber.ToString();
     }
   }
-
-
-
 
   public abstract class PDFReport : PDFRaceReport
   {
@@ -1201,10 +1188,9 @@ namespace RaceHorologyLib
         .Add(new Paragraph(string.Format("{0} °C / {1} °C", _race.AdditionalProperties.TempStart, _race.AdditionalProperties.TempFinish))));
 
       table.AddCell(createCell(1, 5)
-        .SetPaddingTop(paddingTopSpace)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick)));
+        .SetPaddingTop(2));
       table.AddCell(createCell(1, 5)
-        .SetPaddingTop(paddingTopSpace));
+        .SetPaddingTop(2));
 
       return table;
     }
@@ -1290,8 +1276,6 @@ namespace RaceHorologyLib
 
 
   }
-
-
 
   public class StartListReport : PDFReport
   {
@@ -1452,7 +1436,6 @@ namespace RaceHorologyLib
       return true;
     }
   }
-
 
   public class StartListReport2ndRun : PDFReport
   {
@@ -1624,7 +1607,6 @@ namespace RaceHorologyLib
     }
   }
 
-
   public abstract class ResultReport : PDFReport
   {
 
@@ -1725,9 +1707,6 @@ namespace RaceHorologyLib
       return table;
     }
   }
-
-
-
 
   public class RaceRunResultReport : ResultReport
   {
@@ -1969,7 +1948,6 @@ namespace RaceHorologyLib
     }
 
   }
-
 
   public class RaceResultReport : ResultReport
   {
