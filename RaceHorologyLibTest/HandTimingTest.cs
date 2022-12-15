@@ -538,7 +538,7 @@ namespace RaceHorologyLibTest
       HandTimingCalc hc = new HandTimingCalc(htVM.Items[5], htVM.Items);
 
       IPDFReport report = new HandTimingCalcReport(hc, tg.Model.GetRace(0));
-      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 1));
+      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 100));
     }
 
 

@@ -117,7 +117,7 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator(testContextInstance.TestResultsDirectory);
       {
         IPDFReport report = new DummyRaceReport(tg.Model.GetRace(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 100));
       }
     }
 
@@ -141,23 +141,23 @@ namespace RaceHorologyLibTest
 
       {
         IPDFReport report = new StartListReport(race.GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 4));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 100));
       }
       {
         IPDFReport report = new StartListReport2ndRun(race.GetRun(1));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 2. Durchgang.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 2. Durchgang.pdf", 100));
       }
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 5));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 100));
       }
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(1));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 100));
       }
       {
         IPDFReport report = new RaceResultReport(race);
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 6));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 100));
       }
     }
   }
