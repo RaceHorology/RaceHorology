@@ -7,7 +7,22 @@
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1600">
   <Grid>
-    <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
+    <Grid.Resources>
+      <Style x:Key="TransparentStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="Button">
+              <Border Background="White">
+                <ContentPresenter/>
+              </Border>
+
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </Grid.Resources>
+
+    <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="-19,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
       <TabItem >
         <TabItem.Header>
           <Label Content="Teilnehmer &amp; Globale Konfiguration" Padding="0" Margin="0" FontSize="16"/>
@@ -33,7 +48,7 @@
               </Grid>
             </ScrollViewer>
           </TabItem>
-          
+
           <TabItem >
             <TabItem.Header>
               <Label Content="Teilnehmer" Padding="0" Margin="0" />
@@ -44,7 +59,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions> 
+              </Grid.RowDefinitions>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="618*"/>
                 <!-- Golden Cut 618:382 -->
@@ -64,8 +79,10 @@
                 <Label x:Name="lblParticipants" Content="Teilnehmer" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
 
                 <Label Content="Filter (&lt;Ctrl&gt;-F):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
-                <local:ClickSelectTextBox x:Name="txtSearch" Width="100" Margin="5" Grid.Column="3"/>
-
+                <local:ClickSelectTextBox x:Name="txtSearch" Width="200" Margin="5" Grid.Column="3"/>
+                <Button x:Name="btnClearSearch" Margin="193,0,7,0" Style="{StaticResource TransparentStyle}" Click="btnClearSearch_Click" Grid.Column="3" VerticalAlignment="Center" Height="18">
+                  <TextBlock Text=" X" Height="18" Margin="0,0,1,0" />
+                </Button>
 
               </Grid>
 
@@ -238,7 +255,7 @@
             <TabItem.Header>
               <Label Content="Klassen und Gruppen" Padding="0" Margin="0"  />
             </TabItem.Header>
-          
+
             <local:ClassesAndGroupsUC x:Name="ucClassesAndGroups" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2"/>
 
           </TabItem>
