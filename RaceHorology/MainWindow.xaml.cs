@@ -47,6 +47,10 @@ using QRCoder;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Threading;
+using System.IO;
+using System.Threading;
 
 namespace RaceHorology
 {
@@ -104,7 +108,6 @@ namespace RaceHorology
     {
       Logger.Info("Application started");
 
-
       InitializeComponent();
 
       // Remember the Application Name
@@ -125,6 +128,7 @@ namespace RaceHorology
       UpdateLiveTimingDeviceStatus(null, null);
 
       _timyUSB = new RHAlgeTimyUSB.AlgeTimyUSB();
+
     }
 
     protected override void OnClosed(EventArgs e)
