@@ -73,6 +73,15 @@ jobs:
         run: |
            msbuild /p:Configuration=Debug /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
+           
+      - name: Sign Assemblys
+        uses: DanaBear/code-sign-action@v4
+        with:
+          certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
+          password: '${{ secrets.SIGNINGPASSWORD }}'
+          certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
+          folder: '${{ github.workspace }}\RaceHorology\bin\x86\Release'
+          recursive: true
 
       - name: Upload Test Programm
         uses: actions/upload-artifact@v3
@@ -86,11 +95,20 @@ jobs:
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
            ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
 
+      - name: Sign Installer
+        uses: DanaBear/code-sign-action@v4
+        with:
+          certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
+          password: '${{ secrets.SIGNINGPASSWORD }}'
+          certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
+          folder: '${{ github.workspace }}\RaceHorologySetup\bin\Release\'
+          recursive: false
+          
       - name: Upload Installer
         uses: actions/upload-artifact@v3
         with:
           name: installer_RaceHorology
-          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup*.msi
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
           retention-days: 21
 
 
