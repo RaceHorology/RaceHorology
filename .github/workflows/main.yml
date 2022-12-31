@@ -75,7 +75,7 @@ jobs:
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
            
       - name: Sign Assemblys
-        uses: DanaBear/code-sign-action@v4
+        uses: GermanBluefox/code-sign-action@v7
         with:
           certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
           password: '${{ secrets.SIGNINGPASSWORD }}'
@@ -97,7 +97,7 @@ jobs:
            ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
 
       - name: Sign Installer
-        uses: DanaBear/code-sign-action@v4
+        uses: GermanBluefox/code-sign-action@v7
         with:
           certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
           password: '${{ secrets.SIGNINGPASSWORD }}'
