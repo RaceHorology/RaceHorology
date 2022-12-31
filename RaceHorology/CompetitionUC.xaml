@@ -22,7 +22,7 @@
       </Style>
     </Grid.Resources>
 
-    <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="-19,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
+    <TabControl x:Name="tabControlTopLevel" Height="Auto" Margin="10,5,10,5" Grid.Column="0" Width="Auto" SelectionChanged="TabControlTopLevel_SelectionChanged">
       <TabItem >
         <TabItem.Header>
           <Label Content="Teilnehmer &amp; Globale Konfiguration" Padding="0" Margin="0" FontSize="16"/>
