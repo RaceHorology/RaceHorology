@@ -77,6 +77,18 @@
             <Component Id="cmpF00B7B92C5D3D852291FBD422A883D3E" Guid="*">
                 <File Id="fil9FD3BB4CE3BD1EB80598F349AFF972E3" KeyPath="yes" Source="$(var.HarvestPath)\COPYING_MAIN.txt" />
             </Component>
+            <Component Id="cmp6B39FCAF57C9324C318352C4750949A0" Guid="*">
+                <File Id="fil512DD77C51939EE2EB8ED5649629A09F" KeyPath="yes" Source="$(var.HarvestPath)\CrashReporter.NET.dll" />
+            </Component>
+            <Component Id="cmp37FBC9F5DC97D205DD19273831DDDE49" Guid="*">
+                <File Id="filBB92DCAAD1F4103B94E54BB09C47A592" KeyPath="yes" Source="$(var.HarvestPath)\CrashReporter.NET.dll.config" />
+            </Component>
+            <Component Id="cmp6109F11C04A4FDD9852E231743C22F83" Guid="*">
+                <File Id="filF43D2E04459D7EFDEF2AE1C896938433" KeyPath="yes" Source="$(var.HarvestPath)\CrashReporter.NET.pdb" />
+            </Component>
+            <Component Id="cmp946C4229264E4B39CD6BCD14D4A668B7" Guid="*">
+                <File Id="filE31104AC030FAA6A39FF9D00B49B3DB8" KeyPath="yes" Source="$(var.HarvestPath)\CrashReporter.NET.xml" />
+            </Component>
             <Component Id="cmp717D12A2DE576FB488EC1DCDD249B49A" Guid="*">
                 <File Id="fil7F899FF006FD219F40B11C49969B0612" KeyPath="yes" Source="$(var.HarvestPath)\CREDITS.txt" />
             </Component>
@@ -85,6 +97,12 @@
             </Component>
             <Component Id="cmp41DC9741013CA4AD62A4A5FF421F08BC" Guid="*">
                 <File Id="fil84B847A9F8DABE6B95AF875695C9E6D1" KeyPath="yes" Source="$(var.HarvestPath)\d3dcompiler_47.dll" />
+            </Component>
+            <Component Id="cmp536A0C8ADC9EC838CF62D3EA198ED688" Guid="*">
+                <File Id="fil20BC32F1AF62F353BCF0114FB6B21523" KeyPath="yes" Source="$(var.HarvestPath)\debug-msclient-2.log" />
+            </Component>
+            <Component Id="cmpB29AEA490EC342599F3BBEE5F615932A" Guid="*">
+                <File Id="fil38D8F1C403FA8DE043979103A31235BB" KeyPath="yes" Source="$(var.HarvestPath)\debug-msclient.log" />
             </Component>
             <Component Id="cmp606EB7ABF006368C60735078DEFF8B91" Guid="*">
                 <File Id="filDF37FFDBAF794FB705610E0A82AF4AEA" KeyPath="yes" Source="$(var.HarvestPath)\debug.log" />
@@ -200,6 +218,12 @@
             <Component Id="cmpC51538CC7360A884AEC7A84A5923018B" Guid="*">
                 <File Id="filED862600816F963DB3B1E6F508456CF0" KeyPath="yes" Source="$(var.HarvestPath)\QRCoder.dll" />
             </Component>
+            <Component Id="cmp24912C7E55F54BCFEE525D7660DABC5F" Guid="*">
+                <File Id="filF4D1718F8742289D90C41ADE04DADB17" KeyPath="yes" Source="$(var.HarvestPath)\RaceHorology-MSWIN10A.exe" />
+            </Component>
+            <Component Id="cmp723A6C7AF4ABAD9F398AADC8CCE33B68" Guid="*">
+                <File Id="filC5BF2EF1A37ADEBDCB9D765C10D53969" KeyPath="yes" Source="$(var.HarvestPath)\RaceHorology-MSWIN10A.pdb" />
+            </Component>
             <Component Id="cmp0E63FA45B7018D54EB8612CCD01CB152" Guid="*">
                 <File Id="fil0899BEEFD8A0DD156CB85C27767C4216" KeyPath="yes" Source="$(var.HarvestPath)\RaceHorology.exe" />
             </Component>
@@ -294,6 +318,9 @@
                 <Component Id="cmpF82D97909A472B05BA5FE2AB4250C840" Guid="*">
                     <File Id="filDECD08581E989FA6BDF9793CEFE1603B" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\data_1" />
                 </Component>
+                <Component Id="cmp6488AD66A9967A356442AB803DD4EC69" Guid="*">
+                    <File Id="filAC9F80AF22976B3DC6DE030381BEB2AE" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\data_1-msclient" />
+                </Component>
                 <Component Id="cmp433989B2E4180E1EC1008E11123F3229" Guid="*">
                     <File Id="fil52F572800F947BBDCB52873E7B867A51" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\data_2" />
                 </Component>
@@ -303,15 +330,13 @@
                 <Component Id="cmp9EA9421624FC4FD8E04F71FB3E08A098" Guid="*">
                     <File Id="fil11A8A17035D9202D709BF77A442FCB45" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\index" />
                 </Component>
+                <Component Id="cmp4B4290D56BD906A4F9A910FA27E7B3F8" Guid="*">
+                    <File Id="filD124CF17E5B8177F042244E1236E4A18" KeyPath="yes" Source="$(var.HarvestPath)\DawnCache\index-msclient" />
+                </Component>
             </Directory>
             <Directory Id="dir636058F130D9D2B5F5E67FEF841EE4BC" Name="dbtemplates">
                 <Component Id="cmpEB2A893F73ABC18DA37A5710F061B67A" Guid="*">
                     <File Id="fil1A62B9EE25172E14D17DBEBC32D598EA" KeyPath="yes" Source="$(var.HarvestPath)\dbtemplates\TemplateDB_Standard.mdb" />
-                </Component>
-            </Directory>
-            <Directory Id="dir37304199BBDE0FEF2649EDD37727E43A" Name="ExtSources">
-                <Component Id="cmp0581840ED220E056E777EDE380AA81B9" Guid="*">
-                    <File Id="filFC247F23DAC7B4DF3FA246109C3507B5" KeyPath="yes" Source="$(var.HarvestPath)\ExtSources\VC_redist.x86.exe" />
                 </Component>
             </Directory>
             <Directory Id="dirCA02E4A7CC6C21D952C5059DC56408F4" Name="GPUCache">
@@ -321,6 +346,9 @@
                 <Component Id="cmp5F4053DB10BABA21190A2AC13E40B62F" Guid="*">
                     <File Id="fil7BFFC2B6D94359068CFF6FB407C977ED" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\data_1" />
                 </Component>
+                <Component Id="cmp7CC42942B9AA140406A1EF611E653F74" Guid="*">
+                    <File Id="filE5D5EF926943B636BB3641DCC1EDD3C6" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\data_1-msclient" />
+                </Component>
                 <Component Id="cmp7999F54A3D4545C6540F010CD9BFF92F" Guid="*">
                     <File Id="filBA3BD400D0DFB7304CEB577521B97A35" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\data_2" />
                 </Component>
@@ -329,6 +357,9 @@
                 </Component>
                 <Component Id="cmp3B66DCEB0789C8C518943D089A4199DD" Guid="*">
                     <File Id="fil28E93CE868CB9B868ADCBF0F50DDA1ED" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\index" />
+                </Component>
+                <Component Id="cmpA4FD8C0D983F7D9DC13B7577D9FB4B99" Guid="*">
+                    <File Id="filD9D4476C6DD0D014864539B2655FF284" KeyPath="yes" Source="$(var.HarvestPath)\GPUCache\index-msclient" />
                 </Component>
             </Directory>
             <Directory Id="dir07100F2E598E14B511BAF734827AE4AB" Name="locales">
@@ -648,9 +679,15 @@
             <ComponentRef Id="cmp2145060D1318A58437B9CEE4D0FB4B19" />
             <ComponentRef Id="cmp0D59DB24A4AC3B1E609932921AD85F09" />
             <ComponentRef Id="cmpF00B7B92C5D3D852291FBD422A883D3E" />
+            <ComponentRef Id="cmp6B39FCAF57C9324C318352C4750949A0" />
+            <ComponentRef Id="cmp37FBC9F5DC97D205DD19273831DDDE49" />
+            <ComponentRef Id="cmp6109F11C04A4FDD9852E231743C22F83" />
+            <ComponentRef Id="cmp946C4229264E4B39CD6BCD14D4A668B7" />
             <ComponentRef Id="cmp717D12A2DE576FB488EC1DCDD249B49A" />
             <ComponentRef Id="cmp37F97E8A777E3CEBB4AC18F97A562CF1" />
             <ComponentRef Id="cmp41DC9741013CA4AD62A4A5FF421F08BC" />
+            <ComponentRef Id="cmp536A0C8ADC9EC838CF62D3EA198ED688" />
+            <ComponentRef Id="cmpB29AEA490EC342599F3BBEE5F615932A" />
             <ComponentRef Id="cmp606EB7ABF006368C60735078DEFF8B91" />
             <ComponentRef Id="cmp8E0BA9345D6467C6CE87127468E2DA60" />
             <ComponentRef Id="cmp657FC5FC3DD7C4BB7C841F2AB5180BD7" />
@@ -689,6 +726,8 @@
             <ComponentRef Id="cmpB7F1EBE42DCB1051B92D42C1EF84E2F9" />
             <ComponentRef Id="cmpAF162B14FA6391E4D0D34D9485A3CBEB" />
             <ComponentRef Id="cmpC51538CC7360A884AEC7A84A5923018B" />
+            <ComponentRef Id="cmp24912C7E55F54BCFEE525D7660DABC5F" />
+            <ComponentRef Id="cmp723A6C7AF4ABAD9F398AADC8CCE33B68" />
             <ComponentRef Id="cmp0E63FA45B7018D54EB8612CCD01CB152" />
             <ComponentRef Id="cmp9A0CE181C0AFCA0B69A98B65AA490A77" />
             <ComponentRef Id="cmp7B044FC50CC3D931449739F69C29EA67" />
@@ -720,16 +759,19 @@
             <ComponentRef Id="cmp16C1BCAA951D19F64A3F49C867F11A4D" />
             <ComponentRef Id="cmp9ED6BB07A5DAB7B8AED0A22939EC6EE9" />
             <ComponentRef Id="cmpF82D97909A472B05BA5FE2AB4250C840" />
+            <ComponentRef Id="cmp6488AD66A9967A356442AB803DD4EC69" />
             <ComponentRef Id="cmp433989B2E4180E1EC1008E11123F3229" />
             <ComponentRef Id="cmp60103F5F0AA4E5D2BE9190DDD8C53284" />
             <ComponentRef Id="cmp9EA9421624FC4FD8E04F71FB3E08A098" />
+            <ComponentRef Id="cmp4B4290D56BD906A4F9A910FA27E7B3F8" />
             <ComponentRef Id="cmpEB2A893F73ABC18DA37A5710F061B67A" />
-            <ComponentRef Id="cmp0581840ED220E056E777EDE380AA81B9" />
             <ComponentRef Id="cmpD98D5A90C5CF76F1CF3ABB6B654DE9BB" />
             <ComponentRef Id="cmp5F4053DB10BABA21190A2AC13E40B62F" />
+            <ComponentRef Id="cmp7CC42942B9AA140406A1EF611E653F74" />
             <ComponentRef Id="cmp7999F54A3D4545C6540F010CD9BFF92F" />
             <ComponentRef Id="cmp7FB19E27B662424B82391A756DD9965E" />
             <ComponentRef Id="cmp3B66DCEB0789C8C518943D089A4199DD" />
+            <ComponentRef Id="cmpA4FD8C0D983F7D9DC13B7577D9FB4B99" />
             <ComponentRef Id="cmpB9603F36768BB7B27EA6039D6671BCB8" />
             <ComponentRef Id="cmp93B53FD801CE3270DE5D9AF01811CD8F" />
             <ComponentRef Id="cmpD2797D63574120F1A02B6E6185F4B7E2" />
