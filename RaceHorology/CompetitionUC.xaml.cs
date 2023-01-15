@@ -592,6 +592,12 @@ namespace RaceHorology
       }
     }
 
+    private void btnClearSearch_Click(object sender, RoutedEventArgs e)
+    {
+      txtSearch.Text = "";
+      txtSearch.Focus();
+    }
+
     private void btnAssignAllClasses_Click(object sender, RoutedEventArgs e)
     {
       ClassAssignment ca = new ClassAssignment(_dm.GetParticipantClasses());
