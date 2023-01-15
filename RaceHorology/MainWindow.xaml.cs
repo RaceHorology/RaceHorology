@@ -123,9 +123,8 @@ namespace RaceHorology
         version = fvi.ProductVersion;
       } 
       else
-      {
-        version = "0.9.3.123"; // for Local Debug use
-      }
+        version = "0.0.0.0"; // for Local Debug use
+
       AutoUpdater.ReportErrors = true;
       AutoUpdater.InstalledVersion = new Version(version);
       AutoUpdater.UpdateFormSize = new System.Drawing.Size(800, 600);
@@ -311,18 +310,12 @@ namespace RaceHorology
     private void AutoUpdaterCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       string channel;
-      string updateURL;
-
       if (Properties.Settings.Default.UpdateChannel == "Test")
-      {
         channel = "beta";
-      } else
-      {
+      else
         channel = "stable";
-      }
 
-      updateURL = "https://update.race-horology.com/channels/" + channel + "-channel.xml";
-
+      string updateURL = "https://update.race-horology.com/channels/" + channel + "-channel.xml";
       AutoUpdater.Start(updateURL);
     }
 
