@@ -109,6 +109,28 @@ namespace RaceHorology
 
       InitializeComponent();
 
+      //autoUpdater
+      Assembly assembly = Assembly.GetEntryAssembly();
+      if (assembly == null)
+        assembly = Assembly.GetExecutingAssembly();
+
+      if (assembly != null)
+      {
+        FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+        version = fvi.ProductVersion;
+      } 
+      else
+      {
+        version = "0.9.3.123"; // for Local Debug use
+      }
+      AutoUpdater.ReportErrors = true;
+      AutoUpdater.InstalledVersion = new Version(version);
+      AutoUpdater.UpdateFormSize = new System.Drawing.Size(800, 600);
+      AutoUpdater.ShowRemindLaterButton = false;
+      AutoUpdater.PersistenceProvider = new JsonFilePersistenceProvider(Path.Combine(Environment.CurrentDirectory, "autoUpdateSettings.json"));
+      AutoUpdater.Synchronous = true;
+      AutoUpdater.Mandatory = true;
+
       // Remember the Application Name
       _appTitle = this.Title;
       updateAppTitle();
@@ -268,6 +290,24 @@ namespace RaceHorology
     private void OnlineDocumentationCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       System.Diagnostics.Process.Start("https://docs.race-horology.com");
+    }
+
+    private void AutoUpdaterCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      string channel;
+      string updateURL;
+
+      if (Properties.Settings.Default.UpdateChannel == "Test")
+      {
+        channel = "beta";
+      } else
+      {
+        channel = "stable";
+      }
+
+      updateURL = "https://update.race-horology.com/channels/" + channel + "-channel.xml";
+
+      AutoUpdater.Start(updateURL);
     }
 
     /// <summary>
