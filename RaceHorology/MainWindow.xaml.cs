@@ -47,6 +47,7 @@ using QRCoder;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 
 namespace RaceHorology
 {
@@ -125,6 +126,25 @@ namespace RaceHorology
       UpdateLiveTimingDeviceStatus(null, null);
 
       _timyUSB = new RHAlgeTimyUSB.AlgeTimyUSB();
+
+      //Watching Network IP changes - this allows automatic restart of dsvalpin2 server
+      NetworkChange.NetworkAddressChanged += new
+      NetworkAddressChangedEventHandler(AddressChangedCallback);
+      
+    }
+
+    private void AddressChangedCallback(object sender, EventArgs e)
+    {
+
+      NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+      foreach (NetworkInterface n in adapters)
+      {
+        Console.WriteLine("   {0} is {1}", n.Name, n.OperationalStatus);
+
+        Dispatcher.Invoke(StartDSVAlpinServer);
+        break;
+
+      }
     }
 
     protected override void OnClosed(EventArgs e)
@@ -380,9 +400,11 @@ namespace RaceHorology
       }
 
       _alpinServer = new DSVAlpin2HTTPServer(8081);
-      _alpinServer.Start();
+      if (_alpinServer.Start() == 0) {
+        DisplayURL();
+      };
 
-      DisplayURL();
+
     }
 
     /// <summary>

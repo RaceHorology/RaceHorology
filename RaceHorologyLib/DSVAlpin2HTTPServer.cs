@@ -113,7 +113,7 @@ namespace RaceHorologyLib
       _baseFolder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"webroot");
 
       // Use the source folder in case the debugger is attached for easier development
-      if (System.Diagnostics.Debugger.IsAttached)
+      /*if (System.Diagnostics.Debugger.IsAttached)
       {
         // This will get the current WORKING directory (i.e. \bin\Debug)
         string workingDirectory = Environment.CurrentDirectory;         // or: Directory.GetCurrentDirectory() gives the same result
@@ -121,7 +121,7 @@ namespace RaceHorologyLib
         // This will get the current PROJECT directory
         string projectDirectory = System.IO.Directory.GetParent(workingDirectory).Parent.Parent.FullName;
         _baseFolder = System.IO.Path.Combine(projectDirectory, @"webroot");
-      }
+      }*/
 
       // Configure the server
       _httpServer = new HttpServer(port);
@@ -149,16 +149,18 @@ namespace RaceHorologyLib
     /// <summary>
     /// Actually starts the server
     /// </summary>
-    public void Start()
+    public int Start()
     {
       try
       {
         _httpServer.AddWebSocketService<LiveDataBehavior>("/api/LiveData", (connection) => { connection.SetupThis(this); });
 
         _httpServer.Start();
+        return 0;
       }
       catch (Exception)
-      { }
+      {  }
+      return 1;
     }
 
     /// <summary>
