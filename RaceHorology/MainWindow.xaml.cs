@@ -47,6 +47,7 @@ using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 
 using System.IO;
+using AutoUpdaterDotNET;
 
 using System.Diagnostics;
 using System.Reflection;
@@ -105,6 +106,7 @@ namespace RaceHorology
     /// </summary>
     public MainWindow()
     {
+      string version;
       Logger.Info("Application started");
 
       InitializeComponent();
