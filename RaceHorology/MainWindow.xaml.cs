@@ -120,9 +120,10 @@ namespace RaceHorology
       {
         FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
         version = fvi.ProductVersion;
-      } else
+      } 
+      else
       {
-        version = "0.0.0.0"; // for Local Debug use
+        version = "0.9.3.123"; // for Local Debug use
       }
       AutoUpdater.ReportErrors = true;
       AutoUpdater.InstalledVersion = new Version(version);
