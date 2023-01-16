@@ -141,7 +141,9 @@ namespace RaceHorologyLib
                 string name = caption.Substring(caption.LastIndexOf("(COM")).Replace("(", string.Empty).Replace(")",
                                                      string.Empty);
 
-                _prettyNameCache.Add(name, caption);
+                try {
+                  _prettyNameCache.Add(name, caption);
+                } catch { }
               }
             }
           }
