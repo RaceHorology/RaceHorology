@@ -262,6 +262,18 @@ namespace RaceHorologyLib
 
           count++;
         }
+
+        if (entry.StartTime != null)
+        {
+          var ts = new Timestamp((TimeSpan)entry.StartTime, EMeasurementPoint.Start, entry.StartNumber, entry.Participant != null);
+          raceRun.AddTimestamp(ts);
+        }
+        if (entry.FinishTime != null)
+        {
+          var ts = new Timestamp((TimeSpan)entry.FinishTime, EMeasurementPoint.Finish, entry.StartNumber, entry.Participant != null);
+          raceRun.AddTimestamp(ts);
+        }
+
       }
       return count;
     }
