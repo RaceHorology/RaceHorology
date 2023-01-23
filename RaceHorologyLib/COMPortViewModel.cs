@@ -138,12 +138,10 @@ namespace RaceHorologyLib
               caption = captionObj.ToString();
               if (caption.Contains("(COM"))
               {
-                string name = caption.Substring(caption.LastIndexOf("(COM")).Replace("(", string.Empty).Replace(")",
-                                                     string.Empty);
-
-                try {
+                string name = caption.Substring(caption.LastIndexOf("(COM")).Replace("(", string.Empty).Replace(")", string.Empty);
+                // Fix issue #532 (it is possible, that a COM port name can exist several times ... don'ts ask why) => so, only add first COM
+                if (!_prettyNameCache.ContainsKey(name))
                   _prettyNameCache.Add(name, caption);
-                } catch { }
               }
             }
           }
