@@ -7,9 +7,9 @@ on:
   push:
     branches:
       - main
-      - release/*
-      - feature/*
-      - bugfix/*
+      - release/**
+      - feature/**
+      - bugfix/**
   pull_request:
     branches:  
       - main
