@@ -61,6 +61,7 @@ namespace RaceHorology
       {
         dgImportTime.ColumnByName("StartTime").Visibility = Visibility.Collapsed;
         dgImportTime.ColumnByName("FinishTime").Visibility = Visibility.Collapsed;
+        chkOverwriteManuallyAdjusted.Visibility = Visibility.Collapsed;
       }
 
     }
