@@ -1238,7 +1238,7 @@ namespace RaceHorologyLibTest
 
           bRes &= runResult.GetStartTime() == startTime;
           bRes &= runResult.GetFinishTime() == finishTime;
-          bRes &= runResult.GetRunTime(false, false) == runTime;
+          bRes &= runResult.GetRunTime(true, false) == runTime;
 
           if (reader.IsDBNull(reader.GetOrdinal("disqualtext")))
             bRes &= runResult.DisqualText == null || runResult.DisqualText == "";
