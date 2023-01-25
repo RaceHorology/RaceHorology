@@ -503,6 +503,12 @@ namespace RaceHorologyLibTest
     /// Tests hand timing calculation
     /// - This Test Case: special case, there less than 10 hand timings available, use as most as possible for calculation
     /// </summary>
+
+    internal class NewHandTimingCalcReport : HandTimingCalcReport
+    {
+      public NewHandTimingCalcReport(HandTimingCalc calculation, Race race) : base(calculation, race){ }
+      protected override string creationDateTime() { return "01.02.1970 10:11:12"; }
+    }
     [TestMethod]
     [DeploymentItem(@"TestOutputs\HandTimingCalc_Report.pdf")]
     public void HandTimingCalc_Report()
@@ -537,8 +543,8 @@ namespace RaceHorologyLibTest
 
       HandTimingCalc hc = new HandTimingCalc(htVM.Items[5], htVM.Items);
 
-      IPDFReport report = new HandTimingCalcReport(hc, tg.Model.GetRace(0));
-      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 3));
+      IPDFReport report = new NewHandTimingCalcReport(hc, tg.Model.GetRace(0));
+      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 0));
     }
 
 

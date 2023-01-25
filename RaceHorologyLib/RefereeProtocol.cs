@@ -111,7 +111,7 @@ namespace RaceHorologyLib
     }
     protected override ReportFooter createFooter()
     {
-      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins, false);
+      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins, creationDateTime(), false);
     }
 
     protected override void addContent(PdfDocument pdf, Document document)

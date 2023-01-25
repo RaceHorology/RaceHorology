@@ -56,6 +56,11 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+    internal class NewRefereeProtocol : RefereeProtocol
+    {
+      public NewRefereeProtocol(RaceRun raceRun) : base(raceRun) { }
+      protected override string creationDateTime() { return "01.02.1970 10:11:12"; }
+    }
 
     [TestMethod]
     [DeploymentItem(@"TestOutputs\RefereeProtocol_Empty.pdf")]
@@ -65,8 +70,8 @@ namespace RaceHorologyLibTest
 
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
-        IPDFReport report = new RefereeProtocol(tg.Model.GetRace(0).GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 3));
+        IPDFReport report = new NewRefereeProtocol(tg.Model.GetRace(0).GetRun(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 0));
       }
     }
 
@@ -81,8 +86,8 @@ namespace RaceHorologyLibTest
       db.Connect(dbFilename);
       AppDataModel model = new AppDataModel(db);
       {
-        IPDFReport report = new RefereeProtocol(model.GetRace(0).GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Schiedsrichterprotokoll 1. Durchgang.pdf", 6));
+        IPDFReport report = new NewRefereeProtocol(model.GetRace(0).GetRun(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Schiedsrichterprotokoll 1. Durchgang.pdf", 0));
       }
     }
 

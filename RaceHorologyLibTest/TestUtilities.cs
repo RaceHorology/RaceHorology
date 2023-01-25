@@ -117,8 +117,6 @@ namespace RaceHorologyLibTest
     }
 
 
-
-
     public static bool GenerateAndCompareAgainstPdf(TestContext testContext, IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
     {
       string filenameOutput = report.ProposeFilePath();

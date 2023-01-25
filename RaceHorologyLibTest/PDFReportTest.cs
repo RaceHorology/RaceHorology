@@ -42,6 +42,7 @@ using iText.Kernel.Utils;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
+using static RaceHorologyLibTest.PDFReportTest;
 
 namespace RaceHorologyLibTest
 {
@@ -109,7 +110,9 @@ namespace RaceHorologyLibTest
       protected override string getReportName() { return "DummyName"; }
       protected override string getTitle() { return "DummyTitle"; }
       protected override void addContent(PdfDocument pdf, Document document) { document.Add(new Paragraph("DummyContent")); }
+      protected override string creationDateTime() { return "01.02.1970 10:11:12";  }
     }
+
     [TestMethod]
     [DeploymentItem(@"TestOutputs\Base_RaceReport.pdf")]
     public void Base_RaceReport()
@@ -117,10 +120,30 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator(testContextInstance.TestResultsDirectory);
       {
         IPDFReport report = new DummyRaceReport(tg.Model.GetRace(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 0));
       }
     }
 
+    internal class NewStartListReport : StartListReport
+    {
+      public NewStartListReport(RaceRun raceRun) : base(raceRun) { }
+      protected override string creationDateTime() { return "01.02.1970 10:11:12"; }
+    }
+    internal class NewStartListReport2ndRun : StartListReport
+    {
+      public NewStartListReport2ndRun(RaceRun raceRun) : base(raceRun) { }
+      protected override string creationDateTime() { return "01.02.1970 10:11:12"; }
+    }
+    internal class NewRaceRunResultReport : RaceRunResultReport
+    {
+      public NewRaceRunResultReport(RaceRun raceRun) : base(raceRun) { }
+      protected override string creationDateTime() { return "01.02.1970 10:11:12"; }
+    }
+    internal class NewRaceResultReport : RaceResultReport
+    {
+      public NewRaceResultReport(Race race) : base(race) { }
+      protected override string creationDateTime() { return "01.02.1970 10:11:12"; }
+    }
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
@@ -140,24 +163,24 @@ namespace RaceHorologyLibTest
       Race race = model.GetRace(0);
 
       {
-        IPDFReport report = new StartListReport(race.GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 12));
+        IPDFReport report = new NewStartListReport(race.GetRun(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 0));
       }
       {
-        IPDFReport report = new StartListReport2ndRun(race.GetRun(1));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 2. Durchgang.pdf", 9));
+        IPDFReport report = new NewStartListReport2ndRun(race.GetRun(1));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 2. Durchgang.pdf", 0));
       }
       {
-        IPDFReport report = new RaceRunResultReport(race.GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 15));
+        IPDFReport report = new NewRaceRunResultReport(race.GetRun(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 0));
       }
       {
-        IPDFReport report = new RaceRunResultReport(race.GetRun(1));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 9));
+        IPDFReport report = new NewRaceRunResultReport(race.GetRun(1));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 0));
       }
       {
-        IPDFReport report = new RaceResultReport(race);
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 19));
+        IPDFReport report = new NewRaceResultReport(race);
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 0));
       }
     }
   }

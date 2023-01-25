@@ -473,6 +473,7 @@ namespace RaceHorologyLib
     PDFHelper _pdfHelper;
     Race _race;
     string _listName;
+    string _creationDateTime;
     Margins _pageMargins;
 
 
@@ -480,12 +481,13 @@ namespace RaceHorologyLib
     string _footerWebsite;
     string _footerCopyright;
     bool _debugAreas = false;
+    bool _setDateTime = true;
     float _height = 110;
     Image _banner;
     float _bannerHeight = 0F;
     Image _logoRH;
 
-    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true)
+    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, string creationDateTime, bool displayBanner = true)
     {
       _pdfDoc = pdfDoc;
       _doc = doc;
@@ -493,8 +495,10 @@ namespace RaceHorologyLib
       _race = race;
       _listName = listName;
       _pageMargins = pageMargins;
+      _creationDateTime = creationDateTime;
 
       var pageSize = PageSize.A4; // Assumption
+
 
       
       _banner = displayBanner ? _pdfHelper.GetImage("Banner2") : null;
@@ -522,7 +526,6 @@ namespace RaceHorologyLib
 
       _height = _bannerHeight + tableHeight + 7;
     }
-
 
     private void calculateFooter()
     {
@@ -684,7 +687,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(fontBold)
-        .Add(new Paragraph(string.Format("Ausdruck: {0}", DateTime.Now.ToString()))));
+        .Add(new Paragraph(string.Format("Ausdruck: {0}", _creationDateTime))));
 
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
@@ -774,7 +777,6 @@ namespace RaceHorologyLib
     protected abstract string getReportName();
     protected abstract void addContent(PdfDocument pdf, Document document);
 
-
     public virtual string ProposeFilePath()
     {
       string path;
@@ -827,7 +829,7 @@ namespace RaceHorologyLib
     }
     protected virtual ReportFooter createFooter()
     {
-      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins);
+      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins, creationDateTime());
     }
 
 
@@ -903,6 +905,11 @@ namespace RaceHorologyLib
         return "---";
 
       return startNumber.ToString();
+    }
+
+    protected virtual string creationDateTime()
+    {
+      return DateTime.Now.ToString();
     }
   }
 
