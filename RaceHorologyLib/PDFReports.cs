@@ -366,7 +366,7 @@ namespace RaceHorologyLib
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           );
 
-      // Main Table -> First Row -> Nested Table 1 (Race Description and RH Logo)
+      // Main Table -> First Row -> Nested Table 1 (Race Description/Location and RH Logo)
       Cell nestedtable1cell = new Cell()
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick));
@@ -375,19 +375,23 @@ namespace RaceHorologyLib
       Table nestedtable1 = new Table(UnitValue.CreatePercentArray(nestedtable1Cols));
       nestedtable1.SetWidth(UnitValue.CreatePercentValue(100));
 
-      // Cell 1 (Race Description)
+      // Cell 1 (Race Description/Location)
       Cell nestedtable1cell1 = new Cell();
-      if (!string.IsNullOrEmpty(_race.Description))
-        nestedtable1cell1.SetTextAlignment(_headerAllignment)
-          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          .SetBorder(Border.NO_BORDER)
-          .SetPadding(padding)
-          .SetFont(fontTitle)
-          .SetFontSize(fontSizeTitle)
-          .Add(new Paragraph(_race.Description)
-          .Add(new Paragraph(string.IsNullOrEmpty(_race.AdditionalProperties.Location) ? "" : ("\n" + _race.AdditionalProperties.Location)).SetFontSize(fontSizeMiddle)));
-      else
-        nestedtable1cell1.SetBorder(Border.NO_BORDER);
+      nestedtable1cell1.SetTextAlignment(_headerAllignment)
+        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+        .SetBorder(Border.NO_BORDER)
+        .SetPadding(padding)
+        .SetFont(fontTitle)
+        .SetFontSize(fontSizeTitle)
+        .Add(new Paragraph(_race.Description))
+        ;
+
+      if (!string.IsNullOrEmpty(_race.AdditionalProperties.Location))
+      {
+        nestedtable1cell1
+          .Add(new Paragraph(_race.AdditionalProperties.Location).SetFontSize(fontSizeMiddle))
+          ;
+      }
 
       nestedtable1.AddCell(nestedtable1cell1);
 
@@ -426,14 +430,14 @@ namespace RaceHorologyLib
           .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick)));
 
-      // Main Table -> Second Row -> Nested Table 1 (List Name and Date/Location)
+      // Main Table -> Second Row -> Nested Table 1 (List Name and Date)
       Cell nestedtable2cell = new Cell()
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick)
         );
 
-      float[] nestedtable2Cols = { 60.0F, 40.0F };
+      float[] nestedtable2Cols = { 100.0F, 00.0F };
       Table nestedtable2 = new Table(UnitValue.CreatePercentArray(nestedtable2Cols));
       nestedtable2.SetWidth(UnitValue.CreatePercentValue(100));
 
@@ -449,15 +453,15 @@ namespace RaceHorologyLib
 
       nestedtable2.AddCell(nestedtable2cell1);
 
-      // Cell 2 (Race Date and Location)
+      // Cell 2 (Race Date)
       Cell nestedtable2cell2 = new Cell();
       nestedtable2cell2.SetTextAlignment(TextAlignment.RIGHT)
-        .SetVerticalAlignment(VerticalAlignment.TOP)
+        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n"));
+        .Add(new Paragraph(_race.DateResultList?.ToShortDateString()));
 
       nestedtable2.AddCell(nestedtable2cell2);
       nestedtable2cell.Add(nestedtable2);
