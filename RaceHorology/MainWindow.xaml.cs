@@ -440,11 +440,9 @@ namespace RaceHorology
       }
 
       _alpinServer = new DSVAlpin2HTTPServer(8081);
-      if (_alpinServer.Start() == 0) {
-        DisplayURL();
-      };
-
-
+      if (!_alpinServer.Start())
+        StopDSVAlpinServer(); // Stop Server again, if it could not been started
+      DisplayURL();
     }
 
     /// <summary>
