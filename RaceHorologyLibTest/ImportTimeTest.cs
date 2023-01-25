@@ -198,7 +198,7 @@ namespace RaceHorologyLibTest
 
       var save = new List<ImportTimeEntryWithParticipant>();
       save.Add(vm.ImportEntries[0]);
-      vm.Save(rr1, save);
+      vm.Save(rr1, save, false);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 11), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
       Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(1)).StartTime);
       Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(1)).FinishTime);
@@ -209,7 +209,7 @@ namespace RaceHorologyLibTest
       save.Add(vm.ImportEntries[1]);
       save.Add(vm.ImportEntries[2]);
       save.Add(vm.ImportEntries[3]);
-      vm.Save(rr1, save);
+      vm.Save(rr1, save, false);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 11), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
       Assert.AreEqual(null, rr1.GetRunResult(race.GetParticipant(2))?.Runtime);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 13), rr1.GetRunResult(race.GetParticipant(3)).Runtime);
@@ -245,7 +245,7 @@ namespace RaceHorologyLibTest
 
       var save = new List<ImportTimeEntryWithParticipant>();
       save.Add(vm.ImportEntries[0]);
-      vm.Save(rr1, save);
+      vm.Save(rr1, save, false);
       Assert.AreEqual(new TimeSpan(8, 0, 1), rr1.GetRunResult(race.GetParticipant(1)).StartTime);
       Assert.AreEqual(new TimeSpan(8, 0, 2), rr1.GetRunResult(race.GetParticipant(1)).FinishTime);
       Assert.AreEqual(new TimeSpan(0, 0, 1), rr1.GetRunResult(race.GetParticipant(1)).Runtime);
@@ -256,7 +256,7 @@ namespace RaceHorologyLibTest
       save.Add(vm.ImportEntries[1]);
       save.Add(vm.ImportEntries[2]);
       save.Add(vm.ImportEntries[3]);
-      vm.Save(rr1, save);
+      vm.Save(rr1, save, false);
 
       Assert.AreEqual(new TimeSpan(8, 0, 1), rr1.GetRunResult(race.GetParticipant(1)).StartTime);
       Assert.AreEqual(new TimeSpan(8, 0, 2), rr1.GetRunResult(race.GetParticipant(1)).FinishTime);

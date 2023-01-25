@@ -363,7 +363,7 @@ namespace RaceHorologyLib
         RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
 
         if (e.BStartTime || e.BFinishTime)
-          currentRaceRun.AddTimestamp(new Timestamp(e));
+          currentRaceRun.AddOrUpdateTimestamp(new Timestamp(e));
 
         if (!_isRunning)
           return;

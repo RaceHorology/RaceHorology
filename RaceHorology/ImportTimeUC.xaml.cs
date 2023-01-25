@@ -61,6 +61,7 @@ namespace RaceHorology
       {
         dgImportTime.ColumnByName("StartTime").Visibility = Visibility.Collapsed;
         dgImportTime.ColumnByName("FinishTime").Visibility = Visibility.Collapsed;
+        chkOverwriteManuallyAdjusted.Visibility = Visibility.Collapsed;
       }
 
     }
@@ -78,11 +79,12 @@ namespace RaceHorology
       {
         if (dgImportTime.SelectedItems.Count > 0)
         {
+          bool overwriteAlreadyImportedParticipantAssignment = chkOverwriteManuallyAdjusted.IsChecked == true;
           List<ImportTimeEntryWithParticipant> entries = new List<ImportTimeEntryWithParticipant>();
           foreach (var i in dgImportTime.SelectedItems)
             entries.Add(i as ImportTimeEntryWithParticipant);
 
-          var count = _importTimeVM.Save(rr, entries);
+          var count = _importTimeVM.Save(rr, entries, overwriteAlreadyImportedParticipantAssignment);
           MessageBox.Show(String.Format("Es wurden {0} Einträge in Durchgang {1} importiert.", count, rr.Run), "Import von Zeiten", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else

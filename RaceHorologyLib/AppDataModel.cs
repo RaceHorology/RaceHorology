@@ -1759,10 +1759,26 @@ namespace RaceHorologyLib
       return _timestamps;
     }
 
-    public Timestamp AddTimestamp(Timestamp ts)
+    public Timestamp GetTimestamp(TimeSpan time, EMeasurementPoint mp)
     {
-      _timestamps.Add(ts);
-      return ts;
+      return _timestamps.FirstOrDefault(t => t.Time == time && t.MeasurementPoint == mp);
+    }
+
+
+    public Timestamp AddOrUpdateTimestamp(Timestamp ts)
+    {
+      var tsFound = GetTimestamp(ts.Time, ts.MeasurementPoint);
+      if (tsFound != null)
+      {
+        tsFound.StartNumber = ts.StartNumber;
+        tsFound.Valid = ts.Valid;
+        return tsFound;
+      }
+      else
+      {
+        _timestamps.Add(ts);
+        return ts;
+      }
     }
 
 

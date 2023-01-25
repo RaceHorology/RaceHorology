@@ -1016,6 +1016,10 @@ namespace RaceHorologyLib
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
 
+      // Workaround for Alpenhunde: Set NiZ in case start and finish time are equal
+      if (_startTime != null && _finishTime != null && _startTime == _finishTime)
+        _resultCode = EResultCode.NiZ;
+
       // Delete RunTime if it was set to enusre consistency
       if (_runTime != null)
         _runTime = null;
@@ -1033,6 +1037,10 @@ namespace RaceHorologyLib
 
       if (_resultCode == EResultCode.NotSet)
         _resultCode = EResultCode.Normal;
+
+      // Workaround for Alpenhunde: Set NiZ in case start and finish time are equal
+      if (_startTime != null && _finishTime != null && _startTime == _finishTime)
+        _resultCode = EResultCode.NiZ;
 
       // Delete RunTime if it was set to enusre consistency
       if (_runTime != null)

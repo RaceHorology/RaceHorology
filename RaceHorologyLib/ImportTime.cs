@@ -246,22 +246,54 @@ namespace RaceHorologyLib
     /// <summary>
     /// Saves all runtimes to the race run specified
     /// </summary>
-    public int Save(RaceRun raceRun, IEnumerable<ImportTimeEntryWithParticipant> items)
+    public int Save(RaceRun raceRun, IEnumerable<ImportTimeEntryWithParticipant> items, bool overwriteAlreadyImportedParticipantAssignment)
     {
       int count = 0;
       foreach( var entry in items)
       {
-        if (entry.Participant != null)
+        bool didSomething = false;
+        if (entry.StartTime != null)
         {
-          if (entry.StartTime != null)
-            raceRun.SetStartTime(entry.Participant, entry.StartTime);
-          if (entry.FinishTime != null)
-            raceRun.SetFinishTime(entry.Participant, entry.FinishTime);
-          if (entry.RunTime != null)
-            raceRun.SetRunTime(entry.Participant, entry.RunTime);
+          bool valid = false;
 
-          count++;
+          if (overwriteAlreadyImportedParticipantAssignment || raceRun.GetTimestamp((TimeSpan)entry.StartTime, EMeasurementPoint.Start)==null)
+          {
+            if (entry.Participant != null)
+            {
+              raceRun.SetStartTime(entry.Participant, entry.StartTime);
+              valid = true;
+            }
+            var ts = new Timestamp((TimeSpan)entry.StartTime, EMeasurementPoint.Start, entry.StartNumber, valid);
+            raceRun.AddOrUpdateTimestamp(ts);
+            didSomething = true;
+          }
         }
+
+        if (entry.FinishTime != null)
+        {
+          bool valid = false;
+          if (overwriteAlreadyImportedParticipantAssignment || raceRun.GetTimestamp((TimeSpan)entry.FinishTime, EMeasurementPoint.Finish) == null)
+          {
+            if (entry.Participant != null)
+            {
+              raceRun.SetFinishTime(entry.Participant, entry.FinishTime);
+              valid = true;
+            }
+            var ts = new Timestamp((TimeSpan)entry.FinishTime, EMeasurementPoint.Finish, entry.StartNumber, valid);
+            raceRun.AddOrUpdateTimestamp(ts);
+            didSomething = true;
+          }
+        }
+
+        if (entry.RunTime != null)
+          if (entry.Participant != null)
+          {
+            raceRun.SetRunTime(entry.Participant, entry.RunTime);
+            didSomething = true;
+          }
+
+        if (didSomething)
+          count++;
       }
       return count;
     }
