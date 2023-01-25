@@ -190,8 +190,8 @@ namespace RaceHorologyLib
     public static Cell ConfigureHeaderCell(this Cell cell)
     {
       cell
-        .SetBackgroundColor(PDFHelper.ColorRHFG1)
-        .SetFontColor(ColorConstants.WHITE)
+        //.SetBackgroundColor(PDFHelper.ColorRHFG1)
+        //.SetFontColor(ColorConstants.WHITE)
         .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         ;
@@ -1761,7 +1761,7 @@ namespace RaceHorologyLib
           .Add(createHeaderCellParagraphForTable("Verein")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Laufzeit")));
+        .Add(createHeaderCellParagraphForTable("LZ")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Diff [s]")));
