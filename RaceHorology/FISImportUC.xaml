@@ -12,7 +12,7 @@
         <Setter Property="Template">
           <Setter.Value>
             <ControlTemplate TargetType="Button">
-              <Border Background="Transparent">
+              <Border Background="White">
                 <ContentPresenter/>
               </Border>
             </ControlTemplate>
@@ -39,8 +39,9 @@
       <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
         <Label Content="Filter (&lt;Ctrl&gt;-D):" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Column="2" />
         <local:ClickSelectTextBox x:Name="txtSearch" Width="100" Margin="5" Grid.Column="3" />
-        <Button x:Name="btnClearSearch" Margin="-20,0,5,0" VerticalAlignment="Center" Content="X" 
-                        Style="{StaticResource TransparentStyle}" Click="btnClearSearch_Click" />
+        <Button x:Name="btnClearSearch" Margin="-19,0,5,0" Style="{StaticResource TransparentStyle}" Click="btnClearSearch_Click" Width="12" Height="18">
+          <TextBlock Text=" X" Height="18" />
+        </Button>
         <ComboBox x:Name="cmbSearchField" SelectionChanged="cmbSearchField_SelectionChanged" Margin="5" MinWidth="80" />
       </StackPanel>
     </Grid>

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -1759,10 +1759,26 @@ namespace RaceHorologyLib
       return _timestamps;
     }
 
-    public Timestamp AddTimestamp(Timestamp ts)
+    public Timestamp GetTimestamp(TimeSpan time, EMeasurementPoint mp)
     {
-      _timestamps.Add(ts);
-      return ts;
+      return _timestamps.FirstOrDefault(t => t.Time == time && t.MeasurementPoint == mp);
+    }
+
+
+    public Timestamp AddOrUpdateTimestamp(Timestamp ts)
+    {
+      var tsFound = GetTimestamp(ts.Time, ts.MeasurementPoint);
+      if (tsFound != null)
+      {
+        tsFound.StartNumber = ts.StartNumber;
+        tsFound.Valid = ts.Valid;
+        return tsFound;
+      }
+      else
+      {
+        _timestamps.Add(ts);
+        return ts;
+      }
     }
 
 

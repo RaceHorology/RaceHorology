@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -218,6 +218,9 @@ namespace RaceHorologyLib
       return data;
     }
 
+    // Nothing to implement, download is initiated interactively on ALGE device via Classment transfer
+    public EImportTimeFlags SupportedImportTimeFlags() { return EImportTimeFlags.RunTime; }
+    public void DownloadImportTimes(){}
 
 
     #region Implementation of ILiveDateTimeProvider

@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -49,6 +49,7 @@ namespace RaceHorology
     private Timer _timer;
     DateTime _lastTime;
     TimeSpan _remainingTime;
+    private bool _isRunning;
 
 
     public TimerPlus(TimerPlusCallback onTimeOut, TimerPlusCallback onUpdate, int timeOut, bool oneShot)
@@ -58,6 +59,7 @@ namespace RaceHorology
 
       _timerTime = new TimeSpan(0, 0, timeOut);
       _oneShot = oneShot;
+      _isRunning = false;
 
       _timer = new Timer(200); // Update every 200ms
       _timer.Elapsed += OnTimedEvent;
@@ -76,21 +78,30 @@ namespace RaceHorology
       get { return (long)(_remainingTime.TotalSeconds); }
     }
 
+    public bool IsRunning
+    {
+      get { return _isRunning; }
+      private set { _isRunning = value; }
+    }
+
 
     public void Start()
     {
       _lastTime = DateTime.Now;
       _timer.Start();
+      _isRunning = true;
     }
 
     public void Stop()
     {
+      _isRunning = false;
       _timer.Stop();
     }
 
     public void Reset()
     {
       _remainingTime = _timerTime;
+      _isRunning = false;
     }
 
 

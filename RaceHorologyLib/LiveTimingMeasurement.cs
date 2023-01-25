@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -363,7 +363,7 @@ namespace RaceHorologyLib
         RaceParticipant participant = currentRace.GetParticipant(e.StartNumber);
 
         if (e.BStartTime || e.BFinishTime)
-          currentRaceRun.AddTimestamp(new Timestamp(e));
+          currentRaceRun.AddOrUpdateTimestamp(new Timestamp(e));
 
         if (!_isRunning)
           return;

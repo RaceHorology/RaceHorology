@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("RHAlgeTimyUSB")]
-[assembly: AssemblyCopyright("Copyright ©  2022")]
+[assembly: AssemblyCopyright("Copyright © 2019-2023 by Sven Flossmann")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

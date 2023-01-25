@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -590,6 +590,12 @@ namespace RaceHorology
         txtSearch.Focus();
         txtSearch.SelectAll();
       }
+    }
+
+    private void btnClearSearch_Click(object sender, RoutedEventArgs e)
+    {
+      txtSearch.Text = "";
+      txtSearch.Focus();
     }
 
     private void btnAssignAllClasses_Click(object sender, RoutedEventArgs e)

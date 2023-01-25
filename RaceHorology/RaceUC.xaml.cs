@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -285,9 +285,14 @@ namespace RaceHorology
 
     public class LiveTimingStartCountDown : IDisposable
     {
+      LiveTimingMeasurement _ltm;
       RaceRun _raceRun;
       uint _startIntervall;
       Label _lblStart;
+
+      bool _liveTimingOn;
+      enum EStatus { StartFree, Blocked };
+      EStatus _status;
 
       TimerPlus _timer;
 
@@ -295,8 +300,9 @@ namespace RaceHorology
       SoundPlayer _soundHigh;
       int _soundStatus;
 
-      public LiveTimingStartCountDown(uint startIntervall, RaceRun raceRun, Label lblStart)
+      public LiveTimingStartCountDown(uint startIntervall, RaceRun raceRun, Label lblStart, LiveTimingMeasurement ltm)
       {
+        _ltm = ltm;
         _raceRun = raceRun;
         _startIntervall = startIntervall;
         _lblStart = lblStart;
@@ -305,13 +311,32 @@ namespace RaceHorology
         _soundHigh = new SoundPlayer(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("RaceHorology.resources.count_down_high_long.wav"));
         _soundStatus = 0;
 
+        _ltm.LiveTimingMeasurementStatusChanged += ltm_LiveTimingMeasurementStatusChanged;
         _raceRun.OnTrackChanged += OnSomethingChanged;
 
         _timer = new TimerPlus(OnTimeout, OnUpdate, (int)_startIntervall, true);
 
-        displayStartFree();
+        _liveTimingOn = _ltm.IsRunning;
+        _status = EStatus.StartFree;
+        updateStatus();
       }
 
+      private void ltm_LiveTimingMeasurementStatusChanged(object sender, bool isRunning)
+      {
+        _liveTimingOn = isRunning;
+        if (!_liveTimingOn)
+        {
+          _timer.Stop();
+          _timer.Reset();
+        }
+        else
+          _status = EStatus.StartFree;
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+          updateStatus();
+        });
+      }
 
       private void OnSomethingChanged(object sender, RaceParticipant participantEnteredTrack, RaceParticipant participantLeftTrack, RunResult currentRunResult)
       {
@@ -325,7 +350,9 @@ namespace RaceHorology
         _timer.Reset();
         _timer.Start();
 
+        _status = EStatus.Blocked;
         _soundStatus = 4;
+        updateStatus();
       }
 
 
@@ -333,22 +360,36 @@ namespace RaceHorology
       {
         Application.Current.Dispatcher.Invoke(() =>
         {
-          displayStartFree();
+          _status = EStatus.StartFree;
+          updateStatus();
         });
       }
 
-      void displayStartFree()
+
+      void updateStatus()
       {
-        _lblStart.Content = "Start Frei!";
-        _lblStart.Background = Brushes.LightGreen;
+        if (!_liveTimingOn)
+        {
+          _lblStart.Content = "Zeitmessung gestoppt!";
+          _lblStart.Background = Brushes.Orange;
+        }
+        else if (_status == EStatus.StartFree)
+        {
+          _lblStart.Content = "Start Frei!";
+          _lblStart.Background = Brushes.LightGreen;
+        }
+        else if (_status == EStatus.Blocked)
+        {
+          _lblStart.Background = Brushes.Red;
+          _lblStart.Content = string.Format("Start frei in {0}s", _timer.RemainingSeconds);
+        }
       }
 
       private void OnUpdate()
       {
         Application.Current.Dispatcher.Invoke(() =>
         {
-          _lblStart.Background = Brushes.Red;
-          _lblStart.Content = string.Format("Start frei in {0}s", _timer.RemainingSeconds);
+          updateStatus();
 
           if (_timer.RemainingSeconds < _soundStatus)
           {
@@ -360,7 +401,6 @@ namespace RaceHorology
             _soundStatus = (int) _timer.RemainingSeconds;
           }
         });
-
       }
 
 
@@ -370,6 +410,7 @@ namespace RaceHorology
         {
           _timer.Dispose();
           _raceRun.OnTrackChanged -= OnSomethingChanged;
+          _ltm.LiveTimingMeasurementStatusChanged -= ltm_LiveTimingMeasurementStatusChanged;
         });
       }
     }
@@ -511,7 +552,7 @@ namespace RaceHorology
         lblStartCountDown.Visibility = Visibility.Visible;
         if (_liveTimingStartCountDown != null)
           _liveTimingStartCountDown.Dispose();
-        _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown);
+        _liveTimingStartCountDown = new LiveTimingStartCountDown(Properties.Settings.Default.StartTimeIntervall, _currentRaceRun, lblStartCountDown, _liveTimingMeasurement);
       }
       else
       {
@@ -657,6 +698,9 @@ namespace RaceHorology
 
     private void Timing_KeyDown(object sender, KeyEventArgs e)
     {
+      if (tabControlRace1.SelectedItem != tabItemTiming)
+        return;
+
       if (e.Key == Key.M && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
       {
         txtStartNumber.Focus();

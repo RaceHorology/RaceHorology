@@ -17,6 +17,8 @@
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
     <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.Documentation" Executed="OnlineDocumentationCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.AutoUpdate" Executed="AutoUpdaterCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.HandTime" Executed="HandTimeCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.ImportTime" Executed="ImportTimeCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.DeleteRunResults" Executed="DeleteRunResultsCommandBinding_Executed" />
@@ -52,7 +54,7 @@
         <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.HandTime" />
-        <MenuItem Name="mnuToolsImportTime"  Header="Classement empfangen" 
+        <MenuItem Name="mnuToolsImportTime"  Header="Zeiten von Zeitmeßgerät importieren" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.ImportTime" />
       </MenuItem>
@@ -62,7 +64,11 @@
 
       <MenuItem Name="mnuExport" Header="Daten-Export" IsEnabled="{Binding HasActiveRace}" />
 
-      <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
+      <MenuItem Name="mnuHelp" Header="Hilfe">
+        <MenuItem Name="mnuOpenExternalDocumentation" Header="Online Dokumentation" Command="rhcmd:RaceHorologyCommands.Documentation" />
+        <MenuItem Name="mnuAutoUpdater" Header="Suche nach Updates" Command="rhcmd:RaceHorologyCommands.AutoUpdate" />
+        <MenuItem Name="mnuInfo" Header="Info" Command="Help" />
+      </MenuItem>
     </Menu>
     <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffe6eee5">
       <Grid.ColumnDefinitions>

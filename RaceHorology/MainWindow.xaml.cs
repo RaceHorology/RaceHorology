@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -37,16 +37,20 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 
 using Microsoft.Win32;
 
 using RaceHorologyLib;
-using System.Collections.ObjectModel;
-using QRCoder;
+
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+
+using System.IO;
+using AutoUpdaterDotNET;
+
+using System.Diagnostics;
+using System.Reflection;
 
 namespace RaceHorology
 {
@@ -102,10 +106,32 @@ namespace RaceHorology
     /// </summary>
     public MainWindow()
     {
+      string version;
       Logger.Info("Application started");
 
-
       InitializeComponent();
+
+      //autoUpdater
+      Assembly assembly = Assembly.GetEntryAssembly();
+      if (assembly == null)
+        assembly = Assembly.GetExecutingAssembly();
+
+      if (assembly != null)
+      {
+        FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+        version = fvi.ProductVersion;
+      } 
+      else
+      {
+        version = "0.9.3.123"; // for Local Debug use
+      }
+      AutoUpdater.ReportErrors = true;
+      AutoUpdater.InstalledVersion = new Version(version);
+      AutoUpdater.UpdateFormSize = new System.Drawing.Size(800, 600);
+      AutoUpdater.ShowRemindLaterButton = false;
+      AutoUpdater.PersistenceProvider = new JsonFilePersistenceProvider(Path.Combine(Environment.CurrentDirectory, "autoUpdateSettings.json"));
+      AutoUpdater.Synchronous = true;
+      AutoUpdater.Mandatory = true;
 
       // Remember the Application Name
       _appTitle = this.Title;
@@ -125,6 +151,8 @@ namespace RaceHorology
       UpdateLiveTimingDeviceStatus(null, null);
 
       _timyUSB = new RHAlgeTimyUSB.AlgeTimyUSB();
+
+    
     }
 
     protected override void OnClosed(EventArgs e)
@@ -157,7 +185,7 @@ namespace RaceHorology
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.DefaultExt = ".mdb";
-      openFileDialog.Filter = "Race Horology Daten|*.mdb";
+      openFileDialog.Filter = "Race Horology Dateien|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
@@ -260,6 +288,29 @@ namespace RaceHorology
       dlg.ShowDialog();
     }
 
+
+    private void OnlineDocumentationCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      System.Diagnostics.Process.Start("https://docs.race-horology.com");
+    }
+
+    private void AutoUpdaterCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      string channel;
+      string updateURL;
+
+      if (Properties.Settings.Default.UpdateChannel == "Test")
+      {
+        channel = "beta";
+      } else
+      {
+        channel = "stable";
+      }
+
+      updateURL = "https://update.race-horology.com/channels/" + channel + "-channel.xml";
+
+      AutoUpdater.Start(updateURL);
+    }
 
     /// <summary>
     /// Opens the database and does all jobs to work with the application (connect DatagRids, start web server, ...)
