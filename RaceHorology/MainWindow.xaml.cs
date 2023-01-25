@@ -153,15 +153,12 @@ namespace RaceHorology
 
       _timyUSB = new RHAlgeTimyUSB.AlgeTimyUSB();
 
-      //Watching Network IP changes - this allows automatic restart of dsvalpin2 server
-      NetworkChange.NetworkAddressChanged += new
-      NetworkAddressChangedEventHandler(AddressChangedCallback);
-      
+      //Watching Network IP changes - this allows automatic restart of web server
+      NetworkChange.NetworkAddressChanged += AddressChangedCallback;
     }
 
     private void AddressChangedCallback(object sender, EventArgs e)
     {
-
       NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
       foreach (NetworkInterface n in adapters)
       {
@@ -169,9 +166,7 @@ namespace RaceHorology
 
         Dispatcher.Invoke(StartDSVAlpinServer);
         break;
-
       }
-
     }
 
     protected override void OnClosed(EventArgs e)
