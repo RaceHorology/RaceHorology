@@ -57,6 +57,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
@@ -345,6 +346,7 @@ namespace RaceHorologyLib
       var fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
       var fontTitle = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
       int fontSizeTitle = 16;
+      int fontSizeMiddle = 13;
       int fontSizeNormal = 10;
 
       // Main Table -> First Row -> First Cell (Logo1)
@@ -382,7 +384,8 @@ namespace RaceHorologyLib
           .SetPadding(padding)
           .SetFont(fontTitle)
           .SetFontSize(fontSizeTitle)
-          .Add(new Paragraph(_race.Description));
+          .Add(new Paragraph(_race.Description)
+          .Add(new Paragraph(string.IsNullOrEmpty(_race.AdditionalProperties.Location) ? "" : ("\n" + _race.AdditionalProperties.Location)).SetFontSize(fontSizeMiddle)));
       else
         nestedtable1cell1.SetBorder(Border.NO_BORDER);
 
@@ -454,7 +457,7 @@ namespace RaceHorologyLib
         .SetPadding(padding)
         .SetFont(fontNormal)
         .SetFontSize(fontSizeNormal)
-        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties?.Location ?? "")));
+        .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n"));
 
       nestedtable2.AddCell(nestedtable2cell2);
       nestedtable2cell.Add(nestedtable2);
@@ -462,6 +465,7 @@ namespace RaceHorologyLib
 
       return tableHeader;
     }
+
   }
 
 
@@ -481,7 +485,6 @@ namespace RaceHorologyLib
     string _footerWebsite;
     string _footerCopyright;
     bool _debugAreas = false;
-    bool _setDateTime = true;
     float _height = 110;
     Image _banner;
     float _bannerHeight = 0F;
@@ -1992,7 +1995,7 @@ namespace RaceHorologyLib
 
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Laufzeit")));
+        .Add(createHeaderCellParagraphForTable("LZ")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Diff [s]")));
