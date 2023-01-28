@@ -177,7 +177,7 @@ jobs:
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
 
       - name: Create release entry on GitHub
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.12.0
         with:
           artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-*.msi
           prerelease: false
@@ -197,7 +197,7 @@ jobs:
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
 
       - name: Upload as pre-release 
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.12.0
         with:
           artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-*.msi
           prerelease: true
