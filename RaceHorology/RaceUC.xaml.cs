@@ -557,7 +557,8 @@ namespace RaceHorology
       else
       {
         lblStartCountDown.Visibility = Visibility.Hidden;
-        _liveTimingStartCountDown.Dispose();
+        if (_liveTimingStartCountDown!= null)
+          _liveTimingStartCountDown.Dispose();
         _liveTimingStartCountDown = null;
       }
     }
