@@ -206,6 +206,7 @@ jobs:
           body: Achtung 
                 Diese Version wurde automatisch aus den letzten Quellcodeänderungen gebaut und stellt nur den letzten Stand der Änderungen dar.
                 Sie könnte daher instabil sein.
+          generateReleaseNotes: true
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
