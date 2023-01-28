@@ -37,6 +37,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.Data.Odbc;
 using System.Data.OleDb;
 using System.Diagnostics;
 using System.IO;
@@ -165,13 +166,13 @@ namespace RaceHorologyLibTest
   public class DBTestUtilities
   {
     string _filename;
-    OleDbConnection _conn;
+    OdbcConnection _conn;
     public DBTestUtilities(string filename)
     {
       _filename = filename;
-      _conn = new OleDbConnection
+      _conn = new OdbcConnection
       {
-        ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + filename
+        ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + _filename + ";Jet OLEDB:Flush Transaction Timeout=10"
       };
       _conn.Open();
     }
@@ -184,7 +185,7 @@ namespace RaceHorologyLibTest
     public void ClearTimeMeasurements()
     {
       string sql = @"DELETE FROM tblZeit";
-      var cmd = new OleDbCommand(sql, _conn);
+      var cmd = new OdbcCommand(sql, _conn);
       cmd.CommandType = System.Data.CommandType.Text;
       int temp = cmd.ExecuteNonQuery();
     }

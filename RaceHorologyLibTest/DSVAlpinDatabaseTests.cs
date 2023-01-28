@@ -41,6 +41,7 @@ using RaceHorologyLib;
 using System.IO;
 using System.Data.OleDb;
 using System.Linq;
+using System.Data.Odbc;
 
 namespace RaceHorologyLibTest
 {
@@ -254,20 +255,25 @@ namespace RaceHorologyLibTest
 
     bool existsTable(string dbFilename, string tableName)
     {
-      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" };
       conn.Open();
 
-      var schema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
-
-      return
-        schema.Rows
-          .OfType<System.Data.DataRow>()
-          .Any(r => r.ItemArray[2].ToString().ToLower() == tableName.ToLower());
+      try
+      {
+        var cmdOthers = new OdbcCommand("select 1 from " + tableName + " where 1 = 0");
+        cmdOthers.ExecuteNonQuery();
+        return true;
+      }
+      catch
+      {
+        return false;
+      }
     }
+
 
     bool existsColumn(string dbFilename, string tableName, string column)
     {
-      using (OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename })
+      using (OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" })
       {
         conn.Open();
 
@@ -283,14 +289,14 @@ namespace RaceHorologyLibTest
     {
       bool res = false;
 
-      using (OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename })
+      using (OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" })
       {
         conn.Open();
 
         string sql = @"SELECT * FROM tblVersion";
-        OleDbCommand command = new OleDbCommand(sql, conn);
+        OdbcCommand command = new OdbcCommand(sql, conn);
 
-        using (OleDbDataReader reader = command.ExecuteReader())
+        using (OdbcDataReader reader = command.ExecuteReader())
         {
           if (reader.Read())
             if ((int)reader.GetValue(reader.GetOrdinal("version")) == version)
@@ -493,14 +499,14 @@ namespace RaceHorologyLibTest
     {
       bool bRes = true;
 
-      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" };
       conn.Open();
 
-      string sql = @"SELECT * FROM tblDisziplin WHERE dtyp = @dtyp";
-      OleDbCommand command = new OleDbCommand(sql, conn);
-      command.Parameters.Add(new OleDbParameter("@dtyp", (int)raceProps.RaceType));
+      string sql = @"SELECT * FROM tblDisziplin WHERE dtyp = ?";
+      OdbcCommand command = new OdbcCommand(sql, conn);
+      command.Parameters.Add(new OdbcParameter("@dtyp", (int)raceProps.RaceType));
 
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -781,15 +787,15 @@ namespace RaceHorologyLibTest
     {
       bool bRes = true;
 
-      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" };
       conn.Open();
 
-      string sql = @"SELECT * FROM tblTeilnehmer WHERE id = @id";
-      OleDbCommand command = new OleDbCommand(sql, conn);
-      command.Parameters.Add(new OleDbParameter("@id", id));
+      string sql = @"SELECT * FROM tblTeilnehmer WHERE id = ?";
+      OdbcCommand command = new OdbcCommand(sql, conn);
+      command.Parameters.Add(new OdbcParameter("@id", id));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -924,15 +930,15 @@ namespace RaceHorologyLibTest
     {
       bool bRes = true;
 
-      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" };
       conn.Open();
 
-      string sql = @"SELECT * FROM tblGruppe WHERE id = @id";
-      OleDbCommand command = new OleDbCommand(sql, conn);
-      command.Parameters.Add(new OleDbParameter("@id", id));
+      string sql = @"SELECT * FROM tblGruppe WHERE id = ?";
+      OdbcCommand command = new OdbcCommand(sql, conn);
+      command.Parameters.Add(new OdbcParameter("@id", id));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -1003,15 +1009,15 @@ namespace RaceHorologyLibTest
     {
       bool bRes = true;
 
-      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" };
       conn.Open();
 
-      string sql = @"SELECT * FROM tblKategorie WHERE kat = @name";
-      OleDbCommand command = new OleDbCommand(sql, conn);
-      command.Parameters.Add(new OleDbParameter("@name", name));
+      string sql = @"SELECT * FROM tblKategorie WHERE kat = ?";
+      OdbcCommand command = new OdbcCommand(sql, conn);
+      command.Parameters.Add(new OdbcParameter("@name", name));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -1094,15 +1100,15 @@ namespace RaceHorologyLibTest
     {
       bool bRes = true;
 
-      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" };
       conn.Open();
 
-      string sql = @"SELECT * FROM tblKlasse WHERE id = @id";
-      OleDbCommand command = new OleDbCommand(sql, conn);
-      command.Parameters.Add(new OleDbParameter("@id", id));
+      string sql = @"SELECT * FROM tblKlasse WHERE id = ?";
+      OdbcCommand command = new OdbcCommand(sql, conn);
+      command.Parameters.Add(new OdbcParameter("@id", id));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -1213,16 +1219,16 @@ namespace RaceHorologyLibTest
     {
       bool bRes = true;
 
-      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" };
       conn.Open();
 
-      OleDbCommand command = new OleDbCommand("SELECT * FROM tblZeit WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang", conn);
-      command.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
-      command.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
-      command.Parameters.Add(new OleDbParameter("@durchgang", raceRun));
+      OdbcCommand command = new OdbcCommand("SELECT * FROM tblZeit WHERE teilnehmer = ? AND disziplin = ? AND durchgang = ?", conn);
+      command.Parameters.Add(new OdbcParameter("@teilnehmer", (int)idParticipant));
+      command.Parameters.Add(new OdbcParameter("@disziplin", 2)); // TODO: Add correct disiziplin
+      command.Parameters.Add(new OdbcParameter("@durchgang", (int)raceRun));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -1473,16 +1479,16 @@ namespace RaceHorologyLibTest
     {
       bool bRes = true;
 
-      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      OdbcConnection conn = new OdbcConnection { ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbFilename + ";Jet OLEDB:Flush Transaction Timeout=10" };
       conn.Open();
 
-      OleDbCommand command = new OleDbCommand("SELECT * FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit", conn);
-      command.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
-      command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
-      command.Parameters.Add(new OleDbParameter("@zeit", Database.FractionForTimeSpan(ts.Time)));
+      OdbcCommand command = new OdbcCommand("SELECT * FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit", conn);
+      command.Parameters.Add(new OdbcParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+      command.Parameters.Add(new OdbcParameter("@durchgang", raceRun.Run));
+      command.Parameters.Add(new OdbcParameter("@zeit", Database.FractionForTimeSpan(ts.Time)));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
         {

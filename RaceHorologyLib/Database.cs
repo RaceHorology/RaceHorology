@@ -33,10 +33,13 @@
  * 
  */
 
+using DocumentFormat.OpenXml.Office.Word;
+using Org.BouncyCastle.Crypto.Agreement.JPake;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Data.Odbc;
 using System.Data.OleDb;
 using System.Diagnostics;
 using System.Linq;
@@ -54,7 +57,7 @@ namespace RaceHorologyLib
     : IAppDataModelDataBase
   {
     private string _dbPath;
-    private System.Data.OleDb.OleDbConnection _conn;
+    private OdbcConnection _conn;
 
     private Dictionary<uint, Participant> _id2Participant;
     private Dictionary<uint, ParticipantGroup> _id2ParticipantGroups;
@@ -98,14 +101,16 @@ namespace RaceHorologyLib
       Logger.Info("Connect to database: {0}", dbPath);
 
       _dbPath = dbPath;
-      _conn = new OleDbConnection
+      _conn = new OdbcConnection
       {
-        ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbPath
+        ConnectionString = @"Driver={Microsoft Access Driver (*.mdb, *.accdb)};Dbq=" + dbPath + ";Jet OLEDB:Flush Transaction Timeout=10"
+
       };
 
       try
       {
         _conn.Open();
+
         checkOrUpgradeSchema();
       }
       catch (Exception ex)
@@ -136,7 +141,7 @@ namespace RaceHorologyLib
       _conn.Dispose();
 
       // Force closing the connection and destroy the connection pool
-      OleDbConnection.ReleaseObjectPool();
+      OdbcConnection.ReleaseObjectPool();
       GC.Collect();
       GC.WaitForPendingFinalizers(); 
 
@@ -147,8 +152,9 @@ namespace RaceHorologyLib
     void dropTable(string table)
     {
       string sql = "DROP TABLE RHMisc";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
-      int res = cmd.ExecuteNonQuery();
+      //OdbcCommand cmd = new OdbcCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
+      cmd.ExecuteNonQuery();
     }
 
     void checkOrUpgradeSchema()
@@ -166,8 +172,8 @@ namespace RaceHorologyLib
 
       // Create TABLE RHMisc 
       string sql = @"CREATE TABLE RHMisc ([key] TEXT(255) NOT NULL, [val] LONGTEXT, PRIMARY KEY ([key]) )";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
-      int res = cmd.ExecuteNonQuery();
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
+      cmd.ExecuteNonQuery();
     }
 
     void checkOrUpgradeSchema_tblKategorie()
@@ -176,10 +182,11 @@ namespace RaceHorologyLib
       if (existsColumn("tblKategorie", "RHSynonyms"))
         return;
 
-      // Create TABLE RHMisc 
-      string sql = @"ALTER TABLE tblKategorie ADD RHSynonyms TEXT(255) DEFAULT NULL";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
-      int res = cmd.ExecuteNonQuery();
+      // add RHSynonyms column to tblKategorie
+      //string sql = @"ALTER TABLE [tblKategorie] ADD COLUMN [RHSynonyms] TEXT(255) DEFAULT NULL";
+      string sql = @"ALTER TABLE [tblKategorie] ADD COLUMN [RHSynonyms] TEXT(255)";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
+      cmd.ExecuteNonQuery();
     }
 
     void checkOrUpgradeSchema_RHTimestamps()
@@ -198,17 +205,17 @@ namespace RaceHorologyLib
           [valid] BIT,
           [kanal] TEXT(10) NOT NULL
         )";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
     }
 
 
     void checkOrUpgradeDBVersion()
     {
-      string sql = @"UPDATE tblVersion SET version = @version";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      string sql = @"UPDATE tblVersion SET version = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
 
-      cmd.Parameters.Add(new OleDbParameter("@version", 18));
+      cmd.Parameters.Add(new OdbcParameter("@version", 18));
       cmd.CommandType = CommandType.Text;
 
       try
@@ -227,11 +234,24 @@ namespace RaceHorologyLib
 
     bool existsTable(string tableName)
     {
-      var schema = _conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+      bool exists;
+      /*var schema = _conn.GetSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
       return
         schema.Rows
           .OfType<System.Data.DataRow>()
-          .Any(r => r.ItemArray[2].ToString().ToLower() == tableName.ToLower());
+          .Any(r => r.ItemArray[2].ToString().ToLower() == tableName.ToLower());*/
+      try
+      {
+        exists = true;
+        var cmdOthers = new OdbcCommand("select 1 from " + tableName + " where 1 = 0", _conn);
+        cmdOthers.ExecuteNonQuery();
+
+      }
+      catch
+      {
+        exists = false;
+      }
+      return exists;
     }
 
     bool existsColumn(string tableName, string column)
@@ -268,9 +288,9 @@ namespace RaceHorologyLib
 
       string sql = @"SELECT * FROM tblTeilnehmer";
 
-      OleDbCommand command = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
@@ -325,9 +345,9 @@ namespace RaceHorologyLib
 
       string sql = @"SELECT * FROM tblDisziplin WHERE aktiv = true";
 
-      OleDbCommand command = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
@@ -392,9 +412,9 @@ namespace RaceHorologyLib
       if (!ignoreActiveFlag)
         sql += " WHERE " + activeField + " = true";
 
-      OleDbCommand command = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
@@ -418,14 +438,14 @@ namespace RaceHorologyLib
 
       string sql = @"SELECT tblZeit.*, tblZeit.durchgang, tblZeit.disziplin, tblTeilnehmer.startnrsg, tblTeilnehmer.startnrgs, tblTeilnehmer.startnrsl, tblTeilnehmer.startnrks, tblTeilnehmer.startnrps "+
                    @"FROM tblTeilnehmer INNER JOIN tblZeit ON tblTeilnehmer.id = tblZeit.teilnehmer "+
-                   @"WHERE(((tblZeit.durchgang) = @durchgang) AND((tblZeit.disziplin) = @disziplin))";
+                   @"WHERE(((tblZeit.durchgang) = ?) AND((tblZeit.disziplin) = ?))";
 
-      OleDbCommand command = new OleDbCommand(sql, _conn);
-      command.Parameters.Add(new OleDbParameter("@durchgang", run));
-      command.Parameters.Add(new OleDbParameter("@disziplin", (int) race.RaceType));
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
+      cmd.Parameters.Add(new OdbcParameter("@durchgang", (int) run));
+      cmd.Parameters.Add(new OdbcParameter("@disziplin", (int) race.RaceType));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
@@ -477,53 +497,53 @@ namespace RaceHorologyLib
       uint id = GetParticipantId(participant);
       bool bNew = (id == 0);
 
-      OleDbCommand cmd;
+      OdbcCommand cmd;
 
       if (!bNew)
       {
         string sql = @"UPDATE tblTeilnehmer " +
-                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, svid = @svid, code = @code, klasse = @klasse, jahrgang = @jahrgang " +
-                     @"WHERE id = @id";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"SET nachname = ?, vorname = ?, sex = ?, verein = ?, nation = ?, svid = ?, code = ?, klasse = ?, jahrgang = ? " +
+                     @"WHERE id = ?";
+        cmd = new OdbcCommand(sql, _conn);
       }
       else
       {
         id = GetNewId("tblTeilnehmer"); // Figure out the new ID
 
         string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, svid, code, klasse, jahrgang, id) " +
-                     @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @svid, @code, @klasse, @jahrgang, @id) ";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+        cmd = new OdbcCommand(sql, _conn);
       }
 
-      cmd.Parameters.Add(new OleDbParameter("@nachname", participant.Name));
-      cmd.Parameters.Add(new OleDbParameter("@vorname", participant.Firstname));
+      cmd.Parameters.Add(new OdbcParameter("@nachname", participant.Name));
+      cmd.Parameters.Add(new OdbcParameter("@vorname", participant.Firstname));
       if (participant.Sex == null)
-        cmd.Parameters.Add(new OleDbParameter("@sex", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@sex", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@sex", participant.Sex.Name));
+        cmd.Parameters.Add(new OdbcParameter("@sex", participant.Sex.Name));
 
       if (string.IsNullOrEmpty(participant.Club))
-        cmd.Parameters.Add(new OleDbParameter("@verein", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@verein", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@verein", participant.Club));
+        cmd.Parameters.Add(new OdbcParameter("@verein", participant.Club));
       if (string.IsNullOrEmpty(participant.Nation))
-        cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@nation", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@nation", participant.Nation));
+        cmd.Parameters.Add(new OdbcParameter("@nation", participant.Nation));
       long svid = 0;
       if (long.TryParse(participant.SvId, out svid))
-        cmd.Parameters.Add(new OleDbParameter("@svid", svid));
+        cmd.Parameters.Add(new OdbcParameter("@svid", svid));
       else
-        cmd.Parameters.Add(new OleDbParameter("@svid", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@svid", DBNull.Value));
 
       if (string.IsNullOrEmpty(participant.Code))
-        cmd.Parameters.Add(new OleDbParameter("@code", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@code", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@code", participant.Code));
+        cmd.Parameters.Add(new OdbcParameter("@code", participant.Code));
 
-      cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class))); 
-      cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
-      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.Parameters.Add(new OdbcParameter("@klasse", GetParticipantClassId(participant.Class))); 
+      cmd.Parameters.Add(new OdbcParameter("@jahrgang", participant.Year));
+      cmd.Parameters.Add(new OdbcParameter("@id", (ulong)id));
 
       cmd.CommandType = CommandType.Text;
 
@@ -561,11 +581,11 @@ namespace RaceHorologyLib
 
       // Second, delete participant itself
       string sql = @"DELETE FROM tblTeilnehmer " +
-                   @"WHERE id = @id";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                   @"WHERE id = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       cmd.CommandType = CommandType.Text;
 
-      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      cmd.Parameters.Add(new OdbcParameter("@id", id));
       try
       {
         Logger.Debug("RemoveParticipant(), SQL: {0}", GetDebugSqlString(cmd));
@@ -599,43 +619,43 @@ namespace RaceHorologyLib
       {
         case Race.ERaceType.DownHill:
           sql += " dhaktiv = true, ";
-          sql += " startnrdh = @startnr, ";
-          sql += " pktedh = @punkte ";
+          sql += " startnrdh = ?, ";
+          sql += " pktedh = ? ";
           break;
         case Race.ERaceType.SuperG:
           sql += " sgaktiv = true, ";
-          sql += " startnrsg = @startnr, ";
-          sql += " pktesg = @punkte ";
+          sql += " startnrsg = ?, ";
+          sql += " pktesg = ? ";
           break;
         case Race.ERaceType.GiantSlalom:
           sql += " gsaktiv = true, ";
-          sql += " startnrgs = @startnr, ";
-          sql += " pktegs = @punkte ";
+          sql += " startnrgs = ?, ";
+          sql += " pktegs = ? ";
           break;
         case Race.ERaceType.Slalom:
           sql += " slaktiv = true, ";
-          sql += " startnrsl = @startnr, ";
-          sql += " pktesl = @punkte ";
+          sql += " startnrsl = ?, ";
+          sql += " pktesl = ? ";
           break;
         case Race.ERaceType.KOSlalom:
           sql += " ksaktiv = true, ";
-          sql += " startnrks = @startnr, ";
-          sql += " pkteks = @punkte ";
+          sql += " startnrks = ?, ";
+          sql += " pkteks = ? ";
           break;
         case Race.ERaceType.ParallelSlalom:
           sql += " psaktiv = true, ";
-          sql += " startnrps = @startnr, ";
-          sql += " pkteps = @punkte ";
+          sql += " startnrps = ?, ";
+          sql += " pkteps = ? ";
           break;
       }
 
-      sql += " WHERE id = @id";
+      sql += " WHERE id = ?";
 
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       cmd.CommandType = CommandType.Text;
-      cmd.Parameters.Add(new OleDbParameter("@startnr", raceParticipant.StartNumber));
-      cmd.Parameters.Add(new OleDbParameter("@punkte", raceParticipant.Points));
-      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.Parameters.Add(new OdbcParameter("@startnr", raceParticipant.StartNumber));
+      cmd.Parameters.Add(new OdbcParameter("@punkte", raceParticipant.Points));
+      cmd.Parameters.Add(new OdbcParameter("@id", (ulong)id));
 
       try
       {
@@ -681,11 +701,11 @@ namespace RaceHorologyLib
           break;
       }
 
-      sql += " WHERE id = @id";
+      sql += " WHERE id = ?";
 
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       cmd.CommandType = CommandType.Text;
-      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.Parameters.Add(new OdbcParameter("@id", (ulong)id));
 
       try
       {
@@ -712,52 +732,52 @@ namespace RaceHorologyLib
       uint idParticipant = GetParticipantId(result.Participant.Participant);
 
       bool bNew = true;
-      using (OleDbCommand command = new OleDbCommand("SELECT COUNT(*) FROM tblZeit WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang", _conn))
+      using (OdbcCommand command = new OdbcCommand("SELECT COUNT(*) FROM tblZeit WHERE teilnehmer = ? AND disziplin = ? AND durchgang = ?", _conn))
       {
-        command.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
-        command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType)); 
-        command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+        command.Parameters.Add(new OdbcParameter("@teilnehmer", (int)idParticipant));
+        command.Parameters.Add(new OdbcParameter("@disziplin", (int)race.RaceType)); 
+        command.Parameters.Add(new OdbcParameter("@durchgang", (int)raceRun.Run));
         object oId = command.ExecuteScalar();
 
         bNew = (oId == DBNull.Value || (int)oId == 0);
       }
 
 
-      OleDbCommand cmd;
+      OdbcCommand cmd;
       if (!bNew)
       {
         string sql = @"UPDATE tblZeit " +
-                     @"SET ergcode = @ergcode, start = @start, ziel = @ziel, netto = @netto, disqualtext = @disqualtext " +
-                     @"WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"SET ergcode = ?, start = ?, ziel = ?, netto = ?, disqualtext = ? " +
+                     @"WHERE teilnehmer = ? AND disziplin = ? AND durchgang = ?";
+        cmd = new OdbcCommand(sql, _conn);
       }
       else
       {
         string sql = @"INSERT INTO tblZeit (ergcode, start, ziel, netto, disqualtext, teilnehmer, disziplin, durchgang) " +
-                     @"VALUES (@ergcode, @start, @ziel, @netto, @disqualtext, @teilnehmer, @disziplin, @durchgang) ";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"VALUES (?, ?, ?, ?, ?, ?, ?, ?) ";
+        cmd = new OdbcCommand(sql, _conn);
       }
-      cmd.Parameters.Add(new OleDbParameter("@ergcode", (byte)result.ResultCode));
+      cmd.Parameters.Add(new OdbcParameter("@ergcode", (byte)result.ResultCode));
       if (result.GetStartTime() == null)
-        cmd.Parameters.Add(new OleDbParameter("@start", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@start", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@start", FractionForTimeSpan((TimeSpan)result.GetStartTime())));
+        cmd.Parameters.Add(new OdbcParameter("@start", FractionForTimeSpan((TimeSpan)result.GetStartTime())));
       if (result.GetFinishTime() == null)
-        cmd.Parameters.Add(new OleDbParameter("@ziel", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@ziel", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@ziel", FractionForTimeSpan((TimeSpan)result.GetFinishTime())));
+        cmd.Parameters.Add(new OdbcParameter("@ziel", FractionForTimeSpan((TimeSpan)result.GetFinishTime())));
       if (result.GetRunTime(false,false) == null)
-        cmd.Parameters.Add(new OleDbParameter("@netto", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@netto", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime(false, false))));
+        cmd.Parameters.Add(new OdbcParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime(false, false))));
       if (result.DisqualText == null || result.DisqualText == "")
-        cmd.Parameters.Add(new OleDbParameter("@disqualtext", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@disqualtext", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@disqualtext", result.DisqualText));
+        cmd.Parameters.Add(new OdbcParameter("@disqualtext", result.DisqualText));
 
-      cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
-      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType)); 
-      cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+      cmd.Parameters.Add(new OdbcParameter("@teilnehmer", idParticipant));
+      cmd.Parameters.Add(new OdbcParameter("@disziplin", (int)race.RaceType)); 
+      cmd.Parameters.Add(new OdbcParameter("@durchgang", raceRun.Run));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -786,12 +806,12 @@ namespace RaceHorologyLib
         throw new Exception("DeleteRunResult is wrong");
 
       string sql = @"DELETE FROM tblZeit " +
-                   @"WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                   @"WHERE teilnehmer = ? AND disziplin = ? AND durchgang = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
 
-      cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
-      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
-      cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+      cmd.Parameters.Add(new OdbcParameter("@teilnehmer", idParticipant));
+      cmd.Parameters.Add(new OdbcParameter("@disziplin", (int)race.RaceType));
+      cmd.Parameters.Add(new OdbcParameter("@durchgang", raceRun.Run));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -819,10 +839,10 @@ namespace RaceHorologyLib
         throw new Exception("DeleteRunResultsForParticipant is wrong");
 
       string sql = @"DELETE FROM tblZeit " +
-                   @"WHERE teilnehmer = @teilnehmer";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                   @"WHERE teilnehmer = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
 
-      cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
+      cmd.Parameters.Add(new OdbcParameter("@teilnehmer", idParticipant));
       cmd.CommandType = CommandType.Text;
       try
       {
@@ -840,13 +860,13 @@ namespace RaceHorologyLib
     public void UpdateRace(Race race, bool active)
     {
       string sql = @"UPDATE tblDisziplin " +
-                    @"SET aktiv = @aktiv, durchgaenge = @durchgaenge " +
-                    @"WHERE dtyp = @dtyp";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                    @"SET aktiv = ?, durchgaenge = ? " +
+                    @"WHERE dtyp = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
 
-      cmd.Parameters.Add(new OleDbParameter("@aktiv", active));
-      cmd.Parameters.Add(new OleDbParameter("@durchgaenge", race.GetMaxRun()));
-      cmd.Parameters.Add(new OleDbParameter("@dtyp", (int)race.RaceType));
+      cmd.Parameters.Add(new OdbcParameter("@aktiv", active));
+      cmd.Parameters.Add(new OdbcParameter("@durchgaenge", race.GetMaxRun()));
+      cmd.Parameters.Add(new OdbcParameter("@dtyp", (int)race.RaceType));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -867,12 +887,12 @@ namespace RaceHorologyLib
     {
       AdditionalRaceProperties props = new AdditionalRaceProperties();
 
-      string sql = @"SELECT * FROM tblListenkopf WHERE disziplin = @disziplin";
-      OleDbCommand command = new OleDbCommand(sql, _conn);
-      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+      string sql = @"SELECT * FROM tblListenkopf WHERE disziplin = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
+      cmd.Parameters.Add(new OdbcParameter("@disziplin", (int)race.RaceType));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader(CommandBehavior.Default))
       {
         while (reader.Read())
         {
@@ -940,8 +960,8 @@ namespace RaceHorologyLib
       }
 
       string sql2 = @"SELECT * FROM tblBewerb";
-      OleDbCommand command2 = new OleDbCommand(sql2, _conn);
-      using (OleDbDataReader reader = command2.ExecuteReader())
+      OdbcCommand command2 = new OdbcCommand(sql2, _conn);
+      using (OdbcDataReader reader = command2.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -950,10 +970,10 @@ namespace RaceHorologyLib
       }
 
 
-      string sql3 = @"SELECT * FROM tblDisziplin WHERE dtyp = @dtyp";
-      OleDbCommand command3 = new OleDbCommand(sql3, _conn);
-      command3.Parameters.Add(new OleDbParameter("@dtyp", (int)race.RaceType));
-      using (OleDbDataReader reader = command3.ExecuteReader())
+      string sql3 = @"SELECT * FROM tblDisziplin WHERE dtyp = ?";
+      OdbcCommand command3 = new OdbcCommand(sql3, _conn);
+      command3.Parameters.Add(new OdbcParameter("@dtyp", (int)race.RaceType));
+      using (OdbcDataReader reader = command3.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -1034,21 +1054,21 @@ namespace RaceHorologyLib
     private void storeRacePropertyInternal(Race race, uint id, string value)
     {
       // Delete and Insert
-      OleDbCommand cmdDelete = null, cmdInsert = null;
+      OdbcCommand cmdDelete = null, cmdInsert = null;
       try
       {
-        string sqlDelete = @"DELETE from tblListenkopf WHERE id = @id AND disziplin = @disziplin";
-        cmdDelete = new OleDbCommand(sqlDelete, _conn);
-        cmdDelete.Parameters.Add(new OleDbParameter("@id", (long)id));
-        cmdDelete.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+        string sqlDelete = @"DELETE from tblListenkopf WHERE id = ? AND disziplin = ?";
+        cmdDelete = new OdbcCommand(sqlDelete, _conn);
+        cmdDelete.Parameters.Add(new OdbcParameter("@id", (long)id));
+        cmdDelete.Parameters.Add(new OdbcParameter("@disziplin", (int)race.RaceType));
         cmdDelete.CommandType = CommandType.Text;
         int temp1 = cmdDelete.ExecuteNonQuery();
 
-        string sqlInsert = @"INSERT INTO tblListenkopf (id, disziplin, [value]) VALUES (@id, @disziplin, @value)";
-        cmdInsert = new OleDbCommand(sqlInsert, _conn);
-        cmdInsert.Parameters.Add(new OleDbParameter("@id", (long)id));
-        cmdInsert.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
-        cmdInsert.Parameters.Add(new OleDbParameter("@value", value));
+        string sqlInsert = @"INSERT INTO tblListenkopf (id, disziplin, [value]) VALUES (?, ?, ?)";
+        cmdInsert = new OdbcCommand(sqlInsert, _conn);
+        cmdInsert.Parameters.Add(new OdbcParameter("@id", (long)id));
+        cmdInsert.Parameters.Add(new OdbcParameter("@disziplin", (int)race.RaceType));
+        cmdInsert.Parameters.Add(new OdbcParameter("@value", value));
         cmdInsert.CommandType = CommandType.Text;
         int temp2 = cmdInsert.ExecuteNonQuery();
       }
@@ -1062,31 +1082,31 @@ namespace RaceHorologyLib
     private void storeRacePropertyInternal(Race r, string raceNumber, string description, DateTime? dateStart, DateTime? dateResult)
     {
       string sql = @"UPDATE tblDisziplin " +
-                    @"SET bewerbsnummer = @bewerbsnummer, bewerbsbezeichnung = @bewerbsbezeichnung, datum_startliste = @datum_startliste, datum_rangliste = @datum_rangliste " +
-                    @"WHERE dtyp = @dtyp";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                    @"SET bewerbsnummer = , bewerbsbezeichnung = `?, datum_startliste = ?, datum_rangliste = ? " +
+                    @"WHERE dtyp = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
 
       if (string.IsNullOrEmpty(raceNumber))
-        cmd.Parameters.Add(new OleDbParameter("@bewerbsnummer", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@bewerbsnummer", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@bewerbsnummer", raceNumber));
+        cmd.Parameters.Add(new OdbcParameter("@bewerbsnummer", raceNumber));
 
       if (string.IsNullOrEmpty(description))
-        cmd.Parameters.Add(new OleDbParameter("@bewerbsbezeichnung", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@bewerbsbezeichnung", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@bewerbsbezeichnung", description));
+        cmd.Parameters.Add(new OdbcParameter("@bewerbsbezeichnung", description));
 
       if (dateStart == null)
-        cmd.Parameters.Add(new OleDbParameter("@datum_startliste", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@datum_startliste", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@datum_startliste", ((DateTime)dateStart).Date));
+        cmd.Parameters.Add(new OdbcParameter("@datum_startliste", ((DateTime)dateStart).Date));
 
       if (dateResult == null)
-        cmd.Parameters.Add(new OleDbParameter("@datum_rangliste", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@datum_rangliste", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@datum_rangliste", ((DateTime)dateResult).Date));
+        cmd.Parameters.Add(new OdbcParameter("@datum_rangliste", ((DateTime)dateResult).Date));
 
-      cmd.Parameters.Add(new OleDbParameter("@dtyp", (int)r.RaceType));
+      cmd.Parameters.Add(new OdbcParameter("@dtyp", (int)r.RaceType));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -1106,13 +1126,13 @@ namespace RaceHorologyLib
     private void storeRacePropertyInternal(Race r, string location)
     {
       string sql = @"UPDATE tblBewerb " +
-                    @"SET ort = @ort";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                    @"SET ort = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
 
       if (location == null)
-        cmd.Parameters.Add(new OleDbParameter("@ort", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@ort", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@ort", location));
+        cmd.Parameters.Add(new OdbcParameter("@ort", location));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -1134,8 +1154,8 @@ namespace RaceHorologyLib
       CompetitionProperties competitionProps = new CompetitionProperties();
 
       string sql2 = @"SELECT * FROM tblBewerb";
-      OleDbCommand cmd = new OleDbCommand(sql2, _conn);
-      using (OleDbDataReader reader = cmd.ExecuteReader())
+      OdbcCommand cmd = new OdbcCommand(sql2, _conn);
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -1178,50 +1198,50 @@ namespace RaceHorologyLib
     public void UpdateCompetitionProperties(CompetitionProperties competitionProps)
     {
       string sql = @"UPDATE tblBewerb SET " +
-                    @"bname = @bname, " +
-                    @"typ = @typ, " +
-                    @"punktewertung = @punktewertung, " +
-                    @"nation = @nation, " +
-                    @"saison = @saison, " +
-                    @"klassenwertung = @klassenwertung, " +
-                    @"mannschaftswertung = @mannschaftswertung, " +
-                    @"zwischenzeiterfassung = @zwischenzeiterfassung, " +
-                    @"freien_lk_benutzen = @freien_lk_benutzen, " +
-                    @"supercombi = @supercombi, " +
-                    @"jahrgang_aktiv = @jahrgangAktiv, " +
-                    @"verein_aktiv = @vereinAktiv, " +
-                    @"nation_aktiv = @natAktiv, " +
-                    @"code_aktiv = @codeAktiv, " +
-                    @"nenngeld = @nenngeld";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                    @"bname = ?, " +
+                    @"typ = ?, " +
+                    @"punktewertung = ?, " +
+                    @"nation = ?, " +
+                    @"saison = ?, " +
+                    @"klassenwertung = ?, " +
+                    @"mannschaftswertung = ?, " +
+                    @"zwischenzeiterfassung = ?, " +
+                    @"freien_lk_benutzen = ?, " +
+                    @"supercombi = ?, " +
+                    @"jahrgang_aktiv = ?, " +
+                    @"verein_aktiv = @´?, " +
+                    @"nation_aktiv = ?, " +
+                    @"code_aktiv = ?, " +
+                    @"nenngeld = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       if (string.IsNullOrEmpty(competitionProps.Name))
-        cmd.Parameters.Add(new OleDbParameter("@bname", ""));
+        cmd.Parameters.Add(new OdbcParameter("@bname", ""));
       else
-        cmd.Parameters.Add(new OleDbParameter("@bname", competitionProps.Name));
+        cmd.Parameters.Add(new OdbcParameter("@bname", competitionProps.Name));
 
-      cmd.Parameters.Add(new OleDbParameter("@typ", (byte)competitionProps.Type));
+      cmd.Parameters.Add(new OdbcParameter("@typ", (byte)competitionProps.Type));
       
-      cmd.Parameters.Add(new OleDbParameter("@punktewertung", competitionProps.WithPoints));
+      cmd.Parameters.Add(new OdbcParameter("@punktewertung", competitionProps.WithPoints));
       
       if (string.IsNullOrEmpty(competitionProps.Nation) || competitionProps.Nation.Length != 3)
-        cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@nation", DBNull.Value));
       else
-        cmd.Parameters.Add("@nation", OleDbType.Char).Value = competitionProps.Nation;
+        cmd.Parameters.Add("@nation", OdbcType.Char).Value = competitionProps.Nation;
       
-      cmd.Parameters.Add(new OleDbParameter("@saison", (short)competitionProps.Saeson));
+      cmd.Parameters.Add(new OdbcParameter("@saison", (short)competitionProps.Saeson));
 
-      cmd.Parameters.Add(new OleDbParameter("@klassenwertung", competitionProps.KlassenWertung));
-      cmd.Parameters.Add(new OleDbParameter("@mannschaftswertung", competitionProps.MannschaftsWertung));
-      cmd.Parameters.Add(new OleDbParameter("@zwischenzeiterfassung", competitionProps.ZwischenZeit));
-      cmd.Parameters.Add(new OleDbParameter("@freien_lk_benutzen", competitionProps.FreierListenKopf));
-      cmd.Parameters.Add(new OleDbParameter("@supercombi", competitionProps.FISSuperCombi));
+      cmd.Parameters.Add(new OdbcParameter("@klassenwertung", competitionProps.KlassenWertung));
+      cmd.Parameters.Add(new OdbcParameter("@mannschaftswertung", competitionProps.MannschaftsWertung));
+      cmd.Parameters.Add(new OdbcParameter("@zwischenzeiterfassung", competitionProps.ZwischenZeit));
+      cmd.Parameters.Add(new OdbcParameter("@freien_lk_benutzen", competitionProps.FreierListenKopf));
+      cmd.Parameters.Add(new OdbcParameter("@supercombi", competitionProps.FISSuperCombi));
 
-      cmd.Parameters.Add(new OleDbParameter("@jahrgangAktiv", competitionProps.FieldActiveYear));
-      cmd.Parameters.Add(new OleDbParameter("@vereinAktiv", competitionProps.FieldActiveClub));
-      cmd.Parameters.Add(new OleDbParameter("@natAktiv", competitionProps.FieldActiveNation));
-      cmd.Parameters.Add(new OleDbParameter("@codeAktiv", competitionProps.FieldActiveCode));
+      cmd.Parameters.Add(new OdbcParameter("@jahrgangAktiv", competitionProps.FieldActiveYear));
+      cmd.Parameters.Add(new OdbcParameter("@vereinAktiv", competitionProps.FieldActiveClub));
+      cmd.Parameters.Add(new OdbcParameter("@natAktiv", competitionProps.FieldActiveNation));
+      cmd.Parameters.Add(new OdbcParameter("@codeAktiv", competitionProps.FieldActiveCode));
 
-      cmd.Parameters.Add(new OleDbParameter("@nenngeld", (decimal)competitionProps.Nenngeld));
+      cmd.Parameters.Add(new OdbcParameter("@nenngeld", (decimal)competitionProps.Nenngeld));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -1252,37 +1272,37 @@ namespace RaceHorologyLib
 
 
       bool bNew = true;
-      using (OleDbCommand cmdQ= new OleDbCommand("SELECT COUNT(*) FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal", _conn))
+      using (OdbcCommand cmdQ = new OdbcCommand("SELECT COUNT(*) FROM RHTimestamps WHERE disziplin = ? AND durchgang = ? AND zeit = ? AND kanal = ?", _conn))
       {
-        cmdQ.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
-        cmdQ.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
-        cmdQ.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
-        cmdQ.Parameters.Add(new OleDbParameter("@kanal", kanal(timestamp.MeasurementPoint)));
+        cmdQ.Parameters.Add(new OdbcParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+        cmdQ.Parameters.Add(new OdbcParameter("@durchgang", (int)raceRun.Run));
+        cmdQ.Parameters.Add(new OdbcParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
+        cmdQ.Parameters.Add(new OdbcParameter("@kanal", kanal(timestamp.MeasurementPoint)));
         object oId = cmdQ.ExecuteScalar();
 
         bNew = (oId == DBNull.Value || (int)oId == 0);
       }
 
-      OleDbCommand cmd;
+      OdbcCommand cmd;
       if (!bNew)
       {
         string sql = @"UPDATE RHTimestamps " +
-                     @"SET startnummer = @startnummer, valid = @valid " +
-                     @"WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"SET startnummer = ?, valid = ? " +
+                     @"WHERE disziplin = ? AND durchgang = ? AND zeit = ? AND kanal = ?";
+        cmd = new OdbcCommand(sql, _conn);
       }
       else
       {
         string sql = @"INSERT INTO RHTimestamps (startnummer, valid, disziplin, durchgang, zeit, kanal) " +
-                     @"VALUES (@startnummer, @valid, @disziplin, @durchgang, @zeit, @kanal) ";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"VALUES (?, ?, ?, ?, ?, ?) ";
+        cmd = new OdbcCommand(sql, _conn);
       }
-      cmd.Parameters.Add(new OleDbParameter("@startnummer", timestamp.StartNumber));
-      cmd.Parameters.Add(new OleDbParameter("@valid", timestamp.Valid));
-      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
-      cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
-      cmd.Parameters.Add(new OleDbParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
-      cmd.Parameters.Add(new OleDbParameter("@kanal", kanal(timestamp.MeasurementPoint)));
+      cmd.Parameters.Add(new OdbcParameter("@startnummer", timestamp.StartNumber));
+      cmd.Parameters.Add(new OdbcParameter("@valid", timestamp.Valid));
+      cmd.Parameters.Add(new OdbcParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+      cmd.Parameters.Add(new OdbcParameter("@durchgang", raceRun.Run));
+      cmd.Parameters.Add(new OdbcParameter("@zeit", FractionForTimeSpan(timestamp.Time)));
+      cmd.Parameters.Add(new OdbcParameter("@kanal", kanal(timestamp.MeasurementPoint)));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -1313,14 +1333,14 @@ namespace RaceHorologyLib
       List<Timestamp> result = new List<Timestamp>();
 
       string sql = @"SELECT * FROM RHTimestamps " +
-                   @"WHERE disziplin = @disziplin AND durchgang = @durchgang";
+                   @"WHERE disziplin = ? AND durchgang = ?";
 
-      OleDbCommand command = new OleDbCommand(sql, _conn);
-      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
-      command.Parameters.Add(new OleDbParameter("@durchgang", run));
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
+      cmd.Parameters.Add(new OdbcParameter("@disziplin", (int)race.RaceType));
+      cmd.Parameters.Add(new OdbcParameter("@durchgang", (int) run));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
@@ -1358,19 +1378,19 @@ namespace RaceHorologyLib
     public void StoreKeyValue(string key, string value)
     {
       // Delete and Insert
-      OleDbCommand cmdDelete = null, cmdInsert = null;
+      OdbcCommand cmdDelete = null, cmdInsert = null;
       try
       {
-        string sqlDelete = @"DELETE from RHMisc WHERE [key] = @key";
-        cmdDelete = new OleDbCommand(sqlDelete, _conn);
-        cmdDelete.Parameters.Add(new OleDbParameter("@key", key));
+        string sqlDelete = @"DELETE from RHMisc WHERE [key] = ?";
+        cmdDelete = new OdbcCommand(sqlDelete, _conn);
+        cmdDelete.Parameters.Add(new OdbcParameter("@key", key));
         cmdDelete.CommandType = CommandType.Text;
         int temp1 = cmdDelete.ExecuteNonQuery();
 
-        string sqlInsert = @"INSERT INTO RHMisc ([key], [val]) VALUES (@key, @value)";
-        cmdInsert = new OleDbCommand(sqlInsert, _conn);
-        cmdInsert.Parameters.Add(new OleDbParameter("@key", key));
-        cmdInsert.Parameters.Add(new OleDbParameter("@val", value));
+        string sqlInsert = @"INSERT INTO RHMisc ([key], [val]) VALUES (?, ?)";
+        cmdInsert = new OdbcCommand(sqlInsert, _conn);
+        cmdInsert.Parameters.Add(new OdbcParameter("@key", key));
+        cmdInsert.Parameters.Add(new OdbcParameter("@val", value));
         cmdInsert.CommandType = CommandType.Text;
         int temp2 = cmdInsert.ExecuteNonQuery();
       }
@@ -1383,12 +1403,12 @@ namespace RaceHorologyLib
     public string GetKeyValue(string key)
     {
       string value = null;
-      string sql = @"SELECT * FROM RHMisc WHERE [key] = @key";
-      OleDbCommand command = new OleDbCommand(sql, _conn);
-      command.Parameters.Add(new OleDbParameter("@key", key));
+      string sql = @"SELECT * FROM RHMisc WHERE [key] = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
+      cmd.Parameters.Add(new OdbcParameter("@key", key));
 
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         if (reader.Read())
         {
@@ -1404,7 +1424,7 @@ namespace RaceHorologyLib
     #region Internal Implementation
 
     /* ************************ Participant ********************* */
-    private Participant CreateParticipantFromDB(OleDbDataReader reader)
+    private Participant CreateParticipantFromDB(OdbcDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
 
@@ -1448,9 +1468,9 @@ namespace RaceHorologyLib
 
       string sql = @"SELECT * FROM tblGruppe";
 
-      OleDbCommand command = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
@@ -1460,7 +1480,7 @@ namespace RaceHorologyLib
     }
 
 
-    private ParticipantGroup CreateParticipantGroupFromDB(OleDbDataReader reader)
+    private ParticipantGroup CreateParticipantGroupFromDB(OdbcDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
 
@@ -1501,26 +1521,26 @@ namespace RaceHorologyLib
       uint id = GetParticipantGroupId(g);
       bool bNew = (id == 0);
 
-      OleDbCommand cmd;
+      OdbcCommand cmd;
       if (!bNew)
       {
         string sql = @"UPDATE tblGruppe " +
-                     @"SET grpname = @grpname, sortpos = @sortpos " +
-                     @"WHERE id = @id";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"SET grpname = ?, sortpos = ? " +
+                     @"WHERE id = ?";
+        cmd = new OdbcCommand(sql, _conn);
       }
       else
       {
         id = GetNewId("tblGruppe"); // Figure out the new ID
 
         string sql = @"INSERT INTO tblGruppe (grpname, sortpos, id) " +
-                     @"VALUES (@grpname, @sortpos, @id) ";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"VALUES (?, ?, ?) ";
+        cmd = new OdbcCommand(sql, _conn);
       }
 
-      cmd.Parameters.Add(new OleDbParameter("@grpname", g.Name));
-      cmd.Parameters.Add(new OleDbParameter("@sortpos", g.SortPos));
-      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.Parameters.Add(new OdbcParameter("@grpname", g.Name));
+      cmd.Parameters.Add(new OdbcParameter("@sortpos", g.SortPos));
+      cmd.Parameters.Add(new OdbcParameter("@id", (ulong)id));
       cmd.CommandType = CommandType.Text;
 
       try
@@ -1550,11 +1570,11 @@ namespace RaceHorologyLib
         throw new Exception("RemoveGroup: id not found");
 
       string sql = @"DELETE FROM tblGruppe " +
-                   @"WHERE id = @id";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                   @"WHERE id = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       cmd.CommandType = CommandType.Text;
 
-      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      cmd.Parameters.Add(new OdbcParameter("@id", id));
       try
       {
         Logger.Debug("RemoveGroup(), SQL: {0}", GetDebugSqlString(cmd));
@@ -1575,9 +1595,9 @@ namespace RaceHorologyLib
         return;
 
       string sql = @"SELECT * FROM tblKlasse";
-      OleDbCommand command = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
@@ -1592,33 +1612,33 @@ namespace RaceHorologyLib
       uint id = GetParticipantClassId(c);
       bool bNew = (id == 0);
 
-      OleDbCommand cmd;
+      OdbcCommand cmd;
       if (!bNew)
       {
         string sql = @"UPDATE tblKlasse " +
-                     @"SET klname = @klname, geschlecht = @geschlecht, bis_jahrgang = @bis_jahrgang, gruppe = @gruppe, sortpos = @sortpos " +
-                     @"WHERE id = @id";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"SET klname = ?, geschlecht = ?, bis_jahrgang = ?, gruppe = ?, sortpos = ? " +
+                     @"WHERE id = ?";
+        cmd = new OdbcCommand(sql, _conn);
       }
       else
       {
         id = GetNewId("tblKlasse"); // Figure out the new ID
 
         string sql = @"INSERT INTO tblKlasse (klname, geschlecht, bis_jahrgang, gruppe, sortpos, id) " +
-                     @"VALUES (@klname, @geschlecht, @bis_jahrgang, @gruppe, @sortpos, @id) ";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"VALUES (?, ?, ?, ?, ?, ?) ";
+        cmd = new OdbcCommand(sql, _conn);
       }
 
       uint gid = GetParticipantGroupId(c.Group);
-      cmd.Parameters.Add(new OleDbParameter("@klname", c.Name));
-      cmd.Parameters.Add(new OleDbParameter("@geschlecht", c.Sex == null ? (object)DBNull.Value : (object)c.Sex.Name));
-      cmd.Parameters.Add(new OleDbParameter("@bis_jahrgang", c.Year));
+      cmd.Parameters.Add(new OdbcParameter("@klname", c.Name));
+      cmd.Parameters.Add(new OdbcParameter("@geschlecht", c.Sex == null ? (object)DBNull.Value : (object)c.Sex.Name));
+      cmd.Parameters.Add(new OdbcParameter("@bis_jahrgang", c.Year));
       if (gid == 0)
-        cmd.Parameters.Add(new OleDbParameter("@gruppe", DBNull.Value));
+        cmd.Parameters.Add(new OdbcParameter("@gruppe", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@gruppe", gid));
-      cmd.Parameters.Add(new OleDbParameter("@sortpos", c.SortPos));
-      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+        cmd.Parameters.Add(new OdbcParameter("@gruppe", gid));
+      cmd.Parameters.Add(new OdbcParameter("@sortpos", c.SortPos));
+      cmd.Parameters.Add(new OdbcParameter("@id", (ulong)id));
       cmd.CommandType = CommandType.Text;
 
       try
@@ -1648,11 +1668,11 @@ namespace RaceHorologyLib
         throw new Exception("RemoveClass: id not found");
 
       string sql = @"DELETE FROM tblKlasse " +
-                   @"WHERE id = @id";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                   @"WHERE id = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       cmd.CommandType = CommandType.Text;
 
-      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      cmd.Parameters.Add(new OdbcParameter("@id", id));
       try
       {
         Logger.Debug("RemoveClass(), SQL: {0}", GetDebugSqlString(cmd));
@@ -1666,7 +1686,7 @@ namespace RaceHorologyLib
     }
 
 
-    private ParticipantClass CreateParticipantClassFromDB(OleDbDataReader reader)
+    private ParticipantClass CreateParticipantClassFromDB(OdbcDataReader reader)
     {
       uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
 
@@ -1713,9 +1733,9 @@ namespace RaceHorologyLib
 
       string sql = @"SELECT * FROM tblKategorie";
 
-      OleDbCommand command = new OleDbCommand(sql, _conn);
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      using (OdbcDataReader reader = cmd.ExecuteReader())
       {
         while (reader.Read())
         {
@@ -1725,7 +1745,7 @@ namespace RaceHorologyLib
     }
 
 
-    private ParticipantCategory CreateParticipantCategoryFromDB(OleDbDataReader reader)
+    private ParticipantCategory CreateParticipantCategoryFromDB(OdbcDataReader reader)
     {
       char id = ConvertToParticipantCategoryId(reader["kat"].ToString());
 
@@ -1779,35 +1799,35 @@ namespace RaceHorologyLib
       char id = GetParticipantCategoryId(c);
 
       // Check whether category already existed
-      string sqlQuery = @"SELECT COUNT(*) FROM tblKategorie WHERE kat = @id";
+      string sqlQuery = @"SELECT COUNT(*) FROM tblKategorie WHERE kat = ?";
       bool bNew;
-      using (OleDbCommand cmdQuery = new OleDbCommand(sqlQuery, _conn))
+      using (OdbcCommand cmdQuery = new OdbcCommand(sqlQuery, _conn))
       {
-        cmdQuery.Parameters.Add(new OleDbParameter("@id", id));
+        cmdQuery.Parameters.Add(new OdbcParameter("@id", id));
         bNew = ((int)cmdQuery.ExecuteScalar() == 0);
       }
 
-      OleDbCommand cmd;
+      OdbcCommand cmd;
       if (!bNew)
       {
         string sql = @"UPDATE tblKategorie " +
-                     @"SET kname = @kname, sortpos = @sortpos, RHSynonyms = @synonyms " +
-                     @"WHERE kat = @id";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"SET kname = ?, sortpos = ?, RHSynonyms = ? " +
+                     @"WHERE kat = ?";
+        cmd = new OdbcCommand(sql, _conn);
       }
       else
       {
         Debug.Assert(id == char.MinValue);
         id = c.Name; // Name is the ID
         string sql = @"INSERT INTO tblKategorie (kname, sortpos, RHSynonyms, kat) " +
-                     @"VALUES (@kname, @sortpos, synonyms, @id) ";
-        cmd = new OleDbCommand(sql, _conn);
+                     @"VALUES (?, ?, ?, ?) ";
+        cmd = new OdbcCommand(sql, _conn);
       }
 
-      cmd.Parameters.Add(new OleDbParameter("@kname", c.PrettyName));
-      cmd.Parameters.Add(new OleDbParameter("@sortpos", c.SortPos));
-      cmd.Parameters.Add(new OleDbParameter("@synonyms", string.IsNullOrEmpty(c.Synonyms)? (object)DBNull.Value : (object)c.Synonyms));
-      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      cmd.Parameters.Add(new OdbcParameter("@kname", c.PrettyName));
+      cmd.Parameters.Add(new OdbcParameter("@sortpos", c.SortPos));
+      cmd.Parameters.Add(new OdbcParameter("@synonyms", string.IsNullOrEmpty(c.Synonyms)? (object)DBNull.Value : (object)c.Synonyms));
+      cmd.Parameters.Add(new OdbcParameter("@id", id));
       cmd.CommandType = CommandType.Text;
 
       try
@@ -1836,11 +1856,11 @@ namespace RaceHorologyLib
         throw new Exception("RemoveCategory: id not found");
 
       string sql = @"DELETE FROM tblKategorie " +
-                   @"WHERE kat = @id";
-      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+                   @"WHERE kat = ?";
+      OdbcCommand cmd = new OdbcCommand(sql, _conn);
       cmd.CommandType = CommandType.Text;
 
-      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      cmd.Parameters.Add(new OdbcParameter("@id", id));
       try
       {
         Logger.Debug("RemoveCategory(), SQL: {0}", GetDebugSqlString(cmd));
@@ -1858,9 +1878,9 @@ namespace RaceHorologyLib
 
 
 
-    private static int GetLatestAutonumber(OleDbConnection connection)
+    private static int GetLatestAutonumber(OdbcConnection connection)
     {
-      using (OleDbCommand command = new OleDbCommand("SELECT @@IDENTITY;", connection))
+      using (OdbcCommand command = new OdbcCommand("SELECT @@IDENTITY;", connection))
       {
         return (int)command.ExecuteScalar();
       }
@@ -1870,7 +1890,7 @@ namespace RaceHorologyLib
     private uint GetNewId(string table, string field = "id")
     {
       uint id = 0;
-      using (OleDbCommand command = new OleDbCommand(string.Format("SELECT MAX({0}) FROM {1};", field, table), _conn))
+      using (OdbcCommand command = new OdbcCommand(string.Format("SELECT MAX({0}) FROM {1};", field, table), _conn))
       {
         object oId = command.ExecuteScalar();
         if (oId == DBNull.Value)
@@ -1884,7 +1904,7 @@ namespace RaceHorologyLib
     }
 
 
-    static private uint GetValueUInt(OleDbDataReader reader, string field)
+    static private uint GetValueUInt(OdbcDataReader reader, string field)
     {
       if (!reader.IsDBNull(reader.GetOrdinal(field)))
       {
@@ -1895,7 +1915,7 @@ namespace RaceHorologyLib
       return 0;
     }
 
-    static private double GetValueDouble(OleDbDataReader reader, string field)
+    static private double GetValueDouble(OdbcDataReader reader, string field)
     {
       if (!reader.IsDBNull(reader.GetOrdinal(field)))
       {
@@ -1913,7 +1933,7 @@ namespace RaceHorologyLib
     /// <returns>
     /// 0 if no startnumber is assigned
     /// </returns>
-    static private uint GetStartNumber(OleDbDataReader reader)
+    static private uint GetStartNumber(OdbcDataReader reader)
     {
       uint sn = 0;
       if (sn == 0)
@@ -1937,7 +1957,7 @@ namespace RaceHorologyLib
 
     #region Debugging
 
-    public string GetDebugSqlString(OleDbCommand cmd)
+    public string GetDebugSqlString(OdbcCommand cmd)
     {
       if (cmd == null)
         return "null";
@@ -1946,7 +1966,7 @@ namespace RaceHorologyLib
 
       foreach (var param in cmd.Parameters)
       {
-        if (param is OleDbParameter dbParam)
+        if (param is OdbcParameter dbParam)
           if (sql.Contains(dbParam.ParameterName))
           {
             string value;
