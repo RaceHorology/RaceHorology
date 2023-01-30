@@ -106,6 +106,12 @@ jobs:
           recursive: false
           timestampUrl: 'http://timestamp.digicert.com'
           
+      - name: Upload Raw Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_RaceHorology
+          path: ${{ github.workspace }}\RaceHorology\bin\x86\Release\**
+
       - name: Upload Installer
         uses: actions/upload-artifact@v3
         with:
