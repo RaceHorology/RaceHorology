@@ -268,7 +268,7 @@
       <Component Id="Microsoft.Web.WebView2.WinForms.dll" Guid="c81563f4-25c7-4af7-80fd-1544a3fb2daf">
         <File Id="Microsoft.Web.WebView2.WinForms.dll" Name="Microsoft.Web.WebView2.WinForms.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.WinForms.dll" />
       </Component>
-      <Component Id="Microsoft.Web.WebView2.Wpf.dll" Guid="c81563f4-25c7-4af7-80fd-1544a3fb2daf">
+      <Component Id="Microsoft.Web.WebView2.Wpf.dll" Guid="b7a403d2-6800-4c66-abad-72c4eb4404a8">
         <File Id="Microsoft.Web.WebView2.Wpf.dll" Name="Microsoft.Web.WebView2.Wpf.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.Wpf.dll" />
       </Component>
       <Component Id="Newtonsoft.Json.dll" Guid="a4f40607-4aa3-4e35-a9d4-8b7c8219c026">
