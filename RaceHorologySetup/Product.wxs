@@ -159,6 +159,9 @@
       <Component Id="CefSharp.Core.pdb" Guid="83baa142-1a8a-45dc-8e86-50e632d00a4b">
         <File Id="CefSharp.Core.pdb" Name="CefSharp.Core.pdb" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.pdb" />
       </Component>
+      <Component Id="CefSharp.Core.xml" Guid="61b14915-30d0-4082-b23e-b56d524a06df">
+        <File Id="CefSharp.Core.xml" Name="CefSharp.Core.xml" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.xml" />
+      </Component>
       <Component Id="CefSharp.Core.Runtime.dll" Guid="a4b1a267-c063-466f-b08d-a7afcfcf02fd">
         <File Id="CefSharp.Core.Runtime.dll" Name="CefSharp.Core.Runtime.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.Runtime.dll" />
       </Component>
