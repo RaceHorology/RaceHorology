@@ -133,6 +133,12 @@
       <Component Id="AutoUpdater.NET.dll" Guid="a542ac89-e655-464a-943a-d1e97de24334">
         <File Id="AutoUpdater.NET.dll" Name="AutoUpdater.NET.dll" Source="$(var.RaceHorology_TargetDir)AutoUpdater.NET.dll" />
       </Component>
+      <Component Id="AutoUpdater.NET.pdb" Guid="f342179b-e7b3-4431-9a22-840722ced098">
+        <File Id="AutoUpdater.NET.pdb" Name="AutoUpdater.NET.pdb" Source="$(var.RaceHorology_TargetDir)AutoUpdater.NET.pdb" />
+      </Component>
+      <Component Id="AutoUpdater.NET.xml" Guid="b2845980-a1b9-4f7f-b552-f097fa721aae">
+        <File Id="AutoUpdater.NET.xml" Name="AutoUpdater.NET.xml" Source="$(var.RaceHorology_TargetDir)AutoUpdater.NET.xml" />
+      </Component>
       <Component Id="BouncyCastle.Crypto.dll" Guid="66c3ec19-3d5e-435f-91c7-46410abaaf00">
         <File Id="BouncyCastle.Crypto.dll" Name="BouncyCastle.Crypto.dll" Source="$(var.RaceHorology_TargetDir)BouncyCastle.Crypto.dll" />
       </Component>
@@ -151,6 +157,9 @@
       <Component Id="CefSharp.Core.dll" Guid="14b11b27-75f0-4fe0-a97f-2e11dce2da37">
         <File Id="CefSharp.Core.dll" Name="CefSharp.Core.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.dll" />
       </Component>
+      <Component Id="CefSharp.Core.pdb" Guid="83baa142-1a8a-45dc-8e86-50e632d00a4b">
+        <File Id="CefSharp.Core.pdb" Name="CefSharp.Core.pdb" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.pdb" />
+      </Component>
       <Component Id="CefSharp.Core.Runtime.dll" Guid="a4b1a267-c063-466f-b08d-a7afcfcf02fd">
         <File Id="CefSharp.Core.Runtime.dll" Name="CefSharp.Core.Runtime.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.Core.Runtime.dll" />
       </Component>
@@ -163,8 +172,20 @@
       <Component Id="CefSharp.dll" Guid="503349f4-3c32-491f-b29f-d9aaeacd6ddb">
         <File Id="CefSharp.dll" Name="CefSharp.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.dll" />
       </Component>
+      <Component Id="CefSharp.pdb" Guid="ee565118-747d-4f43-8577-89d517b7d353">
+        <File Id="CefSharp.pdb" Name="CefSharp.pdb" Source="$(var.RaceHorology_TargetDir)CefSharp.pdb" />
+      </Component>
+      <Component Id="CefSharp.xml" Guid="d94b0c85-ada9-4748-ae2e-f04049404a5d">
+        <File Id="CefSharp.xml" Name="CefSharp.xml" Source="$(var.RaceHorology_TargetDir)CefSharp.xml" />
+      </Component>
       <Component Id="CefSharp.Wpf.dll" Guid="80713620-3068-4fcb-a7cf-c3cc0bf406e4">
         <File Id="CefSharp.Wpf.dll" Name="CefSharp.Wpf.dll" Source="$(var.RaceHorology_TargetDir)CefSharp.Wpf.dll" />
+      </Component>
+      <Component Id="CefSharp.Wpf.pdb" Guid="f0558e69-f761-45ea-8a09-270070d2de0c">
+        <File Id="CefSharp.Wpf.pdb" Name="CefSharp.Wpf.pdb" Source="$(var.RaceHorology_TargetDir)CefSharp.Wpf.pdb" />
+      </Component>
+      <Component Id="CefSharp.Wpf.xml" Guid="6f9481b2-d3a2-4fa7-9053-90c7b8a78420">
+        <File Id="CefSharp.Wpf.xml" Name="CefSharp.Wpf.xml" Source="$(var.RaceHorology_TargetDir)CefSharp.Wpf.xml" />
       </Component>
       <Component Id="chrome_100_percent.pak" Guid="3309855a-1891-4828-9bc4-6e6fe70f1053">
         <File Id="chrome_100_percent.pak" Name="chrome_100_percent.pak" Source="$(var.RaceHorology_TargetDir)chrome_100_percent.pak" />
@@ -178,6 +199,9 @@
       <Component Id="ClosedXML.dll" Guid="ac6b7696-74a4-4c76-8ecb-df03675aa3b0">
         <File Id="ClosedXML.dll" Name="ClosedXML.dll" Source="$(var.RaceHorology_TargetDir)ClosedXML.dll" />
       </Component>
+      <Component Id="ClosedXML.pdb" Guid="7b09b5da-155d-48aa-9a02-d5d72021745f">
+        <File Id="ClosedXML.pdb" Name="ClosedXML.pdb" Source="$(var.RaceHorology_TargetDir)ClosedXML.pdb" />
+      </Component>
       <Component Id="CsvHelper.dll" Guid="b698fea1-ff08-44a6-bed4-1ac56d19430d">
         <File Id="CsvHelper.dll" Name="CsvHelper.dll" Source="$(var.RaceHorology_TargetDir)CsvHelper.dll" />
       </Component>
@@ -190,14 +214,26 @@
       <Component Id="ExcelDataReader.DataSet.dll" Guid="76abf04e-83e8-4256-83f2-f2e691975f1e">
         <File Id="ExcelDataReader.DataSet.dll" Name="ExcelDataReader.DataSet.dll" Source="$(var.RaceHorology_TargetDir)ExcelDataReader.DataSet.dll" />
       </Component>
+      <Component Id="ExcelDataReader.DataSet.pdb" Guid="6cbee9bd-30e4-425a-b117-7646fc940643">
+        <File Id="ExcelDataReader.DataSet.pdb" Name="ExcelDataReader.DataSet.pdb" Source="$(var.RaceHorology_TargetDir)ExcelDataReader.DataSet.pdb" />
+      </Component>
       <Component Id="ExcelDataReader.dll" Guid="42fd324d-4bbb-4dd6-a92d-5377f2427122">
         <File Id="ExcelDataReader.dll" Name="ExcelDataReader.dll" Source="$(var.RaceHorology_TargetDir)ExcelDataReader.dll" />
+      </Component>
+      <Component Id="ExcelDataReader.pdb" Guid="038609e0-b530-4622-b2ef-41c697e680c0">
+        <File Id="ExcelDataReader.pdb" Name="ExcelDataReader.pdb" Source="$(var.RaceHorology_TargetDir)ExcelDataReader.pdb" />
       </Component>
       <Component Id="ExcelNumberFormat.dll" Guid="402276ad-6d21-46e2-af8d-40a2bf5b8b5e">
         <File Id="ExcelNumberFormat.dll" Name="ExcelNumberFormat.dll" Source="$(var.RaceHorology_TargetDir)ExcelNumberFormat.dll" />
       </Component>
       <Component Id="GongSolutions.WPF.DragDrop.dll" Guid="ca12b7c5-2572-4d19-b120-e51eeb5c7686">
         <File Id="GongSolutions.WPF.DragDrop.dll" Name="GongSolutions.WPF.DragDrop.dll" Source="$(var.RaceHorology_TargetDir)GongSolutions.WPF.DragDrop.dll" />
+      </Component>
+      <Component Id="GongSolutions.WPF.DragDrop.pdb" Guid="8302a8ee-259a-4852-b72c-a2fe0a4dff9d">
+        <File Id="GongSolutions.WPF.DragDrop.pdb" Name="GongSolutions.WPF.DragDrop.pdb" Source="$(var.RaceHorology_TargetDir)GongSolutions.WPF.DragDrop.pdb" />
+      </Component>
+      <Component Id="GongSolutions.WPF.DragDrop.xml" Guid="13c3518b-10ac-4ad8-8e33-3a14f86425c7">
+        <File Id="GongSolutions.WPF.DragDrop.xml" Name="GongSolutions.WPF.DragDrop.xml" Source="$(var.RaceHorology_TargetDir)GongSolutions.WPF.DragDrop.xml" />
       </Component>
       <Component Id="icudtl.dat" Guid="c92f6aad-1e33-40d8-9740-32a1038891d1">
         <File Id="icudtl.dat" Name="icudtl.dat" Source="$(var.RaceHorology_TargetDir)icudtl.dat" />
@@ -265,17 +301,35 @@
       <Component Id="Microsoft.Web.WebView2.Core.dll" Guid="f4f8caac-c509-4ed1-9024-e9d27976fe8d">
         <File Id="Microsoft.Web.WebView2.Core.dll" Name="Microsoft.Web.WebView2.Core.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.Core.dll" />
       </Component>
+      <Component Id="Microsoft.Web.WebView2.Core.xml" Guid="82b944e3-02fc-4bb1-a6dd-9500b63f9966">
+        <File Id="Microsoft.Web.WebView2.Core.xml" Name="Microsoft.Web.WebView2.Core.xml" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.Core.xml" />
+      </Component>
       <Component Id="Microsoft.Web.WebView2.WinForms.dll" Guid="c81563f4-25c7-4af7-80fd-1544a3fb2daf">
         <File Id="Microsoft.Web.WebView2.WinForms.dll" Name="Microsoft.Web.WebView2.WinForms.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.WinForms.dll" />
+      </Component>
+      <Component Id="Microsoft.Web.WebView2.WinForms.xml" Guid="e351867f-71f2-4daa-8e87-02f69215f55b">
+        <File Id="Microsoft.Web.WebView2.WinForms.xml" Name="Microsoft.Web.WebView2.WinForms.xml" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.WinForms.xml" />
       </Component>
       <Component Id="Microsoft.Web.WebView2.Wpf.dll" Guid="b7a403d2-6800-4c66-abad-72c4eb4404a8">
         <File Id="Microsoft.Web.WebView2.Wpf.dll" Name="Microsoft.Web.WebView2.Wpf.dll" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.Wpf.dll" />
       </Component>
+      <Component Id="Microsoft.Web.WebView2.Wpf.xml" Guid="0ce6776c-015f-45a9-9a05-eefe1320f0e2">
+        <File Id="Microsoft.Web.WebView2.Wpf.xml" Name="Microsoft.Web.WebView2.Wpf.xml" Source="$(var.RaceHorology_TargetDir)Microsoft.Web.WebView2.Wpf.xml" />
+      </Component>
       <Component Id="Newtonsoft.Json.dll" Guid="a4f40607-4aa3-4e35-a9d4-8b7c8219c026">
         <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.RaceHorology_TargetDir)Newtonsoft.Json.dll" />
       </Component>
+      <Component Id="Newtonsoft.Json.xml" Guid="f89584a5-55e5-4576-acf7-fcfe9c2c2a82">
+        <File Id="Newtonsoft.Json.xml" Name="Newtonsoft.Json.xml" Source="$(var.RaceHorology_TargetDir)Newtonsoft.Json.xml" />
+      </Component>
       <Component Id="NLog.dll" Guid="4b16229a-ab5f-4324-a5f8-eb480bc28d9a">
         <File Id="NLog.dll" Name="NLog.dll" Source="$(var.RaceHorology_TargetDir)NLog.dll" />
+      </Component>
+      <Component Id="NLog.xml" Guid="9e42a9e4-f4fa-4c7d-973f-2f69f1561317">
+        <File Id="NLog.xml" Name="NLog.xml" Source="$(var.RaceHorology_TargetDir)NLog.xml" />
+      </Component>
+      <Component Id="NLog.config" Guid="8e55038f-fdfe-412b-aba7-6a599ee827f5">
+        <File Id="NLog.config" Name="NLog.config" Source="$(var.RaceHorology_TargetDir)NLog.config" />
       </Component>
       <Component Id="QRCoder.dll" Guid="b5d4d866-d7bf-4524-bee0-0fdab03e846d">
         <File Id="QRCoder.dll" Name="QRCoder.dll" Source="$(var.RaceHorology_TargetDir)QRCoder.dll" />
@@ -325,6 +379,9 @@
       <Component Id="System.Drawing.Common.dll" Guid="4b33d312-794d-466a-9b75-07b806b0f045">
         <File Id="System.Drawing.Common.dll" Name="System.Drawing.Common.dll" Source="$(var.RaceHorology_TargetDir)System.Drawing.Common.dll" />
       </Component>
+      <Component Id="System.Drawing.Common.xml" Guid="6aed5668-c012-4032-834c-172b02094741">
+        <File Id="System.Drawing.Common.xml" Name="System.Drawing.Common.xml" Source="$(var.RaceHorology_TargetDir)System.Drawing.Common.xml" />
+      </Component>
       <Component Id="System.Memory.dll" Guid="aadb7fea-c584-4037-9f87-b3cecf3df26c">
         <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.RaceHorology_TargetDir)System.Memory.dll" />
       </Component>
@@ -336,6 +393,9 @@
       </Component>
       <Component Id="System.Threading.Tasks.Dataflow.dll" Guid="676b84d4-c411-4ffd-9fc0-572347471b93">
         <File Id="System.Threading.Tasks.Dataflow.dll" Name="System.Threading.Tasks.Dataflow.dll" Source="$(var.RaceHorology_TargetDir)System.Threading.Tasks.Dataflow.dll" />
+      </Component>
+      <Component Id="System.Threading.Tasks.Dataflow.xml" Guid="701ee470-cb41-468d-93cb-8bb35ea047eb">
+        <File Id="System.Threading.Tasks.Dataflow.xml" Name="System.Threading.Tasks.Dataflow.xml" Source="$(var.RaceHorology_TargetDir)System.Threading.Tasks.Dataflow.xml" />
       </Component>
       <Component Id="System.Threading.Tasks.Extensions.dll" Guid="3082fa6e-f82f-420f-b713-3c84a65680b3">
         <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.RaceHorology_TargetDir)System.Threading.Tasks.Extensions.dll" />
@@ -358,7 +418,9 @@
       <Component Id="websocket_sharp.dll" Guid="33605eb0-bcf0-4e00-a7df-2060431157c3">
         <File Id="websocket_sharp.dll" Name="websocket-sharp.dll" Source="$(var.RaceHorology_TargetDir)websocket-sharp.dll" />
       </Component>
-    </ComponentGroup>
+      <Component Id="websocket_sharp.xml" Guid="30075543-5193-4ed1-a385-5930a8574dd6">
+        <File Id="websocket_sharp.xml" Name="websocket-sharp.xml" Source="$(var.RaceHorology_TargetDir)websocket-sharp.xml" />
+      </Component>    </ComponentGroup>
   </Fragment>
 
   <Fragment>
