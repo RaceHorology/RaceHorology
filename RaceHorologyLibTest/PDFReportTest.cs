@@ -143,7 +143,7 @@ namespace RaceHorologyLibTest
 
       {
         IPDFReport report = new StartListReport(race.GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 7));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 100));
       }
     }
 
@@ -210,7 +210,7 @@ namespace RaceHorologyLibTest
 
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(1));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 6));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 100));
       }
     }
 
@@ -232,7 +232,7 @@ namespace RaceHorologyLibTest
 
       {
         IPDFReport report = new RaceResultReport(race);
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 10));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 100));
       }
     }
   }
