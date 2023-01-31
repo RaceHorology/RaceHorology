@@ -118,12 +118,14 @@ jobs:
             $Target = Get-ChildItem –Path "C:\Program Files (x86)\RaceHorology\*" -Recurse  -Attributes !Directory | foreach {Get-FileHash –Path $_.FullName}
             $Compare = Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru | measure
             if ($Compare.Count -gt 0) {
-              Write-Host "Installation folder and Release build are different!" -ForegroundColor red -BackgroundColor white
+              Write-Host "Installation folder and Release build are different!"
               (Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru).Path
-              Throw "Fail!"
+                $host.SetShouldExit(1)
+                exit 1
             } else {
               Write-Host "No differences found!"
             }
+
 
       - name: Sign Installer
         uses: GermanBluefox/code-sign-action@v7
