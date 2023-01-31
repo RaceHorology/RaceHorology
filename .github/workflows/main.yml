@@ -97,15 +97,18 @@ jobs:
            ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
 
       - name: Test Installer
-        run: |
-           $file = ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
-           $log = "install.log" 
-           $procMain = Start-Process "msiexec" "/i `"$file`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
-           $procLog = Start-Process "powershell" "Get-Content -Path `"$log`" -Wait" -NoNewWindow -PassThru 
-           $procMain.WaitForExit() 
-           $procLog.Kill()
+        uses: Amadevus/pwsh-script@v2.0.3
+        id: install_script
+        with:
+          script: |
+            $file = ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
+            $log = "install.log" 
+            $procMain = Start-Process "msiexec" "/i `"$file`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
+            $procLog = Start-Process "powershell" "Get-Content -Path `"$log`" -Wait" -NoNewWindow -PassThru 
+            $procMain.WaitForExit() 
+            $procLog.Kill()
 
-      - name: Compare
+      - name: Compare Installer
         uses: Amadevus/pwsh-script@v2.0.3
         id: compare_script
         with:
