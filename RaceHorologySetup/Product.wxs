@@ -350,9 +350,9 @@
       <Component Id="RaceHorology.exe" Guid="df4ac0a1-6576-4534-ba1d-127a4ff291d9">
         <File Id="RaceHorology.exe" Name="RaceHorology.exe" Source="$(var.RaceHorology_TargetDir)RaceHorology.exe" />
       </Component>
-      <Component Id="RaceHorology.exe.config" Guid="815ade25-f993-4cd3-9ac6-6e4e69e631ea">
+      <!--<Component Id="RaceHorology.exe.config" Guid="815ade25-f993-4cd3-9ac6-6e4e69e631ea">
         <File Id="RaceHorology.exe.config" Name="RaceHorology.exe.config" Source="$(var.RaceHorology_TargetDir)RaceHorology.exe.config" />
-      </Component>
+      </Component>-->
       <Component Id="RaceHorology.pdb" Guid="e2a22db3-f050-4056-9374-100e245e7d2e">
         <File Id="RaceHorology.pdb" Name="RaceHorology.pdb" Source="$(var.RaceHorology_TargetDir)RaceHorology.pdb" />
       </Component>
