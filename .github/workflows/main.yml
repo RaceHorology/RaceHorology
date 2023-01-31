@@ -98,7 +98,7 @@ jobs:
 
       - name: Test Installer
         run: |
-           $file = {{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
+           $file = ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
            $log = "install.log" 
            $procMain = Start-Process "msiexec" "/i `"$file`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
            $procLog = Start-Process "powershell" "Get-Content -Path `"$log`" -Wait" -NoNewWindow -PassThru 
@@ -119,7 +119,7 @@ jobs:
                 (Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru).Path
                 Throw "Fail!"
               }
-              
+
       - name: Sign Installer
         uses: GermanBluefox/code-sign-action@v7
         with:
