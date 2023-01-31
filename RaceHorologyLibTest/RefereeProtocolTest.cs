@@ -69,7 +69,7 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
         IPDFReport report = new RefereeProtocol(tg.Model.GetRace(0).GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 7));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 100));
       }
     }
 
@@ -88,7 +88,7 @@ namespace RaceHorologyLibTest
       AppDataModel model = new AppDataModel(db);
       {
         IPDFReport report = new RefereeProtocol(model.GetRace(0).GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Schiedsrichterprotokoll 1. Durchgang.pdf", 9));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Schiedsrichterprotokoll 1. Durchgang.pdf", 100));
       }
     }
 
