@@ -102,7 +102,7 @@ jobs:
         with:
           script: |
             $file = ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
-            $log = "install.log" 
+            $log = "${{ github.workspace }}\RaceHorologySetup\bin\Release\install.log" 
             $procMain = Start-Process "msiexec" "/i `"$file`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
             $procLog = Start-Process "powershell" "Get-Content -Path `"$log`" -Wait" -NoNewWindow -PassThru 
             $procMain.WaitForExit() 
