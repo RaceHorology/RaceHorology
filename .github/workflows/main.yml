@@ -40,12 +40,9 @@ jobs:
           # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
           minor_pattern: "(release-MINOR)"
           # A string to determine the format of the version output
-          format: "${major}.${minor}.${patch}.${increment}"
+          version_format: "${major}.${minor}.${patch}.${increment}"
           # If this is set to true, *every* commit will be treated as a new version.
           bump_each_commit: true  
-          # Prevents pre-v1.0.0 version from automatically incrementing the major version.
-          # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
-          enable_prerelease_mode: false     
 
       - name: Debug Version
         run: |
@@ -54,7 +51,6 @@ jobs:
           Write-Host "Output of major: ${{ steps.version.outputs.major }}"         
           Write-Host "Output of minor: ${{ steps.version.outputs.minor }}"         
           Write-Host "Output of patch: ${{ steps.version.outputs.patch }}"         
-
 
       - uses: actions/cache@v3
         id: cache
