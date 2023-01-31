@@ -104,6 +104,7 @@ jobs:
             $file = ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
             $log = "${{ github.workspace }}\RaceHorologySetup\bin\Release\install.log" 
             $procMain = Start-Process "msiexec" "/i `"$file`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
+            Write-Host "msiexec" "/i `"$file`" /qn /l*! `"$log`""
             $procLog = Start-Process "powershell" "Get-Content -Path `"$log`" -Wait" -NoNewWindow -PassThru 
             $procMain.WaitForExit() 
             $procLog.Kill()
