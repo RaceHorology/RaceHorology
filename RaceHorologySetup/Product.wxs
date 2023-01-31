@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
-  <?define RaceHorology_TargetDir=$(var.RaceHorology.TargetDir)?>
+
+  <?define RaceHorology_TargetDir = $(var.RaceHorology.TargetDir) ?>
+  <!-- 
+  <?define RaceHorology_ProductVersion=!(bind.fileVersion.RaceHorologyexe) ?>
+  <?if $(var.RaceHorology_ProductVersion) = "0.0.0.0" ?>
+    <?undef RaceHorology_ProductVersion ?>
+    <?define RaceHorology_ProductVersion = "0.9.4.1" ?> 
+    <?warning DEBUG/ProductVersion: $(var.RaceHorology_ProductVersion) ?>
+  <?else?>
+    <?warning DEBUG/ProductVersion: $(var.RaceHorology_ProductVersion) ?>
+  <?endif?> -->
 
   <Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="!(bind.fileVersion.RaceHorology.exe)" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
@@ -31,7 +42,7 @@
     </Feature>
 
     <PropertyRef Id="WIX_IS_NETFRAMEWORK_462_OR_LATER_INSTALLED" />
-    <Condition Message="This application requires .NET Framework 4.6.2. Please install the .NET Framework then run this installer again.">
+    <Condition Message="[ProductName] benötigt NET Framework 4.6.2. Bitte installiere .NET Framework separat und probiere es noch einmal.">
       <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_462_OR_LATER_INSTALLED]]>
     </Condition>
 

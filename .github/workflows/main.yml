@@ -29,18 +29,23 @@ jobs:
           fetch-depth: 0
 
       - name: Calculate Version
-        uses: paulhatch/semantic-version@v4.0.2
+        uses: paulhatch/semantic-version@v5.0.3
         id: version
         with:
           # The prefix to use to identify tags
           tag_prefix: "v"
+          # A string which, if present in a git commit, indicates that a change represents a
+          # major (breaking) change, supports regular expressions wrapped with '/'
+          major_pattern: "(release-MAJOR)"
+          # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
+          minor_pattern: "(release-MINOR)"
           # A string to determine the format of the version output
           format: "${major}.${minor}.${patch}.${increment}"
-          # Indicate whether short tags like 'v1' should be supported. If false only full
-          # tags like 'v1.0.0' will be recognized.
-          short_tags: false
           # If this is set to true, *every* commit will be treated as a new version.
-          bump_each_commit: false        
+          bump_each_commit: true  
+          # Prevents pre-v1.0.0 version from automatically incrementing the major version.
+          # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
+          enable_prerelease_mode: false     
 
       - name: Debug Version
         run: |
