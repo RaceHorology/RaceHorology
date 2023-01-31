@@ -101,7 +101,7 @@ jobs:
         id: install_script
         with:
           script: |
-            $msi = ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
+            $msi = "${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi"
             $log = "${{ github.workspace }}\RaceHorologySetup\bin\Release\install.log" 
             $procMain = Start-Process "msiexec" "/i `"$msi`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
             Write-Host "msiexec" "/i `"$msi`" /qn /l*! `"$log`""
