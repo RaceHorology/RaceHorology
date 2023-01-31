@@ -3,15 +3,6 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
 
   <?define RaceHorology_TargetDir = $(var.RaceHorology.TargetDir) ?>
-  <!-- 
-  <?define RaceHorology_ProductVersion=!(bind.fileVersion.RaceHorologyexe) ?>
-  <?if $(var.RaceHorology_ProductVersion) = "0.0.0.0" ?>
-    <?undef RaceHorology_ProductVersion ?>
-    <?define RaceHorology_ProductVersion = "0.9.4.1" ?> 
-    <?warning DEBUG/ProductVersion: $(var.RaceHorology_ProductVersion) ?>
-  <?else?>
-    <?warning DEBUG/ProductVersion: $(var.RaceHorology_ProductVersion) ?>
-  <?endif?> -->
 
   <Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="!(bind.fileVersion.RaceHorology.exe)" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
@@ -350,9 +341,9 @@
       <Component Id="RaceHorology.exe" Guid="df4ac0a1-6576-4534-ba1d-127a4ff291d9">
         <File Id="RaceHorology.exe" Name="RaceHorology.exe" Source="$(var.RaceHorology_TargetDir)RaceHorology.exe" />
       </Component>
-      <!--<Component Id="RaceHorology.exe.config" Guid="815ade25-f993-4cd3-9ac6-6e4e69e631ea">
+      <Component Id="RaceHorology.exe.config" Guid="815ade25-f993-4cd3-9ac6-6e4e69e631ea">
         <File Id="RaceHorology.exe.config" Name="RaceHorology.exe.config" Source="$(var.RaceHorology_TargetDir)RaceHorology.exe.config" />
-      </Component>-->
+      </Component>
       <Component Id="RaceHorology.pdb" Guid="e2a22db3-f050-4056-9374-100e245e7d2e">
         <File Id="RaceHorology.pdb" Name="RaceHorology.pdb" Source="$(var.RaceHorology_TargetDir)RaceHorology.pdb" />
       </Component>
