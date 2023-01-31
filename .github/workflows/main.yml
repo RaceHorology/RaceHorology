@@ -96,6 +96,30 @@ jobs:
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
            ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
 
+      - name: Test Installer
+        run: |
+           $file = {{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
+           $log = "install.log" 
+           $procMain = Start-Process "msiexec" "/i `"$file`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
+           $procLog = Start-Process "powershell" "Get-Content -Path `"$log`" -Wait" -NoNewWindow -PassThru 
+           $procMain.WaitForExit() 
+           $procLog.Kill()
+
+      - name: Compare
+        uses: Amadevus/pwsh-script@v2.0.3
+        id: compare_script
+        with:
+          script: |
+            $Source = Get-ChildItem –Path ${{ github.workspace }}\RaceHorology\bin\x86\Release -Recurse | foreach  {Get-FileHash –Path $_.FullName}
+            $Target = Get-ChildItem –Path "C:\Program Files (x86)\RaceHorology" -Recurse | foreach {Get-FileHash –Path $_.FullName}
+            $Compare = Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru | measure
+            if ($Compare.Count -gt 0)
+              {
+                Write-Host "Installation folder and Release build are different!" -ForegroundColor red -BackgroundColor white
+                (Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru).Path
+                Throw "Fail!"
+              }
+              
       - name: Sign Installer
         uses: GermanBluefox/code-sign-action@v7
         with:
