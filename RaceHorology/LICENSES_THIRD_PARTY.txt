@@ -9,6 +9,7 @@ Race Horology nutzt weitere sogenannte Third Party Software. Diese sind folgende
 - AutoUpdater.NET.Official
 - GNU Freefont
 - Microsoft.Web.WebView2
+- GNU Freefont
 
 Details dieser Software bzw. der Lizenzbedingungen sind nachstehend.
 
