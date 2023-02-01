@@ -24,8 +24,8 @@
       <ComponentGroupRef Id="INSTALLFOLDER_files" />
       <ComponentGroupRef Id="raceconfigpresets_files" />
       <ComponentGroupRef Id="dbtemplates_files" />
-      <ComponentGroupRef Id="resources_files" />
-      <ComponentGroupRef Id="resources_pdf_files" />
+      <ComponentGroupRef Id="libresources_files" />
+      <ComponentGroupRef Id="libresources_pdf_files" />
     </Feature>
 
     <Feature Id="ThirdParty" Title="3rd Party" Level="1">
@@ -65,7 +65,7 @@
           <Directory Id="ExtSources" Name="ExtSources" />
           <Directory Id="raceconfigpresets" Name="raceconfigpresets" />
           <Directory Id="dbtemplates" Name="dbtemplates" />
-          <Directory Id="libresources" Name="resources">
+          <Directory Id="libresources_files" Name="resources">
             <Directory Id="libresources_pdf" Name="pdf" />
           </Directory>
         </Directory>
@@ -656,7 +656,7 @@
   </Fragment>
 
   <Fragment>
-    <ComponentGroup Id="libresources_files" Directory="libresources">
+    <ComponentGroup Id="libresources_files" Directory="libresources_files">
       <Component Id="FreeSans.ttf" Guid="3844338f-29dd-476a-9a5c-50cb459a033b">
         <File Id="FreeSans.ttf" KeyPath="yes" Source="$(var.HarvestPath)\resources\FreeSans.ttf" />
       </Component>
@@ -673,7 +673,7 @@
   </Fragment>
 
   <Fragment>
-    <ComponentGroup Id="libresources_pdf_files" Directory="resources_pdf">
+    <ComponentGroup Id="libresources_pdf_files" Directory="libresources_pdf">
       <Component Id="libresources_pdf_LogoRH.pn" Guid="b7011b6a-4658-47e6-a91f-37291cebe210">
         <File Id="libresources_pdf_LogoRH.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRH.png" />
       </Component>
@@ -683,10 +683,10 @@
       <Component Id="libresources_pdf_LogoRHShort.svg" Guid="26a70459-3794-4c8c-a503-1e1c149cb576">
         <File Id="libresources_pdf_LogoRHShort.svg" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.svg" />
       </Component>
-      <Component Id="resources_pdf_LogoRHShortM.png" Guid="ffcf83b7-7bb6-4d61-bc06-9a7f65003cbc">
+      <Component Id="libresources_pdf_LogoRHShortM.png" Guid="ffcf83b7-7bb6-4d61-bc06-9a7f65003cbc">
         <File Id="libresources_pdf_LogoRHShortM.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.png" />
       </Component>
-      <Component Id="resources_pdf_LogoRHShortM.svg" Guid="bdf4bc90-3e80-41cd-937e-6b08ffc93589">
+      <Component Id="libresources_pdf_LogoRHShortM.svg" Guid="bdf4bc90-3e80-41cd-937e-6b08ffc93589">
         <File Id="libresources_pdf_LogoRHShortM.svg" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.svg" />
       </Component>
     </ComponentGroup>
