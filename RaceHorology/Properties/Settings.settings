@@ -41,5 +41,8 @@
     <Setting Name="Timing_DisplayPartcipantAssignment" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="UpdateChannel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Stabil</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
