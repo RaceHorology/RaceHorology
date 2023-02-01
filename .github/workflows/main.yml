@@ -91,10 +91,33 @@ jobs:
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
           retention-days: 2
 
+      - name: Upload Raw Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_RaceHorology
+          path: ${{ github.workspace }}\RaceHorology\bin\x86\Release\**
+
       - name: Build Installer
         run: |
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
            ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
+
+      - name: Sign Installer
+        uses: GermanBluefox/code-sign-action@v7
+        with:
+          certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
+          password: '${{ secrets.SIGNINGPASSWORD }}'
+          certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
+          folder: '${{ github.workspace }}\RaceHorologySetup\bin\Release\'
+          recursive: false
+          timestampUrl: 'http://timestamp.digicert.com'
+          
+      - name: Upload Installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: installer_RaceHorology
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
+          retention-days: 21
 
       - name: Test Installer
         uses: Amadevus/pwsh-script@v2.0.3
@@ -118,39 +141,14 @@ jobs:
             $Compare = Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru
             if ((Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru | measure).Count -gt 0) {
               Write-Host "Installation folder and Release build are different!"
-              $Compare.Path
+              $Compare
               #(Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru).Path
+
               $host.SetShouldExit(1)
               exit 1
             } else {
               Write-Host "No differences found!"
             }
-
-
-      - name: Sign Installer
-        uses: GermanBluefox/code-sign-action@v7
-        with:
-          certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
-          password: '${{ secrets.SIGNINGPASSWORD }}'
-          certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
-          folder: '${{ github.workspace }}\RaceHorologySetup\bin\Release\'
-          recursive: false
-          timestampUrl: 'http://timestamp.digicert.com'
-          
-      - name: Upload Raw Build
-        uses: actions/upload-artifact@v3
-        with:
-          name: build_RaceHorology
-          path: ${{ github.workspace }}\RaceHorology\bin\x86\Release\**
-
-      - name: Upload Installer
-        uses: actions/upload-artifact@v3
-        with:
-          name: installer_RaceHorology
-          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
-          retention-days: 21
-
-
 
   run_test:
     needs: build
