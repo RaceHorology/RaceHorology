@@ -150,6 +150,8 @@ namespace RaceHorologyLibTest
       {
         testContext.WriteLine(dif.Value);
       }
+      Debug.WriteLine("Found differences: " + result.GetDifferences().Count);
+      Debug.WriteLine("Accepted differences: " + nAcceptedDifferences);
       return result.GetDifferences().Count <= nAcceptedDifferences;
     }
 

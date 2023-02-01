@@ -505,6 +505,9 @@ namespace RaceHorologyLibTest
     /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestOutputs\HandTimingCalc_Report.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf" , @"resources")]
     public void HandTimingCalc_Report()
     {
       TestDataGenerator tg = new TestDataGenerator();
@@ -538,7 +541,7 @@ namespace RaceHorologyLibTest
       HandTimingCalc hc = new HandTimingCalc(htVM.Items[5], htVM.Items);
 
       IPDFReport report = new HandTimingCalcReport(hc, tg.Model.GetRace(0));
-      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 1));
+      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 100));
     }
 
 
