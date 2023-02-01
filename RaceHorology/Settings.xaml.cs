@@ -87,7 +87,6 @@ namespace RaceHorology
       cbUpdateChannel.Items.Add("Stabil");
       cbUpdateChannel.Items.Add("Test");
       cbUpdateChannel.SelectedValue = Properties.Settings.Default.UpdateChannel;
-
       cbTimingDevice_SelectionChanged(null, null);
     }
 

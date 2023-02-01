@@ -29,18 +29,20 @@ jobs:
           fetch-depth: 0
 
       - name: Calculate Version
-        uses: paulhatch/semantic-version@v4.0.2
+        uses: paulhatch/semantic-version@v5.0.3
         id: version
         with:
           # The prefix to use to identify tags
           tag_prefix: "v"
+          # A string which, if present in a git commit, indicates that a change represents a
+          # major (breaking) change, supports regular expressions wrapped with '/'
+          major_pattern: "(release-MAJOR)"
+          # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
+          minor_pattern: "(release-MINOR)"
           # A string to determine the format of the version output
-          format: "${major}.${minor}.${patch}.${increment}"
-          # Indicate whether short tags like 'v1' should be supported. If false only full
-          # tags like 'v1.0.0' will be recognized.
-          short_tags: false
+          version_format: "${major}.${minor}.${patch}"
           # If this is set to true, *every* commit will be treated as a new version.
-          bump_each_commit: false        
+          bump_each_commit: true  
 
       - name: Debug Version
         run: |
@@ -49,7 +51,6 @@ jobs:
           Write-Host "Output of major: ${{ steps.version.outputs.major }}"         
           Write-Host "Output of minor: ${{ steps.version.outputs.minor }}"         
           Write-Host "Output of patch: ${{ steps.version.outputs.patch }}"         
-
 
       - uses: actions/cache@v3
         id: cache
@@ -96,6 +97,36 @@ jobs:
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
            ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
 
+      - name: Test Installer
+        uses: Amadevus/pwsh-script@v2.0.3
+        id: install_script
+        with:
+          script: |
+            $msi = "${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi"
+            $log = "${{ github.workspace }}\RaceHorologySetup\bin\Release\install.log" 
+            $procMain = Start-Process "msiexec" "/i `"$msi`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
+            $procLog = Start-Process "powershell" "Get-Content -Path `"$log`" -Wait" -NoNewWindow -PassThru 
+            $procMain.WaitForExit() 
+            $procLog.Kill()
+
+      - name: Compare Installer
+        uses: Amadevus/pwsh-script@v2.0.3
+        id: compare_script
+        with:
+          script: |
+            $Source = Get-ChildItem –Path ${{ github.workspace }}\RaceHorology\bin\x86\Release\* -Recurse -Attributes !Directory | foreach  {Get-FileHash –Path $_.FullName}
+            $Target = Get-ChildItem –Path "C:\Program Files (x86)\RaceHorology\*" -Recurse  -Attributes !Directory | foreach {Get-FileHash –Path $_.FullName}
+            $Compare = Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru | measure
+            if ($Compare.Count -gt 0) {
+              Write-Host "Installation folder and Release build are different!"
+              (Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru).Path
+                $host.SetShouldExit(1)
+                exit 1
+            } else {
+              Write-Host "No differences found!"
+            }
+
+
       - name: Sign Installer
         uses: GermanBluefox/code-sign-action@v7
         with:
@@ -106,6 +137,12 @@ jobs:
           recursive: false
           timestampUrl: 'http://timestamp.digicert.com'
           
+      - name: Upload Raw Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_RaceHorology
+          path: ${{ github.workspace }}\RaceHorology\bin\x86\Release\**
+
       - name: Upload Installer
         uses: actions/upload-artifact@v3
         with:
@@ -184,6 +221,7 @@ jobs:
           tag: ${{ needs.build.outputs.version_tag }}
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true
 
   upload_as_pre-release:
     if: ${{ startsWith(github.ref, 'refs/heads/main') }}
