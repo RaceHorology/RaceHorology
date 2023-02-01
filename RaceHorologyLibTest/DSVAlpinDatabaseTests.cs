@@ -1164,10 +1164,14 @@ namespace RaceHorologyLibTest
 
       rr1r1.SetStartTime(rr1r1.GetStartTime()); //int days, int hours, int minutes, int seconds, int milliseconds
       rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      Assert.IsNull(rr1.GetRunResult(participant1).GetRunTime(false, false)); // Test whether run time is stored in DB, Part 1/2 (Preparation)
       db.CreateOrUpdateRunResult(race, rr1, rr1r1);
       DBCacheWorkaround();
       rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+
+      // Test whether run time is stored in DB, Part 2/2
+      Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 0), rr1.GetRunResult(participant1).GetRunTime(false, false)); 
 
       rr1r1.SetStartTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
       rr1r1.SetFinishTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
