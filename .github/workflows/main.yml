@@ -221,6 +221,7 @@ jobs:
           tag: ${{ needs.build.outputs.version_tag }}
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true
 
   upload_as_pre-release:
     if: ${{ startsWith(github.ref, 'refs/heads/main') }}
