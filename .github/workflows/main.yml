@@ -40,7 +40,7 @@ jobs:
           # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
           minor_pattern: "(release-MINOR)"
           # A string to determine the format of the version output
-          version_format: "${major}.${minor}.${patch}.${increment}"
+          version_format: "${major}.${minor}.${patch}"
           # If this is set to true, *every* commit will be treated as a new version.
           bump_each_commit: true  
 
