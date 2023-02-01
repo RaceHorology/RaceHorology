@@ -24,8 +24,8 @@
       <ComponentGroupRef Id="INSTALLFOLDER_files" />
       <ComponentGroupRef Id="raceconfigpresets_files" />
       <ComponentGroupRef Id="dbtemplates_files" />
-      <ComponentGroupRef Id="libresources_files" />
-      <ComponentGroupRef Id="libresources_pdf_files" />
+      <ComponentGroupRef Id="resources_files" />
+      <ComponentGroupRef Id="resources_pdf_files" />
     </Feature>
 
     <Feature Id="ThirdParty" Title="3rd Party" Level="1">
@@ -56,7 +56,6 @@
             </Directory>
           </Directory>
           <Directory Id="locales" Name="locales" />
-          <Directory Id="resources" Name="resources" />
           <Directory Id="webroot" Name="webroot">
             <Directory Id="webroot_css" Name="css" />
             <Directory Id="webroot_img" Name="img" />
@@ -65,8 +64,8 @@
           <Directory Id="ExtSources" Name="ExtSources" />
           <Directory Id="raceconfigpresets" Name="raceconfigpresets" />
           <Directory Id="dbtemplates" Name="dbtemplates" />
-          <Directory Id="libresources_files" Name="resources">
-            <Directory Id="libresources_pdf" Name="pdf" />
+          <Directory Id="resources_files" Name="resources">
+            <Directory Id="resources_pdf" Name="pdf" />
           </Directory>
         </Directory>
       </Directory>
@@ -645,18 +644,13 @@
   </Fragment>
 
   <Fragment>
-    <ComponentGroup Id="resources_files" Directory="resources">
+    <ComponentGroup Id="resources_files" Directory="resources_files">
       <Component Id="resources_count_down_high_long.wav" Guid="991ee225-3268-4c0e-a6d1-e6abc3fb385c">
         <File Id="resources_count_down_high_long.wav" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\resources\count_down_high_long.wav" />
       </Component>
       <Component Id="resources_count_down_low.wav" Guid="751c654c-9000-4b6c-b607-f06245d57202">
         <File Id="resources_count_down_low.wav" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\resources\count_down_low.wav" />
       </Component>
-      </ComponentGroup>
-  </Fragment>
-
-  <Fragment>
-    <ComponentGroup Id="libresources_files" Directory="libresources_files">
       <Component Id="FreeSans.ttf" Guid="3844338f-29dd-476a-9a5c-50cb459a033b">
         <File Id="FreeSans.ttf" KeyPath="yes" Source="$(var.HarvestPath)\resources\FreeSans.ttf" />
       </Component>
@@ -673,7 +667,7 @@
   </Fragment>
 
   <Fragment>
-    <ComponentGroup Id="libresources_pdf_files" Directory="libresources_pdf">
+    <ComponentGroup Id="resources_pdf_files" Directory="resources_pdf">
       <Component Id="libresources_pdf_LogoRH.pn" Guid="b7011b6a-4658-47e6-a91f-37291cebe210">
         <File Id="libresources_pdf_LogoRH.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRH.png" />
       </Component>
