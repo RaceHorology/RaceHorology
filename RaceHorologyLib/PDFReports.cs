@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -216,7 +216,7 @@ namespace RaceHorologyLib
     Margins _pageMargins;
 
     string _header1;
-    bool _debugAreas = false;
+    bool _debugAreas = true;
     float _height = 0;
     Image _banner;
     float _bannerHeight = 0F;
@@ -255,7 +255,7 @@ namespace RaceHorologyLib
     }
 
 
-    public float Height { get { return _height + 0 + 2; } }
+    public float Height { get { return _height; } }
 
     protected PdfFont _Font;
     protected PdfFont _FontBold;
@@ -345,8 +345,12 @@ namespace RaceHorologyLib
       float[] cols = { 15.0F, 70.0F, 15.0F };
       Table tableHeader = new Table(UnitValue.CreatePercentArray(cols));
       tableHeader.SetWidth(UnitValue.CreatePercentValue(100));
-        //.SetPaddingBottom(0)
-        //.SetMarginBottom(0);
+      //.SetPaddingBottom(0)
+      //.SetMarginBottom(0);
+
+      if (_debugAreas)
+        tableHeader.SetBorder(new SolidBorder(ColorConstants.RED, 1));
+
 
       float padding = 1F;
       float maxHeightCol1 = 56.0F;
@@ -466,8 +470,8 @@ namespace RaceHorologyLib
     string _footerVersion;
     string _footerWebsite;
     string _footerCopyright;
-    bool _debugAreas = false;
-    float _height = 0;
+    bool _debugAreas = true;
+    float _height = 0F;
     Image _banner;
     float _bannerHeight = 0;
     Image _logoRH;
@@ -479,7 +483,7 @@ namespace RaceHorologyLib
       _pdfHelper = pdfHelper;
       _race = race;
       _listName = listName;
-      _pageMargins = new Margins { Top = 0, Bottom = 0, Left = 24.0F, Right = 24.0F };
+      _pageMargins = pageMargins; // new Margins { Top = 0, Bottom = 0, Left = 24.0F, Right = 24.0F };
 
       var pageSize = PageSize.A4; // Assumption
 
@@ -561,7 +565,7 @@ namespace RaceHorologyLib
       Rectangle pageSize = page.GetPageSize();
       PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
 
-      _pageMargins = new Margins { Top = 0, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
+      //_pageMargins = new Margins { Top = 0, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
 
       // Footer
       if (_banner != null)
@@ -612,6 +616,9 @@ namespace RaceHorologyLib
       tableFooter.SetWidth(UnitValue.CreatePercentValue(100))
         .SetPaddingBottom(0)
         .SetMarginBottom(0);
+
+      if (_debugAreas)
+        tableFooter.SetBorder(new SolidBorder(ColorConstants.RED, 1));
 
       float padding = 1F;
 
@@ -797,7 +804,7 @@ namespace RaceHorologyLib
       _pdfDocument.GetDocumentInfo().SetAuthor("Race Horology").SetTitle(getReportName());
       _document = new Document(_pdfDocument, PageSize.A4);
 
-      _pageMargins = new Margins { Top = 24.0F, Bottom = 0, Left = 24.0F, Right = 24.0F };
+      _pageMargins = new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
 
 
       var header = createHeader();
@@ -808,7 +815,9 @@ namespace RaceHorologyLib
       //var pageXofY = new PageXofY(pdf);
       //pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, pageXofY);
 
-      _document.SetMargins(header.Height + _pageMargins.Top, _pageMargins.Right, _pageMargins.Bottom + footer.Height, _pageMargins.Left);
+      var mTop = header.Height + _pageMargins.Top;
+      var mBottom = _pageMargins.Bottom + footer.Height;
+      _document.SetMargins(mTop, _pageMargins.Right, mBottom, _pageMargins.Left);
 
       addContent(_pdfDocument, _document);
       
@@ -1237,8 +1246,12 @@ namespace RaceHorologyLib
 
       var table = new Table(getTableColumnsWidths());
 
+
       table.SetWidth(UnitValue.CreatePercentValue(100));
       table.SetBorder(Border.NO_BORDER);
+      table.SetPaddingBottom(0)
+        .SetMarginBottom(0)
+      .SetBorder(new SolidBorder(ColorConstants.RED, 1));
 
       addHeaderToTable(table);
 
