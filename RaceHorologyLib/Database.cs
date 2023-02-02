@@ -746,10 +746,10 @@ namespace RaceHorologyLib
         cmd.Parameters.Add(new OleDbParameter("@ziel", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@ziel", FractionForTimeSpan((TimeSpan)result.GetFinishTime())));
-      if (result.GetRunTime(false,false) == null)
+      if (result.GetRunTime(true,false) == null)
         cmd.Parameters.Add(new OleDbParameter("@netto", DBNull.Value));
       else
-        cmd.Parameters.Add(new OleDbParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime(false, false))));
+        cmd.Parameters.Add(new OleDbParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime(true, false))));
       if (result.DisqualText == null || result.DisqualText == "")
         cmd.Parameters.Add(new OleDbParameter("@disqualtext", DBNull.Value));
       else
