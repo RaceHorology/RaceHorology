@@ -1027,18 +1027,17 @@ namespace RaceHorologyLib
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceManager.Name))));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceManager.Club))));
+
+      bool displayHeights = _race.AdditionalProperties.StartHeight > 0 && _race.AdditionalProperties.FinishHeight > 0;
       table.AddCell(createCell()
-        .Add(new Paragraph("Start/Ziel/Differenz:")
+        .Add(new Paragraph(displayHeights ? "Start- / Ziel- / Differenzhöhe:" : "")
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph(String.Concat(
-          _race.AdditionalProperties.StartHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight):"",
-          " / ", 
-          _race.AdditionalProperties.FinishHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.FinishHeight) : "",
-          " / ",
-          (_race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) : ""
-          ))));
+        .Add(new Paragraph(
+          displayHeights ? 
+            String.Format("{0}m / {1}m / {2}m", _race.AdditionalProperties.StartHeight, _race.AdditionalProperties.FinishHeight, _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) :
+            "")));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Trainervertreter:")
@@ -1048,7 +1047,7 @@ namespace RaceHorologyLib
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.TrainerRepresentative.Club))));
       table.AddCell(createCell()
-        .Add(new Paragraph("Streckenlänge:")
+        .Add(new Paragraph(_race.AdditionalProperties.CoarseLength > 0 ? "Streckenlänge:" : "")
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
