@@ -64,7 +64,7 @@
           <Directory Id="ExtSources" Name="ExtSources" />
           <Directory Id="raceconfigpresets" Name="raceconfigpresets" />
           <Directory Id="dbtemplates" Name="dbtemplates" />
-          <Directory Id="resources" Name="resources">
+          <Directory Id="resources_files" Name="resources">
             <Directory Id="resources_pdf" Name="pdf" />
           </Directory>
         </Directory>
@@ -644,32 +644,44 @@
   </Fragment>
 
   <Fragment>
-    <ComponentGroup Id="resources_files" Directory="resources">
+    <ComponentGroup Id="resources_files" Directory="resources_files">
       <Component Id="resources_count_down_high_long.wav" Guid="991ee225-3268-4c0e-a6d1-e6abc3fb385c">
-        <File Id="resources_count_down_high_long.wav" KeyPath="yes" Source="$(var.HarvestPath)\resources\count_down_high_long.wav" />
+        <File Id="resources_count_down_high_long.wav" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\resources\count_down_high_long.wav" />
       </Component>
       <Component Id="resources_count_down_low.wav" Guid="751c654c-9000-4b6c-b607-f06245d57202">
-        <File Id="resources_count_down_low.wav" KeyPath="yes" Source="$(var.HarvestPath)\resources\count_down_low.wav" />
+        <File Id="resources_count_down_low.wav" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\resources\count_down_low.wav" />
       </Component>
-      </ComponentGroup>
+      <Component Id="FreeSans.ttf" Guid="3844338f-29dd-476a-9a5c-50cb459a033b">
+        <File Id="FreeSans.ttf" KeyPath="yes" Source="$(var.HarvestPath)\resources\FreeSans.ttf" />
+      </Component>
+      <Component Id="FreeSansBold.ttf" Guid="5b43a2b1-184f-40ba-8785-a749e4d268f4">
+        <File Id="FreeSansBold.ttf" KeyPath="yes" Source="$(var.HarvestPath)\resources\FreeSansBold.ttf" />
+      </Component>
+      <Component Id="FreeSansBoldOblique.ttf" Guid="684d6a6d-7281-412e-a5e6-b92a0babfa7f">
+        <File Id="FreeSansBoldOblique.ttf" KeyPath="yes" Source="$(var.HarvestPath)\resources\FreeSansBoldOblique.ttf" />
+      </Component>
+      <Component Id="FreeSansOblique.ttf" Guid="f6dcbfab-a237-4a8d-8637-717e6f2e6b14">
+        <File Id="FreeSansOblique.ttf" KeyPath="yes" Source="$(var.HarvestPath)\resources\FreeSansOblique.ttf" />
+      </Component>
+    </ComponentGroup>
   </Fragment>
 
   <Fragment>
     <ComponentGroup Id="resources_pdf_files" Directory="resources_pdf">
-      <Component Id="resources_pdf_LogoRH.pn" Guid="b7011b6a-4658-47e6-a91f-37291cebe210">
-        <File Id="resources_pdf_LogoRH.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRH.png" />
+      <Component Id="libresources_pdf_LogoRH.pn" Guid="b7011b6a-4658-47e6-a91f-37291cebe210">
+        <File Id="libresources_pdf_LogoRH.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRH.png" />
       </Component>
-      <Component Id="resources_pdf_LogoRHShort.png" Guid="41f6a0ee-3b6d-4dec-89c3-c842bea48168">
-        <File Id="resources_pdf_LogoRHShort.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.png" />
+      <Component Id="libresources_pdf_LogoRHShort.png" Guid="41f6a0ee-3b6d-4dec-89c3-c842bea48168">
+        <File Id="libresources_pdf_LogoRHShort.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.png" />
       </Component>
-      <Component Id="resources_pdf_LogoRHShort.svg" Guid="26a70459-3794-4c8c-a503-1e1c149cb576">
-        <File Id="resources_pdf_LogoRHShort.svg" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.svg" />
+      <Component Id="libresources_pdf_LogoRHShort.svg" Guid="26a70459-3794-4c8c-a503-1e1c149cb576">
+        <File Id="libresources_pdf_LogoRHShort.svg" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShort.svg" />
       </Component>
-      <Component Id="resources_pdf_LogoRHShortM.png" Guid="ffcf83b7-7bb6-4d61-bc06-9a7f65003cbc">
-        <File Id="resources_pdf_LogoRHShortM.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.png" />
+      <Component Id="libresources_pdf_LogoRHShortM.png" Guid="ffcf83b7-7bb6-4d61-bc06-9a7f65003cbc">
+        <File Id="libresources_pdf_LogoRHShortM.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.png" />
       </Component>
-      <Component Id="resources_pdf_LogoRHShortM.svg" Guid="bdf4bc90-3e80-41cd-937e-6b08ffc93589">
-        <File Id="resources_pdf_LogoRHShortM.svg" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.svg" />
+      <Component Id="libresources_pdf_LogoRHShortM.svg" Guid="bdf4bc90-3e80-41cd-937e-6b08ffc93589">
+        <File Id="libresources_pdf_LogoRHShortM.svg" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRHShortM.svg" />
       </Component>
     </ComponentGroup>
   </Fragment>
