@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -1036,7 +1036,7 @@ namespace RaceHorologyLib
         .SetTextAlignment(TextAlignment.RIGHT)
         .Add(new Paragraph(
           displayHeights ? 
-            String.Format("{0}m / {1}m / {2}m", _race.AdditionalProperties.StartHeight, _race.AdditionalProperties.FinishHeight, _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) :
+            String.Format("{0} m / {1} m / {2} m", _race.AdditionalProperties.StartHeight, _race.AdditionalProperties.FinishHeight, _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) :
             "")));
 
       table.AddCell(createCell()
