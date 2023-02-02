@@ -955,6 +955,9 @@ namespace RaceHorologyLib
       int paddingTopDefault = 0;
       int paddingTopSpace = 4;
 
+      int paddingTopDefault = 0;
+      int paddingTopSpace = 4;
+
       Cell createCell(int rs=1, int cs=1)
       {
         return new Cell(rs, cs)
