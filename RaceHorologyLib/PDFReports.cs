@@ -565,8 +565,6 @@ namespace RaceHorologyLib
       Rectangle pageSize = page.GetPageSize();
       PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
 
-      //_pageMargins = new Margins { Top = 0, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
-
       // Footer
       if (_banner != null)
       {
@@ -595,7 +593,7 @@ namespace RaceHorologyLib
         pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _bannerHeight,
         tableWidth, tableHeight);
 
-      new Canvas(pdfCanvas, rectTable)
+      new Canvas(pdfCanvas, rectTable).SetBorder(new SolidBorder(ColorConstants.GREEN,1)).SetBackgroundColor(ColorConstants.GRAY)
               .Add(tableFooter
                 .SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -614,8 +612,8 @@ namespace RaceHorologyLib
     {
       Table tableFooter = new Table(UnitValue.CreatePercentArray(new float[]{2.0F, 3.0F, 2.0F}));
       tableFooter.SetWidth(UnitValue.CreatePercentValue(100))
-        .SetPaddingBottom(0)
-        .SetMarginBottom(0);
+        .SetPadding(0)
+        .SetMargin(0);
 
       if (_debugAreas)
         tableFooter.SetBorder(new SolidBorder(ColorConstants.RED, 1));
@@ -761,6 +759,7 @@ namespace RaceHorologyLib
     protected PdfDocument _pdfDocument;
     protected Document _document;
     protected Margins _pageMargins;
+    protected bool _debugAreas = true;
 
     protected PDFHelper _pdfHelper;
     PointsConverter _pointsConverter;
@@ -816,7 +815,7 @@ namespace RaceHorologyLib
       //pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, pageXofY);
 
       var mTop = header.Height + _pageMargins.Top;
-      var mBottom = _pageMargins.Bottom + footer.Height;
+      var mBottom = /*_pageMargins.Bottom +*/ footer.Height;
       _document.SetMargins(mTop, _pageMargins.Right, mBottom, _pageMargins.Left);
 
       addContent(_pdfDocument, _document);
@@ -950,6 +949,7 @@ namespace RaceHorologyLib
 
       Table table = getResultsTable();
       document.Add(table);
+
     }
 
 
@@ -988,6 +988,9 @@ namespace RaceHorologyLib
 
       table.SetWidth(UnitValue.CreatePercentValue(100));
       table.SetBorder(Border.NO_BORDER);
+
+      if (_debugAreas)
+        table.SetBorder(new SolidBorder(ColorConstants.RED, 1));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Organisator:")
@@ -1249,9 +1252,10 @@ namespace RaceHorologyLib
 
       table.SetWidth(UnitValue.CreatePercentValue(100));
       table.SetBorder(Border.NO_BORDER);
-      table.SetPaddingBottom(0)
-        .SetMarginBottom(0)
-      .SetBorder(new SolidBorder(ColorConstants.RED, 1));
+      table.SetPaddingBottom(0).SetMarginBottom(0);
+
+      if (_debugAreas)
+        table.SetBorder(new SolidBorder(ColorConstants.RED, 1));
 
       addHeaderToTable(table);
 
