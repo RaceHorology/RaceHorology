@@ -216,7 +216,7 @@ namespace RaceHorologyLib
     Margins _pageMargins;
 
     string _header1;
-    bool _debugAreas = true;
+    bool _debugAreas = false;
     float _height = 0;
     Image _banner;
     float _bannerHeight = 0F;
@@ -470,7 +470,7 @@ namespace RaceHorologyLib
     string _footerVersion;
     string _footerWebsite;
     string _footerCopyright;
-    bool _debugAreas = true;
+    bool _debugAreas = false;
     float _height = 0F;
     Image _banner;
     float _bannerHeight = 0;
@@ -525,7 +525,7 @@ namespace RaceHorologyLib
       var pageSize = PageSize.A4; // Assumption
       float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
       var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
-      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight() - 3.0F;
 
       _height = _bannerHeight + tableHeight + 0;
     }
@@ -587,7 +587,7 @@ namespace RaceHorologyLib
 
       float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
       var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
-      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight() - 3.0F;
 
       Rectangle rectTable = new Rectangle(
         pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _bannerHeight,
@@ -613,7 +613,7 @@ namespace RaceHorologyLib
       Table tableFooter = new Table(UnitValue.CreatePercentArray(new float[]{2.0F, 3.0F, 2.0F}));
       tableFooter.SetWidth(UnitValue.CreatePercentValue(100))
         .SetPadding(0)
-        .SetMargin(0);
+        .SetMargin(0).SetVerticalBorderSpacing(0);
 
       if (_debugAreas)
         tableFooter.SetBorder(new SolidBorder(ColorConstants.RED, 1));
@@ -759,7 +759,7 @@ namespace RaceHorologyLib
     protected PdfDocument _pdfDocument;
     protected Document _document;
     protected Margins _pageMargins;
-    protected bool _debugAreas = true;
+    protected bool _debugAreas = false;
 
     protected PDFHelper _pdfHelper;
     PointsConverter _pointsConverter;
