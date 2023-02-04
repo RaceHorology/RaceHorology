@@ -123,33 +123,33 @@ namespace RaceHorologyLib
     {
       {
         document.Add(new Paragraph("Nicht am Start")
-          .SetFont(_pdfHelper.GetFont("rhfontBold"))
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
          );
         Table table = getStartnumberTable(
           rr.GetResultList().Where(r => r.ResultCode == RunResult.EResultCode.NaS).Select(r => r.StartNumber), 
           ColumnsForStartnumberTable, MinRowsForNaS);
-        table.SetFont(_pdfHelper.GetFont("rhfont"));
+        table.SetFont(_pdfHelper.GetFont(RHFont.Normal));
         document.Add(table);
       }
 
       {
         document.Add(new Paragraph("Nicht im Ziel")
-          .SetFont(_pdfHelper.GetFont("rhfontBold"))
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         );
         Table table = getStartnumberTable(
           rr.GetResultList().Where(r => r.ResultCode == RunResult.EResultCode.NiZ).Select(r => r.StartNumber),
           ColumnsForStartnumberTable, MinRowsForNiZ);
-        table.SetFont(_pdfHelper.GetFont("rhfont"));
+        table.SetFont(_pdfHelper.GetFont(RHFont.Normal));
         document.Add(table);
       }
 
       {
         document.Add(new Paragraph("Disqualifiziert")
-          .SetFont(_pdfHelper.GetFont("rhfontBold"))
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         );
         Table table = getDisqualifiedTable(document,
           rr.GetResultList().Where(r => r.ResultCode == RunResult.EResultCode.DIS));
-        table.SetFont(_pdfHelper.GetFont("rhfont"));
+        table.SetFont(_pdfHelper.GetFont(RHFont.Normal));
         table.SetNextRenderer(new MyTableRenderer(table, MinRowsForDIS));
         document.Add(table);
       }
