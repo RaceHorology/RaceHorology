@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -846,11 +846,8 @@ namespace RaceHorologyLib
 
     protected virtual void determineTableFontAndSize()
     {
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _tableFont = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      _tableFontHeader = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
+      _tableFont = _pdfHelper.GetFont("rhfont");
+      _tableFontHeader = _pdfHelper.GetFont("rhfontBold");
       _tableFontSize = 9;
       _tableFontSizeHeader = _tableFontSize + 1;
     }
@@ -958,11 +955,8 @@ namespace RaceHorologyLib
 
     protected Table getRacePropertyTable()
     {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      var fontNormal = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      var fontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+      var fontNormal = _pdfHelper.GetFont("rhfont");
+      var fontBold = _pdfHelper.GetFont("rhfontBold");
 
       Cell createCell(int rs=1, int cs=1)
       {
@@ -1236,11 +1230,8 @@ namespace RaceHorologyLib
 
     protected override void determineTableFontAndSize()
     {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _tableFont = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      _tableFontHeader = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+      _tableFont = _pdfHelper.GetFont("rhfont");
+      _tableFontHeader = _pdfHelper.GetFont("rhfontBold");
 
       _tableFontSize = 9;
       if (_nOptFields > 3)
