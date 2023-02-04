@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -1209,21 +1209,25 @@ namespace RaceHorologyLib
     }
 
 
-    protected virtual void calcNumOptFields()
+    protected virtual void calcNumOptFields(string[] excludeFields = null)
     {
-      _nOptFields = 0;
+      bool countFiled(string field)
+      {
+        return _race.IsFieldActive(field) && !(excludeFields != null && excludeFields.Contains(field));
+      }
 
-      if (_race.IsFieldActive("Code"))
+      _nOptFields = 0;
+      if (countFiled("Code"))
         _nOptFields++;
-      if (_race.IsFieldActive("Year"))
+      if (countFiled("Year"))
         _nOptFields++;
-      if (_race.IsFieldActive("Nation"))
+      if (countFiled("Nation"))
         _nOptFields++;
-      if (_race.IsFieldActive("Club"))
+      if (countFiled("Club"))
         _nOptFields++;
-      if (_race.IsFieldActive("Points"))
+      if (countFiled("Points"))
         _nOptFields++;
-      if (_race.IsFieldActive("Percentage"))
+      if (countFiled("Percentage"))
         _nOptFields++;
     }
 
@@ -1296,6 +1300,11 @@ namespace RaceHorologyLib
     public StartListReport(RaceRun rr) : base(rr.GetRace())
     {
       _raceRun = rr;
+    }
+
+    protected override void calcNumOptFields(string[] excludeFields = null)
+    {
+      base.calcNumOptFields(new []{ "Percentage" });
     }
 
     protected override string getReportName()
@@ -1438,6 +1447,11 @@ namespace RaceHorologyLib
     public StartListReport2ndRun(RaceRun rr) : base(rr.GetRace())
     {
       _raceRun = rr;
+    }
+
+    protected override void calcNumOptFields(string[] excludeFields = null)
+    {
+      base.calcNumOptFields(new[] { "Percentage" });
     }
 
     protected override string getReportName()
