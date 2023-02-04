@@ -64,18 +64,18 @@ namespace RaceHorologyLib
 
   public interface IPDFReport
   {
-    void Generate(Stream stream);
+    void Generate(Stream stream, DateTime? creationDateTime = null);
 
     string ProposeFilePath();
   }
 
 
   public static class IPdfReportUtils {
-    static public void Generate(this IPDFReport report, string filePath)
+    static public void Generate(this IPDFReport report, string filePath, DateTime? creationDateTime = null)
     {
       using (var mStream = new MemoryStream())
       {
-        report.Generate(mStream);
+        report.Generate(mStream, creationDateTime);
         using (var ms2 = new MemoryStream(mStream.ToArray(), false))
         {
           using (var fStream = new FileStream(filePath, FileMode.Create))
@@ -252,8 +252,6 @@ namespace RaceHorologyLib
     public float Bottom;
   }
 
-
-
   public class ReportHeader : IEventHandler
   {
     PdfDocument _pdfDoc;
@@ -265,7 +263,7 @@ namespace RaceHorologyLib
 
     string _header1;
     bool _debugAreas = false;
-    float _height = 110;
+    float _height = 0;
     Image _banner;
     float _bannerHeight = 0F;
 
@@ -298,7 +296,7 @@ namespace RaceHorologyLib
     }
 
 
-    public float Height { get { return _height + 2 + 2; } }
+    public float Height { get { return _height; } }
 
     private void calculateHeight()
     {
@@ -310,7 +308,7 @@ namespace RaceHorologyLib
       var result = tableHeader.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
 
-      _height = _bannerHeight + tableHeight + 7;
+      _height = _bannerHeight + tableHeight + 0;
     }
 
 
@@ -371,8 +369,12 @@ namespace RaceHorologyLib
       float[] cols = { 15.0F, 70.0F, 15.0F };
       Table tableHeader = new Table(UnitValue.CreatePercentArray(cols));
       tableHeader.SetWidth(UnitValue.CreatePercentValue(100));
-        //.SetPaddingBottom(0)
-        //.SetMarginBottom(0);
+      //.SetPaddingBottom(0)
+      //.SetMarginBottom(0);
+
+      if (_debugAreas)
+        tableHeader.SetBorder(new SolidBorder(ColorConstants.RED, 1));
+
 
       float padding = 1F;
       float maxHeightCol1 = 56.0F;
@@ -479,8 +481,6 @@ namespace RaceHorologyLib
     }
   }
 
-
-
   public class ReportFooter : IEventHandler
   {
     PdfDocument _pdfDoc;
@@ -489,25 +489,26 @@ namespace RaceHorologyLib
     Race _race;
     string _listName;
     Margins _pageMargins;
-
+    DateTime _creationDateTime;
 
     string _footerVersion;
     string _footerWebsite;
     string _footerCopyright;
     bool _debugAreas = false;
-    float _height = 110;
+    float _height = 0F;
     Image _banner;
-    float _bannerHeight = 0F;
+    float _bannerHeight = 0;
     Image _logoRH;
 
-    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true)
+    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, DateTime creationDateTime, bool displayBanner = true)
     {
       _pdfDoc = pdfDoc;
       _doc = doc;
       _pdfHelper = pdfHelper;
       _race = race;
       _listName = listName;
-      _pageMargins = pageMargins;
+      _pageMargins = pageMargins; // new Margins { Top = 0, Bottom = 0, Left = 24.0F, Right = 24.0F };
+      _creationDateTime = creationDateTime;
 
       var pageSize = PageSize.A4; // Assumption
 
@@ -528,14 +529,14 @@ namespace RaceHorologyLib
     private void calculateHeight()
     {
 
-      Table tableFooter = createFooterTable(0);
+      Table tableFooter = createFooterTable(1);
 
       var pageSize = PageSize.A4; // Assumption
       float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
       var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
-      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight() - 3.0F;
 
-      _height = _bannerHeight + tableHeight + 7;
+      _height = _bannerHeight + tableHeight + 0;
     }
 
 
@@ -553,9 +554,9 @@ namespace RaceHorologyLib
         var copyrightYear = fvi.LegalCopyright;
         var productVersion = fvi.ProductVersion;
 
-        _footerVersion = productVersion;
+        _footerVersion = (productVersion == "0.0.0.0") ? "" : "Version " + productVersion;
         _footerWebsite = "www.race-horology.com";
-        _footerCopyright = string.Format("{1} by {2}\nVersion {0}", productVersion, copyrightYear, companyName);
+        _footerCopyright = string.Format("{1} by {2}\n{0}", _footerVersion, copyrightYear, companyName);
       }
       else
         _footerVersion = _footerWebsite = _footerCopyright = "";
@@ -577,8 +578,10 @@ namespace RaceHorologyLib
       if (_banner != null)
       {
         Rectangle area3 = new Rectangle(
-          pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom, 
-          pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right, _bannerHeight);
+          pageSize.GetLeft() + _pageMargins.Left,
+          pageSize.GetBottom() + _pageMargins.Bottom, 
+          pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right,
+          _bannerHeight);
         Canvas canvas = new Canvas(pdfCanvas, area3).Add(_banner);
 
         if (_debugAreas)
@@ -593,13 +596,13 @@ namespace RaceHorologyLib
 
       float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
       var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
-      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight() - 3.0F;
 
       Rectangle rectTable = new Rectangle(
-        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _bannerHeight,
+        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _bannerHeight,
         tableWidth, tableHeight);
 
-      new Canvas(pdfCanvas, rectTable)
+      new Canvas(pdfCanvas, rectTable).SetBorder(new SolidBorder(ColorConstants.GREEN,1)).SetBackgroundColor(ColorConstants.GRAY)
               .Add(tableFooter
                 .SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -618,8 +621,11 @@ namespace RaceHorologyLib
     {
       Table tableFooter = new Table(UnitValue.CreatePercentArray(new float[]{2.0F, 3.0F, 2.0F}));
       tableFooter.SetWidth(UnitValue.CreatePercentValue(100))
-        .SetPaddingBottom(0)
-        .SetMarginBottom(0);
+        .SetPadding(0)
+        .SetMargin(0).SetVerticalBorderSpacing(0);
+
+      if (_debugAreas)
+        tableFooter.SetBorder(new SolidBorder(ColorConstants.RED, 1));
 
       float padding = 1F;
 
@@ -657,7 +663,6 @@ namespace RaceHorologyLib
         .Add(parPage));
      
 
-
       float middleHeight = 35.0F;
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.LEFT)
@@ -670,7 +675,6 @@ namespace RaceHorologyLib
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
         .Add(_logoRH.SetMaxHeight(16.0F)));
-        //.Add(new Paragraph(_footerVersion)));
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -698,7 +702,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(_pdfHelper.GetFont(RHFont.Bold))
-        .Add(new Paragraph(string.Format("Ausdruck: {0}", DateTime.Now.ToString()))));
+        .Add(new Paragraph(string.Format("Ausdruck: {0}", _creationDateTime.ToString()))));
 
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
@@ -717,7 +721,6 @@ namespace RaceHorologyLib
       return tableFooter;
     }
   }
-
 
   class PageXofY : IEventHandler
   {
@@ -758,10 +761,6 @@ namespace RaceHorologyLib
     }
   }
 
-
-
-
-
   public abstract class PDFRaceReport : IPDFReport
   {
     protected Race _race;
@@ -769,6 +768,7 @@ namespace RaceHorologyLib
     protected PdfDocument _pdfDocument;
     protected Document _document;
     protected Margins _pageMargins;
+    protected bool _debugAreas = false;
 
     protected PDFHelper _pdfHelper;
     PointsConverter _pointsConverter;
@@ -802,7 +802,7 @@ namespace RaceHorologyLib
     }
 
 
-    public void Generate(Stream stream)
+    public void Generate(Stream stream, DateTime? creationDateTime = null)
     {
       determineTableFontAndSize();
 
@@ -816,14 +816,16 @@ namespace RaceHorologyLib
 
 
       var header = createHeader();
-      var footer = createFooter();
+      var footer = createFooter(creationDateTime != null ? (DateTime)creationDateTime : DateTime.Now);
 
       _pdfDocument.AddEventHandler(PdfDocumentEvent.END_PAGE, header);
       _pdfDocument.AddEventHandler(PdfDocumentEvent.END_PAGE, footer);
       //var pageXofY = new PageXofY(pdf);
       //pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, pageXofY);
 
-      _document.SetMargins(header.Height + _pageMargins.Top, _pageMargins.Right, _pageMargins.Bottom + footer.Height, _pageMargins.Left);
+      var mTop = header.Height + _pageMargins.Top;
+      var mBottom = /*_pageMargins.Bottom +*/ footer.Height;
+      _document.SetMargins(mTop, _pageMargins.Right, mBottom, _pageMargins.Left);
 
       addContent(_pdfDocument, _document);
       
@@ -840,9 +842,9 @@ namespace RaceHorologyLib
     {
       return new ReportHeader(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins);
     }
-    protected virtual ReportFooter createFooter()
+    protected virtual ReportFooter createFooter(DateTime creationDateTime)
     {
-      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins);
+      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins, creationDateTime);
     }
 
 
@@ -926,9 +928,6 @@ namespace RaceHorologyLib
     }
   }
 
-
-
-
   public abstract class PDFReport : PDFRaceReport
   {
     protected PositionConverter _positionConverter = new PositionConverter();
@@ -962,6 +961,7 @@ namespace RaceHorologyLib
 
       Table table = getResultsTable();
       document.Add(table);
+
     }
 
 
@@ -969,6 +969,9 @@ namespace RaceHorologyLib
     {
       var fontNormal = _pdfHelper.GetFont(RHFont.Normal);
       var fontBold = _pdfHelper.GetFont(RHFont.Bold);
+
+      int paddingTopDefault = 0;
+      int paddingTopSpace = 4;
 
       Cell createCell(int rs=1, int cs=1)
       {
@@ -995,44 +998,47 @@ namespace RaceHorologyLib
       table.SetWidth(UnitValue.CreatePercentValue(100));
       table.SetBorder(Border.NO_BORDER);
 
+      if (_debugAreas)
+        table.SetBorder(new SolidBorder(ColorConstants.RED, 1));
+
       table.AddCell(createCell()
         .Add(new Paragraph("Organisator:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,4)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Organizer))
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,3)
         .Add(new Paragraph("KAMPFGERICHT / JURY")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,2)
         .Add(new Paragraph("TECHNISCHE DATEN")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Schiedsrichter:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceReferee.Name))
-          .SetPaddingTop(6)));
+          .SetPaddingTop(paddingTopDefault)));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceReferee.Club))
-          .SetPaddingTop(6)));
+          .SetPaddingTop(paddingTopDefault)));
       table.AddCell(createCell()
         .Add(new Paragraph("Streckenname:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.CoarseName))
-          .SetPaddingTop(6)));
+          .SetPaddingTop(paddingTopDefault)));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Rennleiter:")
@@ -1041,12 +1047,17 @@ namespace RaceHorologyLib
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceManager.Name))));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceManager.Club))));
+
+      bool displayHeights = _race.AdditionalProperties.StartHeight > 0 && _race.AdditionalProperties.FinishHeight > 0;
       table.AddCell(createCell()
-        .Add(new Paragraph("Start:")
+        .Add(new Paragraph(displayHeights ? "Höhen (Start/Ziel/Diff):" : "")
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph(_race.AdditionalProperties.StartHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight):"")));
+        .Add(new Paragraph(
+          displayHeights ? 
+            String.Format("{0} m / {1} m / {2} m", _race.AdditionalProperties.StartHeight, _race.AdditionalProperties.FinishHeight, _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) :
+            "")));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Trainervertreter:")
@@ -1056,33 +1067,17 @@ namespace RaceHorologyLib
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.TrainerRepresentative.Club))));
       table.AddCell(createCell()
-        .Add(new Paragraph("Ziel:")
+        .Add(new Paragraph(_race.AdditionalProperties.CoarseLength > 0 ? "Streckenlänge:" : "")
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph(_race.AdditionalProperties.FinishHeight > 0 ? string.Format("{0} m", _race.AdditionalProperties.FinishHeight):"")));
+        .Add(new Paragraph(_race.AdditionalProperties.CoarseLength > 0 ? string.Format("{0} m", _race.AdditionalProperties.CoarseLength) : "")));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Auswertung / Zeitnahme:")
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Analyzer))));
-      table.AddCell(createCell()
-        .Add(new Paragraph("Höhendifferenz:")
-          .SetFont(fontBold)));
-      table.AddCell(createCell()
-        .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph((_race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) > 0 ? string.Format("{0} m", _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) : "")));
-
-      table.AddCell(createCell(1, 3));
-      table.AddCell(createCell()
-        .Add(new Paragraph("Streckenlänge:")
-          .SetFont(fontBold)));
-      table.AddCell(createCell()
-        .SetTextAlignment(TextAlignment.RIGHT)
-        .Add(new Paragraph(_race.AdditionalProperties.CoarseLength > 0 ? string.Format("{0} m", _race.AdditionalProperties.CoarseLength) : "")));
-
-      table.AddCell(createCell(1, 3));
       if (string.IsNullOrEmpty(_race.AdditionalProperties.CoarseHomologNo))
       {
         table.AddCell(createCell(1, 2));
@@ -1100,16 +1095,16 @@ namespace RaceHorologyLib
       table.AddCell(createCell(1, 1));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph("1. Durchgang")
-          .SetPaddingTop(12)
+          .SetPaddingTop(paddingTopSpace)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph("2. Durchgang")
-          .SetPaddingTop(12)
+          .SetPaddingTop(paddingTopSpace)
           .SetFont(fontBold)));
 
       table.AddCell(createCell()
         .Add(new Paragraph("Kurssetzer:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.CoarseSetter.Name))));
@@ -1122,7 +1117,7 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph("Tore / R.-Änder.:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(
@@ -1137,7 +1132,7 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph("Vorläufer:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.Forerunner1.Name))));
@@ -1170,7 +1165,7 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph("Startzeit:")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.RaceRun1.StartTime))));
@@ -1200,22 +1195,21 @@ namespace RaceHorologyLib
 
       table.AddCell(createCell()
         .Add(new Paragraph(formatWeatherHeading())
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell(1, 2)
         .Add(new Paragraph(formatWeather())));
       table.AddCell(createCell()
         .Add(new Paragraph("Temperatur (Start/Ziel):")
-          .SetPaddingTop(6)
+          .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .Add(new Paragraph(string.Format("{0} °C / {1} °C", _race.AdditionalProperties.TempStart, _race.AdditionalProperties.TempFinish))));
 
       table.AddCell(createCell(1, 5)
-        .SetPaddingTop(12)
-        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick)));
+        .SetPaddingTop(2));
       table.AddCell(createCell(1, 5)
-        .SetPaddingTop(12));
+        .SetPaddingTop(2));
 
       return table;
     }
@@ -1264,8 +1258,13 @@ namespace RaceHorologyLib
 
       var table = new Table(getTableColumnsWidths());
 
+
       table.SetWidth(UnitValue.CreatePercentValue(100));
       table.SetBorder(Border.NO_BORDER);
+      table.SetPaddingBottom(0).SetMarginBottom(0);
+
+      if (_debugAreas)
+        table.SetBorder(new SolidBorder(ColorConstants.RED, 1));
 
       addHeaderToTable(table);
 
@@ -1302,8 +1301,6 @@ namespace RaceHorologyLib
 
 
   }
-
-
 
   public class StartListReport : PDFReport
   {
@@ -1448,7 +1445,6 @@ namespace RaceHorologyLib
       return true;
     }
   }
-
 
   public class StartListReport2ndRun : PDFReport
   {
@@ -1608,7 +1604,6 @@ namespace RaceHorologyLib
     }
   }
 
-
   public abstract class ResultReport : PDFReport
   {
 
@@ -1709,9 +1704,6 @@ namespace RaceHorologyLib
       return table;
     }
   }
-
-
-
 
   public class RaceRunResultReport : ResultReport
   {
@@ -1936,7 +1928,6 @@ namespace RaceHorologyLib
     }
 
   }
-
 
   public class RaceResultReport : ResultReport
   {

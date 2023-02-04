@@ -121,8 +121,9 @@ namespace RaceHorologyLibTest
 
     public static bool GenerateAndCompareAgainstPdf(TestContext testContext, IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
     {
+      DateTime reportTime = new DateTime(2023, 01, 01, 10, 00, 00); // 1.1.2023, 10:00
       string filenameOutput = report.ProposeFilePath();
-      report.Generate(filenameOutput);
+      report.Generate(filenameOutput, reportTime);
 
 #pragma warning disable CS0162 // Unreachable code detected
       if (false)
