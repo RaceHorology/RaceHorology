@@ -90,18 +90,25 @@ namespace RaceHorologyLib
 
 
 
+  public enum RHFont { Normal, Bold, Oblique };
 
   public class PDFHelper
   {
     AppDataModel _dm;
 
-    protected List<string> resourcePaths;
+    protected List<string> _resourcePaths;
+    protected string _fontPath;
+    protected Dictionary<string, PdfFont> _fontCache;
+
+    static bool s_rhFontsRegistered = false; // Flag indicating whethe the fonts have already been registered
+
 
     public PDFHelper(AppDataModel dm)
     {
       _dm = dm;
 
       calcResourcePaths();
+      _fontCache = new Dictionary<string, PdfFont>();
     }
 
 
@@ -156,19 +163,55 @@ namespace RaceHorologyLib
     }
 
 
-    void calcResourcePaths()
+    protected void calcResourcePaths()
     {
       List<string> paths = new List<string>();
       paths.Add(_dm.GetDB().GetDBPathDirectory());
       paths.Add(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"resources\pdf"));
 
-      resourcePaths = paths;
+      _resourcePaths = paths;
+
+      _fontPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"resources");
+    }
+
+    protected virtual void ensureFontsRegistered()
+    {
+      if (!s_rhFontsRegistered)
+      {
+        s_rhFontsRegistered = true;
+        FontProgramFactory.RegisterFont(System.IO.Path.Combine(_fontPath, "FreeSans.ttf"), "rhfont");
+        FontProgramFactory.RegisterFont(System.IO.Path.Combine(_fontPath, "FreeSansBold.ttf"), "rhfontBold");
+        FontProgramFactory.RegisterFont(System.IO.Path.Combine(_fontPath, "FreeSansOblique.ttf"), "rhfontOblique");
+      }
+    }
+
+    public PdfFont GetFont(RHFont font)
+    {
+      ensureFontsRegistered();
+      var fontNam = fontName(font);
+      if (_fontCache.ContainsKey(fontNam))
+        return _fontCache[fontNam];
+
+      var f = PdfFontFactory.CreateRegisteredFont(fontNam, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+      _fontCache.Add(fontNam, f);
+      return f;
+    }
+
+    private string fontName(RHFont font)
+    {
+      switch (font)
+      {
+        case RHFont.Normal: return "rhfont";
+        case RHFont.Bold: return "rhfontBold";
+        case RHFont.Oblique: return "rhfontOblique";
+      }
+      throw new Exception("unknown font");
     }
 
 
     public string FindImage(string filenameWOExt)
     {
-      foreach (var resDir in resourcePaths)
+      foreach (var resDir in _resourcePaths)
       {
         try
         {
@@ -247,37 +290,15 @@ namespace RaceHorologyLib
         _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _banner.GetImageHeight() / _banner.GetImageWidth();
 
       _logo1 = _pdfHelper.GetImage("Logo1");
-      //if (_logo1 != null)
-      //  _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _logo1.GetImageHeight() / _logo1.GetImageWidth();
       _logo2 = _pdfHelper.GetImage("Logo2");
-      //if (_logo2 != null)
-      //  _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _logo2.GetImageHeight() / _logo2.GetImageWidth();
       _logoRH = _pdfHelper.GetImage("LogoRHShortM");
 
-      determineFont();
       calculateHeader();
       calculateHeight();
     }
 
 
     public float Height { get { return _height + 2 + 2; } }
-
-    protected PdfFont _Font;
-    protected PdfFont _FontBold;
-    protected PdfFont _FontOblique;
-
-    protected virtual void determineFont()
-    {
-
-      //FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
-      _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
-    }
 
     private void calculateHeight()
     {
@@ -338,7 +359,7 @@ namespace RaceHorologyLib
               .Add(tableHeader
                 .SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-                .SetFont(_Font).SetFontSize(10)
+                .SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10)
                 );
 
       pdfCanvas.Release();
@@ -369,7 +390,7 @@ namespace RaceHorologyLib
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
-          .SetFont(_FontBold)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
           .Add(_logo1.SetMaxHeight(maxHeightCol1)));
       else
         tableHeader.AddCell(new Cell()
@@ -387,7 +408,7 @@ namespace RaceHorologyLib
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
-          .SetFont(_FontBold)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
           .SetFontSize(fontSizeTitle)
           .Add(new Paragraph(_race.Description)));
       else
@@ -405,7 +426,7 @@ namespace RaceHorologyLib
           .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
-          .SetFont(_FontBold)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
           .Add(_logoRH.SetMaxHeight(maxHeightCol1*0.8F)));
       else
         tableHeader.AddCell(new Cell()
@@ -424,7 +445,7 @@ namespace RaceHorologyLib
           .SetBorder(Border.NO_BORDER)
           .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetPadding(padding)
-          .SetFont(_FontBold)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
           .Add(_logo2.SetMaxHeight(maxHeightCol2)));
       }
       else
@@ -439,7 +460,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
-        .SetFont(_FontBold)
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .SetFontSize(fontSizeTitle)
         .Add(new Paragraph(_listName)));
 
@@ -450,7 +471,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetPadding(padding)
-        .SetFont(_Font)
+        .SetFont(_pdfHelper.GetFont(RHFont.Normal))
         .SetFontSize(fontSizeNormal)
         .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties?.Location ?? ""))));
 
@@ -497,28 +518,12 @@ namespace RaceHorologyLib
 
       _logoRH = _pdfHelper.GetImage("LogoRH");
 
-      determineFont();
       calculateFooter();
       calculateHeight();
     }
 
     public float Height { get { return _height; } }
 
-    protected PdfFont _Font;
-    protected PdfFont _FontBold;
-    protected PdfFont _FontOblique;
-
-    protected virtual void determineFont()
-    {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
-      _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
-    }
 
     private void calculateHeight()
     {
@@ -598,7 +603,7 @@ namespace RaceHorologyLib
               .Add(tableFooter
                 .SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-                .SetFont(_Font).SetFontSize(10)
+                .SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10)
                 );
       
       //pdfCanvas.AddXObject(_pagesPlaceholder)
@@ -625,14 +630,14 @@ namespace RaceHorologyLib
           .SetBorder(Border.NO_BORDER)
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
           .SetPadding(padding)
-          .SetFont(_FontBold));
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)));
       else
         tableFooter.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.LEFT)
           .SetBorder(Border.NO_BORDER)
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
           .SetPadding(padding)
-          .SetFont(_FontBold)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
           .Add(new Paragraph(string.Format("Bewerbsnummer: {0}", _race.RaceNumber))));
 
       tableFooter.AddCell(new Cell()
@@ -640,7 +645,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
-        .SetFont(_FontBold)
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .Add(new Paragraph("")));
 
       tableFooter.AddCell(new Cell()
@@ -648,7 +653,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .SetPadding(padding)
-        .SetFont(_FontBold)
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .Add(parPage));
      
 
@@ -692,21 +697,21 @@ namespace RaceHorologyLib
         .SetTextAlignment(TextAlignment.LEFT)
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
-        .SetFont(_FontBold)
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .Add(new Paragraph(string.Format("Ausdruck: {0}", DateTime.Now.ToString()))));
 
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
-        .SetFont(_FontBold)
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .Add(new Paragraph("")));
 
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
-        .SetFont(_FontBold)
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .Add(new Paragraph(string.Format("Timing: {0}", "Alge TdC8000/8001"))));
 
       return tableFooter;
@@ -841,21 +846,24 @@ namespace RaceHorologyLib
     }
 
 
+    #region Font Specifics
+
     protected PdfFont _tableFont;
     protected PdfFont _tableFontHeader;
     protected float _tableFontSize;
     protected float _tableFontSizeHeader;
 
+
+
+
     protected virtual void determineTableFontAndSize()
     {
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _tableFont = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      _tableFontHeader = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
+      _tableFont = _pdfHelper.GetFont(RHFont.Normal);
+      _tableFontHeader = _pdfHelper.GetFont(RHFont.Bold);
       _tableFontSize = 9;
       _tableFontSizeHeader = _tableFontSize + 1;
     }
+    #endregion
 
     protected Paragraph createCellParagraphForTable(string text)
     {
@@ -959,11 +967,8 @@ namespace RaceHorologyLib
 
     protected Table getRacePropertyTable()
     {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      var fontNormal = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      var fontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+      var fontNormal = _pdfHelper.GetFont(RHFont.Normal);
+      var fontBold = _pdfHelper.GetFont(RHFont.Bold);
 
       Cell createCell(int rs=1, int cs=1)
       {
@@ -1006,7 +1011,6 @@ namespace RaceHorologyLib
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,2)
-        //.SetBorder(Border.NO_BORDER)
         .Add(new Paragraph("TECHNISCHE DATEN")
           .SetPaddingTop(6)
           .SetFont(fontBold)));
@@ -1217,31 +1221,32 @@ namespace RaceHorologyLib
     }
 
 
-    protected virtual void calcNumOptFields()
+    protected virtual void calcNumOptFields(string[] excludeFields = null)
     {
-      _nOptFields = 0;
+      bool countFiled(string field)
+      {
+        return _race.IsFieldActive(field) && !(excludeFields != null && excludeFields.Contains(field));
+      }
 
-      if (_race.IsFieldActive("Code"))
+      _nOptFields = 0;
+      if (countFiled("Code"))
         _nOptFields++;
-      if (_race.IsFieldActive("Year"))
+      if (countFiled("Year"))
         _nOptFields++;
-      if (_race.IsFieldActive("Nation"))
+      if (countFiled("Nation"))
         _nOptFields++;
-      if (_race.IsFieldActive("Club"))
+      if (countFiled("Club"))
         _nOptFields++;
-      if (_race.IsFieldActive("Points"))
+      if (countFiled("Points"))
         _nOptFields++;
-      if (_race.IsFieldActive("Percentage"))
+      if (countFiled("Percentage"))
         _nOptFields++;
     }
 
     protected override void determineTableFontAndSize()
     {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _tableFont = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      _tableFontHeader = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+      _tableFont = _pdfHelper.GetFont(RHFont.Normal);
+      _tableFontHeader = _pdfHelper.GetFont(RHFont.Bold);
 
       _tableFontSize = 9;
       if (_nOptFields > 3)
@@ -1307,23 +1312,11 @@ namespace RaceHorologyLib
     public StartListReport(RaceRun rr) : base(rr.GetRace())
     {
       _raceRun = rr;
-      determineFont();
     }
 
-    protected PdfFont _Font;
-    protected PdfFont _FontBold;
-    protected PdfFont _FontOblique;
-
-    protected virtual void determineFont()
+    protected override void calcNumOptFields(string[] excludeFields = null)
     {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
-      _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
+      base.calcNumOptFields(new []{ "Percentage" });
     }
 
     protected override string getReportName()
@@ -1389,8 +1382,6 @@ namespace RaceHorologyLib
 
     protected override void addLineToTable(Table table, string group)
     {
-      determineFont();
-
       table.AddCell(new Cell(1, 1)
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
@@ -1405,13 +1396,11 @@ namespace RaceHorologyLib
         //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
-          .SetFont(_FontBold).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
     }
 
     protected override void addCommentLineToTable(Table table, string comment)
     {
-      determineFont();
-
       table.AddCell(new Cell(1, 1)
         .SetBorder(Border.NO_BORDER)
         );
@@ -1419,7 +1408,7 @@ namespace RaceHorologyLib
       table.AddCell(new Cell(1, 2 + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(comment)
-          .SetFont(_FontOblique).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Oblique)).SetFontSize(10)));
     }
 
 
@@ -1470,23 +1459,11 @@ namespace RaceHorologyLib
     public StartListReport2ndRun(RaceRun rr) : base(rr.GetRace())
     {
       _raceRun = rr;
-      determineFont();
     }
 
-    protected PdfFont _Font;
-    protected PdfFont _FontBold;
-    protected PdfFont _FontOblique;
-
-    protected virtual void determineFont()
+    protected override void calcNumOptFields(string[] excludeFields = null)
     {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
-      _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
+      base.calcNumOptFields(new[] { "Percentage" });
     }
 
     protected override string getReportName()
@@ -1572,7 +1549,7 @@ namespace RaceHorologyLib
         //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
-          .SetFont(_FontBold).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
     }
 
     protected override void addCommentLineToTable(Table table, string comment)
@@ -1584,7 +1561,7 @@ namespace RaceHorologyLib
       table.AddCell(new Cell(1, 3 + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(comment)
-          .SetFont(_FontOblique).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Oblique)).SetFontSize(10)));
     }
 
 
@@ -1747,23 +1724,6 @@ namespace RaceHorologyLib
     public RaceRunResultReport(RaceRun rr) : base(rr.GetRace())
     {
       _raceRun = rr;
-      determineFont();
-    }
-
-    protected PdfFont _Font;
-    protected PdfFont _FontBold;
-    protected PdfFont _FontOblique;
-
-    protected virtual void determineFont()
-    {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
-      _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
     }
 
     protected override string getReportName()
@@ -1850,7 +1810,7 @@ namespace RaceHorologyLib
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThick))
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
-          .SetFont(_FontBold).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
     }
 
     protected override void addCommentLineToTable(Table table, string comment)
@@ -1862,7 +1822,7 @@ namespace RaceHorologyLib
       table.AddCell(new Cell(1, 3 + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(comment)
-          .SetFont(_FontOblique).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Oblique)).SetFontSize(10)));
     }
 
     protected override void addSubHeaderToTable(Table table, string group)
@@ -1875,7 +1835,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
           .SetPaddingTop(12)
-          .SetFont(_FontBold).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
     }
 
 
@@ -1987,25 +1947,8 @@ namespace RaceHorologyLib
 
     public RaceResultReport(Race race) : base(race)
     {
-      determineFont();
     }
 
-
-    protected PdfFont _Font;
-    protected PdfFont _FontBold;
-    protected PdfFont _FontOblique;
-
-    protected virtual void determineFont()
-    {
-
-      FontProgramFactory.RegisterFont("resources\\FreeSans.ttf", "rhfont");
-      _Font = PdfFontFactory.CreateRegisteredFont("rhfont", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansBold.ttf", "rhfontBold");
-      _FontBold = PdfFontFactory.CreateRegisteredFont("rhfontBold", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-      FontProgramFactory.RegisterFont("resources\\FreeSansOblique.ttf", "rhfontOblique");
-      _FontOblique = PdfFontFactory.CreateRegisteredFont("rhfontOblique", PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
-    }
 
     protected override string getReportName()
     {
@@ -2099,7 +2042,7 @@ namespace RaceHorologyLib
         //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
-          .SetFont(_FontBold).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
     }
 
     protected override void addCommentLineToTable(Table table, string comment)
@@ -2111,7 +2054,7 @@ namespace RaceHorologyLib
       table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(comment)
-          .SetFont(_FontOblique).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Oblique)).SetFontSize(10)));
     }
 
     protected override void addSubHeaderToTable(Table table, string group)
@@ -2124,7 +2067,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
           .SetPaddingTop(12)
-          .SetFont(_FontBold).SetFontSize(10)));
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
     }
 
 
@@ -2268,7 +2211,7 @@ namespace RaceHorologyLib
 
       document.Add(
         new Paragraph("Bewerbsstatistik")
-        .SetFont(_FontBold)
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .SetFontSize(fontSizeNormal)
         .SetPaddingTop(12)
       );
@@ -2282,7 +2225,7 @@ namespace RaceHorologyLib
 
       document.Add(
         new Paragraph(statistic)
-        .SetFont(_Font)
+        .SetFont(_pdfHelper.GetFont(RHFont.Normal))
         .SetFontSize(fontSizeNormal)
       );
 
@@ -2363,11 +2306,11 @@ namespace RaceHorologyLib
 
       Paragraph createHeaderParagraph(string text)
       {
-        return new Paragraph(text).SetFont(_FontBold).SetFontSize(fontSizeNormal);
+        return new Paragraph(text).SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(fontSizeNormal);
       }
       Paragraph createParagraph(string text)
       {
-        return new Paragraph(text).SetFont(_Font).SetFontSize(fontSizeNormal);
+        return new Paragraph(text).SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(fontSizeNormal);
       }
 
       string formatRang(RaceResultItem rri)
@@ -2383,7 +2326,7 @@ namespace RaceHorologyLib
 
       document.Add(
         new Paragraph(string.Format("Zuschlagsberechnung {0}", subTitle))
-        .SetFont(_FontBold)
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .SetFontSize(fontSizeTitle)
         .SetHorizontalAlignment(HorizontalAlignment.CENTER)
         .SetTextAlignment(TextAlignment.CENTER)
@@ -2391,21 +2334,21 @@ namespace RaceHorologyLib
 
       document.Add(
         new Paragraph(string.Format("F-Wert: {0:0.00}", dsvCalc.ValueF))
-        .SetFont(_Font)
+        .SetFont(_pdfHelper.GetFont(RHFont.Normal))
         .SetFontSize(fontSizeNormal)
       );
 
       {
         document.Add(
           new Paragraph(string.Format("Die besten 10 klassierten Teilnehmer des Bewerbs:"))
-          .SetFont(_Font)
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetFontSize(fontSizeNormal)
           .SetHorizontalAlignment(HorizontalAlignment.CENTER)
         );
 
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1 })
           .SetFontSize(fontSizeNormal)
-          .SetFont(_Font)
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetWidth(UnitValue.CreatePercentValue(100))
           .SetBorder(Border.NO_BORDER);
 
@@ -2500,14 +2443,14 @@ namespace RaceHorologyLib
       {
         document.Add(
           new Paragraph(string.Format("Die besten 5 gestarten Teilnehmer des Bewerbs (laut Punkteliste):"))
-          .SetFont(_Font)
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetFontSize(fontSizeNormal)
           .SetHorizontalAlignment(HorizontalAlignment.CENTER)
         );
 
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1 })
           .SetFontSize(fontSizeNormal)
-          .SetFont(_Font)
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetWidth(UnitValue.CreatePercentValue(100))
           .SetBorder(Border.NO_BORDER);
 
@@ -2582,7 +2525,7 @@ namespace RaceHorologyLib
       {
         var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 })
           .SetFontSize(fontSizeNormal)
-          .SetFont(_Font)
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetBorder(Border.NO_BORDER);
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
@@ -2651,11 +2594,11 @@ namespace RaceHorologyLib
         }
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createParagraph("Punktezuschlag:").SetFont(_FontBold)));
+          .Add(createParagraph("Punktezuschlag:").SetFont(_pdfHelper.GetFont(RHFont.Bold))));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenaltyWithAdded)).SetFont(_FontBold)));
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.CalculatedPenaltyWithAdded)).SetFont(_pdfHelper.GetFont(RHFont.Bold))));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
           .Add(createParagraph("Minimumzuschlag:")));
@@ -2667,11 +2610,11 @@ namespace RaceHorologyLib
         table.AddCell(createCellForTable(9, TextAlignment.LEFT).Add(createParagraph(" ")));
 
         table.AddCell(createCellForTable(TextAlignment.LEFT)
-          .Add(createParagraph("Angewandter Zuschlag:").SetFont(_FontBold)));
+          .Add(createParagraph("Angewandter Zuschlag:").SetFont(_pdfHelper.GetFont(RHFont.Bold))));
         table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
           .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
-          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.AppliedPenalty)).SetFont(_FontBold)));
+          .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.AppliedPenalty)).SetFont(_pdfHelper.GetFont(RHFont.Bold))));
 
         document.Add(table);
       }
