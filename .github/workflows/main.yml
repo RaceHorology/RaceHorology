@@ -167,10 +167,12 @@ jobs:
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory!=HardwareDependent&TestCategory!=IntegrationDsvOnline" /logger:trx
 
       - name: Upload Test Results
+        if: always()
         uses: actions/upload-artifact@v3
         with:
+          retention-days: 2
           name: unittest_RaceHorologyLibTest_Results
-          path: ${{ github.workspace }}\TestResults\**\*.trx 
+          path: ${{ github.workspace }}\TestResults\**
 
   run_test_dsv_online:
     needs: build
