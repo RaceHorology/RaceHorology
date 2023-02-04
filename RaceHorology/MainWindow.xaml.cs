@@ -356,7 +356,8 @@ namespace RaceHorology
         ConnectGUIToDataModel();
 
         // Restart DSVALpinServer (for having the lists on mobile devices)
-        _alpinServer.UseDataModel(_dataModel);
+        if (_alpinServer != null)
+          _alpinServer.UseDataModel(_dataModel);
 
         _menuVM.SetDataModel(_dataModel);
 
@@ -371,7 +372,8 @@ namespace RaceHorology
     {
       _menuVM.SetDataModel(null);
 
-      _alpinServer.UseDataModel(null);
+      if (_alpinServer != null)
+        _alpinServer.UseDataModel(null);
 
       DisconnectGUIFromDataModel();
 
@@ -435,6 +437,10 @@ namespace RaceHorology
       _alpinServer = new DSVAlpin2HTTPServer(8081);
       if (!_alpinServer.Start())
         StopDSVAlpinServer(); // Stop Server again, if it could not been started
+
+      if (_dataModel != null)
+        _alpinServer.UseDataModel(_dataModel);
+
       DisplayURL();
     }
 
