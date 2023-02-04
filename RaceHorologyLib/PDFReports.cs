@@ -64,18 +64,18 @@ namespace RaceHorologyLib
 
   public interface IPDFReport
   {
-    void Generate(Stream stream);
+    void Generate(Stream stream, DateTime? creationDateTime = null);
 
     string ProposeFilePath();
   }
 
 
   public static class IPdfReportUtils {
-    static public void Generate(this IPDFReport report, string filePath)
+    static public void Generate(this IPDFReport report, string filePath, DateTime? creationDateTime = null)
     {
       using (var mStream = new MemoryStream())
       {
-        report.Generate(mStream);
+        report.Generate(mStream, creationDateTime);
         using (var ms2 = new MemoryStream(mStream.ToArray(), false))
         {
           using (var fStream = new FileStream(filePath, FileMode.Create))
@@ -489,7 +489,7 @@ namespace RaceHorologyLib
     Race _race;
     string _listName;
     Margins _pageMargins;
-
+    DateTime _creationDateTime;
 
     string _footerVersion;
     string _footerWebsite;
@@ -500,7 +500,7 @@ namespace RaceHorologyLib
     float _bannerHeight = 0;
     Image _logoRH;
 
-    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true)
+    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, DateTime creationDateTime, bool displayBanner = true)
     {
       _pdfDoc = pdfDoc;
       _doc = doc;
@@ -508,6 +508,7 @@ namespace RaceHorologyLib
       _race = race;
       _listName = listName;
       _pageMargins = pageMargins; // new Margins { Top = 0, Bottom = 0, Left = 24.0F, Right = 24.0F };
+      _creationDateTime = creationDateTime;
 
       var pageSize = PageSize.A4; // Assumption
 
@@ -701,7 +702,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(_pdfHelper.GetFont(RHFont.Bold))
-        .Add(new Paragraph(string.Format("Ausdruck: {0}", DateTime.Now.ToString()))));
+        .Add(new Paragraph(string.Format("Ausdruck: {0}", _creationDateTime.ToString()))));
 
       tableFooter.AddCell(new Cell()
         .SetTextAlignment(TextAlignment.CENTER)
@@ -801,7 +802,7 @@ namespace RaceHorologyLib
     }
 
 
-    public void Generate(Stream stream)
+    public void Generate(Stream stream, DateTime? creationDateTime = null)
     {
       determineTableFontAndSize();
 
@@ -815,7 +816,7 @@ namespace RaceHorologyLib
 
 
       var header = createHeader();
-      var footer = createFooter();
+      var footer = createFooter(creationDateTime != null ? (DateTime)creationDateTime : DateTime.Now);
 
       _pdfDocument.AddEventHandler(PdfDocumentEvent.END_PAGE, header);
       _pdfDocument.AddEventHandler(PdfDocumentEvent.END_PAGE, footer);
@@ -841,9 +842,9 @@ namespace RaceHorologyLib
     {
       return new ReportHeader(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins);
     }
-    protected virtual ReportFooter createFooter()
+    protected virtual ReportFooter createFooter(DateTime creationDateTime)
     {
-      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins);
+      return new ReportFooter(_pdfDocument, _document, _pdfHelper, _race, getTitle(), _pageMargins, creationDateTime);
     }
 
 
