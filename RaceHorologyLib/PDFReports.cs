@@ -999,7 +999,6 @@ namespace RaceHorologyLib
           .SetFont(fontBold)));
 
       table.AddCell(createCell(1,2)
-        //.SetBorder(Border.NO_BORDER)
         .Add(new Paragraph("TECHNISCHE DATEN")
           .SetPaddingTop(6)
           .SetFont(fontBold)));
