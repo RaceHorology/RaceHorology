@@ -969,6 +969,9 @@ namespace RaceHorologyLib
       var fontNormal = _pdfHelper.GetFont(RHFont.Normal);
       var fontBold = _pdfHelper.GetFont(RHFont.Bold);
 
+      int paddingTopDefault = 0;
+      int paddingTopSpace = 4;
+
       Cell createCell(int rs=1, int cs=1)
       {
         return new Cell(rs, cs)
