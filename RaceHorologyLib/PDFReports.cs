@@ -1050,7 +1050,7 @@ namespace RaceHorologyLib
 
       bool displayHeights = _race.AdditionalProperties.StartHeight > 0 && _race.AdditionalProperties.FinishHeight > 0;
       table.AddCell(createCell()
-        .Add(new Paragraph(displayHeights ? "Start- / Ziel- / Differenzhöhe:" : "")
+        .Add(new Paragraph(displayHeights ? "Höhen (Start/Ziel/Diff):" : "")
           .SetFont(fontBold)));
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
