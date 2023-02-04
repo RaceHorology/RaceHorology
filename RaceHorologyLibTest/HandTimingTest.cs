@@ -50,6 +50,7 @@ namespace RaceHorologyLibTest
   {
     public HandTimingTest()
     {
+      System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
     }
 
     private TestContext testContextInstance;
