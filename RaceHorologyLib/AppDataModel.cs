@@ -396,6 +396,13 @@ namespace RaceHorologyLib
           compProps.FieldActiveYear = _globalRaceConfig.ActiveFields.Contains("Year");
           compProps.FieldActiveNation = _globalRaceConfig.ActiveFields.Contains("Nation");
           dsvAlpinDB.UpdateCompetitionProperties(compProps);
+
+          // Enusre that the bewerbsnummer is set correctly
+          if ( compProps.Type == CompetitionProperties.ECompetitionType.DSV_Points 
+            || compProps.Type == CompetitionProperties.ECompetitionType.DSV_NoPoints
+            || compProps.Type == CompetitionProperties.ECompetitionType.DSV_SchoolPoints
+            || compProps.Type == CompetitionProperties.ECompetitionType.DSV_SchoolNoPoints )
+          dsvAlpinDB.EnsureDSVAlpinBewerbsnummer( _races );
         }
       }
     }
