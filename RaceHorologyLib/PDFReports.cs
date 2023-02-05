@@ -1563,8 +1563,9 @@ namespace RaceHorologyLib
 
     protected override bool addLineToTable(Table table, object data, int i = 0)
     {
-      StartListEntryAdditionalRun rrwp = data as StartListEntryAdditionalRun;
-      if (rrwp == null)
+      StartListEntry sle = data as StartListEntry;
+      StartListEntryAdditionalRun sler = data as StartListEntryAdditionalRun;
+      if (sle == null)
         return false;
 
       Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
@@ -1574,28 +1575,31 @@ namespace RaceHorologyLib
       // Running Number
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", (i+1)))));
       // Startnumber
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(sle.StartNumber))));
       // Code
       if (_race.IsFieldActive("Code"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(sle.Participant.Participant.CodeOrSvId)));
       // Name
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(sle.Participant.Participant.Fullname)));
       // Year
       if (_race.IsFieldActive("Year"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Year))));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", sle.Year))));
       // VB
       if (_race.IsFieldActive("Nation"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(sle.Participant.Participant.Nation)));
       // Club
       if (_race.IsFieldActive("Club"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Club)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(sle.Club)));
       // Points
       if (_race.IsFieldActive("Points"))
-        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(rrwp.Points))));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(sle.Points))));
 
       // Runtime 1st run
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
-        (string)_timeConverter.Convert(new object[] { rrwp.Runtime, rrwp.ResultCode }, typeof(string), null, null))));
+      if (sler != null)
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
+          (string)_timeConverter.Convert(new object[] { sler.Runtime, sler.ResultCode }, typeof(string), null, null))));
+      else
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).SetBorderBottom(new DottedBorder(1F)));
 
       // Empty runtime slot
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).SetBorderBottom(new DottedBorder(1F)));
