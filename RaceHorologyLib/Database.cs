@@ -41,6 +41,7 @@ using System.Data.OleDb;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace RaceHorologyLib
@@ -975,7 +976,7 @@ namespace RaceHorologyLib
     public void StoreRaceProperties(Race race, AdditionalRaceProperties props)
     {
       // Name and Number are stored in tblDisziplin
-      storeRacePropertyInternal(race, props.RaceNumber, props.Description, props.DateStartList, props.DateResultList);
+      storeRacePropertyInternal(race.RaceType, props.RaceNumber, props.Description, props.DateStartList, props.DateResultList);
 
       // Location is stored in tblBewerb
       storeRacePropertyInternal(race, props.Location);
@@ -1059,7 +1060,7 @@ namespace RaceHorologyLib
     }
 
 
-    private void storeRacePropertyInternal(Race r, string raceNumber, string description, DateTime? dateStart, DateTime? dateResult)
+    private void storeRacePropertyInternal(Race.ERaceType raceTyp, string raceNumber, string description, DateTime? dateStart, DateTime? dateResult)
     {
       string sql = @"UPDATE tblDisziplin " +
                     @"SET bewerbsnummer = @bewerbsnummer, bewerbsbezeichnung = @bewerbsbezeichnung, datum_startliste = @datum_startliste, datum_rangliste = @datum_rangliste " +
@@ -1086,7 +1087,7 @@ namespace RaceHorologyLib
       else
         cmd.Parameters.Add(new OleDbParameter("@datum_rangliste", ((DateTime)dateResult).Date));
 
-      cmd.Parameters.Add(new OleDbParameter("@dtyp", (int)r.RaceType));
+      cmd.Parameters.Add(new OleDbParameter("@dtyp", (int)raceTyp));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -1099,6 +1100,31 @@ namespace RaceHorologyLib
       catch (Exception e)
       {
         Logger.Warn(e, "storeRacePropertyInternal failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void EnsureDSVAlpinBewerbsnummer(IList<Race> races)
+    {
+      var raceTypes = new Race.ERaceType[] { Race.ERaceType.DownHill, Race.ERaceType.SuperG, Race.ERaceType.GiantSlalom, Race.ERaceType.Slalom, Race.ERaceType.KOSlalom, Race.ERaceType.ParallelSlalom };
+      foreach(var rt in raceTypes)
+      {
+        var race = races.FirstOrDefault(r => r.RaceType == rt);
+        var bewerbsnummer = string.Empty;
+        if (race != null )
+          bewerbsnummer = race.AdditionalProperties?.RaceNumber;
+
+        if (!(bewerbsnummer != string.Empty && Regex.IsMatch(bewerbsnummer, @"^\d{4}[A-Z]{4}")))
+        {
+          bewerbsnummer = (rt == Race.ERaceType.DownHill || rt == Race.ERaceType.SuperG || rt == Race.ERaceType.GiantSlalom) ? "    MRBR" : "    MSBS";
+          AdditionalRaceProperties props = race?.AdditionalProperties;
+          if (props == null)
+            props = new AdditionalRaceProperties();
+          props.RaceNumber = bewerbsnummer;
+          if (race != null)
+            race.AdditionalProperties = props;
+          else
+            storeRacePropertyInternal(rt, props.RaceNumber, props.Description, props.DateStartList, props.DateResultList);
+        }
       }
     }
 
