@@ -232,6 +232,7 @@ namespace RaceHorologyLib
       AddField("Firstname", typeof(string), (item) => { return item.rp.Firstname; });
       AddField("Fullname", typeof(string), (item) => { return item.rp.Fullname; });
       AddField("Category", typeof(string), (item) => { return item.rp.Sex; });
+      AddField("CategoryShort", typeof(string), (item) => { return item.rp.Sex.Name; });
       AddField("Year", typeof(uint), (item) => { return item.rp.Year; });
       AddField("Club", typeof(string), (item) => { return item.rp.Club; });
       AddField("Nation", typeof(string), (item) => { return item.rp.Nation; });
