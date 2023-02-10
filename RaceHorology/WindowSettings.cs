@@ -33,7 +33,12 @@
  * 
  */
 
+using CefSharp.DevTools.BackgroundService;
+using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 
 namespace RaceHorology
 {
@@ -43,8 +48,8 @@ namespace RaceHorology
     private static double _windowTop = 0;
     private static double _windowWidth = 1024;
     private static double _windowHeight = 800;
-    private static int _windowState = (int)System.Windows.WindowState.Maximized;
-    private static int _windowScreen = 0 ;
+    private static int _windowState = (int)System.Windows.WindowState.Normal;
+    private static int _windowScreen = 0;
 
     public static double WindowLeft
     {
@@ -103,47 +108,75 @@ namespace RaceHorology
         WindowScreen = Properties.Settings.Default._windowScreen;
     }
 
-    public static void Save()
+    public static void Save(Window window)
     {
-      Properties.Settings.Default._windowLeft = WindowLeft;
-      Properties.Settings.Default._windowTop = WindowTop;
-      Properties.Settings.Default._windowWidth = WindowWidth;
-      Properties.Settings.Default._windowHeight = WindowHeight;
-      Properties.Settings.Default._windowState = WindowState;
-      Properties.Settings.Default._windowScreen = WindowScreen;
+
+      var thisScreen = Screen.AllScreens[Screen.AllScreens.ToList().FindIndex(s => s.DeviceName == Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(window).Handle).DeviceName)];
+
+      Properties.Settings.Default._windowLeft = window.Left - thisScreen.WorkingArea.Left;
+      Properties.Settings.Default._windowTop = window.Top - thisScreen.WorkingArea.Top;
+      Properties.Settings.Default._windowWidth = window.Width;
+      Properties.Settings.Default._windowHeight = window.Height;
+      Properties.Settings.Default._windowState = (int)window.WindowState;
+      Properties.Settings.Default._windowScreen = Screen.AllScreens.ToList().FindIndex(s => s.DeviceName == Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(window).Handle).DeviceName);
       Properties.Settings.Default.Save();
     }
 
     public static void ApplyToWindow(Window window)
     {
 
-      if (_windowState == (int)System.Windows.WindowState.Maximized)
-      {
-        window.WindowState = System.Windows.WindowState.Maximized;
-      }
-      else
-      {
-        window.WindowState = System.Windows.WindowState.Normal;
-        window.Left = _windowLeft;
-        window.Top = _windowTop;
-        window.Width = _windowWidth;
-        window.Height = _windowHeight;
+      if (OutOfScreen(window) || Screen.AllScreens[WindowScreen] == null) {
 
-        var screen = System.Windows.Forms.Screen.AllScreens[_windowScreen];
-        if (!screen.WorkingArea.Contains(new System.Drawing.Rectangle((int)_windowLeft, (int)_windowTop, (int)_windowWidth, (int)_windowHeight)))
-        {
-          if (System.Windows.Forms.Screen.AllScreens.Length > 1)
-          {
-            var firstScreen = System.Windows.Forms.Screen.AllScreens[0];
-            window.Left = firstScreen.WorkingArea.Left;
-            window.Top = firstScreen.WorkingArea.Top;
-          }
-          else
-          {
-            window.WindowState = System.Windows.WindowState.Maximized;
-          }
+        ResetWindow(window);
+      } else {
+
+        var thisScreen = Screen.AllScreens[WindowScreen];
+        window.WindowState = System.Windows.WindowState.Normal;
+        window.Height = WindowHeight;
+        window.Width = WindowWidth;
+
+        if (WindowState == (int)System.Windows.WindowState.Maximized) {
+          window.Left = thisScreen.WorkingArea.Left;
+          window.Top = thisScreen.WorkingArea.Top;
+          window.WindowState = System.Windows.WindowState.Maximized;
+
+        } else {
+
+          window.Left = thisScreen.Bounds.Left + WindowLeft;
+          window.Top = thisScreen.Bounds.Top + WindowTop;
         }
       }
+    }
+
+    public static bool OutOfScreen(Window window)
+    {
+
+      Screen screen = Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(window).Handle);
+
+      if (window.Left < screen.WorkingArea.Left)
+        return true;
+
+      if (window.Top < screen.WorkingArea.Top)
+        return true;
+
+      if (window.Left + window.ActualWidth > screen.WorkingArea.Right)
+        return true;
+
+      if (window.Top + window.ActualHeight > screen.WorkingArea.Bottom)
+        return true;
+
+      return false;
+
+    }
+
+    public static void ResetWindow(Window window)
+    {
+
+      var primaryScreen = Screen.PrimaryScreen;
+      window.WindowState = System.Windows.WindowState.Normal;
+      window.Left = primaryScreen.Bounds.Left;
+      window.Top = primaryScreen.Bounds.Top;
+      window.WindowState = System.Windows.WindowState.Maximized;
     }
   }
 }
