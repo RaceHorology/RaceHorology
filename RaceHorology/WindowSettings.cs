@@ -33,9 +33,6 @@
  * 
  */
 
-using CefSharp.DevTools.BackgroundService;
-using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Forms;

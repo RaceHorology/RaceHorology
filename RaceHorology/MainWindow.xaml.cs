@@ -111,6 +111,7 @@ namespace RaceHorology
       Logger.Info("Application started");
 
       InitializeComponent();
+      CheckForUserSettingsUpgrade();
       this.Closing += MainWindow_Closing;
       this.Loaded += MainWindow_Loaded;
 
