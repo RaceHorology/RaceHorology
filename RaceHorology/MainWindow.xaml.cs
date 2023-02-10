@@ -158,12 +158,8 @@ namespace RaceHorology
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-      WindowSettings.LoadWindowSettings(this);
-    }
-
-    private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-    {
-      WindowSettings.SaveWindowSettings(this);
+      WindowSettings.Load();
+      WindowSettings.ApplyToWindow(this);
     }
 
     private void AddressChangedCallback(object sender, EventArgs e)
@@ -194,7 +190,11 @@ namespace RaceHorology
     {
       CloseDatabase();
       StopDSVAlpinServer();
-      RaceHorology.Properties.Settings.Default.Save(); // TODO: Need to add later on to ExitApplication function when it was merged.
+      //RaceHorology.Properties.Settings.Default.Save(); // TODO: Need to add later on to ExitApplication function when it was merged.
+
+      WindowSettings.Save();
+      base.OnClosed(e);
+
     }
 
     /// <summary>

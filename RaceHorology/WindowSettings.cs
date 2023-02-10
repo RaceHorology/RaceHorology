@@ -33,55 +33,117 @@
  * 
  */
 
-using System.Linq;
 using System.Windows;
 
 namespace RaceHorology
 {
   public class WindowSettings
   {
-    public static void LoadWindowSettings(Window window)
+    private static double _windowLeft = 0;
+    private static double _windowTop = 0;
+    private static double _windowWidth = 1024;
+    private static double _windowHeight = 800;
+    private static int _windowState = (int)System.Windows.WindowState.Maximized;
+    private static int _windowScreen = 0 ;
+
+    public static double WindowLeft
     {
-      if (Properties.Settings.Default._windowState != -1)
-        window.WindowState = (System.Windows.WindowState)Properties.Settings.Default._windowState;
-      else
-        window.WindowState = System.Windows.WindowState.Maximized;
-
-      if (Properties.Settings.Default._windowLocationLeft != 0 && Properties.Settings.Default._windowLocationTop != 0)
-      {
-        window.Left = Properties.Settings.Default._windowLocationLeft;
-        window.Top = Properties.Settings.Default._windowLocationTop;
-      }
-
-      if (Properties.Settings.Default._windowLocationWidth != 0 && Properties.Settings.Default._windowLocationHeight != 0)
-      {
-        window.Width = Properties.Settings.Default._windowLocationWidth;
-        window.Height = Properties.Settings.Default._windowLocationHeight;
-      }
-
-      if (!IsVisibleOnAnyScreen(window))
-      {
-        window.WindowState = System.Windows.WindowState.Maximized;
-        window.Left = SystemParameters.VirtualScreenLeft;
-        window.Top = SystemParameters.VirtualScreenTop;
-        window.Width = SystemParameters.VirtualScreenWidth;
-        window.Height = SystemParameters.VirtualScreenHeight;
-      }
+      get { return _windowLeft; }
+      set { _windowLeft = value; }
     }
 
-    public static void SaveWindowSettings(Window window)
+    public static double WindowTop
     {
-      Properties.Settings.Default._windowState = (int)window.WindowState;
-      Properties.Settings.Default._windowLocationLeft = window.Left;
-      Properties.Settings.Default._windowLocationTop = window.Top;
-      Properties.Settings.Default._windowLocationWidth = window.Width;
-      Properties.Settings.Default._windowLocationHeight = window.Height;
+      get { return _windowTop; }
+      set { _windowTop = value; }
+    }
+
+    public static double WindowWidth
+    {
+      get { return _windowWidth; }
+      set { _windowWidth = value; }
+    }
+
+    public static double WindowHeight
+    {
+      get { return _windowHeight; }
+      set { _windowHeight = value; }
+    }
+
+    public static int WindowState
+    {
+      get { return _windowState; }
+      set { _windowState = value; }
+    }
+
+    public static int WindowScreen
+    {
+      get { return _windowScreen; }
+      set { _windowScreen = value; }
+    }
+
+    public static void Load()
+    {
+      if (Properties.Settings.Default._windowLeft != -1)
+        WindowLeft = Properties.Settings.Default._windowLeft;
+
+      if (Properties.Settings.Default._windowTop != -1)
+        WindowTop = Properties.Settings.Default._windowTop;
+
+      if (Properties.Settings.Default._windowWidth != -1)
+        WindowWidth = Properties.Settings.Default._windowWidth;
+
+      if (Properties.Settings.Default._windowHeight != -1)
+        WindowHeight = Properties.Settings.Default._windowHeight;
+
+      if (Properties.Settings.Default._windowState != -1)
+        WindowState = Properties.Settings.Default._windowState;
+
+      if (Properties.Settings.Default._windowScreen != -1)
+        WindowScreen = Properties.Settings.Default._windowScreen;
+    }
+
+    public static void Save()
+    {
+      Properties.Settings.Default._windowLeft = WindowLeft;
+      Properties.Settings.Default._windowTop = WindowTop;
+      Properties.Settings.Default._windowWidth = WindowWidth;
+      Properties.Settings.Default._windowHeight = WindowHeight;
+      Properties.Settings.Default._windowState = WindowState;
+      Properties.Settings.Default._windowScreen = WindowScreen;
       Properties.Settings.Default.Save();
     }
 
-    private static bool IsVisibleOnAnyScreen(Window window)
+    public static void ApplyToWindow(Window window)
     {
-      return System.Windows.Forms.Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(new System.Drawing.Rectangle((int)window.Left, (int)window.Top, (int)window.Width, (int)window.Height)));
+
+      if (_windowState == (int)System.Windows.WindowState.Maximized)
+      {
+        window.WindowState = System.Windows.WindowState.Maximized;
+      }
+      else
+      {
+        window.WindowState = System.Windows.WindowState.Normal;
+        window.Left = _windowLeft;
+        window.Top = _windowTop;
+        window.Width = _windowWidth;
+        window.Height = _windowHeight;
+
+        var screen = System.Windows.Forms.Screen.AllScreens[_windowScreen];
+        if (!screen.WorkingArea.Contains(new System.Drawing.Rectangle((int)_windowLeft, (int)_windowTop, (int)_windowWidth, (int)_windowHeight)))
+        {
+          if (System.Windows.Forms.Screen.AllScreens.Length > 1)
+          {
+            var firstScreen = System.Windows.Forms.Screen.AllScreens[0];
+            window.Left = firstScreen.WorkingArea.Left;
+            window.Top = firstScreen.WorkingArea.Top;
+          }
+          else
+          {
+            window.WindowState = System.Windows.WindowState.Maximized;
+          }
+        }
+      }
     }
   }
 }

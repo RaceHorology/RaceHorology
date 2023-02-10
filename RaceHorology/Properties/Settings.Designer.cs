@@ -217,49 +217,61 @@ namespace RaceHorology.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public double _windowLocationLeft {
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public double _windowLeft {
             get {
-                return ((double)(this["_windowLocationLeft"]));
+                return ((double)(this["_windowLeft"]));
             }
             set {
-                this["_windowLocationLeft"] = value;
+                this["_windowLeft"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public double _windowLocationTop {
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public double _windowTop {
             get {
-                return ((double)(this["_windowLocationTop"]));
+                return ((double)(this["_windowTop"]));
             }
             set {
-                this["_windowLocationTop"] = value;
+                this["_windowTop"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1024")]
-        public double _windowLocationWidth {
+        public double _windowWidth {
             get {
-                return ((double)(this["_windowLocationWidth"]));
+                return ((double)(this["_windowWidth"]));
             }
             set {
-                this["_windowLocationWidth"] = value;
+                this["_windowWidth"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("800")]
-        public double _windowLocationHeight {
+        public double _windowHeight {
             get {
-                return ((double)(this["_windowLocationHeight"]));
+                return ((double)(this["_windowHeight"]));
             }
             set {
-                this["_windowLocationHeight"] = value;
+                this["_windowHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int _windowScreen {
+            get {
+                return ((int)(this["_windowScreen"]));
+            }
+            set {
+                this["_windowScreen"] = value;
             }
         }
     }
