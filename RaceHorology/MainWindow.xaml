@@ -5,10 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RaceHorology"
         xmlns:rhcmd="clr-namespace:RaceHorology.Commands"
-        xmlns:Settings="clr-namespace:RaceHorology.Settings" 
-        Settings:WindowSettings.Save="True"
         mc:Ignorable="d"
-        Title="Race Horology" WindowState="Maximized" d:DesignHeight="800" d:DesignWidth="1024">
+        Title="Race Horology" d:DesignHeight="800" d:DesignWidth="1024">
 
   <Window.CommandBindings>
     <CommandBinding Command="New"  Executed="NewCommandBinding_Executed" />

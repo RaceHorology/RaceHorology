@@ -190,5 +190,77 @@ namespace RaceHorology.Properties {
                 this["UpdateChannel"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool _UserSettingsUpgradeRequired {
+            get {
+                return ((bool)(this["_UserSettingsUpgradeRequired"]));
+            }
+            set {
+                this["_UserSettingsUpgradeRequired"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int _windowState {
+            get {
+                return ((int)(this["_windowState"]));
+            }
+            set {
+                this["_windowState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double _windowLocationLeft {
+            get {
+                return ((double)(this["_windowLocationLeft"]));
+            }
+            set {
+                this["_windowLocationLeft"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double _windowLocationTop {
+            get {
+                return ((double)(this["_windowLocationTop"]));
+            }
+            set {
+                this["_windowLocationTop"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1024")]
+        public double _windowLocationWidth {
+            get {
+                return ((double)(this["_windowLocationWidth"]));
+            }
+            set {
+                this["_windowLocationWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        public double _windowLocationHeight {
+            get {
+                return ((double)(this["_windowLocationHeight"]));
+            }
+            set {
+                this["_windowLocationHeight"] = value;
+            }
+        }
     }
 }

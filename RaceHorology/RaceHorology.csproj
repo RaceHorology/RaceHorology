@@ -223,7 +223,7 @@
     <Compile Include="SaveOrResetUC.xaml.cs">
       <DependentUpon>SaveOrResetUC.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
+    <Compile Include="WindowSettings.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>

@@ -156,6 +156,16 @@ namespace RaceHorology
       NetworkChange.NetworkAddressChanged += AddressChangedCallback;
     }
 
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+      WindowSettings.LoadWindowSettings(this);
+    }
+
+    private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+      WindowSettings.SaveWindowSettings(this);
+    }
+
     private void AddressChangedCallback(object sender, EventArgs e)
     {
       NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
@@ -166,6 +176,18 @@ namespace RaceHorology
         Dispatcher.Invoke(StartDSVAlpinServer);
         break;
       }
+    }
+
+    private static void CheckForUserSettingsUpgrade()
+    {
+      if (!Properties.Settings.Default._UserSettingsUpgradeRequired)
+      {
+        return;
+      }
+
+      Properties.Settings.Default.Upgrade();
+      Properties.Settings.Default._UserSettingsUpgradeRequired = false;
+      Properties.Settings.Default.Save();
     }
 
     protected override void OnClosed(EventArgs e)
