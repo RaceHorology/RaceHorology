@@ -1033,7 +1033,50 @@ namespace RaceHorologyLibTest
 
       // Class 2M...
       rr.SetStartFinishTime(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 1));  // 1:01,00
-      checkResults(new[] { new { StNr = 1U, Position = 1U, Time = new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal } });
+      checkResults(new[] { 
+        new { StNr = 1U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 2U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
+      rr.SetStartFinishTime(race.GetParticipant(2), new TimeSpan(8, 1, 0), new TimeSpan(8, 2, 0));  // 1:00,00
+      checkResults(new[] {
+        new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 3U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
+      rr.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);
+      checkResults(new[] {
+        new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 3U, Position = 3U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 4U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
+      rr.SetStartFinishTime(race.GetParticipant(4), new TimeSpan(8, 10, 0), new TimeSpan(8, 12, 0));  // 2:00,00
+      checkResults(new[] {
+        new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 3U, Position = 3U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 4U, Position = 3U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 5U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
+      rr.SetStartFinishTime(race.GetParticipant(5), new TimeSpan(8, 15, 0), new TimeSpan(8, 15, 30));  // 0:30
+      checkResults(new[] {
+        new { StNr = 5U, Position = 1U, Time = (TimeSpan?)TimeSpan.FromSeconds(30), Code = RunResult.EResultCode.Normal },
+        new { StNr = 1U, Position = 2U, Time = (TimeSpan?)TimeSpan.FromSeconds(39), Code = RunResult.EResultCode.Normal },
+        new { StNr = 2U, Position = 2U, Time = (TimeSpan?)TimeSpan.FromSeconds(39), Code = RunResult.EResultCode.Normal },
+        new { StNr = 3U, Position = 2U, Time = (TimeSpan?)TimeSpan.FromSeconds(39), Code = RunResult.EResultCode.Normal },
+        new { StNr = 4U, Position = 2U, Time = (TimeSpan?)TimeSpan.FromSeconds(39), Code = RunResult.EResultCode.Normal },
+        new { StNr = 6U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
+      rr.SetStartFinishTime(race.GetParticipant(5), new TimeSpan(8, 15, 0), new TimeSpan(8, 16, 3));  // 1:03
+      checkResults(new[] {
+        new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 5U, Position = 3U, Time = (TimeSpan?)new TimeSpan(0, 1, 3), Code = RunResult.EResultCode.Normal },
+        new { StNr = 3U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 4U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 6U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
+
     }
 
 
