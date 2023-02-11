@@ -104,7 +104,7 @@ namespace RaceHorologyLib
       }
 
       if (!string.IsNullOrEmpty(propertyName))
-      { 
+      {
         GroupDescription gd = new PropertyGroupDescription(propertyName);
         gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
         _view.GroupDescriptions.Add(gd);
@@ -971,7 +971,7 @@ namespace RaceHorologyLib
     public override int Compare(RunResult rrX, RunResult rrY)
     {
       TimeSpan? tX = null, tY = null;
-      
+
       if (rrX.ResultCode == RunResult.EResultCode.Normal)
         tX = rrX.Runtime;
 
@@ -1249,7 +1249,7 @@ namespace RaceHorologyLib
       : base(result)
     {
     }
-    public PenaltyRunResultWithPosition(RaceParticipant rp) 
+    public PenaltyRunResultWithPosition(RaceParticipant rp)
       : base(rp)
     {
     }
@@ -1328,6 +1328,18 @@ namespace RaceHorologyLib
         // Create empty run result
         return new PenaltyRunResultWithPosition(r);
       }
+    }
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+
+      if (_viewList == null)
+        return;
+
+      updateCutOffTime();
+      _viewList.Sort(_comparer);
+      updatePositions();
     }
 
 
