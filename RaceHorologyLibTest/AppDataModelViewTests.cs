@@ -977,6 +977,67 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// Test for RaceRunResultViewProvider
+    /// 
+    /// What it does:
+    /// - Checks the RunResultWithPosition of RaceRunResultViewProvider
+    /// - Based on simulated race data
+    /// - Check correct handling of changing participant as well as RunResult
+    /// - Checks DeleteRunResult
+    /// </summary>
+    [TestMethod]
+    public void PenaltyRaceRunResultViewProviderTest_Dynamic()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.Model.GetRace(0).GetParticipants();
+
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+
+
+      RaceRunResultViewProvider vp = new PenaltyRaceRunResultViewProvider(30.0);
+      vp.ChangeGrouping("Participant.Class");
+      vp.Init(rr, tg.Model);
+
+      void checkResults(IList<dynamic> results)
+      {
+        int i = 0;
+        foreach (var r in results)
+        {
+          var entry = vp.GetView().ViewToList<RunResultWithPosition>()[i];
+          Assert.AreEqual(r.StNr, entry.StartNumber);
+          Assert.AreEqual(r.Position, entry.Position);
+          Assert.AreEqual(r.Time, entry.Runtime);
+          Assert.AreEqual(r.Code, entry.ResultCode);
+          i++;
+        }
+      }
+
+
+      // Class 2M...
+      rr.SetStartFinishTime(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 1));  // 1:01,00
+      checkResults(new[] { new { StNr = 1U, Position = 1U, Time = new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal } });
+    }
+
+
+    /// <summary>
     /// Tests whether the positions are correct in case two or more participants have the same runtime
     /// </summary>
     [TestMethod]
