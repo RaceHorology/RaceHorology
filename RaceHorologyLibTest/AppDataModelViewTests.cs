@@ -1058,7 +1058,7 @@ namespace RaceHorologyLibTest
         new { StNr = 4U, Position = 3U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
         new { StNr = 5U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
       });
-      rr.SetStartFinishTime(race.GetParticipant(5), new TimeSpan(8, 15, 0), new TimeSpan(8, 15, 30));  // 0:30
+      rr.SetStartFinishTime(race.GetParticipant(5), new TimeSpan(8, 15, 0), new TimeSpan(8, 15, 30));  // 0:30 - Test shrink CutOff Time
       checkResults(new[] {
         new { StNr = 5U, Position = 1U, Time = (TimeSpan?)TimeSpan.FromSeconds(30), Code = RunResult.EResultCode.Normal },
         new { StNr = 1U, Position = 2U, Time = (TimeSpan?)TimeSpan.FromSeconds(39), Code = RunResult.EResultCode.Normal },
@@ -1067,7 +1067,7 @@ namespace RaceHorologyLibTest
         new { StNr = 4U, Position = 2U, Time = (TimeSpan?)TimeSpan.FromSeconds(39), Code = RunResult.EResultCode.Normal },
         new { StNr = 6U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
       });
-      rr.SetStartFinishTime(race.GetParticipant(5), new TimeSpan(8, 15, 0), new TimeSpan(8, 16, 3));  // 1:03
+      rr.SetStartFinishTime(race.GetParticipant(5), new TimeSpan(8, 15, 0), new TimeSpan(8, 16, 3));  // 1:03 - Test grow CutOff Time
       checkResults(new[] {
         new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
         new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
@@ -1077,6 +1077,60 @@ namespace RaceHorologyLibTest
         new { StNr = 6U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
       });
 
+      rr.SetStartFinishTime(race.GetParticipant(7), new TimeSpan(8, 0, 0), new TimeSpan(8, 2, 1));  // 2:01,00
+      rr.SetStartFinishTime(race.GetParticipant(8), new TimeSpan(8, 1, 0), new TimeSpan(8, 3, 0));  // 2:00,00
+      rr.SetResultCode(race.GetParticipant(9), RunResult.EResultCode.NiZ);
+      rr.SetStartFinishTime(race.GetParticipant(10), new TimeSpan(8, 10, 0), new TimeSpan(8, 14, 0));  // 4:00,00
+      rr.SetStartFinishTime(race.GetParticipant(11), new TimeSpan(8, 15, 0), new TimeSpan(8, 17, 3));  // 2:03 
+      checkResults(new[] {
+        new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 5U, Position = 3U, Time = (TimeSpan?)new TimeSpan(0, 1, 3), Code = RunResult.EResultCode.Normal },
+        new { StNr = 3U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 4U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 6U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+
+        new { StNr = 8U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 2, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 7U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 2, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 11U, Position = 3U, Time = (TimeSpan?)new TimeSpan(0, 2, 3), Code = RunResult.EResultCode.Normal },
+        new { StNr = 9U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(156), Code = RunResult.EResultCode.Normal },
+        new { StNr = 10U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(156), Code = RunResult.EResultCode.Normal },
+        new { StNr = 12U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
+      vp.ChangeGrouping(null);
+      checkResults(new[] {
+        new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 5U, Position = 3U, Time = (TimeSpan?)new TimeSpan(0, 1, 3), Code = RunResult.EResultCode.Normal },
+        new { StNr = 3U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 4U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+
+        new { StNr = 7U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 8U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 9U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 10U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 11U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+
+        new { StNr = 6U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+        new { StNr = 12U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
+
+      vp.ChangeGrouping("Participant.Class");
+      checkResults(new[] {
+        new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 5U, Position = 3U, Time = (TimeSpan?)new TimeSpan(0, 1, 3), Code = RunResult.EResultCode.Normal },
+        new { StNr = 3U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 4U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(78), Code = RunResult.EResultCode.Normal },
+        new { StNr = 6U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+
+        new { StNr = 8U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 2, 0), Code = RunResult.EResultCode.Normal },
+        new { StNr = 7U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 2, 1), Code = RunResult.EResultCode.Normal },
+        new { StNr = 11U, Position = 3U, Time = (TimeSpan?)new TimeSpan(0, 2, 3), Code = RunResult.EResultCode.Normal },
+        new { StNr = 9U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(156), Code = RunResult.EResultCode.Normal },
+        new { StNr = 10U, Position = 4U, Time = (TimeSpan?)TimeSpan.FromSeconds(156), Code = RunResult.EResultCode.Normal },
+        new { StNr = 12U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
+      });
     }
 
 
