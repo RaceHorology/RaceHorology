@@ -1194,6 +1194,7 @@ namespace RaceHorologyLib
         {
           curGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
           curPosition = 0;
+          samePosition = 1;
           firstTime = lastTime = null;
         }
 
