@@ -1007,14 +1007,14 @@ namespace RaceHorologyLib
   public class RaceRunResultViewProvider : ResultViewProvider
   {
     // Input Data
-    RaceRun _raceRun;
-    ItemsChangeObservableCollection<RaceParticipant> _participants;
-    ItemsChangeObservableCollection<RunResult> _originalResults;
-    AppDataModel _appDataModel;
+    protected RaceRun _raceRun;
+    protected ItemsChangeObservableCollection<RaceParticipant> _participants;
+    protected ItemsChangeObservableCollection<RunResult> _originalResults;
+    protected AppDataModel _appDataModel;
 
     // Working Data
-    ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
-    ResultSorter<RunResult> _comparer;
+    protected ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
+    protected ResultSorter<RunResult> _comparer;
 
 
     public RaceRun RaceRun { get { return _raceRun; } }
@@ -1051,7 +1051,7 @@ namespace RaceHorologyLib
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
 
-      UpdatePositions();
+      updatePositions();
       FinalizeInit();
     }
 
@@ -1077,17 +1077,17 @@ namespace RaceHorologyLib
         return;
 
       _viewList.Sort(_comparer);
-      UpdatePositions();
+      updatePositions();
     }
 
 
-    private static RunResultWithPosition CreateRunResultWithPosition(RunResult r)
+    protected virtual RunResultWithPosition CreateRunResultWithPosition(RunResult r)
     {
       return new RunResultWithPosition(r);
     }
 
 
-    private RunResultWithPosition CreateRunResultWithPosition(RaceParticipant r)
+    protected virtual RunResultWithPosition CreateRunResultWithPosition(RaceParticipant r)
     {
       // Find RunResult
       var rr = _raceRun.GetRunResult(r);
@@ -1115,7 +1115,7 @@ namespace RaceHorologyLib
           foreach (var itemToRemove in itemsToRemove)
             _viewList.Remove(itemToRemove);
         }
-        UpdatePositions();
+        updatePositions();
       }
 
       if (e.NewItems != null)
@@ -1176,11 +1176,11 @@ namespace RaceHorologyLib
           _viewList.InsertSorted(CreateRunResultWithPosition(rp), _comparer);
       }
 
-      UpdatePositions();
+      updatePositions();
     }
 
 
-    void UpdatePositions()
+    protected virtual void updatePositions()
     {
       uint curPosition = 0;
       uint samePosition = 1;
@@ -1238,6 +1238,122 @@ namespace RaceHorologyLib
         item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
       }
     }
+  }
+
+
+  internal class PenaltyRunResultWithPosition : RunResultWithPosition
+  {
+    protected TimeSpan? _cutOffTime;
+    public PenaltyRunResultWithPosition(RunResult result)
+      : base(result)
+    {
+    }
+    public PenaltyRunResultWithPosition(RaceParticipant rp) 
+      : base(rp)
+    {
+    }
+
+    public virtual void SetCutOffTime(TimeSpan? time)
+    {
+      if (_cutOffTime != time)
+      {
+        _cutOffTime = time;
+        if (base.GetRunTime() != GetRunTime())
+        {
+          NotifyPropertyChanged(propertyName: nameof(Runtime));
+          NotifyPropertyChanged(propertyName: nameof(ResultCode));
+          NotifyPropertyChanged(propertyName: nameof(DisqualText));
+        }
+      }
+    }
+
+    protected bool applyPenaltyByResultCode()
+    {
+      var rc = base.ResultCode;
+      return rc == EResultCode.NQ || rc == EResultCode.NiZ || rc == EResultCode.DIS;
+    }
+    protected bool applyPenaltyByTime()
+    {
+      return _cutOffTime != null && _cutOffTime < base.GetRunTime();
+    }
+
+    /** Override to return the cut off time or the original time */
+    public override TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
+    {
+      TimeSpan? orgTime = base.GetRunTime(calculateIfNotStored, false);
+      if (applyPenaltyByTime() || applyPenaltyByResultCode())
+        return _cutOffTime;
+      return orgTime;
+    }
+
+    override public EResultCode ResultCode { 
+      get {
+        if (applyPenaltyByTime() || applyPenaltyByResultCode())
+          return EResultCode.Normal;
+        return _resultCode; 
+      } 
+    }
+  }
+
+
+  public class PenaltyRaceRunResultViewProvider : RaceRunResultViewProvider
+  {
+    protected double _cutOffPercentage;
+    protected TimeSpan _cutOffTime;
+
+    public PenaltyRaceRunResultViewProvider(double cutOffPercentage) 
+      : base()
+    {
+      _cutOffPercentage = cutOffPercentage;
+    }
+
+
+    protected override RunResultWithPosition CreateRunResultWithPosition(RunResult r)
+    {
+      return new PenaltyRunResultWithPosition(r);
+    }
+    protected override RunResultWithPosition CreateRunResultWithPosition(RaceParticipant r)
+    {
+      // Find RunResult
+      var rr = _raceRun.GetRunResult(r);
+      if (rr != null)
+      {
+        return CreateRunResultWithPosition(rr);
+      }
+      else
+      {
+        // Create empty run result
+        return new PenaltyRunResultWithPosition(r);
+      }
+    }
+
+
+    protected void updateCutOffTime()
+    {
+      var groups = _viewList
+        .GroupBy(item => PropertyUtilities.GetPropertyValue(item, _activeGrouping))
+        .Select(g1 => new
+        {
+          g1.Key,
+          BestTime = g1.Min(item => item.Runtime)
+        })
+        .Select(g2 => new
+        {
+          g2.Key,
+          g2.BestTime,
+          CutOffTime = g2.BestTime == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(((TimeSpan)g2.BestTime).TotalMilliseconds * (1.00 + _cutOffPercentage/100.0))
+        });
+
+      foreach (PenaltyRunResultWithPosition item in _viewList)
+        item.SetCutOffTime(groups.Where(g => g.Key == PropertyUtilities.GetPropertyValue(item, _activeGrouping)).First().CutOffTime);
+    }
+
+    protected override void updatePositions()
+    {
+      updateCutOffTime();
+      base.updatePositions();
+    }
+
   }
 
 
