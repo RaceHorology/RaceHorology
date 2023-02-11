@@ -126,7 +126,7 @@ namespace RaceHorologyLib
       ChangeGrouping(_defaultGrouping);
     }
 
-    public string ActiveGrouping { get { return _activeGrouping;  } }
+    public string ActiveGrouping { get { return _activeGrouping; } }
 
 
     public delegate T1 Creator<T1, T2>(T2 source);
@@ -146,7 +146,7 @@ namespace RaceHorologyLib
 
   public class StartListEntryComparer : System.Collections.Generic.IComparer<StartListEntry>
   {
-    public enum  Direction : int { Ascending = 1, Descending = -1 };
+    public enum Direction : int { Ascending = 1, Descending = -1 };
     Direction _direction;
     public StartListEntryComparer(Direction direction = Direction.Ascending)
     {
@@ -162,7 +162,7 @@ namespace RaceHorologyLib
       if (left.StartNumber < right.StartNumber)
         return -1 * (int)_direction;
       else if (left.StartNumber > right.StartNumber)
-        return 1  * (int)_direction;
+        return 1 * (int)_direction;
       else
         return 0;
     }
@@ -227,7 +227,7 @@ namespace RaceHorologyLib
   /// <summary>
   /// Creates a start list by comparing the start number taking into account the Sorting and Grouping
   /// </summary>
-  public class FirstRunStartListViewProvider :  StartListViewProvider
+  public class FirstRunStartListViewProvider : StartListViewProvider
   {
     protected ObservableCollection<RaceParticipant> _participants;
     protected ItemsChangedNotifier _sourceItemChangedNotifier;
@@ -398,7 +398,7 @@ namespace RaceHorologyLib
       // Process each group separately
       object curGroup = null;
       int curGroupStart = 0, curGroupEnd = 0;
-      for (int i=0; i<_viewList.Count; ++i)
+      for (int i = 0; i < _viewList.Count; ++i)
       {
         var item = _viewList[i];
         object itemGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
@@ -633,7 +633,7 @@ namespace RaceHorologyLib
       // b) there are several participants at rank _reverseBestN
       int firstBestN = 0;
       TimeSpan? lastRuntime = null;
-      foreach( var item in resultsCurGroup)
+      foreach (var item in resultsCurGroup)
       {
         // Maximum 
         if (firstBestN >= _reverseBestN && (item.Runtime != lastRuntime && lastRuntime != null))
@@ -997,7 +997,7 @@ namespace RaceHorologyLib
       int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
       // If equal, consider startnumber as well
       if (timeComp == 0)
-        return (_startNumberAscending?1:-1) * rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
+        return (_startNumberAscending ? 1 : -1) * rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
       return timeComp;
     }
