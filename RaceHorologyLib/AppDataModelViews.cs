@@ -1278,6 +1278,8 @@ namespace RaceHorologyLib
       return _cutOffTime != null && _cutOffTime < base.GetRunTime();
     }
 
+    public virtual TimeSpan? OrgRuntime { get { return base.GetRunTime(); } }
+
     /** Override to return the cut off time or the original time */
     public override TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
     {
@@ -1336,7 +1338,7 @@ namespace RaceHorologyLib
         .Select(g1 => new
         {
           g1.Key,
-          BestTime = g1.Min(item => item.Runtime)
+          BestTime = g1.Min(item => (item as PenaltyRunResultWithPosition).OrgRuntime)
         })
         .Select(g2 => new
         {
