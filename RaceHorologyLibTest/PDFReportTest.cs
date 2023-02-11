@@ -110,6 +110,7 @@ namespace RaceHorologyLibTest
       protected override string getTitle() { return "DummyTitle"; }
       protected override void addContent(PdfDocument pdf, Document document) { document.Add(new Paragraph("DummyContent")); }
     }
+
     [TestMethod]
     [DeploymentItem(@"TestOutputs\Base_RaceReport.pdf")]
     [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
@@ -123,7 +124,27 @@ namespace RaceHorologyLibTest
         Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 0));
       }
     }
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Zeitnehmer Checkliste 1. Durchgang.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
+    public void Integration_1554MSBS_TimerChecklistRun1()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
 
+      Race race = model.GetRace(0);
+
+      {
+        IPDFReport report = new TimerReport(race.GetRun(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Zeitnehmer Checkliste 1. Durchgang.pdf", 0));
+      }
+    }
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]

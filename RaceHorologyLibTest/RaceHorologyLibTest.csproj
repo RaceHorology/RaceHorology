@@ -318,6 +318,9 @@
     <None Include="TestOutputs\1554MSBS\1554MSBS - Startliste 2. Durchgang.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Zeitnehmer Checkliste 1. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestOutputs\Base_RaceReport.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
