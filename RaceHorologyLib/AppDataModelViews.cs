@@ -529,7 +529,7 @@ namespace RaceHorologyLib
     RaceRun _previousRun;
 
     //RaceRunResultViewProvider _resultVPPreviousRun;
-    ItemsChangeObservableCollection<RunResult> _resultsPreviousRun;
+    ItemsChangeObservableCollection<RunResultWithPosition> _resultsPreviousRun;
 
 
     public RaceRun BasedOnRun { get { return _previousRun; } }
@@ -554,7 +554,7 @@ namespace RaceHorologyLib
       _viewList = new ObservableCollection<StartListEntry>();
 
       _previousRun = previousRun;
-      _resultsPreviousRun = previousRun.GetResultList();
+      _resultsPreviousRun = (previousRun.GetResultViewProvider() as RaceRunResultViewProvider).GetViewList();
       _resultsPreviousRun.CollectionChanged += OnSourceChanged;
       _resultsPreviousRun.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
 
@@ -639,7 +639,7 @@ namespace RaceHorologyLib
         if (firstBestN >= _reverseBestN && (item.Runtime != lastRuntime && lastRuntime != null))
           break;
 
-        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal)
+        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal || (item as PenaltyRunResultWithPosition)?.PenaltyApplied == true)
           break;
 
         lastRuntime = item.Runtime;
@@ -1279,6 +1279,7 @@ namespace RaceHorologyLib
     }
 
     public virtual TimeSpan? OrgRuntime { get { return base.GetRunTime(); } }
+    public virtual bool PenaltyApplied { get { return applyPenaltyByTime(); } }
 
     /** Override to return the cut off time or the original time */
     public override TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
