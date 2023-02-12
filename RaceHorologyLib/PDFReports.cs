@@ -354,11 +354,7 @@ namespace RaceHorologyLib
         tableWidth, tableHeight);
 
       new Canvas(pdfCanvas, rectTable)
-              .Add(tableHeader
-                .SetTextAlignment(TextAlignment.CENTER)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-                .SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10)
-                );
+              .Add(tableHeader);
 
       pdfCanvas.Release();
       return;
@@ -477,7 +473,10 @@ namespace RaceHorologyLib
         .SetFontSize(fontSizeNormal)
         .Add(new Paragraph(_race.DateResultList?.ToShortDateString() + "\n" + (_race.AdditionalProperties?.Location ?? ""))));
 
-      return tableHeader;
+      return tableHeader
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+                .SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10);
     }
   }
 
@@ -596,22 +595,15 @@ namespace RaceHorologyLib
 
       float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
       var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
-      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight() - 3.0F;
+      float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
 
       Rectangle rectTable = new Rectangle(
-        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _bannerHeight,
+        pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _bannerHeight,
         tableWidth, tableHeight);
 
       new Canvas(pdfCanvas, rectTable).SetBorder(new SolidBorder(ColorConstants.GREEN,1)).SetBackgroundColor(ColorConstants.GRAY)
               .Add(tableFooter
-                .SetTextAlignment(TextAlignment.CENTER)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-                .SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10)
                 );
-      
-      //pdfCanvas.AddXObject(_pagesPlaceholder)
-
-      
 
       pdfCanvas.Release();
     }
@@ -718,7 +710,9 @@ namespace RaceHorologyLib
         .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .Add(new Paragraph(string.Format("Timing: {0}", "Alge TdC8000/8001"))));
 
-      return tableFooter;
+      return tableFooter.SetTextAlignment(TextAlignment.CENTER)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+                .SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10);
     }
   }
 
@@ -824,7 +818,7 @@ namespace RaceHorologyLib
       //pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, pageXofY);
 
       var mTop = header.Height + _pageMargins.Top;
-      var mBottom = /*_pageMargins.Bottom +*/ footer.Height;
+      var mBottom = _pageMargins.Bottom + footer.Height;
       _document.SetMargins(mTop, _pageMargins.Right, mBottom, _pageMargins.Left);
 
       addContent(_pdfDocument, _document);
