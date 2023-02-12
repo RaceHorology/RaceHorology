@@ -806,7 +806,7 @@ namespace RaceHorologyLib
 
     static string mapSex(RaceParticipant particpant)
     {
-      switch (particpant.Sex.Name)
+      switch (particpant.Sex?.Name)
       {
         case 'M':
         case 'm':
