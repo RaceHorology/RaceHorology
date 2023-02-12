@@ -1693,6 +1693,7 @@ namespace RaceHorologyLib
         {
           curGroup = PropertyUtilities.GetPropertyValue(sortedItem, _activeGrouping);
           curPosition = 0;
+          samePosition = 1;
           firstTime = lastTime = null;
         }
 
