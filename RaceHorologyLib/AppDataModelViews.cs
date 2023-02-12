@@ -104,7 +104,7 @@ namespace RaceHorologyLib
       }
 
       if (!string.IsNullOrEmpty(propertyName))
-      { 
+      {
         GroupDescription gd = new PropertyGroupDescription(propertyName);
         gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
         _view.GroupDescriptions.Add(gd);
@@ -126,7 +126,7 @@ namespace RaceHorologyLib
       ChangeGrouping(_defaultGrouping);
     }
 
-    public string ActiveGrouping { get { return _activeGrouping;  } }
+    public string ActiveGrouping { get { return _activeGrouping; } }
 
 
     public delegate T1 Creator<T1, T2>(T2 source);
@@ -146,7 +146,7 @@ namespace RaceHorologyLib
 
   public class StartListEntryComparer : System.Collections.Generic.IComparer<StartListEntry>
   {
-    public enum  Direction : int { Ascending = 1, Descending = -1 };
+    public enum Direction : int { Ascending = 1, Descending = -1 };
     Direction _direction;
     public StartListEntryComparer(Direction direction = Direction.Ascending)
     {
@@ -162,7 +162,7 @@ namespace RaceHorologyLib
       if (left.StartNumber < right.StartNumber)
         return -1 * (int)_direction;
       else if (left.StartNumber > right.StartNumber)
-        return 1  * (int)_direction;
+        return 1 * (int)_direction;
       else
         return 0;
     }
@@ -227,7 +227,7 @@ namespace RaceHorologyLib
   /// <summary>
   /// Creates a start list by comparing the start number taking into account the Sorting and Grouping
   /// </summary>
-  public class FirstRunStartListViewProvider :  StartListViewProvider
+  public class FirstRunStartListViewProvider : StartListViewProvider
   {
     protected ObservableCollection<RaceParticipant> _participants;
     protected ItemsChangedNotifier _sourceItemChangedNotifier;
@@ -398,7 +398,7 @@ namespace RaceHorologyLib
       // Process each group separately
       object curGroup = null;
       int curGroupStart = 0, curGroupEnd = 0;
-      for (int i=0; i<_viewList.Count; ++i)
+      for (int i = 0; i < _viewList.Count; ++i)
       {
         var item = _viewList[i];
         object itemGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
@@ -529,7 +529,7 @@ namespace RaceHorologyLib
     RaceRun _previousRun;
 
     //RaceRunResultViewProvider _resultVPPreviousRun;
-    ItemsChangeObservableCollection<RunResult> _resultsPreviousRun;
+    ItemsChangeObservableCollection<RunResultWithPosition> _resultsPreviousRun;
 
 
     public RaceRun BasedOnRun { get { return _previousRun; } }
@@ -554,7 +554,7 @@ namespace RaceHorologyLib
       _viewList = new ObservableCollection<StartListEntry>();
 
       _previousRun = previousRun;
-      _resultsPreviousRun = previousRun.GetResultList();
+      _resultsPreviousRun = (previousRun.GetResultViewProvider() as RaceRunResultViewProvider).GetViewList();
       _resultsPreviousRun.CollectionChanged += OnSourceChanged;
       _resultsPreviousRun.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
 
@@ -633,13 +633,13 @@ namespace RaceHorologyLib
       // b) there are several participants at rank _reverseBestN
       int firstBestN = 0;
       TimeSpan? lastRuntime = null;
-      foreach( var item in resultsCurGroup)
+      foreach (var item in resultsCurGroup)
       {
         // Maximum 
         if (firstBestN >= _reverseBestN && (item.Runtime != lastRuntime && lastRuntime != null))
           break;
 
-        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal)
+        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal || (item as PenaltyRunResultWithPosition)?.PenaltyApplied == true)
           break;
 
         lastRuntime = item.Runtime;
@@ -971,7 +971,7 @@ namespace RaceHorologyLib
     public override int Compare(RunResult rrX, RunResult rrY)
     {
       TimeSpan? tX = null, tY = null;
-      
+
       if (rrX.ResultCode == RunResult.EResultCode.Normal)
         tX = rrX.Runtime;
 
@@ -997,7 +997,7 @@ namespace RaceHorologyLib
       int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
       // If equal, consider startnumber as well
       if (timeComp == 0)
-        return (_startNumberAscending?1:-1) * rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
+        return (_startNumberAscending ? 1 : -1) * rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber);
 
       return timeComp;
     }
@@ -1007,14 +1007,14 @@ namespace RaceHorologyLib
   public class RaceRunResultViewProvider : ResultViewProvider
   {
     // Input Data
-    RaceRun _raceRun;
-    ItemsChangeObservableCollection<RaceParticipant> _participants;
-    ItemsChangeObservableCollection<RunResult> _originalResults;
-    AppDataModel _appDataModel;
+    protected RaceRun _raceRun;
+    protected ItemsChangeObservableCollection<RaceParticipant> _participants;
+    protected ItemsChangeObservableCollection<RunResult> _originalResults;
+    protected AppDataModel _appDataModel;
 
     // Working Data
-    ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
-    ResultSorter<RunResult> _comparer;
+    protected ItemsChangeObservableCollection<RunResultWithPosition> _viewList;
+    protected ResultSorter<RunResult> _comparer;
 
 
     public RaceRun RaceRun { get { return _raceRun; } }
@@ -1051,7 +1051,7 @@ namespace RaceHorologyLib
       _originalResults.CollectionChanged += OnOriginalResultsChanged;
       _originalResults.ItemChanged += OnOriginalResultItemChanged;
 
-      UpdatePositions();
+      updatePositions();
       FinalizeInit();
     }
 
@@ -1077,17 +1077,17 @@ namespace RaceHorologyLib
         return;
 
       _viewList.Sort(_comparer);
-      UpdatePositions();
+      updatePositions();
     }
 
 
-    private static RunResultWithPosition CreateRunResultWithPosition(RunResult r)
+    protected virtual RunResultWithPosition CreateRunResultWithPosition(RunResult r)
     {
       return new RunResultWithPosition(r);
     }
 
 
-    private RunResultWithPosition CreateRunResultWithPosition(RaceParticipant r)
+    protected virtual RunResultWithPosition CreateRunResultWithPosition(RaceParticipant r)
     {
       // Find RunResult
       var rr = _raceRun.GetRunResult(r);
@@ -1115,7 +1115,7 @@ namespace RaceHorologyLib
           foreach (var itemToRemove in itemsToRemove)
             _viewList.Remove(itemToRemove);
         }
-        UpdatePositions();
+        updatePositions();
       }
 
       if (e.NewItems != null)
@@ -1176,11 +1176,11 @@ namespace RaceHorologyLib
           _viewList.InsertSorted(CreateRunResultWithPosition(rp), _comparer);
       }
 
-      UpdatePositions();
+      updatePositions();
     }
 
 
-    void UpdatePositions()
+    protected virtual void updatePositions()
     {
       uint curPosition = 0;
       uint samePosition = 1;
@@ -1194,6 +1194,7 @@ namespace RaceHorologyLib
         {
           curGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
           curPosition = 0;
+          samePosition = 1;
           firstTime = lastTime = null;
         }
 
@@ -1238,6 +1239,154 @@ namespace RaceHorologyLib
         item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
       }
     }
+  }
+
+
+  internal class PenaltyRunResultWithPosition : RunResultWithPosition
+  {
+    protected TimeSpan? _cutOffTime;
+    public PenaltyRunResultWithPosition(RunResult result)
+      : base(result)
+    {
+    }
+    public PenaltyRunResultWithPosition(RaceParticipant rp)
+      : base(rp)
+    {
+    }
+
+    public virtual void SetCutOffTime(TimeSpan? time)
+    {
+      if (_cutOffTime != time)
+      {
+        _cutOffTime = time;
+        if (base.GetRunTime() != GetRunTime())
+        {
+          NotifyPropertyChanged(propertyName: nameof(Runtime));
+          NotifyPropertyChanged(propertyName: nameof(ResultCode));
+          NotifyPropertyChanged(propertyName: nameof(DisqualText));
+        }
+      }
+    }
+
+    protected bool applyPenaltyByResultCode()
+    {
+      var rc = base.ResultCode;
+      return rc == EResultCode.NQ || rc == EResultCode.NiZ || rc == EResultCode.DIS;
+    }
+    protected bool applyPenaltyByTime()
+    {
+      return _cutOffTime != null && _cutOffTime < base.GetRunTime();
+    }
+
+    public virtual TimeSpan? OrgRuntime { get { return base.GetRunTime(); } }
+    public virtual bool PenaltyApplied { get { return applyPenaltyByTime(); } }
+
+    /** Override to return the cut off time or the original time */
+    public override TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)
+    {
+      TimeSpan? orgTime = base.GetRunTime(calculateIfNotStored, false);
+      if (applyPenaltyByTime() || applyPenaltyByResultCode())
+        return _cutOffTime;
+      return orgTime;
+    }
+
+    override public EResultCode ResultCode { 
+      get {
+        if (applyPenaltyByTime() || applyPenaltyByResultCode())
+          return EResultCode.Normal;
+        return _resultCode; 
+      } 
+    }
+  }
+
+
+  public class PenaltyRaceRunResultViewProvider : RaceRunResultViewProvider
+  {
+    public enum EMode { BestPlusPercentage, BestPlusSeconds };
+
+    protected EMode _mode;
+    protected double _cutOffValue;
+
+    public PenaltyRaceRunResultViewProvider(EMode mode, double cutOffValue) 
+      : base()
+    {
+      _mode = mode;
+      _cutOffValue = cutOffValue;
+    }
+
+    public override ViewProvider Clone()
+    {
+      return new PenaltyRaceRunResultViewProvider(_mode, _cutOffValue);
+    }
+
+
+    protected override RunResultWithPosition CreateRunResultWithPosition(RunResult r)
+    {
+      return new PenaltyRunResultWithPosition(r);
+    }
+    protected override RunResultWithPosition CreateRunResultWithPosition(RaceParticipant r)
+    {
+      // Find RunResult
+      var rr = _raceRun.GetRunResult(r);
+      if (rr != null)
+      {
+        return CreateRunResultWithPosition(rr);
+      }
+      else
+      {
+        // Create empty run result
+        return new PenaltyRunResultWithPosition(r);
+      }
+    }
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _comparer.SetGrouping(propertyName);
+
+      if (_viewList == null)
+        return;
+
+      updateCutOffTime();
+      _viewList.Sort(_comparer);
+      updatePositions();
+    }
+
+
+    protected void updateCutOffTime()
+    {
+      var groups = _viewList
+        .GroupBy(item => PropertyUtilities.GetPropertyValue(item, _activeGrouping))
+        .Select(g1 => new
+        {
+          g1.Key,
+          BestTime = g1.Min(item => (item as PenaltyRunResultWithPosition).OrgRuntime)
+        })
+        .Select(g2 => new
+        {
+          g2.Key,
+          g2.BestTime,
+          CutOffTime = g2.BestTime == null ? (TimeSpan?)null : getCutOffTime((TimeSpan)g2.BestTime)
+        });
+
+      foreach (PenaltyRunResultWithPosition item in _viewList)
+        item.SetCutOffTime(groups.Where(g => g.Key == PropertyUtilities.GetPropertyValue(item, _activeGrouping)).First().CutOffTime);
+    }
+
+    protected TimeSpan getCutOffTime(TimeSpan referenceTime)
+    {
+      if (_mode == EMode.BestPlusPercentage)
+        return TimeSpan.FromMilliseconds(referenceTime.TotalMilliseconds * (1.00 + _cutOffValue / 100.0));
+      else if (_mode == EMode.BestPlusSeconds)
+        return TimeSpan.FromMilliseconds(referenceTime.TotalMilliseconds + (_cutOffValue * 1000));
+      throw new Exception("unknown mode");
+    }
+
+    protected override void updatePositions()
+    {
+      updateCutOffTime();
+      base.updatePositions();
+    }
+
   }
 
 
@@ -1562,6 +1711,7 @@ namespace RaceHorologyLib
         {
           curGroup = PropertyUtilities.GetPropertyValue(sortedItem, _activeGrouping);
           curPosition = 0;
+          samePosition = 1;
           firstTime = lastTime = null;
         }
 
@@ -1797,11 +1947,14 @@ namespace RaceHorologyLib
 
   public class PointsViaTableRaceResultViewProvider : RaceResultViewProvider
   {
+    public enum EMode { ApplyPointsPerRun, ApplyPointsTotally };
 
+    EMode _mode;
     Dictionary<uint, double> _pointsTable;
 
-    public PointsViaTableRaceResultViewProvider() : base(RaceResultViewProvider.TimeCombination.Sum)
+    public PointsViaTableRaceResultViewProvider(EMode mode) : base(RaceResultViewProvider.TimeCombination.Sum)
     {
+      _mode = mode;
       // Default Points Table
       _pointsTable = new Dictionary<uint, double>
       {
@@ -1821,7 +1974,7 @@ namespace RaceHorologyLib
 
     public override ViewProvider Clone()
     {
-      return new PointsViaTableRaceResultViewProvider();
+      return new PointsViaTableRaceResultViewProvider(_mode);
     }
 
     public override void Init(Race race, AppDataModel appDataModel)
@@ -1873,7 +2026,19 @@ namespace RaceHorologyLib
     protected override double calculatePoints(RaceResultItem rri)
     {
       double points = 0.0;
-      _pointsTable.TryGetValue(rri.Position, out points);
+      if (_mode == EMode.ApplyPointsTotally)
+      {
+        _pointsTable.TryGetValue(rri.Position, out points);
+      }
+      else
+      {
+        foreach (var sr in rri.SubResults)
+        {
+          double thisPoints = 0.0;
+          _pointsTable.TryGetValue(sr.Value.Position, out thisPoints);
+          points += thisPoints;
+        }
+      }
       return points;
     }
   }

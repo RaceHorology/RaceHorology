@@ -106,6 +106,8 @@ namespace RaceHorologyLib
 
   public class RaceExportBase : ExportBase<RaceExportBase.BaseType>
   {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
     public struct BaseType {
       public Race race; 
       public RaceParticipant rp;
@@ -126,11 +128,18 @@ namespace RaceHorologyLib
       foreach (var ef in _exportField)
       {
         var toGet = new BaseType { race = _race, rp = rp };
-        var val = ef.Getter( toGet );
-        if (val != null)
-          row[ef.Name] = val;
-        else
+        try
+        {
+          var val = ef.Getter( toGet );
+          if (val != null)
+            row[ef.Name] = val;
+          else
+            row[ef.Name] = DBNull.Value;
+        }catch(Exception e)
+        {
+          Logger.Warn("Error while exporting data field {0}: {1}", ef.Name, e);
           row[ef.Name] = DBNull.Value;
+        }
       }
 
       return row;
@@ -148,6 +157,8 @@ namespace RaceHorologyLib
 
   public class ViewExportBase<LineType> : ExportBase<ViewExportBase<LineType>.BaseType> where LineType : class
   {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
     public struct BaseType
     {
       public LineType item;
@@ -170,11 +181,19 @@ namespace RaceHorologyLib
 
       foreach (var ef in _exportField)
       {
-        var val = ef.Getter(item);
-        if (val != null)
-          row[ef.Name] = val;
-        else
+        try
+        {
+          var val = ef.Getter(item);
+          if (val != null)
+            row[ef.Name] = val;
+          else
+            row[ef.Name] = DBNull.Value;
+        }
+        catch (Exception e)
+        {
+          Logger.Warn("Error while exporting data field {0}: {1}", ef.Name, e);
           row[ef.Name] = DBNull.Value;
+        }
       }
 
       return row;
@@ -232,7 +251,7 @@ namespace RaceHorologyLib
       AddField("Firstname", typeof(string), (item) => { return item.rp.Firstname; });
       AddField("Fullname", typeof(string), (item) => { return item.rp.Fullname; });
       AddField("Category", typeof(string), (item) => { return item.rp.Sex; });
-      AddField("CategoryShort", typeof(string), (item) => { return item.rp.Sex.Name; });
+      AddField("CategoryShort", typeof(string), (item) => { return item.rp.Sex?.Name; });
       AddField("Year", typeof(uint), (item) => { return item.rp.Year; });
       AddField("Club", typeof(string), (item) => { return item.rp.Club; });
       AddField("Nation", typeof(string), (item) => { return item.rp.Nation; });
@@ -364,7 +383,7 @@ namespace RaceHorologyLib
       AddField("DSV-ID", typeof(string), (item) => { return item.rp.Participant.CodeOrSvId; });
 
       AddField("Name", typeof(string), (item) => { return item.rp.Fullname; });
-      AddField("Kateg", typeof(string), (item) => { return item.rp.Sex.Name.ToString(); });
+      AddField("Kateg", typeof(string), (item) => { return item.rp.Sex?.Name.ToString(); });
       AddField("JG", typeof(uint), (item) => { return item.rp.Year; });
 
       AddField("V/G", typeof(string), (item) => { return item.rp.Nation; });
