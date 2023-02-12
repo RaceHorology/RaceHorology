@@ -433,7 +433,11 @@ namespace RaceHorologyLib
           // Get Participant
           uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("teilnehmer"));
           Participant p = _id2Participant[id];
+          if (p == null)
+            continue;
           RaceParticipant rp = race.GetParticipant(p);
+          if (rp == null)
+            continue;
 
           // Build Result
           RunResult r = new RunResult(rp);
