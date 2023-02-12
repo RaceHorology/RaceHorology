@@ -727,6 +727,12 @@
       <Component Id="raceconfigpresets_Vereinsrennen_Summe.preset" Guid="b4950a60-83c5-409d-afb7-3523245a573e">
         <File Id="raceconfigpresets_Vereinsrennen_Summe.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Vereinsrennen - Summe.preset" />
       </Component>
+      <Component Id="raceconfigpresets_Vielseitigkeit_NichtPunkte.preset" Guid="684eabf3-bfa9-415f-b804-0df9fe4a8d50">
+        <File Id="raceconfigpresets_Vielseitigkeit_NichtPunkte.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Vielseitigkeit (Nicht-Punkte).preset" />
+      </Component>
+      <Component Id="raceconfigpresets_Vielseitigkeit_Punkte.preset" Guid="33a70d88-6a3e-4712-afdc-3d6f784b6031">
+        <File Id="raceconfigpresets_Vielseitigkeit_Punkte.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Vielseitigkeit (Punkte).preset" />
+      </Component>
     </ComponentGroup>
   </Fragment>
 
