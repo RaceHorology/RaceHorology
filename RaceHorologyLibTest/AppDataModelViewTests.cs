@@ -1012,7 +1012,7 @@ namespace RaceHorologyLibTest
       tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
 
 
-      RaceRunResultViewProvider vp = new PenaltyRaceRunResultViewProvider(30.0);
+      RaceRunResultViewProvider vp = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusPercentage, 30.0);
       vp.ChangeGrouping("Participant.Class");
       vp.Init(rr, tg.Model);
 

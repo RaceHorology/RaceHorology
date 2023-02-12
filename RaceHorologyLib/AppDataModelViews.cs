@@ -1301,17 +1301,21 @@ namespace RaceHorologyLib
 
   public class PenaltyRaceRunResultViewProvider : RaceRunResultViewProvider
   {
-    protected double _cutOffPercentage;
+    public enum EMode { BestPlusPercentage, BestPlusSeconds };
 
-    public PenaltyRaceRunResultViewProvider(double cutOffPercentage) 
+    protected EMode _mode;
+    protected double _cutOffValue;
+
+    public PenaltyRaceRunResultViewProvider(EMode mode, double cutOffValue) 
       : base()
     {
-      _cutOffPercentage = cutOffPercentage;
+      _mode = mode;
+      _cutOffValue = cutOffValue;
     }
 
     public override ViewProvider Clone()
     {
-      return new PenaltyRaceRunResultViewProvider(_cutOffPercentage);
+      return new PenaltyRaceRunResultViewProvider(_mode, _cutOffValue);
     }
 
 
@@ -1360,11 +1364,20 @@ namespace RaceHorologyLib
         {
           g2.Key,
           g2.BestTime,
-          CutOffTime = g2.BestTime == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(((TimeSpan)g2.BestTime).TotalMilliseconds * (1.00 + _cutOffPercentage/100.0))
+          CutOffTime = g2.BestTime == null ? (TimeSpan?)null : getCutOffTime((TimeSpan)g2.BestTime)
         });
 
       foreach (PenaltyRunResultWithPosition item in _viewList)
         item.SetCutOffTime(groups.Where(g => g.Key == PropertyUtilities.GetPropertyValue(item, _activeGrouping)).First().CutOffTime);
+    }
+
+    protected TimeSpan getCutOffTime(TimeSpan referenceTime)
+    {
+      if (_mode == EMode.BestPlusPercentage)
+        return TimeSpan.FromMilliseconds(referenceTime.TotalMilliseconds * (1.00 + _cutOffValue / 100.0));
+      else if (_mode == EMode.BestPlusSeconds)
+        return TimeSpan.FromMilliseconds(referenceTime.TotalMilliseconds + (_cutOffValue * 1000));
+      throw new Exception("unknown mode");
     }
 
     protected override void updatePositions()

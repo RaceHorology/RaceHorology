@@ -181,8 +181,13 @@ namespace RaceHorologyLib
 
       RaceRunResultViewProvider rVP;
 
-      if (_config.RaceResultView_PenaltyRuleCutOffPercentage > 0.0)
-        rVP = new PenaltyRaceRunResultViewProvider(_config.RaceResultView_PenaltyRuleCutOffPercentage);
+      if (_config.RaceResultView_PenaltyRuleMode != RaceConfiguration.EPenaltyMode.Off)
+      {
+        if (_config.RaceResultView_PenaltyRuleMode == RaceConfiguration.EPenaltyMode.BestPlusPercentage)
+          rVP = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusPercentage, _config.RaceResultView_PenaltyRuleCutOffValue);
+        else
+          rVP = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusSeconds, _config.RaceResultView_PenaltyRuleCutOffValue);
+      }
       else
         rVP = factory.Create<RaceRunResultViewProvider>("RaceRunResult");
 

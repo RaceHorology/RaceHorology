@@ -47,6 +47,7 @@ namespace RaceHorologyLib
   /// </summary>
   public class RaceConfiguration
   {
+    public enum EPenaltyMode { Off, BestPlusPercentage, BestPlusSeconds };
     public class PointCalcParams
     {
       public double ValueF;
@@ -68,7 +69,9 @@ namespace RaceHorologyLib
 
     public string RaceResultView;
     public Dictionary<string, object> RaceResultViewParams;
-    public double RaceResultView_PenaltyRuleCutOffPercentage;
+
+    public EPenaltyMode RaceResultView_PenaltyRuleMode;
+    public double RaceResultView_PenaltyRuleCutOffValue;
 
     public string Run1_StartistView;
     public string Run1_StartistViewGrouping;
@@ -105,7 +108,9 @@ namespace RaceHorologyLib
       ActiveFields = src.ActiveFields.Copy<List<string>>();
       RaceResultView = src.RaceResultView;
       RaceResultViewParams = src.RaceResultViewParams.Copy<Dictionary<string, object>>();
-      RaceResultView_PenaltyRuleCutOffPercentage = src.RaceResultView_PenaltyRuleCutOffPercentage;
+
+      RaceResultView_PenaltyRuleMode = src.RaceResultView_PenaltyRuleMode;
+      RaceResultView_PenaltyRuleCutOffValue = src.RaceResultView_PenaltyRuleCutOffValue;
 
       Run1_StartistView = src.Run1_StartistView;
       Run1_StartistViewGrouping = src.Run1_StartistViewGrouping;
@@ -136,7 +141,8 @@ namespace RaceHorologyLib
       mergedConfig.ActiveFields = newConfig.ActiveFields.Copy<List<string>>();
       mergedConfig.RaceResultView = newConfig.RaceResultView;
       mergedConfig.RaceResultViewParams = newConfig.RaceResultViewParams.Copy<Dictionary<string, object>>();
-      mergedConfig.RaceResultView_PenaltyRuleCutOffPercentage = newConfig.RaceResultView_PenaltyRuleCutOffPercentage;
+      mergedConfig.RaceResultView_PenaltyRuleMode = newConfig.RaceResultView_PenaltyRuleMode;
+      mergedConfig.RaceResultView_PenaltyRuleCutOffValue = newConfig.RaceResultView_PenaltyRuleCutOffValue;
 
       mergedConfig.Run1_StartistView = newConfig.Run1_StartistView;
       mergedConfig.Run1_StartistViewGrouping = newConfig.Run1_StartistViewGrouping;
@@ -175,7 +181,9 @@ namespace RaceHorologyLib
       res &= !config2.ActiveFields.Except(config1.ActiveFields).Any();
 
       res &= config1.RaceResultView == config2.RaceResultView;
-      res &= config1.RaceResultView_PenaltyRuleCutOffPercentage == config2.RaceResultView_PenaltyRuleCutOffPercentage;
+
+      res &= config1.RaceResultView_PenaltyRuleMode == config2.RaceResultView_PenaltyRuleMode;
+      res &= config1.RaceResultView_PenaltyRuleCutOffValue == config2.RaceResultView_PenaltyRuleCutOffValue;
 
       res &= config1.Run1_StartistView == config2.Run1_StartistView;
       res &= config1.Run1_StartistViewGrouping == config2.Run1_StartistViewGrouping;
