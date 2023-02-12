@@ -43,7 +43,7 @@ namespace RaceHorologyLib
 {
 
 
-  public class ViewFactory
+  internal class ViewFactory
   {
     protected Dictionary<string, ViewProvider> _prototypes;
 
