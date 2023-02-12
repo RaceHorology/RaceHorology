@@ -71,6 +71,17 @@
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <CheckBox x:Name="chkConfigPenalty" Margin="5" Content="Penaltyregelung" Grid.Column="1" VerticalContentAlignment="Center" Checked="chkConfigPenalty_CheckChanged" Unchecked="chkConfigPenalty_CheckChanged"/>
+        <Label x:Name="lblConfigPenalty" Margin="5" Content="Bestzeit + Prozent:" Grid.Column="2" VerticalContentAlignment="Center"/>
+        <TextBox x:Name="txtValuePenaltyCutOff" Grid.Column="3" Margin="5" Width="50" VerticalContentAlignment="Center" />
+      </Grid>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label x:Name="lblConfigErgebnisGrouping" Margin="5" Content="Gruppierung:" Grid.Column="0"/>

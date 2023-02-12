@@ -168,6 +168,15 @@ namespace RaceHorology
       cmbRuns.SelectCBItem(cfg.Runs);
       cmbConfigErgebnisGrouping.SelectCBItem(cfg.DefaultGrouping);
       cmbConfigErgebnis.SelectCBItem(cfg.RaceResultView);
+
+      if (cfg.RaceResultView_PenaltyRuleCutOffPercentage > 0.0)
+      {
+        chkConfigPenalty.IsChecked = true;
+        txtValuePenaltyCutOff.Text = string.Format("{0}", cfg.RaceResultView_PenaltyRuleCutOffPercentage);
+      }
+      else
+        chkConfigPenalty.IsChecked = false;
+
       cmbConfigStartlist1.SelectCBItem(cfg.Run1_StartistView);
       cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
       cmbConfigStartlist2.SelectCBItem(cfg.Run2_StartistView);
@@ -206,6 +215,11 @@ namespace RaceHorology
 
       if (cmbConfigErgebnis.SelectedIndex >= 0)
         cfg.RaceResultView = (string)((CBItem)cmbConfigErgebnis.SelectedValue).Value;
+
+      if (chkConfigPenalty.IsChecked == true)
+        try { cfg.RaceResultView_PenaltyRuleCutOffPercentage = double.Parse(txtValuePenaltyCutOff.Text); } catch (Exception) { }
+      else
+        cfg.RaceResultView_PenaltyRuleCutOffPercentage = 0.0;
 
       if (cmbConfigStartlist1.SelectedIndex >= 0)
         cfg.Run1_StartistView = (string)((CBItem)cmbConfigStartlist1.SelectedValue).Value;
@@ -271,6 +285,11 @@ namespace RaceHorology
     {
       ResetConfigurationSelectionUI(_raceConfiguration);
       refreshConfigPresetsUI();
+    }
+
+    private void chkConfigPenalty_CheckChanged(object sender, RoutedEventArgs e)
+    {
+      txtValuePenaltyCutOff.IsEnabled = chkConfigPenalty.IsChecked == true;
     }
   }
 }

@@ -1302,12 +1302,16 @@ namespace RaceHorologyLib
   public class PenaltyRaceRunResultViewProvider : RaceRunResultViewProvider
   {
     protected double _cutOffPercentage;
-    protected TimeSpan _cutOffTime;
 
     public PenaltyRaceRunResultViewProvider(double cutOffPercentage) 
       : base()
     {
       _cutOffPercentage = cutOffPercentage;
+    }
+
+    public override ViewProvider Clone()
+    {
+      return new PenaltyRaceRunResultViewProvider(_cutOffPercentage);
     }
 
 
