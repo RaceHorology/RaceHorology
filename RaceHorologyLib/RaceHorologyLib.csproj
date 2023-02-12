@@ -170,6 +170,9 @@
     <None Include="raceconfigpresets\DSV Erwachsene.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="raceconfigpresets\DSV Schüler U12 Kids Cross.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="raceconfigpresets\DSV Schüler U14-U16.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -691,7 +691,10 @@
       <Component Id="raceconfigpresets_DSV_Erwachsene.preset" Guid="2441b4bb-3295-4133-b838-5f0ca156cddd">
         <File Id="raceconfigpresets_DSV_Erwachsene.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\DSV Erwachsene.preset" />
       </Component>
-      <Component Id="raceconfigpresets_DSV_Schueler_U14U16.preset" Guid="d79bbe75-144f-4656-900f-cef0078f9aaf">
+      <Component Id="raceconfigpresets_DSV_Schueler_U12_Kids_Cross.preset" Guid="d79bbe75-144f-4656-900f-cef0078f9aaf">
+        <File Id="raceconfigpresets_DSV_Schueler_U12_Kids_Cross.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\DSV Schüler U12 Kids Cross.preset" />
+      </Component>
+      <Component Id="raceconfigpresets_DSV_Schueler_U14U16.preset" Guid="ff76151c-61f1-4954-93fd-a9a521e6ede5">
         <File Id="raceconfigpresets_DSV_Schueler_U14U16.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\DSV Schüler U14-U16.preset" />
       </Component>
       <Component Id="raceconfigpresets_FISRennenMen.preset" Guid="f1d8be12-ebcb-456f-b0ef-29bba7d25c6e">
