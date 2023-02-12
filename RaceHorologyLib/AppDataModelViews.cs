@@ -1947,11 +1947,14 @@ namespace RaceHorologyLib
 
   public class PointsViaTableRaceResultViewProvider : RaceResultViewProvider
   {
+    public enum EMode { ApplyPointsPerRun, ApplyPointsTotally };
 
+    EMode _mode;
     Dictionary<uint, double> _pointsTable;
 
-    public PointsViaTableRaceResultViewProvider() : base(RaceResultViewProvider.TimeCombination.Sum)
+    public PointsViaTableRaceResultViewProvider(EMode mode) : base(RaceResultViewProvider.TimeCombination.Sum)
     {
+      _mode = mode;
       // Default Points Table
       _pointsTable = new Dictionary<uint, double>
       {
@@ -1971,7 +1974,7 @@ namespace RaceHorologyLib
 
     public override ViewProvider Clone()
     {
-      return new PointsViaTableRaceResultViewProvider();
+      return new PointsViaTableRaceResultViewProvider(_mode);
     }
 
     public override void Init(Race race, AppDataModel appDataModel)
@@ -2023,7 +2026,19 @@ namespace RaceHorologyLib
     protected override double calculatePoints(RaceResultItem rri)
     {
       double points = 0.0;
-      _pointsTable.TryGetValue(rri.Position, out points);
+      if (_mode == EMode.ApplyPointsTotally)
+      {
+        _pointsTable.TryGetValue(rri.Position, out points);
+      }
+      else
+      {
+        foreach (var sr in rri.SubResults)
+        {
+          double thisPoints = 0.0;
+          _pointsTable.TryGetValue(sr.Value.Position, out thisPoints);
+          points += thisPoints;
+        }
+      }
       return points;
     }
   }

@@ -1890,7 +1890,7 @@ namespace RaceHorologyLibTest
 
       // Test Case 1: Default table
       System.IO.File.Delete("PointsTable.txt");
-      PointsViaTableRaceResultViewProvider vpA = new PointsViaTableRaceResultViewProvider();
+      PointsViaTableRaceResultViewProvider vpA = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
       vpA.Init(race, race.GetDataModel());
 
       Assert.AreEqual(15.0, vpA.GetView().ViewToList<RaceResultItem>()[0].Points);
@@ -1924,7 +1924,7 @@ namespace RaceHorologyLibTest
 50.1
 ");
 
-      vpA = new PointsViaTableRaceResultViewProvider();
+      vpA = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
       vpA.Init(race, race.GetDataModel());
 
       Assert.AreEqual(200.0, vpA.GetView().ViewToList<RaceResultItem>()[0].Points);
@@ -1949,6 +1949,35 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(10U, vpA.GetView().ViewToList<RaceResultItem>()[9].Position);
       Assert.AreEqual(.0, vpA.GetView().ViewToList<RaceResultItem>()[10].Points);
       Assert.AreEqual(11U, vpA.GetView().ViewToList<RaceResultItem>()[10].Position);
+
+
+      System.IO.File.Delete("PointsTable.txt");
+      vpA = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
+      vpA.Init(race, race.GetDataModel());
+
+      Assert.AreEqual(30.0, vpA.GetView().ViewToList<RaceResultItem>()[0].Points);
+      Assert.AreEqual(1U, vpA.GetView().ViewToList<RaceResultItem>()[0].Position);
+      Assert.AreEqual(24.0, vpA.GetView().ViewToList<RaceResultItem>()[1].Points);
+      Assert.AreEqual(2U, vpA.GetView().ViewToList<RaceResultItem>()[1].Position);
+      Assert.AreEqual(20.0, vpA.GetView().ViewToList<RaceResultItem>()[2].Points);
+      Assert.AreEqual(3U, vpA.GetView().ViewToList<RaceResultItem>()[2].Position);
+      Assert.AreEqual(16.0, vpA.GetView().ViewToList<RaceResultItem>()[3].Points);
+      Assert.AreEqual(4U, vpA.GetView().ViewToList<RaceResultItem>()[3].Position);
+      Assert.AreEqual(12.0, vpA.GetView().ViewToList<RaceResultItem>()[4].Points);
+      Assert.AreEqual(5U, vpA.GetView().ViewToList<RaceResultItem>()[4].Position);
+      Assert.AreEqual(10.0, vpA.GetView().ViewToList<RaceResultItem>()[5].Points);
+      Assert.AreEqual(6U, vpA.GetView().ViewToList<RaceResultItem>()[5].Position);
+      Assert.AreEqual(8.0, vpA.GetView().ViewToList<RaceResultItem>()[6].Points);
+      Assert.AreEqual(7U, vpA.GetView().ViewToList<RaceResultItem>()[6].Position);
+      Assert.AreEqual(6.0, vpA.GetView().ViewToList<RaceResultItem>()[7].Points);
+      Assert.AreEqual(8U, vpA.GetView().ViewToList<RaceResultItem>()[7].Position);
+      Assert.AreEqual(4.0, vpA.GetView().ViewToList<RaceResultItem>()[8].Points);
+      Assert.AreEqual(9U, vpA.GetView().ViewToList<RaceResultItem>()[8].Position);
+      Assert.AreEqual(2.0, vpA.GetView().ViewToList<RaceResultItem>()[9].Points);
+      Assert.AreEqual(10U, vpA.GetView().ViewToList<RaceResultItem>()[9].Position);
+      Assert.AreEqual(.0, vpA.GetView().ViewToList<RaceResultItem>()[10].Points);
+      Assert.AreEqual(11U, vpA.GetView().ViewToList<RaceResultItem>()[10].Position);
+
 
     }
   }

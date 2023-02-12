@@ -73,11 +73,8 @@ namespace RaceHorologyLib
       _prototypes["RaceResult_Sum"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
       _prototypes["RaceResult_SumBest2"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumBest2);
       _prototypes["RaceResult_SumDSVPointsSchool"] = new DSVSchoolRaceResultViewProvider();
-      _prototypes["RaceResult_SumPointsViaTable"] = new PointsViaTableRaceResultViewProvider();
-
-      _prototypes["RaceRunResult"] = new RaceRunResultViewProvider();
-
-
+      _prototypes["RaceResult_SumPointsViaTable"] = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
+      _prototypes["RaceResult_SumPointsViaTablePerRun"] = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
     }
 
 
@@ -189,7 +186,7 @@ namespace RaceHorologyLib
           rVP = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusSeconds, _config.RaceResultView_PenaltyRuleCutOffValue);
       }
       else
-        rVP = factory.Create<RaceRunResultViewProvider>("RaceRunResult");
+        rVP = new RaceRunResultViewProvider();
 
       if (rVP == null)
         rVP = new RaceRunResultViewProvider();
