@@ -5,4 +5,5 @@
   <BitmapImage x:Key="IconDelete" UriSource="Icons/icons8-delete-52.png" />
   <BitmapImage x:Key="IconPlay" UriSource="Icons/icons8-play-52.png" />
   <BitmapImage x:Key="IconStop" UriSource="Icons/icons8-stop-52.png" />
+  <BitmapImage x:Key="IconStopRed" UriSource="Icons/icons8-stop-52-red.png" />
 </ResourceDictionary>

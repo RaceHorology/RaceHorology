@@ -52,6 +52,7 @@ using AutoUpdaterDotNET;
 
 using System.Diagnostics;
 using System.Reflection;
+using System.Media;
 
 namespace RaceHorology
 {
@@ -99,6 +100,7 @@ namespace RaceHorology
     MruList _mruList;
     DSVAlpin2HTTPServer _alpinServer;
     string _appTitle;
+    bool _timingBrokenWarner = false;
 
     RHAlgeTimyUSB.AlgeTimyUSB _timyUSB;
 
@@ -492,6 +494,7 @@ namespace RaceHorology
     ILiveTimeMeasurementDevice _timingDevice;
     LiveTimingMeasurement _liveTimingMeasurement;
     System.Timers.Timer _liveTimingStatusTimer;
+    System.Timers.Timer _timingBreakTimer;
 
     private void InitializeTiming()
     {
@@ -501,6 +504,11 @@ namespace RaceHorology
       _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
       _liveTimingStatusTimer.AutoReset = true;
       _liveTimingStatusTimer.Enabled = true;
+
+      _timingBreakTimer = new System.Timers.Timer(300);
+      _timingBreakTimer.AutoReset = false;
+      _timingBreakTimer.Elapsed += TimingBreaker;
+      _timingBreakTimer.Enabled = true;
 
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
 
@@ -571,6 +579,7 @@ namespace RaceHorology
 
         _timingDevice.Stop();
         _timingDevice = null;
+
       }
     }
 
@@ -601,7 +610,21 @@ namespace RaceHorology
       }
     }
 
+    private void TimingBreaker(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      var timingDevice = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveTimingDevice : null;
 
+      if (timingDevice != null && timingDevice.IsBroken && _timingBrokenWarner == false) {
+        _timingBrokenWarner = true;
+        SoundPlayer _soundBroken;
+        _soundBroken = new SoundPlayer(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("RaceHorology.resources.611738__cheezery__zonk.wav"));
+        _soundBroken.Play();
+      } else if (timingDevice != null && !timingDevice.IsBroken && _timingBrokenWarner == true) {
+        _timingBrokenWarner = false;
+      }
+      _timingBreakTimer.Enabled = true;
+     }
+    
     private void btnTimingDeviceStartStop_Click(object sender, RoutedEventArgs e)
     {
       if (_liveTimingMeasurement == null)
@@ -616,7 +639,6 @@ namespace RaceHorology
       else
         timingDevice.Start();
     }
-
 
     private void UpdateLiveTimingDeviceStatus(object sender, System.Timers.ElapsedEventArgs e)
     {

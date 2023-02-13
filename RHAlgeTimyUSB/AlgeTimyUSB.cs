@@ -153,6 +153,11 @@ namespace RHAlgeTimyUSB
       get { return _internalStatus == EInternalStatus.Running; }
     }
 
+    public override bool IsBroken
+    {
+      get { return false; }
+    }
+
     public override bool IsStarted
     {
       get

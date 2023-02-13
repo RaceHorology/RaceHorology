@@ -463,6 +463,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="RH-LOGO-FIN-APP2.ico" />
+    <EmbeddedResource Include="resources\611738__cheezery__zonk.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

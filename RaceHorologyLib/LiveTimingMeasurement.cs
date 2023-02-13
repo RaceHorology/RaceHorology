@@ -154,6 +154,12 @@ namespace RaceHorologyLib
     bool IsOnline { get; }
 
     /// <summary>
+    /// Status property to get information if the connection was diconnected unintentionally.
+    /// IsBroken shall return true if everything works as expected and the device is connected / online.
+    /// </summary>
+    bool IsBroken { get; }
+
+    /// <summary>
     /// Returns information about the device itself, i.e. the device name
     /// </summary>
     string GetDeviceInfo();
@@ -336,6 +342,7 @@ namespace RaceHorologyLib
     }
 
     public bool IsRunning { get => _isRunning && _timingDeviceMain?.IsOnline == true; }
+    public bool IsBroken { get =>  _timingDeviceMain?.IsBroken == true; }
 
     #endregion
 

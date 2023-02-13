@@ -370,14 +370,12 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="lblStartList" Content="{Binding Count}" ContentStringFormat="Am Start: {0}" HorizontalAlignment="Left" Margin="5,5,5,5" Grid.Column="0" VerticalAlignment="Top" FontSize="16"/>
-                <!-- Label x:Name="lblRacRun" Content="Durchgang:" HorizontalAlignment="Left" Margin="0" Grid.Column="2" VerticalAlignment="Top" FontSize="16"/ -->
-                <Label x:Name="lblStartCountDown" Content="Start frei!" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="40,5,40,5" Grid.Column="1" VerticalAlignment="Top" FontSize="16"
-                       Background="LightGreen"/>
+                <Label x:Name="lblStartCountDown" Content="Start frei!" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="5,5,5,5" Grid.Column="1" VerticalAlignment="Top" FontSize="16" Background="LightGreen"/>
                 <ComboBox x:Name="cmbRaceRun" FontSize="16" Grid.Column="3" HorizontalAlignment="Left" Margin="0,0,5,0" VerticalAlignment="Center" Width="Auto" SelectionChanged="CmbRaceRun_SelectionChanged" PreviewMouseDown="cmbRaceRun_PreviewMouseDown" />
 
-                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="30,0,5,0">
-                  <ToggleButton x:Name="btnLiveTimingStart" Margin="5,0,0,0" Click="LiveTimingStart_Click" Height="35" Width="35">
-                    <Image Source="{StaticResource IconPlay}" Height="20"/>
+                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="5,0,5,0">
+                  <ToggleButton x:Name="btnTimingStartStop" Margin="5,0,0,0" Click="TimingStartStop_Click" Height="35" Width="35">
+                    <Image Source="{StaticResource IconPlay}" x:Name="ImageStartStopButton" Height="20"/>
                     <ToggleButton.Style>
                       <Style TargetType="{x:Type ToggleButton}">
                         <Setter Property="Template">
@@ -391,35 +389,16 @@
                         </Setter>
                         <Style.Triggers>
                           <Trigger Property="IsChecked" Value="True">
-                            <Setter Property="Background" Value="Green" />
+                            <Setter Property="Background" Value="LightGreen" />
                           </Trigger>
-                        </Style.Triggers>
-                      </Style>
-                    </ToggleButton.Style>
-                  </ToggleButton>
-                  <ToggleButton x:Name="btnLiveTimingStop" Margin="5,0,0,0" Click="LiveTimingStop_Click" Height="35" Width="35">
-                    <Image Source="{StaticResource IconStop}" Height="20"/>
-                    <ToggleButton.Style>
-                      <Style TargetType="{x:Type ToggleButton}">
-                        <Setter Property="Template">
-                          <Setter.Value>
-                            <ControlTemplate TargetType="ToggleButton">
-                              <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                              </Border>
-                            </ControlTemplate>
-                          </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                          <Trigger Property="IsChecked" Value="True">
-                            <Setter Property="Background" Value="Red" />
+                          <Trigger Property="IsChecked" Value="False">
+                            <Setter Property="Background" Value="LightGray" />
                           </Trigger>
                         </Style.Triggers>
                       </Style>
                     </ToggleButton.Style>
                   </ToggleButton>
                 </StackPanel>
-                
               </Grid>
               <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>

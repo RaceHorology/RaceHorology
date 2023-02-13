@@ -166,6 +166,11 @@ namespace RaceHorologyLib
       get { return _webSocket != null && _status != EStatus.NotConnected; }
     }
 
+    public bool IsBroken
+    {
+      get { return false; }
+    }
+
 
     public void Stop()
     {
