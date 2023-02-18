@@ -23,7 +23,7 @@ namespace RaceHorologyLib
 
     protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
     {
-      throw new NotImplementedException();
+      
     }
 
     protected override Margins getMargins() { return new Margins { Top = 0.0F, Bottom = 0.0F, Left = 0.0F, Right = 0.0F }; }
