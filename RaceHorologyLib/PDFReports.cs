@@ -755,7 +755,12 @@ namespace RaceHorologyLib
     }
   }
 
-  public abstract class PDFRaceReport : IPDFReport
+
+
+  /** Base class for generating reports specific to a race 
+   *  It does not have any page specific setups, yet.
+   */
+  public abstract class PDFBaseRaceReport : IPDFReport
   {
     protected Race _race;
     protected AppDataModel _dm;
@@ -765,22 +770,17 @@ namespace RaceHorologyLib
     protected bool _debugAreas = false;
 
     protected PDFHelper _pdfHelper;
-    PointsConverter _pointsConverter;
 
-    public PDFRaceReport(Race race)
+    public PDFBaseRaceReport(Race race)
     {
       _race = race;
       _dm = race.GetDataModel();
       _pdfDocument = null;
       _document = null;
-
       _pdfHelper = new PDFHelper(_dm);
-      _pointsConverter = new PointsConverter();
     }
 
-    protected abstract string getTitle();
     protected abstract string getReportName();
-    protected abstract void addContent(PdfDocument pdf, Document document);
 
 
     public virtual string ProposeFilePath()
@@ -795,19 +795,49 @@ namespace RaceHorologyLib
       return path;
     }
 
+    protected abstract Margins getMargins();
+    protected abstract void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null);
 
-    public void Generate(Stream stream, DateTime? creationDateTime = null)
+    public virtual void Generate(Stream stream, DateTime? creationDateTime = null)
     {
-      determineTableFontAndSize();
-
       var writer = new PdfWriter(stream);
-      
       _pdfDocument = new PdfDocument(writer);
       _pdfDocument.GetDocumentInfo().SetAuthor("Race Horology").SetTitle(getReportName());
       _document = new Document(_pdfDocument, PageSize.A4);
 
-      _pageMargins = new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F };
+      _pageMargins = getMargins();
 
+      GenerateImpl(_pdfDocument, _document, creationDateTime);
+
+      _document.Close();
+      _document = null;
+      _pdfDocument = null;
+    }
+  }
+
+
+  /** Base class for generating reports specific to a race 
+   *  It is intended for reports with a header / footer and has a margin set
+   */
+  public abstract class PDFRaceReport : PDFBaseRaceReport
+  {
+    PointsConverter _pointsConverter;
+
+    public PDFRaceReport(Race race)
+      : base(race)
+    {
+      _pointsConverter = new PointsConverter();
+    }
+
+    protected abstract string getTitle();
+    protected abstract void addContent(PdfDocument pdf, Document document);
+
+    protected override Margins getMargins() { return new Margins { Top = 24.0F, Bottom = 24.0F, Left = 24.0F, Right = 24.0F }; }
+
+
+    protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
+    {
+      determineTableFontAndSize();
 
       var header = createHeader();
       var footer = createFooter(creationDateTime != null ? (DateTime)creationDateTime : DateTime.Now);
@@ -824,12 +854,6 @@ namespace RaceHorologyLib
       addContent(_pdfDocument, _document);
       
       //pageXofY.WriteTotal(pdf);
-
-      _document.Close();
-
-      _document = null;
-      _pdfDocument = null;
-
     }
 
     protected virtual ReportHeader createHeader()
@@ -849,9 +873,6 @@ namespace RaceHorologyLib
     protected float _tableFontSize;
     protected float _tableFontSizeHeader;
 
-
-
-
     protected virtual void determineTableFontAndSize()
     {
       _tableFont = _pdfHelper.GetFont(RHFont.Normal);
@@ -859,6 +880,7 @@ namespace RaceHorologyLib
       _tableFontSize = 9;
       _tableFontSizeHeader = _tableFontSize + 1;
     }
+
     #endregion
 
     protected Paragraph createCellParagraphForTable(string text)
