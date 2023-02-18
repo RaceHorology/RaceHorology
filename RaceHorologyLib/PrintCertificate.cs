@@ -20,6 +20,7 @@ using System.ArrayExtensions;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Drawing;
+using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace RaceHorologyLib
 {
@@ -147,10 +148,11 @@ namespace RaceHorologyLib
       try { fontSize = int.Parse(fontParts.Last()); } catch (Exception) { }
 
       FontStyle fontStyle = FontStyle.Regular;
-      if (fontParts.Contains("kursiv"))
-        fontStyle = fontStyle | FontStyle.Italic;
-      if (fontParts.Contains("fett"))
-        fontStyle = fontStyle | FontStyle.Bold;
+      // Omit the following, since the font style does not seem to be considered correctly, using Paragraph.SetBold() / .SetItalic() instead
+      //if (fontParts.Contains("kursiv"))
+      //  fontStyle = fontStyle | FontStyle.Italic;
+      //if (fontParts.Contains("fett"))
+      //  fontStyle = fontStyle | FontStyle.Bold;
       try
       {
         var fXC = new System.Drawing.Font(fontParts[0], fontSize, fontStyle);
@@ -166,22 +168,12 @@ namespace RaceHorologyLib
       }
     }
 
-    //HorizontalAlignment mapAlignment(TextItemAlignment al)
-    //{
-    //  switch (al)
-    //  {
-    //    case TextItemAlignment.Left: return HorizontalAlignment.LEFT;
-    //    case TextItemAlignment.Right: return HorizontalAlignment.RIGHT;
-    //    case TextItemAlignment.Center: return HorizontalAlignment.CENTER;
-    //  }
-    //  return HorizontalAlignment.LEFT;
-    //}
-
-    public static float mmToInches(float mm)
+    public static float mmToPDFPoints(float micrometer)
     {
-      PdfNumber userUnit = null;// pdf.GetFirstPage().GetPdfObject().GetAsNumber(PdfName.UserUnit);
-      float userUnitValue = userUnit == null ? 72f : userUnit.FloatValue();
-      return mm * 0.254F;// / userUnitValue;
+      float mm = micrometer / 10.0F;
+      //PdfNumber userUnit = null;// pdf.GetFirstPage().GetPdfObject().GetAsNumber(PdfName.UserUnit);
+      //float userUnitValue = userUnit == null ? 72f : userUnit.FloatValue();
+      return mm * 2.83F;// Manually calculated out of page size and compared with DIN A4
     }
 
   }
@@ -190,6 +182,7 @@ namespace RaceHorologyLib
 
   public class Certificates : PDFBaseRaceReport
   {
+    private bool _debugPdf = false;
     PrintCertificateModel _certificateModel;
 
     public Certificates(Race race)
@@ -200,21 +193,43 @@ namespace RaceHorologyLib
 
     protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
     {
-      foreach (var ti in _certificateModel.TextItems)
+      var pageSize = pdf.GetDefaultPageSize();
+      //pdf.get
+      //pdf.GetPdfObject().GetAsNumber(PdfName.UserUnit);
+
+      _document.SetMargins(0, 0, 0, 0);
+
+      bool firstPage = true;
+      for (int i=0; i<9; i++)
       {
-        var par = new Paragraph(ti.Text);
+        if (!firstPage)
+          document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
-        if (CertificatesUtils.mapIsFontBold(ti.Font))
-          par.SetBold();
-        if (CertificatesUtils.mapIsFontItalic(ti.Font))
-          par.SetItalic();
+        if (_debugPdf)
+        {
+          document.ShowTextAligned(new Paragraph("top left"), 0, pageSize.GetHeight(), TextAlignment.LEFT, VerticalAlignment.TOP);
+          document.ShowTextAligned(new Paragraph("top right"), pageSize.GetWidth(), pageSize.GetHeight(), TextAlignment.RIGHT, VerticalAlignment.TOP);
+          document.ShowTextAligned(new Paragraph("bottom left"), 0, 0, TextAlignment.LEFT, VerticalAlignment.BOTTOM);
+          document.ShowTextAligned(new Paragraph("bottom right"), pageSize.GetWidth(), 0, TextAlignment.RIGHT, VerticalAlignment.BOTTOM);
+        }
 
-        par.SetFontSize(CertificatesUtils.mapFontSize(ti.Font));
-        var font = CertificatesUtils.mapFont(ti.Font);
-        if (font != null)
-          par.SetFont(font);
+        foreach (var ti in _certificateModel.TextItems)
+        {
+          var par = new Paragraph(ti.Text);
+          if (CertificatesUtils.mapIsFontBold(ti.Font))
+            par.SetBold();
+          if (CertificatesUtils.mapIsFontItalic(ti.Font))
+            par.SetItalic();
 
-        document.ShowTextAligned(par, CertificatesUtils.mmToInches(ti.HPos), CertificatesUtils.mmToInches(ti.VPos), CertificatesUtils.mapAlignment(ti.Alignment));
+          par.SetFontSize(CertificatesUtils.mapFontSize(ti.Font));
+          var font = CertificatesUtils.mapFont(ti.Font);
+          if (font != null)
+            par.SetFont(font);
+
+          document.ShowTextAligned(par, CertificatesUtils.mmToPDFPoints(ti.HPos), pageSize.GetHeight() - CertificatesUtils.mmToPDFPoints(ti.VPos), CertificatesUtils.mapAlignment(ti.Alignment), VerticalAlignment.TOP);
+        }
+
+        firstPage = false;
       }
     }
 

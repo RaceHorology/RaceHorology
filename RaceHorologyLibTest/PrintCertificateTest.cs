@@ -74,6 +74,8 @@ namespace RaceHorologyLibTest
 
         string filenameOutput = report.ProposeFilePath();
         report.Generate(filenameOutput);
+        
+        System.Diagnostics.Process.Start(filenameOutput);
 
         //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 0));
       }
