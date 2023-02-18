@@ -184,31 +184,47 @@ namespace RaceHorologyLib
   {
     private bool _debugPdf = true;
     PrintCertificateModel _certificateModel;
+    int _maxCertificatesPerGroup;
 
-    public Certificates(Race race)
+    bool _firstPage;
+
+
+    public Certificates(Race race, int maxCertificatesPerGroup)
       : base(race) 
     {
       _certificateModel = new PrintCertificateModel();
+      _maxCertificatesPerGroup = maxCertificatesPerGroup;
     }
 
     protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
     {
+      _firstPage = true;
+
       _document.SetMargins(0, 0, 0, 0);
       var pageSize = pdf.GetDefaultPageSize();
 
-
-      bool firstPage = true;
-      for (int i=0; i<9; i++)
+      var results = _race.GetResultViewProvider().GetView();
+      var lr = results as System.Windows.Data.ListCollectionView;
+      if (results.Groups != null)
       {
-        if (!firstPage)
-          document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
-
-        if (_debugPdf)
-          addDebugMarkers(document);
-
-        addCertificate(document);
-
-        firstPage = false;
+        foreach (var group in results.Groups)
+        {
+          System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
+          for(int i = Math.Max(_maxCertificatesPerGroup, cvGroup.Items.Count); i>=0; i--)
+          {
+            var result = cvGroup.Items[i] as RaceResultItem;
+            addCertificate(document, result);
+          }
+        }
+      }
+      else
+      {
+        var resultItems = results.SourceCollection.Cast<RaceResultItem>().ToList();
+        for (int i = Math.Max(_maxCertificatesPerGroup, resultItems.Count); i >= 0; i--)
+        {
+          var result = resultItems[i] as RaceResultItem;
+          addCertificate(document, result);
+        }
       }
     }
 
@@ -222,9 +238,16 @@ namespace RaceHorologyLib
       document.ShowTextAligned(new Paragraph("bottom right"), pageSize.GetWidth(), 0, TextAlignment.RIGHT, VerticalAlignment.BOTTOM);
     }
 
-    protected void addCertificate(Document document)
+
+    protected void addCertificate(Document document, RaceResultItem result)
     {
       var pageSize = document.GetPdfDocument().GetDefaultPageSize();
+
+      if (!_firstPage)
+        document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+
+      if (_debugPdf)
+        addDebugMarkers(document);
 
       foreach (var ti in _certificateModel.TextItems)
       {
@@ -241,6 +264,8 @@ namespace RaceHorologyLib
 
         document.ShowTextAligned(par, CertificatesUtils.mmToPDFPoints(ti.HPos), pageSize.GetHeight() - CertificatesUtils.mmToPDFPoints(ti.VPos), CertificatesUtils.mapAlignment(ti.Alignment), VerticalAlignment.TOP);
       }
+
+      _firstPage = false;
     }
 
     protected override Margins getMargins() { return new Margins { Top = 0.0F, Bottom = 0.0F, Left = 0.0F, Right = 0.0F }; }
