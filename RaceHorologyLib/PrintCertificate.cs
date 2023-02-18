@@ -182,7 +182,7 @@ namespace RaceHorologyLib
 
   public class Certificates : PDFBaseRaceReport
   {
-    private bool _debugPdf = false;
+    private bool _debugPdf = true;
     PrintCertificateModel _certificateModel;
 
     public Certificates(Race race)
@@ -193,11 +193,9 @@ namespace RaceHorologyLib
 
     protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
     {
-      var pageSize = pdf.GetDefaultPageSize();
-      //pdf.get
-      //pdf.GetPdfObject().GetAsNumber(PdfName.UserUnit);
-
       _document.SetMargins(0, 0, 0, 0);
+      var pageSize = pdf.GetDefaultPageSize();
+
 
       bool firstPage = true;
       for (int i=0; i<9; i++)
@@ -206,30 +204,42 @@ namespace RaceHorologyLib
           document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
         if (_debugPdf)
-        {
-          document.ShowTextAligned(new Paragraph("top left"), 0, pageSize.GetHeight(), TextAlignment.LEFT, VerticalAlignment.TOP);
-          document.ShowTextAligned(new Paragraph("top right"), pageSize.GetWidth(), pageSize.GetHeight(), TextAlignment.RIGHT, VerticalAlignment.TOP);
-          document.ShowTextAligned(new Paragraph("bottom left"), 0, 0, TextAlignment.LEFT, VerticalAlignment.BOTTOM);
-          document.ShowTextAligned(new Paragraph("bottom right"), pageSize.GetWidth(), 0, TextAlignment.RIGHT, VerticalAlignment.BOTTOM);
-        }
+          addDebugMarkers(document);
 
-        foreach (var ti in _certificateModel.TextItems)
-        {
-          var par = new Paragraph(ti.Text);
-          if (CertificatesUtils.mapIsFontBold(ti.Font))
-            par.SetBold();
-          if (CertificatesUtils.mapIsFontItalic(ti.Font))
-            par.SetItalic();
-
-          par.SetFontSize(CertificatesUtils.mapFontSize(ti.Font));
-          var font = CertificatesUtils.mapFont(ti.Font);
-          if (font != null)
-            par.SetFont(font);
-
-          document.ShowTextAligned(par, CertificatesUtils.mmToPDFPoints(ti.HPos), pageSize.GetHeight() - CertificatesUtils.mmToPDFPoints(ti.VPos), CertificatesUtils.mapAlignment(ti.Alignment), VerticalAlignment.TOP);
-        }
+        addCertificate(document);
 
         firstPage = false;
+      }
+    }
+
+    protected void addDebugMarkers(Document document)
+    {
+      var pageSize = document.GetPdfDocument().GetDefaultPageSize();
+
+      document.ShowTextAligned(new Paragraph("top left"), 0, pageSize.GetHeight(), TextAlignment.LEFT, VerticalAlignment.TOP);
+      document.ShowTextAligned(new Paragraph("top right"), pageSize.GetWidth(), pageSize.GetHeight(), TextAlignment.RIGHT, VerticalAlignment.TOP);
+      document.ShowTextAligned(new Paragraph("bottom left"), 0, 0, TextAlignment.LEFT, VerticalAlignment.BOTTOM);
+      document.ShowTextAligned(new Paragraph("bottom right"), pageSize.GetWidth(), 0, TextAlignment.RIGHT, VerticalAlignment.BOTTOM);
+    }
+
+    protected void addCertificate(Document document)
+    {
+      var pageSize = document.GetPdfDocument().GetDefaultPageSize();
+
+      foreach (var ti in _certificateModel.TextItems)
+      {
+        var par = new Paragraph(ti.Text);
+        if (CertificatesUtils.mapIsFontBold(ti.Font))
+          par.SetBold();
+        if (CertificatesUtils.mapIsFontItalic(ti.Font))
+          par.SetItalic();
+
+        par.SetFontSize(CertificatesUtils.mapFontSize(ti.Font));
+        var font = CertificatesUtils.mapFont(ti.Font);
+        if (font != null)
+          par.SetFont(font);
+
+        document.ShowTextAligned(par, CertificatesUtils.mmToPDFPoints(ti.HPos), pageSize.GetHeight() - CertificatesUtils.mmToPDFPoints(ti.VPos), CertificatesUtils.mapAlignment(ti.Alignment), VerticalAlignment.TOP);
       }
     }
 
