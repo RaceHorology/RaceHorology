@@ -182,18 +182,39 @@ namespace RaceHorologyLib
 
   public class Certificates : PDFBaseRaceReport
   {
-    private bool _debugPdf = true;
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+    private bool _debugPdf = false;
     PrintCertificateModel _certificateModel;
     int _maxCertificatesPerGroup;
+    bool _generateTemplate;
+
+    internal delegate string GetterFunc(Race race, RaceResultItem rri);
+
+    Dictionary<string, GetterFunc> _variableReplacements = new Dictionary<string, GetterFunc>();
 
     bool _firstPage;
 
 
-    public Certificates(Race race, int maxCertificatesPerGroup)
+    public Certificates(Race race, int maxCertificatesPerGroup, bool generateTemplate = false)
       : base(race) 
     {
       _certificateModel = new PrintCertificateModel();
       _maxCertificatesPerGroup = maxCertificatesPerGroup;
+      _generateTemplate = generateTemplate;
+
+      _variableReplacements.Add("<Vorname Name>", (rc, result) => { return result.Participant.Name; });
+      _variableReplacements.Add("<Vorname>", (rc, result) => { return result.Participant.Firstname; } );
+      _variableReplacements.Add("<Nachname>", (rc, result) => { return result.Participant.Name; } );
+      _variableReplacements.Add("<Verein>", (rc, result) => { return result.Participant.Club; } );
+      _variableReplacements.Add("<Klasse>", (rc, result) => { return result.Participant.Class.ToString(); });
+      _variableReplacements.Add("<Gruppe>", (rc, result) => { return result.Participant.Group.ToString(); });
+      _variableReplacements.Add("<Kategorie>", (rc, result) => { return result.Participant.Sex.PrettyName.ToString(); });
+      _variableReplacements.Add("<Disziplin>", (rc, result) => { return rc.RaceType.ToString();} );
+      _variableReplacements.Add("<Platz>", (rc, result) => { return result.Position.ToString();} );
+      _variableReplacements.Add("<Zeit>", (rc, result) => { return result.TotalTime.ToRaceTimeString(); } );
+      _variableReplacements.Add("<Bewerbsdatum>", (rc, result) => { return rc.DateResultList?.ToShortDateString(); } );
+      _variableReplacements.Add("<Datum>", (rc, result) => { return DateTime.Now.ToShortDateString(); });
     }
 
     protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
@@ -203,6 +224,12 @@ namespace RaceHorologyLib
       _document.SetMargins(0, 0, 0, 0);
       var pageSize = pdf.GetDefaultPageSize();
 
+      if (_generateTemplate)
+      {
+        addCertificate(document, null);
+        return;
+      }
+
       var results = _race.GetResultViewProvider().GetView();
       var lr = results as System.Windows.Data.ListCollectionView;
       if (results.Groups != null)
@@ -210,20 +237,22 @@ namespace RaceHorologyLib
         foreach (var group in results.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
-          for(int i = Math.Max(_maxCertificatesPerGroup, cvGroup.Items.Count); i>=0; i--)
+          for(int i = Math.Min(_maxCertificatesPerGroup-1, cvGroup.Items.Count); cvGroup.Items.Count > 0 && i >= 0; i--)
           {
             var result = cvGroup.Items[i] as RaceResultItem;
-            addCertificate(document, result);
+            if (result.Position > 0)
+              addCertificate(document, result);
           }
         }
       }
       else
       {
         var resultItems = results.SourceCollection.Cast<RaceResultItem>().ToList();
-        for (int i = Math.Max(_maxCertificatesPerGroup, resultItems.Count); i >= 0; i--)
+        for (int i = Math.Min(_maxCertificatesPerGroup-1, resultItems.Count); resultItems.Count > 0 && i >= 0; i--)
         {
           var result = resultItems[i] as RaceResultItem;
-          addCertificate(document, result);
+          if (result.Position > 0)
+            addCertificate(document, result);
         }
       }
     }
@@ -251,7 +280,7 @@ namespace RaceHorologyLib
 
       foreach (var ti in _certificateModel.TextItems)
       {
-        var par = new Paragraph(ti.Text);
+        var par = new Paragraph(replaceVariables(ti.Text, result));
         if (CertificatesUtils.mapIsFontBold(ti.Font))
           par.SetBold();
         if (CertificatesUtils.mapIsFontItalic(ti.Font))
@@ -266,6 +295,29 @@ namespace RaceHorologyLib
       }
 
       _firstPage = false;
+    }
+
+    protected string replaceVariables(string template, RaceResultItem rri)
+    {
+      if (_generateTemplate)
+        return template;
+
+      string result = template;
+      foreach(var replacement in _variableReplacements)
+      {
+        if (result.IndexOf(replacement.Key) >= 0)
+        {
+          try
+          {
+            result = result.Replace(replacement.Key, replacement.Value(_race, rri));
+          }
+          catch (Exception e)
+          {
+            Logger.Error(e);
+          }
+        }
+      }
+      return result;
     }
 
     protected override Margins getMargins() { return new Margins { Top = 0.0F, Bottom = 0.0F, Left = 0.0F, Right = 0.0F }; }

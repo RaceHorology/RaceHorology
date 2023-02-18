@@ -70,7 +70,7 @@ namespace RaceHorologyLibTest
 
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
-        IPDFReport report = new Certificates(tg.Model.GetRace(0));
+        IPDFReport report = new Certificates(tg.Model.GetRace(0), 10);
 
         string filenameOutput = report.ProposeFilePath();
         report.Generate(filenameOutput);
@@ -80,5 +80,49 @@ namespace RaceHorologyLibTest
         //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 0));
       }
     }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 1. Durchgang.pdf")]
+    public void Integration_1554MSBS_Certificates()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      Race race = model.GetRace(0);
+      {
+        IPDFReport report = new Certificates(race, 10);
+
+        string filenameOutput = report.ProposeFilePath();
+        report.Generate(filenameOutput);
+
+        System.Diagnostics.Process.Start(filenameOutput);
+
+        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 0));
+      }
+    }
+
+
+    [TestMethod]
+    public void Certificate_Template()
+    {
+      string workingDir = TestUtilities.CreateWorkingFolder(testContextInstance.TestDeploymentDir);
+
+      TestDataGenerator tg = new TestDataGenerator(workingDir);
+      {
+        IPDFReport report = new Certificates(tg.Model.GetRace(0), 10, true);
+
+        string filenameOutput = report.ProposeFilePath();
+        report.Generate(filenameOutput);
+
+        System.Diagnostics.Process.Start(filenameOutput);
+
+        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 0));
+      }
+    }
+
   }
 }
