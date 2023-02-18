@@ -203,7 +203,7 @@ namespace RaceHorologyLib
       _maxCertificatesPerGroup = maxCertificatesPerGroup;
       _generateTemplate = generateTemplate;
 
-      _variableReplacements.Add("<Vorname Name>", (rc, result) => { return result.Participant.Name; });
+      _variableReplacements.Add("<Vorname Name>", (rc, result) => { return result.Participant.Fullname; });
       _variableReplacements.Add("<Vorname>", (rc, result) => { return result.Participant.Firstname; } );
       _variableReplacements.Add("<Nachname>", (rc, result) => { return result.Participant.Name; } );
       _variableReplacements.Add("<Verein>", (rc, result) => { return result.Participant.Club; } );
@@ -237,7 +237,7 @@ namespace RaceHorologyLib
         foreach (var group in results.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
-          for(int i = Math.Min(_maxCertificatesPerGroup-1, cvGroup.Items.Count); cvGroup.Items.Count > 0 && i >= 0; i--)
+          for(int i = Math.Min(_maxCertificatesPerGroup, cvGroup.Items.Count)-1; i >= 0; i--)
           {
             var result = cvGroup.Items[i] as RaceResultItem;
             if (result.Position > 0)
@@ -248,7 +248,7 @@ namespace RaceHorologyLib
       else
       {
         var resultItems = results.SourceCollection.Cast<RaceResultItem>().ToList();
-        for (int i = Math.Min(_maxCertificatesPerGroup-1, resultItems.Count); resultItems.Count > 0 && i >= 0; i--)
+        for (int i = Math.Min(_maxCertificatesPerGroup-1, resultItems.Count)-1; i >= 0; i--)
         {
           var result = resultItems[i] as RaceResultItem;
           if (result.Position > 0)
