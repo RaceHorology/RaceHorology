@@ -16,7 +16,7 @@ using iText.Kernel.XMP.Impl;
 
 namespace RaceHorologyLib
 {
-  internal class PrintCertificateModel
+  public class PrintCertificateModel
   {
     public enum TextItemAlignment { Left = 0, Center = 2, Right = 1 };
     public struct TextItem
@@ -32,18 +32,7 @@ namespace RaceHorologyLib
 
     public PrintCertificateModel() 
     {
-      TextItems = new List<TextItem>()
-      {
-        new TextItem { Text = "SVM-Cup U12 VII", Font = "Haettenschweiler, kursiv, 28", Alignment = (TextItemAlignment) 2, VPos = 1345, HPos = 1050},
-        new TextItem { Text = "2022", Font = "Arial Rounded MT Bold, 28", Alignment = (TextItemAlignment) 2, VPos = 1480, HPos = 1050},
-        new TextItem { Text = "Riesenslalom", Font = "Bauhaus 93, fett, kursiv, 24", Alignment = (TextItemAlignment) 2, VPos = 1645, HPos = 1050},
-        new TextItem { Text = "<Vorname Name>", Font = "Arial Narrow, fett, kursiv, 20", Alignment = (TextItemAlignment) 2, VPos = 1881, HPos = 1050},
-        new TextItem { Text = "<Platz>. Platz", Font = "Arial, 16", Alignment = (TextItemAlignment) 2, VPos = 2042, HPos = 1050},
-        new TextItem { Text = "<Klasse>", Font = "Arial, 16", Alignment = (TextItemAlignment) 0, VPos = 2269, HPos = 240},
-        new TextItem { Text = "Zeit: <Zeit>", Font = "Arial, 16", Alignment = (TextItemAlignment) 1, VPos = 2269, HPos = 1820},
-        new TextItem { Text = "Kirchberg in Tirol, <Bewerbsdatum>", Font = "Arial, 12", Alignment = (TextItemAlignment) 0, VPos = 2389, HPos = 240},
-        new TextItem { Text = "WSV Glonn", Font = "Arial, 12", Alignment = (TextItemAlignment) 1, VPos = 2389, HPos = 1820}
-      };
+      TextItems = new List<TextItem>();
     }
 
   }
@@ -210,7 +199,7 @@ namespace RaceHorologyLib
       : base(race) 
     {
       _utils = new CertificatesUtils();
-      _certificateModel = new PrintCertificateModel();
+      _certificateModel = race.GetDataModel().GetDB().GetCertificateModel(race);
       _maxCertificatesPerGroup = maxCertificatesPerGroup;
       _generateTemplate = generateTemplate;
 

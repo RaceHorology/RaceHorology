@@ -41,6 +41,7 @@ using RaceHorologyLib;
 using System.IO;
 using System.Data.OleDb;
 using System.Linq;
+using static RaceHorologyLib.PrintCertificateModel;
 
 namespace RaceHorologyLibTest
 {
@@ -1520,6 +1521,39 @@ namespace RaceHorologyLibTest
 
       return bRes;
     }
+
+    #endregion
+
+
+    #region PrintCertificateModel
+
+    /// <summary>
+    /// Check reading different race runs
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Certificate.mdb")]
+    public void GetCertificateModel()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Certificate.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      var pcm = db.GetCertificateModel(model.GetRace(0));
+
+      Assert.AreEqual(9, pcm.TextItems.Count);
+
+      Assert.AreEqual("SVM-Cup U12 VII", pcm.TextItems[0].Text);
+      Assert.AreEqual("Haettenschweiler, kursiv, 28", pcm.TextItems[0].Font);
+      Assert.AreEqual(TextItemAlignment.Center, pcm.TextItems[0].Alignment);
+      Assert.AreEqual(1345, pcm.TextItems[0].VPos);
+      Assert.AreEqual(1050, pcm.TextItems[0].HPos);
+
+      db.Close();
+    }
+
+
 
     #endregion
 
