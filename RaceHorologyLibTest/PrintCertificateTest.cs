@@ -100,8 +100,7 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
         IPDFReport report = new Certificates(tg.Model.GetRace(0), 10, true);
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Template.pdf", 1000000));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Template.pdf", 1000000));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Template.pdf", 0));
       }
     }
 
