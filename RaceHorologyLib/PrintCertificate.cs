@@ -11,6 +11,8 @@ using iText.Kernel.Font;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Drawing;
+using DocumentFormat.OpenXml.Spreadsheet;
+using iText.Kernel.XMP.Impl;
 
 namespace RaceHorologyLib
 {
@@ -47,10 +49,17 @@ namespace RaceHorologyLib
   }
 
 
-  internal static class CertificatesUtils
+  internal class CertificatesUtils
   {
+    protected Dictionary<string, PdfFont> _fontCache;
+
+    public CertificatesUtils()
+    {
+      _fontCache = new Dictionary<string, PdfFont>();
+    }
+
     // Taken from: https://stackoverflow.com/questions/21525377/retrieve-filename-of-a-font
-    public static string GetSystemFontFileName(System.Drawing.Font font)
+    static string getSystemFontFileName(System.Drawing.Font font)
     {
       RegistryKey fonts = null;
       try
@@ -107,20 +116,20 @@ namespace RaceHorologyLib
       return TextAlignment.LEFT;
     }
 
-    public static int mapFontSize(string font)
+    public static int MapFontSize(string font)
     {
       var fontParts = font.Split(',');
       fontParts = Array.ConvertAll(fontParts, (f) => f.Trim());
       try { return int.Parse(fontParts.Last()); } catch (Exception) { return 10; }
     }
 
-    public static bool mapIsFontItalic(string font)
+    public static bool MapIsFontItalic(string font)
     {
       var fontParts = font.Split(',');
       fontParts = Array.ConvertAll(fontParts, (f) => f.Trim());
       return fontParts.Contains("kursiv");
     }
-    public static bool mapIsFontBold(string font)
+    public static bool MapIsFontBold(string font)
     {
       var fontParts = font.Split(',');
       fontParts = Array.ConvertAll(fontParts, (f) => f.Trim());
@@ -128,7 +137,7 @@ namespace RaceHorologyLib
     }
 
 
-    public static PdfFont mapFont(string font)
+    public PdfFont MapFont(string font)
     {
       var fontParts = font.Split(',');
       fontParts = Array.ConvertAll(fontParts, (f) => f.Trim());
@@ -143,12 +152,21 @@ namespace RaceHorologyLib
       //  fontStyle = fontStyle | FontStyle.Italic;
       //if (fontParts.Contains("fett"))
       //  fontStyle = fontStyle | FontStyle.Bold;
+      
+      var fontCacheKey = string.Format("{0}-{1}-{2}", fontName, fontSize, fontStyle);
+      if (_fontCache.ContainsKey(fontCacheKey))
+        return _fontCache[fontCacheKey];
+
       try
       {
         var fXC = new System.Drawing.Font(fontParts[0], fontSize, fontStyle);
-        var fXCFile = GetSystemFontFileName(fXC);
+        var fXCFile = getSystemFontFileName(fXC);
         if (fXCFile != null)
-          return PdfFontFactory.CreateFont(@"c:\windows\fonts\" + fXCFile, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED, true);
+        {
+          var pdfFont = PdfFontFactory.CreateFont(@"c:\windows\fonts\" + fXCFile, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED, true);
+          _fontCache.Add(fontCacheKey, pdfFont);
+          return pdfFont;
+        }
         else
           return null;
       }
@@ -175,6 +193,8 @@ namespace RaceHorologyLib
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     private bool _debugPdf = false;
+
+    CertificatesUtils _utils;
     PrintCertificateModel _certificateModel;
     int _maxCertificatesPerGroup;
     bool _generateTemplate;
@@ -189,6 +209,7 @@ namespace RaceHorologyLib
     public Certificates(Race race, int maxCertificatesPerGroup, bool generateTemplate = false)
       : base(race) 
     {
+      _utils = new CertificatesUtils();
       _certificateModel = new PrintCertificateModel();
       _maxCertificatesPerGroup = maxCertificatesPerGroup;
       _generateTemplate = generateTemplate;
@@ -271,13 +292,13 @@ namespace RaceHorologyLib
       foreach (var ti in _certificateModel.TextItems)
       {
         var par = new Paragraph(replaceVariables(ti.Text, result));
-        if (CertificatesUtils.mapIsFontBold(ti.Font))
+        if (CertificatesUtils.MapIsFontBold(ti.Font))
           par.SetBold();
-        if (CertificatesUtils.mapIsFontItalic(ti.Font))
+        if (CertificatesUtils.MapIsFontItalic(ti.Font))
           par.SetItalic();
 
-        par.SetFontSize(CertificatesUtils.mapFontSize(ti.Font));
-        var font = CertificatesUtils.mapFont(ti.Font);
+        par.SetFontSize(CertificatesUtils.MapFontSize(ti.Font));
+        var font = _utils.MapFont(ti.Font);
         if (font != null)
           par.SetFont(font);
 
