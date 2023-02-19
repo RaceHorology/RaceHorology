@@ -267,10 +267,10 @@ namespace RaceHorologyLibTest
       var pcm = new PrintCertificateModel();
       pcm.TextItems = new List<TextItem>()
       {
-        new TextItem { Text = "SVM-Cup U12 VII", Font = "Haettenschweiler, kursiv, 28", Alignment = (TextItemAlignment) 2, VPos = 1345, HPos = 1050},
-        new TextItem { Text = "2022", Font = "Arial Rounded MT Bold, 28", Alignment = (TextItemAlignment) 2, VPos = 1480, HPos = 1050},
-        new TextItem { Text = "Riesenslalom", Font = "Bauhaus 93, fett, kursiv, 24", Alignment = (TextItemAlignment) 2, VPos = 1645, HPos = 1050},
-        new TextItem { Text = "<Vorname Name>", Font = "Arial Narrow, fett, kursiv, 20", Alignment = (TextItemAlignment) 2, VPos = 1881, HPos = 1050},
+        new TextItem { Text = "Test Race", Font = "TxFont\r\nMicrosoft Sans Serif, kursiv, 28", Alignment = (TextItemAlignment) 2, VPos = 1345, HPos = 1050},
+        new TextItem { Text = "2022", Font = "TxFont\r\nMicrosoft Sans Serif, 28", Alignment = (TextItemAlignment) 2, VPos = 1480, HPos = 1050},
+        new TextItem { Text = "Riesenslalom", Font = "TxFont\r\nMicrosoft Sans Serif, fett, kursiv, 24", Alignment = (TextItemAlignment) 2, VPos = 1645, HPos = 1050},
+        new TextItem { Text = "<Vorname Name>", Font = "TxFont\r\nTimes New Roman, fett, kursiv, 20", Alignment = (TextItemAlignment) 2, VPos = 1881, HPos = 1050},
         new TextItem { Text = "<Platz>. Platz", Font = "Arial, 16", Alignment = (TextItemAlignment) 2, VPos = 2042, HPos = 1050},
         new TextItem { Text = "<Klasse>", Font = "Arial, 16", Alignment = (TextItemAlignment) 0, VPos = 2269, HPos = 240},
         new TextItem { Text = "Zeit: <Zeit>", Font = "Arial, 16", Alignment = (TextItemAlignment) 1, VPos = 2269, HPos = 1820},

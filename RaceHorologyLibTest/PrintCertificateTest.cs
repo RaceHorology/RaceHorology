@@ -86,7 +86,7 @@ namespace RaceHorologyLibTest
       Race race = model.GetRace(0);
       {
         IPDFReport report = new Certificates(race, 10);
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Urkunden.pdf", 0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Urkunden.pdf", 1));
       }
     }
 
@@ -100,7 +100,7 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
         IPDFReport report = new Certificates(tg.Model.GetRace(0), 10, true);
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Template.pdf", 0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Template.pdf", 1));
       }
     }
 
