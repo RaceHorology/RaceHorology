@@ -216,6 +216,12 @@ namespace RaceHorologyLib
       _variableReplacements.Add("<Datum>", (rc, result) => { return DateTime.Now.ToShortDateString(); });
     }
 
+    public int MaxCertificatesPerGroup
+    {
+      get { return _maxCertificatesPerGroup; }
+      set { _maxCertificatesPerGroup = value; }
+    }
+
     protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
     {
       _utils = new CertificatesUtils();

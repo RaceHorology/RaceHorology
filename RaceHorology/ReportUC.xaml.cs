@@ -16,11 +16,18 @@ namespace RaceHorology
     public string Text;
     public bool NeedsRaceRun = false;
     public Func<Race, RaceRun, IPDFReport> CreateReport;
+    public Func<UserControl> UserControl;
 
     public override string ToString()
     {
       return Text;
     }
+  }
+
+  interface IReportSubUC
+  {
+    void HandleReportGenerator(IPDFReport reportGenerator);
+    void Apply(IPDFReport reportGenerator);
   }
 
 
@@ -32,6 +39,10 @@ namespace RaceHorology
     private Race _race;
     private DelayedEventHandler _refreshDelay;
     IWarningLabelHandler _lblHandler;
+
+    ReportItem _currentRI;
+    IPDFReport _currentReport;
+    UserControl _currentSubUC;
 
 
     public ReportUC()
@@ -63,7 +74,7 @@ namespace RaceHorology
       items.Add(new ReportItem { Text = "Teilergebnisliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RaceRunResultReport(rr); } });
       items.Add(new ReportItem { Text = "Startliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new StartListReport(rr) : (IPDFReport)new StartListReport2ndRun(rr); } });
       items.Add(new ReportItem { Text = "Schiedsrichter Protokoll", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
-      items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); } });
+      items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => { return new CertificatesPrintUC(); } }) ;
 
       cmbReport.ItemsSource = items;
       cmbReport.SelectedIndex = 0;
@@ -110,7 +121,8 @@ namespace RaceHorology
 
     private void GenerateReportPreview()
     {
-      RaceListsUC.CreateAndOpenReport(getSelectedReport());
+      if (_currentReport != null)
+        RaceListsUC.CreateAndOpenReport(_currentReport);
     }
 
 
@@ -125,8 +137,12 @@ namespace RaceHorology
       var reportGenerator = getSelectedReport();
       if (reportGenerator != null)
       {
+        var reportSubUC = _currentSubUC as IReportSubUC;
+        if (reportSubUC != null)
+          reportSubUC.Apply(_currentReport);
+
         MemoryStream ms = new MemoryStream();
-        reportGenerator.Generate(ms);
+        _currentReport.Generate(ms);
 
         var settings = new CefSettings();
         settings.CefCommandLineArgs.Add("no-proxy-server", "1"); //Don't use a proxy server, always make direct connections. Overrides any other proxy server flags that are passed.
@@ -142,7 +158,7 @@ namespace RaceHorology
         if (cefBrowser.ResourceRequestHandlerFactory == null)
           cefBrowser.ResourceRequestHandlerFactory = new ResourceRequestHandlerFactory();
         var handler = cefBrowser.ResourceRequestHandlerFactory as ResourceRequestHandlerFactory;
-        string url = string.Format("file://{0}", reportGenerator.ProposeFilePath());
+        string url = string.Format("file://{0}", _currentReport.ProposeFilePath());
         if (handler != null)
           handler.RegisterHandler(url, ms.ToArray(), "application/pdf", true);
 
@@ -159,6 +175,15 @@ namespace RaceHorology
     {
       if (cmbReport.SelectedItem is ReportItem ri)
       {
+        if (_currentRI == ri)
+          return _currentReport;
+
+        if (_currentSubUC != null)
+        {
+          grdBottom.Children.Remove(_currentSubUC);
+          _currentSubUC = null;
+        }
+
         RaceRun selectedRaceRun = null;
         if (ri.NeedsRaceRun)
         {
@@ -166,7 +191,22 @@ namespace RaceHorology
           selectedRaceRun = selected?.Value as RaceRun;
         }
 
-        return ri.CreateReport(_race, selectedRaceRun);
+        _currentRI = ri;
+        _currentReport = ri.CreateReport(_race, selectedRaceRun);
+
+        if (ri.UserControl != null)
+        {
+          var uc = ri.UserControl();
+          grdBottom.Children.Add(uc);
+          Grid.SetRow(uc, 0);
+          Grid.SetColumn(uc, 0);
+          _currentSubUC = uc;
+
+          var reportSubUC = _currentSubUC as IReportSubUC;
+          reportSubUC.HandleReportGenerator(_currentReport);
+        }
+
+        return _currentReport;
       }
       return null;
     }
