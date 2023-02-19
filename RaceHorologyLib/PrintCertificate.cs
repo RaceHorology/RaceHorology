@@ -1,26 +1,16 @@
-﻿using iText.Kernel.Colors;
-using iText.Kernel.Pdf;
-using iText.Kernel.Pdf.Canvas;
+﻿using iText.Kernel.Pdf;
 using iText.Layout;
-using iText.Layout.Borders;
 using iText.Layout.Element;
-using iText.Layout.Layout;
 using iText.Layout.Properties;
-using iText;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static RaceHorologyLib.PrintCertificateModel;
-using iText.Kernel.Geom;
 using iText.IO.Font;
 using iText.Kernel.Font;
-using System.ArrayExtensions;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Drawing;
-using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace RaceHorologyLib
 {
@@ -158,7 +148,7 @@ namespace RaceHorologyLib
         var fXC = new System.Drawing.Font(fontParts[0], fontSize, fontStyle);
         var fXCFile = GetSystemFontFileName(fXC);
         if (fXCFile != null)
-          return PdfFontFactory.CreateFont(@"c:\windows\fonts\" + fXCFile, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+          return PdfFontFactory.CreateFont(@"c:\windows\fonts\" + fXCFile, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED, true);
         else
           return null;
       }
@@ -168,9 +158,9 @@ namespace RaceHorologyLib
       }
     }
 
-    public static float mmToPDFPoints(float micrometer)
+    public static float mmToPDFPoints(float tenthMilliMeter)
     {
-      float mm = micrometer / 10.0F;
+      float mm = tenthMilliMeter / 10.0F;
       //PdfNumber userUnit = null;// pdf.GetFirstPage().GetPdfObject().GetAsNumber(PdfName.UserUnit);
       //float userUnitValue = userUnit == null ? 72f : userUnit.FloatValue();
       return mm * 2.83F;// Manually calculated out of page size and compared with DIN A4
