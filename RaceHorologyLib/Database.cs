@@ -1899,24 +1899,31 @@ namespace RaceHorologyLib
       OleDbCommand command = new OleDbCommand(sql, _conn);
       command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
 
-      // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
+      try
       {
-        while (reader.Read())
+        // Execute command  
+        using (OleDbDataReader reader = command.ExecuteReader())
         {
-          var item = new PrintCertificateModel.TextItem();
+          while (reader.Read())
+          {
+            var item = new PrintCertificateModel.TextItem();
 
-          if (!reader.IsDBNull(reader.GetOrdinal("TxText")))
-            item.Text = reader["TxText"].ToString().Trim();
-          if (!reader.IsDBNull(reader.GetOrdinal("TxFont")))
-            item.Font = reader["TxFont"].ToString().Trim();
-          item.Alignment = (PrintCertificateModel.TextItemAlignment)(short)reader.GetValue(reader.GetOrdinal("TxAlign"));
-          item.VPos = (short)reader.GetValue(reader.GetOrdinal("TxVpos"));
-          item.HPos = (short)reader.GetValue(reader.GetOrdinal("TxHpos"));
+            if (!reader.IsDBNull(reader.GetOrdinal("TxText")))
+              item.Text = reader["TxText"].ToString().Trim();
+            if (!reader.IsDBNull(reader.GetOrdinal("TxFont")))
+              item.Font = reader["TxFont"].ToString().Trim();
+            item.Alignment = (PrintCertificateModel.TextItemAlignment)(short)reader.GetValue(reader.GetOrdinal("TxAlign"));
+            item.VPos = (short)reader.GetValue(reader.GetOrdinal("TxVpos"));
+            item.HPos = (short)reader.GetValue(reader.GetOrdinal("TxHpos"));
 
 
-          pcm.TextItems.Add(item);
+            pcm.TextItems.Add(item);
+          }
         }
+      }
+      catch (System.Data.OleDb.OleDbException)
+      {
+        return pcm;
       }
 
       return pcm;

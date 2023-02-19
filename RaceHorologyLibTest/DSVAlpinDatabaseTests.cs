@@ -1553,6 +1553,23 @@ namespace RaceHorologyLibTest
       db.Close();
     }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void GetCertificateModel_NoTemplate()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      var pcm = db.GetCertificateModel(model.GetRace(0));
+
+      Assert.AreEqual(0, pcm.TextItems.Count);
+
+      db.Close();
+    }
+
 
 
     #endregion
