@@ -60,10 +60,7 @@ namespace RaceHorologyLibTest
     #endregion
 
     [TestMethod]
-    //[DeploymentItem(@"TestOutputs\RefereeProtocol_Empty.pdf")]
-    //[DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
-    //[DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
-    //[DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
+    [DeploymentItem(@"TestOutputs\Certificate_Empty.pdf")]
     public void Certificate_Empty()
     {
       string workingDir = TestUtilities.CreateWorkingFolder(testContextInstance.TestDeploymentDir);
@@ -71,20 +68,14 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
         IPDFReport report = new Certificates(tg.Model.GetRace(0), 10);
-
-        string filenameOutput = report.ProposeFilePath();
-        report.Generate(filenameOutput);
-        
-        System.Diagnostics.Process.Start(filenameOutput);
-
-        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Empty.pdf", 0));
       }
     }
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
-    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 1. Durchgang.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Urkunden.pdf")]
     public void Integration_1554MSBS_Certificates()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
@@ -95,18 +86,13 @@ namespace RaceHorologyLibTest
       Race race = model.GetRace(0);
       {
         IPDFReport report = new Certificates(race, 10);
-
-        string filenameOutput = report.ProposeFilePath();
-        report.Generate(filenameOutput);
-
-        System.Diagnostics.Process.Start(filenameOutput);
-
-        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Urkunden.pdf", 0));
       }
     }
 
 
     [TestMethod]
+    [DeploymentItem(@"TestOutputs\Certificate_Template.pdf")]
     public void Certificate_Template()
     {
       string workingDir = TestUtilities.CreateWorkingFolder(testContextInstance.TestDeploymentDir);
@@ -114,13 +100,7 @@ namespace RaceHorologyLibTest
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
         IPDFReport report = new Certificates(tg.Model.GetRace(0), 10, true);
-
-        string filenameOutput = report.ProposeFilePath();
-        report.Generate(filenameOutput);
-
-        System.Diagnostics.Process.Start(filenameOutput);
-
-        //Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"RefereeProtocol_Empty.pdf", 0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Template.pdf", 0));
       }
     }
 
