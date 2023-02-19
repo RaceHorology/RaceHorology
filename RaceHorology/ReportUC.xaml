@@ -25,17 +25,19 @@
       <ComboBox x:Name="cmbReport" Margin="5" MinWidth="150" HorizontalContentAlignment="Left" Grid.Column="0" FontSize="16" SelectionChanged="cmbReport_SelectionChanged"/>
       <ComboBox x:Name="cmbRaceRun" Margin="5" MinWidth="150" HorizontalContentAlignment="Center" Grid.Column="1" FontSize="16" SelectionChanged="cmbRaceRun_SelectionChanged"/>
       <Label x:Name="lblWarning" Grid.Column="2" Content="***** Warning *****" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="Red" FontSize="16" VerticalAlignment="Center"/>
-      <Button x:Name="btnRefresh" Margin="5" Padding="5" Grid.Column="3" Content="Aktualisieren" Click="btnRefresh_Click" />
     </Grid>
 
-    <Grid Width="Auto" Grid.Row="2">
+    <Grid x:Name="grdBottom" Width="Auto" Grid.Row="2">
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Button x:Name="btnSave" Margin="5" Padding="5" Grid.Column="1" Content="Speichern (PDF)" Click="btnSave_Click"/>
-      <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="2" Content="Drucken" Click="btnPrint_Click"/>
+      <Button x:Name="btnRefresh" Margin="5" Padding="5" Grid.Column="1" Content="Aktualisieren" Click="btnRefresh_Click" />
+      <Button x:Name="btnSave" Margin="5" Padding="5" Grid.Column="3" Content="Speichern (PDF)" Click="btnSave_Click"/>
+      <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="4" Content="Drucken" Click="btnPrint_Click"/>
     </Grid>
 
     <wpf:ChromiumWebBrowser x:Name="cefBrowser" Grid.Row="1" Margin="5" />

@@ -2059,8 +2059,7 @@ namespace RaceHorologyLib
     void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp);
 
 
-
-
+    PrintCertificateModel GetCertificateModel(Race race);
 
 
     void StoreKeyValue(string key, string value);

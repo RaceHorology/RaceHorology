@@ -43,6 +43,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static RaceHorologyLib.PrintCertificateModel;
+using static RaceHorologyLib.RaceResultItem;
 
 namespace RaceHorologyLib
 {
@@ -1885,6 +1887,47 @@ namespace RaceHorologyLib
 
 
 
+
+    public PrintCertificateModel GetCertificateModel(Race race)
+    {
+      var pcm = new PrintCertificateModel();
+
+      string sql = @"SELECT * " +
+                   @"FROM XtblUrkunde " +
+                   @"WHERE Disziplin = @disziplin";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+
+      try
+      {
+        // Execute command  
+        using (OleDbDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            var item = new PrintCertificateModel.TextItem();
+
+            if (!reader.IsDBNull(reader.GetOrdinal("TxText")))
+              item.Text = reader["TxText"].ToString().Trim();
+            if (!reader.IsDBNull(reader.GetOrdinal("TxFont")))
+              item.Font = reader["TxFont"].ToString().Trim();
+            item.Alignment = (PrintCertificateModel.TextItemAlignment)(short)reader.GetValue(reader.GetOrdinal("TxAlign"));
+            item.VPos = (short)reader.GetValue(reader.GetOrdinal("TxVpos"));
+            item.HPos = (short)reader.GetValue(reader.GetOrdinal("TxHpos"));
+
+
+            pcm.TextItems.Add(item);
+          }
+        }
+      }
+      catch (System.Data.OleDb.OleDbException)
+      {
+        return pcm;
+      }
+
+      return pcm;
+    }
 
 
 

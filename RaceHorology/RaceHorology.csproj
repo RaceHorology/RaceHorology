@@ -142,6 +142,9 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CertificatesPrintUC.xaml.cs">
+      <DependentUpon>CertificatesPrintUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ExportResultDlg.xaml.cs">
       <DependentUpon>ExportResultDlg.xaml</DependentUpon>
     </Compile>
@@ -240,6 +243,10 @@
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CertificatesPrintUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
