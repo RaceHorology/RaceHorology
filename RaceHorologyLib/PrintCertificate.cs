@@ -1,4 +1,4 @@
-﻿using iText.Kernel.Pdf;
+using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
@@ -198,7 +198,6 @@ namespace RaceHorologyLib
     public Certificates(Race race, int maxCertificatesPerGroup, bool generateTemplate = false)
       : base(race) 
     {
-      _utils = new CertificatesUtils();
       _certificateModel = race.GetDataModel().GetDB().GetCertificateModel(race);
       _maxCertificatesPerGroup = maxCertificatesPerGroup;
       _generateTemplate = generateTemplate;
@@ -219,6 +218,8 @@ namespace RaceHorologyLib
 
     protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
     {
+      _utils = new CertificatesUtils();
+
       _firstPage = true;
 
       _document.SetMargins(0, 0, 0, 0);

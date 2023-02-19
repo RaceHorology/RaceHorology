@@ -777,7 +777,6 @@ namespace RaceHorologyLib
       _dm = race.GetDataModel();
       _pdfDocument = null;
       _document = null;
-      _pdfHelper = new PDFHelper(_dm);
     }
 
     protected abstract string getReportName();
@@ -801,6 +800,7 @@ namespace RaceHorologyLib
     public virtual void Generate(Stream stream, DateTime? creationDateTime = null)
     {
       var writer = new PdfWriter(stream);
+      _pdfHelper = new PDFHelper(_dm);
       _pdfDocument = new PdfDocument(writer);
       _pdfDocument.GetDocumentInfo().SetAuthor("Race Horology").SetTitle(getReportName());
       _document = new Document(_pdfDocument, PageSize.A4);
@@ -842,17 +842,17 @@ namespace RaceHorologyLib
       var header = createHeader();
       var footer = createFooter(creationDateTime != null ? (DateTime)creationDateTime : DateTime.Now);
 
-      _pdfDocument.AddEventHandler(PdfDocumentEvent.END_PAGE, header);
-      _pdfDocument.AddEventHandler(PdfDocumentEvent.END_PAGE, footer);
+      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, header);
+      pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, footer);
       //var pageXofY = new PageXofY(pdf);
       //pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, pageXofY);
 
       var mTop = header.Height + _pageMargins.Top;
       var mBottom = _pageMargins.Bottom + footer.Height;
-      _document.SetMargins(mTop, _pageMargins.Right, mBottom, _pageMargins.Left);
+      document.SetMargins(mTop, _pageMargins.Right, mBottom, _pageMargins.Left);
 
-      addContent(_pdfDocument, _document);
-      
+      addContent(pdf, document);
+
       //pageXofY.WriteTotal(pdf);
     }
 
