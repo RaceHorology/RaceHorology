@@ -1544,8 +1544,8 @@ namespace RaceHorologyLibTest
 
       Assert.AreEqual(9, pcm.TextItems.Count);
 
-      Assert.AreEqual("SVM-Cup U12 VII", pcm.TextItems[0].Text);
-      Assert.AreEqual("Haettenschweiler, kursiv, 28", pcm.TextItems[0].Font);
+      Assert.AreEqual("Test Race", pcm.TextItems[0].Text);
+      Assert.AreEqual("Microsoft Sans Serif, kursiv, 28", pcm.TextItems[0].Font);
       Assert.AreEqual(TextItemAlignment.Center, pcm.TextItems[0].Alignment);
       Assert.AreEqual(1345, pcm.TextItems[0].VPos);
       Assert.AreEqual(1050, pcm.TextItems[0].HPos);
