@@ -47,6 +47,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace RaceHorology
 {
@@ -453,7 +454,7 @@ namespace RaceHorology
       mlapaStart.Init(_ltpa[0], _thisRace);
       mlapaFinish.Init(_ltpa[1], _thisRace);
 
-      UpdateLiveTimingStartStopButtons(false); // Initial status
+      UpdateLiveTimingStartStopButtons(); 
 
       if (showParticipantAssignment)
       {
@@ -614,63 +615,61 @@ namespace RaceHorology
         RaceRun selRRUI = (cmbRaceRun.SelectedValue as CBItem)?.Value as RaceRun;
         System.Diagnostics.Debug.Assert(selRRUI == _currentRaceRun);
 
-        UpdateLiveTimingStartStopButtons(isRunning);
+        UpdateLiveTimingStartStopButtons();
       });
     }
 
-
-    private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
+    private void TimingStartStop_Click(object sender, RoutedEventArgs e)
     {
-      if (_liveTimingMeasurement == null)
-      {
+      if (_liveTimingMeasurement == null) { // should never been triggered, but just to make sure
         MessageBox.Show("Zeitnahmegerät ist nicht verfügbar.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
         return;
       }
 
-      if (!_thisRace.IsConsistent)
-      {
-        MessageBox.Show("Die Startnummern sind nicht eindeutig zugewiesen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
-      }
+      if (!_liveTimingMeasurement.IsRunning) {
+        if (!_thisRace.IsConsistent) {
+          MessageBox.Show("Die Startnummern sind nicht eindeutig zugewiesen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
 
-      if (_thisRace.GetPreviousRun(_currentRaceRun) != null && !_thisRace.GetPreviousRun(_currentRaceRun).IsComplete)
-      {
-        MessageBox.Show("Der vorhergehende Durchlauf ist noch nicht komplett abgeschlossen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
-      }
+        if (_thisRace.GetPreviousRun(_currentRaceRun) != null && !_thisRace.GetPreviousRun(_currentRaceRun).IsComplete) {
+          MessageBox.Show("Der vorhergehende Durchlauf ist noch nicht komplett abgeschlossen.\n(Die Zeitnahme wird dennoch gestartet.)", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
 
-      _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
-      _liveTimingMeasurement.Start();
+        _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
+        _liveTimingMeasurement.Start();
+
+        Image ImageStartStopButton = (Image)btnTimingStartStop.FindName("ImageStartStopButton");
+        BitmapImage bitmap = (BitmapImage)Application.Current.Resources["IconStopRed"];
+        ImageStartStopButton.Source = bitmap;
+
+      } else {
+        if (_liveTimingMeasurement == null)
+          return;
+
+        _liveTimingMeasurement.Stop();
+        Image ImageStartStopButton = (Image)btnTimingStartStop.FindName("ImageStartStopButton");
+        BitmapImage bitmap = (BitmapImage)Application.Current.Resources["IconPlay"];
+        ImageStartStopButton.Source = bitmap;
+
+      }
     }
 
-
-    private void LiveTimingStop_Click(object sender, RoutedEventArgs e)
-    {
-      if (_liveTimingMeasurement == null)
-        return;
-
-      _liveTimingMeasurement.Stop();
-    }
-
-
-    private void UpdateLiveTimingStartStopButtons(bool isRunning)
+    private void UpdateLiveTimingStartStopButtons()
     {
       // Enable buttons if Timing Device is generally online
       bool enableButtons = _liveTimingMeasurement?.LiveTimingDevice?.IsOnline == true;
 
-      btnLiveTimingStart.IsEnabled = enableButtons;
-      btnLiveTimingStop.IsEnabled = enableButtons;
 
       if (!enableButtons)
       {
-        btnLiveTimingStart.IsChecked = false;
-        btnLiveTimingStop.IsChecked = false;
+        btnTimingStartStop.Visibility = Visibility.Hidden;
         imgTabHeaderTiming.Visibility = Visibility.Collapsed;
       }
       else
       {
+        btnTimingStartStop.Visibility = Visibility.Visible;
         bool running = _liveTimingMeasurement.IsRunning;
         // Set corresponding color whether running or not
-        btnLiveTimingStart.IsChecked = running;
-        btnLiveTimingStop.IsChecked = !running;
         imgTabHeaderTiming.Visibility = running ? Visibility.Visible : Visibility.Collapsed;
       }
     }

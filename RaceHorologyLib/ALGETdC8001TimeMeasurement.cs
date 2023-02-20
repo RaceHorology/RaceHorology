@@ -35,11 +35,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace RaceHorologyLib
 {
@@ -81,6 +83,8 @@ namespace RaceHorologyLib
     public abstract void Stop();
 
     public abstract bool IsOnline { get; }
+    public abstract bool IsBroken { get; }
+
     public abstract bool IsStarted { get; }
     public abstract event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
@@ -263,6 +267,7 @@ namespace RaceHorologyLib
     private string _dumpDir;
     System.IO.StreamWriter _dumpFile;
     private string _internalProtocol;
+    private bool _isBroken = false;
 
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
@@ -345,6 +350,10 @@ namespace RaceHorologyLib
       }
     }
 
+    public override bool IsBroken {
+      get { return _isBroken; }
+    }
+
 
     public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
@@ -367,7 +376,6 @@ namespace RaceHorologyLib
         {
           _statusText = "Serial port not available";
           setInternalStatus(EInternalStatus.NoCOMPort);
-
           System.Threading.Thread.Sleep(2000);
           continue;
         }
@@ -387,6 +395,12 @@ namespace RaceHorologyLib
         { continue; }
         catch (System.IO.IOException)
         { }
+        catch (Exception e)
+        {
+          if (!(e is TimeoutException)) { 
+
+          }
+        }
       }
 
       Logger.Info("closing serial port");
@@ -413,6 +427,7 @@ namespace RaceHorologyLib
         try
         {
           _serialPort.Open();
+          _serialPort.ReadTimeout = 5000;
         }
         catch (ArgumentException)
         {
@@ -420,6 +435,10 @@ namespace RaceHorologyLib
         }
         catch (IOException)
         {
+          if (!_isBroken)
+          {
+            _isBroken = true;
+          }
           return false;
         }
         catch (InvalidOperationException)
@@ -431,6 +450,7 @@ namespace RaceHorologyLib
           return false;
         }
       }
+      _isBroken = false;
       return true;
     }
 

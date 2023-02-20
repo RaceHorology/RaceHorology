@@ -647,6 +647,9 @@
 
   <Fragment>
     <ComponentGroup Id="resources_files" Directory="resources_files">
+      <Component Id="resources_611738__cheezery__zonk.wav" Guid="bbb1bd95-cc8b-4965-8a80-16f284cbfb9d">
+        <File Id="resources_611738__cheezery__zonk.wav" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\resources\611738__cheezery__zonk.wav" />
+      </Component>
       <Component Id="resources_count_down_high_long.wav" Guid="991ee225-3268-4c0e-a6d1-e6abc3fb385c">
         <File Id="resources_count_down_high_long.wav" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\resources\count_down_high_long.wav" />
       </Component>
