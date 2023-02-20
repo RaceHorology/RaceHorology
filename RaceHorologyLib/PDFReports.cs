@@ -1729,65 +1729,7 @@ namespace RaceHorologyLib
 
     protected override void addHeaderToTable(Table table)
     {
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Stnr")));
-      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
-        .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("")));
+      //preserve function for later use, but do not add a header in this report!
 
 
     }
