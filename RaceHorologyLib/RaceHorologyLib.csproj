@@ -97,6 +97,7 @@
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="OfflineTimingMeasurement.cs" />
     <Compile Include="PDFReports.cs" />
+    <Compile Include="PrintCertificate.cs" />
     <Compile Include="Progress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaceConfiguration.cs" />
@@ -170,6 +171,9 @@
     <None Include="raceconfigpresets\DSV Erwachsene.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="raceconfigpresets\DSV Schüler U12 Kids Cross.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="raceconfigpresets\DSV Schüler U14-U16.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -215,6 +219,12 @@
     <EmbeddedResource Include="resources\FreeSansOblique.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <None Include="raceconfigpresets\Vielseitigkeit %28Nicht-Punkte%29.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raceconfigpresets\Vielseitigkeit %28Punkte%29.preset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

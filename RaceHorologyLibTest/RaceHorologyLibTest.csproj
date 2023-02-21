@@ -193,6 +193,7 @@
     <Compile Include="LiveTimingFISTest.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />
+    <Compile Include="PrintCertificateTest.cs" />
     <Compile Include="RaceConfigurationTest.cs" />
     <Compile Include="RefereeProtocolTest.cs" />
     <Compile Include="StartNumberTest.cs" />
@@ -294,10 +295,10 @@
     <Content Include="TestDataBases\FullTestCases\Case5-DSV-less-qualified-CutOffPoints\2852MSBS.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestDataBases\TestDB_DeactivatedParticipants.mdb">
+    <Content Include="TestDataBases\TestDB_Certificate.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestOutputs\TestDB_LessParticipants_MultipleRaces - Ergebnis 1. Durchgang.pdf">
+    <Content Include="TestDataBases\TestDB_DeactivatedParticipants.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="TestOutputs\1554MSBS\1554MSBS - Ergebnis 1. Durchgang.pdf">
@@ -324,7 +325,16 @@
     <None Include="TestOutputs\1554MSBS\1554MSBS - Zeitnehmer Checkliste 2. Durchgang.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Urkunden.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestOutputs\Base_RaceReport.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\Certificate_Empty.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\Certificate_Template.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestOutputs\HandTimingCalc_Report.pdf">

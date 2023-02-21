@@ -418,8 +418,8 @@ namespace RaceHorologyLib
               {CompetitionProperties.ECompetitionType.DSV_NoPoints, "DSV Erwachsene" },
               {CompetitionProperties.ECompetitionType.DSV_SchoolPoints, "DSV Schüler U14-U16" },
               {CompetitionProperties.ECompetitionType.DSV_SchoolNoPoints, "DSV Schüler U14-U16" },
-              //{CompetitionProperties.ECompetitionType.VersatilityPoints, "???" },  // BestOfTwo-Points
-              //{CompetitionProperties.ECompetitionType.VersatilityNoPoints, "Vereinsrennen - BestOfTwo" },
+              {CompetitionProperties.ECompetitionType.VersatilityPoints, "Vielseitigkeit (Punkte)" },  // BestOfTwo-Points
+              {CompetitionProperties.ECompetitionType.VersatilityNoPoints, "Vielseitigkeit (Nicht-Punkte)" },
               {CompetitionProperties.ECompetitionType.ClubInternal_Sum, "Vereinsrennen - Summe" },
               {CompetitionProperties.ECompetitionType.ClubInternal_BestRun, "Vereinsrennen - BestOfTwo" },
               //{CompetitionProperties.ECompetitionType.Parallel, "???" },
@@ -2059,8 +2059,7 @@ namespace RaceHorologyLib
     void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp);
 
 
-
-
+    PrintCertificateModel GetCertificateModel(Race race);
 
 
     void StoreKeyValue(string key, string value);

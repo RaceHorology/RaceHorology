@@ -229,7 +229,6 @@ namespace RaceHorologyLibTest
     }
 
     [TestMethod, TestCategory("IntegrationDsvOnline")]
-    [Ignore]
     public void ImportPointListViaWeb_U18()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);

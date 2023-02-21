@@ -889,29 +889,29 @@ namespace RaceHorologyLib
 
 
     // Some public properties to get displayed in the list
-    public RaceParticipant Participant { get { return _participant; } }
-    public uint StartNumber { get { return _participant.StartNumber; } }
-    public string Id { get { return _participant.Id; } }
-    public string Name { get { return _participant.Name; } }
-    public string Firstname { get { return _participant.Firstname; } }
-    public uint Year { get { return _participant.Year; } }
-    public string Club { get { return _participant.Club; } }
-    public ParticipantClass Class { get { return _participant.Class; } }
-    public ParticipantGroup Group { get => _participant.Group; }
-    public ParticipantCategory Sex { get { return _participant.Sex; } }
-    public string Nation { get { return _participant.Nation; } }
-    public string SvId { get { return _participant.SvId; } }
-    public string Code { get { return _participant.Code; } }
+    virtual public RaceParticipant Participant { get { return _participant; } }
+    virtual public uint StartNumber { get { return _participant.StartNumber; } }
+    virtual public string Id { get { return _participant.Id; } }
+    virtual public string Name { get { return _participant.Name; } }
+    virtual public string Firstname { get { return _participant.Firstname; } }
+    virtual public uint Year { get { return _participant.Year; } }
+    virtual public string Club { get { return _participant.Club; } }
+    virtual public ParticipantClass Class { get { return _participant.Class; } }
+    virtual public ParticipantGroup Group { get => _participant.Group; }
+    virtual public ParticipantCategory Sex { get { return _participant.Sex; } }
+    virtual public string Nation { get { return _participant.Nation; } }
+    virtual public string SvId { get { return _participant.SvId; } }
+    virtual public string Code { get { return _participant.Code; } }
 
 
-    public TimeSpan? Runtime { get { return GetRunTime(); } }
-    public TimeSpan? RuntimeWOResultCode { get { return GetRunTime(true, false); } }
-    public TimeSpan? RuntimeIntern { get { return GetRunTime(false, false); } }
-    public EResultCode ResultCode { get { return _resultCode; } set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } }
-    public string DisqualText { get { return _disqualText; } set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } }
+    virtual public TimeSpan? Runtime { get { return GetRunTime(); } }
+    virtual public TimeSpan? RuntimeWOResultCode { get { return GetRunTime(true, false); } }
+    virtual public TimeSpan? RuntimeIntern { get { return GetRunTime(false, false); } }
+    virtual public EResultCode ResultCode { get { return _resultCode; } set { if (_resultCode != value) { _resultCode = value; NotifyPropertyChanged(); } } }
+    virtual public string DisqualText { get { return _disqualText; } set { if (_disqualText != value) { _disqualText = value; NotifyPropertyChanged(); } } }
 
-    public TimeSpan? FinishTime { get { return _finishTime; } }
-    public TimeSpan? StartTime { get { return _startTime; } }
+    virtual public TimeSpan? FinishTime { get { return _finishTime; } }
+    virtual public TimeSpan? StartTime { get { return _startTime; } }
 
 
     public RunResult(RaceParticipant particpant)
@@ -935,7 +935,7 @@ namespace RaceHorologyLib
       _disqualText = original._disqualText;
     }
 
-    public void UpdateRunResult(RunResult original)
+    public virtual void UpdateRunResult(RunResult original)
     {
       if (original != null)
       {
@@ -963,13 +963,13 @@ namespace RaceHorologyLib
       NotifyPropertyChanged(propertyName: nameof(DisqualText));
     }
 
-    public bool IsEmpty()
+    virtual public bool IsEmpty()
     {
       return _startTime == null && _finishTime == null && _runTime == null && string.IsNullOrEmpty(_disqualText) && _resultCode == EResultCode.NotSet;
     }
 
 
-    public void SetRunTime(TimeSpan? t, bool resetResultCode = true)
+    virtual public void SetRunTime(TimeSpan? t, bool resetResultCode = true)
     {
       _runTime = t;
 
@@ -998,7 +998,7 @@ namespace RaceHorologyLib
     }
 
 
-    public void SetStartTime(TimeSpan? startTime, bool resetResultCode = true)
+    virtual public void SetStartTime(TimeSpan? startTime, bool resetResultCode = true)
     {
       _startTime = startTime;
 
@@ -1028,7 +1028,7 @@ namespace RaceHorologyLib
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public void SetFinishTime(TimeSpan? finishTime, bool resetResultCode = true)
+    virtual public void SetFinishTime(TimeSpan? finishTime, bool resetResultCode = true)
     {
       _finishTime = finishTime;
 
@@ -1050,8 +1050,8 @@ namespace RaceHorologyLib
       NotifyPropertyChanged(propertyName: nameof(Runtime));
     }
 
-    public TimeSpan? GetStartTime() { return _startTime; }
-    public TimeSpan? GetFinishTime() { return _finishTime; }
+    virtual public TimeSpan? GetStartTime() { return _startTime; }
+    virtual public TimeSpan? GetFinishTime() { return _finishTime; }
 
 
     public override string ToString()
