@@ -82,10 +82,6 @@ namespace RaceHorology
 
       InitializeComponent();
 
-      //TextboxStartHeight.TextChanged += TextboxHeight_TextChanged;
-      //TextboxFinishHeight.TextChanged += TextboxHeight_TextChanged;
-
-
       ucStartNumbers.Init(_dataModel, _thisRace, tabControlRace1, tabItemStartNumberAssignment);
       ucDisqualify.Init(_dataModel, _thisRace);
       
