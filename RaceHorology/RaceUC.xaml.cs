@@ -47,6 +47,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using WebSocketSharp;
 
 namespace RaceHorology
 {
@@ -66,7 +67,6 @@ namespace RaceHorology
 
     RemainingStartListViewProvider _rslVP;
 
-
     public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
       _dataModel = dm;
@@ -81,6 +81,10 @@ namespace RaceHorology
       ).Delayed;
 
       InitializeComponent();
+
+      //TextboxStartHeight.TextChanged += TextboxHeight_TextChanged;
+      //TextboxFinishHeight.TextChanged += TextboxHeight_TextChanged;
+
 
       ucStartNumbers.Init(_dataModel, _thisRace, tabControlRace1, tabItemStartNumberAssignment);
       ucDisqualify.Init(_dataModel, _thisRace);
@@ -220,6 +224,60 @@ namespace RaceHorology
       }
     }
 
+
+    private void txtHeight_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      var text = "";
+      int startHeight, finishHeight, diffHeight;
+      if (int.TryParse(txtStartHeight.Text, out startHeight) &&
+          int.TryParse(txtFinishHeight.Text, out finishHeight))
+      {
+        if (startHeight > finishHeight)
+        {
+          // Both textboxes contain valid integer values
+          diffHeight = startHeight - finishHeight;
+          text = $"Höhendifferenz (m): {diffHeight}";
+        }
+      }
+      LabelDiffHeight.Content = text;
+    }
+
+
+    private void TextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+      if (sender is TextBox textbox)
+      {
+        int value;
+        if (int.TryParse(textbox.Text, out value))
+        {
+          int delta = Keyboard.Modifiers == ModifierKeys.Control? 10 : 1;
+          if (e.Delta > 0)
+            value += delta;
+          else
+            if (value > 0)
+              value -= delta;
+
+          textbox.Text = string.Format("{0}", value);
+        }
+        e.Handled = true;
+      }
+    }
+
+    private void txtStartHeight_LostFocus(object sender, RoutedEventArgs e)
+    {
+      int value = 0;
+      int.TryParse(txtFinishHeight.Text, out value);
+      if (!txtStartHeight.Text.IsNullOrEmpty() && (txtFinishHeight.Text.IsNullOrEmpty() || value ==0))
+        txtFinishHeight.Text = txtStartHeight.Text;
+    }
+
+    private void txtFinishHeight_LostFocus(object sender, RoutedEventArgs e)
+    {
+      int value = 0;
+      int.TryParse(txtStartHeight.Text, out value);
+      if (!txtFinishHeight.Text.IsNullOrEmpty() && (txtStartHeight.Text.IsNullOrEmpty() || value == 0))
+        txtStartHeight.Text = txtFinishHeight.Text;
+    }
 
 
     #endregion
@@ -977,8 +1035,8 @@ namespace RaceHorology
       }
     }
 
-
     #endregion
+
   }
 
 }
