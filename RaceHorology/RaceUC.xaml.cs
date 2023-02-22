@@ -262,6 +262,23 @@ namespace RaceHorology
       }
     }
 
+    private void txtStartHeight_LostFocus(object sender, RoutedEventArgs e)
+    {
+      int value = 0;
+      int.TryParse(txtFinishHeight.Text, out value);
+      if (!txtStartHeight.Text.IsNullOrEmpty() && (txtFinishHeight.Text.IsNullOrEmpty() || value ==0))
+        txtFinishHeight.Text = txtStartHeight.Text;
+    }
+
+    private void txtFinishHeight_LostFocus(object sender, RoutedEventArgs e)
+    {
+      int value = 0;
+      int.TryParse(txtStartHeight.Text, out value);
+      if (!txtFinishHeight.Text.IsNullOrEmpty() && (txtStartHeight.Text.IsNullOrEmpty() || value == 0))
+        txtStartHeight.Text = txtFinishHeight.Text;
+    }
+
+
     #endregion
 
 

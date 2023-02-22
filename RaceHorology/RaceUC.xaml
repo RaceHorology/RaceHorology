@@ -160,10 +160,10 @@
               </Grid.RowDefinitions>
 
               <Label Content="Starthöhe (m):" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right" />
-              <TextBox x:Name="TextBoxStartHeight" Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60" TextChanged="TextboxHeight_TextChanged" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
+              <TextBox x:Name="txtStartHeight" Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60" TextChanged="txtHeight_TextChanged" PreviewMouseWheel="TextBox_PreviewMouseWheel" LostFocus="txtStartHeight_LostFocus" />
 
               <Label Content="Zielhöhe (m):" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right" />
-              <TextBox x:Name="TextBoxFinishHeight" Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60" TextChanged="TextboxHeight_TextChanged" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
+              <TextBox x:Name="txtFinishHeight" Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60" TextChanged="txtHeight_TextChanged" PreviewMouseWheel="TextBox_PreviewMouseWheel" LostFocus="txtFinishHeight_LostFocus" />
 
               <Label x:Name="LabelDiffHeight" Grid.Row="0" Grid.Column="4" MinWidth="30" Content="Initial" HorizontalAlignment="Right" />
 
