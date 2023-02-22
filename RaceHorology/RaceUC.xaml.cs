@@ -100,40 +100,6 @@ namespace RaceHorology
       ucReports.Init(_thisRace);
     }
 
-    private void TextboxHeight_TextChanged(object sender, TextChangedEventArgs e)
-    {
-      int startHeight, finishHeight, diffHeight;
-      if (int.TryParse(TextBoxStartHeight.Text, out startHeight) &&
-          int.TryParse(TextBoxFinishHeight.Text, out finishHeight)) {
-        if (startHeight > finishHeight) {
-          // Both textboxes contain valid integer values
-          diffHeight = startHeight - finishHeight;
-          LabelDiffHeight.Content = $"Höhendifferenz (m): {diffHeight}";
-        } else {
-          LabelDiffHeight.Content = "";
-        }
-      } else {
-        LabelDiffHeight.Content = "";
-      }
-    }
-
-    private void TextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-    {
-      TextBox textbox = sender as TextBox;
-      int value;
-      if (int.TryParse(textbox.Text, out value)) {
-        if (e.Delta > 0) {
-          value++;
-        } else {
-          if (value > 0) {
-            value--;
-          }
-        }
-        textbox.Text = value.ToString();
-      }
-      e.Handled = true;
-    }
-
     public Race GetRace() { return _thisRace; }
     public RaceRun GetRaceRun() { return _currentRaceRun; }
 
@@ -258,6 +224,43 @@ namespace RaceHorology
     }
 
 
+    private void txtHeight_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      var text = "";
+      int startHeight, finishHeight, diffHeight;
+      if (int.TryParse(txtStartHeight.Text, out startHeight) &&
+          int.TryParse(txtFinishHeight.Text, out finishHeight))
+      {
+        if (startHeight > finishHeight)
+        {
+          // Both textboxes contain valid integer values
+          diffHeight = startHeight - finishHeight;
+          text = $"Höhendifferenz (m): {diffHeight}";
+        }
+      }
+      LabelDiffHeight.Content = text;
+    }
+
+
+    private void TextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+      if (sender is TextBox textbox)
+      {
+        int value;
+        if (int.TryParse(textbox.Text, out value))
+        {
+          int delta = Keyboard.Modifiers == ModifierKeys.Control? 10 : 1;
+          if (e.Delta > 0)
+            value += delta;
+          else
+            if (value > 0)
+              value -= delta;
+
+          textbox.Text = string.Format("{0}", value);
+        }
+        e.Handled = true;
+      }
+    }
 
     #endregion
 
@@ -1014,8 +1017,8 @@ namespace RaceHorology
       }
     }
 
-
     #endregion
+
   }
 
 }
