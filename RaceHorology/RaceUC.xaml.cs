@@ -66,7 +66,6 @@ namespace RaceHorology
 
     RemainingStartListViewProvider _rslVP;
 
-
     public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
     {
       _dataModel = dm;
@@ -82,6 +81,10 @@ namespace RaceHorology
 
       InitializeComponent();
 
+      //TextboxStartHeight.TextChanged += TextboxHeight_TextChanged;
+      //TextboxFinishHeight.TextChanged += TextboxHeight_TextChanged;
+
+
       ucStartNumbers.Init(_dataModel, _thisRace, tabControlRace1, tabItemStartNumberAssignment);
       ucDisqualify.Init(_dataModel, _thisRace);
       
@@ -95,6 +98,23 @@ namespace RaceHorology
 
       ucRaceLists.Init(_thisRace);
       ucReports.Init(_thisRace);
+    }
+
+    private void TextboxHeight_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      int startHeight, finishHeight, diffHeight;
+      if (int.TryParse(TextBoxStartHeight.Text, out startHeight) &&
+          int.TryParse(TextBoxFinishHeight.Text, out finishHeight)) {
+        if (startHeight > finishHeight) {
+          // Both textboxes contain valid integer values
+          diffHeight = startHeight - finishHeight;
+          LabelDiffHeight.Content = $"Höhendifferenz (m): {diffHeight}";
+        } else {
+          LabelDiffHeight.Content = "";
+        }
+      } else {
+        LabelDiffHeight.Content = "";
+      }
     }
 
     public Race GetRace() { return _thisRace; }

@@ -153,24 +153,25 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
 
-              <Label Margin="0,0,5,0" Content="Starthöhe (m):" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60"/>
+              <Label Content="Starthöhe (m):" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox x:Name="TextBoxStartHeight" Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60" TextChanged="TextboxHeight_TextChanged" />
 
               <Label Content="Zielhöhe (m):" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60"/>
+              <TextBox x:Name="TextBoxFinishHeight" Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60" TextChanged="TextboxHeight_TextChanged" />
 
-              <Label Content="Länge:" Grid.Row="0" Grid.Column="4" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="5" Text="{Binding Path=CoarseLength}" MinWidth="60"/>
+              <Label x:Name="LabelDiffHeight" Grid.Row="0" Grid.Column="4" MinWidth="30" Content="Initial" HorizontalAlignment="Right" />
 
-              <Label Margin="0,0,5,0" Content="Homolog Nr." Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Path=CoarseHomologNo}"/>
+              <Label Content="Länge (m):" Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5,5,5,5"  Grid.Row="1" Grid.Column="1" Text="{Binding Path=CoarseLength}" MinWidth="60"/>
+
+              <Label Margin="0,0,5,0" Content="Homolog Nr." Grid.Row="1" Grid.Column="2" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" Text="{Binding Path=CoarseHomologNo}"/>
 
             </Grid>
 
