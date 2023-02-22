@@ -117,6 +117,44 @@ namespace RaceHorology
       }
     }
 
+    private void TextBoxStartHeight_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+      TextBox textbox = sender as TextBox;
+      int value;
+      if (int.TryParse(textbox.Text, out value))
+      {
+        if (e.Delta > 0) // Mausrad nach oben gedreht
+        {
+          value++;
+        }
+        else // Mausrad nach unten gedreht
+        {
+          value--;
+        }
+        textbox.Text = value.ToString();
+      }
+      e.Handled = true; // Das Ereignis behandelt, damit es nicht weitergeleitet wird
+    }
+
+    private void TextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+      TextBox textbox = sender as TextBox;
+      int value;
+      if (int.TryParse(textbox.Text, out value))
+      {
+        if (e.Delta > 0) // Mausrad nach oben gedreht
+        {
+          value++;
+        }
+        else // Mausrad nach unten gedreht
+        {
+          value--;
+        }
+        textbox.Text = value.ToString();
+      }
+      e.Handled = true; // Das Ereignis behandelt, damit es nicht weitergeleitet wird
+    }
+
     public Race GetRace() { return _thisRace; }
     public RaceRun GetRaceRun() { return _currentRaceRun; }
 
