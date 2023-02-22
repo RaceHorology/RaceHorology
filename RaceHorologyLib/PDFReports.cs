@@ -1624,6 +1624,199 @@ namespace RaceHorologyLib
     }
   }
 
+  public class TimerReport : PDFReport
+  {
+    RaceRun _raceRun;
+
+    public TimerReport(RaceRun rr) : base(rr.GetRace())
+    {
+      _raceRun = rr;
+      WithRaceHeader = false;
+    }
+
+    protected override Table getResultsTable()
+    {
+      //calcNumOptFields(); // Ensures the member _nOptFields is correct (used by getTableColumnsWidths())
+      //determineTableFontAndSize();
+
+      float[] cols = { 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F };
+      Table table = new Table(UnitValue.CreatePercentArray(cols));
+
+      table.SetWidth(UnitValue.CreatePercentValue(100));
+      table.SetBorder(Border.NO_BORDER);
+      table.SetPaddingBottom(0).SetMarginBottom(0);
+
+      if (_debugAreas)
+        table.SetBorder(new SolidBorder(ColorConstants.RED, 1));
+
+      addHeaderToTable(table);
+
+      var results = getView();
+      var lr = results as System.Windows.Data.ListCollectionView;
+      if (results.Groups != null)
+      {
+
+        foreach (var group in results.Groups)
+        {
+          System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
+          addLineToTable(table, cvGroup.GetName()); 
+
+          int k = 0;
+          int i = 0;
+          foreach (var result in cvGroup.Items)
+          {
+            if (addLineToTable(table, result, i))
+            {
+              i++; k++;
+            }
+            if (k == 6)
+              k = 0;
+          }
+          if (k < 6)
+            addEmptyCellsToTable(table, k);
+          if (i == 0)
+            addCommentLineToTable(table, "keine Teilnehmer");
+        }
+      }
+      else
+      {
+        int i = 0;
+        int k = 0;
+
+        foreach (var result in results.SourceCollection)
+        {
+          if (addLineToTable(table, result, i))
+            i++; k++;
+
+          if (k == 6)
+            k = 0;
+        }
+        if (k < 6)
+          addEmptyCellsToTable(table, k);
+
+      }
+
+      return table;
+    }
+
+    protected void addEmptyCellsToTable(Table table, int k) {
+      k = 6 - k;
+      for (int i = 1; i <= k; i++) {
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable("")));
+
+      }
+    }
+
+    protected override void calcNumOptFields(string[] excludeFields = null)
+    {
+      base.calcNumOptFields(new[] { "Percentage" });
+    }
+
+    protected override string getReportName()
+    {
+      return string.Format("Zeitnehmer Checkliste {0}. Durchgang", _raceRun.Run);
+    }
+
+
+    protected override string getTitle()
+    {
+      return string.Format("Zeitnehmer Checkliste {0}. Durchgang", _raceRun.Run);
+    }
+
+
+    protected override ICollectionView getView()
+    {
+      return _raceRun.GetStartListProvider().GetView();
+    }
+
+
+    protected override float[] getTableColumnsWidths()
+    {
+      /*
+       * float[] columns = new float[3 + _nOptFields];
+      for (int i = 0; i < columns.Length; i++)
+        columns[i] = 1;
+        */
+      float[] columns = new float [18];
+      return columns;
+    }
+
+    protected override void addHeaderToTable(Table table)
+    {
+      //preserve function for later use, but do not add a header in this report!
+
+
+    }
+
+
+    protected override void addLineToTable(Table table, string group)
+    {
+      
+       table.AddCell(new Cell(1, 1)
+        .SetBorder(Border.NO_BORDER)
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        );
+
+      table.AddCell(new Cell(1, 17)
+        .SetBorder(Border.NO_BORDER)
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        .Add(new Paragraph(group)
+          .SetPaddingTop(6)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
+          
+    }
+
+    protected override void addCommentLineToTable(Table table, string comment)
+    {
+      
+    
+     table.AddCell(new Cell(1, 1)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 17)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(comment)
+          .SetFont(_pdfHelper.GetFont(RHFont.Oblique)).SetFontSize(10)));
+          
+    }
+
+
+
+    protected override bool addLineToTable(Table table, object data, int i = 0)
+    {
+      StartListEntry rrwp = data as StartListEntry;
+      if (rrwp == null)
+        return false;
+
+      Color bgColor = ColorConstants.WHITE;// new DeviceRgb(0.97f, 0.97f, 0.97f);
+      if (i % 2 == 1)
+        bgColor = PDFHelper.ColorRHBG1;
+
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor)
+        .SetBorderLeft(new SolidBorder(0.5f))
+        .SetBorderTop(new SolidBorder(0.5f))
+        .SetBorderBottom(new SolidBorder(0.5f))
+        .Add(createCellParagraphForTable("")));
+
+      // Startnumber
+      table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor)
+      .SetBorderBottom(new DottedBorder(0.5f))
+      .SetBorderTop(new DottedBorder(0.5f))
+      .Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber)).SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10)));
+
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor)
+        .SetBorderRight(new SolidBorder(0.5f))
+        .SetBorderTop(new SolidBorder(0.5f))
+        .SetBorderBottom(new SolidBorder(0.5f))
+      .Add(createCellParagraphForTable("")));
+
+      return true;
+    }
+  }
+
   public abstract class ResultReport : PDFReport
   {
 
