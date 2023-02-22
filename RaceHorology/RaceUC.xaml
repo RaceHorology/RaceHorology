@@ -211,10 +211,10 @@
               </Grid.RowDefinitions>
 
               <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun1.Gates}" Width="30"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun1.Gates}" Width="30" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
 
               <Label Content="/" Grid.Row="0" Grid.Column="2"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun1.Turns}" Width="30"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun1.Turns}" Width="30" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
 
               <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
               <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun1.StartTime}" Width="60"/>
@@ -257,10 +257,10 @@
               </Grid.RowDefinitions>
 
               <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun2.Gates}" Width="30"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun2.Gates}" Width="30" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
 
               <Label Content="/" Grid.Row="0" Grid.Column="2"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun2.Turns}" Width="30"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun2.Turns}" Width="30" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
 
               <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
               <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun2.StartTime}" Width="60"/>

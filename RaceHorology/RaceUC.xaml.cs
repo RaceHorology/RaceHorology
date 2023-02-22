@@ -148,7 +148,9 @@ namespace RaceHorology
         }
         else // Mausrad nach unten gedreht
         {
-          value--;
+          if (value > 0) {
+            value--;
+          }
         }
         textbox.Text = value.ToString();
       }
