@@ -1802,10 +1802,11 @@ namespace RaceHorologyLib
         .Add(createCellParagraphForTable("")));
 
       // Startnumber
+      string StartNumber = (rrwp.StartNumber == 0 ? "       " : formatStartNumber(rrwp.StartNumber));
       table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor)
       .SetBorderBottom(new DottedBorder(0.5f))
       .SetBorderTop(new DottedBorder(0.5f))
-      .Add(createCellParagraphForTable(formatStartNumber(rrwp.StartNumber)).SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10)));
+      .Add(createCellParagraphForTable(StartNumber).SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(10)));
 
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor)
         .SetBorderRight(new SolidBorder(0.5f))
