@@ -1802,7 +1802,7 @@ namespace RaceHorologyLib
         .Add(createCellParagraphForTable("")));
 
       // Startnumber
-      string StartNumber = (formatStartNumber(rrwp.StartNumber) == "---") ? "       " : formatStartNumber(rrwp.StartNumber);
+      string StartNumber = (rrwp.StartNumber == 0 ? "       " : formatStartNumber(rrwp.StartNumber));
       table.AddCell(createCellForTable(TextAlignment.CENTER).SetBackgroundColor(bgColor)
       .SetBorderBottom(new DottedBorder(0.5f))
       .SetBorderTop(new DottedBorder(0.5f))
