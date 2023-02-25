@@ -1375,9 +1375,9 @@ namespace RaceHorologyLib
     protected TimeSpan getCutOffTime(TimeSpan referenceTime)
     {
       if (_mode == EMode.BestPlusPercentage)
-        return TimeSpan.FromMilliseconds(referenceTime.TotalMilliseconds * (1.00 + _cutOffValue / 100.0));
+        return new RoundedTimeSpan(TimeSpan.FromMilliseconds(referenceTime.TotalMilliseconds * (1.00 + _cutOffValue / 100.0)), 2, RoundedTimeSpan.ERoundType.Round).TimeSpan;
       else if (_mode == EMode.BestPlusSeconds)
-        return TimeSpan.FromMilliseconds(referenceTime.TotalMilliseconds + (_cutOffValue * 1000));
+        return new RoundedTimeSpan(TimeSpan.FromMilliseconds(referenceTime.TotalMilliseconds + (_cutOffValue * 1000)), 2, RoundedTimeSpan.ERoundType.Round).TimeSpan;
       throw new Exception("unknown mode");
     }
 
