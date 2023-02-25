@@ -664,6 +664,27 @@ namespace RaceHorology
       }
     }
 
+    private void btnLiveTimingStatusRunning_Click(object sender, RoutedEventArgs e)
+    {
+      ComboBoxItem item = (ComboBoxItem)FindName("inProgress"); 
+
+      if (item != null)
+      {
+        item.IsSelected = true; 
+      }
+    }
+
+    private void btnLiveTimingStatusInterrupted_Click(object sender, RoutedEventArgs e)
+    {
+      ComboBoxItem item = (ComboBoxItem)FindName("interrupted");
+
+      if (item != null)
+      {
+        item.IsSelected = true;
+      }
+    }
+
+
     struct ExportConfig
     {
       public string Name;

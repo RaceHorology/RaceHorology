@@ -60,14 +60,14 @@ namespace RaceHorology
     AppDataModel _dataModel;
     readonly Race _thisRace;
     LiveTimingMeasurement _liveTimingMeasurement;
-    TextBox _txtLiveTimingStatus;
+    ComboBox _txtLiveTimingStatus;
 
     // Working Data
     RaceRun _currentRaceRun;
 
     RemainingStartListViewProvider _rslVP;
 
-    public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
+    public RaceUC(AppDataModel dm, Race race, LiveTimingMeasurement liveTimingMeasurement, ComboBox txtLiveTimingStatus)
     {
       _dataModel = dm;
       _thisRace = race;
@@ -75,9 +75,9 @@ namespace RaceHorology
       _liveTimingMeasurement.LiveTimingMeasurementStatusChanged += OnLiveTimingMeasurementStatusChanged;
 
       _txtLiveTimingStatus = txtLiveTimingStatus;
-      _txtLiveTimingStatus.TextChanged += new DelayedEventHandler(
+      _txtLiveTimingStatus.SelectionChanged += new ComboBoxDelayedEventHandler(
           TimeSpan.FromMilliseconds(400),
-          TxtLiveTimingStatus_TextChanged
+          TxtLiveTimingStatus_SelectionChanged
       ).Delayed;
 
       InitializeComponent();
@@ -299,18 +299,27 @@ namespace RaceHorology
       updateLiveTimingStatus();
     }
 
-    protected void TxtLiveTimingStatus_TextChanged(object sender, TextChangedEventArgs e)
+    protected void TxtLiveTimingStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       string text = "";
-      if (sender is TextBox textBox)
+      if (sender is ComboBox comboBox)
       {
-        text = textBox.Text;
+        if (comboBox.SelectedItem != null)
+        {
+          text = (comboBox.SelectedItem as ComboBoxItem).Content.ToString();
+        }
+        else 
+        {
+          text = comboBox.Text;
+        }
       }
-
+     
       if (liveTimingRMUC._liveTimingRM != null)
         liveTimingRMUC._liveTimingRM.UpdateStatus(text);
       if (liveTimingFISUC._liveTimingFIS != null)
         liveTimingFISUC._liveTimingFIS.UpdateStatus(text);
+
+
     }
 
     private void updateLiveTimingStatus()
