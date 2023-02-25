@@ -84,12 +84,7 @@
               <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
               <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -324,7 +319,7 @@
               </DockPanel>
             </Expander>
 
-            <Grid Grid.Row="24" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,15,5,0" >
+            <Grid Grid.Row="24" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,15,5,5" >
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
