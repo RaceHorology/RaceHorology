@@ -283,6 +283,9 @@
     <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844_class_import.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844_comma.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

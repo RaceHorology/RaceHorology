@@ -283,6 +283,47 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
+    [DeploymentItem(@"TestDataBases\Import\Teilnehmer_V1_202001301844_class_import.xlsx")]
+    [DeploymentItem(@"TestDataBases\TestDB_EmptyManyClasses.mdb")]
+    public void ImportParticpantsWithClassImport()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_EmptyManyClasses.mdb");
+
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel dm = new AppDataModel(db);
+
+      var ir = new ImportReader(@"Teilnehmer_V1_202001301844_class_import.xlsx");
+
+      RaceMapping mapping = new RaceMapping(ir.Columns);
+
+      ClassAssignment cla = new ClassAssignment(dm.GetParticipantClasses());
+      RaceImport im = new RaceImport(dm.GetRace(0), mapping, cla);
+      var impRes = im.DoImport(ir.Data);
+
+      Assert.AreEqual(153, impRes.SuccessCount);
+      Assert.AreEqual(0, impRes.ErrorCount);
+
+      Assert.AreEqual("Schüler U14 weiblich", dm.GetParticipants()[0].Class.ToString());
+      Assert.AreEqual("Schüler U14 weiblich", dm.GetParticipants()[1].Class.ToString());
+      Assert.AreEqual("Schüler U14 weiblich", dm.GetParticipants()[2].Class.ToString());
+
+      for (int i = 0; i < 153; i++)
+      {
+        Participant p = dm.GetParticipants()[i];
+        RaceParticipant rp = dm.GetRace(0).GetParticipants()[i];
+
+        Assert.AreEqual(string.Format("Name {0}", i + 1), p.Name);
+        Assert.AreEqual(string.Format("Name {0}", i + 1), rp.Name);
+        Assert.IsTrue(rp.Participant == p);
+        if (i > 3)
+          Assert.AreSame(cla.DetermineClass(p), p.Class);
+        Assert.IsNotNull(p.Class);
+      }
+    }
+
+
+    [TestMethod]
     [DeploymentItem(@"TestDataBases\Import\1557MRBR.zip")]
     public void ImportParticpantsForRaceViaZip()
     {
