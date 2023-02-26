@@ -325,12 +325,12 @@ namespace RaceHorologyLib
       DSVSchoolRaceResultViewProvider dsvRaceVP = race.GetResultViewProvider() as DSVSchoolRaceResultViewProvider;
       if (dsvRaceVP != null)
       {
-        if (race.RaceConfiguration.ValueF == 0.0)
-          throw new DSVExportException("missing f-value");
-
-        _writer.WriteStartElement("fvalue");
-        _writer.WriteValue(race.RaceConfiguration.ValueF);
-        _writer.WriteEndElement();
+        if (race.RaceConfiguration.ValueF > 0.0)
+        {
+          _writer.WriteStartElement("fvalue");
+          _writer.WriteValue(race.RaceConfiguration.ValueF);
+          _writer.WriteEndElement();
+        }
 
         DSVRaceCalculation dsvCalcW = dsvRaceVP.GetDSVRaceCalculationWomen();
         if (dsvCalcW != null)
