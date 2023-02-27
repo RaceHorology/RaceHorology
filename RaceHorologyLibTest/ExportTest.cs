@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -50,9 +51,7 @@ namespace RaceHorologyLibTest
   {
     public ExportTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;

@@ -39,6 +39,7 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -51,6 +52,7 @@ namespace RaceHorologyLibTest
     public HandTimingTest()
     {
       System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;
