@@ -666,7 +666,7 @@ namespace RaceHorology
 
     private void btnLiveTimingStatusRunning_Click(object sender, RoutedEventArgs e)
     {
-      ComboBoxItem item = (ComboBoxItem)FindName("inProgress"); 
+      ComboBoxItem item = (ComboBoxItem)txtLiveTimingStatus.FindName("inProgress"); 
 
       if (item != null)
       {
@@ -676,7 +676,7 @@ namespace RaceHorology
 
     private void btnLiveTimingStatusInterrupted_Click(object sender, RoutedEventArgs e)
     {
-      ComboBoxItem item = (ComboBoxItem)FindName("interrupted");
+      ComboBoxItem item = (ComboBoxItem)txtLiveTimingStatus.FindName("interrupted");
 
       if (item != null)
       {
