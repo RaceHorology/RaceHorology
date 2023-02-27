@@ -40,6 +40,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System.IO;
 using XmlUnit.Xunit;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -51,9 +52,7 @@ namespace RaceHorologyLibTest
   {
     public DSVExportTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;

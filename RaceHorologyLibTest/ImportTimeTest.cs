@@ -39,6 +39,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -68,6 +69,7 @@ namespace RaceHorologyLibTest
 
     public ImportTimeTest()
     {
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;

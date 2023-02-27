@@ -40,6 +40,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using XmlUnit.Xunit;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -51,9 +52,7 @@ namespace RaceHorologyLibTest
   {
     public LiveTimingFISTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;

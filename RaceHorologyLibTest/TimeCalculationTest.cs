@@ -37,6 +37,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -48,6 +49,7 @@ namespace RaceHorologyLibTest
   {
     public TimeCalculationTest()
     {
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;

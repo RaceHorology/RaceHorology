@@ -42,6 +42,7 @@ using System.IO;
 using System.Data.OleDb;
 using System.Linq;
 using static RaceHorologyLib.PrintCertificateModel;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -53,6 +54,7 @@ namespace RaceHorologyLibTest
   {
     public DSVAlpinDatabaseTests()
     {
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;

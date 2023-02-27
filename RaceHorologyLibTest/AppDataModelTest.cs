@@ -39,6 +39,7 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -50,9 +51,7 @@ namespace RaceHorologyLibTest
   {
     public AppDataModelTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;
@@ -72,6 +71,7 @@ namespace RaceHorologyLibTest
         testContextInstance = value;
       }
     }
+
 
     #region Additional test attributes
     //
