@@ -5,6 +5,8 @@ using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -159,7 +161,7 @@ namespace RaceHorology
         if (cefBrowser.ResourceRequestHandlerFactory == null)
           cefBrowser.ResourceRequestHandlerFactory = new ResourceRequestHandlerFactory();
         var handler = cefBrowser.ResourceRequestHandlerFactory as ResourceRequestHandlerFactory;
-        string url = string.Format("file://{0}", _currentReport.ProposeFilePath());
+        string url = "file://abcdef.pdf";
         if (handler != null)
           handler.RegisterHandler(url, ms.ToArray(), "application/pdf", true);
 
