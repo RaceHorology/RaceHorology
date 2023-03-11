@@ -1,4 +1,4 @@
-﻿using CefSharp;
+using CefSharp;
 using CefSharp.Wpf;
 using RaceHorology.Properties;
 using RaceHorologyLib;
@@ -42,7 +42,9 @@ namespace RaceHorology
     private DelayedEventHandler _refreshDelay;
     IWarningLabelHandler _lblHandler;
 
-    ReportItem _currentRI;
+    ReportItem _currentRI = null;
+    RaceRun _currentRIRun = null;
+
     IPDFReport _currentReport;
     UserControl _currentSubUC;
 
@@ -178,20 +180,19 @@ namespace RaceHorology
     {
       if (cmbReport.SelectedItem is ReportItem ri)
       {
-        if (_currentRI == ri)
+        RaceRun selectedRaceRun = null;
+        if (ri.NeedsRaceRun)
+        {
+          CBItem selected = cmbRaceRun.SelectedValue as CBItem;
+          selectedRaceRun = selected?.Value as RaceRun;
+        }
+        if (_currentRI == ri && (!ri.NeedsRaceRun || ri.NeedsRaceRun && _currentRIRun == selectedRaceRun))
           return _currentReport;
 
         if (_currentSubUC != null)
         {
           grdBottom.Children.Remove(_currentSubUC);
           _currentSubUC = null;
-        }
-
-        RaceRun selectedRaceRun = null;
-        if (ri.NeedsRaceRun)
-        {
-          CBItem selected = cmbRaceRun.SelectedValue as CBItem;
-          selectedRaceRun = selected?.Value as RaceRun;
         }
 
         _currentRI = ri;
