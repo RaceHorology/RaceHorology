@@ -37,6 +37,8 @@ using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -85,6 +87,67 @@ namespace RaceHorology
       return null;
     }
 
+    public static string ExportRaceEngine(Race race)
+    {
+      string zipFilePath = System.IO.Path.Combine(
+        race.GetDataModel().GetDB().GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(race.GetDataModel().GetDB().GetDBFileName()) + ".zip");
+
+      string mdbFilePath = System.IO.Path.Combine(
+        race.GetDataModel().GetDB().GetDBPathDirectory(),
+        System.IO.Path.GetFileNameWithoutExtension(race.GetDataModel().GetDB().GetDBFileName()) + ".mdb");
+
+      Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
+      openFileDialog.FileName = System.IO.Path.GetFileName(zipFilePath);
+      openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(zipFilePath);
+      openFileDialog.DefaultExt = ".zip";
+      openFileDialog.Filter = "RaceEngine Results (.zip)|*.zip";
+      try
+      {
+        if (openFileDialog.ShowDialog() == true)
+        {
+          zipFilePath = openFileDialog.FileName;
+
+          string mdbCopyFilePath = System.IO.Path.Combine(
+            race.GetDataModel().GetDB().GetDBPathDirectory(),
+            System.IO.Path.GetFileNameWithoutExtension(race.GetDataModel().GetDB().GetDBFileName()) + ".mdb.temp");
+
+          File.Copy(mdbFilePath, mdbCopyFilePath, true);
+          
+          using (FileStream mdbFileStream = new FileStream(mdbCopyFilePath, FileMode.Open)) {
+
+            mdbFileStream.Flush();
+
+            using (FileStream zipToCreate = new FileStream(zipFilePath, FileMode.Create))
+            {
+              using (ZipArchive archive = new ZipArchive(zipToCreate, ZipArchiveMode.Create))
+              {
+
+                ZipArchiveEntry mdbFileEntry = archive.CreateEntry(System.IO.Path.GetFileNameWithoutExtension(race.GetDataModel().GetDB().GetDBFileName()) + ".mdb");
+
+                using (Stream zipStream = mdbFileEntry.Open())
+                {
+                  mdbFileStream.CopyTo(zipStream);
+                }
+              }
+            }
+
+          }
+
+          File.Delete(mdbCopyFilePath);
+
+          return zipFilePath;
+        }
+      }
+      catch (Exception ex)
+      {
+        System.Windows.MessageBox.Show(
+          "Datei " + System.IO.Path.GetFileName(zipFilePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
+          "Fehler",
+          System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+      }
+      return null;
+    }
 
     public static string ExportDsvAlpin(Race race)
     {
