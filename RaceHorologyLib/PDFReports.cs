@@ -58,6 +58,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Border = iText.Layout.Borders.Border;
 
 namespace RaceHorologyLib
 {
@@ -1783,8 +1784,6 @@ namespace RaceHorologyLib
           
     }
 
-
-
     protected override bool addLineToTable(Table table, object data, int i = 0)
     {
       StartListEntry rrwp = data as StartListEntry;
@@ -1795,11 +1794,11 @@ namespace RaceHorologyLib
       if (i % 2 == 1)
         bgColor = PDFHelper.ColorRHBG1;
 
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor)
+      table.AddCell(createCellForTable(TextAlignment.LEFT).SetBackgroundColor(bgColor)
         .SetBorderLeft(new SolidBorder(0.5f))
         .SetBorderTop(new SolidBorder(0.5f))
         .SetBorderBottom(new SolidBorder(0.5f))
-        .Add(createCellParagraphForTable("")));
+        .Add(createCellParagraphForTable("▢")));
 
       // Startnumber
       string StartNumber = (rrwp.StartNumber == 0 ? "       " : formatStartNumber(rrwp.StartNumber));
@@ -1812,7 +1811,7 @@ namespace RaceHorologyLib
         .SetBorderRight(new SolidBorder(0.5f))
         .SetBorderTop(new SolidBorder(0.5f))
         .SetBorderBottom(new SolidBorder(0.5f))
-      .Add(createCellParagraphForTable("")));
+      .Add(createCellParagraphForTable("▢")));
 
       return true;
     }
