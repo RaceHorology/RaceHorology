@@ -94,6 +94,8 @@
     <Compile Include="LiveTimeParticipantAssigning.cs" />
     <Compile Include="LiveTiming.cs" />
     <Compile Include="LiveTimingMeasurement.cs" />
+    <Compile Include="MicrogateV1TimeMeasurement.cs" />
+    <Compile Include="MicrogateV2TimeMeasurement.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="OfflineTimingMeasurement.cs" />
     <Compile Include="PDFReports.cs" />

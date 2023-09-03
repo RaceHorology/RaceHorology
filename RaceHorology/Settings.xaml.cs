@@ -76,6 +76,10 @@ namespace RaceHorology
       cbTimingDevice.Items.Add("ALGE TdC8000/8001, ALGE Timy via RS232");
       cbTimingDevice.Items.Add("ALGE Timy (via USB)");
       cbTimingDevice.Items.Add("Alpenhunde");
+      cbTimingDevice.Items.Add("Microgate Racetime 2");
+      cbTimingDevice.Items.Add("Microgate Rei 2");
+      cbTimingDevice.Items.Add("Microgate Rei Pro");
+      cbTimingDevice.Items.Add("Microgate RT Pro");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
 
       txtAutomaticNiZTimeout.Text = Properties.Settings.Default.AutomaticNiZTimeout.ToString();
@@ -153,7 +157,8 @@ namespace RaceHorology
         chkTimingDisplayPartcipantAssignment.IsChecked = true;
 
       bool displayUrl = cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
-      bool displayComPort= cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("ALGE TdC");
+      bool displayComPort= cbTimingDevice.SelectedValue != null && (cbTimingDevice.SelectedValue.ToString().Contains("ALGE TdC") ||
+                cbTimingDevice.SelectedValue.ToString().Contains("Microgate"));
 
       cbTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
       lblTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;

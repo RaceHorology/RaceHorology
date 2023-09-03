@@ -1449,7 +1449,7 @@ namespace RaceHorologyLib
       return -1.0;
     }
 
-    public enum TimeCombination { BestRun, Sum, SumBest2 };
+    public enum TimeCombination { BestRun, Sum, SumBest2, SumMxBestOfN };
     public RaceResultViewProvider(TimeCombination timeCombination)
     {
       _comparer = new TotalTimeSorter();
@@ -1465,6 +1465,9 @@ namespace RaceHorologyLib
           break;
         case TimeCombination.SumBest2:
           _combineTime = SumTimeOfBest2;
+          break;
+        case TimeCombination.SumMxBestOfN:
+          _combineTime = SumTimeMxBestofN;
           break;
       }
 
@@ -1868,6 +1871,57 @@ namespace RaceHorologyLib
         {
           bestN.Add(bestKey, bestNIn[bestKey]);
           bestNIn.Remove(bestKey);
+        }
+      }
+
+      return SumTime(bestN, out resCode, out disqualText);
+    }
+
+    internal static TimeSpan? SumTimeMxBestofN(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    {
+      // finde best result in M blocks consisting of N runs each and return sum of the best runs in each block
+      int numberM = 2;
+      int numberN = 2;
+
+      TimeSpan? sumTime = new TimeSpan(0);
+      resCode = RunResult.EResultCode.Normal;
+      disqualText = "";
+
+      // Find best N
+      Dictionary<uint, RunResultWithPosition> bestNIn = new Dictionary<uint, RunResultWithPosition>();
+      Dictionary<uint, RunResultWithPosition> bestN = new Dictionary<uint, RunResultWithPosition>();
+      foreach (var res in results)
+        bestNIn.Add(res.Key, res.Value);
+
+      for (int m = 0; m < numberM; m++)
+      {
+        // in each block look reset the best run
+        uint bestKey = 0;
+        TimeSpan? bestTime = null;
+        
+        // in each block find the best result
+        for (int n = 0; n < numberN; n++)
+        {
+          foreach (var res in bestNIn)
+          {
+            TimeSpan? time = res.Value?.Runtime;
+            
+            // check if run is in the correct block
+            if (res.Key >= m*numberN && res.Key < m*(numberN-1))
+            {
+              if (bestTime == null || bestTime > time)
+              {
+                bestTime = time;
+                bestKey = res.Key;
+              }
+            }
+          }
+          
+          if (bestNIn.ContainsKey(bestKey))
+          {
+            bestN.Add(bestKey, bestNIn[bestKey]);
+            bestNIn.Remove(bestKey);
+          }
         }
       }
 

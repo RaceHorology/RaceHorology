@@ -708,7 +708,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(_pdfHelper.GetFont(RHFont.Bold))
-        .Add(new Paragraph(string.Format("Timing: {0}", "Alge TdC8000/8001"))));
+        .Add(new Paragraph(string.Format("Timing: {0}", "Microgate Rei Pro"))));
 
       return tableFooter.SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
