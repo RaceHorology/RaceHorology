@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaceHorology", "RaceHorology\RaceHorology.csproj", "{C0432278-8C62-4202-8B96-EA8429BFE435}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1819CA78-97EB-4488-AC18-C65C9D2BAF0F} = {1819CA78-97EB-4488-AC18-C65C9D2BAF0F}
+		{9CCD82CC-7100-4C2A-8CCD-C6887EC0DDEC} = {9CCD82CC-7100-4C2A-8CCD-C6887EC0DDEC}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaceHorologyLib", "RaceHorologyLib\RaceHorologyLib.csproj", "{CA9C930B-BAEA-480D-AB69-2DF107B9CCB5}"
@@ -26,6 +27,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RHAlgeTimyUSB", "RHAlgeTimyUSB\RHAlgeTimyUSB.csproj", "{A9B6EC93-FAD0-4A49-B0E5-EBFD1A0AC302}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "webclient", "WebClient\webclient.esproj", "{9CCD82CC-7100-4C2A-8CCD-C6887EC0DDEC}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ts", "ts\ts.esproj", "{AD032555-C756-4D73-9DC7-ECE1D129814F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,6 +110,18 @@ Global
 		{9CCD82CC-7100-4C2A-8CCD-C6887EC0DDEC}.Release|x86.ActiveCfg = Release|Any CPU
 		{9CCD82CC-7100-4C2A-8CCD-C6887EC0DDEC}.Release|x86.Build.0 = Release|Any CPU
 		{9CCD82CC-7100-4C2A-8CCD-C6887EC0DDEC}.Release|x86.Deploy.0 = Release|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Debug|x86.Build.0 = Debug|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Release|x86.Build.0 = Release|Any CPU
+		{AD032555-C756-4D73-9DC7-ECE1D129814F}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
