@@ -1,12 +1,22 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Tabs, Tab } from '@mui/material';
 import styles from './app.module.css';
-
-import NxWelcome from './nx-welcome';
 
 export function App() {
   return (
     <div>
-      <NxWelcome title="web-client" />
+      
+      <Tabs
+        value={"123"}
+        variant="scrollable"
+        scrollButtons="auto"
+        aria-label="scrollable auto tabs example"
+      >
+        <Tab label="Item One" />
+        <Tab label="Item Two" />
+        <Tab label="Item Five" />
+        <Tab label="Item Six" />
+        <Tab label="Item Seven" />
+      </Tabs>
     </div>
   );
 }
