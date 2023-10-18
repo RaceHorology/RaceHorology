@@ -1906,8 +1906,8 @@ namespace RaceHorologyLib
           {
             TimeSpan? time = res.Value?.Runtime;
             
-            // check if run is in the correct block
-            if (res.Key >= m*numberN && res.Key < m*(numberN-1))
+            // check if run is in the correct block, +1 as keys start with 1
+            if (res.Key >= m*numberN + 1 && res.Key < (m+1)*numberN + 1)
             {
               if (bestTime == null || bestTime > time)
               {
@@ -1995,9 +1995,6 @@ namespace RaceHorologyLib
       return -1.0;
     }
   }
-
-
-
 
   public class PointsViaTableRaceResultViewProvider : RaceResultViewProvider
   {
@@ -2095,19 +2092,69 @@ namespace RaceHorologyLib
       }
       return points;
     }
+    }
+
+  public class FISRaceResultViewProvider : RaceResultViewProvider
+  {
+    protected FISRaceCalculation _fisCalc;
+
+    public FISRaceResultViewProvider() : base(RaceResultViewProvider.TimeCombination.Sum)
+    { }
+
+    public override ViewProvider Clone()
+    {
+      return new FISRaceResultViewProvider();
+    }
+
+    public FISRaceCalculation GetFISRaceCalculation()
+    {
+      return _fisCalc;
+    }
+
+    public override void Init(Race race, AppDataModel appDataModel)
+    {
+      _fisCalc = new FISRaceCalculation(race, this);
+        
+      base.Init(race, appDataModel);
+    }
+
+    protected override void ResortResults()
+    {
+      if (_viewList == null)
+        return;
+
+      base.ResortResults();
+      
+      try
+      {
+        _fisCalc.CalculatePenalty();
+      }
+        catch (Exception) { }
+
+      // Re-Update points
+      foreach (var sortedItem in _viewList)
+      {
+        sortedItem.Points = calculatePoints(sortedItem);
+      }
+    }
+
+    protected override double calculatePoints(RaceResultItem rri)
+    {
+      return _fisCalc.CalculatePoints(rri, true);
+    }
   }
 
 
-  /* e.g. FamilienWertung
-    public class SpecialRaceResultViewProvider : ResultViewProvider
-    {
-      // Input: Race
+    /* e.g. FamilienWertung
+      public class SpecialRaceResultViewProvider : ResultViewProvider
+      {
+        // Input: Race
 
-      // Output: List<RunResultWithPosition>
+        // Output: List<RunResultWithPosition>
 
 
-    }
-    */
+      }
+      */
 
 
 

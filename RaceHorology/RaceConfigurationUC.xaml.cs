@@ -62,8 +62,10 @@ namespace RaceHorology
       cmbConfigErgebnis.Items.Clear();
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe der besten 2 Durchgänge", Value = "RaceResult_SumBest2" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "2x Best of 2", Value = "RaceResult_2xBestOf2" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach IWO/DWO", Value = "RaceResult_SumDSVPointsSchool" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach IWO/DWO (DSV)", Value = "RaceResult_SumDSVPointsSchool" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach IWO/DWO (FIS)", Value = "RaceResult_SumFISPoints" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach Tabelle gesamt", Value = "RaceResult_SumPointsViaTable" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach Tabelle pro Lauf", Value = "RaceResult_SumPointsViaTablePerRun" });
 

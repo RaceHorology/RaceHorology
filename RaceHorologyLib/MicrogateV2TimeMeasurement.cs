@@ -352,9 +352,18 @@ namespace RaceHorologyLib
                 { }
             }
 
+
+
             if (!_serialPort.IsOpen)
-                _serialPort.Open();
-            _serialPort.Write("\u0013R 0a000000000006000000000000000000000000100T\r");
+            {
+                try
+                {
+                    _serialPort.Open();
+                    _serialPort.Write("\u0013R 0a000000000006000000000000000000000000100T\r");
+                    _serialPort.Close();
+                }
+                catch (System.IO.IOException) { };
+            }
 
             Logger.Info("closing serial port");
             _serialPort.Close();
