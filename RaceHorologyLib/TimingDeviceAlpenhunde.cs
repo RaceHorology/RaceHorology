@@ -34,6 +34,14 @@ namespace RaceHorologyLib
     private HttpClient _webClient;
     private WebSocket _webSocket;
     private AlpenhundeParser _parser;
+    protected DeviceInfo _deviceInfo = new DeviceInfo
+    {
+      Manufacturer = "Alpenhunde",
+      Model = string.Empty,
+      PrettyName = "Alpenhunde",
+      SerialNumber = string.Empty
+    };
+
 
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
     public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
@@ -76,20 +84,23 @@ namespace RaceHorologyLib
       return DateTime.Now - DateTime.Today;
     }
 
-    public string GetDeviceInfo()
+
+    public virtual DeviceInfo GetDeviceInfo()
     {
-      return String.Format("Alpenhunde ({0})", _hostname);
+      return _deviceInfo;
     }
 
     public string GetStatusInfo()
     {
+      var status = "unbekannt";
       switch (_status)
       {
-        case EStatus.NotConnected: return "nicht verbunden";
-        case EStatus.Connecting: return "verbinde ...";
-        case EStatus.Connected: return "verbunden";
+        case EStatus.NotConnected: status = "nicht verbunden"; break;
+        case EStatus.Connecting: status = "verbinde ..."; break;
+        case EStatus.Connected: status = "verbunden"; break;
       }
-      return "unbekannt";
+
+      return String.Format("{0} - {1]", _hostname, status);
     }
 
     public void Start()
