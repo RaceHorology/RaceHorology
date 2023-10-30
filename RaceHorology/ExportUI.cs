@@ -87,6 +87,45 @@ namespace RaceHorology
       return null;
     }
 
+    //public static string ExportFis(Race race)
+    //{
+    //  string filePath = System.IO.Path.Combine(
+    //    race.GetDataModel().GetDB().GetDBPathDirectory(),
+    //    System.IO.Path.GetFileNameWithoutExtension(race.GetDataModel().GetDB().GetDBFileName()) + ".zip");
+
+    //  Microsoft.Win32.SaveFileDialog openFileDialog = new Microsoft.Win32.SaveFileDialog();
+    //  openFileDialog.FileName = System.IO.Path.GetFileName(filePath);
+    //  openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
+    //  openFileDialog.DefaultExt = ".zip";
+    //  openFileDialog.Filter = "FIS Results (.zip)|*.zip";
+    //  try
+    //  {
+    //    if (openFileDialog.ShowDialog() == true)
+    //    {
+    //      filePath = openFileDialog.FileName;
+    //      FISExport fisExport = new FISExport();
+    //      fisExport.Export(filePath, race);
+
+    //      return filePath;
+    //    }
+    //  }
+    //  catch (FISExportException ex)
+    //  {
+    //    System.Windows.MessageBox.Show(
+    //      "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\nFehlermeldung: " + ex.GetHumanReadableError(),
+    //      "Fehler",
+    //      System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    System.Windows.MessageBox.Show(
+    //      "Datei " + System.IO.Path.GetFileName(filePath) + " konnte nicht gespeichert werden.\n\n" + ex.Message,
+    //      "Fehler",
+    //      System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
+    //  }
+    //  return null;
+    //}
+
     public static string ExportRaceEngine(Race race)
     {
       string zipFilePath = System.IO.Path.Combine(

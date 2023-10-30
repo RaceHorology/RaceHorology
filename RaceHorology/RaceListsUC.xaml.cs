@@ -594,6 +594,8 @@ namespace RaceHorology
         {
           if (_thisRace.GetResultViewProvider() is DSVSchoolRaceResultViewProvider)
             report = new DSVSchoolRaceResultReport(_thisRace);
+          else if (_thisRace.GetResultViewProvider() is FISRaceResultViewProvider)
+            report = new FISRaceResultReport(_thisRace);
           else
             report = new RaceResultReport(_thisRace);
         }

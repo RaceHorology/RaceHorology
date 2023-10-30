@@ -156,7 +156,8 @@ namespace RaceHorologyLib
         }
 
         return img;
-      }catch(Exception /*e*/)
+      }
+      catch (Exception /*e*/)
       {
         throw new Exception(string.Format("cannot load image {0}", filenameWOExt));
       }
@@ -271,7 +272,7 @@ namespace RaceHorologyLib
     Image _logo2;
     Image _logoRH;
 
- 
+
     public ReportHeader(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true)
     {
       _pdfDoc = pdfDoc;
@@ -377,7 +378,7 @@ namespace RaceHorologyLib
       float maxHeightCol2 = 30.0F;
       int fontSizeTitle = 16;
       int fontSizeNormal = 10;
-      
+
 
       if (_logo1 != null)
         tableHeader.AddCell(new Cell()
@@ -425,7 +426,7 @@ namespace RaceHorologyLib
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
           .SetPadding(padding)
           .SetFont(_pdfHelper.GetFont(RHFont.Bold))
-          .Add(_logoRH.SetMaxHeight(maxHeightCol1*0.8F)));
+          .Add(_logoRH.SetMaxHeight(maxHeightCol1 * 0.8F)));
       else
         tableHeader.AddCell(new Cell()
           .SetBorder(Border.NO_BORDER)
@@ -439,7 +440,7 @@ namespace RaceHorologyLib
         tableHeader.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.LEFT)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          
+
           .SetBorder(Border.NO_BORDER)
           .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
           .SetPadding(padding)
@@ -511,9 +512,9 @@ namespace RaceHorologyLib
 
       var pageSize = PageSize.A4; // Assumption
 
-      
+
       _banner = displayBanner ? _pdfHelper.GetImage("Banner2") : null;
-      if (_banner!=null)
+      if (_banner != null)
         _bannerHeight = (pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right) * _banner.GetImageHeight() / _banner.GetImageWidth();
 
       _logoRH = _pdfHelper.GetImage("LogoRH");
@@ -578,7 +579,7 @@ namespace RaceHorologyLib
       {
         Rectangle area3 = new Rectangle(
           pageSize.GetLeft() + _pageMargins.Left,
-          pageSize.GetBottom() + _pageMargins.Bottom, 
+          pageSize.GetBottom() + _pageMargins.Bottom,
           pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right,
           _bannerHeight);
         Canvas canvas = new Canvas(pdfCanvas, area3).Add(_banner);
@@ -601,7 +602,7 @@ namespace RaceHorologyLib
         pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _bannerHeight,
         tableWidth, tableHeight);
 
-      new Canvas(pdfCanvas, rectTable).SetBorder(new SolidBorder(ColorConstants.GREEN,1)).SetBackgroundColor(ColorConstants.GRAY)
+      new Canvas(pdfCanvas, rectTable).SetBorder(new SolidBorder(ColorConstants.GREEN, 1)).SetBackgroundColor(ColorConstants.GRAY)
               .Add(tableFooter
                 );
 
@@ -611,7 +612,7 @@ namespace RaceHorologyLib
 
     Table createFooterTable(int pageNumber)
     {
-      Table tableFooter = new Table(UnitValue.CreatePercentArray(new float[]{2.0F, 3.0F, 2.0F}));
+      Table tableFooter = new Table(UnitValue.CreatePercentArray(new float[] { 2.0F, 3.0F, 2.0F }));
       tableFooter.SetWidth(UnitValue.CreatePercentValue(100))
         .SetPadding(0)
         .SetMargin(0).SetVerticalBorderSpacing(0);
@@ -653,7 +654,7 @@ namespace RaceHorologyLib
         .SetPadding(padding)
         .SetFont(_pdfHelper.GetFont(RHFont.Bold))
         .Add(parPage));
-     
+
 
       float middleHeight = 35.0F;
       tableFooter.AddCell(new Cell()
@@ -932,7 +933,7 @@ namespace RaceHorologyLib
 
     protected string formatPoints(double points)
     {
-      return (string) _pointsConverter.Convert(points, typeof(string), null, null);
+      return (string)_pointsConverter.Convert(points, typeof(string), null, null);
     }
 
     protected string formatStartNumber(uint startNumber)
@@ -989,7 +990,7 @@ namespace RaceHorologyLib
       int paddingTopDefault = 0;
       int paddingTopSpace = 4;
 
-      Cell createCell(int rs=1, int cs=1)
+      Cell createCell(int rs = 1, int cs = 1)
       {
         return new Cell(rs, cs)
           .SetPaddingTop(0)
@@ -1022,17 +1023,17 @@ namespace RaceHorologyLib
           .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
-      table.AddCell(createCell(1,4)
+      table.AddCell(createCell(1, 4)
         .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Organizer))
           .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
-      table.AddCell(createCell(1,3)
+      table.AddCell(createCell(1, 3)
         .Add(new Paragraph("KAMPFGERICHT / JURY")
           .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
 
-      table.AddCell(createCell(1,2)
+      table.AddCell(createCell(1, 2)
         .Add(new Paragraph("TECHNISCHE DATEN")
           .SetPaddingTop(paddingTopDefault)
           .SetFont(fontBold)));
@@ -1071,7 +1072,7 @@ namespace RaceHorologyLib
       table.AddCell(createCell()
         .SetTextAlignment(TextAlignment.RIGHT)
         .Add(new Paragraph(
-          displayHeights ? 
+          displayHeights ?
             String.Format("{0} m / {1} m / {2} m", _race.AdditionalProperties.StartHeight, _race.AdditionalProperties.FinishHeight, _race.AdditionalProperties.StartHeight - _race.AdditionalProperties.FinishHeight) :
             "")));
 
@@ -1297,7 +1298,7 @@ namespace RaceHorologyLib
           foreach (var result in cvGroup.Items)
             if (addLineToTable(table, result, i))
               i++;
-          
+
           if (i == 0)
             addCommentLineToTable(table, "keine Teilnehmer");
         }
@@ -1329,7 +1330,7 @@ namespace RaceHorologyLib
 
     protected override void calcNumOptFields(string[] excludeFields = null)
     {
-      base.calcNumOptFields(new []{ "Percentage" });
+      base.calcNumOptFields(new[] { "Percentage" });
     }
 
     protected override string getReportName()
@@ -1589,7 +1590,7 @@ namespace RaceHorologyLib
         bgColor = PDFHelper.ColorRHBG1;
 
       // Running Number
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", (i+1)))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", (i + 1)))));
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatStartNumber(sle.StartNumber))));
       // Code
@@ -1659,7 +1660,7 @@ namespace RaceHorologyLib
         foreach (var group in results.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
-          addLineToTable(table, cvGroup.GetName()); 
+          addLineToTable(table, cvGroup.GetName());
 
           int k = 0;
           int i = 0;
@@ -1699,9 +1700,11 @@ namespace RaceHorologyLib
       return table;
     }
 
-    protected void addEmptyCellsToTable(Table table, int k) {
+    protected void addEmptyCellsToTable(Table table, int k)
+    {
       k = 6 - k;
-      for (int i = 1; i <= k; i++) {
+      for (int i = 1; i <= k; i++)
+      {
         table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable("")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable("")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT).Add(createCellParagraphForTable("")));
@@ -1739,7 +1742,7 @@ namespace RaceHorologyLib
       for (int i = 0; i < columns.Length; i++)
         columns[i] = 1;
         */
-      float[] columns = new float [18];
+      float[] columns = new float[18];
       return columns;
     }
 
@@ -1753,11 +1756,11 @@ namespace RaceHorologyLib
 
     protected override void addLineToTable(Table table, string group)
     {
-      
-       table.AddCell(new Cell(1, 1)
-        .SetBorder(Border.NO_BORDER)
-        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
-        );
+
+      table.AddCell(new Cell(1, 1)
+       .SetBorder(Border.NO_BORDER)
+       //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+       );
 
       table.AddCell(new Cell(1, 17)
         .SetBorder(Border.NO_BORDER)
@@ -1765,22 +1768,22 @@ namespace RaceHorologyLib
         .Add(new Paragraph(group)
           .SetPaddingTop(6)
           .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
-          
+
     }
 
     protected override void addCommentLineToTable(Table table, string comment)
     {
-      
-    
-     table.AddCell(new Cell(1, 1)
-        .SetBorder(Border.NO_BORDER)
-        );
+
+
+      table.AddCell(new Cell(1, 1)
+         .SetBorder(Border.NO_BORDER)
+         );
 
       table.AddCell(new Cell(1, 17)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(comment)
           .SetFont(_pdfHelper.GetFont(RHFont.Oblique)).SetFontSize(10)));
-          
+
     }
 
 
@@ -2045,7 +2048,7 @@ namespace RaceHorologyLib
     }
 
 
-    protected override bool addLineToTable(Table table, object data, int i=0)
+    protected override bool addLineToTable(Table table, object data, int i = 0)
     {
       RunResultWithPosition rrwp = data as RunResultWithPosition;
       if (rrwp == null)
@@ -2276,7 +2279,7 @@ namespace RaceHorologyLib
     }
 
 
-    protected override bool addLineToTable(Table table, object data, int i=0)
+    protected override bool addLineToTable(Table table, object data, int i = 0)
     {
       RaceResultItem item = data as RaceResultItem;
       if (item == null)
@@ -2403,7 +2406,7 @@ namespace RaceHorologyLib
       int particpantsClassified = 0;
 
       var endresult = _race.GetResultViewProvider().GetView();
-      foreach(var o in endresult)
+      foreach (var o in endresult)
       {
         if (o is RaceResultItem res)
         {
@@ -2443,7 +2446,7 @@ namespace RaceHorologyLib
 
       // Determine the position of the chart
       Rectangle areaChart = new Rectangle(document.GetLeftMargin(), document.GetBottomMargin(),
-        page.GetPageSize().GetWidth() - document.GetLeftMargin() - document.GetRightMargin(), 
+        page.GetPageSize().GetWidth() - document.GetLeftMargin() - document.GetRightMargin(),
         page.GetPageSize().GetHeight() - document.GetBottomMargin() - document.GetTopMargin());
 
       // Render the chart (vector format WMF)
@@ -2688,7 +2691,7 @@ namespace RaceHorologyLib
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createParagraph(string.Format("{0}", i+1))));
+            .Add(createParagraph(string.Format("{0}", i + 1))));
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
@@ -2704,7 +2707,7 @@ namespace RaceHorologyLib
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
             .Add(createParagraph(formatPoints(item.Participant.Points))));
-          
+
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
             .Add(createParagraph(formatRang(item))));
@@ -2820,6 +2823,345 @@ namespace RaceHorologyLib
           .Add(createParagraph("")));
         table.AddCell(createCellForTable(TextAlignment.RIGHT)
           .Add(createParagraph(string.Format("{0:0.00}", dsvCalc.AppliedPenalty)).SetFont(_pdfHelper.GetFont(RHFont.Bold))));
+
+        document.Add(table);
+      }
+    }
+  }
+
+  public class FISRaceResultReport : RaceResultReport
+  {
+    public FISRaceResultReport(Race race) : base(race)
+    {
+    }
+
+    protected override void addContent(PdfDocument pdf, Document document)
+    {
+      base.addContent(pdf, document);
+
+      FISRaceResultViewProvider resultVP = _race.GetResultViewProvider() as FISRaceResultViewProvider;
+
+      if (resultVP.GetFISRaceCalculation().CalculationValid)
+        addPenaltyCalculation(pdf, document, resultVP.GetFISRaceCalculation());
+    }
+
+
+    protected void addPenaltyCalculation(PdfDocument pdf, Document document, FISRaceCalculation fisCalc)
+    {
+      int fontSizeTitle = 16;
+      int fontSizeNormal = 9;
+
+      Paragraph createHeaderParagraph(string text)
+      {
+        return new Paragraph(text).SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(fontSizeNormal);
+      }
+      Paragraph createParagraph(string text)
+      {
+        return new Paragraph(text).SetFont(_pdfHelper.GetFont(RHFont.Normal)).SetFontSize(fontSizeNormal);
+      }
+
+      string formatRang(RaceResultItem rri)
+      {
+        if (rri.Position > 0)
+          return string.Format("{0}", rri.Position);
+        else
+          return rri.ResultCode.ToString();
+      }
+
+
+      document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+
+      document.Add(
+        new Paragraph("Zuschlagsberechnung")
+        .SetFont(_pdfHelper.GetFont(RHFont.Bold))
+        .SetFontSize(fontSizeTitle)
+        .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+        .SetTextAlignment(TextAlignment.CENTER)
+      );
+
+      document.Add(
+        new Paragraph(string.Format("F-Wert: {0:0}", fisCalc.ValueF))
+        .SetFont(_pdfHelper.GetFont(RHFont.Normal))
+        .SetFontSize(fontSizeNormal)
+      );
+
+      {
+        document.Add(
+          new Paragraph(string.Format("Die besten 10 klassierten Teilnehmer des Bewerbs:"))
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
+          .SetFontSize(fontSizeNormal)
+          .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+        );
+
+        var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1 })
+          .SetFontSize(fontSizeNormal)
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
+          .SetWidth(UnitValue.CreatePercentValue(100))
+          .SetBorder(Border.NO_BORDER);
+
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Rang")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Laufzeit")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Code")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Name")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Listenpunkte")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Besten Fünf")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Rennpunkte")));
+
+        for (int i = 0; i < fisCalc.TopTen.Count; i++)
+        {
+          var item = fisCalc.TopTen[i];
+
+          Color bgColor = ColorConstants.WHITE;
+          if (i % 2 == 1)
+            bgColor = PDFHelper.ColorRHBG1;
+
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph((string)_positionConverter.Convert(item.RRI.Position, typeof(string), null, null))));
+
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(string.Format("{0}", item.RRI.TotalTime.ToRaceTimeString()))));
+
+          table.AddCell(createCellForTable(TextAlignment.CENTER)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(item.RRI.Participant.Participant.CodeOrSvId)));
+          table.AddCell(createCellForTable()
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(item.RRI.Participant.Participant.Fullname)));
+
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(formatPoints(item.RRI.Participant.Points))));
+          if (item.TopFive)
+          {
+            table.AddCell(createCellForTable(TextAlignment.RIGHT)
+              .SetBackgroundColor(bgColor)
+              .Add(createParagraph(formatPoints(item.FISPoints))));
+            table.AddCell(createCellForTable(TextAlignment.RIGHT)
+              .SetBackgroundColor(bgColor)
+              .Add(createParagraph(formatPoints(item.RacePoints))));
+          }
+          else
+          {
+            table.AddCell(createCellForTable(TextAlignment.RIGHT)
+              .SetBackgroundColor(bgColor)
+              );
+            table.AddCell(createCellForTable(TextAlignment.RIGHT)
+              .SetBackgroundColor(bgColor)
+              );
+          }
+        }
+
+        table.AddCell(createCellForTable(5)
+          .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          );
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          .Add(createParagraph(formatPoints(fisCalc.PenaltyA))));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          .Add(createParagraph(formatPoints(fisCalc.PenaltyC))));
+
+        table.AddCell(createCellForTable(5));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(">>A<<")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(">>C<<")));
+
+        document.Add(table);
+      }
+
+
+      {
+        document.Add(
+          new Paragraph(string.Format("Die besten 5 gestarten Teilnehmer des Bewerbs (laut Punkteliste):"))
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
+          .SetFontSize(fontSizeNormal)
+          .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+        );
+
+        var table = new Table(new float[] { 1, 1, 1, 1, 1, 1 })
+          .SetFontSize(fontSizeNormal)
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
+          .SetWidth(UnitValue.CreatePercentValue(100))
+          .SetBorder(Border.NO_BORDER);
+
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Rang")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Laufzeit")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Code")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Name")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Listenpunkte")));
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderParagraph("Bewerbsrang")));
+
+        for (int i = 0; i < fisCalc.TopFiveFIS.Count; i++)
+        {
+          var item = fisCalc.TopFiveFIS[i];
+
+          Color bgColor = ColorConstants.WHITE;
+          if (i % 2 == 1)
+            bgColor = PDFHelper.ColorRHBG1;
+
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(string.Format("{0}", i + 1))));
+
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
+
+          table.AddCell(createCellForTable(TextAlignment.CENTER)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(item.Participant.Participant.CodeOrSvId)));
+          table.AddCell(createCellForTable()
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(item.Participant.Participant.Fullname)));
+
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(formatPoints(item.Participant.Points))));
+
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .SetBackgroundColor(bgColor)
+            .Add(createParagraph(formatRang(item))));
+        }
+
+        table.AddCell(createCellForTable(4)
+          .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          );
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          .Add(createParagraph(formatPoints(fisCalc.PenaltyB))));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
+
+        table.AddCell(createCellForTable(4));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(">>B<<")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT));
+
+        document.Add(table);
+      }
+
+      {
+        var table = new Table(new float[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 })
+          .SetFontSize(fontSizeNormal)
+          .SetFont(_pdfHelper.GetFont(RHFont.Normal))
+          .SetBorder(Border.NO_BORDER);
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Berechneter Zuschlag:")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph("(")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph(string.Format("{0}", fisCalc.PenaltyA))));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph("+")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph(string.Format("{0}", fisCalc.PenaltyB))));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph("-")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph(string.Format("{0}", fisCalc.PenaltyC))));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph(") : 10 = ")));
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph(string.Format("{0}", fisCalc.ExactCalculatedPenalty))));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph(">>A<<")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph(">>B<<")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph(">>C<<")));
+        table.AddCell(createCellForTable(TextAlignment.CENTER)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("")));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Gerundet:")));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", fisCalc.CalculatedPenalty))));
+
+        if (fisCalc.ValueA > 0.0)
+        {
+          table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Kategorie-Adder:")));
+          table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+            .Add(createParagraph("")));
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .Add(createParagraph(string.Format("{0:0.00}", fisCalc.ValueA))));
+        }
+
+        if (fisCalc.ValueZ > 0.0)
+        {
+          table.AddCell(createCellForTable(TextAlignment.LEFT)
+            .Add(createParagraph("Korrekturwert (Z-Wert):")));
+          table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+            .Add(createParagraph("")));
+          table.AddCell(createCellForTable(TextAlignment.RIGHT)
+            .Add(createParagraph(string.Format("{0:0.00}", fisCalc.ValueZ))));
+        }
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Punktezuschlag:").SetFont(_pdfHelper.GetFont(RHFont.Bold))));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", fisCalc.CalculatedPenaltyWithAdded)).SetFont(_pdfHelper.GetFont(RHFont.Bold))));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Minimumzuschlag:")));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", fisCalc.MinPenalty))));
+
+        table.AddCell(createCellForTable(9, TextAlignment.LEFT).Add(createParagraph(" ")));
+
+        table.AddCell(createCellForTable(TextAlignment.LEFT)
+          .Add(createParagraph("Angewandter Zuschlag:").SetFont(_pdfHelper.GetFont(RHFont.Bold))));
+        table.AddCell(createCellForTable(7, TextAlignment.RIGHT)
+          .Add(createParagraph("")));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT)
+          .Add(createParagraph(string.Format("{0:0.00}", fisCalc.AppliedPenalty)).SetFont(_pdfHelper.GetFont(RHFont.Bold))));
 
         document.Add(table);
       }

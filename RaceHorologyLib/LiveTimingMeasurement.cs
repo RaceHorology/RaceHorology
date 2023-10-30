@@ -72,6 +72,7 @@ namespace RaceHorologyLib
       FinishTime = null;
       BFinishTime = false;
       Valid = false;
+      DisqualificationCode = 0;
     }
 
     public TimeMeasurementEventArgs(TimeMeasurementEventArgs org)
@@ -84,17 +85,19 @@ namespace RaceHorologyLib
       FinishTime = org.FinishTime;
       BFinishTime = org.BFinishTime;
       Valid = org.Valid;
+      DisqualificationCode = org.DisqualificationCode;
     }
 
     public uint StartNumber;
-    public TimeSpan? RunTime;    // if null and corresponding time property is set true => time shall be deleted
-    public bool BRunTime;        // true if RunTime is set
-    public TimeSpan? StartTime;  // if null and corresponding time property is set true => time shall be deleted
-    public bool BStartTime;      // true if StartTime is set
-    public TimeSpan? FinishTime; // if null and corresponding time property is set true => time shall be deleted
-    public bool BFinishTime;     // true if FinishTime is set
-    public bool Valid;           // true if timestamp is valid, false if time measurementdevice marked it as invalid
-  }
+    public TimeSpan? RunTime;          // if null and corresponding time property is set true => time shall be deleted
+    public bool BRunTime;              // true if RunTime is set
+    public TimeSpan? StartTime;        // if null and corresponding time property is set true => time shall be deleted
+    public bool BStartTime;            // true if StartTime is set
+    public TimeSpan? FinishTime;       // if null and corresponding time property is set true => time shall be deleted
+    public bool BFinishTime;           // true if FinishTime is set
+    public bool Valid;                 // true if timestamp is valid, false if time measurementdevice marked it as invalid
+    public uint DisqualificationCode;  // normal result = 0, NaS = 1, NiZ = 2, DIS = 3
+    }
 
   public class StartnumberSelectedEventArgs: EventArgs
   {
@@ -386,6 +389,17 @@ namespace RaceHorologyLib
 
           if (e.BRunTime)
             currentRaceRun.SetRunTime(participant, e.RunTime);
+
+          switch (e.DisqualificationCode)
+          {
+            case 1: currentRaceRun.SetResultCode(participant, RunResult.EResultCode.NaS); break;
+            case 2: currentRaceRun.SetResultCode(participant, RunResult.EResultCode.NiZ); break;
+            case 3: currentRaceRun.SetResultCode(participant, RunResult.EResultCode.DIS); break;
+            default:
+            case 0: //intentional allthroug
+                break;
+          }
+
         }
       }, null);
     }
