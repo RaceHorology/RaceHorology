@@ -100,7 +100,7 @@ namespace RaceHorologyLib
         case EStatus.Connected: status = "verbunden"; break;
       }
 
-      return String.Format("{0} - {1]", _hostname, status);
+      return String.Format("{0} - {1}", _hostname, status);
     }
 
     public void Start()
