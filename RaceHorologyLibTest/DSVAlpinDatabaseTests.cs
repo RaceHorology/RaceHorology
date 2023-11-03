@@ -550,6 +550,7 @@ namespace RaceHorologyLibTest
         p1.DateStartList = new DateTime(2020, 1, 2);
         p1.DateResultList = new DateTime(2020, 1, 3);
         p1.RaceNumber = "ABCDEF123456";
+        p1.TimingDevice = "ALGE TimingDevice";
         // Store
         r1.AdditionalProperties = p1; // Implicitly calls: db.StoreRaceProperties()
 
@@ -567,6 +568,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new DateTime(2020, 1, 2), r1.AdditionalProperties.DateStartList);
         Assert.AreEqual(new DateTime(2020, 1, 3), r1.AdditionalProperties.DateResultList);
         Assert.AreEqual("ABCDEF123456", r1.AdditionalProperties.RaceNumber);
+        Assert.AreEqual("ALGE TimingDevice", r1.AdditionalProperties.TimingDevice);
       }
     }
 

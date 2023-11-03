@@ -648,6 +648,8 @@ namespace RaceHorologyLib
     public string TempStart { get; set; }
     public string TempFinish { get; set; }
 
+    public string TimingDevice { get; set; }
+
 
     static public bool Equals(AdditionalRaceProperties p1, AdditionalRaceProperties p2)
     {
