@@ -588,7 +588,7 @@ namespace RaceHorologyLibTest
         Race r1 = model.GetRace(0);
 
         // Check initially
-        Assert.AreEqual("", r1.TimingDevice);
+        Assert.AreEqual("Alge TdC 8000/8001", r1.TimingDevice);
 
         // Modify and Store
         r1.SetTimingDeviceInfo(new DeviceInfo { Manufacturer="Manufacture", Model="Model", PrettyName= "MyTimingDevice" , SerialNumber="123"});
