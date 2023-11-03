@@ -314,7 +314,7 @@ namespace RaceHorologyLib
       { "Code", new List<string>{"Code" } },
       { "SvId", new List<string>{ "DSV-Id", "SvId", "SkiverbandId", "id" } },
       { "Points", new List<string>{"Points", "Punkte"} },
-      { "StartNumber", new List<string>{"start number", "Startnummer", "SN"} },
+      { "StartNumber", new List<string>{"start number", "Startnummer", "SN", "Bib"} },
     };
 
     public RaceMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)

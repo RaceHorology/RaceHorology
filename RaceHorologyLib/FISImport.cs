@@ -257,7 +257,7 @@ namespace RaceHorologyLib
       dataSet.Tables[0].Columns.Remove("GSSta");
       dataSet.Tables[0].Columns.Remove("SGpos");
       dataSet.Tables[0].Columns.Remove("SGSta");
-      dataSet.Tables[0].Columns.Remove("ACpoints");
+      // dataSet.Tables[0].Columns.Remove("ACpoints");
       dataSet.Tables[0].Columns.Remove("ACpos");
       dataSet.Tables[0].Columns.Remove("ACSta");
     }

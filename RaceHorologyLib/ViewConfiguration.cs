@@ -72,7 +72,9 @@ namespace RaceHorologyLib
       _prototypes["RaceResult_BestOfTwo"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
       _prototypes["RaceResult_Sum"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
       _prototypes["RaceResult_SumBest2"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumBest2);
+      _prototypes["RaceResult_2xBestOf2"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumMxBestOfN);
       _prototypes["RaceResult_SumDSVPointsSchool"] = new DSVSchoolRaceResultViewProvider();
+      _prototypes["RaceResult_SumFISPoints"] = new FISRaceResultViewProvider();
       _prototypes["RaceResult_SumPointsViaTable"] = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
       _prototypes["RaceResult_SumPointsViaTablePerRun"] = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
     }
