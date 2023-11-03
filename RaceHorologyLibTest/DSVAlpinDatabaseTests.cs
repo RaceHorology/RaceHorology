@@ -550,7 +550,6 @@ namespace RaceHorologyLibTest
         p1.DateStartList = new DateTime(2020, 1, 2);
         p1.DateResultList = new DateTime(2020, 1, 3);
         p1.RaceNumber = "ABCDEF123456";
-        p1.TimingDevice = "ALGE TimingDevice";
         // Store
         r1.AdditionalProperties = p1; // Implicitly calls: db.StoreRaceProperties()
 
@@ -568,7 +567,44 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new DateTime(2020, 1, 2), r1.AdditionalProperties.DateStartList);
         Assert.AreEqual(new DateTime(2020, 1, 3), r1.AdditionalProperties.DateResultList);
         Assert.AreEqual("ABCDEF123456", r1.AdditionalProperties.RaceNumber);
-        Assert.AreEqual("ALGE TimingDevice", r1.AdditionalProperties.TimingDevice);
+      }
+    }
+
+
+    /// <summary>
+    /// Store and read timing device
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseStoreAndReadTimingDevice()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+
+        Race r1 = model.GetRace(0);
+
+        // Check initially
+        Assert.AreEqual("", r1.TimingDevice);
+
+        // Modify and Store
+        r1.SetTimingDeviceInfo(new DeviceInfo { Manufacturer="Manufacture", Model="Model", PrettyName= "MyTimingDevice" , SerialNumber="123"});
+
+        db.Close();
+      }
+
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+        Race r1 = model.GetRace(0);
+
+        Assert.AreEqual("MyTimingDevice", r1.TimingDevice);
       }
     }
 
