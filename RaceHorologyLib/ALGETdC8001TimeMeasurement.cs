@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -317,6 +317,9 @@ namespace RaceHorologyLib
 
     public override string GetStatusInfo()
     {
+      if (_serialPortName.IsNullOrEmpty())
+        return "kein COM Port";
+
       return _serialPortName + ", " + _statusText;
     }
 
