@@ -710,8 +710,8 @@ namespace RaceHorologyLib
     private RaceResultViewProvider _raceResultsProvider;
 
 
-    public ERaceType RaceType { get { return _properties.RaceType;  } }
-    public string RaceNumber {  get { return _addProperties?.RaceNumber; } }
+    public ERaceType RaceType { get { return _properties.RaceType; } }
+    public string RaceNumber { get { return _addProperties?.RaceNumber; } }
     public string Description { get { return _addProperties?.Description; } }
     public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
     public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
@@ -722,8 +722,8 @@ namespace RaceHorologyLib
     /// Inconsistencies in data can be:
     /// - Start numbers are not correctly assigned (either one startnumber is 0 or a start nnumber is used twice)
     /// </summary>
-    public bool IsConsistent 
-    { 
+    public bool IsConsistent
+    {
       get { return _isConsistent; }
       private set { if (value != _isConsistent) { _isConsistent = value; NotifyPropertyChanged(); } }
     }
@@ -740,6 +740,23 @@ namespace RaceHorologyLib
       private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
     }
 
+    public void SetTimingDeviceInfo(DeviceInfo deviceInfo)
+    {
+      TimingDevice = deviceInfo.PrettyName;
+    }
+
+    string _timingDevice;
+    public string TimingDevice {
+      get { return _timingDevice; } 
+      protected set
+      {
+        if (_timingDevice != value)
+        {
+          _timingDevice = value;
+          _db.StoreTimingDevice(this, _timingDevice);
+        }
+      }
+    }
 
     public RaceConfiguration RaceConfiguration
     {
@@ -794,6 +811,7 @@ namespace RaceHorologyLib
       _properties = properties;
 
       _addProperties = _db.GetRaceProperties(this);
+      _timingDevice = _db.GetTimingDevice(this);
 
       loadRaceConfig();
       // Ensure no inconsistencies
@@ -2032,6 +2050,9 @@ namespace RaceHorologyLib
 
     AdditionalRaceProperties GetRaceProperties(Race race);
     void StoreRaceProperties(Race race, AdditionalRaceProperties props);
+
+    string GetTimingDevice(Race race);
+    void StoreTimingDevice(Race race, string timingDevice);
 
     void CreateOrUpdateParticipant(Participant participant);
     void RemoveParticipant(Participant participant);

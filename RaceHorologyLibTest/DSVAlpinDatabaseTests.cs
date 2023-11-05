@@ -570,6 +570,39 @@ namespace RaceHorologyLibTest
       }
     }
 
+
+    /// <summary>
+    /// Store and read timing device
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseStoreAndReadTimingDevice()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+        Race r1 = model.GetRace(0);
+
+        // Check initially
+        Assert.AreEqual("Alge TdC8000/8001", r1.TimingDevice);
+
+        // Modify and Store
+        r1.SetTimingDeviceInfo(new DeviceInfo { Manufacturer="Manufacture", Model="Model", PrettyName= "MyTimingDevice" , SerialNumber="123"});
+        db.Close();
+      }
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+        Race r1 = model.GetRace(0);
+        Assert.AreEqual("MyTimingDevice", r1.TimingDevice);
+      }
+    }
+
     /// <summary>
     /// Check reading different race runs
     /// </summary>
