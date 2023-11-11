@@ -58,6 +58,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
@@ -709,7 +710,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         .SetPadding(padding)
         .SetFont(_pdfHelper.GetFont(RHFont.Bold))
-        .Add(new Paragraph(string.Format("Timing: {0}", "Alge TdC8000/8001"))));
+        .Add(new Paragraph(_race.TimingDevice.IsNullOrEmpty() ? "" : string.Format("Timing: {0}", _race.TimingDevice))));
 
       return tableFooter.SetTextAlignment(TextAlignment.CENTER)
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)

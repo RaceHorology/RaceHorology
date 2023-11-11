@@ -693,6 +693,8 @@ namespace RaceHorology
 
       _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
       _liveTimingMeasurement.Start();
+
+      _thisRace.SetTimingDeviceInfo(_liveTimingMeasurement.LiveTimingDevice.GetDeviceInfo());
     }
 
 
