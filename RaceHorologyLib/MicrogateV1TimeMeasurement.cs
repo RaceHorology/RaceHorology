@@ -40,7 +40,6 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
@@ -52,13 +51,6 @@ namespace RaceHorologyLib
 
     MicrogateV1LineParser _parser;
     protected string _statusText;
-    protected DeviceInfo _deviceInfo = new DeviceInfo
-    {
-      Manufacturer = "Microgate",
-      Model = "Racetime 2",
-      PrettyName = "Microgate Racetime 2",
-      SerialNumber = string.Empty
-    };
 
     TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
 
@@ -74,12 +66,12 @@ namespace RaceHorologyLib
       return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
     }
 
-    public virtual DeviceInfo GetDeviceInfo()
+    public virtual string GetDeviceInfo()
     {
-      return _deviceInfo;
+      return "Microgate Timing Device V1 [Racetime 2] (base)";
     }
 
-    public virtual string GetStatusInfo()
+    public string GetStatusInfo()
     {
       return _statusText;
     }
@@ -240,12 +232,9 @@ namespace RaceHorologyLib
       _internalProtocol = string.Empty;
     }
 
-    public override string GetStatusInfo()
+    public override string GetDeviceInfo()
     {
-      if (_serialPortName.IsNullOrEmpty())
-        return "kein COM Port";
-
-      return _serialPortName + ", " + _statusText;
+      return "Microgate Timing Device V1 [Racetime 2] (" + _serialPortName + ")";
     }
 
     public override void Start()

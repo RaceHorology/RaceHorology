@@ -891,7 +891,7 @@ namespace RaceHorologyLib
             switch (id)
             {
               case 0: props.Analyzer = value; break;
-              case 1: break; // Skip, is TimingDevice, read in another function
+              case 1: break; // skip, was: timing device
               case 2: props.Organizer = value; break;
               case 3: props.RaceReferee.Name = value; break;
               case 4: props.RaceReferee.Club = value; break;
@@ -1107,28 +1107,6 @@ namespace RaceHorologyLib
       {
         Logger.Warn(e, "storeRacePropertyInternal failed, SQL: {0}", GetDebugSqlString(cmd));
       }
-    }
-
-    public string GetTimingDevice(Race race)
-    {
-      string sql = @"SELECT * FROM tblListenkopf WHERE disziplin = @disziplin AND id = 1";
-      OleDbCommand command = new OleDbCommand(sql, _conn);
-      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
-
-      // Execute command  
-      using (OleDbDataReader reader = command.ExecuteReader())
-      {
-        if (reader.Read())
-        {
-          return reader["value"].ToString();
-        }
-      }
-      return null;
-    }
-
-    public void StoreTimingDevice(Race race, string timingDevice)
-    {
-      storeRacePropertyInternal(race, 1, timingDevice);
     }
 
     public void EnsureDSVAlpinBewerbsnummer(IList<Race> races)
