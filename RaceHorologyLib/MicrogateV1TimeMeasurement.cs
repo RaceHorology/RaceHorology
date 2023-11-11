@@ -103,34 +103,14 @@ namespace RaceHorologyLib
         {
           if (_parser.TimingData != null)
           {
-            if (_parser.TimingData.Flag == 's' || _parser.TimingData.Flag == 'n')
+            UpdateLiveDayTime(_parser.TimingData);
+            
+            TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(_parser.TimingData);
+            if (timeMeasurmentData != null)
             {
-              StartnumberSelectedEventArgs ssData = TransferToStartnumberSelectedData(_parser.TimingData);
-              if (ssData != null)
-              {
-                // Trigger event
-                var handle = StartnumberSelectedReceived;
-                handle?.Invoke(this, ssData);
-
-                // Send in addition a start event in case of parallel slalom (ALGE only sends a finish startnumber selected event)
-                if (ssData.Color != EParticipantColor.NoColor && ssData.Channel == EMeasurementPoint.Finish)
-                {
-                  ssData.Channel = EMeasurementPoint.Start;
-                  handle?.Invoke(this, ssData);
-                }
-              }
-            }
-            else
-            {
-              UpdateLiveDayTime(_parser.TimingData);
-
-              TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(_parser.TimingData);
-              if (timeMeasurmentData != null)
-              {
-                // Trigger event
-                var handle = TimeMeasurementReceived;
-                handle?.Invoke(this, timeMeasurmentData);
-              }
+              // Trigger event
+              var handle = TimeMeasurementReceived;
+              handle?.Invoke(this, timeMeasurmentData);
             }
           }
         }
@@ -153,72 +133,57 @@ namespace RaceHorologyLib
       TimeMeasurementEventArgs data = new TimeMeasurementEventArgs();
 
       // Sort out invalid data
-      if ( parsedData.Flag == 'p'
-        || parsedData.Flag == 'b'
-        || parsedData.Flag == 'm'
-        || parsedData.Flag == 'n'
-        || parsedData.Flag == 's')
+      if (parsedData.Flag != '0' && parsedData.Flag != 'a' && parsedData.Flag != 'A' && parsedData.Flag != 'Q' && parsedData.Flag != 'P')
         return null;
 
-      if (parsedData.Flag == 'd'
-        || parsedData.Flag == 'c')
-        parsedDataTime = null;
-
-      data.Valid = parsedData.Flag != '?';
+      data.Valid = parsedData.Flag == '0' || parsedData.Flag == 'A' || parsedData.Flag == 'Q' || parsedData.Flag == 'P' || parsedData.Flag == 'a';
       data.StartNumber = parsedData.StartNumber;
 
-      switch (parsedData.Channel)
+      switch (parsedData.LogicalChannel)
       {
-        case "C0": // Standard 
-        case "C3": // Parallel Slalom
-          data.StartTime = parsedDataTime;
+        case "000": // Standard
+          if (parsedData.Flag == '0')
+          {
+            data.StartTime = parsedDataTime;
+          }
+          else
+          {
+            data.StartTime = null;
+          }
           data.BStartTime = true;
           break;
 
-        case "C1": // Standard 
-        case "C4": // Parallel Slalom
-          data.FinishTime = parsedDataTime;
+        case "255": // Standard 
+          if (parsedData.Flag == '0')
+          {
+            data.FinishTime = parsedDataTime;
+          }
+          else
+          {
+            data.FinishTime = null;
+          }
           data.BFinishTime = true;
           break;
 
-        case "RT":
-          data.RunTime = parsedDataTime;
-          data.BRunTime = true;
-          break;
-
-        case "TT":   // TotalTime, calculated automatically
-        case "DT":   // DifferenceTime, parallel slalom, not used
+        default:
           return null;
+      }
+
+      switch (parsedData.Flag)
+      {
+        case 'P': data.DisqualificationCode = 1; break;
+        case 'A': data.DisqualificationCode = 2; break;
+        case 'Q': data.DisqualificationCode = 3; break;
+        case '0': // intentional fallthrough 
+        default:
+          data.DisqualificationCode = 0;
+          break;
       }
 
       return data;
     }
 
-    public static StartnumberSelectedEventArgs TransferToStartnumberSelectedData(in MicrogateV1LiveTimingData parsedData)
-    {
-      // Fill the data
-      StartnumberSelectedEventArgs data = new StartnumberSelectedEventArgs();
-
-      // Sort out invalid data
-      if (parsedData.Flag != 'n' && parsedData.Flag != 's')
-        return null;
-
-      data.StartNumber = parsedData.StartNumber;
-
-      if (parsedData.Flag == 'n')
-        data.Channel = EMeasurementPoint.Finish;
-      else if (parsedData.Flag == 's')
-        data.Channel = EMeasurementPoint.Start;
-
-      if (parsedData.StartNumberModifier == 'r')
-        data.Color = EParticipantColor.Red;
-      else if (parsedData.StartNumberModifier == 'b')
-        data.Color = EParticipantColor.Blue;
-
-      return data;
-    }
-
-    // Nothing to implement, download is initiated interactively on ALGE device via Classment transfer
+    // Nothing to implement, download is initiated interactively on Microgate device via Classment transfer
     public EImportTimeFlags SupportedImportTimeFlags() { return EImportTimeFlags.RunTime; }
     public void DownloadImportTimes(){}
 
@@ -229,17 +194,7 @@ namespace RaceHorologyLib
     protected void UpdateLiveDayTime(in MicrogateV1LiveTimingData justReceivedData)
     {
       // Sort out invalid data
-      if (justReceivedData.Flag == 'p'
-        || justReceivedData.Flag == 'm'
-        || justReceivedData.Flag == 'n'
-        || justReceivedData.Flag == 'd'
-        || justReceivedData.Flag == 'c')
-        return;
-
-      if (!(justReceivedData.Flag == ' ' || justReceivedData.Flag == '?'))
-        return;
-
-      if (justReceivedData.Channel[0] != 'C')
+      if (justReceivedData.Flag != '0')
         return;
 
       TimeSpan tDiff = (DateTime.Now - DateTime.Today) - justReceivedData.Time;
@@ -247,7 +202,6 @@ namespace RaceHorologyLib
 
       var handler = LiveDateTimeChanged;
       handler?.Invoke(this, new LiveDateTimeEventArgs(justReceivedData.Time));
-
     }
     #endregion
   }
@@ -356,8 +310,8 @@ namespace RaceHorologyLib
       if (_dumpDir != null)
         startWritingToDumpFile();
 
-      _serialPort = new SerialPort(_serialPortName, 115200, Parity.None, 8, StopBits.One);
-      _serialPort.NewLine = "\n"; // LF, ASCII(10)
+      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
+      _serialPort.NewLine = "\r"; // LF, ASCII(10)
       _serialPort.Handshake = Handshake.RequestToSend;
       _serialPort.ReadTimeout = 1000;
 
@@ -467,17 +421,16 @@ namespace RaceHorologyLib
       Flag = ' ';
       StartNumber = 0;
       StartNumberModifier = ' ';
-      Channel = "";
-      ChannelModifier = ' ';
+      LogicalChannel = "";
+      LogicalChannelModifier = ' ';
       Time = new TimeSpan();
-      Group = 0;
     }
 
     public char Flag { get; set; }
     public uint StartNumber { get; set; }
     public char StartNumberModifier { get; set; }
-    public string Channel { get; set; }
-    public char ChannelModifier { get; set; }
+    public string LogicalChannel { get; set; }
+    public char LogicalChannelModifier { get; set; }
     public TimeSpan Time { get; set; }
     public uint Group { get; set; }
   }
@@ -495,7 +448,8 @@ namespace RaceHorologyLib
     public enum ELineType
     { 
       Unknown,
-      TimeLine,
+      OnlineTimeLine,
+      ClassementTimeLine,
       ClassementStart,
       ClassementEnd
     }
@@ -516,75 +470,83 @@ namespace RaceHorologyLib
     {
       // Clear data from previous run
       TimingData = null;
+      MicrogateV1LiveTimingData timingData;
 
       // Figure out the type of line
       ELineType lineType = parseType(dataLine);
+
+      Console.WriteLine("Line length: " + dataLine.Length);
 
       if (lineType == ELineType.ClassementStart)
         Mode = EMode.Classement;
 
       if (Mode == EMode.Classement && lineType == ELineType.ClassementEnd)
         Mode = EMode.LiveTiming;
+      
+      switch (lineType)
+      {
+        case ELineType.OnlineTimeLine: timingData = parseOnlineTimeLine(dataLine); break;
+        case ELineType.ClassementTimeLine: timingData = parseClassementTimeLine(dataLine); break;
+        default: timingData = null; break;
+      }
 
-      MicrogateV1LiveTimingData timingData = parseTimeLine(dataLine);
       if (timingData != null)
         TimingData = timingData;
     }
 
     private ELineType parseType(string dataLine)
     {
-      if (dataLine.StartsWith("CLASSEMENT:"))
-        return ELineType.ClassementStart;
+      if (dataLine.Length == 23-1) // respect missing carriage return
+        return ELineType.OnlineTimeLine;
+      else if (dataLine.Length == 30-1) // respect missing carriage return
+        return ELineType.ClassementTimeLine;
 
-      if (Mode == EMode.Classement && dataLine.StartsWith("  ALGE TIMING"))
-        return ELineType.ClassementEnd;
-
-      // Just try
-      MicrogateV1LiveTimingData timingData = parseTimeLine(dataLine);
-      if (timingData != null)
-        return ELineType.TimeLine;
-
-      return ELineType.Unknown;
+      switch ((int)dataLine[0])
+      {
+        case  2: return ELineType.ClassementStart;
+        case  3: return ELineType.ClassementEnd;
+        default: return ELineType.Unknown;
+      }
     }
 
-
-    private MicrogateV1LiveTimingData parseTimeLine(string dataLine)
+    private MicrogateV1LiveTimingData parseOnlineTimeLine(string dataLine)
     {
-      if (dataLine.Length < 5)
-        return null;
-
       MicrogateV1LiveTimingData parsedData = new MicrogateV1LiveTimingData();
-      parsedData.Flag = dataLine[0];
 
       try
       {
-        parsedData.StartNumber = UInt32.Parse(dataLine.Substring(1, 4));
+        parsedData.Flag = dataLine[3];
+        parsedData.StartNumber = UInt32.Parse(dataLine.Substring(0, 3));
+        parsedData.LogicalChannel = dataLine.Substring(5, 3);
+        string timeStr = dataLine.Substring(8, 12);
+        string[] formats = { @"hh':'mm':'ss'.'fff" };
+        parsedData.Time = TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
       }
       catch (FormatException)
       {
         return null;
       }
 
-      if (dataLine.Length > 5)
-      {
-        parsedData.StartNumberModifier = dataLine[5];
-      }
+      return parsedData;
+    }
 
-      if (dataLine.Length > 5+1) // +1 because of parallel slalow => identifier for 'b' (blue course) or 'r' (red course)
+
+    private MicrogateV1LiveTimingData parseClassementTimeLine(string dataLine)
+    {
+      MicrogateV1LiveTimingData parsedData = new MicrogateV1LiveTimingData();
+
+      try
       {
-        parsedData.Channel = dataLine.Substring(6, 2);
-        parsedData.ChannelModifier = dataLine[8];
-        string timeStr = dataLine.Substring(10, 13);
-        try
-        {
-          string[] formats = { @"hh\:mm\:ss\.ffff", @"hh\:mm\:ss\.fff", @"hh\:mm\:ss\.ff", @"hh\:mm\:ss\.f" };
-          timeStr = timeStr.TrimEnd(' ');
-          parsedData.Time = TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
-        }
-        catch (FormatException)
-        {
-        }
-        parsedData.Group = UInt32.Parse(dataLine.Substring(24, 2));
+        parsedData.Flag = dataLine[17];
+        parsedData.StartNumber = UInt32.Parse(dataLine.Substring(4, 4));
+        parsedData.LogicalChannel = dataLine.Substring(14, 3);
+        string timeStr = dataLine.Substring(20, 9);
+        string[] formats = { @"hhmmssfff" };
+        parsedData.Time = TimeSpan.ParseExact(timeStr, formats, System.Globalization.CultureInfo.InvariantCulture);
+      }
+      catch (FormatException)
+      {
+        return null;
       }
 
       return parsedData;
