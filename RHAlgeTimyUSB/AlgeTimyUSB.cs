@@ -56,11 +56,13 @@ namespace RHAlgeTimyUSB
     public AlgeTimyUSB()
     {
       _internalProtocol = string.Empty;
-    }
-
-    public override string GetDeviceInfo()
-    {
-      return "ALGE Timy (USB)";
+      _deviceInfo = new DeviceInfo
+      {
+        Manufacturer = "ALGE",
+        Model = "Timy (USB)",
+        PrettyName = "ALGE Timy",
+        SerialNumber = string.Empty
+      };
     }
 
 
