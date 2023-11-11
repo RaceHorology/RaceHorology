@@ -118,6 +118,13 @@ namespace RaceHorologyLib
   public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, bool isRunning);
 
 
+  public class DeviceInfo
+  {
+    public string Manufacturer;
+    public string Model;
+    public string SerialNumber;
+    public string PrettyName;
+  }
 
   public interface ILiveTimeMeasurementDeviceBase
   {
@@ -159,7 +166,7 @@ namespace RaceHorologyLib
     /// <summary>
     /// Returns information about the device itself, i.e. the device name
     /// </summary>
-    string GetDeviceInfo();
+    DeviceInfo GetDeviceInfo();
 
     /// <summary>
     /// Returns information about the status of the device, i.e. online, disconnected, COM port not available, ...

@@ -261,6 +261,10 @@ namespace RaceHorologyLibTest
     public void CreateOrUpdateCategory(ParticipantCategory c) { }
     public void RemoveCategory(ParticipantCategory c) { }
 
+    public string GetTimingDevice(Race race) { return "Alge TdC8000/8001"; }
+    public void StoreTimingDevice(Race race, string timingDevice){}
+
+
 
     public PrintCertificateModel GetCertificateModel(Race race)
     {
