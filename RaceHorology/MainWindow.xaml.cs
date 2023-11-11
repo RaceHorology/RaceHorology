@@ -637,7 +637,7 @@ namespace RaceHorology
       string str = "---";
       if (timingDevice!=null && dateTimeProvider!=null)
       { 
-        str = timingDevice.GetDeviceInfo().PrettyName + " (" + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss") + ")";
+        str = timingDevice.GetDeviceInfo() + ", " + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss");
         timingDeviceOnline = timingDevice.IsOnline;
         connectInProgress = timingDevice.IsStarted != timingDevice.IsOnline;
       }

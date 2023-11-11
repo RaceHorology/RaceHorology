@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -40,7 +40,6 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
@@ -52,15 +51,8 @@ namespace RaceHorologyLib
 
     ALGETdC8001LineParser _parser;
     protected string _statusText;
-    protected DeviceInfo _deviceInfo = new DeviceInfo
-    {
-      Manufacturer = "ALGE",
-      Model = "TdC 8000/8001",
-      PrettyName = "ALGE TdC 8000/8001",
-      SerialNumber = string.Empty
-    };
 
-  TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
+    TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
 
     public ALGETdC8001TimeMeasurementBase()
     {
@@ -74,12 +66,12 @@ namespace RaceHorologyLib
       return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
     }
 
-    public virtual DeviceInfo GetDeviceInfo()
+    public virtual string GetDeviceInfo()
     {
-      return _deviceInfo;
+      return "ALGE TdC 8000/8001 (base)";
     }
 
-    public virtual string GetStatusInfo()
+    public string GetStatusInfo()
     {
       return _statusText;
     }
@@ -286,6 +278,11 @@ namespace RaceHorologyLib
       _internalProtocol = string.Empty;
     }
 
+    public override string GetDeviceInfo()
+    {
+      return "ALGE TdC8000/8001 (" + _serialPortName + ")";
+    }
+
     public override void Start()
     {
       if (string.IsNullOrEmpty(_serialPortName))
@@ -316,13 +313,6 @@ namespace RaceHorologyLib
       }
     }
 
-    public override string GetStatusInfo()
-    {
-      if (_serialPortName.IsNullOrEmpty())
-        return "kein COM Port";
-
-      return _serialPortName + ", " + _statusText;
-    }
 
     private void startWritingToDumpFile()
     {
