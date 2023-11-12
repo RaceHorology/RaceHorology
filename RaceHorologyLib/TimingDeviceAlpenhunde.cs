@@ -30,6 +30,7 @@ namespace RaceHorologyLib
     private HttpClient _webClient;
     private WebSocket _webSocket;
     private AlpenhundeParser _parser;
+    private AlpenhundeSystemInfo _systemInfo;
     protected DeviceInfo _deviceInfo = new DeviceInfo
     {
       Manufacturer = "Alpenhunde",
@@ -55,6 +56,12 @@ namespace RaceHorologyLib
       _parser = new AlpenhundeParser();
 
       _internalProtocol = String.Empty;
+
+      _systemInfo = new AlpenhundeSystemInfo();
+      _webClient = new HttpClient()
+      {
+        BaseAddress = new Uri(_baseUrl)
+      };
     }
 
 
@@ -83,6 +90,7 @@ namespace RaceHorologyLib
 
     public virtual DeviceInfo GetDeviceInfo()
     {
+      _deviceInfo.SerialNumber = _systemInfo.SerialNumber;
       return _deviceInfo;
     }
 
@@ -130,8 +138,8 @@ namespace RaceHorologyLib
           {
             if (parsedData.type == "keep_alive_ping")
             {
-              if (parsedData.KeepAliveData != null)
-                _keepAliveCounterReceived = (int) parsedData.KeepAliveData;
+              if (parsedData.keepAliveData != null)
+                _keepAliveCounterReceived = (int) parsedData.keepAliveData;
             }
             else if (parsedData.type == "timestamp")
             {
@@ -179,10 +187,13 @@ namespace RaceHorologyLib
       Logger.Info("start connecting");
       _webSocket.ConnectAsync();
 
+      // Pull some infos at startup
+      DownloadSystemStatus();
+
+      // Start Keep Alive Timer
       _keepAliveTimer = new System.Timers.Timer();
       _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
       _keepAliveTimer.Interval = 5 * 1000; // ms
-
       _keepAliveTimer.AutoReset = true;
       _keepAliveTimer.Enabled = true;
     }
@@ -192,9 +203,11 @@ namespace RaceHorologyLib
     int _keepAliveCounterReceived = 0;
     private void keepAliveTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new AlpenhundeEvent { type = "keep_alive_ping", KeepAliveData = _keepAliveCounter++ });
+      var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new AlpenhundeEvent { type = "keep_alive_ping", keepAliveData = _keepAliveCounter++ });
       Logger.Info("Sending keep alive: {0}", msg);
       _webSocket.Send(msg);
+
+      DownloadSystemStatus();
     }
 
 
@@ -235,12 +248,6 @@ namespace RaceHorologyLib
 
     public void DownloadImportTimes()
     {
-      if (_webClient == null)
-      {
-        _webClient = new HttpClient();
-        _webClient.BaseAddress = new Uri(_baseUrl);
-      }
-
       _webClient.GetAsync("timing/results/?action=all_events")
         .ContinueWith((response) =>
         {
@@ -263,6 +270,28 @@ namespace RaceHorologyLib
         });
     }
 
+    public void DownloadSystemStatus()
+    {
+      _webClient.GetAsync("system/")
+        .ContinueWith((response) =>
+        {
+          try
+          {
+            if (response.Result.IsSuccessStatusCode) { 
+              response.Result.Content.ReadAsStringAsync().ContinueWith((data) =>
+              {
+                Logger.Debug(data.Result);
+                var systemData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(data.Result);
+                Logger.Debug(systemData);
+                _systemInfo.SetRawData(systemData);
+              });
+            }
+          }catch(Exception ex)
+          {
+            Logger.Error(ex);
+          }
+        });
+    }
 
     #endregion
 
@@ -346,12 +375,12 @@ namespace RaceHorologyLib
     {
       type = "";
       data = null;
-      KeepAliveData = null;
+      keepAliveData = null;
     }
 
     public string type { get; set; }
     public AlpenhundeTimingData data { get; set; }
-    public int? KeepAliveData { get; set; }
+    public int? keepAliveData { get; set; }
   }
 
 
@@ -472,4 +501,15 @@ namespace RaceHorologyLib
 
   }
 
+
+  public class AlpenhundeSystemInfo
+  {
+    protected Dictionary<string, string> _rawData = new Dictionary<string, string>();
+    public void SetRawData(Dictionary<string, string> rawData)
+    {
+      _rawData = rawData;
+    }
+
+    public string SerialNumber { get { _rawData.TryGetValue("systemSerialNumber", out string v); return v; } }
+  }
 }
