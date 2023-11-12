@@ -251,22 +251,32 @@ namespace RaceHorologyLib
       _webClient.GetAsync("timing/results/?action=all_events")
         .ContinueWith((response) =>
         {
-          response.Result.Content.ReadAsStringAsync().ContinueWith((data) =>
+          if (response.Result.IsSuccessStatusCode)
           {
-            var events = _parser.ParseEvents(data.Result);
-            Logger.Debug(data.Result);
-
-            foreach(var i in events)
+            response.Result.Content.ReadAsStringAsync().ContinueWith((data) =>
             {
-              var te = AlpenhundeParser.ConvertToImportTimeEntry(i);
-              // Trigger time measurment event
-              _syncContext.Send(delegate
+              try
               {
-                var handle = ImportTimeEntryReceived;
-                handle?.Invoke(this, te);
-              }, null);
-            }
-          });
+                var events = _parser.ParseEvents(data.Result);
+                Logger.Debug(data.Result);
+
+                foreach (var i in events)
+                {
+                  var te = AlpenhundeParser.ConvertToImportTimeEntry(i);
+                  // Trigger time measurment event
+                  _syncContext.Send(delegate
+                  {
+                    var handle = ImportTimeEntryReceived;
+                    handle?.Invoke(this, te);
+                  }, null);
+                }
+              }
+              catch(Exception ex)
+              {
+                Logger.Error(ex);
+              }
+            });
+          }
         });
     }
 
