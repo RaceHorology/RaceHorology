@@ -1,11 +1,7 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Timers;
-using System.Threading.Tasks;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -141,16 +137,16 @@ namespace RaceHorologyLib
             {
               var timeMeasurmentData = AlpenhundeParser.ConvertToTimemeasurementData(parsedData.data);
               if (timeMeasurmentData != null)
-            {
-              // Update internal clock for livetiming
-              UpdateLiveDayTime(timeMeasurmentData);
-              // Trigger time measurment event
-              _syncContext.Send(delegate
               {
-                var handle = TimeMeasurementReceived;
-                handle?.Invoke(this, timeMeasurmentData);
-              }, null);
-            }
+                // Update internal clock for livetiming
+                UpdateLiveDayTime(timeMeasurmentData);
+                // Trigger time measurment event
+                _syncContext.Send(delegate
+                {
+                  var handle = TimeMeasurementReceived;
+                  handle?.Invoke(this, timeMeasurmentData);
+                }, null);
+              }
             }
             else
             {
