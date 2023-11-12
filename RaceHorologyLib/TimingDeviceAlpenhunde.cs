@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Timers;
 using System.Threading.Tasks;
 using WebSocketSharp;
 
@@ -130,10 +130,17 @@ namespace RaceHorologyLib
           debugMessage(e.Data);
 
           var parsedData = _parser.ParseMessage(e.Data);
-          if (parsedData != null && parsedData.type == "timestamp")
+          if (parsedData != null)
           {
-            var timeMeasurmentData = AlpenhundeParser.ConvertToTimemeasurementData(parsedData.data);
-            if (timeMeasurmentData != null)
+            if (parsedData.type == "keep_alive_ping")
+            {
+              if (parsedData.KeepAliveData != null)
+                _keepAliveCounterReceived = (int) parsedData.KeepAliveData;
+            }
+            else if (parsedData.type == "timestamp")
+            {
+              var timeMeasurmentData = AlpenhundeParser.ConvertToTimemeasurementData(parsedData.data);
+              if (timeMeasurmentData != null)
             {
               // Update internal clock for livetiming
               UpdateLiveDayTime(timeMeasurmentData);
@@ -143,6 +150,11 @@ namespace RaceHorologyLib
                 var handle = TimeMeasurementReceived;
                 handle?.Invoke(this, timeMeasurmentData);
               }, null);
+            }
+            }
+            else
+            {
+              Logger.Warn("Unknown data type: {0}", parsedData.type);
             }
           }
           else
@@ -170,7 +182,25 @@ namespace RaceHorologyLib
       // Actually connect
       Logger.Info("start connecting");
       _webSocket.ConnectAsync();
+
+      _keepAliveTimer = new System.Timers.Timer();
+      _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
+      _keepAliveTimer.Interval = 5 * 1000; // ms
+
+      _keepAliveTimer.AutoReset = true;
+      _keepAliveTimer.Enabled = true;
     }
+
+    System.Timers.Timer _keepAliveTimer;
+    int _keepAliveCounter = 0;
+    int _keepAliveCounterReceived = 0;
+    private void keepAliveTimer_Elapsed(object sender, ElapsedEventArgs e)
+    {
+      var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new AlpenhundeEvent { type = "keep_alive_ping", KeepAliveData = _keepAliveCounter++ });
+      Logger.Info("Sending keep alive: {0}", msg);
+      _webSocket.Send(msg);
+    }
+
 
     public bool IsStarted
     {
@@ -186,6 +216,12 @@ namespace RaceHorologyLib
 
     private void cleanup()
     {
+      if (_keepAliveTimer != null)
+      {
+        _keepAliveTimer.Enabled = false;
+        _keepAliveTimer.Dispose();
+      }
+      _keepAliveTimer = null;
       if (_webSocket != null)
         _webSocket.Close();
 
@@ -314,10 +350,12 @@ namespace RaceHorologyLib
     {
       type = "";
       data = null;
+      KeepAliveData = null;
     }
 
     public string type { get; set; }
     public AlpenhundeTimingData data { get; set; }
+    public int? KeepAliveData { get; set; }
   }
 
 
