@@ -205,6 +205,9 @@
       <Component Id="ClosedXML.dll" Guid="ac6b7696-74a4-4c76-8ecb-df03675aa3b0">
         <File Id="ClosedXML.dll" Name="ClosedXML.dll" Source="$(var.RaceHorology_TargetDir)ClosedXML.dll" />
       </Component>
+      <Component Id="ClosedXML.pdb" Guid="7b09b5da-155d-48aa-9a02-d5d72021745f">
+        <File Id="ClosedXML.pdb" Name="ClosedXML.pdb" Source="$(var.RaceHorology_TargetDir)ClosedXML.pdb" />
+      </Component>
       <Component Id="CsvHelper.dll" Guid="b698fea1-ff08-44a6-bed4-1ac56d19430d">
         <File Id="CsvHelper.dll" Name="CsvHelper.dll" Source="$(var.RaceHorology_TargetDir)CsvHelper.dll" />
       </Component>
