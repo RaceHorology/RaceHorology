@@ -537,10 +537,17 @@ namespace RaceHorology
       {
         newTimingDevice = new RHAlgeTimyUSB.AlgeTimyUSB();
       }
-      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde"))
+      {
         var hostname = Properties.Settings.Default.TimingDevice_Url;
         newTimingDevice = new TimingDeviceAlpenhunde(hostname);
-      } else if (Properties.Settings.Default.TimingDevice_Type.Contains("Microgate")) {
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Racetime 2"))
+      {
+        newTimingDevice = new MicrogateV1TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Microgate"))
+      {
         newTimingDevice = new MicrogateV2TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
       }
 
