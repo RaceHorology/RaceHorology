@@ -7,7 +7,7 @@
   <Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="!(bind.fileVersion.RaceHorology.exe)" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
-    <Icon Id="RHLOGOFINAPP.ico" SourceFile="RH-LOGO-FIN-APP2.ico"/>
+    <Icon Id="RHLOGOFINAPP.ico" SourceFile="RH-LOGO-FIN-APP2.ico" />
     <Property Id="ARPPRODUCTICON" Value="RHLOGOFINAPP.ico" />
 
     <MajorUpgrade Schedule="afterInstallValidate" AllowDowngrades="no" DowngradeErrorMessage="Eine neuere Version von [ProductName] ist bereits installiert." />
@@ -90,25 +90,16 @@
   <Fragment>
     
     <Property Id="VCREDISTINSTALLED">
-      <RegistrySearch Id="VCRedistInstalledSearch"
-                      Root="HKCR"
-                      Key="Installer\Dependencies\VC,redist.x86,x86,14.34,bundle"
-                      Name="Version"
-                      Type="raw" 
-                      Win64="no"/>
+      <RegistrySearch Id="VCRedistInstalledSearch" Root="HKCR" Key="Installer\Dependencies\VC,redist.x86,x86,14.34,bundle" Name="Version" Type="raw" Win64="no" />
     </Property>
 
     <ComponentGroup Id="ThirdPartyComponents" Directory="ExtSources">
-      <Component Id="Component_VC_redist_x86" Guid="2B80F89A-990A-438E-A475-9E72d8A0198A" >
+      <Component Id="Component_VC_redist_x86" Guid="2B80F89A-990A-438E-A475-9E72d8A0198A">
         <File Id="ExtSources_VC_redist.x86.exe" Name="VC_redist.x86.exe" Source="$(var.RaceHorology_TargetDir)ExtSources\VC_redist.x86.exe" />
       </Component>
     </ComponentGroup>
 
-    <CustomAction Id="Install_VC_redist_x86"
-      Execute="immediate"
-      Return="asyncNoWait"
-      FileKey="ExtSources_VC_redist.x86.exe"
-      ExeCommand="/quiet /norestart" />
+    <CustomAction Id="Install_VC_redist_x86" Execute="immediate" Return="asyncNoWait" FileKey="ExtSources_VC_redist.x86.exe" ExeCommand="/quiet /norestart" />
 
       <InstallExecuteSequence>
         <Custom Action="Install_VC_redist_x86" After="InstallFinalize"><![CDATA[VCREDISTINSTALLED < "14.34.31931.0" AND NOT REMOVE]]></Custom>
@@ -423,6 +414,18 @@
       </Component>
       <Component Id="websocket_sharp.xml" Guid="30075543-5193-4ed1-a385-5930a8574dd6">
         <File Id="websocket_sharp.xml" Name="websocket-sharp.xml" Source="$(var.RaceHorology_TargetDir)websocket-sharp.xml" />
+      </Component>
+      <Component Id="Irony.dll" Guid="af4abf14-546b-4bdb-be3d-219b73d616be">
+        <File Id="Irony.dll" Name="Irony.dll" Source="$(var.RaceHorology_TargetDir)Irony.dll" />
+      </Component>
+      <Component Id="SixLabors.Fonts.dll" Guid="3b4c7906-7863-43b1-8658-d3348c71946a">
+        <File Id="SixLabors.Fonts.dll" Name="SixLabors.Fonts.dll" Source="$(var.RaceHorology_TargetDir)SixLabors.Fonts.dll" />
+      </Component>
+      <Component Id="System.IO.Packaging.dll" Guid="db0d2deb-a7f8-44e5-b561-3975f19bf6ed">
+        <File Id="System.IO.Packaging.dll" Name="System.IO.Packaging.dll" Source="$(var.RaceHorology_TargetDir)System.IO.Packaging.dll" />
+      </Component>
+      <Component Id="XLParser.dll" Guid="00c0ed4a-ca73-45b4-ada3-656c4d193ca1">
+        <File Id="XLParser.dll" Name="XLParser.dll" Source="$(var.RaceHorology_TargetDir)XLParser.dll" />
       </Component>    </ComponentGroup>
   </Fragment>
 
