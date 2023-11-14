@@ -599,7 +599,7 @@ namespace RaceHorologyLibTest
         db.Connect(dbFilename);
         AppDataModel model = new AppDataModel(db);
         Race r1 = model.GetRace(0);
-        Assert.AreEqual("MyTimingDevice", r1.TimingDevice);
+        Assert.AreEqual("MyTimingDevice (SN: 123)", r1.TimingDevice);
       }
     }
 
