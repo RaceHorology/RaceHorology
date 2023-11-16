@@ -1,12 +1,10 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.WebSockets;
+using System.Timers;
 using WebSocketSharp;
+using WebSocket = WebSocketSharp.WebSocket;
 
 namespace RaceHorologyLib
 {
@@ -33,7 +31,13 @@ namespace RaceHorologyLib
 
     private HttpClient _webClient;
     private WebSocket _webSocket;
+    private System.Timers.Timer _keepAliveTimer;
+    private System.Timers.Timer _keepAliveCheckTimer;
+    private DateTime _lastPingReceivedTime = DateTime.Now;
+    private DateTime _lastPingSentTime = DateTime.Now;
+
     private AlpenhundeParser _parser;
+    private AlpenhundeSystemInfo _systemInfo;
     protected DeviceInfo _deviceInfo = new DeviceInfo
     {
       Manufacturer = "Alpenhunde",
@@ -59,6 +63,12 @@ namespace RaceHorologyLib
       _parser = new AlpenhundeParser();
 
       _internalProtocol = String.Empty;
+
+      _systemInfo = new AlpenhundeSystemInfo();
+      _webClient = new HttpClient()
+      {
+        BaseAddress = new Uri(_baseUrl)
+      };
     }
 
 
@@ -87,6 +97,7 @@ namespace RaceHorologyLib
 
     public virtual DeviceInfo GetDeviceInfo()
     {
+      _deviceInfo.SerialNumber = _systemInfo.SerialNumber;
       return _deviceInfo;
     }
 
@@ -117,42 +128,61 @@ namespace RaceHorologyLib
       _webSocket.OnOpen += (sender, e) => {
         Logger.Info("connected");
         setInternalStatus(EStatus.Connected);
+
+        // Reset Ping time stamps
+        _lastPingReceivedTime = DateTime.Now;
+        _lastPingSentTime = DateTime.Now;
+        // Start Keep Alive Timer
+        _keepAliveTimer = new System.Timers.Timer();
+        _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
+        _keepAliveTimer.Interval = 5 * 1000; // ms
+        _keepAliveTimer.AutoReset = true;
+        _keepAliveTimer.Enabled = true;
+        // Start Check Timer
+        _keepAliveCheckTimer = new System.Timers.Timer();
+        _keepAliveCheckTimer.Elapsed += _keepAliveCheckTimer_Elapsed;
+        _keepAliveCheckTimer.Interval = 1000; // ms
+        _keepAliveCheckTimer.AutoReset = true;
+        _keepAliveCheckTimer.Enabled = true;
       };
       _webSocket.OnMessage += (sender, e) => {
-        if (e.IsPing)
+        if (e.IsPing || e.Data == "PONG")
         {
-          Logger.Debug("ping received");
-
+          Logger.Debug("pong received");
+          _lastPingReceivedTime = DateTime.Now;
         }
-        else if (e.IsText)
+        else if (e.IsText && !e.Data.IsNullOrEmpty())
         {
           Logger.Info("data received: {0}", e.Data);
           debugMessage(e.Data);
 
           var parsedData = _parser.ParseMessage(e.Data);
-          if (parsedData != null && parsedData.type == "timestamp")
+          if (parsedData != null)
           {
-            var timeMeasurmentData = AlpenhundeParser.ConvertToTimemeasurementData(parsedData.data);
-            if (timeMeasurmentData != null)
+            if (parsedData.type == "timestamp")
             {
-              // Update internal clock for livetiming
-              UpdateLiveDayTime(timeMeasurmentData);
-              // Trigger time measurment event
-              _syncContext.Send(delegate
+              var timeMeasurmentData = AlpenhundeParser.ConvertToTimemeasurementData(parsedData.data);
+              if (timeMeasurmentData != null)
               {
-                var handle = TimeMeasurementReceived;
-                handle?.Invoke(this, timeMeasurmentData);
-              }, null);
+                // Update internal clock for livetiming
+                UpdateLiveDayTime(timeMeasurmentData);
+                // Trigger time measurment event
+                _syncContext.Send(delegate
+                {
+                  var handle = TimeMeasurementReceived;
+                  handle?.Invoke(this, timeMeasurmentData);
+                }, null);
+              }
+            }
+            else
+            {
+              Logger.Warn("Unknown data type: {0}", parsedData.type);
             }
           }
           else
           {
             Logger.Warn("could not parse received data: {0}", e.Data);
           }
-        }
-        else
-        {
-          Logger.Warn("unknown data received");
         }
       };
 
@@ -167,9 +197,47 @@ namespace RaceHorologyLib
         cleanup();
       };
 
+
       // Actually connect
       Logger.Info("start connecting");
       _webSocket.ConnectAsync();
+
+      // Pull some infos at startup
+      DownloadSystemStatus();
+    }
+
+    static TimeSpan keepAliveDelta = new TimeSpan(0, 0, 0, 0, 500);
+    private void _keepAliveCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
+    {
+      var pingDiff = _lastPingSentTime - _lastPingReceivedTime;
+      var nowDiff = DateTime.Now - _lastPingSentTime;
+
+      if (pingDiff.Ticks > 0 && nowDiff > keepAliveDelta)
+      {
+        Logger.Warn("Ping outstanding, closing connection");
+        setInternalStatus(EStatus.NotConnected);
+        cleanup();
+      }
+    }
+
+    private void keepAliveTimer_Elapsed(object sender, ElapsedEventArgs e)
+    {
+      try
+      {
+        _webSocket.Send("PING");
+        _lastPingSentTime = DateTime.Now;
+
+        DownloadSystemStatus();
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex);
+      }
+    }
+
+    private void _keepAliveTimer_Elapsed(object sender, ElapsedEventArgs e)
+    {
+      throw new NotImplementedException();
     }
 
     public bool IsStarted
@@ -186,6 +254,18 @@ namespace RaceHorologyLib
 
     private void cleanup()
     {
+      if (_keepAliveTimer != null)
+      {
+        _keepAliveTimer.Enabled = false;
+        _keepAliveTimer.Dispose();
+      }
+      _keepAliveTimer = null;
+      if (_keepAliveCheckTimer != null)
+      {
+        _keepAliveCheckTimer.Enabled = false;
+        _keepAliveCheckTimer.Dispose();
+      }
+      _keepAliveCheckTimer = null;
       if (_webSocket != null)
         _webSocket.Close();
 
@@ -203,34 +283,60 @@ namespace RaceHorologyLib
 
     public void DownloadImportTimes()
     {
-      if (_webClient == null)
-      {
-        _webClient = new HttpClient();
-        _webClient.BaseAddress = new Uri(_baseUrl);
-      }
-
       _webClient.GetAsync("timing/results/?action=all_events")
         .ContinueWith((response) =>
         {
-          response.Result.Content.ReadAsStringAsync().ContinueWith((data) =>
+          if (response.Result.IsSuccessStatusCode)
           {
-            var events = _parser.ParseEvents(data.Result);
-            Logger.Debug(data.Result);
-
-            foreach(var i in events)
+            response.Result.Content.ReadAsStringAsync().ContinueWith((data) =>
             {
-              var te = AlpenhundeParser.ConvertToImportTimeEntry(i);
-              // Trigger time measurment event
-              _syncContext.Send(delegate
+              try
               {
-                var handle = ImportTimeEntryReceived;
-                handle?.Invoke(this, te);
-              }, null);
-            }
-          });
+                var events = _parser.ParseEvents(data.Result);
+                Logger.Debug(data.Result);
+
+                foreach (var i in events)
+                {
+                  var te = AlpenhundeParser.ConvertToImportTimeEntry(i);
+                  // Trigger time measurment event
+                  _syncContext.Send(delegate
+                  {
+                    var handle = ImportTimeEntryReceived;
+                    handle?.Invoke(this, te);
+                  }, null);
+                }
+              }
+              catch(Exception ex)
+              {
+                Logger.Error(ex);
+              }
+            });
+          }
         });
     }
 
+    public void DownloadSystemStatus()
+    {
+      _webClient.GetAsync("system/")
+        .ContinueWith((response) =>
+        {
+          try
+          {
+            if (response.Result.IsSuccessStatusCode) { 
+              response.Result.Content.ReadAsStringAsync().ContinueWith((data) =>
+              {
+                Logger.Debug(data.Result);
+                var systemData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(data.Result);
+                Logger.Debug(systemData);
+                _systemInfo.SetRawData(systemData);
+              });
+            }
+          }catch(Exception ex)
+          {
+            Logger.Error(ex);
+          }
+        });
+    }
 
     #endregion
 
@@ -314,10 +420,12 @@ namespace RaceHorologyLib
     {
       type = "";
       data = null;
+      keepAliveData = null;
     }
 
     public string type { get; set; }
     public AlpenhundeTimingData data { get; set; }
+    public int? keepAliveData { get; set; }
   }
 
 
@@ -438,4 +546,15 @@ namespace RaceHorologyLib
 
   }
 
+
+  public class AlpenhundeSystemInfo
+  {
+    protected Dictionary<string, string> _rawData = new Dictionary<string, string>();
+    public void SetRawData(Dictionary<string, string> rawData)
+    {
+      _rawData = rawData;
+    }
+
+    public string SerialNumber { get { _rawData.TryGetValue("systemSerialNumber", out string v); return v; } }
+  }
 }

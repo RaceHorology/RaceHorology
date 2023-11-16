@@ -41,6 +41,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
+using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
@@ -742,7 +743,10 @@ namespace RaceHorologyLib
 
     public void SetTimingDeviceInfo(DeviceInfo deviceInfo)
     {
-      TimingDevice = deviceInfo.PrettyName;
+      if (deviceInfo.SerialNumber.IsNullOrEmpty())
+        TimingDevice = deviceInfo.PrettyName;
+      else
+        TimingDevice = string.Format("{0} (SN: {1})", deviceInfo.PrettyName, deviceInfo.SerialNumber);
     }
 
     string _timingDevice;
