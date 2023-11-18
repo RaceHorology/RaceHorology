@@ -127,6 +127,23 @@
                     </DataGridComboBoxColumn.EditingElementStyle>
                   </DataGridComboBoxColumn>
                   <DataGridTextColumn Header="Gruppe" Binding="{Binding Group, Mode=OneWay}"/>
+                  <DataGridComboBoxColumn Header="Mannschaft" 
+                                SelectedValueBinding="{Binding Team, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                >
+                    <DataGridComboBoxColumn.ElementStyle>
+                      <Style TargetType="ComboBox">
+                        <Setter Property="ItemsSource" Value="{Binding Path=Teams, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
+                        <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+                      </Style>
+                    </DataGridComboBoxColumn.ElementStyle>
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                      <Style TargetType="ComboBox">
+                        <Setter Property="ItemsSource" Value="{Binding Path=Teams, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
+                        <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+                      </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                  </DataGridComboBoxColumn>
+
                   <DataGridTextColumn Header="Verein" Binding="{Binding Club}"/>
                   <DataGridTextColumn Header="Nat." Binding="{Binding Nation}"/>
                 </DataGrid.Columns>

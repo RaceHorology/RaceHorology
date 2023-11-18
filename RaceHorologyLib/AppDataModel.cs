@@ -66,6 +66,8 @@ namespace RaceHorologyLib
     ObservableCollection<ParticipantClass> _particpantClasses;
     DatabaseDelegatorClasses _particpantClassesDelegatorDB;
 
+    ObservableCollection<Team> _teams;
+    ObservableCollection<TeamGroup> _teamGroups;
     ObservableCollection<ParticipantCategory> _particpantCategories;
     DatabaseDelegatorCategories _particpantCategoriesDelegatorDB;
 
@@ -137,6 +139,8 @@ namespace RaceHorologyLib
       _particpantClasses.CollectionChanged += OnClassCollectionChanged;
       _particpantCategories = new ObservableCollection<ParticipantCategory>(_db.GetParticipantCategories());
       _particpantCategories.CollectionChanged += OnCategoryCollectionChanged;
+      _teams = new ObservableCollection<Team>(_db.GetTeams());
+      _teamGroups = new ObservableCollection<TeamGroup>(_db.GetTeamGroups());
 
       _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
       _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
@@ -222,6 +226,10 @@ namespace RaceHorologyLib
     public ObservableCollection<ParticipantClass> GetParticipantClasses()
     {
       return _particpantClasses;
+    }
+    public ObservableCollection<Team> GetTeams()
+    {
+      return _teams;
     }
 
     #region Race Management
