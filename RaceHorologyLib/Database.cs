@@ -33,6 +33,7 @@
  * 
  */
 
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -558,8 +559,15 @@ namespace RaceHorologyLib
       else
         cmd.Parameters.Add(new OleDbParameter("@code", participant.Code));
 
-      cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class)));
-      cmd.Parameters.Add(new OleDbParameter("@mannschaft", GetTeamId(participant.Team)));
+      if (participant.Class == null)
+        cmd.Parameters.Add(new OleDbParameter("@klasse", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class)));
+      
+      if (participant.Team == null)
+        cmd.Parameters.Add(new OleDbParameter("@mannschaft", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@mannschaft", GetTeamId(participant.Team)));
       cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
       cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
 

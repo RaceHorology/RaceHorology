@@ -735,7 +735,8 @@ namespace RaceHorologyLibTest
         Club = "Verein 7",
         Nation = "GER",
         Class = db.GetParticipantClasses()[1],
-        Year = 2010
+        Year = 2010,
+        Team = db.GetTeams()[0]
       };
       db.CreateOrUpdateParticipant(pNew2);
       DBCacheWorkaround();
@@ -843,6 +844,7 @@ namespace RaceHorologyLibTest
           bRes &= checkStringAgainstDB(participant.SvId, reader["svid"]);
           bRes &= checkStringAgainstDB(participant.Code, reader["code"]);
           bRes &= checkStringAgainstDB(participant.Class.Id, reader["klasse"]);
+          bRes &= checkStringAgainstDB(participant.Team?.Id, reader["mannschaft"]);
           bRes &= participant.Year == reader.GetInt16(reader.GetOrdinal("jahrgang"));
           //bRes &= participant.StartNumber == GetStartNumber(reader);
         }
