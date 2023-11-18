@@ -44,11 +44,11 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
-  public class HasSortableName: INotifyPropertyChanged, IComparable<HasSortableName>, IComparable
+  public class HasSortableName : INotifyPropertyChanged, IComparable<HasSortableName>, IComparable
   {
-    private string _id;
-    private string _name;
-    private uint _sortpos;
+    protected string _id;
+    protected string _name;
+    protected uint _sortpos;
 
     public HasSortableName()
     {
@@ -64,7 +64,7 @@ namespace RaceHorologyLib
       _sortpos = sortpos;
     }
 
-    public string Id
+    public virtual string Id
     {
       get => _id;
       set
@@ -77,7 +77,7 @@ namespace RaceHorologyLib
       }
     }
 
-    public string Name
+    public virtual string Name
     {
       get => _name;
       set
@@ -90,7 +90,7 @@ namespace RaceHorologyLib
       }
     }
 
-    public uint SortPos
+    public virtual uint SortPos
     {
       get => _sortpos;
       set
@@ -109,7 +109,7 @@ namespace RaceHorologyLib
     }
 
 
-    public int CompareTo(HasSortableName other)
+    public virtual int CompareTo(HasSortableName other)
     {
       if (_sortpos == other._sortpos)
         return _name.CompareTo(other._name);
@@ -131,10 +131,15 @@ namespace RaceHorologyLib
     // This method is called by the Set accessor of each property.  
     // The CallerMemberName attribute that is applied to the optional propertyName  
     // parameter causes the property name of the caller to be substituted as an argument.  
-    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+    protected void triggerPropertyChanged(PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, eargs);
+    }
+
 
     #endregion
   }
@@ -152,60 +157,24 @@ namespace RaceHorologyLib
   /// Represents the participant's class
   /// Defines a relation via IComparable based on its sortkey
   /// </summary>
-  public class ParticipantClass : INotifyPropertyChanged, IComparable<ParticipantClass>, IComparable
+  public class ParticipantClass : HasSortableName
   {
-    private string _id;
     private ParticipantGroup _group;
-    private string _name;
     private ParticipantCategory _sex;
     private uint _year; // ältester mit erfaßter Jahrgang
-    private uint _sortpos;
 
-
-    public ParticipantClass()
+    public ParticipantClass() : base()
     {
-      _id = null;
       _group = null;
-      _name = "";
       _sex = null;
       _year = 0;
-      _sortpos = uint.MaxValue;
     }
 
-    public ParticipantClass(string id, ParticipantGroup parentGroup, string name, ParticipantCategory sex, uint year, uint sortpos)
+    public ParticipantClass(string id, ParticipantGroup parentGroup, string name, ParticipantCategory sex, uint year, uint sortpos) : base(id, name, sortpos)
     {
-      _id = id;
       Group = parentGroup;
-      _name = name;
       _sex = sex;
       _year = year;
-      _sortpos = sortpos;
-    }
-
-    public string Id
-    {
-      get => _id;
-      set
-      {
-        if (_id != value)
-        {
-          _id = value;
-          NotifyPropertyChanged();
-        }
-      }
-    }
-
-    public string Name
-    {
-      get => _name;
-      set
-      {
-        if (_name != value)
-        {
-          _name = value;
-          NotifyPropertyChanged();
-        }
-      }
     }
 
     public ParticipantCategory Sex
@@ -218,19 +187,6 @@ namespace RaceHorologyLib
     {
       get => _year;
       set { _year = value; NotifyPropertyChanged(); }
-    }
-
-    public uint SortPos
-    {
-      get => _sortpos;
-      set
-      {
-        if (_sortpos != value)
-        {
-          _sortpos = value;
-          NotifyPropertyChanged();
-        }
-      }
     }
 
     public ParticipantGroup Group
@@ -256,39 +212,22 @@ namespace RaceHorologyLib
       return _name;
     }
 
-    public int CompareTo(ParticipantClass other)
+    public override int CompareTo(HasSortableName other)
     {
-      if (_sortpos == other._sortpos)
-        return _name.CompareTo(other._name);
+      if (other is ParticipantClass otherPC)
+      {
+        if (_sortpos == otherPC._sortpos)
+          return _name.CompareTo(otherPC._name);
 
-      return _sortpos.CompareTo(other._sortpos);
+        return _sortpos.CompareTo(otherPC._sortpos);
+      }
+      return base.CompareTo(other);
     }
 
-    int IComparable.CompareTo(object obj)
+    protected void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
     {
-      if (obj is ParticipantClass other)
-        return CompareTo(other);
-
-      return -1;
+      triggerPropertyChanged(new PropertyChangedEventArgs("Group"));
     }
-
-
-    #region INotifyPropertyChanged implementation
-
-    public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
-    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    private void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
-    }
-    #endregion
   }
 
 
