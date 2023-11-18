@@ -438,6 +438,7 @@ namespace RaceHorologyLib
     private string _code;
     private string _svid;
     private ParticipantClass _class;
+    private Team _team;
 
     public string Id
     {
@@ -541,9 +542,40 @@ namespace RaceHorologyLib
         }
       }
     }
+
+    public Team Team
+    {
+      get => _team;
+      set
+      {
+        if (_team != value)
+        {
+          if (_team != null)
+            _team.PropertyChanged -= OnTeamChanged;
+
+          if (_team?.Group != null)
+            (_team?.Group).PropertyChanged -= OnTeamGroupChanged;
+
+          _team = value;
+          NotifyPropertyChanged();
+          NotifyPropertyChanged("Team");
+
+          if (_team != null)
+            _team.PropertyChanged += OnTeamChanged;
+
+          if (_team?.Group != null)
+            (_team?.Group).PropertyChanged += OnTeamGroupChanged;
+        }
+      }
+    }
+
     public ParticipantGroup Group
     {
       get => _class?.Group;
+    }
+    public TeamGroup TeamGroup
+    {
+      get => _team?.Group;
     }
 
     public override string ToString()
@@ -601,6 +633,16 @@ namespace RaceHorologyLib
     private void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
+    }
+
+    private void OnTeamChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Team"));
+    }
+
+    private void OnTeamGroupChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TeamGroup"));
     }
 
     private void OnSexChanged(object source, PropertyChangedEventArgs eargs)
