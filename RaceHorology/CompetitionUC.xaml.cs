@@ -396,6 +396,7 @@ namespace RaceHorology
       updatePartcipantEditField(txtCode, GetPropertyValues(items, "Code"));
       updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
       updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
+      updatePartcipantCombobox(cmbTeam, GetPropertyValues(items, "Team"));
 
       for (int i = 0; i < spRaces.Children.Count; i++)
       {
@@ -502,6 +503,7 @@ namespace RaceHorology
       storePartcipantEditField(txtCode, items, "Code");
       storePartcipantEditField(txtNation, items, "Nation");
       storePartcipantComboBox(cmbClass, items, "Class");
+      storePartcipantComboBox(cmbTeam, items, "Team");
 
       for (int i = 0; i < spRaces.Children.Count; i++)
       {
