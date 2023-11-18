@@ -44,21 +44,20 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
-
-  public class ParticipantGroup : INotifyPropertyChanged, IComparable<ParticipantGroup>, IComparable
+  public class HasSortableName: INotifyPropertyChanged, IComparable<HasSortableName>, IComparable
   {
     private string _id;
     private string _name;
     private uint _sortpos;
 
-    public ParticipantGroup()
+    public HasSortableName()
     {
       _id = null;
       _name = "";
       _sortpos = uint.MaxValue;
     }
 
-    public ParticipantGroup(string id, string name, uint sortpos)
+    public HasSortableName(string id, string name, uint sortpos)
     {
       _id = id;
       _name = name;
@@ -110,7 +109,7 @@ namespace RaceHorologyLib
     }
 
 
-    public int CompareTo(ParticipantGroup other)
+    public int CompareTo(HasSortableName other)
     {
       if (_sortpos == other._sortpos)
         return _name.CompareTo(other._name);
@@ -120,7 +119,7 @@ namespace RaceHorologyLib
 
     int IComparable.CompareTo(object obj)
     {
-      if (obj is ParticipantGroup other)
+      if (obj is HasSortableName other)
         return CompareTo(other);
 
       return -1;
@@ -138,8 +137,16 @@ namespace RaceHorologyLib
     }
 
     #endregion
-
   }
+
+  public class ParticipantGroup : HasSortableName 
+  { 
+    public ParticipantGroup(string id, string name, uint sortpos) : base(id, name, sortpos) {}
+  };
+
+  public class TeamGroup : HasSortableName {
+      public TeamGroup(string id, string name, uint sortpos) : base(id, name, sortpos) { }
+  };
 
   /// <summary>
   /// Represents the participant's class
