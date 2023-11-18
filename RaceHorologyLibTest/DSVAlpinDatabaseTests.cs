@@ -1159,6 +1159,98 @@ namespace RaceHorologyLibTest
       return bRes;
     }
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void CreateAndUpdateAndDeleteTeams()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      var teams = db.GetTeams();
+
+      void DBCacheWorkaround()
+      {
+        db.Close(); // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+        db.Connect(dbFilename);
+        teams = db.GetTeams();
+      }
+
+      Assert.AreEqual(6, teams.Count);
+
+      // Edit existing one
+      {
+        var t = teams.FirstOrDefault(v => v.Id == "3");
+        Assert.AreEqual("M1.1", t.Name);
+        t.Name = "M1.1 modified";
+        db.CreateOrUpdateTeam(t);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckTeam(dbFilename, t, ulong.Parse(t.Id)));
+        Assert.AreEqual(6, teams.Count);
+      }
+
+      {
+        var t = teams.FirstOrDefault(v => v.Id == "3");
+        Assert.IsNotNull(t.Group);
+        t.Group = null;
+        db.CreateOrUpdateTeam(t);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckTeam(dbFilename, t, ulong.Parse(t.Id)));
+        Assert.AreEqual(6, teams.Count);
+      }
+
+      // Create new one
+      {
+        var t = new Team(null, db.GetTeamGroups()[0], "Team New 1", 99);
+        db.CreateOrUpdateTeam(t);
+        DBCacheWorkaround();
+        Assert.IsTrue(CheckTeam(dbFilename, t, ulong.Parse(t.Id)));
+        Assert.AreEqual(7, teams.Count);
+      }
+
+      // Delete one
+      {
+        var t = teams.FirstOrDefault(v => v.Id == "2");
+        db.RemoveTeam(t);
+        DBCacheWorkaround();
+
+        t = teams.FirstOrDefault(v => v.Id == "2");
+        Assert.IsNull(t);
+
+        Assert.AreEqual(6, teams.Count);
+      }
+    }
+
+    bool CheckTeam(string dbFilename, Team teamShall, ulong id)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      string sql = @"SELECT * FROM tblMannschaft WHERE id = @id";
+      OleDbCommand command = new OleDbCommand(sql, conn);
+      command.Parameters.Add(new OleDbParameter("@id", id));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= teamShall.Name == reader["mname"].ToString();
+          if (teamShall.Group == null)
+            bRes &= reader["gruppe"] == DBNull.Value;
+          else
+            bRes &= teamShall.Group.Id == reader["gruppe"].ToString();
+          bRes &= teamShall.SortPos == (double)reader["sortpos"];
+        }
+        else
+          bRes = false;
+      }
+      conn.Close();
+
+      return bRes;
+    }
+
 
     #endregion
 

@@ -230,6 +230,8 @@ namespace RaceHorologyLibTest
     public List<ParticipantGroup> GetParticipantGroups() { return new List<ParticipantGroup>(); }
     public List<ParticipantClass> GetParticipantClasses() { return new List<ParticipantClass>(); }
     public List<ParticipantCategory> GetParticipantCategories() { return new List<ParticipantCategory>(); }
+    public List<Team> GetTeams() { return new List<Team>(); }
+    public List<TeamGroup> GetTeamGroups() { return new List<TeamGroup>(); }
 
 
     public List<Race.RaceProperties> GetRaces() { return _races; }

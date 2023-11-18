@@ -390,7 +390,10 @@ namespace RaceHorologyLib
   {
     protected TeamGroup _group;
 
-    public Team(string id, string name, uint sortpos) : base(id, name, sortpos) {}
+    public Team(string id, TeamGroup group, string name, uint sortpos) : base(id, name, sortpos)
+    {
+      _group = group;
+    }
 
     public override string ToString()
     {

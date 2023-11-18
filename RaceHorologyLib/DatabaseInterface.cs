@@ -57,6 +57,8 @@ namespace RaceHorologyLib
     List<ParticipantGroup> GetParticipantGroups();
     List<ParticipantClass> GetParticipantClasses();
     List<ParticipantCategory> GetParticipantCategories();
+    List<Team> GetTeams();
+    List<TeamGroup> GetTeamGroups();
 
     List<Race.RaceProperties> GetRaces();
     List<RaceParticipant> GetRaceParticipants(Race race, bool ignoreAktiveFlag = false);
