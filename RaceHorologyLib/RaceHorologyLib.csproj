@@ -79,6 +79,7 @@
     <Compile Include="COMPortViewModel.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="AppDataModelDataTypes.cs" />
+    <Compile Include="DatabaseInterface.cs" />
     <Compile Include="DSVAlpin2HTTPServer.cs" />
     <Compile Include="DSVCalculations.cs" />
     <Compile Include="DSVExport.cs" />
