@@ -385,6 +385,41 @@ namespace RaceHorologyLib
   }
 
 
+
+  public class Team : HasSortableName
+  {
+    protected TeamGroup _group;
+
+    public Team(string id, string name, uint sortpos) : base(id, name, sortpos) {}
+
+    public override string ToString()
+    {
+      return _name;
+    }
+    public TeamGroup Group
+    {
+      get => _group;
+      set
+      {
+        if (_group != value)
+        {
+          if (_group != null)
+            _group.PropertyChanged -= OnGroupChanged;
+
+          _group = value; NotifyPropertyChanged();
+
+          if (_group != null)
+            _group.PropertyChanged += OnGroupChanged;
+        }
+      }
+    }
+    protected void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      triggerPropertyChanged(new PropertyChangedEventArgs("Group"));
+    }
+  }
+
+
   public enum EParticipantColor { NoColor, Red, Blue };
 
   /// <summary>
