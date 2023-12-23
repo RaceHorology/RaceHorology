@@ -254,6 +254,9 @@ namespace RaceHorology
       FillCmbTotalsResultsWithRaceSpecifics(cmbTotalResult);
       cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = new CBObjectTotalResults { Type = "raceresults" } });
       cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
+
+      if (_thisRace.GetTeamResultsViewProvider()!= null)
+        cmbTotalResult.Items.Add(new CBItem { Text = "Mannschaftswertung", Value = new CBObjectTotalResults { Type = "teamresults" } });
     }
 
 
@@ -319,6 +322,8 @@ namespace RaceHorology
           displayView(selObj.RaceRun.GetResultViewProvider());
         else if (selObj.Type == "startlist_run")
           displayView(selObj.RaceRun.GetStartListProvider());
+        else if (selObj.Type == "teamresults")
+          displayView(_thisRace.GetTeamResultsViewProvider());
 
         configureExport(selected);
       }

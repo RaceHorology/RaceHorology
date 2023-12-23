@@ -60,7 +60,7 @@ namespace RaceHorologyLib
     protected ItemsChangeObservableCollection<RaceResultItem> _raceResults;
 
 
-    TeamRaceResultViewProvider()
+    public TeamRaceResultViewProvider()
     {
       _comparer = new TeamTimeSorter();
     }
@@ -133,6 +133,12 @@ namespace RaceHorologyLib
       foreach (var team in itemsPerTeam)
       {
         var trri = _teamResults.FirstOrDefault(t => t.Team == team);
+        if (trri == null)
+        {
+          trri = new TeamResultViewItem(team.Key);
+          _teamResults.Add(trri);
+        }
+
         // Update RaceResults and Calculate time and points
         trri.SetRaceResults(team.ToList());
         var consideredTeamMembers = trri.RaceResults.Where(r => r.Consider);
@@ -255,7 +261,6 @@ namespace RaceHorologyLib
 
     protected Team _team;
     protected List<TeamParticipantItem> _raceResults;
-    //protected SubResultMap _subResults;
     protected TimeSpan? _totalTime;
     protected RunResult.EResultCode _resultCode;
     protected string _disqualText;
@@ -265,9 +270,10 @@ namespace RaceHorologyLib
 
     #endregion
 
-    TeamResultViewItem(Team team)
+    public TeamResultViewItem(Team team)
     {
       _team = team;
+      _raceResults = new List<TeamParticipantItem>();
       _totalTime = null;
       _resultCode = RunResult.EResultCode.Normal;
       _disqualText = null;

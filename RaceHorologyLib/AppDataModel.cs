@@ -717,6 +717,7 @@ namespace RaceHorologyLib
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
     private RaceResultViewProvider _raceResultsProvider;
+    private TeamRaceResultViewProvider _teamResultsProvider;
 
 
     public ERaceType RaceType { get { return _properties.RaceType; } }
@@ -1208,6 +1209,16 @@ namespace RaceHorologyLib
     public void SetResultViewProvider(RaceResultViewProvider raceVP)
     {
       _raceResultsProvider = raceVP;
+    }
+
+
+    public TeamRaceResultViewProvider GetTeamResultsViewProvider()
+    {
+      return _teamResultsProvider;
+    }
+    public void SetTeamResultsViewProvider(TeamRaceResultViewProvider vp)
+    {
+      _teamResultsProvider = vp;
     }
 
 
