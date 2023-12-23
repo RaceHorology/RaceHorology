@@ -258,7 +258,7 @@ namespace RaceHorologyLib
       _sourceItemChangedNotifier = new ItemsChangedNotifier(_participants);
       _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
 
-      base.FinalizeInit();
+      FinalizeInit();
     }
 
 
@@ -944,6 +944,14 @@ namespace RaceHorologyLib
       else if (_groupingPropertyName == "Participant.Sex")
         groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY?.Participant?.Participant?.Sex);
 
+      return groupCompare;
+    }
+
+    protected int CompareGroup(TeamResultViewItem tX, TeamResultViewItem tY)
+    {
+      int groupCompare = 0;
+      if (_groupingPropertyName == "Team")
+        groupCompare = nullEnabledComparer.Compare(tX.Team.Group, tY.Team.Group);
       return groupCompare;
     }
 
