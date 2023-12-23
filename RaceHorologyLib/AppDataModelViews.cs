@@ -2145,20 +2145,6 @@ namespace RaceHorologyLib
   }
 
 
-    /* e.g. FamilienWertung
-      public class SpecialRaceResultViewProvider : ResultViewProvider
-      {
-        // Input: Race
-
-        // Output: List<RunResultWithPosition>
-
-
-      }
-      */
-
-
-
-
 
 
 }

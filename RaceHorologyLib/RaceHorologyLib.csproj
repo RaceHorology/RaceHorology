@@ -109,6 +109,7 @@
     <Compile Include="ResultCharts.cs" />
     <Compile Include="StartnumberAssignment.cs" />
     <Compile Include="TagHeuer.cs" />
+    <Compile Include="TeamRaceResultViewProvider.cs" />
     <Compile Include="TimingDeviceAlpenhunde.cs" />
     <Compile Include="UserInterfaceViewModels.cs" />
     <Compile Include="Utilities.cs" />
