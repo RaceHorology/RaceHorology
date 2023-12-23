@@ -720,6 +720,7 @@ namespace RaceHorologyLib
 
     public ParticipantClass Class { get => _participant.Class; }
     public ParticipantGroup Group { get => _participant.Group; }
+    public Team Team { get => _participant.Team; }
 
     public uint StartNumber
     {
