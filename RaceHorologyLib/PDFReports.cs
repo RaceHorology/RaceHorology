@@ -3169,4 +3169,245 @@ namespace RaceHorologyLib
     }
   }
 
+
+
+  public class TeamRaceResultReport : ResultReport
+  {
+    ResultTimeAndCodeConverter _timeConverter = new ResultTimeAndCodeConverter();
+
+    public TeamRaceResultReport(Race race) : base(race)
+    {
+    }
+
+    protected override string getReportName()
+    {
+      return string.Format("Mannschaftswertung");
+    }
+
+    protected override string getTitle()
+    {
+      return string.Format("MANNSCHAFTSWERTUNG");
+    }
+
+
+    protected override ICollectionView getView()
+    {
+      return _race.GetTeamResultsViewProvider().GetView();
+    }
+
+
+    protected override float[] getTableColumnsWidths()
+    {
+      float[] columns = new float[5 + _nOptFields + _race.GetMaxRun()];
+      for (int i = 0; i < columns.Length; i++)
+        columns[i] = 1F;
+
+      return columns;
+    }
+
+    protected override void addHeaderToTable(Table table)
+    {
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Rang")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Stnr")));
+      if (_race.IsFieldActive("Code"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable("Code")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Teilnehmer")));
+      if (_race.IsFieldActive("Year"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable("JG")));
+      if (_race.IsFieldActive("Nation"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable("VB")));
+      if (_race.IsFieldActive("Club"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.LEFT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable("Verein")));
+
+      for (int i = 1; i <= _race.GetMaxRun(); i++)
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable(string.Format("Zeit-{0}", i))));
+
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Laufzeit")));
+      table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+        .ConfigureHeaderCell()
+        .Add(createHeaderCellParagraphForTable("Diff [s]")));
+      if (_race.IsFieldActive("Percentage"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable("Diff [%]")));
+      if (_race.IsFieldActive("Points"))
+        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
+          .ConfigureHeaderCell()
+          .Add(createHeaderCellParagraphForTable("Punkte")));
+    }
+
+
+    protected override void addLineToTable(Table table, string group)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        );
+
+      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+        .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+        //.SetBackgroundColor(PDFHelper.ColorRHBG2)
+        .Add(new Paragraph(group)
+          .SetPaddingTop(6)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
+    }
+
+    protected override void addCommentLineToTable(Table table, string comment)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(comment)
+          .SetFont(_pdfHelper.GetFont(RHFont.Oblique)).SetFontSize(10)));
+    }
+
+    protected override void addSubHeaderToTable(Table table, string group)
+    {
+      table.AddCell(new Cell(1, 2)
+        .SetBorder(Border.NO_BORDER)
+        );
+
+      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
+        .SetBorder(Border.NO_BORDER)
+        .Add(new Paragraph(group)
+          .SetPaddingTop(12)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold)).SetFontSize(10)));
+    }
+
+
+    protected override bool addLineToTable(Table table, object data, int i = 0)
+    {
+      RaceResultItem item = data as RaceResultItem;
+      if (item == null)
+        return false;
+
+      if (item.ResultCode == RunResult.EResultCode.NotSet)
+        return false;
+
+      Color bgColor = ColorConstants.WHITE;
+      if (i % 2 == 1)
+        bgColor = PDFHelper.ColorRHBG1;
+
+      // Position
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(item.Position, typeof(string), null, null))));
+      // Startnumber
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.StartNumber))));
+      // Code
+      if (_race.IsFieldActive("Code"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.CodeOrSvId)));
+      // Name
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Fullname)));
+      // Year
+      if (_race.IsFieldActive("Year"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.Year))));
+      // VB
+      if (_race.IsFieldActive("Nation"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Nation)));
+      // Club
+      if (_race.IsFieldActive("Club"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Club)));
+
+      for (uint j = 1; j <= _race.GetMaxRun(); j++)
+      {
+        if (item.SubResults.ContainsKey(j))
+        {
+          string str = (string)_timeConverter.Convert(new object[] { item.SubResults[j].Runtime, item.SubResults[j].RunResultCode }, typeof(string), null, null);
+          table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(str)));
+        }
+        else
+          table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor));
+      }
+
+      // Runtime
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
+      // Diff
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
+
+      // Points
+      if (_race.IsFieldActive("Points"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(item.Points))));
+
+      return true;
+    }
+
+
+    protected override void addLineToTable(Table table, RunResultWithPosition rrwp, string notes, int i = 0)
+    {
+      Color bgColor = ColorConstants.WHITE;
+      if (i % 2 == 1)
+        bgColor = PDFHelper.ColorRHBG1;
+
+      // Position
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable("")));
+      // Startnumber
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Participant.StartNumber))));
+      // Code
+      if (_race.IsFieldActive("Code"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
+      // Name
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
+      // Year
+      if (_race.IsFieldActive("Year"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Participant.Year))));
+      // VB
+      if (_race.IsFieldActive("Nation"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
+      // Club
+      if (_race.IsFieldActive("Club"))
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Club)));
+
+      int colSpan = 2 + _race.GetMaxRun();
+      if (_race.IsFieldActive("Points"))
+        colSpan++;
+
+      // Runtime
+      table.AddCell(createCellForTable(colSpan, TextAlignment.LEFT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(notes)));
+    }
+
+
+    protected override Table getResultsTable()
+    {
+      Table table = base.getResultsTable();
+
+      for (int i = 0; i < _race.GetMaxRun(); i++)
+      {
+        addNotStartedTable(table, _race.GetRun(i));
+        addNotFinishedPart(table, _race.GetRun(i));
+        addDisqualifiedTable(table, _race.GetRun(i));
+      }
+
+      return table;
+    }
+
+
+    protected override void addContent(PdfDocument pdf, Document document)
+    {
+      base.addContent(pdf, document);
+    }
+  }
 }
