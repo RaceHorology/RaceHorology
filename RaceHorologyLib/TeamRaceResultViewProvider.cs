@@ -34,6 +34,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -47,6 +48,7 @@ namespace RaceHorologyLib
   public class TeamRaceResultViewProvider : ViewProvider
   {
     protected TeamTimeSorter _comparer;
+    protected TeamParticipantsSorter _comparerTeamParticipants;
     protected Race _race;
     protected AppDataModel _appDataModel;
 
@@ -55,9 +57,14 @@ namespace RaceHorologyLib
     protected ItemsChangeObservableCollection<RaceResultItem> _raceResults;
 
 
+    int NumberOfMembers_Min;
+    int NumberOfMembers_Max = 5;
+
+
     public TeamRaceResultViewProvider()
     {
       _comparer = new TeamTimeSorter();
+      _comparerTeamParticipants = new TeamParticipantsSorter();
     }
 
     public override ViewProvider Clone()
@@ -142,20 +149,22 @@ namespace RaceHorologyLib
         }
 
         // Update RaceResults and Calculate time and points
-        trri.SetRaceResults(team.ToList());
+        trri.SetRaceResults(team.ToList(), _comparerTeamParticipants);
 
+        // Autoselect Particpants
+        autoSelectParticipants(trri.RaceResults);
 
+        // Calculate time and points per team
         var consideredTeamMembers = trri.RaceResults.Where(r =>
         {
-          return r.Consider && r.ResultCode == EResultCode.Normal;
+          return r.Consider;
         });
         trri.TotalTime = consideredTeamMembers.Select(r => r).Sum(r => r.Runtime);
         trri.Points = consideredTeamMembers.Sum(r => r.Points);
       }
 
-      // Group, Sort and Rank
+      // Group, Sort and Rank the teams
       _teamResults.Sort(_comparer);
-
       ViewProviderHelpers.updatePositions<TeamResultViewItem>(_teamResults, _activeGrouping, (item) => { });
 
       // Build viewable List (Flatten)
@@ -166,6 +175,40 @@ namespace RaceHorologyLib
         foreach (var participants in team.RaceResults)
         {
           _teamViewResults.Add(participants);
+        }
+      }
+    }
+
+    protected virtual void autoSelectParticipants(IEnumerable<TeamParticipantItem> teamMembers)
+    {
+      var nSelected = 0;
+      var raceResults = new List<TeamParticipantItem>(teamMembers);
+      // Overrides get priority regardless of other constraints
+      // => consider and remove from raceResults for further processing
+      for (var i = raceResults.Count - 1; i >= 0; i--)
+      {
+        var rr = raceResults[i];
+        if (rr.ConsiderOverride == true)
+        {
+          raceResults.RemoveAt(i);
+          nSelected++;
+        }
+        if (rr.ConsiderOverride == false)
+        {
+          raceResults.RemoveAt(i);
+        }
+      }
+      // Add remaining according to policy
+      foreach (var rr in raceResults)
+      {
+        if (nSelected < NumberOfMembers_Max)
+        {
+          rr.ConsiderBase = true;
+          nSelected++;
+        }
+        else
+        {
+          rr.ConsiderBase = false;
         }
       }
     }
@@ -214,6 +257,38 @@ namespace RaceHorologyLib
       return timeComp;
     }
   }
+  public class TeamParticipantsSorter : ResultSorter<TeamParticipantItem>
+  {
+    bool _startNumberAscending = true;
+    public override int Compare(TeamParticipantItem pX, TeamParticipantItem pY)
+    {
+      TimeSpan? tX = null, tY = null;
+
+      if (pX.ResultCode == RunResult.EResultCode.Normal)
+        tX = pX.Runtime;
+
+      if (pY.ResultCode == RunResult.EResultCode.Normal)
+        tY = pY.Runtime;
+
+      // Sort by time
+      if (tX != null && tY == null)
+        return -1;
+
+      if (tX == null && tY != null)
+        return 1;
+
+      // If no time, use startnumber
+      if (tX == null && tY == null)
+        return pX.Participant.StartNumber.CompareTo(pY.Participant.StartNumber);
+
+      // Main comparison: based on time
+      int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
+      // If equal, consider startnumber as well
+      if (timeComp == 0)
+        return (_startNumberAscending ? 1 : -1) * pX.Participant.StartNumber.CompareTo(pY.Participant.StartNumber);
+      return timeComp;
+    }
+  }
 
 
 
@@ -233,12 +308,54 @@ namespace RaceHorologyLib
   /// </summary>
   public class TeamParticipantItem : ITeamResultViewListItems
   {
+    public class AutoManualCheckValue
+    {
+      bool _base;
+      bool? _override;
+
+      public bool Value
+      {
+        get
+        {
+          if (_override != null)
+            return (bool) _override;
+          return _base;
+        }
+        set
+        {
+          if (_override != null)
+          {
+            if (_base == value)
+              _override = null;
+            else
+              _override = value;
+          }
+          else
+          {
+            _override = value;
+          }
+        }
+      }
+      public bool BaseValue
+      {
+        get { return _base; }
+        set { _base = value; _override = null; }
+      }
+      public bool? OverrideValue
+      {
+        get { return _override; }
+        set { _override = value; }
+      }
+    }
+
+
     readonly RaceResultItem _rri;
-    bool _consider;
+    AutoManualCheckValue _consider;
 
     public TeamParticipantItem(RaceResultItem rri)
     {
       _rri = rri;
+      _consider = new AutoManualCheckValue();
     }
 
     public string Name { get { return _rri.Participant.Name; } }
@@ -251,10 +368,20 @@ namespace RaceHorologyLib
 
     public RaceResultItem Original { get { return _rri; } }
 
-    public Boolean Consider
+    public bool Consider
     {
-      get { return _consider; }
-      set { if (_consider != value) { _consider = value; NotifyPropertyChanged(); } }
+      get => _consider.Value;
+      set { if (_consider.Value != value) { _consider.Value = value; NotifyPropertyChanged(); } }
+    }
+    public bool ConsiderBase
+    {
+      get => _consider.BaseValue;
+      set { if (_consider.BaseValue != value) { _consider.BaseValue = value; NotifyPropertyChanged(); NotifyPropertyChanged("Consider"); } }
+    }
+    public bool? ConsiderOverride
+    {
+      get => _consider.OverrideValue;
+      set { if (_consider.OverrideValue != value) { _consider.OverrideValue = value; NotifyPropertyChanged(); NotifyPropertyChanged("Consider"); } }
     }
 
 
@@ -392,7 +519,7 @@ namespace RaceHorologyLib
       return string.Format("T: {0} - {1}", Name, TotalTime);
     }
 
-    public void SetRaceResults(List<RaceResultItem> results)
+    public void SetRaceResults(List<RaceResultItem> results, IComparer<TeamParticipantItem> comparer)
     {
       foreach (var r in _raceResults)
       {
@@ -412,6 +539,7 @@ namespace RaceHorologyLib
           _raceResults.Add(tpi);
         }
       }
+      _raceResults.Sort(comparer);
     }
 
     private void OnRaceResults_PropertyChanged(object sender, PropertyChangedEventArgs e)
