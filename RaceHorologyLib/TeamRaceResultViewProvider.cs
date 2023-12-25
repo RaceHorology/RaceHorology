@@ -159,7 +159,13 @@ namespace RaceHorologyLib
         {
           return r.Consider;
         });
-        trri.TotalTime = consideredTeamMembers.Select(r => r).Sum(r => r.Runtime);
+
+        RunResult.EResultCode resCode = RunResult.EResultCode.NotSet;
+        string disqualText = string.Empty;
+        trri.TotalTime = RaceResultViewProvider.SumTime(consideredTeamMembers, out resCode, out disqualText);
+        trri.DisqualText = disqualText;
+        trri.ResultCode = resCode;
+        
         trri.Points = consideredTeamMembers.Sum(r => r.Points);
       }
 
@@ -306,7 +312,7 @@ namespace RaceHorologyLib
   /// <summary>
   /// Represents a team participant result, possibility to enable/disable whether the item shall be included in the team results
   /// </summary>
-  public class TeamParticipantItem : ITeamResultViewListItems
+  public class TeamParticipantItem : ITeamResultViewListItems, IResultWithPosition
   {
     public class AutoManualCheckValue
     {
@@ -387,8 +393,9 @@ namespace RaceHorologyLib
 
 
     // Following Properties are just there to avoid exceptions in DataGrid thus being mega-slow
-    public uint Position { get { return 0; } }
-    public TimeSpan? DiffToFirst { get { return null; } }
+    public uint Position { get { return 0; } set { throw new NotImplementedException(); } }
+    public TimeSpan? DiffToFirst { get { return null; } set { throw new NotImplementedException(); } }
+    public double DiffToFirstPercentage { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
     public string DisqualText { get { return ""; } }
     public bool JustModified { get { return false; } }
 
