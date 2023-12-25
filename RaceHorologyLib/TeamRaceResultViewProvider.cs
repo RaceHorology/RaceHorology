@@ -47,8 +47,12 @@ namespace RaceHorologyLib
 {
   public class TeamRaceResultViewProvider : ViewProvider
   {
-    protected TeamTimeSorter _comparer;
-    protected TeamParticipantsSorter _comparerTeamParticipants;
+    public enum PointOrTime { Points, Time }
+
+    protected PointOrTime _cfgPointOrTime;
+
+    protected ResultSorter<TeamResultViewItem> _comparer;
+    protected ResultSorter<TeamParticipantItem> _comparerTeamParticipants;
     protected Race _race;
     protected AppDataModel _appDataModel;
 
@@ -61,15 +65,24 @@ namespace RaceHorologyLib
     int NumberOfMembers_Max = 5;
 
 
-    public TeamRaceResultViewProvider()
+    public TeamRaceResultViewProvider(PointOrTime cfgPointOrTime)
     {
-      _comparer = new TeamTimeSorter();
-      _comparerTeamParticipants = new TeamParticipantsSorter();
+      _cfgPointOrTime = cfgPointOrTime;
+      if (_cfgPointOrTime == PointOrTime.Time)
+      {
+        _comparer = new TeamTimeSorter();
+        _comparerTeamParticipants = new TeamParticipantsSorterByTime();
+      }
+      else
+      {
+        _comparerTeamParticipants = new TeamParticipantsSorterByPoints();
+        _comparer = new TeamPointsSorter();
+      }
     }
 
     public override ViewProvider Clone()
     {
-      return new TeamRaceResultViewProvider();
+      return new TeamRaceResultViewProvider(_cfgPointOrTime);
     }
 
     public virtual void Init(Race race, AppDataModel appDataModel)
@@ -160,13 +173,18 @@ namespace RaceHorologyLib
           return r.Consider;
         });
 
-        RunResult.EResultCode resCode = RunResult.EResultCode.NotSet;
-        string disqualText = string.Empty;
-        trri.TotalTime = RaceResultViewProvider.SumTime(consideredTeamMembers, out resCode, out disqualText);
-        trri.DisqualText = disqualText;
-        trri.ResultCode = resCode;
-        
-        trri.Points = consideredTeamMembers.Sum(r => r.Points);
+        if (_cfgPointOrTime == PointOrTime.Time)
+        {
+          RunResult.EResultCode resCode = RunResult.EResultCode.NotSet;
+          string disqualText = string.Empty;
+          trri.TotalTime = RaceResultViewProvider.SumTime(consideredTeamMembers, out resCode, out disqualText);
+          trri.DisqualText = disqualText;
+          trri.ResultCode = resCode;
+        }
+        else
+        {
+          trri.Points = consideredTeamMembers.Sum(r => r.Points);
+        }
       }
 
       // Group, Sort and Rank the teams
@@ -263,7 +281,24 @@ namespace RaceHorologyLib
       return timeComp;
     }
   }
-  public class TeamParticipantsSorter : ResultSorter<TeamParticipantItem>
+  public class TeamPointsSorter : ResultSorter<TeamResultViewItem>
+  {
+    public override int Compare(TeamResultViewItem teamX, TeamResultViewItem teamY)
+    {
+      int groupCompare = CompareGroup(teamX, teamY);
+      if (groupCompare != 0)
+        return groupCompare;
+
+      // If equal, consider startnumber as well
+      var pointsComp = teamX.Points < teamY.Points ? 1 : teamX.Points == teamY.Points ? 0 : -1;
+      if (pointsComp == 0)
+        return teamX.Name.CompareTo(teamY.Name);
+
+      return pointsComp;
+    }
+  }
+
+  public class TeamParticipantsSorterByTime : ResultSorter<TeamParticipantItem>
   {
     bool _startNumberAscending = true;
     public override int Compare(TeamParticipantItem pX, TeamParticipantItem pY)
@@ -296,6 +331,19 @@ namespace RaceHorologyLib
     }
   }
 
+  public class TeamParticipantsSorterByPoints : ResultSorter<TeamParticipantItem>
+  {
+    bool _startNumberAscending = true;
+    public override int Compare(TeamParticipantItem pX, TeamParticipantItem pY)
+    {
+      var pointsComp = pX.Points < pY.Points ? 1 : pX.Points == pY.Points ? 0 : -1;
+      // If equal, consider startnumber as well
+      if (pointsComp == 0)
+        return (_startNumberAscending ? 1 : -1) * pX.Participant.StartNumber.CompareTo(pY.Participant.StartNumber);
+      return pointsComp;
+    }
+  }
+
 
 
   /// <summary>
@@ -324,7 +372,7 @@ namespace RaceHorologyLib
         get
         {
           if (_override != null)
-            return (bool) _override;
+            return (bool)_override;
           return _base;
         }
         set
