@@ -1158,18 +1158,20 @@ namespace RaceHorologyLib
     }
   }
 
+  public interface IHasPositions
+  {
+    uint Position { get; set; }
+    TimeSpan? Runtime { get; }
+    TimeSpan? DiffToFirst { get; set; }
+    double DiffToFirstPercentage { get; set; }
+  }
 
   /// <summary>
   /// Base Interface for results with position (either for the race or a race run)
   /// </summary>
-  public interface IResultWithPosition
+  public interface IResultWithPosition : IHasPositions
   {
     RaceParticipant Participant { get; }
-
-    uint Position { get; }
-    TimeSpan? DiffToFirst { get; }
-
-    TimeSpan? Runtime { get; }
     RunResult.EResultCode ResultCode { get; }
     string DisqualText { get; }
   }

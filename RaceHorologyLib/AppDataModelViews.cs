@@ -43,6 +43,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using static RaceHorologyLib.ViewProviderHelpers;
 
 namespace RaceHorologyLib
 {
@@ -1190,62 +1191,11 @@ namespace RaceHorologyLib
 
     protected virtual void updatePositions()
     {
-      uint curPosition = 0;
-      uint samePosition = 1;
-      object curGroup = null;
-      TimeSpan? lastTime = null;
-      TimeSpan? firstTime = null;
-      foreach (RunResultWithPosition item in _viewList)
+      updatePositions<RunResultWithPosition>(_viewList, _activeGrouping, (item) =>
       {
-        // New group
-        if (!Equals(PropertyUtilities.GetPropertyValue(item, _activeGrouping), curGroup))
-        {
-          curGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
-          curPosition = 0;
-          samePosition = 1;
-          firstTime = lastTime = null;
-        }
-
-        if (item.Runtime != null)
-        {
-          // Same position in case same time
-          if (item.Runtime == lastTime)//< TimeSpan.FromMilliseconds(9))
-            samePosition++;
-          else
-          {
-            curPosition += samePosition;
-            samePosition = 1;
-          }
-
-
-          if (firstTime == null)
-          {
-            System.Diagnostics.Debug.Assert(curPosition == 1);
-            firstTime = item.Runtime;
-            item.DiffToFirst = null;
-            item.DiffToFirstPercentage = 0;
-          }
-          else
-          {
-            item.DiffToFirst = item.Runtime - firstTime;
-          }
-
-          if (item.DiffToFirst != null)
-            item.DiffToFirstPercentage = ((double)((TimeSpan)item.DiffToFirst).TotalMilliseconds) / (double)((TimeSpan)firstTime).TotalMilliseconds * 100.0;
-
-          item.Position = curPosition;
-          lastTime = item.Runtime;
-        }
-        else
-        {
-          item.Position = 0;
-          item.DiffToFirst = null;
-          item.DiffToFirstPercentage = 0.0;
-        }
-
         // Set the JustModified flag to highlight new results
         item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
-      }
+      });
     }
   }
 
@@ -1298,12 +1248,14 @@ namespace RaceHorologyLib
       return orgTime;
     }
 
-    override public EResultCode ResultCode { 
-      get {
+    override public EResultCode ResultCode
+    {
+      get
+      {
         if (applyPenaltyByTime() || applyPenaltyByResultCode())
           return EResultCode.Normal;
-        return _resultCode; 
-      } 
+        return _resultCode;
+      }
     }
   }
 
@@ -1315,7 +1267,7 @@ namespace RaceHorologyLib
     protected EMode _mode;
     protected double _cutOffValue;
 
-    public PenaltyRaceRunResultViewProvider(EMode mode, double cutOffValue) 
+    public PenaltyRaceRunResultViewProvider(EMode mode, double cutOffValue)
       : base()
     {
       _mode = mode;
@@ -1463,7 +1415,7 @@ namespace RaceHorologyLib
       _comparer = new TotalTimeSorter();
 
       _timeCombination = timeCombination;
-      switch(_timeCombination)
+      switch (_timeCombination)
       {
         case TimeCombination.BestRun:
           _combineTime = MinimumTime;
@@ -1489,7 +1441,7 @@ namespace RaceHorologyLib
       return new RaceResultViewProvider(_timeCombination);
     }
 
-    
+
     // Input: Race
     public virtual void Init(Race race, AppDataModel appDataModel)
     {
@@ -1646,9 +1598,9 @@ namespace RaceHorologyLib
         rri = new RaceResultItem(participant);
         _viewList.Add(rri);
         significantChange = true;
-      } 
+      }
       else if (rri != null && !includeParticipant)
-      { 
+      {
         // Remove Entry
         _viewList.Remove(rri);
         significantChange = true;
@@ -1667,10 +1619,10 @@ namespace RaceHorologyLib
       // It may happen, that caused by _lastConsideredRuns a race gets removed resulting in not-updated SubResults
       // In this casethe corresponding SubResult has to be removed 
       List<uint> toDelete = new List<uint>();
-      foreach(var t in rri.SubResults) if (!results.ContainsKey(t.Key)) toDelete.Add(t.Key);
-      foreach(var k in toDelete) rri.SubResults.Remove(k);
+      foreach (var t in rri.SubResults) if (!results.ContainsKey(t.Key)) toDelete.Add(t.Key);
+      foreach (var k in toDelete) rri.SubResults.Remove(k);
 
-      
+
       RunResult.EResultCode code;
       string disqualText;
 
@@ -1707,67 +1659,11 @@ namespace RaceHorologyLib
         return;
 
       _viewList.Sort(_comparer);
-
-      uint curPosition = 0;
-      uint samePosition = 1;
-
-      object curGroup = null;
-
-      TimeSpan? lastTime = null;
-      TimeSpan? firstTime = null;
-      foreach (var sortedItem in _viewList)
+      updatePositions<RaceResultItem>(_viewList, _activeGrouping, (item) =>
       {
-        // New group
-        if (!Equals(PropertyUtilities.GetPropertyValue(sortedItem, _activeGrouping), curGroup))
-        {
-          curGroup = PropertyUtilities.GetPropertyValue(sortedItem, _activeGrouping);
-          curPosition = 0;
-          samePosition = 1;
-          firstTime = lastTime = null;
-        }
-
-        if (sortedItem.TotalTime != null)
-        {
-          // Same position in case same time
-          if (sortedItem.TotalTime == lastTime)//< TimeSpan.FromMilliseconds(9))
-          {
-            samePosition++;
-          }
-          else
-          {
-            curPosition += samePosition;
-            samePosition = 1;
-          }
-
-          if (firstTime == null)
-          {
-            System.Diagnostics.Debug.Assert(curPosition == 1);
-            firstTime = sortedItem.TotalTime;
-            sortedItem.DiffToFirst = null;
-            sortedItem.DiffToFirstPercentage = 0;
-          }
-          else
-            sortedItem.DiffToFirst = sortedItem.TotalTime - firstTime;
-
-          if (sortedItem.DiffToFirst != null)
-            sortedItem.DiffToFirstPercentage = ((double)((TimeSpan)sortedItem.DiffToFirst).TotalMilliseconds) / (double)((TimeSpan)firstTime).TotalMilliseconds * 100.0;
-
-          sortedItem.Position = curPosition;
-
-          sortedItem.Points = calculatePoints(sortedItem);
-
-          lastTime = sortedItem.TotalTime;
-        }
-        else
-        {
-          sortedItem.Position = 0;
-          sortedItem.DiffToFirst = null;
-          sortedItem.DiffToFirstPercentage = 0.0;
-        }
-
-        // Set the JustModified flag to highlight new results
-        sortedItem.JustModified = _appDataModel.JustMeasured(sortedItem.Participant.Participant);
+        item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
       }
+      );
     }
 
 
@@ -1801,7 +1697,7 @@ namespace RaceHorologyLib
       }
 
       // Clear if a result is available
-      if ( bestCode == RunResult.EResultCode.Normal)
+      if (bestCode == RunResult.EResultCode.Normal)
       {
         resCode = RunResult.EResultCode.Normal;
         disqualText = "";
@@ -1906,16 +1802,16 @@ namespace RaceHorologyLib
         // in each block look reset the best run
         uint bestKey = 0;
         TimeSpan? bestTime = null;
-        
+
         // in each block find the best result
         for (int n = 0; n < numberN; n++)
         {
           foreach (var res in bestNIn)
           {
             TimeSpan? time = res.Value?.Runtime;
-            
+
             // check if run is in the correct block, +1 as keys start with 1
-            if (res.Key >= m*numberN + 1 && res.Key < (m+1)*numberN + 1)
+            if (res.Key >= m * numberN + 1 && res.Key < (m + 1) * numberN + 1)
             {
               if (bestTime == null || bestTime > time)
               {
@@ -1924,7 +1820,7 @@ namespace RaceHorologyLib
               }
             }
           }
-          
+
           if (bestNIn.ContainsKey(bestKey))
           {
             bestN.Add(bestKey, bestNIn[bestKey]);
@@ -1994,7 +1890,7 @@ namespace RaceHorologyLib
     }
 
     protected override double calculatePoints(RaceResultItem rri)
-    { 
+    {
       if (rri.Participant.Sex?.Name == 'M')
         return _dsvCalcM.CalculatePoints(rri, true);
       if (rri.Participant.Sex?.Name == 'W')
@@ -2057,8 +1953,8 @@ namespace RaceHorologyLib
       using (TextReader reader = File.OpenText(filename))
       {
         string line = null;
-        while ((line = reader.ReadLine()) != null) 
-        { 
+        while ((line = reader.ReadLine()) != null)
+        {
           double points = double.Parse(line, System.Globalization.CultureInfo.InvariantCulture);
           pointsTable.Add(startNumber, points);
           startNumber++;
@@ -2100,7 +1996,7 @@ namespace RaceHorologyLib
       }
       return points;
     }
-    }
+  }
 
   public class FISRaceResultViewProvider : RaceResultViewProvider
   {
@@ -2122,7 +2018,7 @@ namespace RaceHorologyLib
     public override void Init(Race race, AppDataModel appDataModel)
     {
       _fisCalc = new FISRaceCalculation(race, this);
-        
+
       base.Init(race, appDataModel);
     }
 
@@ -2132,12 +2028,12 @@ namespace RaceHorologyLib
         return;
 
       base.ResortResults();
-      
+
       try
       {
         _fisCalc.CalculatePenalty();
       }
-        catch (Exception) { }
+      catch (Exception) { }
 
       // Re-Update points
       foreach (var sortedItem in _viewList)
@@ -2153,6 +2049,73 @@ namespace RaceHorologyLib
   }
 
 
+
+  public static class ViewProviderHelpers
+  {
+
+    public delegate void AdditionalCallback<Type>(Type item);
+    public static void updatePositions<Type>(IEnumerable<Type> viewList, string groupingProperty, AdditionalCallback<Type> additionalCB) where Type : IHasPositions
+    {
+      uint curPosition = 0;
+      uint samePosition = 1;
+      object curGroup = null;
+      TimeSpan? lastTime = null;
+      TimeSpan? firstTime = null;
+      foreach (Type item in viewList)
+      {
+        // New group
+        if (!Equals(PropertyUtilities.GetPropertyValue(item, groupingProperty), curGroup))
+        {
+          curGroup = PropertyUtilities.GetPropertyValue(item, groupingProperty);
+          curPosition = 0;
+          samePosition = 1;
+          firstTime = lastTime = null;
+        }
+
+        if (item.Runtime != null)
+        {
+          // Same position in case same time
+          if (item.Runtime == lastTime)//< TimeSpan.FromMilliseconds(9))
+            samePosition++;
+          else
+          {
+            curPosition += samePosition;
+            samePosition = 1;
+          }
+
+
+          if (firstTime == null)
+          {
+            System.Diagnostics.Debug.Assert(curPosition == 1);
+            firstTime = item.Runtime;
+            item.DiffToFirst = null;
+            item.DiffToFirstPercentage = 0;
+          }
+          else
+          {
+            item.DiffToFirst = item.Runtime - firstTime;
+          }
+
+          if (item.DiffToFirst != null)
+            item.DiffToFirstPercentage = ((double)((TimeSpan)item.DiffToFirst).TotalMilliseconds) / (double)((TimeSpan)firstTime).TotalMilliseconds * 100.0;
+
+          item.Position = curPosition;
+          lastTime = item.Runtime;
+        }
+        else
+        {
+          item.Position = 0;
+          item.DiffToFirst = null;
+          item.DiffToFirstPercentage = 0.0;
+        }
+
+        // Set the JustModified flag to highlight new results
+        //item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
+        additionalCB(item);
+      }
+    }
+
+  }
 
 
 }
