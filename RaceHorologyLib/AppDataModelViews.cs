@@ -91,7 +91,7 @@ namespace RaceHorologyLib
       ResetToDefaultGrouping();
     }
 
-    public void ChangeGrouping(string propertyName)
+    public virtual void ChangeGrouping(string propertyName)
     {
       if (_activeGrouping == propertyName)
         return;
@@ -950,7 +950,7 @@ namespace RaceHorologyLib
     protected int CompareGroup(TeamResultViewItem tX, TeamResultViewItem tY)
     {
       int groupCompare = 0;
-      if (_groupingPropertyName == "Team")
+      if (_groupingPropertyName != "")
         groupCompare = nullEnabledComparer.Compare(tX.Team.Group, tY.Team.Group);
       return groupCompare;
     }

@@ -34,6 +34,7 @@
  */
 
 using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Math;
 using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using System;
 using System.Collections.Generic;
@@ -89,6 +90,12 @@ namespace RaceHorologyLib
       FinalizeInit();
     }
 
+
+    public override void ChangeGrouping(string propertyName)
+    {
+      base.ChangeGrouping(propertyName != "" ? "Team.Group" : "");
+    }
+
     protected override void OnChangeGrouping(string propertyName)
     {
       _comparer.SetGrouping(propertyName);
@@ -132,7 +139,7 @@ namespace RaceHorologyLib
       var itemsPerTeam = _raceResults.GroupBy(i => i.Participant.Team);
       foreach (var team in itemsPerTeam)
       {
-        var trri = _teamResults.FirstOrDefault(t => t.Team == team);
+        var trri = _teamResults.FirstOrDefault(t => t.Team == team.Key);
         if (trri == null)
         {
           trri = new TeamResultViewItem(team.Key);
@@ -141,7 +148,15 @@ namespace RaceHorologyLib
 
         // Update RaceResults and Calculate time and points
         trri.SetRaceResults(team.ToList());
-        var consideredTeamMembers = trri.RaceResults.Where(r => r.Consider);
+
+        foreach( var r in trri.RaceResults)
+        {
+          r.PropertyChanged += OnRaceResultItem_Changed;
+        }
+
+        var consideredTeamMembers = trri.RaceResults.Where(r => {
+          return r.Consider && r.ResultCode == EResultCode.Normal;
+          });
         trri.TotalTime = consideredTeamMembers.Select(r => r).Sum(r => r.Runtime);
         trri.Points = consideredTeamMembers.Sum(r => r.Points);
       }
@@ -227,8 +242,11 @@ namespace RaceHorologyLib
     }
 
     public string Name { get { return _rri.Participant.Name; } }
+    public Team Team { get { return _rri.Participant.Team; } }
+
+    public RaceParticipant Participant { get { return _rri.Participant; } }
     public TimeSpan? Runtime { get { return _rri.Runtime; } }
-    public double Points{ get { return _rri.Points; } }
+    public double Points { get { return _rri.Points; } }
     public RunResult.EResultCode ResultCode { get { return _rri.ResultCode; } }
 
     public RaceResultItem Original { get { return _rri; } }

@@ -347,6 +347,24 @@ namespace RaceHorology
 
       return dgc;
     }
+    DataGridCheckBoxColumn createColumnCheckbox(string columnName, string property, string header)
+    {
+      var dgc = new DataGridCheckBoxColumn
+      {
+        Header = header
+      };
+      Binding b = new Binding(property)
+      {
+        Mode = BindingMode.TwoWay,
+      };
+
+      dgc.Binding = b;
+
+      DataGridUtil.SetName(dgc, columnName);
+
+      return dgc;
+    }
+
 
     DataGridTextColumn createColumnAnmerkung()
     {
@@ -546,7 +564,6 @@ namespace RaceHorology
 
         setWarningLabelHandler(new RaceRunCompletedWarningLabelHandler(rrrVP.RaceRun, lblWarning));
       }
-
       // Total Results
       else if (_viewProvider is RaceResultViewProvider)
       {
@@ -561,6 +578,19 @@ namespace RaceHorology
         dgView.Columns.Add(createColumnTime("Total", "TotalTime", "ResultCode"));
         dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
         dgView.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
+        dgView.Columns.Add(createColumnAnmerkung());
+
+        setWarningLabelHandler(new RaceCompletedWarningLabelHandler(_thisRace, lblWarning));
+      }
+      // Team Results
+      else if (_viewProvider is TeamRaceResultViewProvider)
+      {
+        dgView.Columns.Add(createColumnCheckbox("Consider", "Consider", "In Wertung"));
+        dgView.Columns.Add(createColumn("Name", "Name", "Name"));
+        dgView.Columns.Add(createColumn("Team", "Team", "Team"));
+
+        dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
+        dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
         dgView.Columns.Add(createColumnAnmerkung());
 
         setWarningLabelHandler(new RaceCompletedWarningLabelHandler(_thisRace, lblWarning));
