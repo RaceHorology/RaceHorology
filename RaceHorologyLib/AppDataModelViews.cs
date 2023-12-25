@@ -1388,7 +1388,7 @@ namespace RaceHorologyLib
     protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
-    delegate TimeSpan? RunResultCombiner(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode code, out string disqualText);
+    delegate TimeSpan? RunResultCombiner(IEnumerable<IResultWithPosition> results, out RunResult.EResultCode code, out string disqualText);
 
     TimeCombination _timeCombination;
     // Input Data
@@ -1627,7 +1627,7 @@ namespace RaceHorologyLib
       string disqualText;
 
       TimeSpan? oldTime = rri.TotalTime;
-      rri.TotalTime = _combineTime(results, out code, out disqualText);
+      rri.TotalTime = _combineTime(results.Values, out code, out disqualText);
       if (oldTime != rri.TotalTime)
         significantChange = true;
 
@@ -1667,7 +1667,7 @@ namespace RaceHorologyLib
     }
 
 
-    internal static TimeSpan? MinimumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? MinimumTime(IEnumerable<IResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? minTime = null;
       RunResult.EResultCode bestCode = RunResult.EResultCode.NQ;
@@ -1676,23 +1676,23 @@ namespace RaceHorologyLib
 
       foreach (var res in results)
       {
-        if (res.Value == null)
+        if (res == null)
           continue;
 
-        if (res.Value.Runtime != null)
+        if (res.Runtime != null)
         {
-          if (minTime == null || TimeSpan.Compare((TimeSpan)res.Value.Runtime, (TimeSpan)minTime) < 0)
+          if (minTime == null || TimeSpan.Compare((TimeSpan)res.Runtime, (TimeSpan)minTime) < 0)
           {
-            minTime = res.Value.Runtime;
-            bestCode = res.Value.ResultCode;
+            minTime = res.Runtime;
+            bestCode = res.ResultCode;
           }
         }
-        if (res.Value.ResultCode != RunResult.EResultCode.Normal)
+        if (res.ResultCode != RunResult.EResultCode.Normal)
         {
-          resCode = res.Value.ResultCode;
+          resCode = res.ResultCode;
           if (!string.IsNullOrEmpty(disqualText))
             disqualText += ", ";
-          disqualText += res.Value.DisqualText;
+          disqualText += res.DisqualText;
         }
       }
 
@@ -1706,43 +1706,45 @@ namespace RaceHorologyLib
       return minTime;
     }
 
-    internal static TimeSpan? SumTime(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? SumTime(IEnumerable<IResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? sumTime = new TimeSpan(0);
       resCode = RunResult.EResultCode.Normal;
       disqualText = "";
 
+      int count = 0;
       foreach (var res in results)
       {
-        if (res.Value == null)
+        count++;
+        if (res == null)
         {
           sumTime = null;
           continue;
         }
 
-        if (res.Value?.Runtime != null)
-          sumTime += (TimeSpan)res.Value.Runtime;
+        if (res.Runtime != null)
+          sumTime += (TimeSpan)res.Runtime;
         else
           // no time ==> Invalid
           sumTime = null;
 
-        if (res.Value.ResultCode != RunResult.EResultCode.Normal)
+        if (res.ResultCode != RunResult.EResultCode.Normal)
         {
           if (resCode == RunResult.EResultCode.Normal || resCode == RunResult.EResultCode.NotSet)
           {
-            resCode = res.Value.ResultCode;
-            disqualText = res.Value.DisqualText;
+            resCode = res.ResultCode;
+            disqualText = res.DisqualText;
           }
         }
       }
 
-      if (results.Count == 0)
+      if (count == 0)
         sumTime = null;
 
       return sumTime;
     }
 
-    internal static TimeSpan? SumTimeOfBest2(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? SumTimeOfBest2(IEnumerable<IResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       int numberN = 2;
 
@@ -1751,11 +1753,14 @@ namespace RaceHorologyLib
       disqualText = "";
 
       // Find best N
-      Dictionary<uint, RunResultWithPosition> bestNIn = new Dictionary<uint, RunResultWithPosition>();
-      Dictionary<uint, RunResultWithPosition> bestN = new Dictionary<uint, RunResultWithPosition>();
-      foreach (var res in results)
-        bestNIn.Add(res.Key, res.Value);
-
+      var bestNIn = new Dictionary<uint, IResultWithPosition>();
+      var bestN = new Dictionary<uint, IResultWithPosition>();
+      uint iKey = 0;
+      foreach(var r in results)
+      {
+        bestNIn.Add(iKey, r);
+        iKey++;
+      }
       for (int i = 0; i < numberN; i++)
       {
         uint bestKey = 0;
@@ -1778,10 +1783,10 @@ namespace RaceHorologyLib
         }
       }
 
-      return SumTime(bestN, out resCode, out disqualText);
+      return SumTime(bestN.Values, out resCode, out disqualText);
     }
 
-    internal static TimeSpan? SumTimeMxBestofN(Dictionary<uint, RunResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? SumTimeMxBestofN(IEnumerable<IResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       // finde best result in M blocks consisting of N runs each and return sum of the best runs in each block
       int numberM = 2;
@@ -1792,10 +1797,14 @@ namespace RaceHorologyLib
       disqualText = "";
 
       // Find best N
-      Dictionary<uint, RunResultWithPosition> bestNIn = new Dictionary<uint, RunResultWithPosition>();
-      Dictionary<uint, RunResultWithPosition> bestN = new Dictionary<uint, RunResultWithPosition>();
+      var bestNIn = new Dictionary<uint, IResultWithPosition>();
+      var bestN = new Dictionary<uint, IResultWithPosition>();
+      uint i = 0;
       foreach (var res in results)
-        bestNIn.Add(res.Key, res.Value);
+      {
+        bestNIn.Add(i, res);
+        i++;
+      }
 
       for (int m = 0; m < numberM; m++)
       {
@@ -1829,7 +1838,7 @@ namespace RaceHorologyLib
         }
       }
 
-      return SumTime(bestN, out resCode, out disqualText);
+      return SumTime(bestN.Values, out resCode, out disqualText);
     }
 
 
