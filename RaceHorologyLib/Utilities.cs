@@ -410,7 +410,7 @@ namespace RaceHorologyLib
     /// <param name="col"></param>
     /// <param name="item"></param>
     /// <param name="comparer"></param>
-    public static void InsertSorted<TC>(this Collection<TC> collection, TC item, System.Collections.Generic.IComparer<TC> comparer)
+    public static void InsertSorted<TC>(this IList<TC> collection, TC item, System.Collections.Generic.IComparer<TC> comparer)
     {
       // Find right position and insert
       int i = 0;
@@ -437,7 +437,7 @@ namespace RaceHorologyLib
     /// <param name="comparer">The comparer to use</param>
     /// <param name="first">The first element to start the sort process. Specifiy 0 if from start.</param>
     /// <param name="last">The last element to include into the sort. Specify -1 for the last element.</param>
-    public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer, int first = 0, int last = -1)
+    public static void Sort<TC>(this IList<TC> collection, IComparer<TC> comparer, int first = 0, int last = -1)
     {
       int firstElement = 0;
       int lastElement = collection.Count - 1;
