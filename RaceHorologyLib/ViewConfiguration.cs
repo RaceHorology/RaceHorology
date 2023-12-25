@@ -236,7 +236,7 @@ namespace RaceHorologyLib
       RaceResultViewProvider raceVP = GetRaceResultViewProvider(race);
       race.SetResultViewProvider(raceVP);
 
-      var teamVP = new TeamRaceResultViewProvider();
+      var teamVP = new TeamRaceResultViewProvider(TeamRaceResultViewProvider.PointOrTime.Points);
       teamVP.Init(race, _dataModel);
       race.SetTeamResultsViewProvider(teamVP);
     }
