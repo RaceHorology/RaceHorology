@@ -623,21 +623,4 @@ namespace RaceHorologyLib
     #endregion
   }
 
-
-  public static class StatisticExtensions
-  {
-    public static TimeSpan? Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, TimeSpan?> selector)
-    {
-      return source.Select(selector).Aggregate(TimeSpan.Zero, (t1, t2) =>
-      {
-        if (t1 != null && t2 != null)
-          return (TimeSpan)t1 + (TimeSpan)t2;
-        if (t1 != null)
-          return (TimeSpan)t1;
-        if (t2 != null)
-          return (TimeSpan)t2;
-        return TimeSpan.Zero;
-      });
-    }
-  }
 }
