@@ -156,6 +156,8 @@ namespace RaceHorologyLib
       // Group, Sort and Rank
       _teamResults.Sort(_comparer);
 
+      ViewProviderHelpers.updatePositions<TeamResultViewItem>(_teamResults, _activeGrouping, (item) => { });
+
       // Build viewable List (Flatten)
       _teamViewResults.Clear();
       foreach (var team in _teamResults)
@@ -170,7 +172,8 @@ namespace RaceHorologyLib
 
     private void OnTeamResultViewItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      Calculate();
+      if (e.PropertyName == "RaceResults")
+        Calculate();
     }
 
     private void OnRaceResultItem_Changed(object sender, PropertyChangedEventArgs e)
@@ -230,7 +233,7 @@ namespace RaceHorologyLib
   /// </summary>
   public class TeamParticipantItem : ITeamResultViewListItems
   {
-    RaceResultItem _rri;
+    readonly RaceResultItem _rri;
     bool _consider;
 
     public TeamParticipantItem(RaceResultItem rri)
@@ -260,7 +263,7 @@ namespace RaceHorologyLib
     public uint Position { get { return 0; } }
     public TimeSpan? DiffToFirst { get { return null; } }
     public string DisqualText { get { return ""; } }
-    public bool JustModified {  get { return false; } } 
+    public bool JustModified { get { return false; } }
 
 
     #region INotifyPropertyChanged implementation
@@ -279,7 +282,7 @@ namespace RaceHorologyLib
   /// <summary>
   /// Represents a team result item for diaply in a data grid
   /// </summary>
-  public class TeamResultViewItem : ITeamResultViewListItems
+  public class TeamResultViewItem : ITeamResultViewListItems, IHasPositions
   {
     #region Members
 
@@ -290,6 +293,7 @@ namespace RaceHorologyLib
     protected string _disqualText;
     protected uint _position;
     protected TimeSpan? _diffToFirst;
+    private double _diffToFirstPercentage;
     protected double _points;
 
     #endregion
@@ -303,6 +307,7 @@ namespace RaceHorologyLib
       _disqualText = null;
       _position = 0;
       _diffToFirst = null;
+      _diffToFirstPercentage = 0;
       _points = -1.0;
     }
 
@@ -350,6 +355,11 @@ namespace RaceHorologyLib
       get { return _diffToFirst; }
       set { if (_diffToFirst != value) { _diffToFirst = value; NotifyPropertyChanged(); } }
     }
+    public double DiffToFirstPercentage
+    {
+      get { return _diffToFirstPercentage; }
+      set { if (_diffToFirstPercentage != value) { _diffToFirstPercentage = value; NotifyPropertyChanged(); } }
+    }
 
 
     /// <summary>
@@ -372,7 +382,7 @@ namespace RaceHorologyLib
 
 
     // Following Properties are just there to avoid exceptions in DataGrid thus being mega-slow
-    public bool JustModified { get { return false; }  }
+    public bool JustModified { get { return false; } }
     public bool Consider { get { return false; } set { } }
     public object Participant { get { return null; } }
 
