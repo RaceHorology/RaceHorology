@@ -33,9 +33,6 @@
  * 
  */
 
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Math;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -43,9 +40,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using static RaceHorologyLib.RaceResultItem;
 using static RaceHorologyLib.RunResult;
 
 namespace RaceHorologyLib
@@ -143,20 +137,18 @@ namespace RaceHorologyLib
         if (trri == null)
         {
           trri = new TeamResultViewItem(team.Key);
+          trri.PropertyChanged += OnTeamResultViewItem_PropertyChanged;
           _teamResults.Add(trri);
         }
 
         // Update RaceResults and Calculate time and points
         trri.SetRaceResults(team.ToList());
 
-        foreach( var r in trri.RaceResults)
-        {
-          r.PropertyChanged += OnRaceResultItem_Changed;
-        }
 
-        var consideredTeamMembers = trri.RaceResults.Where(r => {
+        var consideredTeamMembers = trri.RaceResults.Where(r =>
+        {
           return r.Consider && r.ResultCode == EResultCode.Normal;
-          });
+        });
         trri.TotalTime = consideredTeamMembers.Select(r => r).Sum(r => r.Runtime);
         trri.Points = consideredTeamMembers.Sum(r => r.Points);
       }
@@ -174,6 +166,11 @@ namespace RaceHorologyLib
           _teamViewResults.Add(participants);
         }
       }
+    }
+
+    private void OnTeamResultViewItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      Calculate();
     }
 
     private void OnRaceResultItem_Changed(object sender, PropertyChangedEventArgs e)
@@ -256,6 +253,15 @@ namespace RaceHorologyLib
       get { return _consider; }
       set { if (_consider != value) { _consider = value; NotifyPropertyChanged(); } }
     }
+
+
+
+    // Following Properties are just there to avoid exceptions in DataGrid thus being mega-slow
+    public uint Position { get { return 0; } }
+    public TimeSpan? DiffToFirst { get { return null; } }
+    public string DisqualText { get { return ""; } }
+    public bool JustModified {  get { return false; } } 
+
 
     #region INotifyPropertyChanged implementation
     public event PropertyChangedEventHandler PropertyChanged;
@@ -364,6 +370,13 @@ namespace RaceHorologyLib
       get { return _team; }
     }
 
+
+    // Following Properties are just there to avoid exceptions in DataGrid thus being mega-slow
+    public bool JustModified { get { return false; }  }
+    public bool Consider { get { return false; } set { } }
+    public object Participant { get { return null; } }
+
+
     public override string ToString()
     {
       return string.Format("T: {0} - {1}", Name, TotalTime);
@@ -374,15 +387,28 @@ namespace RaceHorologyLib
       foreach (var r in _raceResults)
       {
         if (!results.Contains(r.Original))
+        {
+          r.PropertyChanged -= OnRaceResults_PropertyChanged;
           _raceResults.Remove(r);
+        }
       }
       foreach (var rri in results)
       {
         var f = _raceResults.FirstOrDefault(r => r.Original == rri);
         if (f == null)
-          _raceResults.Add(new TeamParticipantItem(rri));
+        {
+          var tpi = new TeamParticipantItem(rri);
+          tpi.PropertyChanged += OnRaceResults_PropertyChanged;
+          _raceResults.Add(tpi);
+        }
       }
     }
+
+    private void OnRaceResults_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      NotifyPropertyChanged("RaceResults");
+    }
+
     public List<TeamParticipantItem> RaceResults
     {
       get { return _raceResults; }
