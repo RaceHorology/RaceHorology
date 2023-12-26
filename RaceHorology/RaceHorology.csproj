@@ -158,6 +158,9 @@
     <Compile Include="ReportUC.xaml.cs">
       <DependentUpon>ReportUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TeamResultsPrintUC.xaml.cs">
+      <DependentUpon>TeamResultsPrintUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TimingDeviceDebugDlg.xaml.cs">
       <DependentUpon>TimingDeviceDebugDlg.xaml</DependentUpon>
     </Compile>
@@ -263,6 +266,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ReportUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TeamResultsPrintUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
