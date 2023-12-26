@@ -3355,12 +3355,12 @@ namespace RaceHorologyLib
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Club, font)));
 
       // Runtime
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Runtime.ToRaceTimeString()), font)));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Runtime != null ? string.Format(item.Consider ? "{0}" : "({0})", item.Runtime.ToRaceTimeString()) : "", font)));
       // Diff
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor));
       // Points
       if (_race.IsFieldActive("Points"))
-        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(item.Points), font)));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format(item.Consider ? "{0}" : "({0})", formatPoints(item.Points)), font)));
 
       return true;
     }
