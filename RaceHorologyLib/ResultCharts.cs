@@ -141,7 +141,7 @@ namespace RaceHorologyLib
             lblGroup.GridTicks = GridTickTypes.None;
 
             // Second Level if possible
-            if (cvGroup.Name is ParticipantClass @class)
+            if (cvGroup.Name is ParticipantClass @class && @class.Group != null)
             {
               name2 = @class.Group.Name;
               if (name2Last == null) // init set to same name
