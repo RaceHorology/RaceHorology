@@ -67,7 +67,11 @@ namespace RaceHorologyLib
     DatabaseDelegatorClasses _particpantClassesDelegatorDB;
 
     ObservableCollection<Team> _teams;
+    //DatabaseDelegatorClasses _particpantClassesDelegatorDB;
+
     ObservableCollection<TeamGroup> _teamGroups;
+    //DatabaseDelegatorClasses _particpantClassesDelegatorDB;
+
     ObservableCollection<ParticipantCategory> _particpantCategories;
     DatabaseDelegatorCategories _particpantCategoriesDelegatorDB;
 
@@ -140,11 +144,16 @@ namespace RaceHorologyLib
       _particpantCategories = new ObservableCollection<ParticipantCategory>(_db.GetParticipantCategories());
       _particpantCategories.CollectionChanged += OnCategoryCollectionChanged;
       _teams = new ObservableCollection<Team>(_db.GetTeams());
+      //_teams.CollectionChanged += OnTeamCollectionChanged;
       _teamGroups = new ObservableCollection<TeamGroup>(_db.GetTeamGroups());
+      //_teams.CollectionChanged += OnTeamCollectionChanged;
+
 
       _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
       _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
       _particpantCategoriesDelegatorDB = new DatabaseDelegatorCategories(this, _db);
+      //_teamDelegatorDB = new DatabaseDelegatorTeams(this, _db);
+      //_teamGroupDelegatorDB = new DatabaseDelegatorTeams(this, _db);
 
 
       //// Particpants ////
