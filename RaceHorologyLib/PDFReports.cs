@@ -71,7 +71,8 @@ namespace RaceHorologyLib
   }
 
 
-  public static class IPdfReportUtils {
+  public static class IPdfReportUtils
+  {
     static public void Generate(this IPDFReport report, string filePath, DateTime? creationDateTime = null)
     {
       using (var mStream = new MemoryStream())
@@ -3198,7 +3199,7 @@ namespace RaceHorologyLib
 
     protected override float[] getTableColumnsWidths()
     {
-      float[] columns = new float[5 + _nOptFields + _race.GetMaxRun()];
+      float[] columns = new float[5 + _nOptFields];
       for (int i = 0; i < columns.Length; i++)
         columns[i] = 1F;
 
@@ -3233,11 +3234,6 @@ namespace RaceHorologyLib
           .ConfigureHeaderCell()
           .Add(createHeaderCellParagraphForTable("Verein")));
 
-      for (int i = 1; i <= _race.GetMaxRun(); i++)
-        table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
-          .ConfigureHeaderCell()
-          .Add(createHeaderCellParagraphForTable(string.Format("Zeit-{0}", i))));
-
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Laufzeit")));
@@ -3248,6 +3244,7 @@ namespace RaceHorologyLib
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
           .Add(createHeaderCellParagraphForTable("Diff [%]")));
+
       if (_race.IsFieldActive("Points"))
         table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
           .ConfigureHeaderCell()
@@ -3264,7 +3261,7 @@ namespace RaceHorologyLib
         //.SetBackgroundColor(PDFHelper.ColorRHBG2)
         );
 
-      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
+      table.AddCell(new Cell(1, 3 + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
@@ -3280,7 +3277,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         );
 
-      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
+      table.AddCell(new Cell(1, 3 + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(comment)
           .SetFont(_pdfHelper.GetFont(RHFont.Oblique)).SetFontSize(10)));
@@ -3292,7 +3289,7 @@ namespace RaceHorologyLib
         .SetBorder(Border.NO_BORDER)
         );
 
-      table.AddCell(new Cell(1, 3 + _race.GetMaxRun() + _nOptFields)
+      table.AddCell(new Cell(1, 3 + _nOptFields)
         .SetBorder(Border.NO_BORDER)
         .Add(new Paragraph(group)
           .SetPaddingTop(12)
@@ -3302,10 +3299,15 @@ namespace RaceHorologyLib
 
     protected override bool addLineToTable(Table table, object data, int i = 0)
     {
-      RaceResultItem item = data as RaceResultItem;
-      if (item == null)
-        return false;
+      var team = data as TeamResultViewItem;
+      if (team != null)
+        return addTeamToTable(table, team, i);
+      return false;
+    }
 
+
+    protected bool addTeamParticipantToTable(Table table, TeamParticipantItem item, int i = 0)
+    {
       if (item.ResultCode == RunResult.EResultCode.NotSet)
         return false;
 
@@ -3314,14 +3316,14 @@ namespace RaceHorologyLib
         bgColor = PDFHelper.ColorRHBG1;
 
       // Position
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(item.Position, typeof(string), null, null))));
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // Startnumber
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.StartNumber))));
       // Code
       if (_race.IsFieldActive("Code"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.CodeOrSvId)));
       // Name
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Fullname)));
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Name)));
       // Year
       if (_race.IsFieldActive("Year"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.Year))));
@@ -3332,22 +3334,10 @@ namespace RaceHorologyLib
       if (_race.IsFieldActive("Club"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Club)));
 
-      for (uint j = 1; j <= _race.GetMaxRun(); j++)
-      {
-        if (item.SubResults.ContainsKey(j))
-        {
-          string str = (string)_timeConverter.Convert(new object[] { item.SubResults[j].Runtime, item.SubResults[j].RunResultCode }, typeof(string), null, null);
-          table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(str)));
-        }
-        else
-          table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor));
-      }
-
       // Runtime
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Runtime.ToRaceTimeString()))));
       // Diff
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
-
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor));
       // Points
       if (_race.IsFieldActive("Points"))
         table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(item.Points))));
@@ -3355,52 +3345,62 @@ namespace RaceHorologyLib
       return true;
     }
 
-
-    protected override void addLineToTable(Table table, RunResultWithPosition rrwp, string notes, int i = 0)
+    protected bool addTeamToTable(Table table, TeamResultViewItem item, int i = 0)
     {
+      if (item.ResultCode == RunResult.EResultCode.NotSet)
+        return false;
+
       Color bgColor = ColorConstants.WHITE;
       if (i % 2 == 1)
         bgColor = PDFHelper.ColorRHBG1;
 
       // Position
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable("")));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(item.Position, typeof(string), null, null))));
       // Startnumber
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Participant.StartNumber))));
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // Code
       if (_race.IsFieldActive("Code"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.CodeOrSvId)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // Name
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Fullname)));
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Name)));
       // Year
       if (_race.IsFieldActive("Year"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", rrwp.Participant.Year))));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // VB
       if (_race.IsFieldActive("Nation"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Participant.Nation)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // Club
       if (_race.IsFieldActive("Club"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(rrwp.Participant.Club)));
-
-      int colSpan = 2 + _race.GetMaxRun();
-      if (_race.IsFieldActive("Points"))
-        colSpan++;
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
 
       // Runtime
-      table.AddCell(createCellForTable(colSpan, TextAlignment.LEFT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(notes)));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
+      // Diff
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
+      // Points
+      if (_race.IsFieldActive("Points"))
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(item.Points))));
+
+      // Add team members
+      var j = 0;
+      foreach(var teamParticipant in item.RaceResults)
+      {
+        addTeamParticipantToTable(table, teamParticipant, j++);
+      }
+
+      return true;
+    }
+
+
+    protected override void addLineToTable(Table table, RunResultWithPosition rrwp, string notes, int i = 0)
+    {
+      throw new NotImplementedException();
     }
 
 
     protected override Table getResultsTable()
     {
       Table table = base.getResultsTable();
-
-      for (int i = 0; i < _race.GetMaxRun(); i++)
-      {
-        addNotStartedTable(table, _race.GetRun(i));
-        addNotFinishedPart(table, _race.GetRun(i));
-        addDisqualifiedTable(table, _race.GetRun(i));
-      }
-
       return table;
     }
 
