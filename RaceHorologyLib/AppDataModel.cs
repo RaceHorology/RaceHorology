@@ -67,10 +67,10 @@ namespace RaceHorologyLib
     DatabaseDelegatorClasses _particpantClassesDelegatorDB;
 
     ObservableCollection<Team> _teams;
-    //DatabaseDelegatorClasses _particpantClassesDelegatorDB;
+    DatabaseDelegatorTeams _teamsDelegatorDB;
 
     ObservableCollection<TeamGroup> _teamGroups;
-    //DatabaseDelegatorClasses _particpantClassesDelegatorDB;
+    DatabaseDelegatorTeamGroups _teamGroupsDelegatorDB;
 
     ObservableCollection<ParticipantCategory> _particpantCategories;
     DatabaseDelegatorCategories _particpantCategoriesDelegatorDB;
@@ -144,16 +144,16 @@ namespace RaceHorologyLib
       _particpantCategories = new ObservableCollection<ParticipantCategory>(_db.GetParticipantCategories());
       _particpantCategories.CollectionChanged += OnCategoryCollectionChanged;
       _teams = new ObservableCollection<Team>(_db.GetTeams());
-      //_teams.CollectionChanged += OnTeamCollectionChanged;
+      _teams.CollectionChanged += OnTeamsCollectionChanged;
       _teamGroups = new ObservableCollection<TeamGroup>(_db.GetTeamGroups());
-      //_teams.CollectionChanged += OnTeamCollectionChanged;
+      _teamGroups.CollectionChanged += OnTeamGroupsCollectionChanged;
 
 
       _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
       _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
       _particpantCategoriesDelegatorDB = new DatabaseDelegatorCategories(this, _db);
-      //_teamDelegatorDB = new DatabaseDelegatorTeams(this, _db);
-      //_teamGroupDelegatorDB = new DatabaseDelegatorTeams(this, _db);
+      _teamsDelegatorDB = new DatabaseDelegatorTeams(this, _db);
+      _teamGroupsDelegatorDB = new DatabaseDelegatorTeamGroups(this, _db);
 
 
       //// Particpants ////
@@ -239,6 +239,10 @@ namespace RaceHorologyLib
     public ObservableCollection<Team> GetTeams()
     {
       return _teams;
+    }
+    public ObservableCollection<TeamGroup> GetTeamGroups()
+    {
+      return _teamGroups;
     }
 
     #region Race Management
@@ -531,6 +535,42 @@ namespace RaceHorologyLib
           break;
       }
     }
+
+    private void OnTeamsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeTeamFromParticipants(Team t)
+      {
+        foreach (var p in _participants)
+          if (p.Team == t)
+            p.Team = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (Team t in e.OldItems)
+            removeTeamFromParticipants(t);
+          break;
+      }
+    }
+    private void OnTeamGroupsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeTeamGroupFromTeams(TeamGroup g)
+      {
+        foreach (var v in _teams)
+          if (v.Group == g)
+            v.Group = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (TeamGroup v in e.OldItems)
+            removeTeamGroupFromTeams(v);
+          break;
+      }
+    }
+
 
     #endregion
 

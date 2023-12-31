@@ -80,6 +80,10 @@ namespace RaceHorologyLib
     void RemoveGroup(ParticipantGroup g);
     void CreateOrUpdateCategory(ParticipantCategory c);
     void RemoveCategory(ParticipantCategory c);
+    void CreateOrUpdateTeam(Team t);
+    void RemoveTeam(Team t);
+    void CreateOrUpdateTeamGroup(TeamGroup g);
+    void RemoveTeamGroup(TeamGroup g);
 
 
     void CreateOrUpdateRaceParticipant(RaceParticipant participant);
