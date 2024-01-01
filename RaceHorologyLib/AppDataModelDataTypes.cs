@@ -84,7 +84,7 @@ namespace RaceHorologyLib
       {
         if (_name != value)
         {
-          _name = value; 
+          _name = value;
           NotifyPropertyChanged();
         }
       }
@@ -94,7 +94,7 @@ namespace RaceHorologyLib
     {
       get => _sortpos;
       set
-      { 
+      {
         if (_sortpos != value)
         {
           _sortpos = value;
@@ -144,13 +144,16 @@ namespace RaceHorologyLib
     #endregion
   }
 
-  public class ParticipantGroup : HasSortableName 
-  { 
-    public ParticipantGroup(string id, string name, uint sortpos) : base(id, name, sortpos) {}
+  public class ParticipantGroup : HasSortableName
+  {
+    public ParticipantGroup() : base() { }
+    public ParticipantGroup(string id, string name, uint sortpos) : base(id, name, sortpos) { }
   };
 
-  public class TeamGroup : HasSortableName {
-      public TeamGroup(string id, string name, uint sortpos) : base(id, name, sortpos) { }
+  public class TeamGroup : HasSortableName
+  {
+    public TeamGroup() : base() { }
+    public TeamGroup(string id, string name, uint sortpos) : base(id, name, sortpos) { }
   };
 
   /// <summary>
@@ -390,6 +393,9 @@ namespace RaceHorologyLib
   {
     protected TeamGroup _group;
 
+    public Team() : base()
+    { }
+
     public Team(string id, TeamGroup group, string name, uint sortpos) : base(id, name, sortpos)
     {
       _group = group;
@@ -523,9 +529,9 @@ namespace RaceHorologyLib
     public ParticipantClass Class
     {
       get => _class;
-      set 
-      { 
-        if (_class != value) 
+      set
+      {
+        if (_class != value)
         {
           if (_class != null)
             _class.PropertyChanged -= OnClassChanged;
@@ -604,7 +610,7 @@ namespace RaceHorologyLib
 
     public bool IsEqualTo(Participant other)
     {
-      return Name == other.Name 
+      return Name == other.Name
        && Firstname == other.Firstname
        && Sex == other.Sex
        && Year == other.Year
@@ -802,8 +808,8 @@ namespace RaceHorologyLib
     public ParticipantGroup Group { get => _participant.Group; }
     public ParticipantCategory Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
-    public string SvId{ get { return _participant.SvId; } }
-    public string Code{ get { return _participant.Code; } }
+    public string SvId { get { return _participant.SvId; } }
+    public string Code { get { return _participant.Code; } }
 
     public bool Started
     {
@@ -872,7 +878,7 @@ namespace RaceHorologyLib
       _resultPreviousRun = resultPreviousRun;
     }
 
-    public StartListEntryAdditionalRun(StartListEntry sle, RunResult resultPreviousRun) 
+    public StartListEntryAdditionalRun(StartListEntry sle, RunResult resultPreviousRun)
       : base(sle.Participant)
     {
       _resultPreviousRun = resultPreviousRun;
@@ -911,7 +917,7 @@ namespace RaceHorologyLib
     protected TimeSpan? _finishTime;
     protected EResultCode _resultCode;
     protected string _disqualText;
-    
+
     #endregion
 
 
@@ -1083,8 +1089,8 @@ namespace RaceHorologyLib
 
     public override string ToString()
     {
-      return 
-        _participant.ToString() + 
+      return
+        _participant.ToString() +
         ", T: " + Runtime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
     }
 
@@ -1219,9 +1225,9 @@ namespace RaceHorologyLib
     public bool JustModified
     {
       get { return _justModified; }
-      set 
-      { 
-        if (_justModified != value) 
+      set
+      {
+        if (_justModified != value)
         {
           _justModified = value;
           NotifyPropertyChanged();
@@ -1229,8 +1235,9 @@ namespace RaceHorologyLib
           // Reset after 5 sec
           if (_justModified)
           {
-            Task.Delay(5000).ContinueWith(t => {
-              JustModified = false; 
+            Task.Delay(5000).ContinueWith(t =>
+            {
+              JustModified = false;
             }, TaskScheduler.FromCurrentSynchronizationContext());
           }
         }
@@ -1426,7 +1433,7 @@ namespace RaceHorologyLib
         {
           _justModified = value;
           NotifyPropertyChanged();
-          
+
           // Reset after 5 sec
           if (_justModified)
           {

@@ -49,13 +49,13 @@
                                 >
           <DataGridComboBoxColumn.ElementStyle>
             <Style TargetType="ComboBox">
-              <Setter Property="ItemsSource" Value="{Binding Path=DataContext.GroupViewModel.FilteredItems, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+              <Setter Property="ItemsSource" Value="{Binding Path=DataContext.TeamGroupViewModel.FilteredItems, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
               <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
             </Style>
           </DataGridComboBoxColumn.ElementStyle>
           <DataGridComboBoxColumn.EditingElementStyle>
             <Style TargetType="ComboBox">
-              <Setter Property="ItemsSource" Value="{Binding Path=DataContext.GroupViewModel.FilteredItems, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+              <Setter Property="ItemsSource" Value="{Binding Path=DataContext.TeamGroupViewModel.FilteredItems, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
               <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
             </Style>
           </DataGridComboBoxColumn.EditingElementStyle>
