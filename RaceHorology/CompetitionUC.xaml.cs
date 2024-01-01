@@ -109,6 +109,7 @@ namespace RaceHorology
       ucSaveOrReset.Init("Teilnehmeränderungen", null, null, null, storeParticipant, resetParticipant);
 
       ucClassesAndGroups.Init(_dm);
+      ucTeams.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
       ucFISImport.Init(_dm, _fisData);
 

@@ -280,6 +280,14 @@
             <local:ClassesAndGroupsUC x:Name="ucClassesAndGroups" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2"/>
 
           </TabItem>
+          <TabItem>
+            <TabItem.Header>
+              <Label Content="Teams" Padding="0" Margin="0"  />
+            </TabItem.Header>
+
+            <local:TeamsUC x:Name="ucTeams" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2"/>
+
+          </TabItem>
         </TabControl>
       </TabItem>
 
