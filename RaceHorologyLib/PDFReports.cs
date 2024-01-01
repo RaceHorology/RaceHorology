@@ -873,6 +873,7 @@ namespace RaceHorologyLib
 
     protected PdfFont _tableFont;
     protected PdfFont _tableFontHeader;
+    protected PdfFont _tableFontOblique;
     protected float _tableFontSize;
     protected float _tableFontSizeHeader;
 
@@ -880,19 +881,26 @@ namespace RaceHorologyLib
     {
       _tableFont = _pdfHelper.GetFont(RHFont.Normal);
       _tableFontHeader = _pdfHelper.GetFont(RHFont.Bold);
+      _tableFontOblique = _pdfHelper.GetFont(RHFont.Oblique);
       _tableFontSize = 9;
       _tableFontSizeHeader = _tableFontSize + 1;
     }
 
     #endregion
 
-    protected Paragraph createCellParagraphForTable(string text)
+    protected Paragraph createCellParagraphForTable(string text, RHFont rhFont = RHFont.Normal)
     {
       if (text == null)
         text = string.Empty;
 
+      var font = _tableFont;
+      switch (rhFont)
+      {
+        case RHFont.Bold: font = _tableFontHeader; break;
+        case RHFont.Oblique: font = _tableFontOblique; break;
+      }
       return new Paragraph(text)
-        .SetFont(_tableFont)
+        .SetFont(font)
         .SetFontSize(_tableFontSize)
         .SetPaddingTop(0)
         .SetPaddingBottom(0)
@@ -1260,6 +1268,7 @@ namespace RaceHorologyLib
     {
       _tableFont = _pdfHelper.GetFont(RHFont.Normal);
       _tableFontHeader = _pdfHelper.GetFont(RHFont.Bold);
+      _tableFontOblique = _pdfHelper.GetFont(RHFont.Oblique);
 
       _tableFontSize = 9;
       if (_nOptFields > 3)
@@ -3178,7 +3187,16 @@ namespace RaceHorologyLib
 
     public TeamRaceResultReport(Race race) : base(race)
     {
+      _printNonConsideredTeamParticipants = false;
     }
+
+    private bool _printNonConsideredTeamParticipants;
+    public bool PrintNonConsideredTeamParticipants
+    {
+      get { return _printNonConsideredTeamParticipants; }
+      set { _printNonConsideredTeamParticipants = value; }
+    }
+
 
     protected override string getReportName()
     {
@@ -3315,32 +3333,34 @@ namespace RaceHorologyLib
       if (i % 2 == 1)
         bgColor = PDFHelper.ColorRHBG1;
 
+      var font = item.Consider ? RHFont.Normal : RHFont.Oblique;
+
       // Position
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // Startnumber
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.StartNumber))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.StartNumber), font)));
       // Code
       if (_race.IsFieldActive("Code"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.CodeOrSvId)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.CodeOrSvId, font)));
       // Name
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Name)));
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Name, font)));
       // Year
       if (_race.IsFieldActive("Year"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.Year))));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Participant.Year), font)));
       // VB
       if (_race.IsFieldActive("Nation"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Nation)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Participant.Nation, font)));
       // Club
       if (_race.IsFieldActive("Club"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Club)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Participant.Club, font)));
 
       // Runtime
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Runtime.ToRaceTimeString()))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Runtime != null ? string.Format(item.Consider ? "{0}" : "({0})", item.Runtime.ToRaceTimeString()) : "", font)));
       // Diff
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor));
       // Points
       if (_race.IsFieldActive("Points"))
-        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(item.Points))));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format(item.Consider ? "{0}" : "({0})", formatPoints(item.Points)), font)));
 
       return true;
     }
@@ -3351,18 +3371,16 @@ namespace RaceHorologyLib
         return false;
 
       Color bgColor = ColorConstants.WHITE;
-      if (i % 2 == 1)
-        bgColor = PDFHelper.ColorRHBG1;
 
       // Position
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable((string)_positionConverter.Convert(item.Position, typeof(string), null, null))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createHeaderCellParagraphForTable((string)_positionConverter.Convert(item.Position, typeof(string), null, null))));
       // Startnumber
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // Code
       if (_race.IsFieldActive("Code"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // Name
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Name)));
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createHeaderCellParagraphForTable(item.Name)));
       // Year
       if (_race.IsFieldActive("Year"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
@@ -3374,18 +3392,19 @@ namespace RaceHorologyLib
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
 
       // Runtime
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createHeaderCellParagraphForTable(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
       // Diff
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createHeaderCellParagraphForTable(string.Format("{0}", item.DiffToFirst.ToRaceTimeString()))));
       // Points
       if (_race.IsFieldActive("Points"))
-        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(formatPoints(item.Points))));
+        table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createHeaderCellParagraphForTable(formatPoints(item.Points))));
 
       // Add team members
       var j = 0;
-      foreach(var teamParticipant in item.RaceResults)
+      foreach (var teamParticipant in item.RaceResults)
       {
-        addTeamParticipantToTable(table, teamParticipant, j++);
+        if (_printNonConsideredTeamParticipants || teamParticipant.Consider)
+          addTeamParticipantToTable(table, teamParticipant, j++);
       }
 
       return true;

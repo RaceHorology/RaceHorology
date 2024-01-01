@@ -77,8 +77,8 @@ namespace RaceHorology
       items.Add(new ReportItem { Text = "Startliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new StartListReport(rr) : (IPDFReport)new StartListReport2ndRun(rr); } });
       items.Add(new ReportItem { Text = "Teilergebnisliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RaceRunResultReport(rr); } });
       items.Add(new ReportItem { Text = "Ergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return (r.GetResultViewProvider() is DSVSchoolRaceResultViewProvider) ? new DSVSchoolRaceResultReport(r) : (r.GetResultViewProvider() is FISRaceResultViewProvider) ? new FISRaceResultReport(r) : new RaceResultReport(r); } });
-      items.Add(new ReportItem { Text = "Mannschaftsergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return new TeamRaceResultReport(r); } });
-      items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => { return new CertificatesPrintUC(); } });
+      items.Add(new ReportItem { Text = "Mannschaftsergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return new TeamRaceResultReport(r); }, UserControl = () => new TeamResultsPrintUC() });
+      items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => new CertificatesPrintUC() });
       items.Add(new ReportItem { Text = "Zeitnehmer Checkliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new TimerReport(rr) : (IPDFReport)new TimerReport(rr); } });
       items.Add(new ReportItem { Text = "Schiedsrichter Protokoll", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
 
