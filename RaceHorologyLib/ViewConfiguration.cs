@@ -94,7 +94,7 @@ namespace RaceHorologyLib
       return null;
     }
 
-    public T Create<T>(string viewKey) where T:ViewProvider
+    public T Create<T>(string viewKey) where T : ViewProvider
     {
       T instance = Create(viewKey) as T;
       return instance;
@@ -143,7 +143,7 @@ namespace RaceHorologyLib
       // Second or later run
       {
         // Figure out previous run
-        RaceRun rrPrevious = rr.GetRace().GetRuns().Where( r => r.Run == (rr.Run - 1U)).First();
+        RaceRun rrPrevious = rr.GetRace().GetRuns().Where(r => r.Run == (rr.Run - 1U)).First();
 
         SecondRunStartListViewProvider srslVP = factory.Create<SecondRunStartListViewProvider>(_config.Run2_StartistView);
 
@@ -211,7 +211,7 @@ namespace RaceHorologyLib
 
       if (rVP == null)
         rVP = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
-      
+
       rVP.SetDefaultGrouping(_config.DefaultGrouping);
 
       rVP.Init(race, _dataModel);
@@ -222,7 +222,7 @@ namespace RaceHorologyLib
 
     public void ConfigureRace(Race race)
     {
-      for(int i=0; i<race.GetMaxRun(); i++)
+      for (int i = 0; i < race.GetMaxRun(); i++)
       {
         RaceRun rr = race.GetRun(i);
 
@@ -236,7 +236,8 @@ namespace RaceHorologyLib
       RaceResultViewProvider raceVP = GetRaceResultViewProvider(race);
       race.SetResultViewProvider(raceVP);
 
-      var teamVP = new TeamRaceResultViewProvider(TeamRaceResultViewProvider.PointOrTime.Time);
+
+      var teamVP = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Time, NumberOfMembersMax = 3 });
       teamVP.Init(race, _dataModel);
       race.SetTeamResultsViewProvider(teamVP);
     }

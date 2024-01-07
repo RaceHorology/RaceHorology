@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -45,11 +45,23 @@ using static RaceHorologyLib.RunResult;
 
 namespace RaceHorologyLib
 {
+  public enum PointOrTime { Points, Time }
+  public class TeamRaceResultConfig
+  {
+    public PointOrTime Modus;
+
+    public int NumberOfMembersMin;
+    public int NumberOfMembersMax;
+
+    public int Penalty_NumberOfMembersMinDifferentSex;
+    public double Penalty_TimeInSeconds;
+    public double Penalty_Points;
+  }
+
+
   public class TeamRaceResultViewProvider : ViewProvider
   {
-    public enum PointOrTime { Points, Time }
-
-    protected PointOrTime _cfgPointOrTime;
+    protected TeamRaceResultConfig _config;
 
     protected ResultSorter<TeamResultViewItem> _comparer;
     protected ResultSorter<TeamParticipantItem> _comparerTeamParticipants;
@@ -60,15 +72,10 @@ namespace RaceHorologyLib
     protected ObservableCollection<ITeamResultViewListItems> _teamViewResults;
     protected ItemsChangeObservableCollection<RaceResultItem> _raceResults;
 
-
-    int NumberOfMembers_Min;
-    int NumberOfMembers_Max = 5;
-
-
-    public TeamRaceResultViewProvider(PointOrTime cfgPointOrTime)
+    public TeamRaceResultViewProvider(TeamRaceResultConfig config)
     {
-      _cfgPointOrTime = cfgPointOrTime;
-      if (_cfgPointOrTime == PointOrTime.Time)
+      _config = config;
+      if (_config.Modus == PointOrTime.Time)
       {
         _comparer = new TeamTimeSorter();
         _comparerTeamParticipants = new TeamParticipantsSorterByTime();
@@ -82,7 +89,7 @@ namespace RaceHorologyLib
 
     public override ViewProvider Clone()
     {
-      return new TeamRaceResultViewProvider(_cfgPointOrTime);
+      return new TeamRaceResultViewProvider(_config);
     }
 
     public virtual void Init(Race race, AppDataModel appDataModel)
@@ -173,7 +180,7 @@ namespace RaceHorologyLib
           return r.Consider;
         });
 
-        if (_cfgPointOrTime == PointOrTime.Time)
+        if (_config.Modus == PointOrTime.Time)
         {
           RunResult.EResultCode resCode = RunResult.EResultCode.NotSet;
           string disqualText = string.Empty;
@@ -225,7 +232,7 @@ namespace RaceHorologyLib
       // Add remaining according to policy
       foreach (var rr in raceResults)
       {
-        if (nSelected < NumberOfMembers_Max)
+        if (nSelected < _config.NumberOfMembersMax)
         {
           rr.ConsiderBase = true;
           nSelected++;
