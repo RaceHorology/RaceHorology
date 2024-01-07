@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -150,7 +150,7 @@ namespace RaceHorologyLib
     void Calculate()
     {
       // Group By Team
-      var itemsPerTeam = _raceResults.GroupBy(i => i.Participant.Team);
+      var itemsPerTeam = _raceResults.Where(i=> i.Participant.Team != null).GroupBy(i => i.Participant.Team);
       foreach (var team in itemsPerTeam)
       {
         var trri = _teamResults.FirstOrDefault(t => t.Team == team.Key);
