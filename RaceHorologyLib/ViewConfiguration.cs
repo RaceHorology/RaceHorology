@@ -237,7 +237,13 @@ namespace RaceHorologyLib
       race.SetResultViewProvider(raceVP);
 
 
-      var teamVP = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Time, NumberOfMembersMax = 3 });
+      var teamVP = new TeamRaceResultViewProvider(new TeamRaceResultConfig
+      {
+        Modus = PointOrTime.Time,
+        NumberOfMembersMax = 3,
+        Penalty_NumberOfMembersMinDifferentSex = 1,
+        Penalty_TimeInSeconds = 1.5
+      });
       teamVP.Init(race, _dataModel);
       race.SetTeamResultsViewProvider(teamVP);
     }
