@@ -269,9 +269,10 @@ namespace RaceHorologyLib
       // Sort by time
       if (tX != null && tY == null)
         return -1;
-
       if (tX == null && tY != null)
         return 1;
+      if (tX == null && tY == null)
+        return 0;
 
       // If equal, consider startnumber as well
       int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
@@ -555,7 +556,7 @@ namespace RaceHorologyLib
 
     public string Name
     {
-      get { return _team.Name; }
+      get { return _team?.Name; }
     }
     public Team Team
     {

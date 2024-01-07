@@ -952,7 +952,7 @@ namespace RaceHorologyLib
     {
       int groupCompare = 0;
       if (_groupingPropertyName != "")
-        groupCompare = nullEnabledComparer.Compare(tX.Team.Group, tY.Team.Group);
+        groupCompare = nullEnabledComparer.Compare(tX.Team?.Group, tY.Team?.Group);
       return groupCompare;
     }
 
