@@ -33,6 +33,7 @@
  * 
  */
 
+using DocumentFormat.OpenXml.Spreadsheet;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -471,9 +472,25 @@ public class LiveTimingRM : ILiveTiming
   }
 
 
+  // Echten Daten übertragen
   internal string getCategories()
   {
-    return "Kategorie|M|M|1\nKategorie|W|W|2";
+    var cats = _race.GetDataModel().GetParticipantCategories().ToList();
+    cats.Sort();
+
+    string result = "";
+    foreach (var c in cats)
+    {
+      string item;
+      item = string.Format("Kategorie|{0}|{1}|{2}", c.Name, c.PrettyName, c.SortPos);
+
+      if (!string.IsNullOrEmpty(result))
+        result += "\n";
+
+      result += item;
+    }
+
+    return result;
   }
 
 

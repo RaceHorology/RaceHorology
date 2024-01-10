@@ -124,7 +124,7 @@ namespace RaceHorologyLibTest
         "Klasse|11|Buben 2010|10\n" +
         "Klasse|10|Mädchen 2009|11\n" +
         "Klasse|12|Buben 2009|12"
-        , classes );
+        , classes);
 
 
       string groups = cl.getGroups();
@@ -138,7 +138,22 @@ namespace RaceHorologyLibTest
         , groups);
 
       string categories = cl.getCategories();
-      Assert.AreEqual("Kategorie|M|M|1\nKategorie|W|W|2", categories);
+      Assert.AreEqual(
+        "Kategorie|W|Damen|1\n" +
+        "Kategorie|D|Damen 2|2\n" +
+        "Kategorie|M|Herren|3\n" +
+        "Kategorie|H|Herren 2|4\n" +
+        "Kategorie|0|G0|5\n" +
+        "Kategorie|1|G1|6\n" +
+        "Kategorie|2|G2|7\n" +
+        "Kategorie|3|G3|8\n" +
+        "Kategorie|4|G4|9\n" +
+        "Kategorie|5|G5|10\n" +
+        "Kategorie|6|G6|11\n" +
+        "Kategorie|7|G7|12\n" +
+        "Kategorie|8|G8|13\n" +
+        "Kategorie|9|G9|14"
+        , categories);
 
       string participants = cl.getParticipantsData();
       Assert.AreEqual(
@@ -146,7 +161,7 @@ namespace RaceHorologyLibTest
         , participants);
       string startList = cl.getStartListData(model.GetCurrentRaceRun());
       Assert.AreEqual(
-        "  4\n  2\n  5\n  3\n  1", 
+        "  4\n  2\n  5\n  3\n  1",
         startList);
 
       string timingData = cl.getTimingData(model.GetCurrentRaceRun());
@@ -172,7 +187,7 @@ namespace RaceHorologyLibTest
 
       string participants = cl.getParticipantsData();
       Assert.AreEqual(
-        "|||1|1||Name 1, Firstname 1|0|||-1,00\n|||2|2||Name 2, Firstname 2|0|||-1,00", 
+        "|||1|1||Name 1, Firstname 1|0|||-1,00\n|||2|2||Name 2, Firstname 2|0|||-1,00",
         participants);
 
       string startList = cl.getStartListData(race.GetRun(0));
