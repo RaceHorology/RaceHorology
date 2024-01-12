@@ -206,7 +206,7 @@ namespace RaceHorologyLib
       DownloadSystemStatus();
     }
 
-    static TimeSpan keepAliveDelta = new TimeSpan(0, 0, 0, 0, 500);
+    static TimeSpan keepAliveDelta = new TimeSpan(0, 0, 0, 2, 0);
     private void _keepAliveCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
       var pingDiff = _lastPingSentTime - _lastPingReceivedTime;
