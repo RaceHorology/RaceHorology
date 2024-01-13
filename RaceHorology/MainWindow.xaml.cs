@@ -639,7 +639,7 @@ namespace RaceHorology
       { 
         str = timingDevice.GetDeviceInfo().PrettyName + " (" + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss") + ")";
         timingDeviceOnline = timingDevice.IsOnline;
-        connectInProgress = timingDevice.IsStarted != timingDevice.IsOnline;
+        connectInProgress = timingDevice.IsStarted == true && timingDevice.IsStarted != timingDevice.IsOnline;
       }
 
       Application.Current.Dispatcher.Invoke(() =>
