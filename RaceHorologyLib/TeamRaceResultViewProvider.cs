@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -64,7 +64,7 @@ namespace RaceHorologyLib
     protected TeamRaceResultConfig _config;
 
     protected ResultSorter<TeamResultViewItem> _comparer;
-    protected ResultSorter<TeamParticipantItem> _comparerTeamParticipants;
+    protected ResultSorter<ITeamResultViewResultsItem> _comparerTeamParticipants;
     protected Race _race;
     protected AppDataModel _appDataModel;
 
@@ -157,7 +157,7 @@ namespace RaceHorologyLib
     void Calculate()
     {
       // Group By Team
-      var itemsPerTeam = _raceResults.Where(i=> i.Participant.Team != null).GroupBy(i => i.Participant.Team);
+      var itemsPerTeam = _raceResults.Where(i => i.Participant.Team != null).GroupBy(i => i.Participant.Team);
       foreach (var team in itemsPerTeam)
       {
         var trri = _teamResults.FirstOrDefault(t => t.Team == team.Key);
@@ -179,6 +179,12 @@ namespace RaceHorologyLib
         {
           return r.Consider;
         });
+
+        var sexConstraintFullfilled = checkSexConstraint(consideredTeamMembers);
+        if (!sexConstraintFullfilled)
+          trri.AddPenalty(new TeamResultPenaltyItem(TimeSpan.FromSeconds(_config.Penalty_TimeInSeconds)));
+        else
+          trri.RemovePenalty();
 
         if (_config.Modus == PointOrTime.Time)
         {
@@ -210,27 +216,29 @@ namespace RaceHorologyLib
       }
     }
 
-    protected virtual void autoSelectParticipants(IEnumerable<TeamParticipantItem> teamMembers)
+    protected virtual void autoSelectParticipants(IEnumerable<ITeamResultViewResultsItem> teamMembers)
     {
       var nSelected = 0;
-      var raceResults = new List<TeamParticipantItem>(teamMembers);
+      var raceResults = new List<ITeamResultViewResultsItem>(teamMembers);
       // Overrides get priority regardless of other constraints
       // => consider and remove from raceResults for further processing
       for (var i = raceResults.Count - 1; i >= 0; i--)
       {
-        var rr = raceResults[i];
-        if (rr.ConsiderOverride == true)
+        if (raceResults[i] is TeamParticipantItem rr)
         {
-          raceResults.RemoveAt(i);
-          nSelected++;
-        }
-        if (rr.ConsiderOverride == false)
-        {
-          raceResults.RemoveAt(i);
+          if (rr.ConsiderOverride == true)
+          {
+            raceResults.RemoveAt(i);
+            nSelected++;
+          }
+          if (rr.ConsiderOverride == false)
+          {
+            raceResults.RemoveAt(i);
+          }
         }
       }
       // Add remaining according to policy
-      foreach (var rr in raceResults)
+      foreach (TeamParticipantItem rr in raceResults)
       {
         if (nSelected < _config.NumberOfMembersMax)
         {
@@ -242,6 +250,24 @@ namespace RaceHorologyLib
           rr.ConsiderBase = false;
         }
       }
+    }
+
+    protected bool checkSexConstraint(IEnumerable<ITeamResultViewResultsItem> teamMembers)
+    {
+      // Check sex constraint
+      var sexCounts = new Dictionary<ParticipantCategory, int>();
+      foreach (var r in teamMembers)
+      {
+        if (r is TeamParticipantItem rr)
+        {
+          var sex = rr.Participant.Sex;
+          if (!sexCounts.ContainsKey(sex))
+            sexCounts.Add(sex, 0);
+          if (rr.Consider)
+            sexCounts[rr.Participant.Sex]++;
+        }
+      }
+      return sexCounts.Count >= 2;
     }
 
     private void OnTeamResultViewItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -306,10 +332,27 @@ namespace RaceHorologyLib
     }
   }
 
-  public class TeamParticipantsSorterByTime : ResultSorter<TeamParticipantItem>
+
+  public abstract class BaseTeamResultViewResultsItemSorter : ResultSorter<ITeamResultViewResultsItem>
   {
     bool _startNumberAscending = true;
-    public override int Compare(TeamParticipantItem pX, TeamParticipantItem pY)
+    protected int compareStartNumber(ITeamResultViewResultsItem pX, ITeamResultViewResultsItem pY)
+    {
+      if (pX.Original?.Participant == null && pY.Original.Participant == null)
+        return 0;
+      if (pX.Original?.Participant == null)
+        return -1;
+      if (pY.Original.Participant == null)
+        return 1;
+
+      return (_startNumberAscending ? 1 : -1) * pX.Original.Participant.StartNumber.CompareTo(pY.Original.Participant.StartNumber);
+    }
+  }
+
+
+  public class TeamParticipantsSorterByTime : BaseTeamResultViewResultsItemSorter
+  {
+    public override int Compare(ITeamResultViewResultsItem pX, ITeamResultViewResultsItem pY)
     {
       TimeSpan? tX = null, tY = null;
 
@@ -328,26 +371,27 @@ namespace RaceHorologyLib
 
       // If no time, use startnumber
       if (tX == null && tY == null)
-        return pX.Participant.StartNumber.CompareTo(pY.Participant.StartNumber);
+        return compareStartNumber(pX, pY);
 
       // Main comparison: based on time
       int timeComp = TimeSpan.Compare((TimeSpan)tX, (TimeSpan)tY);
       // If equal, consider startnumber as well
       if (timeComp == 0)
-        return (_startNumberAscending ? 1 : -1) * pX.Participant.StartNumber.CompareTo(pY.Participant.StartNumber);
+        return compareStartNumber(pX, pY);
       return timeComp;
     }
+
   }
 
-  public class TeamParticipantsSorterByPoints : ResultSorter<TeamParticipantItem>
+  public class TeamParticipantsSorterByPoints : BaseTeamResultViewResultsItemSorter
   {
     bool _startNumberAscending = true;
-    public override int Compare(TeamParticipantItem pX, TeamParticipantItem pY)
+    public override int Compare(ITeamResultViewResultsItem pX, ITeamResultViewResultsItem pY)
     {
       var pointsComp = pX.Points < pY.Points ? 1 : pX.Points == pY.Points ? 0 : -1;
       // If equal, consider startnumber as well
       if (pointsComp == 0)
-        return (_startNumberAscending ? 1 : -1) * pX.Participant.StartNumber.CompareTo(pY.Participant.StartNumber);
+        return compareStartNumber(pX, pY);
       return pointsComp;
     }
   }
@@ -357,18 +401,23 @@ namespace RaceHorologyLib
   /// <summary>
   /// Interface of common properties for entries in the team reuslt data grid
   /// </summary>
-  public interface ITeamResultViewListItems : INotifyPropertyChanged
+  public interface ITeamResultViewListItems : INotifyPropertyChanged, IHasPositions
   {
     string Name { get; }
-    TimeSpan? Runtime { get; }
-    RunResult.EResultCode ResultCode { get; }
+    double Points { get; }
+  }
+
+  public interface ITeamResultViewResultsItem : ITeamResultViewListItems
+  {
+    RaceResultItem Original { get; }
+    bool Consider { get; }
   }
 
 
   /// <summary>
   /// Represents a team participant result, possibility to enable/disable whether the item shall be included in the team results
   /// </summary>
-  public class TeamParticipantItem : ITeamResultViewListItems, IResultWithPosition
+  public class TeamParticipantItem : ITeamResultViewResultsItem
   {
     public class AutoManualCheckValue
     {
@@ -477,7 +526,7 @@ namespace RaceHorologyLib
     #region Members
 
     protected Team _team;
-    protected List<TeamParticipantItem> _raceResults;
+    protected List<ITeamResultViewResultsItem> _raceResults;
     protected TimeSpan? _totalTime;
     protected RunResult.EResultCode _resultCode;
     protected string _disqualText;
@@ -491,7 +540,7 @@ namespace RaceHorologyLib
     public TeamResultViewItem(Team team)
     {
       _team = team;
-      _raceResults = new List<TeamParticipantItem>();
+      _raceResults = new List<ITeamResultViewResultsItem>();
       _totalTime = null;
       _resultCode = RunResult.EResultCode.Normal;
       _disqualText = null;
@@ -582,9 +631,9 @@ namespace RaceHorologyLib
       return string.Format("T: {0} - {1}", Name, TotalTime);
     }
 
-    public void SetRaceResults(List<RaceResultItem> results, IComparer<TeamParticipantItem> comparer)
+    public void SetRaceResults(List<RaceResultItem> results, ResultSorter<ITeamResultViewResultsItem> comparer)
     {
-      foreach (var r in _raceResults)
+      foreach (var r in _raceResults.ToList())
       {
         if (!results.Contains(r.Original))
         {
@@ -605,12 +654,27 @@ namespace RaceHorologyLib
       _raceResults.Sort(comparer);
     }
 
+
+    TeamResultPenaltyItem _penalty;
+    public void AddPenalty(TeamResultPenaltyItem item)
+    {
+      RemovePenalty();
+      _penalty = item;
+      _raceResults.Add(item);
+    }
+    public void RemovePenalty()
+    {
+      if (_penalty != null)
+        _raceResults.Remove(_penalty);
+      _penalty = null;
+    }
+
     private void OnRaceResults_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       NotifyPropertyChanged("RaceResults");
     }
 
-    public List<TeamParticipantItem> RaceResults
+    public List<ITeamResultViewResultsItem> RaceResults
     {
       get { return _raceResults; }
     }
@@ -629,6 +693,49 @@ namespace RaceHorologyLib
     }
 
     #endregion
+  }
+
+  public class TeamResultPenaltyItem : ITeamResultViewResultsItem
+  {
+    protected TimeSpan _time;
+
+    public TeamResultPenaltyItem(TimeSpan time)
+    {
+      _time = time;
+    }
+
+    public string Name
+    {
+      get { return "Penalty"; }
+    }
+
+    public TimeSpan? Runtime
+    {
+      get => _time;
+    }
+
+    public EResultCode ResultCode
+    {
+      get => EResultCode.Normal;
+    }
+
+
+    public bool Consider { get => true; set { } }
+
+    public RaceResultItem Original
+    {
+      get => null;
+    }
+
+    public RaceParticipant Participant { get => null; }
+    public string DisqualText { get => ""; }
+    public uint Position { get => 0; set { } }
+    public TimeSpan? DiffToFirst { get => null; set { } }
+    public double DiffToFirstPercentage { get => 0; set { } }
+
+    public double Points => -1;
+
+    public event PropertyChangedEventHandler PropertyChanged;
   }
 
 }

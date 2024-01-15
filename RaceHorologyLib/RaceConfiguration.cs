@@ -85,6 +85,7 @@ namespace RaceHorologyLib
 
     public Dictionary<Race.ERaceType, PointCalcParams> PointCalcParamTemplate;
 
+    public object TeamRaceResultParams;
 
     public double ValueF;
     public double ValueA;

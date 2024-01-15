@@ -1706,7 +1706,7 @@ namespace RaceHorologyLib
       return minTime;
     }
 
-    internal static TimeSpan? SumTime(IEnumerable<IResultWithPosition> results, out RunResult.EResultCode resCode, out string disqualText)
+    internal static TimeSpan? SumTime(IEnumerable<IHasPositions> results, out RunResult.EResultCode resCode, out string disqualText)
     {
       TimeSpan? sumTime = new TimeSpan(0);
       resCode = RunResult.EResultCode.Normal;

@@ -168,7 +168,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <DockPanel Height="25" Grid.ColumnSpan="2">
-          <Label DockPanel.Dock="Left" Content="Berechnung"/>
+          <Label DockPanel.Dock="Left" Content="Punkte-Berechnung"/>
           <Separator/>
         </DockPanel>
       </Grid>
@@ -211,6 +211,26 @@
         </Grid.ColumnDefinitions>
         <Label x:Name="lblValueCutOff" Margin="5" Content="Maximalwert:" Grid.Column="0"/>
         <TextBox x:Name="txtValueCutOff" Margin="5" Grid.Column="1" />
+      </Grid>
+
+
+      <Grid Margin="0,15,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel Height="25" Grid.ColumnSpan="2">
+          <Label DockPanel.Dock="Left" Content="Team Wertung"/>
+          <Separator/>
+        </DockPanel>
+      </Grid>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="lblTeam" Margin="5" Content="Einstellungen" Grid.Column="0"/>
+        <ComboBox x:Name="cmbConfigTeamRaceResult" Margin="5" Grid.Column="1" />
       </Grid>
     </StackPanel>
   </ScrollViewer>

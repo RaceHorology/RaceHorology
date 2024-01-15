@@ -1168,6 +1168,8 @@ namespace RaceHorologyLib
   {
     uint Position { get; set; }
     TimeSpan? Runtime { get; }
+    RunResult.EResultCode ResultCode { get; }
+    string DisqualText { get; }
     TimeSpan? DiffToFirst { get; set; }
     double DiffToFirstPercentage { get; set; }
   }
@@ -1178,8 +1180,6 @@ namespace RaceHorologyLib
   public interface IResultWithPosition : IHasPositions
   {
     RaceParticipant Participant { get; }
-    RunResult.EResultCode ResultCode { get; }
-    string DisqualText { get; }
   }
 
 
