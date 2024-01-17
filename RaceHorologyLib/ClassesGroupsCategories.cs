@@ -159,7 +159,12 @@ namespace RaceHorologyLib
     public void AdaptYear(int difference)
     {
       foreach (var c in Items)
+      {
+        var patternOldYear = c.Year.ToString();
         c.Year = (uint)(c.Year + difference);
+        var patternNewYear = c.Year.ToString();
+        c.Name = c.Name.Replace(patternOldYear, patternNewYear);
+      }
     }
 
 
