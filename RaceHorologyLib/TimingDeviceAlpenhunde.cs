@@ -23,6 +23,12 @@ namespace RaceHorologyLib
 
   public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, ILiveTimeMeasurementDeviceDebugInfo, IImportTime
   {
+    private static int ConfigPingInterval = 5000; // ms
+    private static int ConfigPingTimeout = 2000; // ms
+    private static int ConfigMissingPings = 2;
+    private static TimeSpan KeepAliveDelta = TimeSpan.FromMilliseconds(ConfigMissingPings* ConfigPingInterval + ConfigPingTimeout);
+
+
     private System.Threading.SynchronizationContext _syncContext;
     private string _hostname;
     private string _baseUrl;
@@ -152,7 +158,7 @@ namespace RaceHorologyLib
           // Start Keep Alive Timer
           _keepAliveTimer = new System.Timers.Timer();
           _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
-          _keepAliveTimer.Interval = 5 * 1000; // ms
+          _keepAliveTimer.Interval = ConfigPingInterval; // ms
           _keepAliveTimer.AutoReset = true;
           _keepAliveTimer.Start();
           // Start Check Timer
@@ -208,13 +214,13 @@ namespace RaceHorologyLib
         {
           Logger.Info("onclose called {0}", sender);
           setInternalStatus(EStatus.NotConnected);
-          cleanup(true);
+          cleanup(false);
         };
         _webSocket.OnError += (sender, e) =>
         {
           Logger.Info("onerror called {0}", sender);
           setInternalStatus(EStatus.NotConnected);
-          cleanup(true);
+          cleanup(false);
         };
       }
 
@@ -223,25 +229,25 @@ namespace RaceHorologyLib
       _webSocket.ConnectAsync();
 
       // Pull some infos at startup
-      //DownloadSystemStatus();
+      DownloadSystemStatus();
     }
 
-    static TimeSpan keepAliveDelta = new TimeSpan(0, 0, 0, 2, 0);
     private void keepAliveCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
+
       var pingDiff = _lastPingSentTime - _lastPingReceivedTime; // 
-      var nowDiff = DateTime.Now - _lastPingSentTime;
+      var nowDiff = DateTime.Now - _lastPingReceivedTime;
 
       Logger.Info(String.Format(
         "Ping check, last sent: {0} last received: {1}, pingDiff: {2}, nowDiff: {3}",
         _lastPingSentTime, _lastPingReceivedTime, pingDiff, nowDiff));
 
       if (pingDiff.Ticks > 0 /*if positiv: outstanding ping*/
-        && nowDiff > keepAliveDelta /* timeout */)
+        && nowDiff > KeepAliveDelta  /* timeout */)
       {
         Logger.Warn("Ping outstanding, closing connection");
         setInternalStatus(EStatus.NotConnected);
-        cleanup(true);
+        cleanup(false);
       }
     }
 
@@ -254,7 +260,7 @@ namespace RaceHorologyLib
           _lastPingSentTime = DateTime.Now;
           _webSocket.Send("PING");
 
-          //DownloadSystemStatus();
+          DownloadSystemStatus();
         }
 
       }
@@ -313,6 +319,13 @@ namespace RaceHorologyLib
           setInternalStatus(EStatus.NotConnected);
         }
       }
+      else if (!reconnectIfPossible && _isStarted)
+      {
+        Logger.Info("Stopping connection... ");
+        _isStarted = false;
+        setInternalStatus(EStatus.NotConnected);
+      }
+
     }
 
     #endregion
