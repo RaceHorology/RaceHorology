@@ -10,7 +10,7 @@ namespace RaceHorologyLib
 {
   enum EStatus { NotConnected, Connecting, Connected };
 
-  public class TimeMeasurementEventArgsAlpenhunde: TimeMeasurementEventArgs
+  public class TimeMeasurementEventArgsAlpenhunde : TimeMeasurementEventArgs
   {
     public TimeMeasurementEventArgsAlpenhunde() : base()
     {
@@ -23,18 +23,27 @@ namespace RaceHorologyLib
 
   public class TimingDeviceAlpenhunde : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, ILiveTimeMeasurementDeviceDebugInfo, IImportTime
   {
+    private static int ConfigPingInterval = 5000; // ms
+    private static int ConfigPingTimeout = 2000; // ms
+    private static int ConfigMissingPings = 2;
+    private static TimeSpan KeepAliveDelta = TimeSpan.FromMilliseconds(ConfigMissingPings* ConfigPingInterval + ConfigPingTimeout);
+
+
     private System.Threading.SynchronizationContext _syncContext;
     private string _hostname;
     private string _baseUrl;
     private string _baseUrlWs;
     private EStatus _status;
 
+    private object _lock = new object();
     private HttpClient _webClient;
     private WebSocket _webSocket;
     private System.Timers.Timer _keepAliveTimer;
     private System.Timers.Timer _keepAliveCheckTimer;
     private DateTime _lastPingReceivedTime = DateTime.Now;
     private DateTime _lastPingSentTime = DateTime.Now;
+    private int _connectRetryCount = 0;
+    private bool _isStarted = false; // Flag indicating whether Start() has been called and shall stay online
 
     private AlpenhundeParser _parser;
     private AlpenhundeSystemInfo _systemInfo;
@@ -117,86 +126,103 @@ namespace RaceHorologyLib
     public void Start()
     {
       Logger.Info("Start()");
-      if (_webSocket != null)
-        return;
+      _isStarted = true;
+      _connectRetryCount = 0;
+      startInternal();
+    }
 
-      setInternalStatus(EStatus.Connecting);
+    public void startInternal()
+    {
+      Logger.Info("startInternal()");
+      lock (_lock)
+      {
+        if (_webSocket != null)
+          return;
 
-      _webSocket = new WebSocket(_baseUrlWs);
-      _webSocket.EmitOnPing = true;
+        setInternalStatus(EStatus.Connecting);
+        _connectRetryCount++;
 
-      _webSocket.OnOpen += (sender, e) => {
-        Logger.Info("connected");
-        setInternalStatus(EStatus.Connected);
-
-        // Reset Ping time stamps
-        _lastPingReceivedTime = DateTime.Now;
-        _lastPingSentTime = DateTime.Now;
-        // Start Keep Alive Timer
-        _keepAliveTimer = new System.Timers.Timer();
-        _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
-        _keepAliveTimer.Interval = 5 * 1000; // ms
-        _keepAliveTimer.AutoReset = true;
-        _keepAliveTimer.Enabled = true;
-        // Start Check Timer
-        _keepAliveCheckTimer = new System.Timers.Timer();
-        _keepAliveCheckTimer.Elapsed += _keepAliveCheckTimer_Elapsed;
-        _keepAliveCheckTimer.Interval = 1000; // ms
-        _keepAliveCheckTimer.AutoReset = true;
-        _keepAliveCheckTimer.Enabled = true;
-      };
-      _webSocket.OnMessage += (sender, e) => {
-        if (e.IsPing || e.Data == "PONG")
+        _webSocket = new WebSocket(_baseUrlWs)
         {
-          Logger.Debug("pong received");
+          EmitOnPing = true
+        };
+
+        _webSocket.OnOpen += (sender, e) =>
+        {
+          Logger.Info("connected {0}", sender);
+          setInternalStatus(EStatus.Connected);
+
+          // Reset Ping time stamps
           _lastPingReceivedTime = DateTime.Now;
-        }
-        else if (e.IsText && !e.Data.IsNullOrEmpty())
+          _lastPingSentTime = DateTime.Now;
+          // Start Keep Alive Timer
+          _keepAliveTimer = new System.Timers.Timer();
+          _keepAliveTimer.Elapsed += keepAliveTimer_Elapsed;
+          _keepAliveTimer.Interval = ConfigPingInterval; // ms
+          _keepAliveTimer.AutoReset = true;
+          _keepAliveTimer.Start();
+          // Start Check Timer
+          _keepAliveCheckTimer = new System.Timers.Timer();
+          _keepAliveCheckTimer.Elapsed += keepAliveCheckTimer_Elapsed;
+          _keepAliveCheckTimer.Interval = 1000; // ms
+          _keepAliveCheckTimer.AutoReset = true;
+          _keepAliveCheckTimer.Start();
+        };
+        _webSocket.OnMessage += (sender, e) =>
         {
-          Logger.Info("data received: {0}", e.Data);
-          debugMessage(e.Data);
-
-          var parsedData = _parser.ParseMessage(e.Data);
-          if (parsedData != null)
+          if (e.IsPing || e.Data == "PONG")
           {
-            if (parsedData.type == "timestamp")
+            Logger.Debug("pong received");
+            _lastPingReceivedTime = DateTime.Now;
+          }
+          else if (e.IsText && !e.Data.IsNullOrEmpty())
+          {
+            Logger.Info("data received: {0}", e.Data);
+            debugMessage(e.Data);
+
+            var parsedData = _parser.ParseMessage(e.Data);
+            if (parsedData != null)
             {
-              var timeMeasurmentData = AlpenhundeParser.ConvertToTimemeasurementData(parsedData.data);
-              if (timeMeasurmentData != null)
+              if (parsedData.type == "timestamp")
               {
-                // Update internal clock for livetiming
-                UpdateLiveDayTime(timeMeasurmentData);
-                // Trigger time measurment event
-                _syncContext.Send(delegate
+                var timeMeasurmentData = AlpenhundeParser.ConvertToTimemeasurementData(parsedData.data);
+                if (timeMeasurmentData != null)
                 {
-                  var handle = TimeMeasurementReceived;
-                  handle?.Invoke(this, timeMeasurmentData);
-                }, null);
+                  // Update internal clock for livetiming
+                  UpdateLiveDayTime(timeMeasurmentData);
+                  // Trigger time measurment event
+                  _syncContext.Send(delegate
+                  {
+                    var handle = TimeMeasurementReceived;
+                    handle?.Invoke(this, timeMeasurmentData);
+                  }, null);
+                }
+              }
+              else
+              {
+                Logger.Warn("Unknown data type: {0}", parsedData.type);
               }
             }
             else
             {
-              Logger.Warn("Unknown data type: {0}", parsedData.type);
+              Logger.Warn("could not parse received data: {0}", e.Data);
             }
           }
-          else
-          {
-            Logger.Warn("could not parse received data: {0}", e.Data);
-          }
-        }
-      };
+        };
 
-      _webSocket.OnClose += (sender, e) => {
-        Logger.Info("onclose called");
-        setInternalStatus(EStatus.NotConnected);
-        cleanup();
-      };
-      _webSocket.OnError += (sender, e) => {
-        Logger.Info("onerror called");
-        setInternalStatus(EStatus.NotConnected);
-        cleanup();
-      };
-
+        _webSocket.OnClose += (sender, e) =>
+        {
+          Logger.Info("onclose called {0}", sender);
+          setInternalStatus(EStatus.NotConnected);
+          cleanup(false);
+        };
+        _webSocket.OnError += (sender, e) =>
+        {
+          Logger.Info("onerror called {0}", sender);
+          setInternalStatus(EStatus.NotConnected);
+          cleanup(false);
+        };
+      }
 
       // Actually connect
       Logger.Info("start connecting");
@@ -206,17 +232,22 @@ namespace RaceHorologyLib
       DownloadSystemStatus();
     }
 
-    static TimeSpan keepAliveDelta = new TimeSpan(0, 0, 0, 0, 500);
-    private void _keepAliveCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
+    private void keepAliveCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      var pingDiff = _lastPingSentTime - _lastPingReceivedTime;
-      var nowDiff = DateTime.Now - _lastPingSentTime;
 
-      if (pingDiff.Ticks > 0 && nowDiff > keepAliveDelta)
+      var pingDiff = _lastPingSentTime - _lastPingReceivedTime; // 
+      var nowDiff = DateTime.Now - _lastPingReceivedTime;
+
+      Logger.Info(String.Format(
+        "Ping check, last sent: {0} last received: {1}, pingDiff: {2}, nowDiff: {3}",
+        _lastPingSentTime, _lastPingReceivedTime, pingDiff, nowDiff));
+
+      if (pingDiff.Ticks > 0 /*if positiv: outstanding ping*/
+        && nowDiff > KeepAliveDelta  /* timeout */)
       {
         Logger.Warn("Ping outstanding, closing connection");
         setInternalStatus(EStatus.NotConnected);
-        cleanup();
+        cleanup(false);
       }
     }
 
@@ -224,10 +255,14 @@ namespace RaceHorologyLib
     {
       try
       {
-        _webSocket.Send("PING");
-        _lastPingSentTime = DateTime.Now;
+        if (_webSocket != null)
+        {
+          _lastPingSentTime = DateTime.Now;
+          _webSocket.Send("PING");
 
-        DownloadSystemStatus();
+          DownloadSystemStatus();
+        }
+
       }
       catch (Exception ex)
       {
@@ -235,41 +270,62 @@ namespace RaceHorologyLib
       }
     }
 
-    private void _keepAliveTimer_Elapsed(object sender, ElapsedEventArgs e)
-    {
-      throw new NotImplementedException();
-    }
-
     public bool IsStarted
     {
-      get { return _webSocket != null && _status != EStatus.NotConnected; }
+      get => _isStarted;
     }
 
 
     public void Stop()
     {
       Logger.Info("Stop()");
-      cleanup();
+      _isStarted = false;
+      cleanup(false);
     }
 
-    private void cleanup()
+    private void cleanup(bool reconnectIfPossible)
     {
-      if (_keepAliveTimer != null)
+      Logger.Info("cleanup(), reconnectIfPossible: {0}", reconnectIfPossible);
+      lock (_lock)
       {
-        _keepAliveTimer.Enabled = false;
-        _keepAliveTimer.Dispose();
-      }
-      _keepAliveTimer = null;
-      if (_keepAliveCheckTimer != null)
-      {
-        _keepAliveCheckTimer.Enabled = false;
-        _keepAliveCheckTimer.Dispose();
-      }
-      _keepAliveCheckTimer = null;
-      if (_webSocket != null)
-        _webSocket.Close();
+        if (_keepAliveTimer != null)
+        {
+          _keepAliveTimer.Stop();
+          _keepAliveTimer.Dispose();
+        }
+        _keepAliveTimer = null;
 
-      _webSocket = null;
+        if (_keepAliveCheckTimer != null)
+        {
+          _keepAliveCheckTimer.Stop();
+          _keepAliveCheckTimer.Dispose();
+        }
+        _keepAliveCheckTimer = null;
+        _webSocket?.Close();
+        _webSocket = null;
+      }
+
+      if (reconnectIfPossible && _isStarted)
+      {
+        if (_connectRetryCount < 10)
+        {
+          Logger.Info("reconnecting, trial {0} ... ", _connectRetryCount);
+          startInternal();  // Re-connect
+        }
+        else
+        {
+          Logger.Info("giving up after trial {0} ... ", _connectRetryCount);
+          _isStarted = false;
+          setInternalStatus(EStatus.NotConnected);
+        }
+      }
+      else if (!reconnectIfPossible && _isStarted)
+      {
+        Logger.Info("Stopping connection... ");
+        _isStarted = false;
+        setInternalStatus(EStatus.NotConnected);
+      }
+
     }
 
     #endregion
@@ -306,7 +362,7 @@ namespace RaceHorologyLib
                   }, null);
                 }
               }
-              catch(Exception ex)
+              catch (Exception ex)
               {
                 Logger.Error(ex);
               }
@@ -322,7 +378,8 @@ namespace RaceHorologyLib
         {
           try
           {
-            if (response.Result.IsSuccessStatusCode) { 
+            if (response.Result.IsSuccessStatusCode)
+            {
               response.Result.Content.ReadAsStringAsync().ContinueWith((data) =>
               {
                 Logger.Debug(data.Result);
@@ -331,7 +388,8 @@ namespace RaceHorologyLib
                 _systemInfo.SetRawData(systemData);
               });
             }
-          }catch(Exception ex)
+          }
+          catch (Exception ex)
           {
             Logger.Error(ex);
           }
@@ -353,9 +411,9 @@ namespace RaceHorologyLib
       TimeSpan? receivedTime = justReceivedData.StartTime != null ? justReceivedData.StartTime : (justReceivedData.FinishTime != null ? justReceivedData.FinishTime : null);
 
       // If an index is returned for the first time, use this as time synchronization
-      if ((    (currentIndex > _lastReceivedIndex)        // Standard case: next run
-            || (currentIndex < _lastReceivedIndex - 20 )) // Special case: reset of Alpenhunde system; assumption: a larger gap to the last received index is a reset
-           && receivedTime != null) 
+      if (((currentIndex > _lastReceivedIndex)        // Standard case: next run
+            || (currentIndex < _lastReceivedIndex - 20)) // Special case: reset of Alpenhunde system; assumption: a larger gap to the last received index is a reset
+           && receivedTime != null)
       {
         TimeSpan tDiff = (DateTime.Now - DateTime.Today) - (TimeSpan)receivedTime;
         _currentDayTimeDelta = tDiff;
