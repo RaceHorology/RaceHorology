@@ -96,7 +96,15 @@
           </Grid.ColumnDefinitions>
 
           <Label x:Name="lblLiveTimingStatus" Content="Statustext für Online Livetiming: " Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
-          <TextBox x:Name="txtLiveTimingStatus" Grid.Column="1" Text="" Margin="0" Padding="2" AcceptsReturn="False" FontSize="12" TextWrapping="NoWrap" MinWidth="100" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          <ComboBox x:Name="cmbLiveTimingStatus" Grid.Column="1" IsEditable="True" Text="" Margin="0" Padding="2" FontSize="12"  MinWidth="100" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+            <ComboBoxItem Content="" />
+            <ComboBoxItem Content="Vorläufer auf der Strecke" />
+            <ComboBoxItem Content="Rennen gestartet" />
+            <ComboBoxItem Content="Rennen unterbrochen" />
+            <ComboBoxItem Content="1. Durchgang beendet" />
+            <ComboBoxItem Content="2. Durchgang beendet" />
+            <ComboBoxItem Content="Rennen beendet" />
+          </ComboBox>
         </Grid>
       </StatusBarItem>
 

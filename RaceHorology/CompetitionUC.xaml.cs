@@ -71,12 +71,12 @@ namespace RaceHorology
     FISInterfaceModel _fisData;
 
     LiveTimingMeasurement _liveTimingMeasurement;
-    TextBox _txtLiveTimingStatus;
+    ComboBox _cmbLiveTimingStatus;
 
     public ObservableCollection<ParticipantClass> ParticipantClasses { get; }
     public ObservableCollection<ParticipantCategory> ParticipantCategories { get; }
 
-    public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
+    public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, ComboBox cmbLiveTimingStatus)
     {
       _dm = dm;
       _dsvData = new DSVInterfaceModel(_dm);
@@ -86,7 +86,7 @@ namespace RaceHorology
       ParticipantCategories = _dm.GetParticipantCategories();
 
       _liveTimingMeasurement = liveTimingMeasurement;
-      _txtLiveTimingStatus = txtLiveTimingStatus;
+      _cmbLiveTimingStatus = cmbLiveTimingStatus;
 
       InitializeComponent();
 
@@ -161,7 +161,7 @@ namespace RaceHorology
 
       tabRace.FontSize = 16;
 
-      RaceUC raceUC = new RaceUC(_dm, r, _liveTimingMeasurement, _txtLiveTimingStatus);
+      RaceUC raceUC = new RaceUC(_dm, r, _liveTimingMeasurement, _cmbLiveTimingStatus);
       tabRace.Content = raceUC;
     }
 
