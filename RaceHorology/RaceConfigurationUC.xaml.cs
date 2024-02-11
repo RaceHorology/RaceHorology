@@ -93,9 +93,16 @@ namespace RaceHorology
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht)", Value = "Startlist_2nd_PreviousRun_all_OnlyWithResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_all_AlsoWithoutResults" });
 
+      chkTeam.Checked += ChkTeam_CheckChanged;
+      chkTeam.Unchecked += ChkTeam_CheckChanged;
+
       ResetConfigurationSelectionUI(_raceConfiguration);
     }
 
+    private void ChkTeam_CheckChanged(object sender, RoutedEventArgs e)
+    {
+      ucTeam.IsEnabled= chkTeam.IsChecked == true;
+    }
 
     private void CmbTemplate_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

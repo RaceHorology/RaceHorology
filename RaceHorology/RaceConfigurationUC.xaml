@@ -229,8 +229,8 @@
           <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label DockPanel.Dock="Left" Content="Team Wertung"/>
-        <local:RaceConfigurationTeamUC Grid.Column="1" Width="Auto" HorizontalContentAlignment="Left" HorizontalAlignment="Left"/>
+        <CheckBox x:Name="chkTeam" Content="Team Wertung" Margin="10 5 5 5" Grid.Column="0"/>
+        <local:RaceConfigurationTeamUC x:Name="ucTeam" Grid.Column="1" Width="Auto" HorizontalContentAlignment="Left" HorizontalAlignment="Left"/>
       </Grid>
     </StackPanel>
   </ScrollViewer>

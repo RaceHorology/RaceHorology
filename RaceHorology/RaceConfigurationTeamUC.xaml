@@ -37,7 +37,7 @@
       <ComboBoxItem Content="9" />
       <ComboBoxItem Content="10" />
     </ComboBox>
-    <GroupBox x:Name="frame" Header="Strafe wenn nicht Mindestanzahl des anderen Geschlechts erreicht wird: " Grid.Row="1" Grid.ColumnSpan="5" >
+    <GroupBox x:Name="frame" Header="Strafe wenn nicht Mindestanzahl des anderen Geschlechts erreicht wird: " Grid.Row="1" Grid.ColumnSpan="5" Margin="5">
       <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0 0 0 0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
