@@ -71,12 +71,12 @@ namespace RaceHorology
     FISInterfaceModel _fisData;
 
     LiveTimingMeasurement _liveTimingMeasurement;
-    TextBox _txtLiveTimingStatus;
+    ComboBox _txtLiveTimingStatus;
 
     public ObservableCollection<ParticipantClass> ParticipantClasses { get; }
     public ObservableCollection<ParticipantCategory> ParticipantCategories { get; }
 
-    public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, TextBox txtLiveTimingStatus)
+    public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, ComboBox txtLiveTimingStatus)
     {
       _dm = dm;
       _dsvData = new DSVInterfaceModel(_dm);
