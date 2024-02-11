@@ -145,6 +145,9 @@
     <Compile Include="CertificatesPrintUC.xaml.cs">
       <DependentUpon>CertificatesPrintUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RaceConfigurationTeamUC.xaml.cs">
+      <DependentUpon>RaceConfigurationTeamUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TeamsUC.xaml.cs">
       <DependentUpon>TeamsUC.xaml</DependentUpon>
     </Compile>
@@ -253,6 +256,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CertificatesPrintUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RaceConfigurationTeamUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

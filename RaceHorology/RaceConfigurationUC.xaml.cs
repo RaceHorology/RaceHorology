@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
