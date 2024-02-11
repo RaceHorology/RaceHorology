@@ -3338,21 +3338,26 @@ namespace RaceHorologyLib
       // Position
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor));
       // Startnumber
-      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Original.Participant.StartNumber), font)));
+      table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(
+          createCellParagraphForTable(item.Original?.Participant != null ? string.Format("{0}", item.Original?.Participant.StartNumber) : "", font)));
       // Code
       if (_race.IsFieldActive("Code"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Original.Participant.Participant.CodeOrSvId, font)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
+          item.Original?.Participant != null ? item.Original.Participant.Participant.CodeOrSvId : "", font)));
       // Name
       table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Name, font)));
       // Year
       if (_race.IsFieldActive("Year"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(string.Format("{0}", item.Original.Participant.Year), font)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
+          item.Original?.Participant != null ? string.Format("{0}",item.Original.Participant.Year) : "", font)));
       // VB
       if (_race.IsFieldActive("Nation"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Original.Participant.Participant.Nation, font)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
+          item.Original?.Participant != null ? item.Original.Participant.Participant.Nation: "", font)));
       // Club
       if (_race.IsFieldActive("Club"))
-        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Original.Participant.Club, font)));
+        table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
+          item.Original?.Participant != null ? item.Original.Participant.Club : "", font)));
 
       // Runtime
       table.AddCell(createCellForTable(TextAlignment.RIGHT).SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Runtime != null ? string.Format(item.Consider ? "{0}" : "({0})", item.Runtime.ToRaceTimeString()) : "", font)));
