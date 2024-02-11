@@ -405,7 +405,7 @@ namespace RaceHorology
     /// </summary>
     private void ConnectGUIToDataModel()
     {
-      CompetitionUC competitionUC = new CompetitionUC(_dataModel, _liveTimingMeasurement, txtLiveTimingStatus);
+      CompetitionUC competitionUC = new CompetitionUC(_dataModel, _liveTimingMeasurement, cmbLiveTimingStatus);
       ucMainArea.Children.Add(competitionUC);
     }
 
