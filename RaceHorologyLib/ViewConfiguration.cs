@@ -236,16 +236,17 @@ namespace RaceHorologyLib
       RaceResultViewProvider raceVP = GetRaceResultViewProvider(race);
       race.SetResultViewProvider(raceVP);
 
-
-      var teamVP = new TeamRaceResultViewProvider(new TeamRaceResultConfig
+      if (_config.TeamRaceResultConfig != null)
       {
-        Modus = PointOrTime.Time,
-        NumberOfMembersMax = 3,
-        Penalty_NumberOfMembersMinDifferentSex = 1,
-        Penalty_TimeInSeconds = 1.5
-      });
-      teamVP.Init(race, _dataModel);
-      race.SetTeamResultsViewProvider(teamVP);
+        var teamVP = new TeamRaceResultViewProvider(_config.TeamRaceResultConfig);
+        teamVP.Init(race, _dataModel);
+        race.SetTeamResultsViewProvider(teamVP);
+      }
+      else
+      {
+        race.SetTeamResultsViewProvider(null);
+      }
+
     }
 
   }
