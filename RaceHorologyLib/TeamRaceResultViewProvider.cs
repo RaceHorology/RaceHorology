@@ -182,7 +182,7 @@ namespace RaceHorologyLib
 
         var sexConstraintFullfilled = checkSexConstraint(consideredTeamMembers);
         if (!sexConstraintFullfilled)
-          trri.AddPenalty(new TeamResultPenaltyItem(TimeSpan.FromSeconds(_config.Penalty_TimeInSeconds)));
+          trri.AddPenalty(new TeamResultPenaltyItem(TimeSpan.FromSeconds(_config.Penalty_TimeInSeconds), team.Key));
         else
           trri.RemovePenalty();
 
@@ -697,17 +697,21 @@ namespace RaceHorologyLib
 
   public class TeamResultPenaltyItem : ITeamResultViewResultsItem
   {
+    protected Team _team;
     protected TimeSpan _time;
 
-    public TeamResultPenaltyItem(TimeSpan time)
+    public TeamResultPenaltyItem(TimeSpan time, Team team)
     {
       _time = time;
+      _team = team;
     }
 
     public string Name
     {
       get { return "Penalty"; }
     }
+
+    public Team Team { get { return _team; } }
 
     public TimeSpan? Runtime
     {
