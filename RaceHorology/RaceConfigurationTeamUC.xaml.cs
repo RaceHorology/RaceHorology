@@ -30,7 +30,7 @@ namespace RaceHorology
     {
       var cfg = new TeamRaceResultConfig { Modus = PointOrTime.Time };
       try { cfg.Penalty_TimeInSeconds = double.Parse(txtPenaltyTime.Text); } catch (Exception) { }
-      cfg.NumberOfMembersMax = cmbTeamSize.SelectedIndex + 1;
+      cfg.NumberOfMembersMax = cmbTeamSize.SelectedIndex + 2;
       cfg.Penalty_NumberOfMembersMinDifferentSex = cmbPenaltySex.SelectedIndex;
       _config = cfg;
       return _config;
@@ -42,7 +42,7 @@ namespace RaceHorology
       {
         if (_config.Modus == PointOrTime.Time)
           cmbMode.SelectedIndex = 0;
-        cmbTeamSize.SelectedIndex = _config.NumberOfMembersMax - 1;
+        cmbTeamSize.SelectedIndex = _config.NumberOfMembersMax - 2;
         cmbPenaltySex.SelectedIndex = _config.Penalty_NumberOfMembersMinDifferentSex;
         txtPenaltyTime.Text = string.Format("{0}", _config.Penalty_TimeInSeconds);
       }
