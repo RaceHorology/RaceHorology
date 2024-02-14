@@ -3345,7 +3345,7 @@ namespace RaceHorologyLib
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
           item.Original?.Participant != null ? item.Original.Participant.Participant.CodeOrSvId : "", font)));
       // Name
-      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Name, font)));
+      table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(item.Fullname, font)));
       // Year
       if (_race.IsFieldActive("Year"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(

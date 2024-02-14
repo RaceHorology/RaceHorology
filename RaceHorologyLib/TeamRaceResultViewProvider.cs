@@ -404,6 +404,7 @@ namespace RaceHorologyLib
   public interface ITeamResultViewListItems : INotifyPropertyChanged, IHasPositions
   {
     string Name { get; }
+    string Fullname { get; }
     double Points { get; }
   }
 
@@ -470,6 +471,7 @@ namespace RaceHorologyLib
     }
 
     public string Name { get { return _rri.Participant.Name; } }
+    public string Fullname { get { return _rri.Participant.Fullname; } }
     public Team Team { get { return _rri.Participant.Team; } }
 
     public RaceParticipant Participant { get { return _rri.Participant; } }
@@ -614,6 +616,12 @@ namespace RaceHorologyLib
     {
       get { return _team?.Name; }
     }
+
+    public string Fullname
+    {
+      get { return _team?.Name; }
+    }
+
     public Team Team
     {
       get { return _team; }
@@ -707,6 +715,10 @@ namespace RaceHorologyLib
     }
 
     public string Name
+    {
+      get { return "Penalty"; }
+    }
+    public string Fullname
     {
       get { return "Penalty"; }
     }
