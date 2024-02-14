@@ -248,6 +248,8 @@ namespace RaceHorology
       RaceResultViewProvider vp = _thisRace.GetResultViewProvider();
 
       UiUtilities.FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping);
+      cmbTotalResultGrouping.Items.Add(new CBItem { Text = "Mannschafts-Gruppe", Value = "Team.Group" });
+
 
       cmbTotalResult.Items.Clear();
       cmbTotalResult.Items.Add(new CBItem { Text = "Teilnehmer", Value = new CBObjectTotalResults { Type = "participants" } });
@@ -543,20 +545,22 @@ namespace RaceHorology
       if (_viewProvider == null)
         return;
 
-      if (!(_viewProvider is StartListViewProvider))
-        dgView.Columns.Add(createColumnPosition("Pos", "Position", "Position", false));
-
-      dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
-      dgView.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
-      dgView.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
-      dgView.Columns.Add(createColumn("Year", "Participant.Year", "Jg."));
-      dgView.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
-      dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
-      dgView.Columns.Add(createColumn("Nation", "Participant.Nation", "Nat."));
+      void addCommonColumns()
+      {
+        dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
+        dgView.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
+        dgView.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
+        dgView.Columns.Add(createColumn("Year", "Participant.Year", "Jg."));
+        dgView.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
+        dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
+        dgView.Columns.Add(createColumn("Nation", "Participant.Nation", "Nat."));
+      }
 
       // Race Run Results
       if (_viewProvider is RaceRunResultViewProvider rrrVP)
       {
+        dgView.Columns.Add(createColumnPosition("Pos", "Position", "Position", false));
+        addCommonColumns();
         dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
         dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
         dgView.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
@@ -567,6 +571,8 @@ namespace RaceHorology
       // Total Results
       else if (_viewProvider is RaceResultViewProvider)
       {
+        dgView.Columns.Add(createColumnPosition("Pos", "Position", "Position", false));
+        addCommonColumns();
         foreach (var r in _thisRace.GetRuns())
         {
           dgView.Columns.Add(createColumnTime(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
@@ -585,9 +591,17 @@ namespace RaceHorology
       // Team Results
       else if (_viewProvider is TeamRaceResultViewProvider)
       {
-        dgView.Columns.Add(createColumnCheckbox("Consider", "Consider", "In Wertung"));
+        dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
         dgView.Columns.Add(createColumn("Name", "Name", "Name"));
+        dgView.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
+        dgView.Columns.Add(createColumn("Year", "Participant.Year", "Jg."));
+        dgView.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
+        dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
+        dgView.Columns.Add(createColumn("Nation", "Participant.Nation", "Nat."));
+
+        dgView.Columns.Add(createColumnCheckbox("Consider", "Consider", "In Wertung"));
         dgView.Columns.Add(createColumn("Team", "Team", "Team"));
+        dgView.Columns.Add(createColumn("TeamGroup", "Team.Group", "Team"));
 
         dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
         dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
@@ -600,6 +614,7 @@ namespace RaceHorology
       // Start List
       else if (_viewProvider is StartListViewProvider)
       {
+        addCommonColumns();
         if (_viewProvider is BasedOnResultsFirstRunStartListViewProvider slVP2)
         {
           dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
