@@ -655,7 +655,7 @@ public class LiveTimingRM : ILiveTiming
     //            2 = Nicht im Ziel Laufzeit = 999999,99
     //            3 = Disqualifiziert Laufzeit = 999999,99
     //            4 = Nicht qualifiziert Laufzeit = 999999,99
-    //            9 = Läufer auf der Strecke Laufzeit = 000000,01
+    //            9 = Läufer auf der Strecke Laufzeit = 000000,01 oder Startzeit
     // hhmmss,zh Laufzeit
     // distext   Disqualifikationstext
 
