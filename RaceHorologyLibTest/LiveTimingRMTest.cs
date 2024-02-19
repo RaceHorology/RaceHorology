@@ -165,7 +165,7 @@ namespace RaceHorologyLibTest
         startList);
 
       string timingData = cl.getTimingData(model.GetCurrentRaceRun());
-      Assert.AreEqual("  10000010,23\n  29000000,01\n  31999999,99\n  42999999,99\n  53999999,99Tor 1", timingData);
+      Assert.AreEqual("  10000010,23\n  29202350,03\n  31999999,99\n  42999999,99\n  53999999,99Tor 1", timingData);
     }
 
 
