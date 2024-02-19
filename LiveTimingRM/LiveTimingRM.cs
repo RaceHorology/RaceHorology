@@ -677,7 +677,10 @@ public class LiveTimingRM : ILiveTiming
         }
         else if (r.GetStartTime() != null)
         {
-          time = "000000,01";
+          if (r.StartTime != null)
+            time = r.StartTime?.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture);
+          else
+            time = "000000,01";
           eCode = 9;
         }
         else
