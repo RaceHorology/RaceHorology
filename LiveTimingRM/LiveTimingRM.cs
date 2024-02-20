@@ -711,6 +711,13 @@ public class LiveTimingRM : ILiveTiming
       result += item;
     }
 
+    // Add current day time
+    var dayTime = raceRun.GetRace().GetDataModel().GetCurrentDayTime();
+    var curTimeString = string.Format("{0,3}{1,1}{2}", 999, ' ', dayTime.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture));
+    if (!string.IsNullOrEmpty(result))
+      result += "\n";
+    result += curTimeString;
+
     return result;
   }
 
