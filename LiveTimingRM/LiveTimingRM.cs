@@ -655,7 +655,7 @@ public class LiveTimingRM : ILiveTiming
     //            2 = Nicht im Ziel Laufzeit = 999999,99
     //            3 = Disqualifiziert Laufzeit = 999999,99
     //            4 = Nicht qualifiziert Laufzeit = 999999,99
-    //            9 = Läufer auf der Strecke Laufzeit = 000000,01
+    //            9 = Läufer auf der Strecke Laufzeit = 000000,01 oder Startzeit
     // hhmmss,zh Laufzeit
     // distext   Disqualifikationstext
 
@@ -677,7 +677,10 @@ public class LiveTimingRM : ILiveTiming
         }
         else if (r.GetStartTime() != null)
         {
-          time = "000000,01";
+          if (r.StartTime != null)
+            time = r.StartTime?.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture);
+          else
+            time = "000000,01";
           eCode = 9;
         }
         else
@@ -707,6 +710,13 @@ public class LiveTimingRM : ILiveTiming
 
       result += item;
     }
+
+    // Add current day time
+    var dayTime = raceRun.GetRace().GetDataModel().GetCurrentDayTime();
+    var curTimeString = string.Format("{0,3}{1,1}{2}", 999, ' ', dayTime.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture));
+    if (!string.IsNullOrEmpty(result))
+      result += "\n";
+    result += curTimeString;
 
     return result;
   }
