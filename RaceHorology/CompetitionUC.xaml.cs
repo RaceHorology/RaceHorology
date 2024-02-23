@@ -74,6 +74,7 @@ namespace RaceHorology
     ComboBox _cmbLiveTimingStatus;
 
     public ObservableCollection<ParticipantClass> ParticipantClasses { get; }
+    public ObservableCollection<Team> Teams { get; }
     public ObservableCollection<ParticipantCategory> ParticipantCategories { get; }
 
     public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, ComboBox cmbLiveTimingStatus)
@@ -83,6 +84,7 @@ namespace RaceHorology
       _fisData = new FISInterfaceModel(_dm);
 
       ParticipantClasses = _dm.GetParticipantClasses();
+      Teams = _dm.GetTeams();
       ParticipantCategories = _dm.GetParticipantCategories();
 
       _liveTimingMeasurement = liveTimingMeasurement;
@@ -107,6 +109,7 @@ namespace RaceHorology
       ucSaveOrReset.Init("Teilnehmeränderungen", null, null, null, storeParticipant, resetParticipant);
 
       ucClassesAndGroups.Init(_dm);
+      ucTeams.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
       ucFISImport.Init(_dm, _fisData);
 
@@ -394,6 +397,7 @@ namespace RaceHorology
       updatePartcipantEditField(txtCode, GetPropertyValues(items, "Code"));
       updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
       updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
+      updatePartcipantCombobox(cmbTeam, GetPropertyValues(items, "Team"));
 
       for (int i = 0; i < spRaces.Children.Count; i++)
       {
@@ -500,6 +504,7 @@ namespace RaceHorology
       storePartcipantEditField(txtCode, items, "Code");
       storePartcipantEditField(txtNation, items, "Nation");
       storePartcipantComboBox(cmbClass, items, "Class");
+      storePartcipantComboBox(cmbTeam, items, "Team");
 
       for (int i = 0; i < spRaces.Children.Count; i++)
       {
@@ -973,6 +978,11 @@ namespace RaceHorology
     public ParticipantGroup Group
     {
       get => _participant.Group;
+    }
+    public Team Team
+    {
+      get => _participant.Team;
+      set => _participant.Team = value;
     }
 
 

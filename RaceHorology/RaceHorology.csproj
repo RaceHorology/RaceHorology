@@ -145,6 +145,12 @@
     <Compile Include="CertificatesPrintUC.xaml.cs">
       <DependentUpon>CertificatesPrintUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RaceConfigurationTeamUC.xaml.cs">
+      <DependentUpon>RaceConfigurationTeamUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TeamsUC.xaml.cs">
+      <DependentUpon>TeamsUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ExportResultDlg.xaml.cs">
       <DependentUpon>ExportResultDlg.xaml</DependentUpon>
     </Compile>
@@ -157,6 +163,9 @@
     </Compile>
     <Compile Include="ReportUC.xaml.cs">
       <DependentUpon>ReportUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TeamResultsPrintUC.xaml.cs">
+      <DependentUpon>TeamResultsPrintUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="TimingDeviceDebugDlg.xaml.cs">
       <DependentUpon>TimingDeviceDebugDlg.xaml</DependentUpon>
@@ -250,6 +259,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="RaceConfigurationTeamUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TeamsUC.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ExportResultDlg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -263,6 +280,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ReportUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TeamResultsPrintUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
