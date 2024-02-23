@@ -261,13 +261,24 @@ namespace RaceHorologyLib
         if (r is TeamParticipantItem rr)
         {
           var sex = rr.Participant.Sex;
-          if (!sexCounts.ContainsKey(sex))
-            sexCounts.Add(sex, 0);
-          if (rr.Consider)
-            sexCounts[rr.Participant.Sex]++;
+          if (sex != null)
+          {
+            if (sex != null && !sexCounts.ContainsKey(sex))
+              sexCounts.Add(sex, 0);
+            if (rr.Consider)
+              sexCounts[rr.Participant.Sex]++;
+          }
         }
       }
-      return sexCounts.Count >= 2;
+
+      if (_config.Penalty_NumberOfMembersMinDifferentSex > 0 && sexCounts.Count < 2)
+        return false;
+      foreach(var s in sexCounts)
+      {
+        if (s.Value < _config.Penalty_NumberOfMembersMinDifferentSex)
+          return false;
+      }
+      return true;
     }
 
     private void OnTeamResultViewItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
