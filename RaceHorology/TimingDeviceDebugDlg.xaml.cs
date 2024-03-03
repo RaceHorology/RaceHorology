@@ -62,7 +62,8 @@ namespace RaceHorology
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        tbAlgeLog.AppendText(message);
+        DateTime dt1 = DateTime.Now;
+        tbAlgeLog.AppendText(dt1.ToString("dd.MM.yyyy HH:mm:ss.ffff") + " | " + message);
         ensureNewLineAtEnd();
         if (ckAutoScrollEnabled.IsChecked == true) {
           tbAlgeLog.CaretIndex = tbAlgeLog.Text.Length;
