@@ -165,6 +165,7 @@ namespace RaceHorologyLib
         || parsedData.Flag == 'b'
         || parsedData.Flag == 'm'
         || parsedData.Flag == 'n'
+        || parsedData.Flag == 'C'
         || parsedData.Flag == 's')
         return null;
 
