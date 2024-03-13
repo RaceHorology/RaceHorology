@@ -301,6 +301,10 @@ namespace RaceHorology
       dlg.ShowDialog();
     }
 
+    private void WhatsAppInfoChannelCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      System.Diagnostics.Process.Start("https://chat.whatsapp.com/JwqeP0mha1m5RtEGx11vLv");
+    }
 
     private void OnlineDocumentationCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {

@@ -17,6 +17,7 @@
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
     <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.WA" Executed="WhatsAppInfoChannelCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.Documentation" Executed="OnlineDocumentationCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.AutoUpdate" Executed="AutoUpdaterCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.HandTime" Executed="HandTimeCommandBinding_Executed" />
@@ -67,8 +68,10 @@
       <MenuItem Name="mnuHelp" Header="Hilfe">
         <MenuItem Name="mnuOpenExternalDocumentation" Header="Online Dokumentation" Command="rhcmd:RaceHorologyCommands.Documentation" />
         <MenuItem Name="mnuAutoUpdater" Header="Suche nach Updates" Command="rhcmd:RaceHorologyCommands.AutoUpdate" />
+        <MenuItem Name="mnuWa" Header="WhatsApp Infokanal" Command="rhcmd:RaceHorologyCommands.WA" /> 
         <MenuItem Name="mnuInfo" Header="Info" Command="Help" />
-      </MenuItem>
+       </MenuItem>
+
     </Menu>
     <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffe6eee5">
       <Grid.ColumnDefinitions>
