@@ -54,6 +54,13 @@ namespace RaceHorology.Commands
         typeof(RaceHorologyCommands)
       );
 
+    public static readonly RoutedUICommand WA = new RoutedUICommand
+      (
+        "WA",
+        "WA",
+        typeof(RaceHorologyCommands)
+      );
+
     //Define more commands here, just like the one above
   }
 }
