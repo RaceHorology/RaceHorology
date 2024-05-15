@@ -111,6 +111,9 @@ namespace RaceHorology
       Logger.Info("Application started");
 
       InitializeComponent();
+      CheckForUserSettingsUpgrade();
+      this.Closing += MainWindow_Closing;
+      this.Loaded += MainWindow_Loaded;
 
       //autoUpdater
       Assembly assembly = Assembly.GetEntryAssembly();
@@ -156,6 +159,12 @@ namespace RaceHorology
       NetworkChange.NetworkAddressChanged += AddressChangedCallback;
     }
 
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+      WindowSettings.Load();
+      WindowSettings.ApplyToWindow(this);
+    }
+
     private void AddressChangedCallback(object sender, EventArgs e)
     {
       NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
@@ -168,11 +177,30 @@ namespace RaceHorology
       }
     }
 
+    private static void CheckForUserSettingsUpgrade()
+    {
+      if (!Properties.Settings.Default._UserSettingsUpgradeRequired)
+      {
+        return;
+      }
+
+      Properties.Settings.Default.Upgrade();
+      Properties.Settings.Default._UserSettingsUpgradeRequired = false;
+      Properties.Settings.Default.Save();
+    }
+
     protected override void OnClosed(EventArgs e)
     {
       CloseDatabase();
       StopDSVAlpinServer();
-      RaceHorology.Properties.Settings.Default.Save(); // TODO: Need to add later on to ExitApplication function when it was merged.
+      //RaceHorology.Properties.Settings.Default.Save(); // TODO: Need to add later on to ExitApplication function when it was merged.
+
+    }
+
+    private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+      WindowSettings.Save(this);
+
     }
 
     /// <summary>

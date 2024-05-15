@@ -81,6 +81,7 @@ namespace RaceHorology
       cbTimingDevice.Items.Add("Microgate Rei Pro");
       cbTimingDevice.Items.Add("Microgate RT Pro");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
+      cbTimingDevice_SelectionChanged(null, null);
 
       txtAutomaticNiZTimeout.Text = Properties.Settings.Default.AutomaticNiZTimeout.ToString();
       txtAutomaticNaSStarters.Text = Properties.Settings.Default.AutomaticNaSStarters.ToString();
@@ -88,11 +89,12 @@ namespace RaceHorology
       chkAutoAddParticipant.IsChecked = Properties.Settings.Default.AutoAddParticipants;
 
       txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
+
       cbUpdateChannel.Items.Add("Stabil");
       cbUpdateChannel.Items.Add("Test");
       cbUpdateChannel.SelectedValue = Properties.Settings.Default.UpdateChannel;
-      cbTimingDevice_SelectionChanged(null, null);
-    }
+
+          }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
     {
