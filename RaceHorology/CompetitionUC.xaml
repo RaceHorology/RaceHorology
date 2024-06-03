@@ -127,8 +127,22 @@
                     </DataGridComboBoxColumn.EditingElementStyle>
                   </DataGridComboBoxColumn>
                   <DataGridTextColumn Header="Gruppe" Binding="{Binding Group, Mode=OneWay}"/>
+
+
+                  <DataGridTemplateColumn Header="Mannschaft 2">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <ComboBox IsEditable="True" 
+                              Text="{Binding Team2}" 
+                              ItemsSource="{Binding Path=Teams, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+
+
+
                   <DataGridComboBoxColumn Header="Mannschaft" 
-                                SelectedValueBinding="{Binding Team, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                TextBinding="{Binding Team, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                 >
                     <DataGridComboBoxColumn.ElementStyle>
                       <Style TargetType="ComboBox">
@@ -140,6 +154,7 @@
                       <Style TargetType="ComboBox">
                         <Setter Property="ItemsSource" Value="{Binding Path=Teams, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
                         <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+                        <Setter Property="IsEditable" Value="True"/>
                       </Style>
                     </DataGridComboBoxColumn.EditingElementStyle>
                   </DataGridComboBoxColumn>

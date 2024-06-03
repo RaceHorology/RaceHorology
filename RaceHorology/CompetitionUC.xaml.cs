@@ -872,11 +872,13 @@ namespace RaceHorology
     ParticpantOfRace _participantOfRace;
     PointsOfRace _pointsOfRace;
     bool _existsInImportList;
+    AppDataModel _dm;
 
     IImportListProvider[] _importList;
 
-    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider[] importList)
+    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider[] importList, AppDataModel dm)
     {
+      _dm = dm;
       _participant = p;
       _participant.PropertyChanged += OnParticpantPropertyChanged;
 
@@ -979,10 +981,21 @@ namespace RaceHorology
     {
       get => _participant.Group;
     }
-    public Team Team
+
+    public string Team
     {
-      get => _participant.Team;
-      set => _participant.Team = value;
+      get => _participant.Team?.Name ?? "";
+      set
+      {
+        var team = _dm.GetTeams().FirstOrDefault(t => t.Name == value);
+        if (team == null)
+        {
+          var sortpos = _dm.GetTeams().Max(t => t.SortPos);
+          team = new Team(null, null, value, sortpos + 1);
+          _dm.GetTeams().Add(team);
+        }
+        _participant.Team = team;
+      }
     }
 
 
@@ -1046,7 +1059,7 @@ namespace RaceHorology
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
     public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider[] importList) 
-      : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList), false)
+      : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList, dm), false)
     { }
 
   }
