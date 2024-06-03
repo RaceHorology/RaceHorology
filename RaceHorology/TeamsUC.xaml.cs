@@ -59,36 +59,56 @@ namespace RaceHorology
     public TeamsUC()
     {
       InitializeComponent();
+      IsVisibleChanged += TeamsUC_IsVisibleChanged;
     }
 
     public void Init(AppDataModel dm)
     {
       _dm = dm;
 
-      connectDataGrids();
-
       ucSaveOrReset.Init( "Team- und Teamänderungen", null, null, changed, save, reset);
     }
 
+
+    private void TeamsUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+      if (!(bool)e.OldValue && (bool)e.NewValue)
+      {
+        // Become visible
+        connectDataGrids();
+      }
+      else if ((bool)e.OldValue && !(bool)e.NewValue)
+      {
+        // Become invisible
+        if (_cgVM != null && !_cgVM.DifferentToDataModel()) {
+          _cgVM = null;
+        }
+      }
+    }
+
+
     protected void connectDataGrids()
     {
-      _cgVM = new TeamsEditViewModel(_dm);
-      DataContext = _cgVM; 
+      if (_cgVM == null)
+      {
+        _cgVM = new TeamsEditViewModel(_dm);
+        DataContext = _cgVM; 
+      }
     }
 
     private void reset()
     {
-      _cgVM.Reset();
+      _cgVM?.Reset();
     }
 
     private void save()
     {
-      _cgVM.Store();
+      _cgVM?.Store();
     }
 
     private bool changed()
     {
-      return _cgVM.DifferentToDataModel();
+      return _cgVM != null && _cgVM.DifferentToDataModel();
     }
 
   }
