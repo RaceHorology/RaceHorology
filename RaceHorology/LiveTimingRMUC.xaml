@@ -7,42 +7,38 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="Auto"/>
-      <ColumnDefinition Width="*" />
-    </Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="20"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-    </Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-    <Label x:Name="lblLTBewerb" Content="Bewerbsnummer:" Grid.Row="0" Grid.Column="0" Margin="5"/>
-    <TextBox x:Name="txtLTBewerb" Grid.Row="0" Grid.Column="1"  Margin="5"/>
+        <Label x:Name="lblLTBewerb" Content="Bewerbsnummer:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+        <TextBox x:Name="txtLTBewerb" Grid.Row="0" Grid.Column="1"  Margin="5"/>
 
-    <Label x:Name="lblLTLogin" Content="Login:" Grid.Row="1" Grid.Column="0" Margin="5"/>
-    <TextBox x:Name="txtLTLogin" Grid.Row="1" Grid.Column="1"  Margin="5"/>
+        <Label x:Name="lblLTPassword" Content="Passwort:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+        <PasswordBox x:Name="txtLTPassword" Grid.Row="1" Grid.Column="1"  Margin="5"/>
 
-    <Label x:Name="lblLTPassword" Content="Passwort:" Grid.Row="2" Grid.Column="0" Margin="5"/>
-    <PasswordBox x:Name="txtLTPassword" Grid.Row="2" Grid.Column="1"  Margin="5"/>
+        <Button x:Name="btnLTLogin" Content="Login" Width="100" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1"  Margin="5" Click="BtnLTLogin_Click" />
 
-    <Button x:Name="btnLTLogin" Content="Login" Width="100" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="1"  Margin="5" Click="BtnLTLogin_Click" />
+        <Label x:Name="lblLTEvent" Content="Veranstaltung:" Grid.Row="4" Grid.Column="0" Margin="5"/>
+        <ComboBox x:Name="cmbLTEvent" Grid.Row="4" Grid.Column="1"  Margin="5" SelectionChanged="CmbLTEvent_SelectionChanged"/>
 
-    <Label x:Name="lblLTEvent" Content="Veranstaltung:" Grid.Row="5" Grid.Column="0" Margin="5"/>
-    <ComboBox x:Name="cmbLTEvent" Grid.Row="5" Grid.Column="1"  Margin="5" SelectionChanged="CmbLTEvent_SelectionChanged"/>
+        <StackPanel HorizontalAlignment="Right" Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+            <Button x:Name="btnSave" Content="Speichern" Width="100" Margin="5" Click="BtnLTSave_Click" />
+            <Button x:Name="btnLTStart" Content="Start" Width="100" Margin="5" Click="BtnLTStart_Click" />
+        </StackPanel>
 
-    <StackPanel HorizontalAlignment="Right" Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
-      <Button x:Name="btnSave" Content="Speichern" Width="100" Margin="5" Click="BtnLTSave_Click" />
-      <Button x:Name="btnLTStart" Content="Start" Width="100" Margin="5" Click="BtnLTStart_Click" />
-    </StackPanel>
-
-  </Grid>
+    </Grid>
 </UserControl>
