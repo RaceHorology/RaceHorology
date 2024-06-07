@@ -230,6 +230,8 @@ namespace RaceHorologyLibTest
     public List<ParticipantGroup> GetParticipantGroups() { return new List<ParticipantGroup>(); }
     public List<ParticipantClass> GetParticipantClasses() { return new List<ParticipantClass>(); }
     public List<ParticipantCategory> GetParticipantCategories() { return new List<ParticipantCategory>(); }
+    public List<Team> GetTeams() { return new List<Team>(); }
+    public List<TeamGroup> GetTeamGroups() { return new List<TeamGroup>(); }
 
 
     public List<Race.RaceProperties> GetRaces() { return _races; }
@@ -261,9 +263,13 @@ namespace RaceHorologyLibTest
     public void CreateOrUpdateCategory(ParticipantCategory c) { }
     public void RemoveCategory(ParticipantCategory c) { }
 
+    public void CreateOrUpdateTeam(Team t) { }
+    public void RemoveTeam(Team c) { }
+    public void CreateOrUpdateTeamGroup(TeamGroup tg) { }
+    public void RemoveTeamGroup(TeamGroup tg) { }
+
     public string GetTimingDevice(Race race) { return "Alge TdC8000/8001"; }
     public void StoreTimingDevice(Race race, string timingDevice){}
-
 
 
     public PrintCertificateModel GetCertificateModel(Race race)
