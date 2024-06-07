@@ -188,11 +188,22 @@ namespace RaceHorologyLib
 
         if (_config.Modus == PointOrTime.Time)
         {
-          RunResult.EResultCode resCode = RunResult.EResultCode.NotSet;
-          string disqualText = string.Empty;
-          trri.TotalTime = RaceResultViewProvider.SumTime(consideredTeamMembers, out resCode, out disqualText);
-          trri.DisqualText = disqualText;
-          trri.ResultCode = resCode;
+
+          var numMembers = consideredTeamMembers.Count();
+          if (numMembers == _config.NumberOfMembersMax)
+          {
+            RunResult.EResultCode resCode = RunResult.EResultCode.NotSet;
+            string disqualText = string.Empty;
+            trri.TotalTime = RaceResultViewProvider.SumTime(consideredTeamMembers, out resCode, out disqualText);
+            trri.DisqualText = disqualText;
+            trri.ResultCode = resCode;
+          }
+          else
+          {
+            trri.TotalTime = null;
+            trri.DisqualText = "Teilnehmerzahl stimmt nicht";
+            trri.ResultCode = EResultCode.DIS;
+          }
         }
         else
         {
