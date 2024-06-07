@@ -200,7 +200,6 @@ public class LiveTimingRM : ILiveTiming
 {
   private Race _race;
   private string _bewerbnr;
-  private string _login;
   private string _password;
 
   private bool _isOnline;
@@ -240,10 +239,9 @@ public class LiveTimingRM : ILiveTiming
   }
 
 
-  public void Login(string bewerbnr, string login, string password)
+  public void Login(string bewerbnr, string password)
   {
     _bewerbnr = bewerbnr;
-    _login = login;
     _password = password;
 
     _lv = new rmlt.LiveTiming();
@@ -350,12 +348,8 @@ public class LiveTimingRM : ILiveTiming
     if (isOnline())
       return;
 
-    string licensePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-    licensePath = Path.Combine(licensePath, "3rdparty");
-
     Logger.Info("login");
-
-    _currentLvStruct = _lv.LoginLiveTiming(_bewerbnr, _login, _password, licensePath);
+    _currentLvStruct = _lv.LoginLiveTiming(_bewerbnr, _password);
 
     if (_currentLvStruct.Fehlermeldung != "ok")
     {
