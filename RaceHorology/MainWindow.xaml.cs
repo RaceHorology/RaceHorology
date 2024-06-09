@@ -670,7 +670,13 @@ namespace RaceHorology
         return;
       }
 
-      if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+
+      if (_timingDevice is TimingDeviceAlpenhunde alpenhundeTimingDevice)
+      {
+        var deviceDlg = new TimingDeviceDlg(new TimingDeviceAlpenhundeUC(alpenhundeTimingDevice));
+        deviceDlg.Show();
+      }
+      else if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
       {
         TimingDeviceDebugDlg debugDlg = new TimingDeviceDebugDlg(debugableTimingDevice);
         debugDlg.Show();

@@ -158,6 +158,9 @@
     <Compile Include="ReportUC.xaml.cs">
       <DependentUpon>ReportUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TimingDeviceAlpenhundeUC.xaml.cs">
+      <DependentUpon>TimingDeviceAlpenhundeUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TimingDeviceDebugDlg.xaml.cs">
       <DependentUpon>TimingDeviceDebugDlg.xaml</DependentUpon>
     </Compile>
@@ -240,6 +243,9 @@
       <DependentUpon>StdProgressUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="TimerPlus.cs" />
+    <Compile Include="TimingDeviceDlg.xaml.cs">
+      <DependentUpon>TimingDeviceDlg.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="About.xaml">
@@ -263,6 +269,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ReportUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TimingDeviceAlpenhundeUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -383,6 +393,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="StdProgressUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TimingDeviceDlg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
