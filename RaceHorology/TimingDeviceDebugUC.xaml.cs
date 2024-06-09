@@ -22,11 +22,11 @@ namespace RaceHorology
   /// <summary>
   /// Interaction logic for ALGEDebugDlg.xaml
   /// </summary>
-  public partial class TimingDeviceDebugDlg : Window
+  public partial class TimingDeviceDebugUC : TimingDeviceBaseUC
   {
     ILiveTimeMeasurementDeviceDebugInfo _debugableTimingDevice;
 
-    public TimingDeviceDebugDlg(ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+    public TimingDeviceDebugUC(ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
     {
       _debugableTimingDevice = debugableTimingDevice;
       InitializeComponent();
@@ -34,16 +34,9 @@ namespace RaceHorology
       connectToAlge();
       tbAlgeLog.Text = _debugableTimingDevice.GetProtocol();
       ensureNewLineAtEnd();
-
-      Closing += onWindowClosing;
     }
 
-    private void BtnOk_Click(object sender, RoutedEventArgs e)
-    {
-      Close();
-    }
-
-    private void onWindowClosing(object sender, CancelEventArgs e)
+    public override void Closes()
     {
       disconnectFromAlge();
     }

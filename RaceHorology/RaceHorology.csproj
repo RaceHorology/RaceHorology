@@ -161,8 +161,8 @@
     <Compile Include="TimingDeviceAlpenhundeUC.xaml.cs">
       <DependentUpon>TimingDeviceAlpenhundeUC.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TimingDeviceDebugDlg.xaml.cs">
-      <DependentUpon>TimingDeviceDebugDlg.xaml</DependentUpon>
+    <Compile Include="TimingDeviceDebugUC.xaml.cs">
+      <DependentUpon>TimingDeviceDebugUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChartTestsUC.xaml.cs">
       <DependentUpon>ChartTestsUC.xaml</DependentUpon>
@@ -276,7 +276,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TimingDeviceDebugDlg.xaml">
+    <Page Include="TimingDeviceDebugUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

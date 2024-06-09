@@ -678,8 +678,8 @@ namespace RaceHorology
       }
       else if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
       {
-        TimingDeviceDebugDlg debugDlg = new TimingDeviceDebugDlg(debugableTimingDevice);
-        debugDlg.Show();
+        var deviceDlg = new TimingDeviceDlg(new TimingDeviceDebugUC(debugableTimingDevice));
+        deviceDlg.Show();
       }
     }
 

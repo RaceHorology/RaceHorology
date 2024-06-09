@@ -16,10 +16,7 @@ using System.Windows.Shapes;
 
 namespace RaceHorology
 {
-  /// <summary>
-  /// Interaction logic for TimingDeviceAlpenhundeUC.xaml
-  /// </summary>
-  public partial class TimingDeviceAlpenhundeUC : UserControl
+  public partial class TimingDeviceAlpenhundeUC : TimingDeviceBaseUC
   {
     private TimingDeviceAlpenhunde _timingDevice;
     public TimingDeviceAlpenhundeUC(TimingDeviceAlpenhunde timingDevice)
