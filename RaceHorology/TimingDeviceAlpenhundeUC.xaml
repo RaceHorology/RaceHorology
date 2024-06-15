@@ -89,7 +89,8 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Content="76 %" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+          <Label Content="{Binding BatteryLevel}" ContentStringFormat="{}{0} %" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center" />
+          
         </Grid>
       </Border>
 
@@ -103,7 +104,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Content="19" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+          <Label Content="{Binding Path=NextFreeIndex}" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
         </Grid>
       </Border>
 
@@ -135,7 +136,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Content="1" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+          <Label Content="{Binding Path=Channel}" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
         </Grid>
       </Border>
     </Grid>

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,8 +27,11 @@ namespace RaceHorology
 
     public override void Init(ILiveTimeMeasurementDeviceDebugInfo timingDevice)
     {
-      this._timingDevice = timingDevice as TimingDeviceAlpenhunde;
+      _timingDevice = timingDevice as TimingDeviceAlpenhunde;
       ucDebug.Init(timingDevice);
+
+
+      DataContext = _timingDevice.SystemInfo;
     }
   }
 }

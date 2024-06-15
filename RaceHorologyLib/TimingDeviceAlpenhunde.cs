@@ -1,7 +1,10 @@
+using DocumentFormat.OpenXml.InkML;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Timers;
 using WebSocketSharp;
 using WebSocket = WebSocketSharp.WebSocket;
@@ -109,6 +112,8 @@ namespace RaceHorologyLib
       _deviceInfo.SerialNumber = _systemInfo.SerialNumber;
       return _deviceInfo;
     }
+
+    public AlpenhundeSystemInfo SystemInfo { get { return _systemInfo; } }
 
     public string GetStatusInfo()
     {
@@ -605,14 +610,61 @@ namespace RaceHorologyLib
   }
 
 
-  public class AlpenhundeSystemInfo
+  public class AlpenhundeSystemInfo : INotifyPropertyChanged
   {
     protected Dictionary<string, string> _rawData = new Dictionary<string, string>();
     public void SetRawData(Dictionary<string, string> rawData)
     {
       _rawData = rawData;
+      string v;
+      int i;
+      if (_rawData.TryGetValue("systemSerialNumber", out v))
+        SerialNumber = v;
+      if (_rawData.TryGetValue("battery_level", out v) && int.TryParse(v, out i))
+        BatteryLevel = i;
+      if (_rawData.TryGetValue("NextFreeIndex", out v))
+        NextFreeIndex = v;
+      if (_rawData.TryGetValue("channel", out v))
+        Channel = v;
     }
 
-    public string SerialNumber { get { _rawData.TryGetValue("systemSerialNumber", out string v); return v; } }
+    private string _serialNumber;
+    public string SerialNumber { 
+      get => _serialNumber;
+      set { if (value != _serialNumber) { _serialNumber = value; NotifyPropertyChanged(); } }
+    }
+
+    private int _batteryLevel;
+    public int BatteryLevel
+    {
+      get => _batteryLevel;
+      set { if (value != _batteryLevel) { _batteryLevel = value; NotifyPropertyChanged(); } }
+    }
+
+    private string _nextFreeIndex;
+    public string NextFreeIndex
+    {
+      get => _nextFreeIndex;
+      set { if (value != _nextFreeIndex) { _nextFreeIndex = value; NotifyPropertyChanged(); } }
+    }
+
+    private string _channel;
+    public string Channel
+    {
+      get => _channel;
+      set { if (value != _channel) { _channel = value; NotifyPropertyChanged(); } }
+    }
+
+
+    #region INotifyPropertyChanged implementation
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    #endregion
   }
 }
