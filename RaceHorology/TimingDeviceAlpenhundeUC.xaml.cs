@@ -19,10 +19,15 @@ namespace RaceHorology
   public partial class TimingDeviceAlpenhundeUC : TimingDeviceBaseUC
   {
     private TimingDeviceAlpenhunde _timingDevice;
-    public TimingDeviceAlpenhundeUC(TimingDeviceAlpenhunde timingDevice)
+    public TimingDeviceAlpenhundeUC()
     {
-      _timingDevice = timingDevice;
       InitializeComponent();
+    }
+
+    public override void Init(ILiveTimeMeasurementDeviceDebugInfo timingDevice)
+    {
+      this._timingDevice = timingDevice as TimingDeviceAlpenhunde;
+      ucDebug.Init(timingDevice);
     }
   }
 }

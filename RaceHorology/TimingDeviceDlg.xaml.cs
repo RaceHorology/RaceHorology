@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RaceHorologyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,8 +20,9 @@ namespace RaceHorology
   {
     public TimingDeviceBaseUC() : base()
     {
-
     }
+
+    public virtual void Init(ILiveTimeMeasurementDeviceDebugInfo device) { }
     public virtual void Closes() { }
   }
 

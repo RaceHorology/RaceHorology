@@ -26,10 +26,14 @@ namespace RaceHorology
   {
     ILiveTimeMeasurementDeviceDebugInfo _debugableTimingDevice;
 
-    public TimingDeviceDebugUC(ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+    public TimingDeviceDebugUC()
     {
-      _debugableTimingDevice = debugableTimingDevice;
       InitializeComponent();
+    }
+
+    public override void Init(ILiveTimeMeasurementDeviceDebugInfo timingDevice)
+    {
+      _debugableTimingDevice = timingDevice;
 
       connectToAlge();
       tbAlgeLog.Text = _debugableTimingDevice.GetProtocol();

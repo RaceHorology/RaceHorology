@@ -126,7 +126,7 @@
           
           <Button x:Name="btnTimingDeviceStartStop" Content="..." Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceStartStop_Click"/>
 
-          <Button x:Name="btnTimingDeviceDebug" Content="Protokoll" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="3" Click="btnTimingDeviceDebug_Click"/>
+          <Button x:Name="btnTimingDeviceDebug" Content="Details" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="3" Click="btnTimingDeviceDebug_Click"/>
         </Grid>
       </StatusBarItem>
 
