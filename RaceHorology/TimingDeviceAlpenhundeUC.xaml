@@ -3,10 +3,134 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:RaceHorology"
+             xmlns:local="clr-namespace:RaceHorology" 
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+             Background="#304f7e" 
+             d:DesignHeight="800" d:DesignWidth="300">
+  <Grid>
+    <Grid.ColumnDefinitions></Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <Label Content="Status" />
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
+      <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/sync.svg" />
+      <Label Content="Sync und Signalstärke" Grid.Row="1" Foreground="White"/>
+    </StackPanel>
+
+    <Border Grid.Row="2" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10" >
+      <Grid >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="Start" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+        <Label Content="Stop" Grid.Column="1" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+        <Label Content="Start" Grid.Column="0" Grid.Row="1" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+        <Label Content="Stop" Grid.Column="1" Grid.Row="1" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+      </Grid>
+    </Border>
+
+    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
+      <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/light_barrier.svg" />
+      <Label Content="Nicht ausgerichtete Lichtschranken" Foreground="White" />
+    </StackPanel>
+
+    <Border Grid.Row="4" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+      <Grid >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="keine" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+      </Grid>
+    </Border>
+
+    <Label Content="Akku-Ladezustand" Grid.Row="5" Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+    <Border Grid.Row="6" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+      <Grid >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="76 %" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+      </Grid>
+    </Border>
+
+
+    <Label Content="Nächster Index 'IDX'" Grid.Row="7" Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+    <Border Grid.Row="8" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+      <Grid >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="19" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+      </Grid>
+    </Border>
+
+    <StackPanel Grid.Row="9" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
+      <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/connected_device.svg" />
+      <Label Content="Aktuelle Station" Grid.Row="9" Foreground="White"/>
+    </StackPanel>
+    <Border Grid.Row="10" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+      <Grid >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="Master" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+      </Grid>
+    </Border>
+
+    <StackPanel Grid.Row="11" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
+      <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/channel.svg" />
+      <Label Content="Kanal" Grid.Row="9" Foreground="White"/>
+    </StackPanel>
+    <Border Grid.Row="12" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+      <Grid >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="1" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+      </Grid>
+    </Border>
+  </Grid>
 </local:TimingDeviceBaseUC>
