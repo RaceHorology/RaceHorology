@@ -484,6 +484,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="RH-LOGO-FIN-APP2.ico" />
+    <Content Include="Icons\alpenhunde\channel.svg" />
+    <Content Include="Icons\alpenhunde\connected_device.svg" />
+    <Content Include="Icons\alpenhunde\light_barrier.svg" />
+    <Content Include="Icons\alpenhunde\status_green.svg" />
+    <Content Include="Icons\alpenhunde\Status_RSSI-Funkgut.svg" />
+    <Content Include="Icons\alpenhunde\Status_RSSI-Funksehrgut.svg" />
+    <Content Include="Icons\alpenhunde\Status_RSSI-keinFunk.svg" />
+    <Content Include="Icons\alpenhunde\Status_RSSI-not-found.svg" />
+    <Content Include="Icons\alpenhunde\status_unsync.svg" />
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
