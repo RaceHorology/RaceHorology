@@ -626,10 +626,24 @@ namespace RaceHorologyLib
         NextFreeIndex = v;
       if (_rawData.TryGetValue("channel", out v))
         Channel = v;
+
+      if (_rawData.TryGetValue("starter_status", out v))
+        StarterStatus = v;
+      if (_rawData.TryGetValue("stopper_status", out v))
+        StopperStatus = v;
+      if (_rawData.TryGetValue("RSSI_master", out v) && int.TryParse(v, out i))
+        RSSIMaster = i;
+      if (_rawData.TryGetValue("RSSI_starter", out v) && int.TryParse(v, out i))
+        RSSIStarter = i;
+      if (_rawData.TryGetValue("RSSI_stopper", out v) && int.TryParse(v, out i))
+        RSSIStopper = i;
+
+      if (_rawData.TryGetValue("openLightBarrier_id_0", out v) && int.TryParse(v, out i))
+        OpenLightBarrier = i;
     }
 
     private string _serialNumber;
-    public string SerialNumber { 
+    public string SerialNumber {
       get => _serialNumber;
       set { if (value != _serialNumber) { _serialNumber = value; NotifyPropertyChanged(); } }
     }
@@ -653,6 +667,64 @@ namespace RaceHorologyLib
     {
       get => _channel;
       set { if (value != _channel) { _channel = value; NotifyPropertyChanged(); } }
+    }
+
+    private string _starterStatus;
+    public string StarterStatus
+    {
+      get => _starterStatus;
+      set { if (value != _starterStatus) { _starterStatus = value; NotifyPropertyChanged(); } }
+    }
+    private string _stopperStatus;
+    public string StopperStatus
+    {
+      get => _stopperStatus;
+      set { if (value != _stopperStatus) { _stopperStatus = value; NotifyPropertyChanged(); } }
+    }
+
+    private int _rssiMaster;
+    public int RSSIMaster
+    {
+      get => _rssiMaster;
+      set { if (value != _rssiMaster) { _rssiMaster = value; NotifyPropertyChanged(); if (value == -1000) CurrentDevice = 0; } }
+    }
+    private int _rssiStarter;
+    public int RSSIStarter
+    {
+      get => _rssiStarter;
+      set { if (value != _rssiStarter) { _rssiStarter = value; NotifyPropertyChanged(); if (value == -1000) CurrentDevice = 1; } }
+    }
+    private int _rssiStopper;
+    public int RSSIStopper
+    {
+      get => _rssiStopper;
+      set { if (value != _rssiStopper) { _rssiStopper = value; NotifyPropertyChanged(); if (value == -1000) CurrentDevice = 128; } }
+    }
+
+    private int _openLightBarrier;
+    public int OpenLightBarrier
+    {
+      get => _openLightBarrier;
+      set { if (value != _openLightBarrier) { _openLightBarrier = value; NotifyPropertyChanged(); } }
+    }
+
+    private int _currentDevice;
+    public int CurrentDevice
+    {
+      get => _currentDevice;
+      set { if (value != _currentDevice) { _currentDevice = value; NotifyPropertyChanged(); NotifyPropertyChanged("CurrentDeviceName"); } }
+    }
+    public string CurrentDeviceName
+    {
+      get {
+        switch (_currentDevice)
+        {
+          case 0: return "Master";
+          case 1: return "Starter";
+          case 128: return "Stopper";
+          default: return "";
+        }
+      }
     }
 
 

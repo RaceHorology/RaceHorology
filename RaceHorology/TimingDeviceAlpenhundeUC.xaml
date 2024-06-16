@@ -8,6 +8,10 @@
              mc:Ignorable="d" 
              Background="#e6eee5"
              d:DesignHeight="800" d:DesignWidth="600">
+  <UserControl.Resources>
+    <local:ComparisonToVisibleConverter x:Key="ComparisonToVisibleConverter" />
+  </UserControl.Resources>
+
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="300"/>
@@ -47,20 +51,32 @@
       </StackPanel>
 
       <Border Grid.Row="2" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10" >
-        <Grid >
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Label Content="Start" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
-          <Label Content="Stop" Grid.Column="1" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
-          <Label Content="Start" Grid.Column="0" Grid.Row="1" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
-          <Label Content="Stop" Grid.Column="1" Grid.Row="1" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
-        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Start|Stop'}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" Source="Icons/alpenhunde/light_barrier.svg" HorizontalAlignment="Center"/>
+            <Label Content="Master" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
+          </Grid>
+          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Master|Stop'}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" Source="Icons/alpenhunde/light_barrier.svg" HorizontalAlignment="Center"/>
+            <Label Content="Start" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
+          </Grid>
+          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Start|Master'}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" Source="Icons/alpenhunde/light_barrier.svg" HorizontalAlignment="Center"/>
+            <Label Content="Stop" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
+          </Grid>
+        </StackPanel>
       </Border>
 
       <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
