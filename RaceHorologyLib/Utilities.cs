@@ -726,6 +726,26 @@ namespace RaceHorologyLib
   }
 
 
+  public static class DateTimeExtensions
+  {
+    public static Int32 UnixEpoch(this DateTime dateTime)
+    {
+      return ConvertToUnixTimestamp(dateTime);
+    }
+    public static DateTime ConvertFromUnixTimestamp(double timestamp)
+    {
+      DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+      return origin.AddSeconds(timestamp);
+    }
+
+    public static Int32 ConvertToUnixTimestamp(DateTime date)
+    {
+      DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+      TimeSpan diff = date.ToUniversalTime() - origin;
+      return (Int32) Math.Floor(diff.TotalSeconds);
+    }
+  }
+
   public class NullEnabledComparer : System.Collections.Generic.IComparer<IComparable>
   {
     public int Compare(IComparable x, IComparable y)
