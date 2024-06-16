@@ -57,7 +57,16 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <svgc:SvgViewbox Grid.Row="0" Height="14" Source="Icons/alpenhunde/light_barrier.svg" HorizontalAlignment="Center"/>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center">
+              <svgc:SvgViewbox.Source>
+                <MultiBinding>
+                  <Binding Path="RSSIMaster" />
+                  <MultiBinding.Converter>
+                    <local:RTTIToImageConverter/>
+                  </MultiBinding.Converter>
+                </MultiBinding>
+               </svgc:SvgViewbox.Source>
+            </svgc:SvgViewbox>
             <Label Content="Master" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
           </Grid>
           <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Master|Stop'}">
@@ -65,7 +74,17 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <svgc:SvgViewbox Grid.Row="0" Height="14" Source="Icons/alpenhunde/light_barrier.svg" HorizontalAlignment="Center"/>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center">
+              <svgc:SvgViewbox.Source>
+                <MultiBinding>
+                  <Binding Path="RSSIStarter" />
+                  <Binding Path="StarterStatus" />
+                  <MultiBinding.Converter>
+                    <local:RTTIToImageConverter/>
+                  </MultiBinding.Converter>
+                </MultiBinding>
+              </svgc:SvgViewbox.Source>
+            </svgc:SvgViewbox>
             <Label Content="Start" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
           </Grid>
           <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Start|Master'}">
@@ -73,7 +92,17 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <svgc:SvgViewbox Grid.Row="0" Height="14" Source="Icons/alpenhunde/light_barrier.svg" HorizontalAlignment="Center"/>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center">
+              <svgc:SvgViewbox.Source>
+                <MultiBinding>
+                  <Binding Path="RSSIStopper" />
+                  <Binding Path="StopperStatus" />
+                  <MultiBinding.Converter>
+                    <local:RTTIToImageConverter/>
+                  </MultiBinding.Converter>
+                </MultiBinding>
+              </svgc:SvgViewbox.Source>
+            </svgc:SvgViewbox>
             <Label Content="Stop" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
           </Grid>
         </StackPanel>

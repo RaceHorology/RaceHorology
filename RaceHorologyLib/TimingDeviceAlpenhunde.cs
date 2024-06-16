@@ -633,9 +633,9 @@ namespace RaceHorologyLib
         StopperStatus = v;
       if (_rawData.TryGetValue("RSSI_master", out v) && int.TryParse(v, out i))
         RSSIMaster = i;
-      if (_rawData.TryGetValue("RSSI_starter", out v) && int.TryParse(v, out i))
+      if (_rawData.TryGetValue("RSSI_start", out v) && int.TryParse(v, out i))
         RSSIStarter = i;
-      if (_rawData.TryGetValue("RSSI_stopper", out v) && int.TryParse(v, out i))
+      if (_rawData.TryGetValue("RSSI_stop", out v) && int.TryParse(v, out i))
         RSSIStopper = i;
 
       if (_rawData.TryGetValue("openLightBarrier_id_0", out v) && int.TryParse(v, out i))
@@ -682,23 +682,44 @@ namespace RaceHorologyLib
       set { if (value != _stopperStatus) { _stopperStatus = value; NotifyPropertyChanged(); } }
     }
 
-    private int _rssiMaster;
+    private int _rssiMaster = -1000;
     public int RSSIMaster
     {
       get => _rssiMaster;
-      set { if (value != _rssiMaster) { _rssiMaster = value; NotifyPropertyChanged(); if (value == -1000) CurrentDevice = 0; } }
+      set { 
+        if (value != _rssiMaster) { 
+          _rssiMaster = value; 
+          NotifyPropertyChanged(); 
+          if (value == -1000) 
+            CurrentDevice = 0; 
+        } 
+      }
     }
-    private int _rssiStarter;
+    private int _rssiStarter = -1000;
     public int RSSIStarter
     {
       get => _rssiStarter;
-      set { if (value != _rssiStarter) { _rssiStarter = value; NotifyPropertyChanged(); if (value == -1000) CurrentDevice = 1; } }
+      set { 
+        if (value != _rssiStarter) { 
+          _rssiStarter = value; 
+          NotifyPropertyChanged(); 
+          if (value == -1000) 
+            CurrentDevice = 1; 
+        } 
+      }
     }
-    private int _rssiStopper;
+    private int _rssiStopper = -1000;
     public int RSSIStopper
     {
       get => _rssiStopper;
-      set { if (value != _rssiStopper) { _rssiStopper = value; NotifyPropertyChanged(); if (value == -1000) CurrentDevice = 128; } }
+      set { 
+        if (value != _rssiStopper) {
+          _rssiStopper = value; 
+          NotifyPropertyChanged(); 
+          if (value == -1000) 
+            CurrentDevice = 128; 
+        } 
+      }
     }
 
     private int _openLightBarrier;
