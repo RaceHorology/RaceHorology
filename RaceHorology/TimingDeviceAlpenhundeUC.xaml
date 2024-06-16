@@ -189,6 +189,11 @@
           <Label Content="{Binding Path=Channel}" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
         </Grid>
       </Border>
+      <StackPanel Grid.Row="13" Margin="10,10,10,0">
+        <Label Content="{Binding Path=SystemTime}" ContentStringFormat="Systemzeit: {0}" Foreground="White" Padding="0,2"/>
+        <Label Content="{Binding Path=SerialNumber}" ContentStringFormat="Seriennummer des Systems: {0}" Foreground="White" Padding="0,2"/>
+        <Label Content="{Binding Path=FirmwareVersion}" ContentStringFormat="Firmware Version: {0}" Foreground="White" Padding="0,2" />
+      </StackPanel>
     </Grid>
     <Grid Grid.Column="1">
       <local:TimingDeviceBaseUC x:Name="ucDebug" />

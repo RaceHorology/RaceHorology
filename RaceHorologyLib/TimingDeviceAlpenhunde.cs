@@ -624,6 +624,10 @@ namespace RaceHorologyLib
       int i;
       if (_rawData.TryGetValue("systemSerialNumber", out v))
         SerialNumber = v;
+      if (_rawData.TryGetValue("firmwareVersion", out v))
+        FirmwareVersion = v;
+      if (_rawData.TryGetValue("dateAndTime", out v))
+        SystemTime = v;
 
       if (_rawData.TryGetValue("serial", out v) && int.TryParse(v, out i))
         CurrentDevice = i;
@@ -656,6 +660,20 @@ namespace RaceHorologyLib
     public string SerialNumber {
       get => _serialNumber;
       set { if (value != _serialNumber) { _serialNumber = value; NotifyPropertyChanged(); } }
+    }
+
+    private string _firmwareVersion;
+    public string FirmwareVersion
+    {
+      get => _firmwareVersion;
+      set { if (value != _firmwareVersion) { _firmwareVersion = value; NotifyPropertyChanged(); } }
+    }
+
+    private string _systemTime;
+    public string SystemTime
+    {
+      get => _systemTime;
+      set { if (value != _systemTime) { _systemTime = value; NotifyPropertyChanged(); } }
     }
 
     private int _batteryLevel;
