@@ -624,6 +624,10 @@ namespace RaceHorologyLib
       int i;
       if (_rawData.TryGetValue("systemSerialNumber", out v))
         SerialNumber = v;
+
+      if (_rawData.TryGetValue("serial", out v) && int.TryParse(v, out i))
+        CurrentDevice = i;
+
       if (_rawData.TryGetValue("battery_level", out v) && int.TryParse(v, out i))
         BatteryLevel = i;
       if (_rawData.TryGetValue("NextFreeIndex", out v))
@@ -692,40 +696,19 @@ namespace RaceHorologyLib
     public int RSSIMaster
     {
       get => _rssiMaster;
-      set { 
-        if (value != _rssiMaster) { 
-          _rssiMaster = value; 
-          NotifyPropertyChanged(); 
-          if (value == -1000) 
-            CurrentDevice = 0; 
-        } 
-      }
+      set { if (value != _rssiMaster) { _rssiMaster = value; NotifyPropertyChanged(); } }
     }
     private int _rssiStarter = -1000;
     public int RSSIStarter
     {
       get => _rssiStarter;
-      set { 
-        if (value != _rssiStarter) { 
-          _rssiStarter = value; 
-          NotifyPropertyChanged(); 
-          if (value == -1000) 
-            CurrentDevice = 1; 
-        } 
-      }
+      set { if (value != _rssiStarter) { _rssiStarter = value; NotifyPropertyChanged(); } }
     }
     private int _rssiStopper = -1000;
     public int RSSIStopper
     {
       get => _rssiStopper;
-      set { 
-        if (value != _rssiStopper) {
-          _rssiStopper = value; 
-          NotifyPropertyChanged(); 
-          if (value == -1000) 
-            CurrentDevice = 128; 
-        } 
-      }
+      set { if (value != _rssiStopper) { _rssiStopper = value; NotifyPropertyChanged(); } }
     }
 
     private int _openLightBarrier;
