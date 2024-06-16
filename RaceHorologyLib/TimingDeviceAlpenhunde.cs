@@ -413,12 +413,9 @@ namespace RaceHorologyLib
         _webClient.PostAsync("system/"+ paramStr, null)
           .ContinueWith((response) =>
           {
-            Logger.Info("Systemzeit gesetzt, Result", response.Result.ToString());
+            Logger.Info("Systemzeit gesetzt, Status-Code: {0}", response.Result.StatusCode);
           });
-
-
       }
-
     }
 
     #endregion
