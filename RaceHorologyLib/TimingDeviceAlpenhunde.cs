@@ -236,6 +236,12 @@ namespace RaceHorologyLib
 
       // Pull some infos at startup
       DownloadSystemStatus();
+      if (SystemInfo.SystemTime == null)
+      {
+        // Set System Time
+        Logger.Info("Systemzeit muss gesetzt werden");
+
+      }
     }
 
     private void keepAliveCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -624,7 +630,7 @@ namespace RaceHorologyLib
       if (_rawData.TryGetValue("firmwareVersion", out v))
         FirmwareVersion = v;
       if (_rawData.TryGetValue("dateAndTime", out v))
-        SystemTime = v;
+        setSystemTime(v);
 
       if (_rawData.TryGetValue("serial", out v) && int.TryParse(v, out i))
         CurrentDevice = i;
@@ -666,11 +672,19 @@ namespace RaceHorologyLib
       set { if (value != _firmwareVersion) { _firmwareVersion = value; NotifyPropertyChanged(); } }
     }
 
-    private string _systemTime;
-    public string SystemTime
+    private DateTime? _systemTime;
+    public DateTime? SystemTime { get => _systemTime; }
+    private void setSystemTime(string timeStr)
     {
-      get => _systemTime;
-      set { if (value != _systemTime) { _systemTime = value; NotifyPropertyChanged(); } }
+      try
+      {
+        // Format: 2024-06-16 08:22:20.11
+        _systemTime = DateTime.ParseExact(timeStr, "yyyy-MM-dd HH:mm:ss.ff", System.Globalization.CultureInfo.InvariantCulture);
+      }
+      catch (Exception) {
+        _systemTime = null;
+      }
+      NotifyPropertyChanged("SystemTime");
     }
 
     private int _batteryLevel;

@@ -4,12 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RaceHorology" 
+             xmlns:locallib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib" 
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              mc:Ignorable="d" 
              Background="#e6eee5"
              d:DesignHeight="800" d:DesignWidth="600">
   <UserControl.Resources>
     <local:ComparisonToVisibleConverter x:Key="ComparisonToVisibleConverter" />
+    <locallib:DateTimeConverter x:Key="DateTimeConverter" />
   </UserControl.Resources>
 
   <Grid>
@@ -190,7 +192,7 @@
         </Grid>
       </Border>
       <StackPanel Grid.Row="13" Margin="10,10,10,0">
-        <Label Content="{Binding Path=SystemTime}" ContentStringFormat="Systemzeit: {0}" Foreground="White" Padding="0,2"/>
+        <Label Content="{Binding Path=SystemTime, Converter={StaticResource DateTimeConverter}}" ContentStringFormat="Systemzeit: {0}" Foreground="White" Padding="0,2"/>
         <Label Content="{Binding Path=SerialNumber}" ContentStringFormat="Seriennummer des Systems: {0}" Foreground="White" Padding="0,2"/>
         <Label Content="{Binding Path=FirmwareVersion}" ContentStringFormat="Firmware Version: {0}" Foreground="White" Padding="0,2" />
       </StackPanel>

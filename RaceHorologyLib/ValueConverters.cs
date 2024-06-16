@@ -234,6 +234,33 @@ namespace RaceHorologyLib
     }
   }
 
+  public class DateTimeConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      try
+      {
+        string str = string.Empty;
+        string strParameter = parameter?.ToString();
+
+        if (value == null)
+          return "---";
+        if (value is DateTime dt)
+          return dt.ToString();
+      }
+      catch (Exception)
+      {
+      }
+      return "";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
 
 
   public class ResultCodeWithCommentConverter : IMultiValueConverter
