@@ -236,12 +236,6 @@ namespace RaceHorologyLib
 
       // Pull some infos at startup
       DownloadSystemStatus();
-      if (SystemInfo.SystemTime == null)
-      {
-        // Set System Time
-        Logger.Info("Systemzeit muss gesetzt werden");
-
-      }
     }
 
     private void keepAliveCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -398,6 +392,7 @@ namespace RaceHorologyLib
                 var systemData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(data.Result);
                 Logger.Debug(systemData);
                 _systemInfo.SetRawData(systemData);
+                checkAndSetSystemTime();
               });
             }
           }
@@ -406,6 +401,24 @@ namespace RaceHorologyLib
             Logger.Error(ex);
           }
         });
+    }
+
+    private void checkAndSetSystemTime()
+    {
+      if (SystemInfo.SystemTime == null)
+      {
+        // Set System Time
+        Logger.Info("Systemzeit nicht gesetzt => muss gesetzt werden");
+        var paramStr = String.Format("?action=date_time&sec={0}&usec=0", DateTime.Now.UnixEpoch());
+        _webClient.PostAsync("system/"+ paramStr, null)
+          .ContinueWith((response) =>
+          {
+            Logger.Info("Systemzeit gesetzt, Result", response.Result.ToString());
+          });
+
+
+      }
+
     }
 
     #endregion
