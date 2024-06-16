@@ -1,3 +1,4 @@
+using CsvHelper;
 using DocumentFormat.OpenXml.InkML;
 using System;
 using System.Collections.Generic;
@@ -610,6 +611,9 @@ namespace RaceHorologyLib
   }
 
 
+  // Next:
+  //- Unsync Device
+
   public class AlpenhundeSystemInfo : INotifyPropertyChanged
   {
     protected Dictionary<string, string> _rawData = new Dictionary<string, string>();
@@ -640,6 +644,8 @@ namespace RaceHorologyLib
 
       if (_rawData.TryGetValue("openLightBarrier_id_0", out v) && int.TryParse(v, out i))
         OpenLightBarrier = i;
+      else
+        OpenLightBarrier = 0;
     }
 
     private string _serialNumber;
@@ -726,8 +732,9 @@ namespace RaceHorologyLib
     public int OpenLightBarrier
     {
       get => _openLightBarrier;
-      set { if (value != _openLightBarrier) { _openLightBarrier = value; NotifyPropertyChanged(); } }
+      set { if (value != _openLightBarrier) { _openLightBarrier = value; NotifyPropertyChanged(); NotifyPropertyChanged("OpenLightBarrierName"); } }
     }
+    public string OpenLightBarrierName { get => _openLightBarrier > 0 ? GetDeviceName(_openLightBarrier) : ""; }
 
     private int _currentDevice;
     public int CurrentDevice
@@ -735,16 +742,16 @@ namespace RaceHorologyLib
       get => _currentDevice;
       set { if (value != _currentDevice) { _currentDevice = value; NotifyPropertyChanged(); NotifyPropertyChanged("CurrentDeviceName"); } }
     }
-    public string CurrentDeviceName
+    public string CurrentDeviceName { get => GetDeviceName(_currentDevice); }
+
+    static string GetDeviceName(int device)
     {
-      get {
-        switch (_currentDevice)
-        {
-          case 0: return "Master";
-          case 1: return "Starter";
-          case 128: return "Stopper";
-          default: return "";
-        }
+      switch (device)
+      {
+        case 0: return "Master";
+        case 1: return "Starter";
+        case 128: return "Stopper";
+        default: return "";
       }
     }
 

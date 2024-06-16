@@ -65,7 +65,7 @@
                     <local:RTTIToImageConverter/>
                   </MultiBinding.Converter>
                 </MultiBinding>
-               </svgc:SvgViewbox.Source>
+              </svgc:SvgViewbox.Source>
             </svgc:SvgViewbox>
             <Label Content="Master" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
           </Grid>
@@ -112,17 +112,22 @@
         <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/light_barrier.svg" />
         <Label Content="Nicht ausgerichtete Lichtschranken" Foreground="White" />
       </StackPanel>
-
       <Border Grid.Row="4" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
-        <Grid >
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Label Content="keine" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
-        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Visibility="{Binding OpenLightBarrierName, Converter={StaticResource ComparisonToVisibleConverter}, ConverterParameter=''}">
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center" Source="Icons/alpenhunde/status_green.svg"/>
+            <Label Content="keine" Foreground="White" Background="#426db1" HorizontalAlignment="Center" Margin="0,-1,0,1"/>
+          </StackPanel>
+
+          <Grid Margin="10,8,10,4" Visibility="{Binding OpenLightBarrierName, Converter={StaticResource ComparisonToVisibleConverter}, ConverterParameter='Stopper'}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center" Source="Icons/alpenhunde/status_unsync.svg"/>
+            <Label Content="{Binding OpenLightBarrierName}" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
+          </Grid>
+        </StackPanel>
       </Border>
 
       <Label Content="Akku-Ladezustand" Grid.Row="5" Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0"/>
@@ -135,7 +140,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Label Content="{Binding BatteryLevel}" ContentStringFormat="{}{0} %" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center" />
-          
+
         </Grid>
       </Border>
 
@@ -185,9 +190,9 @@
         </Grid>
       </Border>
     </Grid>
-  <Grid Grid.Column="1">
-    <local:TimingDeviceBaseUC x:Name="ucDebug" />
-  </Grid>
+    <Grid Grid.Column="1">
+      <local:TimingDeviceBaseUC x:Name="ucDebug" />
+    </Grid>
   </Grid>
 
 </local:TimingDeviceBaseUC>
