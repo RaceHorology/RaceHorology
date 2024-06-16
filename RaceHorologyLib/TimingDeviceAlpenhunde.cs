@@ -611,9 +611,6 @@ namespace RaceHorologyLib
   }
 
 
-  // Next:
-  //- Unsync Device
-
   public class AlpenhundeSystemInfo : INotifyPropertyChanged
   {
     protected Dictionary<string, string> _rawData = new Dictionary<string, string>();
