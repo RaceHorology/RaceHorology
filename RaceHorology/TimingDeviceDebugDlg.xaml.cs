@@ -62,17 +62,31 @@ namespace RaceHorology
     {
       Application.Current.Dispatcher.Invoke(() =>
       {
-        tbAlgeLog.Text += message;
+        DateTime dt1 = DateTime.Now;
+        tbAlgeLog.AppendText(dt1.ToString("dd.MM.yyyy HH:mm:ss.ffff") + " | " + message);
         ensureNewLineAtEnd();
-        tbAlgeLog.ScrollToEnd();
+        if (ckAutoScrollEnabled.IsChecked == true) {
+          tbAlgeLog.CaretIndex = tbAlgeLog.Text.Length;
+          tbAlgeLog.ScrollToEnd();
+        }
       });
     }
 
     private void ensureNewLineAtEnd()
     {
       if (tbAlgeLog.Text.Length > 0 && !tbAlgeLog.Text.EndsWith("\n"))
-        tbAlgeLog.Text += "\n";
+      tbAlgeLog.AppendText("\n");
     }
 
+    private void ckAutoScrollEnabled_Checked(object sender, RoutedEventArgs e)
+    {
+      tbAlgeLog.CaretIndex = tbAlgeLog.Text.Length;
+      tbAlgeLog.ScrollToEnd();
+    }
+
+    private void BtnClear_Click(object sender, RoutedEventArgs e)
+    {
+      tbAlgeLog.Clear();
+    }
   }
 }

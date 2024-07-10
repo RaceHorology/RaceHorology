@@ -17,9 +17,11 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <Label Content="Protokoll:" Grid.Row="0"/>
-    <TextBox x:Name="tbAlgeLog" Grid.Row="1" Margin="5" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="True"/>
+    <TextBox x:Name="tbAlgeLog" Grid.Row="1" Margin="5" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
-      <Button x:Name="btnOk" Content="Close" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,0,0" IsDefault="True" Click="BtnOk_Click"/>
+      <CheckBox x:Name="ckAutoScrollEnabled" Content="Automatisches Scrollen aktivieren" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="ckAutoScrollEnabled_Checked" IsChecked="True" Margin="0,0,5,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+      <Button x:Name="btnClear" Content="Leeren" Width="75" IsDefault="True" Click="BtnClear_Click" Margin="0,0,5,0"/>
+      <Button x:Name="btnOk" Content="Close" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" IsDefault="True" Click="BtnOk_Click"/>
     </StackPanel>
   </Grid>
 </Window>
