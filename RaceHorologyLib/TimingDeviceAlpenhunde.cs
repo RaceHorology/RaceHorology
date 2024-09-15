@@ -403,6 +403,30 @@ namespace RaceHorologyLib
         });
     }
 
+    
+    public void DownloadFIS(Func<byte[], bool>  saveCallback)
+    {
+      _webClient.GetAsync("FIS")
+        .ContinueWith((response) =>
+        {
+          try
+          {
+            if (response.Result.IsSuccessStatusCode)
+            {
+              response.Result.Content.ReadAsByteArrayAsync().ContinueWith((data) =>
+              {
+                Logger.Debug("FIS export {0} Bytes", data.Result.Length);
+                saveCallback(data.Result);
+              });
+            }
+          }
+          catch (Exception ex)
+          {
+            Logger.Error(ex);
+          }
+        });
+    }
+
     private void checkAndSetSystemTime()
     {
       if (SystemInfo.SystemTime == null)
