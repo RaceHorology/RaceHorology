@@ -204,5 +204,20 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("01:01:30,12", t3.ToRaceTimeString());
 
     }
+
+    [TestMethod]
+    public void UnixTimeTest()
+    {
+      var t1 = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
+      Assert.AreEqual(-1 * 60 * 60, t1.UnixEpoch(false));
+      Assert.AreEqual(0, t1.UnixEpoch(true));
+
+      var t2 = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Local);
+      Assert.AreEqual(1726351200, t2.UnixEpoch(false));
+      Assert.AreEqual(1726351200+2*3600, t2.UnixEpoch(true));
+
+      Assert.AreEqual(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), DateTimeExtensions.ConvertFromUnixTimestamp(0, false));
+      Assert.AreEqual(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), DateTimeExtensions.ConvertFromUnixTimestamp(0, true));
+    }
   }
 }
