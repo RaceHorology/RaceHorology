@@ -409,12 +409,16 @@ namespace RaceHorologyLib
       {
         // Set System Time
         Logger.Info("Systemzeit nicht gesetzt => muss gesetzt werden");
-        var paramStr = String.Format("?action=date_time&sec={0}&usec=0", DateTime.Now.UnixEpoch());
+        var paramStr = String.Format("?action=date_time&sec={0}&usec=0", DateTime.Now.UnixEpoch(true));
         _webClient.PostAsync("system/"+ paramStr, null)
           .ContinueWith((response) =>
           {
             Logger.Info("Systemzeit gesetzt, Status-Code: {0}", response.Result.StatusCode);
           });
+      }
+      else
+      {
+        Logger.Debug("Systemzeit Alpenhunde: {0}, PC: {1}, Diff: {2}", SystemInfo.SystemTime, DateTime.Now, (SystemInfo.SystemTime - DateTime.Now));
       }
     }
 
