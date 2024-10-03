@@ -212,10 +212,18 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(-offset1.TotalSeconds, t1.UnixEpoch(false));
       Assert.AreEqual(0, t1.UnixEpoch(true));
 
-      var t2 = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Local);
-      var offset2 = TimeZoneInfo.Local.GetUtcOffset(t2);
-      Assert.AreEqual(1726351200, t2.UnixEpoch(false));
-      Assert.AreEqual(1726351200 + offset2.TotalSeconds, t2.UnixEpoch(true));
+      var t2Local = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Local);
+      var t2UTC = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Utc);
+      var t2UTCEpoch = 1726358400;
+      var t2UTCLocal = 1726351200;
+
+
+      var offset2 = TimeZoneInfo.Local.GetUtcOffset(t2Local);
+      Assert.AreEqual(t2UTCLocal, t2Local.UnixEpoch(false));
+      Assert.AreEqual(t2UTCLocal + offset2.TotalSeconds, t2Local.UnixEpoch(true));
+
+      Assert.AreEqual(t2UTCEpoch, t2UTC.UnixEpoch(false));
+      Assert.AreEqual(t2UTCEpoch + offset2.TotalSeconds, t2UTC.UnixEpoch(true));
 
       Assert.AreEqual(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), DateTimeExtensions.ConvertFromUnixTimestamp(0, false));
       Assert.AreEqual(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), DateTimeExtensions.ConvertFromUnixTimestamp(0, true));
