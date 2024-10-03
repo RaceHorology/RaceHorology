@@ -23,12 +23,12 @@ jobs:
       commit: ${{ env.GITHUB_SHA }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Calculate Version
-        uses: paulhatch/semantic-version@v5.0.3
+        uses: paulhatch/semantic-version@v5
         id: version
         with:
           # The prefix to use to identify tags
@@ -51,14 +51,14 @@ jobs:
           Write-Host "Output of minor: ${{ steps.version.outputs.minor }}"         
           Write-Host "Output of patch: ${{ steps.version.outputs.patch }}"         
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
     
       - name: Install Nuget
-        uses: nuget/setup-nuget@v1
+        uses: nuget/setup-nuget@v2
         with:
           nuget-version: ${{ env.NUGET_VERSION}}
 
@@ -67,7 +67,7 @@ jobs:
         run: nuget restore
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
   
       - name: Build DotNET
         run: |
@@ -85,7 +85,7 @@ jobs:
           timestampUrl: 'http://timestamp.digicert.com'
 
       - name: Upload Test Programm
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -107,7 +107,7 @@ jobs:
           timestampUrl: 'http://timestamp.digicert.com'
           
       - name: Upload Installer
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: installer_RaceHorology
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
@@ -126,7 +126,7 @@ jobs:
             $procLog.Kill()
 
       - name: Upload Raw Build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build_RaceHorology
           path: ${{ github.workspace }}\RaceHorology\bin\x86\Release\**
@@ -152,7 +152,7 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Test Programm
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -179,7 +179,7 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Test Programm
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -205,7 +205,7 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Installer
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: installer_RaceHorology
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
@@ -226,13 +226,13 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Installer
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: installer_RaceHorology
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
 
       - name: Upload as pre-release 
-        uses: ncipollo/release-action@v1.12.0
+        uses: ncipollo/release-action@v1.14.0
         with:
           artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-*.msi
           prerelease: true
