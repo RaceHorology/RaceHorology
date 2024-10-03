@@ -25,6 +25,11 @@ namespace RaceHorology
     public TimingDeviceAlpenhundeUC()
     {
       InitializeComponent();
+
+      cmbChannel.Items.Clear();
+      cmbChannel.Items.Add(new CBItem { Text = "Channel 0", Value = 0 });
+      cmbChannel.Items.Add(new CBItem { Text = "Channel 1", Value = 1 });
+      cmbChannel.Items.Add(new CBItem { Text = "Channel 2", Value = 2 });
     }
 
     public override void Init(ILiveTimeMeasurementDeviceDebugInfo timingDevice)
@@ -76,6 +81,19 @@ namespace RaceHorology
         });
         return true;
       });
+    }
+
+    private void btnSynchronize_Click(object sender, RoutedEventArgs e)
+    {
+      _timingDevice.Synchronize();
+    }
+
+    private void btnChangeChannel_Click(object sender, RoutedEventArgs e)
+    {
+      if (cmbChannel.SelectedItem is CBItem selected)
+      {
+        _timingDevice.SetChannel(Convert.ToInt32(selected.Value));
+      }
     }
   }
 }

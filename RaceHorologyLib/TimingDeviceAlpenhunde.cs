@@ -427,12 +427,22 @@ namespace RaceHorologyLib
         });
     }
 
+    public void Synchronize()
+    {
+      performPostAction("system/?action=sync_clock");
+    }
+    public void SetChannel(int channel)
+    {
+      performPostAction(string.Format("system/?action=switch_channel&channel={0}", channel));
+    }
+
     protected void performPostAction(string subUrl)
     {
+      Logger.Info("POST \"{0}\"", subUrl);
       _webClient.PostAsync(subUrl, null)
         .ContinueWith((response) =>
         {
-          Logger.Info("POST \"{0}\", Status-Code: {0}", subUrl, response.Result.StatusCode);
+          Logger.Info("POST Completed \"{0}\", Status-Code: {1}", subUrl, response.Result.StatusCode);
         });
     }
 
