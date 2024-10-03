@@ -33,8 +33,6 @@
  * 
  */
 
-using RaceHorologyLib;
-using SharpVectors.Converters;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -42,7 +40,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace RaceHorology
 {
@@ -117,7 +114,7 @@ namespace RaceHorology
 
         int rssi = (int)values[0];
         string syncStatus = values.Length > 1 ? (string)values[1] : "";
-        
+
         // Beschreibung nach Christian Hund:
         //>= -105 dBm ist zwei Funkwellen / grün
         //- 114 bis - 106dBm ist eine Funkwelle / grün
@@ -137,7 +134,7 @@ namespace RaceHorology
           else if (rssi == -1000)
             imageName = "Status_RSSI-not-found.svg";
         }
-        return new Uri("pack://application:,,,/Icons/alpenhunde/"+ imageName);
+        return new Uri("pack://application:,,,/Icons/alpenhunde/" + imageName);
       }
       catch (Exception)
       {
