@@ -1,21 +1,7 @@
 ﻿using RaceHorologyLib;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace RaceHorology
 {
@@ -36,9 +22,26 @@ namespace RaceHorology
     {
       _timingDevice = timingDevice as TimingDeviceAlpenhunde;
       ucDebug.Init(timingDevice);
-
-
       DataContext = _timingDevice.SystemInfo;
+
+      _timingDevice.StatusChanged += timingDevice_StatusChanged;
+      enableDisableControls(_timingDevice.IsOnline);
+    }
+
+    private void timingDevice_StatusChanged(object sender, bool isRunning)
+    {
+      System.Windows.Application.Current.Dispatcher.Invoke(() =>
+      {
+        enableDisableControls(isRunning);
+      });
+    }
+
+    private void enableDisableControls(bool enable)
+    {
+      btnChangeChannel.IsEnabled = enable;
+      btnFISExport.IsEnabled = enable;
+      btnSynchronize.IsEnabled = enable;
+      cmbChannel.IsEnabled = enable;
     }
 
     private void btnFISExport_Click(object sender, RoutedEventArgs e)

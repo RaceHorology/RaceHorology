@@ -1,10 +1,7 @@
-using CsvHelper;
-using DocumentFormat.OpenXml.InkML;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Http;
-using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Timers;
 using WebSocketSharp;
@@ -30,7 +27,7 @@ namespace RaceHorologyLib
     private static int ConfigPingInterval = 5000; // ms
     private static int ConfigPingTimeout = 2000; // ms
     private static int ConfigMissingPings = 2;
-    private static TimeSpan KeepAliveDelta = TimeSpan.FromMilliseconds(ConfigMissingPings* ConfigPingInterval + ConfigPingTimeout);
+    private static TimeSpan KeepAliveDelta = TimeSpan.FromMilliseconds(ConfigMissingPings * ConfigPingInterval + ConfigPingTimeout);
 
 
     private System.Threading.SynchronizationContext _syncContext;
@@ -91,6 +88,8 @@ namespace RaceHorologyLib
     {
       if (_status != status)
       {
+        if (this._status == EStatus.Connected && status != EStatus.Connected)
+          _systemInfo.Reset();
         this._status = status;
         var handler = StatusChanged;
         handler?.Invoke(this, IsOnline);
@@ -403,8 +402,8 @@ namespace RaceHorologyLib
         });
     }
 
-    
-    public void DownloadFIS(Func<byte[], bool>  saveCallback)
+
+    public void DownloadFIS(Func<byte[], bool> saveCallback)
     {
       _webClient.GetAsync("FIS")
         .ContinueWith((response) =>
@@ -680,31 +679,56 @@ namespace RaceHorologyLib
       int i;
       if (_rawData.TryGetValue("systemSerialNumber", out v))
         SerialNumber = v;
+      else
+        SerialNumber = "";
       if (_rawData.TryGetValue("firmwareVersion", out v))
         FirmwareVersion = v;
+      else
+        FirmwareVersion = "";
       if (_rawData.TryGetValue("dateAndTime", out v))
         setSystemTime(v);
+      else
+        _systemTime = null;
 
       if (_rawData.TryGetValue("serial", out v) && int.TryParse(v, out i))
         CurrentDevice = i;
+      else
+        CurrentDevice = 0;
 
       if (_rawData.TryGetValue("battery_level", out v) && int.TryParse(v, out i))
         BatteryLevel = i;
+      else
+        BatteryLevel = 0;
+
       if (_rawData.TryGetValue("NextFreeIndex", out v))
         NextFreeIndex = v;
+      else
+        NextFreeIndex = "";
       if (_rawData.TryGetValue("channel", out v))
         Channel = v;
+      else
+        Channel = "";
 
       if (_rawData.TryGetValue("starter_status", out v))
         StarterStatus = v;
+      else
+        StarterStatus = "";
       if (_rawData.TryGetValue("stopper_status", out v))
         StopperStatus = v;
+      else
+        StopperStatus = "";
       if (_rawData.TryGetValue("RSSI_master", out v) && int.TryParse(v, out i))
         RSSIMaster = i;
+      else
+        RSSIMaster = -1000;
       if (_rawData.TryGetValue("RSSI_start", out v) && int.TryParse(v, out i))
         RSSIStarter = i;
+      else
+        RSSIStarter = -1000;
       if (_rawData.TryGetValue("RSSI_stop", out v) && int.TryParse(v, out i))
         RSSIStopper = i;
+      else
+        RSSIStopper = -1000;
 
       if (_rawData.TryGetValue("openLightBarrier_id_0", out v) && int.TryParse(v, out i))
         OpenLightBarrier = i;
@@ -712,8 +736,14 @@ namespace RaceHorologyLib
         OpenLightBarrier = 0;
     }
 
+    public void Reset()
+    {
+      SetRawData(new Dictionary<string, string>());
+    }
+
     private string _serialNumber;
-    public string SerialNumber {
+    public string SerialNumber
+    {
       get => _serialNumber;
       set { if (value != _serialNumber) { _serialNumber = value; NotifyPropertyChanged(); } }
     }
@@ -734,7 +764,8 @@ namespace RaceHorologyLib
         // Format: 2024-06-16 08:22:20.11
         _systemTime = DateTime.ParseExact(timeStr, "yyyy-MM-dd HH:mm:ss.ff", System.Globalization.CultureInfo.InvariantCulture);
       }
-      catch (Exception) {
+      catch (Exception)
+      {
         _systemTime = null;
       }
       NotifyPropertyChanged("SystemTime");
