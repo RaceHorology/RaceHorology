@@ -58,6 +58,7 @@ namespace RaceHorology
           //openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(filePath);
           openFileDialog.DefaultExt = ".alp";
           openFileDialog.Filter = "Alpenhunde Zeitstempel (.alp)|*.alp";
+          bool saveSuceeded = false;
           try
           {
             if (openFileDialog.ShowDialog() == true)
@@ -67,6 +68,7 @@ namespace RaceHorology
               {
                 fs.Write(data, 0, data.Length);
               }
+              saveSuceeded = true;
             }
           }
           catch (Exception ex)
@@ -77,9 +79,12 @@ namespace RaceHorology
               System.Windows.MessageBoxButton.OK, MessageBoxImage.Exclamation);
             return false;
           }
-          var dlg = new ExportResultDlg("FIS Zeitstempel Export", filePath, string.Format("Der Export war erfolgreich."));
-          dlg.Owner = Window.GetWindow(wnd);
-          dlg.ShowDialog();
+          if (saveSuceeded)
+          {
+            var dlg = new ExportResultDlg("FIS Zeitstempel Export", filePath, string.Format("Der Export war erfolgreich."));
+            dlg.Owner = Window.GetWindow(wnd);
+            dlg.ShowDialog();
+          }
           return true;
         });
         return true;
