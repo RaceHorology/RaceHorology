@@ -214,13 +214,11 @@ namespace RaceHorologyLibTest
 
       var t2Local = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Local);
       var t2UTC = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Utc);
-      var t2UTCEpoch = 1726358400;
-      var t2UTCLocal = 1726351200;
-
+      var t2UTCEpoch = 1726358400; // 15.09.2024, 00:00:00
 
       var offset2 = TimeZoneInfo.Local.GetUtcOffset(t2Local);
-      Assert.AreEqual(t2UTCLocal, t2Local.UnixEpoch(false));
-      Assert.AreEqual(t2UTCLocal + offset2.TotalSeconds, t2Local.UnixEpoch(true));
+      Assert.AreEqual(t2UTCEpoch - offset2.TotalSeconds, t2Local.UnixEpoch(false));
+      Assert.AreEqual(t2UTCEpoch, t2Local.UnixEpoch(true));
 
       Assert.AreEqual(t2UTCEpoch, t2UTC.UnixEpoch(false));
       Assert.AreEqual(t2UTCEpoch + offset2.TotalSeconds, t2UTC.UnixEpoch(true));
