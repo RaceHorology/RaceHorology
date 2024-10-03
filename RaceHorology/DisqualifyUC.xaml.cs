@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -89,7 +89,7 @@ namespace RaceHorology
 
       cmbFilter.Items.Clear();
       cmbFilter.Items.Add(new CBItem { Text = "alle Teilnehmer", Value = "all" });
-      cmbFilter.Items.Add(new CBItem { Text = "Teilnehmer ohne Zeit", Value = "no_time"});
+      cmbFilter.Items.Add(new CBItem { Text = "Teilnehmer ohne Zeit", Value = "no_time" });
       cmbFilter.Items.Add(new CBItem { Text = "ausgeschiedene Teilnehmer", Value = "out" });
       cmbFilter.Items.Add(new CBItem { Text = "offene Teilnehmer (keine Zeit oder Ausscheidung)", Value = "no_data" });
       cmbFilter.SelectedIndex = 1;
@@ -128,27 +128,27 @@ namespace RaceHorology
         _viewDisqualificationsFilterHandler = null;
         if (string.Equals(selected.Value, "all"))
           _viewDisqualificationsFilterHandler = new FilterEventHandler(
-            delegate (object s, FilterEventArgs ea) 
-            { 
-              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr); 
+            delegate (object s, FilterEventArgs ea)
+            {
+              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr);
             });
         else if (string.Equals(selected.Value, "no_time"))
           _viewDisqualificationsFilterHandler = new FilterEventHandler(
-            delegate (object s, FilterEventArgs ea) 
-            { 
-              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.RuntimeWOResultCode == null; 
+            delegate (object s, FilterEventArgs ea)
+            {
+              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.RuntimeWOResultCode == null;
             });
         else if (string.Equals(selected.Value, "out"))
           _viewDisqualificationsFilterHandler = new FilterEventHandler(
-            delegate (object s, FilterEventArgs ea) 
-            { 
-              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && (rr.ResultCode != RunResult.EResultCode.Normal && rr.ResultCode != RunResult.EResultCode.NotSet); 
+            delegate (object s, FilterEventArgs ea)
+            {
+              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && (rr.ResultCode != RunResult.EResultCode.Normal && rr.ResultCode != RunResult.EResultCode.NotSet);
             });
         else if (string.Equals(selected.Value, "no_data"))
           _viewDisqualificationsFilterHandler = new FilterEventHandler(
-            delegate (object s, FilterEventArgs ea) 
-            { 
-              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode == RunResult.EResultCode.NotSet; 
+            delegate (object s, FilterEventArgs ea)
+            {
+              RunResult rr = (RunResult)ea.Item; ea.Accepted = isInStartList(rr) && rr.ResultCode == RunResult.EResultCode.NotSet;
             });
       }
 
@@ -272,7 +272,7 @@ namespace RaceHorology
         _currentRaceRun.SetResultCode(participant, (EResultCode)cmbDisqualify.SelectedValue, disqualifyText);
       else
       {
-        foreach( object item in dgDisqualifications.SelectedItems)
+        foreach (object item in dgDisqualifications.SelectedItems)
         {
           if (item is RunResult rr)
             _currentRaceRun.SetResultCode(rr.Participant, (EResultCode)cmbDisqualify.SelectedValue, disqualifyText);
