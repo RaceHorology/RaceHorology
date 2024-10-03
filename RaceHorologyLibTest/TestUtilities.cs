@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -43,6 +43,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static RaceHorologyLib.PrintCertificateModel;
 
 namespace RaceHorologyLibTest
 {
@@ -52,8 +53,7 @@ namespace RaceHorologyLibTest
     {
       string srcPath = Path.Combine(srcDirectory, srcFilename);
 
-      string dstDirectory = Path.Combine(srcDirectory, Path.GetRandomFileName());
-      Directory.CreateDirectory(dstDirectory);
+      string dstDirectory = CreateWorkingFolder(srcDirectory);
 
       string dstPath = Path.Combine(dstDirectory, srcFilename);
       File.Copy(srcPath, dstPath);
@@ -69,6 +69,13 @@ namespace RaceHorologyLibTest
       }
 
       return dstPath;
+    }
+
+    public static string CreateWorkingFolder(string srcDirectory)
+    {
+      string dstDirectory = Path.Combine(srcDirectory, Path.GetRandomFileName());
+      Directory.CreateDirectory(dstDirectory);
+      return dstDirectory;
     }
 
     public static string Copy(string srcFilepath, string dstFilename)
@@ -115,8 +122,15 @@ namespace RaceHorologyLibTest
 
     public static bool GenerateAndCompareAgainstPdf(TestContext testContext, IPDFReport report, string filenameShall, int nAcceptedDifferences = 0)
     {
+      DateTime reportTime = new DateTime(2023, 01, 01, 10, 00, 00); // 1.1.2023, 10:00
       string filenameOutput = report.ProposeFilePath();
-      report.Generate(filenameOutput);
+      report.Generate(filenameOutput, reportTime);
+
+#pragma warning disable CS0162 // Unreachable code detected
+      if (false)
+        System.Diagnostics.Process.Start(filenameOutput);
+#pragma warning restore CS0162 // Unreachable code detected
+
       return CompareAgainstPdf(testContext, filenameOutput, filenameShall, nAcceptedDifferences);
     }
 
@@ -138,6 +152,8 @@ namespace RaceHorologyLibTest
       {
         testContext.WriteLine(dif.Value);
       }
+      Debug.WriteLine("Found differences: " + result.GetDifferences().Count);
+      Debug.WriteLine("Accepted differences: " + nAcceptedDifferences);
       return result.GetDifferences().Count <= nAcceptedDifferences;
     }
 
@@ -245,6 +261,29 @@ namespace RaceHorologyLibTest
     public void CreateOrUpdateCategory(ParticipantCategory c) { }
     public void RemoveCategory(ParticipantCategory c) { }
 
+    public string GetTimingDevice(Race race) { return "Alge TdC8000/8001"; }
+    public void StoreTimingDevice(Race race, string timingDevice){}
+
+
+
+    public PrintCertificateModel GetCertificateModel(Race race)
+    {
+      var pcm = new PrintCertificateModel();
+      pcm.TextItems = new List<TextItem>()
+      {
+        new TextItem { Text = "Test Race", Font = "TxFont\r\nMicrosoft Sans Serif, kursiv, 28", Alignment = (TextItemAlignment) 2, VPos = 1345, HPos = 1050},
+        new TextItem { Text = "2022", Font = "TxFont\r\nMicrosoft Sans Serif, 28", Alignment = (TextItemAlignment) 2, VPos = 1480, HPos = 1050},
+        new TextItem { Text = "Riesenslalom", Font = "TxFont\r\nMicrosoft Sans Serif, fett, kursiv, 24", Alignment = (TextItemAlignment) 2, VPos = 1645, HPos = 1050},
+        new TextItem { Text = "<Vorname Name>", Font = "TxFont\r\nTimes New Roman, fett, kursiv, 20", Alignment = (TextItemAlignment) 2, VPos = 1881, HPos = 1050},
+        new TextItem { Text = "<Platz>. Platz", Font = "Arial, 16", Alignment = (TextItemAlignment) 2, VPos = 2042, HPos = 1050},
+        new TextItem { Text = "<Klasse>", Font = "Arial, 16", Alignment = (TextItemAlignment) 0, VPos = 2269, HPos = 240},
+        new TextItem { Text = "Zeit: <Zeit>", Font = "Arial, 16", Alignment = (TextItemAlignment) 1, VPos = 2269, HPos = 1820},
+        new TextItem { Text = "Kirchberg in Tirol, <Bewerbsdatum>", Font = "Arial, 12", Alignment = (TextItemAlignment) 0, VPos = 2389, HPos = 240},
+        new TextItem { Text = "WSV Glonn", Font = "Arial, 12", Alignment = (TextItemAlignment) 1, VPos = 2389, HPos = 1820}
+      };
+      return pcm;
+    }
+
 
     Dictionary<string, string> _keyValueStore = new Dictionary<string, string>();
     public void StoreKeyValue(string key, string value) 
@@ -258,8 +297,13 @@ namespace RaceHorologyLibTest
       _keyValueStore.TryGetValue(key, out value);
       return value; 
     }
-  };
 
+    public void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp) { }
+
+    public List<Timestamp> GetTimestamps(Race race, uint run) { return new List<Timestamp>(); }
+
+    public void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp) { }
+  }
 
 
   public class TestDataGenerator

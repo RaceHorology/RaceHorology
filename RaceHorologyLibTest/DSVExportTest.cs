@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -40,6 +40,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System.IO;
 using XmlUnit.Xunit;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -51,9 +52,7 @@ namespace RaceHorologyLibTest
   {
     public DSVExportTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;
@@ -142,25 +141,10 @@ namespace RaceHorologyLibTest
         Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
       model.GetDB().StoreKeyValue("DSV_UsedDSVList", "123");
 
-      { // Checking ValueF dependent on the result view
-       
-        // Standard case, not complaining about missing f-value
-        xmlData = new MemoryStream();
-        Assert.AreEqual("missing racejury ChiefRace",
-          Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
-
-        // Setting a reultview with point calculation => complain about missing f-value
-        var rvp = new DSVSchoolRaceResultViewProvider();
-        rvp.Init(model.GetRace(0), model);
-        model.GetRace(0).SetResultViewProvider(rvp);
-
-        xmlData = new MemoryStream();
-        Assert.AreEqual("missing f-value",
-          Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
-        model.GetRace(0).RaceConfiguration.ValueF = 720.0;
-        
-        // after this line there won't be complains about missing f-value
-      }
+      // Standard case, not complaining about missing f-value
+      xmlData = new MemoryStream();
+      Assert.AreEqual("missing racejury ChiefRace",
+        Assert.ThrowsException<DSVExportException>(() => dsvExport.ExportXML(xmlData, model.GetRace(0))).Message);
 
       xmlData = new MemoryStream();
       Assert.AreEqual("missing racejury ChiefRace",

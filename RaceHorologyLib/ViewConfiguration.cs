@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -43,7 +43,7 @@ namespace RaceHorologyLib
 {
 
 
-  public class ViewFactory
+  internal class ViewFactory
   {
     protected Dictionary<string, ViewProvider> _prototypes;
 
@@ -72,12 +72,11 @@ namespace RaceHorologyLib
       _prototypes["RaceResult_BestOfTwo"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
       _prototypes["RaceResult_Sum"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
       _prototypes["RaceResult_SumBest2"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumBest2);
+      _prototypes["RaceResult_2xBestOf2"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumMxBestOfN);
       _prototypes["RaceResult_SumDSVPointsSchool"] = new DSVSchoolRaceResultViewProvider();
-      _prototypes["RaceResult_SumPointsViaTable"] = new PointsViaTableRaceResultViewProvider();
-
-      _prototypes["RaceRunResult"] = new RaceRunResultViewProvider();
-
-
+      _prototypes["RaceResult_SumFISPoints"] = new FISRaceResultViewProvider();
+      _prototypes["RaceResult_SumPointsViaTable"] = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
+      _prototypes["RaceResult_SumPointsViaTablePerRun"] = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
     }
 
 
@@ -144,7 +143,7 @@ namespace RaceHorologyLib
       // Second or later run
       {
         // Figure out previous run
-        RaceRun rrPrevious = rr.GetRace().GetRuns().Where( r => r.Run == (rr.Run-  1U)).First();
+        RaceRun rrPrevious = rr.GetRace().GetRuns().Where( r => r.Run == (rr.Run - 1U)).First();
 
         SecondRunStartListViewProvider srslVP = factory.Create<SecondRunStartListViewProvider>(_config.Run2_StartistView);
 
@@ -181,7 +180,15 @@ namespace RaceHorologyLib
 
       RaceRunResultViewProvider rVP;
 
-      rVP = factory.Create<RaceRunResultViewProvider>("RaceRunResult");
+      if (_config.RaceResultView_PenaltyRuleMode != RaceConfiguration.EPenaltyMode.Off)
+      {
+        if (_config.RaceResultView_PenaltyRuleMode == RaceConfiguration.EPenaltyMode.BestPlusPercentage)
+          rVP = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusPercentage, _config.RaceResultView_PenaltyRuleCutOffValue);
+        else
+          rVP = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusSeconds, _config.RaceResultView_PenaltyRuleCutOffValue);
+      }
+      else
+        rVP = new RaceRunResultViewProvider();
 
       if (rVP == null)
         rVP = new RaceRunResultViewProvider();

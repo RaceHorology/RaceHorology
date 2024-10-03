@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -41,6 +41,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
+using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
@@ -396,6 +397,13 @@ namespace RaceHorologyLib
           compProps.FieldActiveYear = _globalRaceConfig.ActiveFields.Contains("Year");
           compProps.FieldActiveNation = _globalRaceConfig.ActiveFields.Contains("Nation");
           dsvAlpinDB.UpdateCompetitionProperties(compProps);
+
+          // Enusre that the bewerbsnummer is set correctly
+          if ( compProps.Type == CompetitionProperties.ECompetitionType.DSV_Points 
+            || compProps.Type == CompetitionProperties.ECompetitionType.DSV_NoPoints
+            || compProps.Type == CompetitionProperties.ECompetitionType.DSV_SchoolPoints
+            || compProps.Type == CompetitionProperties.ECompetitionType.DSV_SchoolNoPoints )
+          dsvAlpinDB.EnsureDSVAlpinBewerbsnummer( _races );
         }
       }
     }
@@ -411,8 +419,8 @@ namespace RaceHorologyLib
               {CompetitionProperties.ECompetitionType.DSV_NoPoints, "DSV Erwachsene" },
               {CompetitionProperties.ECompetitionType.DSV_SchoolPoints, "DSV Schüler U14-U16" },
               {CompetitionProperties.ECompetitionType.DSV_SchoolNoPoints, "DSV Schüler U14-U16" },
-              //{CompetitionProperties.ECompetitionType.VersatilityPoints, "???" },  // BestOfTwo-Points
-              //{CompetitionProperties.ECompetitionType.VersatilityNoPoints, "Vereinsrennen - BestOfTwo" },
+              {CompetitionProperties.ECompetitionType.VersatilityPoints, "Vielseitigkeit (Punkte)" },  // BestOfTwo-Points
+              {CompetitionProperties.ECompetitionType.VersatilityNoPoints, "Vielseitigkeit (Nicht-Punkte)" },
               {CompetitionProperties.ECompetitionType.ClubInternal_Sum, "Vereinsrennen - Summe" },
               {CompetitionProperties.ECompetitionType.ClubInternal_BestRun, "Vereinsrennen - BestOfTwo" },
               //{CompetitionProperties.ECompetitionType.Parallel, "???" },
@@ -703,8 +711,8 @@ namespace RaceHorologyLib
     private RaceResultViewProvider _raceResultsProvider;
 
 
-    public ERaceType RaceType { get { return _properties.RaceType;  } }
-    public string RaceNumber {  get { return _addProperties?.RaceNumber; } }
+    public ERaceType RaceType { get { return _properties.RaceType; } }
+    public string RaceNumber { get { return _addProperties?.RaceNumber; } }
     public string Description { get { return _addProperties?.Description; } }
     public DateTime? DateStartList { get { return _addProperties?.DateStartList; } }
     public DateTime? DateResultList { get { return _addProperties?.DateResultList; } }
@@ -715,8 +723,8 @@ namespace RaceHorologyLib
     /// Inconsistencies in data can be:
     /// - Start numbers are not correctly assigned (either one startnumber is 0 or a start nnumber is used twice)
     /// </summary>
-    public bool IsConsistent 
-    { 
+    public bool IsConsistent
+    {
       get { return _isConsistent; }
       private set { if (value != _isConsistent) { _isConsistent = value; NotifyPropertyChanged(); } }
     }
@@ -733,6 +741,26 @@ namespace RaceHorologyLib
       private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
     }
 
+    public void SetTimingDeviceInfo(DeviceInfo deviceInfo)
+    {
+      if (deviceInfo.SerialNumber.IsNullOrEmpty())
+        TimingDevice = deviceInfo.PrettyName;
+      else
+        TimingDevice = string.Format("{0} (SN: {1})", deviceInfo.PrettyName, deviceInfo.SerialNumber);
+    }
+
+    string _timingDevice;
+    public string TimingDevice {
+      get { return _timingDevice; } 
+      protected set
+      {
+        if (_timingDevice != value)
+        {
+          _timingDevice = value;
+          _db.StoreTimingDevice(this, _timingDevice);
+        }
+      }
+    }
 
     public RaceConfiguration RaceConfiguration
     {
@@ -787,6 +815,7 @@ namespace RaceHorologyLib
       _properties = properties;
 
       _addProperties = _db.GetRaceProperties(this);
+      _timingDevice = _db.GetTimingDevice(this);
 
       loadRaceConfig();
       // Ensure no inconsistencies
@@ -957,6 +986,7 @@ namespace RaceHorologyLib
 
       // Fill the data from the DB initially (TODO: to be done better)
       rr.InsertResults(_db.GetRaceRun(this, run));
+      rr.InsertTimestamps(_db.GetTimestamps(this, run));
 
       // Get notification if a result got modified and trigger storage in DB
       DatabaseDelegatorRaceRun ddrr = new DatabaseDelegatorRaceRun(this, rr, _db);
@@ -1111,6 +1141,13 @@ namespace RaceHorologyLib
         var raceParticipantDB = _db.GetRaceParticipants(this, true).FirstOrDefault(r => r.Participant == participant);
         if (raceParticipantDB != null)
           points = raceParticipantDB.Points;
+      }
+      if (startnumber == 0)
+      {
+        // Update startnumber from DB if existing
+        var raceParticipantDB = _db.GetRaceParticipants(this, true).FirstOrDefault(r => r.Participant == participant);
+        if (raceParticipantDB != null)
+          startnumber = raceParticipantDB.StartNumber;
       }
 
       RaceParticipant raceParticipant = GetParticipant(participant);
@@ -1361,6 +1398,7 @@ namespace RaceHorologyLib
     private AppDataModel _appDataModel;
 
     private ItemsChangeObservableCollection<RunResult> _results;  // This list represents the actual results. It is the basis for all other lists.
+    private ItemsChangeObservableCollection<Timestamp> _timestamps;
 
     private ItemsChangeObservableCollection<LiveResult> _onTrack; // This list only contains the particpants that are on the run.
     private ItemsChangeObservableCollection<RunResult> _inFinish;  // This list represents the particpants in finish.
@@ -1389,6 +1427,7 @@ namespace RaceHorologyLib
       _onTrack = new ItemsChangeObservableCollection<LiveResult>();
       _inFinish = new ItemsChangeObservableCollection<RunResult>();
       _results = new ItemsChangeObservableCollection<RunResult>();
+      _timestamps = new ItemsChangeObservableCollection<Timestamp>();
 
       _markedParticipantForStartMeasurement = new Dictionary<EParticipantColor, RaceParticipant>();
       _markedParticipantForFinishMeasurement = new Dictionary<EParticipantColor, RaceParticipant>();
@@ -1539,6 +1578,21 @@ namespace RaceHorologyLib
       result.SetFinishTime(finishTime);
 
       _UpdateInternals();
+    }
+
+
+    /// <summary>
+    /// Sets the measured times for a participant based on start and finish time.
+    /// </summary>
+    /// <param name="participant">The participant</param>
+    /// <param name="startTime">Start time</param>
+    /// <remarks>startTime and finsihTime can be null. In that case it is stored as not available. A potentially set run time is overwritten with the calculated run time (finish - start).</remarks>
+    public void SetTime(EMeasurementPoint measurementPoint, RaceParticipant participant, TimeSpan? time)
+    {
+      if (measurementPoint == EMeasurementPoint.Start)
+        SetStartTime(participant, time);
+      else if (measurementPoint == EMeasurementPoint.Finish)
+        SetFinishTime(participant, time);
     }
 
     /// <summary>
@@ -1721,6 +1775,39 @@ namespace RaceHorologyLib
       }
 
       _UpdateInternals();
+    }
+
+    public void InsertTimestamps(List<Timestamp> timestamps)
+    {
+      foreach(var item in timestamps)
+        _timestamps.Add(item);
+    }
+
+    public ItemsChangeObservableCollection<Timestamp> GetTimestamps()
+    {
+      return _timestamps;
+    }
+
+    public Timestamp GetTimestamp(TimeSpan time, EMeasurementPoint mp)
+    {
+      return _timestamps.FirstOrDefault(t => t.Time == time && t.MeasurementPoint == mp);
+    }
+
+
+    public Timestamp AddOrUpdateTimestamp(Timestamp ts)
+    {
+      var tsFound = GetTimestamp(ts.Time, ts.MeasurementPoint);
+      if (tsFound != null)
+      {
+        tsFound.StartNumber = ts.StartNumber;
+        tsFound.Valid = ts.Valid;
+        return tsFound;
+      }
+      else
+      {
+        _timestamps.Add(ts);
+        return ts;
+      }
     }
 
 
@@ -1968,6 +2055,9 @@ namespace RaceHorologyLib
     AdditionalRaceProperties GetRaceProperties(Race race);
     void StoreRaceProperties(Race race, AdditionalRaceProperties props);
 
+    string GetTimingDevice(Race race);
+    void StoreTimingDevice(Race race, string timingDevice);
+
     void CreateOrUpdateParticipant(Participant participant);
     void RemoveParticipant(Participant participant);
 
@@ -1986,6 +2076,15 @@ namespace RaceHorologyLib
     void DeleteRunResult(Race race, RaceRun raceRun, RunResult result);
 
     void UpdateRace(Race race, bool active);
+
+
+
+    void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp);
+    List<Timestamp> GetTimestamps(Race raceRun, uint run);
+    void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp);
+
+
+    PrintCertificateModel GetCertificateModel(Race race);
 
 
     void StoreKeyValue(string key, string value);

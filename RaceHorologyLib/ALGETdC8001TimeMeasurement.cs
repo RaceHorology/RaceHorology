@@ -1,5 +1,5 @@
-﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+/*
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -40,6 +40,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
@@ -51,8 +52,15 @@ namespace RaceHorologyLib
 
     ALGETdC8001LineParser _parser;
     protected string _statusText;
+    protected DeviceInfo _deviceInfo = new DeviceInfo
+    {
+      Manufacturer = "ALGE",
+      Model = "TdC 8000/8001",
+      PrettyName = "ALGE TdC 8000/8001",
+      SerialNumber = string.Empty
+    };
 
-    TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
+  TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
 
     public ALGETdC8001TimeMeasurementBase()
     {
@@ -66,12 +74,12 @@ namespace RaceHorologyLib
       return (DateTime.Now - DateTime.Today) - _currentDayTimeDelta;
     }
 
-    public virtual string GetDeviceInfo()
+    public virtual DeviceInfo GetDeviceInfo()
     {
-      return "ALGE TdC 8000/8001 (base)";
+      return _deviceInfo;
     }
 
-    public string GetStatusInfo()
+    public virtual string GetStatusInfo()
     {
       return _statusText;
     }
@@ -81,6 +89,7 @@ namespace RaceHorologyLib
     public abstract void Stop();
 
     public abstract bool IsOnline { get; }
+    public abstract bool IsStarted { get; }
     public abstract event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
@@ -112,9 +121,9 @@ namespace RaceHorologyLib
                 handle?.Invoke(this, ssData);
 
                 // Send in addition a start event in case of parallel slalom (ALGE only sends a finish startnumber selected event)
-                if (ssData.Color != EParticipantColor.NoColor && ssData.Channel == StartnumberSelectedEventArgs.EChannel.EFinish)
+                if (ssData.Color != EParticipantColor.NoColor && ssData.Channel == EMeasurementPoint.Finish)
                 {
-                  ssData.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
+                  ssData.Channel = EMeasurementPoint.Start;
                   handle?.Invoke(this, ssData);
                 }
               }
@@ -153,10 +162,10 @@ namespace RaceHorologyLib
 
       // Sort out invalid data
       if ( parsedData.Flag == 'p'
-        || parsedData.Flag == '?'
         || parsedData.Flag == 'b'
         || parsedData.Flag == 'm'
         || parsedData.Flag == 'n'
+        || parsedData.Flag == 'C'
         || parsedData.Flag == 's')
         return null;
 
@@ -164,6 +173,7 @@ namespace RaceHorologyLib
         || parsedData.Flag == 'c')
         parsedDataTime = null;
 
+      data.Valid = parsedData.Flag != '?';
       data.StartNumber = parsedData.StartNumber;
 
       switch (parsedData.Channel)
@@ -205,9 +215,9 @@ namespace RaceHorologyLib
       data.StartNumber = parsedData.StartNumber;
 
       if (parsedData.Flag == 'n')
-        data.Channel = StartnumberSelectedEventArgs.EChannel.EFinish;
+        data.Channel = EMeasurementPoint.Finish;
       else if (parsedData.Flag == 's')
-        data.Channel = StartnumberSelectedEventArgs.EChannel.EStart;
+        data.Channel = EMeasurementPoint.Start;
 
       if (parsedData.StartNumberModifier == 'r')
         data.Color = EParticipantColor.Red;
@@ -217,6 +227,9 @@ namespace RaceHorologyLib
       return data;
     }
 
+    // Nothing to implement, download is initiated interactively on ALGE device via Classment transfer
+    public EImportTimeFlags SupportedImportTimeFlags() { return EImportTimeFlags.RunTime; }
+    public void DownloadImportTimes(){}
 
 
     #region Implementation of ILiveDateTimeProvider
@@ -274,11 +287,6 @@ namespace RaceHorologyLib
       _internalProtocol = string.Empty;
     }
 
-    public override string GetDeviceInfo()
-    {
-      return "ALGE TdC8000/8001 (" + _serialPortName + ")";
-    }
-
     public override void Start()
     {
       if (string.IsNullOrEmpty(_serialPortName))
@@ -289,14 +297,6 @@ namespace RaceHorologyLib
       _statusText = "Starting";
 
       _stopRequest = false;
-
-      if (_dumpDir != null)
-        startWritingToDumpFile();
-
-      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
-      _serialPort.NewLine = "\r"; // CR, ASCII(13)
-      _serialPort.Handshake = Handshake.RequestToSend;
-      _serialPort.ReadTimeout = 1000;
 
       // Start processing in a separate Thread
       _instanceCaller = new System.Threading.Thread(
@@ -313,13 +313,17 @@ namespace RaceHorologyLib
         _statusText = "Stopping";
 
         _stopRequest = true;
-        _instanceCaller.Join(); // Wait until thread has been terminated
-
-        if (_dumpFile!=null)
-          _dumpFile.Close();
+        _instanceCaller = null;
       }
     }
 
+    public override string GetStatusInfo()
+    {
+      if (_serialPortName.IsNullOrEmpty())
+        return "kein COM Port";
+
+      return _serialPortName + ", " + _statusText;
+    }
 
     private void startWritingToDumpFile()
     {
@@ -346,12 +350,27 @@ namespace RaceHorologyLib
       get { return _serialPort != null && _internalStatus == EInternalStatus.Running; } 
     }
 
+    public override bool IsStarted {
+      get {
+        return _serialPort != null && !_stopRequest;
+      }
+    }
+
+
     public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
     private void MainLoop()
     {
       setInternalStatus(EInternalStatus.Initializing);
+
+      if (_dumpDir != null)
+        startWritingToDumpFile();
+
+      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
+      _serialPort.NewLine = "\r"; // CR, ASCII(13)
+      _serialPort.Handshake = Handshake.RequestToSend;
+      _serialPort.ReadTimeout = 1000;
 
       while (!_stopRequest)
       {
@@ -383,6 +402,15 @@ namespace RaceHorologyLib
 
       Logger.Info("closing serial port");
       _serialPort.Close();
+      _serialPort.Dispose();
+      _serialPort = null;
+
+      if (_dumpFile != null)
+      {
+        _dumpFile.Close();
+        _dumpFile.Dispose();
+        _dumpFile = null;
+      }
 
       _statusText = "Stopped";
       setInternalStatus(EInternalStatus.Stopped);

@@ -21,13 +21,14 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Label x:Name="lblTimingDevice" Content="Zeitmeßgerät:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
-          <ComboBox x:Name="cbTimingDevice" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionChanged="cbTimingDevice_SelectionChanged"/>
+          <ComboBox x:Name="cbTimingDevice" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="200" SelectionChanged="cbTimingDevice_SelectionChanged"/>
 
           <Label x:Name="lblTimingDevicePort" Content="Schnittstelle:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="1" Grid.Column="0"/>
           <ComboBox x:Name="cbTimingDevicePort" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
@@ -37,6 +38,7 @@
 
           <Label x:Name="lblTimingDeviceDebug" Content="Debug Funktionen:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="3" Grid.Column="0"/>
           <CheckBox x:Name="chkTimingDeviceDebugDump" Content="Speichern der Kommunikation als Dump-File" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          <CheckBox x:Name="chkTimingDisplayPartcipantAssignment" Content="Zeitstempel-Teilnehmer-Zuweisungsbereich anzeigen" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
         </Grid>
       </TabItem>
@@ -55,7 +57,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Label Content="Zeit bis Läufer automatisch als NiZ gewertet wird [s]:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
+          <Label Content="Zeit bis Läufer automatisch als NIZ gewertet wird [s]:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
           <TextBox x:Name="txtAutomaticNiZTimeout" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Right" MinWidth="50" />
 
           <Label Content="Anzahl Starter bis ein nichtgestarter Läufer als NaS gewertet wird:" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
@@ -85,8 +87,22 @@
           </Grid.ColumnDefinitions>
 
           <Label Content="Nicht zu vergebene Startnummern:&#xD;&#xA;(durch Komma getrennt)" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" />
-          <TextBox x:Name="txtNotToBeAssigned" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="50" />
+          <TextBox x:Name="txtNotToBeAssigned" VerticalAlignment="Center" MinWidth="50" Grid.ColumnSpan="2" Height="22" Margin="195,0,5,0" />
+        </Grid>
+      </TabItem>
+      <TabItem Header="Update">
+        <Grid Background="#FFE5E5E5">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3"/>
+          </Grid.ColumnDefinitions>
 
+          <Label Content="Programmaktualisierungskanal:" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0"  />
+          <ComboBox x:Name="cbUpdateChannel" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" MinWidth="100" MaxWidth="120" Margin="0" />
         </Grid>
       </TabItem>
     </TabControl>

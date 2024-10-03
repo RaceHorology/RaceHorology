@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -110,27 +110,73 @@ namespace RaceHorologyLibTest
       protected override string getTitle() { return "DummyTitle"; }
       protected override void addContent(PdfDocument pdf, Document document) { document.Add(new Paragraph("DummyContent")); }
     }
+
     [TestMethod]
     [DeploymentItem(@"TestOutputs\Base_RaceReport.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
     public void Base_RaceReport()
     {
       TestDataGenerator tg = new TestDataGenerator(testContextInstance.TestResultsDirectory);
       {
         IPDFReport report = new DummyRaceReport(tg.Model.GetRace(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 1));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Base_RaceReport.pdf", 0));
       }
     }
-
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
-    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis Gesamt.pdf")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Zeitnehmer Checkliste 1. Durchgang.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
+    public void Integration_1554MSBS_TimerChecklistRun1()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      Race race = model.GetRace(0);
+
+      {
+        IPDFReport report = new TimerReport(race.GetRun(0));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Zeitnehmer Checkliste 1. Durchgang.pdf", 0));
+      }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Zeitnehmer Checkliste 2. Durchgang.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
+    public void Integration_1554MSBS_TimerChecklistRun2()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      Race race = model.GetRace(0);
+
+      {
+        IPDFReport report = new TimerReport(race.GetRun(1));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Zeitnehmer Checkliste 2. Durchgang.pdf", 0));
+      }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
     [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 1. Durchgang.pdf")]
-    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 2. Durchgang.pdf")]
-    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 1. Durchgang.pdf")]
-    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 2. Durchgang.pdf")]
-    public void Integration_1554MSBS()
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf" , @"resources")]
+    public void Integration_1554MSBS_StartlistRun1()
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
@@ -141,23 +187,97 @@ namespace RaceHorologyLibTest
 
       {
         IPDFReport report = new StartListReport(race.GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 4));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 1. Durchgang.pdf", 0));
       }
+    }
+
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Startliste 2. Durchgang.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
+    public void Integration_1554MSBS_StartlistRun2()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      Race race = model.GetRace(0);
+
       {
         IPDFReport report = new StartListReport2ndRun(race.GetRun(1));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 2. Durchgang.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Startliste 2. Durchgang.pdf", 0));
       }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 1. Durchgang.pdf")]
+
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
+    public void Integration_1554MSBS_ResultRun1()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      Race race = model.GetRace(0);
+
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(0));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 5));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 1. Durchgang.pdf", 0));
       }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis 2. Durchgang.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
+    public void Integration_1554MSBS_ResultRun2()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      Race race = model.GetRace(0);
+
       {
         IPDFReport report = new RaceRunResultReport(race.GetRun(1));
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 3));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis 2. Durchgang.pdf", 0));
       }
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
+    [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
+    [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Ergebnis Gesamt.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf", @"resources")]
+    public void Integration_1554MSBS_ResultFinal()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"1554MSBS.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      AppDataModel model = new AppDataModel(db);
+
+      Race race = model.GetRace(0);
+
       {
         IPDFReport report = new RaceResultReport(race);
-        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 6));
+        Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Ergebnis Gesamt.pdf", 0));
       }
     }
   }

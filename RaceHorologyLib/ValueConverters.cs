@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -161,10 +161,7 @@ namespace RaceHorologyLib
       {
         RunResult.EResultCode rc = (RunResult.EResultCode)value;
 
-        if (rc == RunResult.EResultCode.Normal)
-          return "";
-
-        return rc.ToString();
+        return rc.Format();
       }
       catch (Exception)
       {
@@ -195,7 +192,7 @@ namespace RaceHorologyLib
             return "keine Zeit oder Ausscheidung";
 
           default:
-            return rc.ToString();
+            return rc.Format();
         }
       }
       catch (Exception)
@@ -237,6 +234,33 @@ namespace RaceHorologyLib
     }
   }
 
+  public class DateTimeConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      try
+      {
+        string str = string.Empty;
+        string strParameter = parameter?.ToString();
+
+        if (value == null)
+          return "---";
+        if (value is DateTime dt)
+          return dt.ToString();
+      }
+      catch (Exception)
+      {
+      }
+      return "";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
 
 
   public class ResultCodeWithCommentConverter : IMultiValueConverter
@@ -255,9 +279,9 @@ namespace RaceHorologyLib
           return "";
 
         if (string.IsNullOrEmpty(comment))
-          return rc.ToString();
+          return rc.Format();
         else
-          return string.Format("{0} ({1})", rc.ToString(), comment);
+          return string.Format("{0} ({1})", rc.Format(), comment);
       }
       catch(Exception)
       {
@@ -290,11 +314,8 @@ namespace RaceHorologyLib
         // Return time
         if (rc == RunResult.EResultCode.Normal)
           return t.ToRaceTimeString();
-        if (rc == RunResult.EResultCode.NotSet)
-          return "";
-
         // Return result code
-        return rc.ToString();
+        return rc.Format();
       }
       catch (Exception)
       {
@@ -391,5 +412,25 @@ namespace RaceHorologyLib
   }
 
 
+  public static class EResultCodeUtil
+  {
+    public static string Format(this RunResult.EResultCode code)
+    {
+      return StrResultCode(code);
+    }
 
+    public static string StrResultCode(RunResult.EResultCode code)
+    {
+      switch (code)
+      {
+        case RunResult.EResultCode.NotSet: return "---";
+        case RunResult.EResultCode.Normal: return "";
+        case RunResult.EResultCode.NaS: return "NAS";
+        case RunResult.EResultCode.NiZ: return "NIZ";
+        case RunResult.EResultCode.DIS: return "DIS";
+        case RunResult.EResultCode.NQ: return "NQ";
+      }
+      return "???";
+    }
+  }
 }

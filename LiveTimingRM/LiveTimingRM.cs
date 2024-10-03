@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -33,6 +33,7 @@
  * 
  */
 
+using DocumentFormat.OpenXml.Spreadsheet;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
@@ -199,7 +200,6 @@ public class LiveTimingRM : ILiveTiming
 {
   private Race _race;
   private string _bewerbnr;
-  private string _login;
   private string _password;
 
   private bool _isOnline;
@@ -239,10 +239,9 @@ public class LiveTimingRM : ILiveTiming
   }
 
 
-  public void Login(string bewerbnr, string login, string password)
+  public void Login(string bewerbnr, string password)
   {
     _bewerbnr = bewerbnr;
-    _login = login;
     _password = password;
 
     _lv = new rmlt.LiveTiming();
@@ -349,12 +348,8 @@ public class LiveTimingRM : ILiveTiming
     if (isOnline())
       return;
 
-    string licensePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-    licensePath = Path.Combine(licensePath, "3rdparty");
-
     Logger.Info("login");
-
-    _currentLvStruct = _lv.LoginLiveTiming(_bewerbnr, _login, _password, licensePath);
+    _currentLvStruct = _lv.LoginLiveTiming(_bewerbnr, _password);
 
     if (_currentLvStruct.Fehlermeldung != "ok")
     {
@@ -389,6 +384,10 @@ public class LiveTimingRM : ILiveTiming
 
     Logger.Info("startLiveTiming: {0}", _currentLvStruct);
     _lv.StartLiveTiming(ref _currentLvStruct);
+
+    lastSendParticipantData = "";
+    lastSendStartList = "";
+    lastSendTimingData = "";
   }
 
 
@@ -467,12 +466,29 @@ public class LiveTimingRM : ILiveTiming
   }
 
 
+  // Echten Daten übertragen
   internal string getCategories()
   {
-    return "Kategorie|M|M|1\nKategorie|W|W|2";
+    var cats = _race.GetDataModel().GetParticipantCategories().ToList();
+    cats.Sort();
+
+    string result = "";
+    foreach (var c in cats)
+    {
+      string item;
+      item = string.Format("Kategorie|{0}|{1}|{2}", c.Name, c.PrettyName, c.SortPos);
+
+      if (!string.IsNullOrEmpty(result))
+        result += "\n";
+
+      result += item;
+    }
+
+    return result;
   }
 
 
+  protected string lastSendParticipantData = "";
   protected void sendParticipants()
   {
     // Id - Kategorie | Id - Gruppe | Id - Klasse | Id - Teilnehmer | Start - Nr | Code | Name | Jahrgang | Verband | Verein | Punkte
@@ -489,11 +505,12 @@ public class LiveTimingRM : ILiveTiming
     // Verein Verein des Teilnehmers
     // Punkte leer/ Punkte des Teilnehmers(mit Komma und 2 Nachkommastellen) 
 
-    string data = "";
-
-    data = getParticipantsData();
-
-    scheduleTransfer(new LTTransferParticpants(_lv, _currentLvStruct, data));
+    string data = getParticipantsData();
+    if (data != lastSendParticipantData)
+    {
+      scheduleTransfer(new LTTransferParticpants(_lv, _currentLvStruct, data));
+      lastSendParticipantData = data;
+    }
   }
 
 
@@ -557,18 +574,21 @@ public class LiveTimingRM : ILiveTiming
   }
 
 
+  protected string lastSendStartList = "";
   protected void sendStartList(RaceRun raceRun)
   {
+
     //iii
     //iii Id des Teilnehmers(muss in Datei mit Teilnehmerdaten vorhanden sein)
 
-    string data = "";
-
-    data = getStartListData(raceRun);
-
+    string data = getStartListData(raceRun);
     string dg = string.Format("{0}", raceRun.Run);
 
-    scheduleTransfer(new LTTransferStartList(_lv, _currentLvStruct, dg, data));
+    if (lastSendStartList != data + dg)
+    {
+      scheduleTransfer(new LTTransferStartList(_lv, _currentLvStruct, dg, data));
+      lastSendStartList = data + dg;
+    }
   }
 
 
@@ -595,6 +615,7 @@ public class LiveTimingRM : ILiveTiming
   }
 
 
+  string lastSendTimingData = "";
   protected void sendTiming(RaceRun raceRun)
   {
     // iiiehhmmss,zhdistext
@@ -608,14 +629,14 @@ public class LiveTimingRM : ILiveTiming
     // hhmmss,zh Laufzeit
     // distext   Disqualifikationstext
 
-    string data = "";
-
-    data = getTimingData(raceRun);
-
+    string data = getTimingData(raceRun);
     string dg = string.Format("{0}", raceRun.Run);
 
-
-    scheduleTransfer(new LTTransferTiming(_lv, _currentLvStruct, dg, data));
+    if (lastSendTimingData != data + dg)
+    {
+      scheduleTransfer(new LTTransferTiming(_lv, _currentLvStruct, dg, data));
+      lastSendTimingData = data + dg;
+    }
   }
 
 
@@ -628,7 +649,7 @@ public class LiveTimingRM : ILiveTiming
     //            2 = Nicht im Ziel Laufzeit = 999999,99
     //            3 = Disqualifiziert Laufzeit = 999999,99
     //            4 = Nicht qualifiziert Laufzeit = 999999,99
-    //            9 = Läufer auf der Strecke Laufzeit = 000000,01
+    //            9 = Läufer auf der Strecke Laufzeit = 000000,01 oder Startzeit
     // hhmmss,zh Laufzeit
     // distext   Disqualifikationstext
 
@@ -650,7 +671,10 @@ public class LiveTimingRM : ILiveTiming
         }
         else if (r.GetStartTime() != null)
         {
-          time = "000000,01";
+          if (r.StartTime != null)
+            time = r.StartTime?.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture);
+          else
+            time = "000000,01";
           eCode = 9;
         }
         else
@@ -680,6 +704,13 @@ public class LiveTimingRM : ILiveTiming
 
       result += item;
     }
+
+    // Add current day time
+    var dayTime = raceRun.GetRace().GetDataModel().GetCurrentDayTime();
+    var curTimeString = string.Format("{0,3}{1,1}{2}", 999, ' ', dayTime.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture));
+    if (!string.IsNullOrEmpty(result))
+      result += "\n";
+    result += curTimeString;
 
     return result;
   }

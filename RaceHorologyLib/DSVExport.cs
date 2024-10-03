@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -325,12 +325,12 @@ namespace RaceHorologyLib
       DSVSchoolRaceResultViewProvider dsvRaceVP = race.GetResultViewProvider() as DSVSchoolRaceResultViewProvider;
       if (dsvRaceVP != null)
       {
-        if (race.RaceConfiguration.ValueF == 0.0)
-          throw new DSVExportException("missing f-value");
-
-        _writer.WriteStartElement("fvalue");
-        _writer.WriteValue(race.RaceConfiguration.ValueF);
-        _writer.WriteEndElement();
+        if (race.RaceConfiguration.ValueF > 0.0)
+        {
+          _writer.WriteStartElement("fvalue");
+          _writer.WriteValue(race.RaceConfiguration.ValueF);
+          _writer.WriteEndElement();
+        }
 
         DSVRaceCalculation dsvCalcW = dsvRaceVP.GetDSVRaceCalculationWomen();
         if (dsvCalcW != null)
@@ -806,7 +806,7 @@ namespace RaceHorologyLib
 
     static string mapSex(RaceParticipant particpant)
     {
-      switch (particpant.Sex.Name)
+      switch (particpant.Sex?.Name)
       {
         case 'M':
         case 'm':

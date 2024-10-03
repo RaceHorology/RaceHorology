@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -83,6 +83,7 @@ namespace RaceHorologyLibTest
     }
 
     public override bool IsOnline { get => true; }
+    public override bool IsStarted { get => _dumpFile != null; }
     public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
@@ -544,6 +545,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 390), pd.StartTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       {
@@ -553,6 +555,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 21, 46, 36, 391), pd.StartTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       {
@@ -562,6 +565,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 0, 0, 20, 100), pd.RunTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BStartTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       { // Disqualified
@@ -571,6 +575,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(null, pd.StartTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
       { // Cleared data
         var pd = ParseAndTransfer("c0035 C0  21:46:36.3910 00");
@@ -579,12 +584,20 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(null, pd.StartTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       // Ignored data (first character)
       { // Invalid startnumber
         var pd = ParseAndTransfer("?0034 C1M 21:46:48.3300 00");
-        Assert.IsNull(pd);
+        Assert.AreEqual(34U, pd.StartNumber);
+        Assert.AreEqual(false, pd.BStartTime);
+        Assert.AreEqual(null, pd.StartTime);
+        Assert.AreEqual(true, pd.BFinishTime);
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 330), pd.FinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+        Assert.AreEqual(null, pd.RunTime);
+        Assert.IsFalse(pd.Valid);
       }
       { // penalty time (parallelslalom)
         var pd = ParseAndTransfer("p0034 C1M 21:46:48.3300 00");
@@ -627,6 +640,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 19, 52, 15, 162), pd.StartTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       {
@@ -636,6 +650,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 19, 52, 15, 162), pd.StartTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       {
@@ -645,6 +660,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 19, 52, 20, 390), pd.FinishTime);
         Assert.AreEqual(false, pd.BStartTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       {
@@ -654,6 +670,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 19, 52, 23, 401), pd.FinishTime);
         Assert.AreEqual(false, pd.BStartTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       {
@@ -663,6 +680,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 0, 0, 5, 220), pd.RunTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BStartTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       {
@@ -672,6 +690,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new TimeSpan(0, 0, 0, 8, 230), pd.RunTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BStartTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       { // Disqualified
@@ -681,6 +700,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(null, pd.StartTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
       { // Cleared data
         var pd = ParseAndTransfer("c0035 C0  21:46:36.3910 00");
@@ -689,12 +709,20 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(null, pd.StartTime);
         Assert.AreEqual(false, pd.BFinishTime);
         Assert.AreEqual(false, pd.BRunTime);
+        Assert.IsTrue(pd.Valid);
       }
 
       // Ignored data (first character)
       { // Invalid startnumber
         var pd = ParseAndTransfer("?0034 C1M 21:46:48.3300 00");
-        Assert.IsNull(pd);
+        Assert.AreEqual(34U, pd.StartNumber);
+        Assert.AreEqual(false, pd.BStartTime);
+        Assert.AreEqual(null, pd.StartTime);
+        Assert.AreEqual(true, pd.BFinishTime);
+        Assert.AreEqual(new TimeSpan(0, 21, 46, 48, 330), pd.FinishTime);
+        Assert.AreEqual(false, pd.BRunTime);
+        Assert.AreEqual(null, pd.RunTime);
+        Assert.IsFalse(pd.Valid);
       }
       { // penalty time (parallelslalom)
         var pd = ParseAndTransfer("p0034 C1M 21:46:48.3300 00");
@@ -763,7 +791,8 @@ namespace RaceHorologyLibTest
         LiveTimingMeasurement liveTimingMeasurement = new LiveTimingMeasurement(modelWork);
 
         ALGETdC8001TimeMeasurementSimulate algeSimulator = new ALGETdC8001TimeMeasurementSimulate(testfile);
-        liveTimingMeasurement.SetTimingDevice(algeSimulator, algeSimulator);
+        liveTimingMeasurement.AddTimingDevice(algeSimulator, true);
+        liveTimingMeasurement.SetLiveDateTimeProvider(algeSimulator);
         algeSimulator.Start();
 
         modelWork.SetCurrentRaceRun(modelWork.GetRace(0).GetRun(run));

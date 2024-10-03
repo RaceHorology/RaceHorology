@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -257,7 +257,7 @@ namespace RaceHorologyLib
       dataSet.Tables[0].Columns.Remove("GSSta");
       dataSet.Tables[0].Columns.Remove("SGpos");
       dataSet.Tables[0].Columns.Remove("SGSta");
-      dataSet.Tables[0].Columns.Remove("ACpoints");
+      // dataSet.Tables[0].Columns.Remove("ACpoints");
       dataSet.Tables[0].Columns.Remove("ACpos");
       dataSet.Tables[0].Columns.Remove("ACSta");
     }

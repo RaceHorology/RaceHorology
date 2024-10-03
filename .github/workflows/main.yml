@@ -7,13 +7,12 @@ on:
   push:
     branches:
       - main
-      - release/*
-      - feature/*
-      - bugfix/*
+      - release/**
+      - feature/**
+      - bugfix/**
   pull_request:
     branches:  
       - main
-
 
 jobs:
   build:
@@ -24,23 +23,25 @@ jobs:
       commit: ${{ env.GITHUB_SHA }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Calculate Version
-        uses: paulhatch/semantic-version@v4.0.2
+        uses: paulhatch/semantic-version@v5.4.0
         id: version
         with:
           # The prefix to use to identify tags
           tag_prefix: "v"
+          # A string which, if present in a git commit, indicates that a change represents a
+          # major (breaking) change, supports regular expressions wrapped with '/'
+          major_pattern: "(release-MAJOR)"
+          # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
+          minor_pattern: "(release-MINOR)"
           # A string to determine the format of the version output
-          format: "${major}.${minor}.${patch}.${increment}"
-          # Indicate whether short tags like 'v1' should be supported. If false only full
-          # tags like 'v1.0.0' will be recognized.
-          short_tags: false
+          version_format: "${major}.${minor}.${patch}"
           # If this is set to true, *every* commit will be treated as a new version.
-          bump_each_commit: false        
+          bump_each_commit: true  
 
       - name: Debug Version
         run: |
@@ -50,15 +51,14 @@ jobs:
           Write-Host "Output of minor: ${{ steps.version.outputs.minor }}"         
           Write-Host "Output of patch: ${{ steps.version.outputs.patch }}"         
 
-
-      - uses: actions/cache@v1
+      - uses: actions/cache@v4
         id: cache
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
     
       - name: Install Nuget
-        uses: nuget/setup-nuget@v1
+        uses: nuget/setup-nuget@v2
         with:
           nuget-version: ${{ env.NUGET_VERSION}}
 
@@ -67,15 +67,25 @@ jobs:
         run: nuget restore
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
   
       - name: Build DotNET
         run: |
            msbuild /p:Configuration=Debug /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
+           
+      - name: Sign Assemblys
+        uses: GermanBluefox/code-sign-action@v7
+        with:
+          certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
+          password: '${{ secrets.SIGNINGPASSWORD }}'
+          certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
+          folder: '${{ github.workspace }}\RaceHorology\bin\x86\Release'
+          recursive: true
+          timestampUrl: 'http://timestamp.digicert.com'
 
       - name: Upload Test Programm
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -84,22 +94,65 @@ jobs:
       - name: Build Installer
         run: |
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
+           ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
 
+      - name: Sign Installer
+        uses: GermanBluefox/code-sign-action@v7
+        with:
+          certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
+          password: '${{ secrets.SIGNINGPASSWORD }}'
+          certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
+          folder: '${{ github.workspace }}\RaceHorologySetup\bin\Release\'
+          recursive: false
+          timestampUrl: 'http://timestamp.digicert.com'
+          
       - name: Upload Installer
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: installer_RaceHorology
-          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          path: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
           retention-days: 21
 
+      - name: Test Installer
+        uses: Amadevus/pwsh-script@v2.0.3
+        id: install_script
+        with:
+          script: |
+            $msi = "${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi"
+            $log = "${{ github.workspace }}\RaceHorologySetup\bin\Release\install.log" 
+            $procMain = Start-Process "msiexec" "/i `"$msi`" /qn /l*! `"$log`"" -NoNewWindow -PassThru
+            $procLog = Start-Process "powershell" "Get-Content -Path `"$log`" -Wait" -NoNewWindow -PassThru 
+            $procMain.WaitForExit() 
+            $procLog.Kill()
 
+      - name: Upload Raw Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_RaceHorology
+          path: ${{ github.workspace }}\RaceHorology\bin\x86\Release\**
+
+      - name: Compare Installer
+        id: compare_script
+        run: |
+          $Source = Get-ChildItem –Path "${{ github.workspace }}\RaceHorology\bin\x86\Release\*" -Recurse -Attributes !Directory | foreach  {Get-FileHash –Path $_.FullName}
+          $Target = Get-ChildItem –Path "C:\Program Files (x86)\RaceHorology\*" -Recurse  -Attributes !Directory | foreach {Get-FileHash –Path $_.FullName}
+          $Compare = Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru
+          if ((Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru | measure).Count -gt 0) {
+            Write-Host "Installation folder and Release build are different!"
+            $Compare.Path
+            #(Compare-Object -ReferenceObject $Source -DifferenceObject $Target -Property hash -PassThru).Path
+
+            exit 1
+          } else {
+            Write-Host "No differences found!"
+          }
 
   run_test:
     needs: build
     runs-on: [windows-latest]
     steps:
       - name: Download Test Programm
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -114,17 +167,19 @@ jobs:
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory!=HardwareDependent&TestCategory!=IntegrationDsvOnline" /logger:trx
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v2
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
+          retention-days: 2
           name: unittest_RaceHorologyLibTest_Results
-          path: ${{ github.workspace }}\TestResults\**\*.trx 
+          path: ${{ github.workspace }}\TestResults\**
 
   run_test_dsv_online:
     needs: build
     runs-on: [windows-latest]
     steps:
       - name: Download Test Programm
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: unittest_RaceHorologyLibTest
           path: ${{ github.workspace }}\RaceHorologyLibTest\bin\x86
@@ -139,7 +194,7 @@ jobs:
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory=IntegrationDsvOnline" /logger:trx
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: unittest_RaceHorologyLibTest_Results_DsvOnline
           path: ${{ github.workspace }}\TestResults\**\*.trx 
@@ -150,19 +205,20 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Installer
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: installer_RaceHorology
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
 
       - name: Create release entry on GitHub
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.12.0
         with:
-          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-*.msi
           prerelease: false
           tag: ${{ needs.build.outputs.version_tag }}
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true
 
   upload_as_pre-release:
     if: ${{ startsWith(github.ref, 'refs/heads/main') }}
@@ -170,21 +226,22 @@ jobs:
     runs-on: [windows-latest]
     steps:
       - name: Download Installer
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: installer_RaceHorology
           path: ${{ github.workspace }}\RaceHorologySetup\bin\Release
 
       - name: Upload as pre-release 
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.14.0
         with:
-          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi
+          artifacts: ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-*.msi
           prerelease: true
           tag: pre-${{ needs.build.outputs.version }}
           name: Automatic build from main pre-${{ needs.build.outputs.version }}
           body: Achtung 
                 Diese Version wurde automatisch aus den letzten Quellcodeänderungen gebaut und stellt nur den letzten Stand der Änderungen dar.
                 Sie könnte daher instabil sein.
+          generateReleaseNotes: true
           commit: ${{ needs.build.outputs.commit }}
           token: ${{ secrets.GITHUB_TOKEN }}
 

@@ -8,7 +8,7 @@
         xmlns:Settings="clr-namespace:RaceHorology.Settings" 
         Settings:WindowSettings.Save="True"
         mc:Ignorable="d"
-        Title="Race Horology" WindowState="Maximized">
+        Title="Race Horology" WindowState="Maximized" d:DesignHeight="800" d:DesignWidth="1024">
 
   <Window.CommandBindings>
     <CommandBinding Command="New"  Executed="NewCommandBinding_Executed" />
@@ -17,6 +17,9 @@
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
     <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.WA" Executed="WhatsAppInfoChannelCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.Documentation" Executed="OnlineDocumentationCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.AutoUpdate" Executed="AutoUpdaterCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.HandTime" Executed="HandTimeCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.ImportTime" Executed="ImportTimeCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.DeleteRunResults" Executed="DeleteRunResultsCommandBinding_Executed" />
@@ -52,14 +55,23 @@
         <MenuItem Name="mnuToolsHandTiming"  Header="Handzeit berechnen" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.HandTime" />
-        <MenuItem Name="mnuToolsImportTime"  Header="Classement empfangen" 
+        <MenuItem Name="mnuToolsImportTime"  Header="Zeiten von Zeitmeßgerät importieren" 
                     IsEnabled="{Binding HasActiveRace}"
                     Command="rhcmd:RaceHorologyCommands.ImportTime" />
       </MenuItem>
       <MenuItem Name="mnuOptions"  Header="Optionen" Command="Properties">
         <MenuItem Name="mnuSettings"  Header="Einstellungen" Command="Properties" />
       </MenuItem>
-      <MenuItem Name="mnuHelp" Header="Hilfe" Command="Help"/>
+
+      <MenuItem Name="mnuExport" Header="Daten-Export" IsEnabled="{Binding HasActiveRace}" />
+
+      <MenuItem Name="mnuHelp" Header="Hilfe">
+        <MenuItem Name="mnuOpenExternalDocumentation" Header="Online Dokumentation" Command="rhcmd:RaceHorologyCommands.Documentation" />
+        <MenuItem Name="mnuAutoUpdater" Header="Suche nach Updates" Command="rhcmd:RaceHorologyCommands.AutoUpdate" />
+        <MenuItem Name="mnuWa" Header="WhatsApp Infokanal" Command="rhcmd:RaceHorologyCommands.WA" /> 
+        <MenuItem Name="mnuInfo" Header="Info" Command="Help" />
+       </MenuItem>
+
     </Menu>
     <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffe6eee5">
       <Grid.ColumnDefinitions>
@@ -87,7 +99,15 @@
           </Grid.ColumnDefinitions>
 
           <Label x:Name="lblLiveTimingStatus" Content="Statustext für Online Livetiming: " Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
-          <TextBox x:Name="txtLiveTimingStatus" Grid.Column="1" Text="" Margin="0" Padding="2" AcceptsReturn="False" FontSize="12" TextWrapping="NoWrap" MinWidth="100" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          <ComboBox x:Name="cmbLiveTimingStatus" Grid.Column="1" IsEditable="True" Text="" Margin="0" Padding="2" FontSize="12"  MinWidth="100" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+            <ComboBoxItem Content="" />
+            <ComboBoxItem Content="Vorläufer auf der Strecke" />
+            <ComboBoxItem Content="Rennen gestartet" />
+            <ComboBoxItem Content="Rennen unterbrochen" />
+            <ComboBoxItem Content="1. Durchgang beendet" />
+            <ComboBoxItem Content="2. Durchgang beendet" />
+            <ComboBoxItem Content="Rennen beendet" />
+          </ComboBox>
         </Grid>
       </StatusBarItem>
 
@@ -99,12 +119,16 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Label x:Name="lblTimingDeviceLBL" Content="Live Zeitnahme: " Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
           <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12"  Grid.Column="1"/>
-          <Button x:Name="btnTimingDeviceDebug" Content="Protokoll" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceDebug_Click"/>
+          
+          <Button x:Name="btnTimingDeviceStartStop" Content="..." Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceStartStop_Click"/>
+
+          <Button x:Name="btnTimingDeviceDebug" Content="Details" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="3" Click="btnTimingDeviceDebug_Click"/>
         </Grid>
-      </StatusBarItem>      
+      </StatusBarItem>
 
     </StatusBar>
 

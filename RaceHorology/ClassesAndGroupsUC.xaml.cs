@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -119,6 +119,16 @@ namespace RaceHorology
         _cgVM.Import(importModel);
       }
     }
+
+    private void btnYearPlus_Click(object sender, RoutedEventArgs e)
+    {
+      _cgVM.AdaptYear(+1);
+    }
+
+    private void btnYearMinus_Click(object sender, RoutedEventArgs e)
+    {
+      _cgVM.AdaptYear(-1);
+    }
   }
 
 
@@ -129,7 +139,6 @@ namespace RaceHorology
     public GroupViewModelDD GroupViewModelDD { get; }
     public ClassViewModelDD ClassViewModelDD { get; }
     public CategoryViewModelDD CategoryViewModelDD { get; }
-
 
     public ClassesAndGroupsEditViewModel(AppDataModel dm) : base(dm)
     {

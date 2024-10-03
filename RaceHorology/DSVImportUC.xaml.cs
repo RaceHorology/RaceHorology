@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -149,10 +149,7 @@ namespace RaceHorology
 
     private void txtDSVSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        applySearch();
-      });
+      applySearch();
     }
 
 

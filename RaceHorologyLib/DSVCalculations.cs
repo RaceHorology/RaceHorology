@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -136,7 +136,7 @@ namespace RaceHorologyLib
         penalty = _appliedPenalty;
 
       if (_bestTime != null && rri.TotalTime != null)
-        return Math.Round(_valueF * ((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - _valueF + penalty, 2);
+        return Math.Round(_valueF * (((TimeSpan)rri.TotalTime).TotalSeconds / ((TimeSpan)_bestTime).TotalSeconds - 1.0) + penalty, 2);
 
       return -1.0;
     }

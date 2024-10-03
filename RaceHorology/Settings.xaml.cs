@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -70,10 +70,16 @@ namespace RaceHorology
       txtTimingDeviceUrl.Text = Properties.Settings.Default.TimingDevice_Url;
 
       chkTimingDeviceDebugDump.IsChecked = Properties.Settings.Default.TimingDevice_Debug_Dump;
+      chkTimingDisplayPartcipantAssignment.IsChecked = Properties.Settings.Default.Timing_DisplayPartcipantAssignment;
 
       //cbTimingDevice.Items.Add("---");
-      cbTimingDevice.Items.Add("ALGE TdC8000/8001");
+      cbTimingDevice.Items.Add("ALGE TdC8000/8001, ALGE Timy via RS232");
+      cbTimingDevice.Items.Add("ALGE Timy (via USB)");
       cbTimingDevice.Items.Add("Alpenhunde");
+      cbTimingDevice.Items.Add("Microgate Racetime 2");
+      cbTimingDevice.Items.Add("Microgate Rei 2");
+      cbTimingDevice.Items.Add("Microgate Rei Pro");
+      cbTimingDevice.Items.Add("Microgate RT Pro");
       cbTimingDevice.SelectedValue = Properties.Settings.Default.TimingDevice_Type;
 
       txtAutomaticNiZTimeout.Text = Properties.Settings.Default.AutomaticNiZTimeout.ToString();
@@ -82,7 +88,9 @@ namespace RaceHorology
       chkAutoAddParticipant.IsChecked = Properties.Settings.Default.AutoAddParticipants;
 
       txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
-
+      cbUpdateChannel.Items.Add("Stabil");
+      cbUpdateChannel.Items.Add("Test");
+      cbUpdateChannel.SelectedValue = Properties.Settings.Default.UpdateChannel;
       cbTimingDevice_SelectionChanged(null, null);
     }
 
@@ -93,10 +101,10 @@ namespace RaceHorology
 
     private void BtnOk_Click(object sender, RoutedEventArgs e)
     {
-      if (Properties.Settings.Default.TimingDevice_Type != (string)cbTimingDevice.SelectedValue)
+      if (cbTimingDevice.SelectedValue != null && Properties.Settings.Default.TimingDevice_Type != (string)cbTimingDevice.SelectedValue)
         Properties.Settings.Default.TimingDevice_Type = (string)cbTimingDevice.SelectedValue;
 
-      if (Properties.Settings.Default.TimingDevice_Port != (string)cbTimingDevicePort.SelectedValue)
+      if (cbTimingDevicePort.SelectedValue != null && Properties.Settings.Default.TimingDevice_Port != (string)cbTimingDevicePort.SelectedValue)
         Properties.Settings.Default.TimingDevice_Port = (string)cbTimingDevicePort.SelectedValue;
 
       if (Properties.Settings.Default.TimingDevice_Url != txtTimingDeviceUrl.Text)
@@ -104,6 +112,9 @@ namespace RaceHorology
 
       if (Properties.Settings.Default.TimingDevice_Debug_Dump != chkTimingDeviceDebugDump.IsChecked == true )
         Properties.Settings.Default.TimingDevice_Debug_Dump = chkTimingDeviceDebugDump.IsChecked == true;
+
+      if (Properties.Settings.Default.Timing_DisplayPartcipantAssignment != chkTimingDisplayPartcipantAssignment.IsChecked == true)
+        Properties.Settings.Default.Timing_DisplayPartcipantAssignment = chkTimingDisplayPartcipantAssignment.IsChecked == true;
 
       try
       {
@@ -118,7 +129,10 @@ namespace RaceHorology
           Properties.Settings.Default.AutomaticNaSStarters = uint.Parse(txtAutomaticNaSStarters.Text); 
       }
       catch (Exception) { }
-      
+
+      if (cbUpdateChannel.SelectedValue != null && Properties.Settings.Default.UpdateChannel != (string)cbUpdateChannel.SelectedValue)
+        Properties.Settings.Default.UpdateChannel = (string)cbUpdateChannel.SelectedValue;
+
       try 
       { 
         if (Properties.Settings.Default.StartTimeIntervall != uint.Parse(txtStartTimeIntervall.Text))
@@ -137,8 +151,14 @@ namespace RaceHorology
 
     private void cbTimingDevice_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+      // Enable ParticipantAssignment for Alpenhunde
+      if (cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde") 
+        && !(Properties.Settings.Default.TimingDevice_Type != null && Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")))
+        chkTimingDisplayPartcipantAssignment.IsChecked = true;
+
       bool displayUrl = cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("Alpenhunde");
-      bool displayComPort= cbTimingDevice.SelectedValue != null && cbTimingDevice.SelectedValue.ToString().Contains("ALGE");
+      bool displayComPort= cbTimingDevice.SelectedValue != null && (cbTimingDevice.SelectedValue.ToString().Contains("ALGE TdC") ||
+                cbTimingDevice.SelectedValue.ToString().Contains("Microgate"));
 
       cbTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
       lblTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
@@ -149,5 +169,6 @@ namespace RaceHorology
       lblTimingDeviceDebug.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
       chkTimingDeviceDebugDump.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
     }
+
   }
 }

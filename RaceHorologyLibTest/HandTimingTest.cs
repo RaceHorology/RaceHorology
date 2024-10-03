@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -39,6 +39,7 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -50,6 +51,8 @@ namespace RaceHorologyLibTest
   {
     public HandTimingTest()
     {
+      System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;
@@ -163,17 +166,6 @@ namespace RaceHorologyLibTest
       // Flaky test at Github
       //Assert.IsTrue(progressCounter > 2);
       //Assert.IsTrue(lastProgress.Finished);
-    }
-
-    /// <summary>
-    /// Tests creation of corresponding IHandTiming object for specific handtiming sources (e.g. File, ALGE, TagHeuer)
-    /// </summary>
-    [TestMethod]
-    public void CreateHandTiming()
-    {
-      Assert.AreEqual(typeof(FromFileHandTiming), HandTiming.CreateHandTiming("File", "abc").GetType());
-      Assert.AreEqual(typeof(TagHeuer), HandTiming.CreateHandTiming("TagHeuerPPro", "abc").GetType());
-      Assert.AreEqual(typeof(ALGETimy), HandTiming.CreateHandTiming("ALGETimy", "abc").GetType());
     }
 
 
@@ -516,6 +508,9 @@ namespace RaceHorologyLibTest
     /// </summary>
     [TestMethod]
     [DeploymentItem(@"TestOutputs\HandTimingCalc_Report.pdf")]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansBold.ttf", @"resources")]
+    [DeploymentItem(@"resources\FreeSansOblique.ttf" , @"resources")]
     public void HandTimingCalc_Report()
     {
       TestDataGenerator tg = new TestDataGenerator();
@@ -549,7 +544,7 @@ namespace RaceHorologyLibTest
       HandTimingCalc hc = new HandTimingCalc(htVM.Items[5], htVM.Items);
 
       IPDFReport report = new HandTimingCalcReport(hc, tg.Model.GetRace(0));
-      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 1));
+      Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"HandTimingCalc_Report.pdf", 0));
     }
 
 

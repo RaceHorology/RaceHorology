@@ -45,7 +45,6 @@ namespace RaceHorology
       try
       {
         txtLTBewerb.Text = cfg.LivetimingParams["RM_Bewerb"];
-        txtLTLogin.Text = cfg.LivetimingParams["RM_Login"];
         txtLTPassword.Password = cfg.LivetimingParams["RM_Password"];
       }
       catch (KeyNotFoundException) { }
@@ -72,7 +71,6 @@ namespace RaceHorology
         cfg.LivetimingParams = new Dictionary<string, string>();
       
       cfg.LivetimingParams["RM_Bewerb"] = txtLTBewerb.Text;
-      cfg.LivetimingParams["RM_Login"] = txtLTLogin.Text;
       cfg.LivetimingParams["RM_Password"] = txtLTPassword.Password;
       cfg.LivetimingParams["RM_EventName"] = cmbLTEvent.SelectedItem?.ToString();
     }
@@ -94,7 +92,7 @@ namespace RaceHorology
         _liveTimingRM = new LiveTimingRM();
         _liveTimingRM.Race = _thisRace;
 
-        _liveTimingRM.Login(txtLTBewerb.Text, txtLTLogin.Text, txtLTPassword.Password);
+        _liveTimingRM.Login(txtLTBewerb.Text, txtLTPassword.Password);
 
         var events = _liveTimingRM.GetEvents();
         cmbLTEvent.ItemsSource = events;

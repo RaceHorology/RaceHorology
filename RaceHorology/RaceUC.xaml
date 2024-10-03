@@ -153,24 +153,25 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
 
-              <Label Margin="0,0,5,0" Content="Starthöhe (m):" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60"/>
+              <Label Content="Starthöhe (m):" Grid.Row="0" Grid.Column="0" HorizontalContentAlignment="Right" />
+              <TextBox x:Name="txtStartHeight" Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=StartHeight}" MinWidth="60" TextChanged="txtHeight_TextChanged" PreviewMouseWheel="TextBox_PreviewMouseWheel" LostFocus="txtStartHeight_LostFocus" />
 
-              <Label Content="Zielhöhe (m):" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60"/>
+              <Label Content="Zielhöhe (m):" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Right" />
+              <TextBox x:Name="txtFinishHeight" Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=FinishHeight}" MinWidth="60" TextChanged="txtHeight_TextChanged" PreviewMouseWheel="TextBox_PreviewMouseWheel" LostFocus="txtFinishHeight_LostFocus" />
 
-              <Label Content="Länge:" Grid.Row="0" Grid.Column="4" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="5" Text="{Binding Path=CoarseLength}" MinWidth="60"/>
+              <Label x:Name="LabelDiffHeight" Grid.Row="0" Grid.Column="4" MinWidth="30" Content="Initial" HorizontalAlignment="Right" />
 
-              <Label Margin="0,0,5,0" Content="Homolog Nr." Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
-              <TextBox Margin="0,5,5,5"  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Path=CoarseHomologNo}"/>
+              <Label Content="Länge (m):" Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5,5,5,5"  Grid.Row="1" Grid.Column="1" Text="{Binding Path=CoarseLength}" MinWidth="60" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
+
+              <Label Margin="0,0,5,0" Content="Homolog Nr." Grid.Row="1" Grid.Column="2" HorizontalContentAlignment="Right"/>
+              <TextBox Margin="5"  Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" Text="{Binding Path=CoarseHomologNo}"/>
 
             </Grid>
 
@@ -210,10 +211,10 @@
               </Grid.RowDefinitions>
 
               <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun1.Gates}" Width="30"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun1.Gates}" Width="30" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
 
               <Label Content="/" Grid.Row="0" Grid.Column="2"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun1.Turns}" Width="30"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun1.Turns}" Width="30" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
 
               <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
               <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun1.StartTime}" Width="60"/>
@@ -256,10 +257,10 @@
               </Grid.RowDefinitions>
 
               <Label Content="Anzahl Tore / Richtungsänderungen:" Grid.Row="0" Grid.Column="0"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun2.Gates}" Width="30"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="1" Text="{Binding Path=RaceRun2.Gates}" Width="30" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
 
               <Label Content="/" Grid.Row="0" Grid.Column="2"/>
-              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun2.Turns}" Width="30"/>
+              <TextBox Margin="5"  Grid.Row="0" Grid.Column="3" Text="{Binding Path=RaceRun2.Turns}" Width="30" PreviewMouseWheel="TextBox_PreviewMouseWheel" />
 
               <Label Content="Startzeit:" Grid.Row="0" Grid.Column="5" Margin="20,0,0,0"/>
               <TextBox Margin="5"  Grid.Row="0" Grid.Column="6" Text="{Binding Path=RaceRun2.StartTime}" Width="60"/>
@@ -332,7 +333,7 @@
           <local:LiveTimingFISUC x:Name="liveTimingFISUC" Grid.Row="3" />
         </Grid>
       </TabItem>
-      <TabItem FontSize="12">
+      <TabItem x:Name="tabItemTiming" FontSize="12">
         <TabItem.Header>
           <StackPanel Orientation="Horizontal">
             <TextBlock x:Name="lblTabHeaderTiming" Text="Zeitnahme" Margin="0,0,3,0" VerticalAlignment="Center" FontSize="12" />
@@ -344,13 +345,15 @@
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
 
-          <Grid Grid.Column="0">
+          <Grid Grid.Column="0" x:Name="grdTimingMain">
             <Grid.RowDefinitions>
               <RowDefinition Height="3*"/>
               <RowDefinition Height="5"/>
               <RowDefinition Height="2*"/>
               <RowDefinition Height="5"/>
               <RowDefinition Height="3*"/>
+              <RowDefinition Height="5"/>
+              <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
@@ -471,7 +474,7 @@
                   </DataGrid.RowStyle>
                 </DataGrid>
               </Grid>
-              <Grid Grid.Row="3" >
+              <Grid Grid.Row="2" >
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
@@ -651,21 +654,57 @@
 
               </DataGrid>
             </Grid>
-          </Grid>
 
+            <GridSplitter x:Name="gridSplitter3" HorizontalAlignment="Stretch" Height="5" Grid.Row="5" />
+
+            <Grid x:Name="grdParticipantAssignment" Grid.Row="6">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid Width="Auto">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="1*"/>
+                  <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblParticipantAssigning" Content="Zeitmess-Protokoll" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" FontSize="16"/>
+              </Grid>
+              <Grid Width="Auto" Grid.Row="6">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="1*"/>
+                  <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblParticipantAssigningStart" Content="Start" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" FontSize="14"/>
+                <local:MeasurementLogAndParticipantAssignment x:Name="mlapaStart" Grid.Row="1" Grid.Column="0" />
+                <Label x:Name="lblParticipantAssigningFinish" Content="Ziel" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" FontSize="14"/>
+                <local:MeasurementLogAndParticipantAssignment x:Name="mlapaFinish" Grid.Row="1" Grid.Column="1" />
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
 
       </TabItem>
-      <TabItem Header="Ausscheidungen" FontSize="12">
+      <TabItem x:Name="tabItemDisqualify" Header="Ausscheidungen" FontSize="12">
         <local:DisqualifyUC x:Name="ucDisqualify">
 
         </local:DisqualifyUC>
       </TabItem>
     </TabControl>
 
-    <GridSplitter x:Name="gridSplitter3" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
+    <GridSplitter x:Name="gridSplitter4" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
 
-    <local:RaceListsUC x:Name="ucRaceLists" Grid.Column="2"/>
+    <TabControl Grid.Column="2" Height="Auto" Margin="10" Width="Auto">
+      <TabItem Header="Live Listen" FontSize="12">
+        <local:RaceListsUC x:Name="ucRaceLists" />
+      </TabItem>
+      <TabItem Header="Berichte und Drucken" FontSize="12">
+        <local:ReportUC x:Name="ucReports" />
+      </TabItem>
+    </TabControl>
 
   </Grid>
 </UserControl>

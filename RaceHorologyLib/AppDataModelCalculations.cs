@@ -26,6 +26,11 @@ namespace RaceHorologyLib
 
     }
 
+    public List<ParticipantClass> Classes
+    {
+      get { return _classesByYear; }
+    }
+
     /// <summary>
     /// Assigns all participants the default class based on Sex and Year
     /// </summary>
@@ -64,6 +69,5 @@ namespace RaceHorologyLib
 
       return cFound;
     }
-
   }
 }

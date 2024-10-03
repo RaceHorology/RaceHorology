@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -141,7 +141,7 @@ namespace RaceHorologyLib
             lblGroup.GridTicks = GridTickTypes.None;
 
             // Second Level if possible
-            if (cvGroup.Name is ParticipantClass @class)
+            if (cvGroup.Name is ParticipantClass @class && @class.Group != null)
             {
               name2 = @class.Group.Name;
               if (name2Last == null) // init set to same name
@@ -264,7 +264,7 @@ namespace RaceHorologyLib
         //p.Label = string.Format("{0} {1}.", item.Participant.Name, item.Participant.Firstname.Substring(0, 1));
         p.Label = string.Format("{0} ({1}{2})", item.Participant.StartNumber, item.Participant.Name.Substring(0, 2), item.Participant.Firstname.Substring(0, 1));
 
-        if (item.Participant.Sex.Name == 'M')
+        if (item.Participant.Sex?.Name == 'M')
         {
           p.MarkerColor = System.Drawing.Color.FromArgb(0x26, 0xb5, 0xd9); //93abc6, 26b5d9
           p.MarkerStyle = MarkerStyle.Circle;

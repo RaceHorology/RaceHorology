@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -37,15 +37,21 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 
 using Microsoft.Win32;
 
 using RaceHorologyLib;
-using System.Collections.ObjectModel;
-using QRCoder;
+
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Net.NetworkInformation;
+
+using System.IO;
+using AutoUpdaterDotNET;
+
+using System.Diagnostics;
+using System.Reflection;
 
 namespace RaceHorology
 {
@@ -94,16 +100,38 @@ namespace RaceHorology
     DSVAlpin2HTTPServer _alpinServer;
     string _appTitle;
 
+    RHAlgeTimyUSB.AlgeTimyUSB _timyUSB;
 
     /// <summary>
     /// Constructor of MainWindow
     /// </summary>
     public MainWindow()
     {
+      string version;
       Logger.Info("Application started");
 
-
       InitializeComponent();
+
+      //autoUpdater
+      Assembly assembly = Assembly.GetEntryAssembly();
+      if (assembly == null)
+        assembly = Assembly.GetExecutingAssembly();
+
+      if (assembly != null)
+      {
+        FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+        version = fvi.ProductVersion;
+      } 
+      else
+        version = "0.0.0.0"; // for Local Debug use
+
+      AutoUpdater.ReportErrors = true;
+      AutoUpdater.InstalledVersion = new Version(version);
+      AutoUpdater.UpdateFormSize = new System.Drawing.Size(800, 600);
+      AutoUpdater.ShowRemindLaterButton = false;
+      AutoUpdater.PersistenceProvider = new JsonFilePersistenceProvider(Path.Combine(Environment.CurrentDirectory, "autoUpdateSettings.json"));
+      AutoUpdater.Synchronous = true;
+      AutoUpdater.Mandatory = true;
 
       // Remember the Application Name
       _appTitle = this.Title;
@@ -116,7 +144,28 @@ namespace RaceHorology
       _menuVM = new MainWindowMenuVM();
       mnuMain.DataContext = _menuVM;
 
+      configureEpxortMenu(mnuExport);
+
       StartDSVAlpinServer();
+
+      UpdateLiveTimingDeviceStatus(null, null);
+
+      _timyUSB = new RHAlgeTimyUSB.AlgeTimyUSB();
+
+      //Watching Network IP changes - this allows automatic restart of web server
+      NetworkChange.NetworkAddressChanged += AddressChangedCallback;
+    }
+
+    private void AddressChangedCallback(object sender, EventArgs e)
+    {
+      NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+      foreach (NetworkInterface n in adapters)
+      {
+        Console.WriteLine("   {0} is {1}", n.Name, n.OperationalStatus);
+
+        Dispatcher.Invoke(StartDSVAlpinServer);
+        break;
+      }
     }
 
     protected override void OnClosed(EventArgs e)
@@ -149,7 +198,7 @@ namespace RaceHorology
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.DefaultExt = ".mdb";
-      openFileDialog.Filter = "Race Horology Daten|*.mdb";
+      openFileDialog.Filter = "Race Horology Dateien|*.mdb";
       if (openFileDialog.ShowDialog() == true)
       {
         string dbPath = openFileDialog.FileName;
@@ -252,6 +301,27 @@ namespace RaceHorology
       dlg.ShowDialog();
     }
 
+    private void WhatsAppInfoChannelCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      System.Diagnostics.Process.Start("https://chat.whatsapp.com/JwqeP0mha1m5RtEGx11vLv");
+    }
+
+    private void OnlineDocumentationCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      System.Diagnostics.Process.Start("https://docs.race-horology.com");
+    }
+
+    private void AutoUpdaterCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      string channel;
+      if (Properties.Settings.Default.UpdateChannel == "Test")
+        channel = "beta";
+      else
+        channel = "stable";
+
+      string updateURL = "https://update.race-horology.com/channels/" + channel + "-channel.xml";
+      AutoUpdater.Start(updateURL);
+    }
 
     /// <summary>
     /// Opens the database and does all jobs to work with the application (connect DatagRids, start web server, ...)
@@ -290,7 +360,8 @@ namespace RaceHorology
         ConnectGUIToDataModel();
 
         // Restart DSVALpinServer (for having the lists on mobile devices)
-        _alpinServer.UseDataModel(_dataModel);
+        if (_alpinServer != null)
+          _alpinServer.UseDataModel(_dataModel);
 
         _menuVM.SetDataModel(_dataModel);
 
@@ -305,7 +376,8 @@ namespace RaceHorology
     {
       _menuVM.SetDataModel(null);
 
-      _alpinServer.UseDataModel(null);
+      if (_alpinServer != null)
+        _alpinServer.UseDataModel(null);
 
       DisconnectGUIFromDataModel();
 
@@ -337,7 +409,7 @@ namespace RaceHorology
     /// </summary>
     private void ConnectGUIToDataModel()
     {
-      CompetitionUC competitionUC = new CompetitionUC(_dataModel, _liveTimingMeasurement, txtLiveTimingStatus);
+      CompetitionUC competitionUC = new CompetitionUC(_dataModel, _liveTimingMeasurement, cmbLiveTimingStatus);
       ucMainArea.Children.Add(competitionUC);
     }
 
@@ -367,7 +439,11 @@ namespace RaceHorology
       }
 
       _alpinServer = new DSVAlpin2HTTPServer(8081);
-      _alpinServer.Start();
+      if (!_alpinServer.Start())
+        StopDSVAlpinServer(); // Stop Server again, if it could not been started
+
+      if (_dataModel != null)
+        _alpinServer.UseDataModel(_dataModel);
 
       DisplayURL();
     }
@@ -457,17 +533,44 @@ namespace RaceHorology
       if (Properties.Settings.Default.TimingDevice_Debug_Dump)
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
-      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE")) {
-        _timingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      ILiveTimeMeasurementDevice newTimingDevice = null;
+      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE TdC")) {
+        newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
       }
-      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde")) {
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE Timy (via USB)"))
+      {
+        newTimingDevice = new RHAlgeTimyUSB.AlgeTimyUSB();
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Alpenhunde"))
+      {
         var hostname = Properties.Settings.Default.TimingDevice_Url;
-        _timingDevice = new TimingDeviceAlpenhunde(hostname);
+        newTimingDevice = new TimingDeviceAlpenhunde(hostname);
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Racetime 2"))
+      {
+        newTimingDevice = new MicrogateV1TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      }
+      else if (Properties.Settings.Default.TimingDevice_Type.Contains("Microgate"))
+      {
+        newTimingDevice = new MicrogateV2TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
       }
 
-      if (_timingDevice != null)
+      if (newTimingDevice != null)
       {
-        _liveTimingMeasurement.SetTimingDevice(_timingDevice, _timingDevice as ILiveDateTimeProvider);
+        // Cleanup old devices
+        if (_timingDevice != null)
+        {
+          _liveTimingMeasurement.RemoveTimingDevice(_timingDevice);
+          _liveTimingMeasurement.SetLiveDateTimeProvider(null);
+        }
+
+        // Create new devices
+        _liveTimingMeasurement.AddTimingDevice(newTimingDevice, true);
+
+        if (newTimingDevice is ILiveDateTimeProvider)
+          _liveTimingMeasurement.SetLiveDateTimeProvider(newTimingDevice as ILiveDateTimeProvider);
+
+        _timingDevice = newTimingDevice;
         _timingDevice.Start();
       }
     }
@@ -476,10 +579,10 @@ namespace RaceHorology
     {
       if (_timingDevice != null)
       {
-        _liveTimingMeasurement.SetTimingDevice(null, null);
+        _liveTimingMeasurement.RemoveTimingDevice(_timingDevice);
+        _liveTimingMeasurement.SetLiveDateTimeProvider(null);
 
         _timingDevice.Stop();
-
         _timingDevice = null;
       }
     }
@@ -512,37 +615,43 @@ namespace RaceHorology
     }
 
 
-    private void LiveTimingStart_Click(object sender, RoutedEventArgs e)
+    private void btnTimingDeviceStartStop_Click(object sender, RoutedEventArgs e)
     {
       if (_liveTimingMeasurement == null)
         return;
 
-      _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
-      _liveTimingMeasurement.Start();
+      var timingDevice = _liveTimingMeasurement.LiveTimingDevice;
+      if (timingDevice == null)
+        return;
+
+      if (timingDevice.IsOnline)
+        timingDevice.Stop();
+      else
+        timingDevice.Start();
     }
 
-    private void LiveTimingStop_Click(object sender, RoutedEventArgs e)
-    {
-      if (_liveTimingMeasurement == null)
-        return;
-     
-      _liveTimingMeasurement.Stop();
-    }
 
     private void UpdateLiveTimingDeviceStatus(object sender, System.Timers.ElapsedEventArgs e)
     {
-      var timingDevice = _liveTimingMeasurement.LiveTimingDevice;
-      var dateTimeProvider = _liveTimingMeasurement.LiveDateTimeProvider;
+      bool timingDeviceOnline = false;
+      var timingDevice = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveTimingDevice : null;
+      var dateTimeProvider = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveDateTimeProvider : null;
+      bool connectInProgress = false;
 
-      string str = "kein Zeitmessgerät ausgewählt";
+      string str = "---";
       if (timingDevice!=null && dateTimeProvider!=null)
       { 
-        str = timingDevice.GetDeviceInfo() + ", " + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss");
+        str = timingDevice.GetDeviceInfo().PrettyName + " (" + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss") + ")";
+        timingDeviceOnline = timingDevice.IsOnline;
+        connectInProgress = timingDevice.IsStarted == true && timingDevice.IsStarted != timingDevice.IsOnline;
       }
 
       Application.Current.Dispatcher.Invoke(() =>
       {
         lblTimingDevice.Content = str;
+        btnTimingDeviceStartStop.Content = timingDeviceOnline ? "Trennen" : "Verbinden";
+        btnTimingDeviceStartStop.IsEnabled = timingDevice != null && !connectInProgress;
+        btnTimingDeviceDebug.IsEnabled = timingDevice != null;
       });
     }
 
@@ -561,10 +670,70 @@ namespace RaceHorology
         return;
       }
 
-      if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+
+      TimingDeviceBaseUC debugUC = null;
+      if (_timingDevice is TimingDeviceAlpenhunde alpenhundeTimingDevice)
       {
-        TimingDeviceDebugDlg debugDlg = new TimingDeviceDebugDlg(debugableTimingDevice);
-        debugDlg.Show();
+        debugUC = new TimingDeviceAlpenhundeUC();
+        debugUC.Init(alpenhundeTimingDevice);
+      }
+      else if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+      {
+        debugUC = new TimingDeviceDebugUC();
+        debugUC.Init(debugableTimingDevice);
+      }
+      if (debugUC != null)
+      {
+        var deviceDlg = new TimingDeviceDlg(debugUC);
+        deviceDlg.Show();
+      }
+
+    }
+
+    struct ExportConfig
+    {
+      public string Name;
+      public Func<Race, string> ExportFunc;
+    };
+
+    private void configureEpxortMenu(MenuItem menuExport)
+    {
+      List<ExportConfig> exportConfigs = new List<ExportConfig> {
+        { new ExportConfig { Name = "DSV (XML Format)", ExportFunc = ExportUI.ExportDsv } },
+        { new ExportConfig { Name = "RaceEngine (ZIP Format)", ExportFunc = ExportUI.ExportRaceEngine } },
+        { new ExportConfig { Name = "rennmeldung.de", ExportFunc = ExportUI.ExportDsvAlpin } },
+        { new ExportConfig { Name = "Excel", ExportFunc = ExportUI.ExportXLSX } },
+        { new ExportConfig { Name = "CSV", ExportFunc = ExportUI.ExportCSV } },
+        { new ExportConfig { Name = "DSV-Alpin (altes Format)", ExportFunc = ExportUI.ExportDsvAlpin } },
+      };
+
+      foreach (var config in exportConfigs)
+      {
+        MenuItem subMenu = new MenuItem();
+        subMenu.Header = config.Name;
+        subMenu.Tag = config;
+        subMenu.Click += exportMenu_Click;
+        menuExport.Items.Add(subMenu);
+      }
+    }
+
+    private void exportMenu_Click(object sender, RoutedEventArgs e)
+    {
+      MenuItem menu_item = sender as MenuItem;
+      if (menu_item != null && menu_item.Tag != null)
+      {
+        var race = _dataModel.GetCurrentRace();
+        ExportConfig exportConfig = (ExportConfig)menu_item.Tag;
+        if (race != null)
+        {
+          var exportedFile = exportConfig.ExportFunc(race);
+          if (exportedFile != null)
+          {
+            var dlg = new ExportResultDlg(String.Format("Export - {0}", exportConfig.Name), exportedFile, string.Format("Der Export war erfolgreich."));
+            dlg.Owner = Window.GetWindow(this);
+            dlg.ShowDialog();
+          }
+        }
       }
     }
   }

@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RaceHorologyLibTest</RootNamespace>
     <AssemblyName>RaceHorologyLibTest</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
@@ -20,6 +20,7 @@
     <TestProjectType>UnitTest</TestProjectType>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -192,7 +193,9 @@
     <Compile Include="LiveTimingFISTest.cs" />
     <Compile Include="LiveTimingRMTest.cs" />
     <Compile Include="PDFReportTest.cs" />
+    <Compile Include="PrintCertificateTest.cs" />
     <Compile Include="RaceConfigurationTest.cs" />
+    <Compile Include="RefereeProtocolTest.cs" />
     <Compile Include="StartNumberTest.cs" />
     <Compile Include="TagHeuerTests.cs" />
     <Compile Include="TestUtilities.cs" />
@@ -208,6 +211,12 @@
     <None Include="COPYING" />
     <None Include="DSVAlpin2LibTest.runsettings" />
     <None Include="packages.config" />
+    <None Include="TestDataBases\Alpenhunde\events_01.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDataBases\Alpenhunde\events_all.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDataBases\FullTestCases\Case1\ALGETdC8001-202002020841.dump">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -274,6 +283,9 @@
     <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844_class_import.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestDataBases\Import\Teilnehmer_V1_202001301844_comma.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -286,10 +298,10 @@
     <Content Include="TestDataBases\FullTestCases\Case5-DSV-less-qualified-CutOffPoints\2852MSBS.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestDataBases\TestDB_DeactivatedParticipants.mdb">
+    <Content Include="TestDataBases\TestDB_Certificate.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestOutputs\TestDB_LessParticipants_MultipleRaces - Ergebnis 1. Durchgang.pdf">
+    <Content Include="TestDataBases\TestDB_DeactivatedParticipants.mdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="TestOutputs\1554MSBS\1554MSBS - Ergebnis 1. Durchgang.pdf">
@@ -301,16 +313,37 @@
     <None Include="TestOutputs\1554MSBS\1554MSBS - Ergebnis Gesamt.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Schiedsrichterprotokoll 1. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestOutputs\1554MSBS\1554MSBS - Startliste 1. Durchgang.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestOutputs\1554MSBS\1554MSBS - Startliste 2. Durchgang.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Zeitnehmer Checkliste 1. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Zeitnehmer Checkliste 2. Durchgang.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\1554MSBS\1554MSBS - Urkunden.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestOutputs\Base_RaceReport.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestOutputs\Certificate_Empty.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\Certificate_Template.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestOutputs\HandTimingCalc_Report.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestOutputs\RefereeProtocol_Empty.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

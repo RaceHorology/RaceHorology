@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -41,6 +41,8 @@ using RaceHorologyLib;
 using System.IO;
 using System.Data.OleDb;
 using System.Linq;
+using static RaceHorologyLib.PrintCertificateModel;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -52,6 +54,7 @@ namespace RaceHorologyLibTest
   {
     public DSVAlpinDatabaseTests()
     {
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;
@@ -225,6 +228,33 @@ namespace RaceHorologyLibTest
     }
 
 
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Schema_V0.3.mdb")]
+    public void DatabaseUpgradeSchema_RHTimestamps()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Schema_V0.3.mdb");
+
+      Assert.IsFalse(existsTable(dbFilename, "RHTimestamps"));
+
+      // Open first time, upgrade will be performed
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(existsTable(dbFilename, "RHTimestamps"));
+
+      // open second time (when upgrade was performed)
+      db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+      db.Close();
+
+      Assert.IsTrue(checkDBVersion(dbFilename));
+      Assert.IsTrue(existsTable(dbFilename, "RHTimestamps"));
+    }
+
+
+
+
     bool existsTable(string dbFilename, string tableName)
     {
       OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
@@ -358,7 +388,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(10.0, competitionProps.Nenngeld);
 
         db.UpdateCompetitionProperties(competitionProps);
-        var propIs = db.GetCompetitionProperties(); 
+        var propIs = db.GetCompetitionProperties();
         TestUtilities.AreEqualByJson(competitionProps, propIs);
       }
       {
@@ -500,7 +530,7 @@ namespace RaceHorologyLibTest
     {
       string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
 
-      { 
+      {
         RaceHorologyLib.Database db = new RaceHorologyLib.Database();
         db.Connect(dbFilename);
         AppDataModel model = new AppDataModel(db);
@@ -537,6 +567,39 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(new DateTime(2020, 1, 2), r1.AdditionalProperties.DateStartList);
         Assert.AreEqual(new DateTime(2020, 1, 3), r1.AdditionalProperties.DateResultList);
         Assert.AreEqual("ABCDEF123456", r1.AdditionalProperties.RaceNumber);
+      }
+    }
+
+
+    /// <summary>
+    /// Store and read timing device
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void DatabaseStoreAndReadTimingDevice()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+
+        Race r1 = model.GetRace(0);
+
+        // Check initially
+        Assert.AreEqual("Alge TdC8000/8001", r1.TimingDevice);
+
+        // Modify and Store
+        r1.SetTimingDeviceInfo(new DeviceInfo { Manufacturer="Manufacture", Model="Model", PrettyName= "MyTimingDevice" , SerialNumber="123"});
+        db.Close();
+      }
+      {
+        RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        AppDataModel model = new AppDataModel(db);
+        Race r1 = model.GetRace(0);
+        Assert.AreEqual("MyTimingDevice (SN: 123)", r1.TimingDevice);
       }
     }
 
@@ -991,7 +1054,7 @@ namespace RaceHorologyLibTest
           bRes &= checkStringAgainstDB(categShall.PrettyName, reader["kname"]);
           bRes &= checkStringAgainstDB(categShall.Synonyms, reader["RHSynonyms"]);
           bRes &= categShall.SortPos == (double)reader["sortpos"];
-          
+
         }
         else
           bRes = false;
@@ -1000,7 +1063,7 @@ namespace RaceHorologyLibTest
 
       return bRes;
     }
-    
+
 
     [TestMethod]
     [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
@@ -1137,10 +1200,15 @@ namespace RaceHorologyLibTest
 
       rr1r1.SetStartTime(rr1r1.GetStartTime()); //int days, int hours, int minutes, int seconds, int milliseconds
       rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
+      // Test whether run time is stored in DB, Part 1/2 (Preparation)
+      Assert.IsNull(rr1.GetRunResult(participant1).GetRunTime(false, false)); 
       db.CreateOrUpdateRunResult(race, rr1, rr1r1);
       DBCacheWorkaround();
       rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
+
+      // Test whether run time is stored in DB, Part 2/2
+      Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 0), rr1.GetRunResult(participant1).GetRunTime(false, false)); 
 
       rr1r1.SetStartTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
       rr1r1.SetFinishTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
@@ -1199,7 +1267,7 @@ namespace RaceHorologyLibTest
       {
         if (reader.Read())
         {
-          bRes &= (byte) runResult.ResultCode == reader.GetByte(reader.GetOrdinal("ergcode"));
+          bRes &= (byte)runResult.ResultCode == reader.GetByte(reader.GetOrdinal("ergcode"));
 
           TimeSpan? runTime = null, startTime = null, finishTime = null;
           if (!reader.IsDBNull(reader.GetOrdinal("netto")))
@@ -1211,7 +1279,7 @@ namespace RaceHorologyLibTest
 
           bRes &= runResult.GetStartTime() == startTime;
           bRes &= runResult.GetFinishTime() == finishTime;
-          bRes &= runResult.GetRunTime(false, false) == runTime;
+          bRes &= runResult.GetRunTime(true, false) == runTime;
 
           if (reader.IsDBNull(reader.GetOrdinal("disqualtext")))
             bRes &= runResult.DisqualText == null || runResult.DisqualText == "";
@@ -1293,7 +1361,7 @@ namespace RaceHorologyLibTest
         RunResult rr1res1 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 1").FirstOrDefault();
         Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1res1.GetStartTime());
         Assert.AreEqual(new TimeSpan(0, 12, 1, 0, 0), rr1res1.GetFinishTime());
-        Assert.AreEqual(new TimeSpan(0,  0, 1, 0, 0), rr1res1.GetRunTime());
+        Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 0), rr1res1.GetRunTime());
         // Participant 1 / Test 2
         Assert.IsTrue(CheckRunResult(dbFilename, rr1res1, 1, 1));
 
@@ -1317,14 +1385,227 @@ namespace RaceHorologyLibTest
 
         // Participant 4 / Test 1
         RunResult rr1res4 = rr1.GetResultList().Where(x => x._participant.Participant.Name == "Nachname 4").FirstOrDefault();
-        Assert.AreEqual(new TimeSpan(0, 12, 4,  0, 0), rr1res4.GetStartTime());
+        Assert.AreEqual(new TimeSpan(0, 12, 4, 0, 0), rr1res4.GetStartTime());
         Assert.AreEqual(new TimeSpan(0, 12, 4, 30, 0), rr1res4.GetFinishTime());
-        Assert.AreEqual(new TimeSpan(0,  0, 0, 30, 0), rr1res4.GetRunTime());
+        Assert.AreEqual(new TimeSpan(0, 0, 0, 30, 0), rr1res4.GetRunTime());
         //Assert.Equals(RunResult.EResultCode.Normal, rr1res4.ResultCode);
         // Participant 4 / Test 2
         Assert.IsTrue(CheckRunResult(dbFilename, rr1res4, 4, 1));
       }
     }
+
+    #endregion
+
+    #region TimeStamps
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void CreateAndUpdateTimestamps()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel dataModel = new AppDataModel(db);
+      Race race = dataModel.GetCurrentRace();
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
+
+      void DBCacheWorkaround()  // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+      {
+        db.Close();
+        db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        dataModel = new AppDataModel(db);
+        race = dataModel.GetCurrentRace();
+        rr1 = race.GetRun(0);
+        rr2 = race.GetRun(1);
+      }
+
+
+      // Create timestamp
+      var ts1 = new Timestamp(new TimeSpan(0, 12, 0, 0, 0), EMeasurementPoint.Start, 1, true);
+      db.CreateOrUpdateTimestamp(rr1, ts1);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckTimestamp(dbFilename, ts1, rr1, EMeasurementPoint.Start));
+      Assert.AreEqual(1, db.GetTimestamps(race, 1).Count);
+
+      // Create timestamp
+      var ts2 = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, false);
+      db.CreateOrUpdateTimestamp(rr1, ts2);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckTimestamp(dbFilename, ts2, rr1, EMeasurementPoint.Finish));
+
+      Assert.AreNotEqual(ts1.Time, ts2.Time);
+      Assert.AreEqual(2, db.GetTimestamps(race, 1).Count);
+
+      // Modify timestamp
+      var ts2b = new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 10, true);
+      db.CreateOrUpdateTimestamp(rr1, ts2b);
+      DBCacheWorkaround();
+      Assert.IsTrue(CheckTimestamp(dbFilename, ts2b, rr1, EMeasurementPoint.Finish));
+      Assert.AreEqual(2, db.GetTimestamps(race, 1).Count);
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_LessParticipants.mdb")]
+    public void AppDataModelTest_Timestamps()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_LessParticipants.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel dataModel = new AppDataModel(db);
+      Race race = dataModel.GetCurrentRace();
+      RaceRun rr1 = race.GetRun(0);
+      RaceRun rr2 = race.GetRun(1);
+
+      void DBCacheWorkaround()  // WORKAROUND: OleDB caches the update, so the Check would not see the changes
+      {
+        db.Close();
+        db = new RaceHorologyLib.Database();
+        db.Connect(dbFilename);
+        dataModel = new AppDataModel(db);
+        race = dataModel.GetCurrentRace();
+        rr1 = race.GetRun(0);
+        rr2 = race.GetRun(1);
+      }
+
+      rr1.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 12, 0, 0, 0), EMeasurementPoint.Start, 1, true));
+      rr1.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, true));
+      rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 0), EMeasurementPoint.Start, 2, true));
+      rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 1), EMeasurementPoint.Start, 0, false));
+        
+      DBCacheWorkaround();
+      Assert.AreEqual(2, rr1.GetTimestamps().Count);
+      Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1.GetTimestamps()[0].Time);
+      Assert.AreEqual(1U, rr1.GetTimestamps()[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 1), rr1.GetTimestamps()[1].Time);
+      Assert.AreEqual(1U, rr1.GetTimestamps()[1].StartNumber);
+      Assert.AreEqual(true, rr1.GetTimestamps()[1].Valid);
+
+      Assert.AreEqual(2, rr2.GetTimestamps().Count);
+      Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 0), rr2.GetTimestamps()[0].Time);
+      Assert.AreEqual(2U, rr2.GetTimestamps()[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 1), rr2.GetTimestamps()[1].Time);
+      Assert.AreEqual(0U, rr2.GetTimestamps()[1].StartNumber);
+      Assert.AreEqual(false, rr2.GetTimestamps()[1].Valid);
+
+      var temp = rr2.GetTimestamps().First(t => t.StartNumber == 0);
+      temp.StartNumber = 10;
+      temp.Valid = true;
+      DBCacheWorkaround();
+      Assert.AreEqual(2, rr1.GetTimestamps().Count);
+      Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1.GetTimestamps()[0].Time);
+      Assert.AreEqual(1U, rr1.GetTimestamps()[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 1), rr1.GetTimestamps()[1].Time);
+      Assert.AreEqual(1U, rr1.GetTimestamps()[1].StartNumber);
+
+      Assert.AreEqual(2, rr2.GetTimestamps().Count);
+      Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 0), rr2.GetTimestamps()[0].Time);
+      Assert.AreEqual(2U, rr2.GetTimestamps()[0].StartNumber);
+      Assert.AreEqual(new TimeSpan(0, 13, 0, 0, 1), rr2.GetTimestamps()[1].Time);
+      Assert.AreEqual(10U, rr2.GetTimestamps()[1].StartNumber);
+      Assert.AreEqual(true, rr2.GetTimestamps()[1].Valid);
+
+    }
+
+    private bool CheckTimestamp(string dbFilename, Timestamp ts, RaceRun raceRun, EMeasurementPoint measurementPoint)
+    {
+      bool bRes = true;
+
+      OleDbConnection conn = new OleDbConnection { ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0; Data source= " + dbFilename };
+      conn.Open();
+
+      OleDbCommand command = new OleDbCommand("SELECT * FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit", conn);
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
+      command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
+      command.Parameters.Add(new OleDbParameter("@zeit", Database.FractionForTimeSpan(ts.Time)));
+
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          bRes &= (byte)raceRun.GetRace().RaceType == reader.GetByte(reader.GetOrdinal("disziplin"));
+          bRes &= (byte)raceRun.Run == reader.GetByte(reader.GetOrdinal("durchgang"));
+
+          uint stnr = (uint)(int)reader.GetValue(reader.GetOrdinal("startnummer"));
+          bRes &= ts.StartNumber == stnr;
+
+          bool valid = reader.GetBoolean(reader.GetOrdinal("valid"));
+          bRes &= ts.Valid == valid;
+
+          TimeSpan? time = null;
+          if (!reader.IsDBNull(reader.GetOrdinal("zeit")))
+            time = Database.CreateTimeSpan((double)reader.GetValue(reader.GetOrdinal("zeit")));
+          bRes &= ts.Time == time;
+
+          bRes &= reader["kanal"].ToString() == (measurementPoint == EMeasurementPoint.Start ? "START":"ZIEL");
+        }
+        else
+        {
+          if (ts == null)
+            bRes = true;
+          else
+            bRes = false;
+        }
+      }
+
+      conn.Close();
+
+      return bRes;
+    }
+
+    #endregion
+
+
+    #region PrintCertificateModel
+
+    /// <summary>
+    /// Check reading different race runs
+    /// </summary>
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Certificate.mdb")]
+    public void GetCertificateModel()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Certificate.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      var pcm = db.GetCertificateModel(model.GetRace(0));
+
+      Assert.AreEqual(9, pcm.TextItems.Count);
+
+      Assert.AreEqual("Test Race", pcm.TextItems[0].Text);
+      Assert.AreEqual("Microsoft Sans Serif, kursiv, 28", pcm.TextItems[0].Font);
+      Assert.AreEqual(TextItemAlignment.Center, pcm.TextItems[0].Alignment);
+      Assert.AreEqual(1345, pcm.TextItems[0].VPos);
+      Assert.AreEqual(1050, pcm.TextItems[0].HPos);
+
+      db.Close();
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"TestDataBases\TestDB_Empty.mdb")]
+    public void GetCertificateModel_NoTemplate()
+    {
+      string dbFilename = TestUtilities.CreateWorkingFileFrom(testContextInstance.TestDeploymentDir, @"TestDB_Empty.mdb");
+      RaceHorologyLib.Database db = new RaceHorologyLib.Database();
+      db.Connect(dbFilename);
+
+      AppDataModel model = new AppDataModel(db);
+
+      var pcm = db.GetCertificateModel(model.GetRace(0));
+
+      Assert.AreEqual(0, pcm.TextItems.Count);
+
+      db.Close();
+    }
+
+
 
     #endregion
 

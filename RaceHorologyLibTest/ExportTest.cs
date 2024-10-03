@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using System.Threading;
 
 namespace RaceHorologyLibTest
 {
@@ -50,9 +51,7 @@ namespace RaceHorologyLibTest
   {
     public ExportTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
     }
 
     private TestContext testContextInstance;
@@ -118,7 +117,7 @@ namespace RaceHorologyLibTest
       rr1.SetRunTime(race.GetParticipant(2), new TimeSpan(0, 1, 1));
       rr1.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);
 
-      Export export = new Export(tg.Model.GetRace(0));
+      RaceExport export = new RaceExport(tg.Model.GetRace(0));
       DataSet ds = export.ExportToDataSet();
 
       Assert.AreEqual("Name 1", ds.Tables[0].Rows[0]["Name"]);

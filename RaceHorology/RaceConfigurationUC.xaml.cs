@@ -51,15 +51,23 @@ namespace RaceHorology
       cmbRuns.Items.Add(new CBItem { Text = "5", Value = 5 });
       cmbRuns.Items.Add(new CBItem { Text = "6", Value = 6 });
 
+      // Penalty options
+      cmbConfigPenalty.Items.Clear();
+      cmbConfigPenalty.Items.Add(new CBItem { Text = "Bestzeit + Sekunden", Value = RaceConfiguration.EPenaltyMode.BestPlusSeconds });
+      cmbConfigPenalty.Items.Add(new CBItem { Text = "Bestzeit + Prozent", Value = RaceConfiguration.EPenaltyMode.BestPlusPercentage });
+
       // Result
       UiUtilities.FillGrouping(cmbConfigErgebnisGrouping);
 
       cmbConfigErgebnis.Items.Clear();
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe der besten 2 Durchgänge", Value = "RaceResult_SumBest2" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "2x Best of 2", Value = "RaceResult_2xBestOf2" });
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe", Value = "RaceResult_Sum" });
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach DSV Schülerreglement", Value = "RaceResult_SumDSVPointsSchool" });
-      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach Tabelle", Value = "RaceResult_SumPointsViaTable" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach IWO/DWO (DSV)", Value = "RaceResult_SumDSVPointsSchool" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach IWO/DWO (FIS)", Value = "RaceResult_SumFISPoints" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach Tabelle gesamt", Value = "RaceResult_SumPointsViaTable" });
+      cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach Tabelle pro Lauf", Value = "RaceResult_SumPointsViaTablePerRun" });
 
       // Run 1
       UiUtilities.FillGrouping(cmbConfigStartlist1Grouping);
@@ -168,6 +176,17 @@ namespace RaceHorology
       cmbRuns.SelectCBItem(cfg.Runs);
       cmbConfigErgebnisGrouping.SelectCBItem(cfg.DefaultGrouping);
       cmbConfigErgebnis.SelectCBItem(cfg.RaceResultView);
+
+      if (cfg.RaceResultView_PenaltyRuleMode != RaceConfiguration.EPenaltyMode.Off)
+      {
+        chkConfigPenalty.IsChecked = true;
+        txtValuePenaltyCutOff.Text = string.Format("{0}", cfg.RaceResultView_PenaltyRuleCutOffValue);
+        cmbConfigPenalty.SelectCBItem(cfg.RaceResultView_PenaltyRuleMode);
+      }
+      else
+        chkConfigPenalty.IsChecked = false;
+      chkConfigPenalty_CheckChanged(null, null);
+
       cmbConfigStartlist1.SelectCBItem(cfg.Run1_StartistView);
       cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
       cmbConfigStartlist2.SelectCBItem(cfg.Run2_StartistView);
@@ -206,6 +225,14 @@ namespace RaceHorology
 
       if (cmbConfigErgebnis.SelectedIndex >= 0)
         cfg.RaceResultView = (string)((CBItem)cmbConfigErgebnis.SelectedValue).Value;
+
+      if (chkConfigPenalty.IsChecked == true)
+      {
+        try { cfg.RaceResultView_PenaltyRuleCutOffValue = double.Parse(txtValuePenaltyCutOff.Text); } catch (Exception) { }
+        cfg.RaceResultView_PenaltyRuleMode = (RaceConfiguration.EPenaltyMode)((CBItem)cmbConfigPenalty.SelectedValue).Value;
+      }
+      else
+        cfg.RaceResultView_PenaltyRuleMode = RaceConfiguration.EPenaltyMode.Off;
 
       if (cmbConfigStartlist1.SelectedIndex >= 0)
         cfg.Run1_StartistView = (string)((CBItem)cmbConfigStartlist1.SelectedValue).Value;
@@ -271,6 +298,12 @@ namespace RaceHorology
     {
       ResetConfigurationSelectionUI(_raceConfiguration);
       refreshConfigPresetsUI();
+    }
+
+    private void chkConfigPenalty_CheckChanged(object sender, RoutedEventArgs e)
+    {
+      txtValuePenaltyCutOff.IsEnabled = chkConfigPenalty.IsChecked == true;
+      cmbConfigPenalty.IsEnabled = chkConfigPenalty.IsChecked == true;
     }
   }
 }

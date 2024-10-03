@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2022 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -43,6 +43,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
@@ -273,11 +274,12 @@ namespace RaceHorologyLib
       { "Name", new List<string>{ "Name", "Nachname" } },
       { "Firstname", new List<string>{"Vorname"} },
       { "Sex", new List<string>{"Geschlecht", "Kategorie", "Sex", "m/w" } },
+      { "Class", new List<string>{"Class", "Klasse"} },
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG" } },
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
       { "Code", new List<string>{"DSV-Id", "Code"} },
-      { "SvId", new List<string>{"SvId", "SkiverbandId", "id" } }
+      { "SvId", new List<string>{"SvId", "SkiverbandId", "id" } },
     };
 
     public ParticipantMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
@@ -305,13 +307,14 @@ namespace RaceHorologyLib
       { "Name", new List<string>{ "Name", "Nachname" } },
       { "Firstname", new List<string>{"Vorname", "Firstname"} },
       { "Sex", new List<string>{"Geschlecht", "Kategorie", "Sex", "m/w"} },
+      { "Class", new List<string>{"Class", "Klasse"} },
       { "Year", new List<string>{"Geburtsjahr", "Jahr", "Jahrgang", "JG", "Year" } },
       { "Club", new List<string>{"Club", "Verein"} },
       { "Nation", new List<string>{"Nation", "Verband", "Verbandskürzel" } },
-      { "Code", new List<string>{"DSV-Id", "Code" } },
-      { "SvId", new List<string>{"SvId", "SkiverbandId", "id" } },
+      { "Code", new List<string>{"Code" } },
+      { "SvId", new List<string>{ "DSV-Id", "SvId", "SkiverbandId", "id" } },
       { "Points", new List<string>{"Points", "Punkte"} },
-      { "StartNumber", new List<string>{"start number", "Startnummer", "SN"} },
+      { "StartNumber", new List<string>{"start number", "Startnummer", "SN", "Bib"} },
     };
 
     public RaceMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
@@ -458,7 +461,8 @@ namespace RaceHorologyLib
         Nation = GetValueAsString(row, "Nation"),
         SvId = GetValueAsString(row, "SvId"),
         Code = GetValueAsString(row, "Code"),
-        Year = GetValueAsUint(row, "Year")
+        Year = GetValueAsUint(row, "Year"),
+        Class = importClass(GetValueAsString(row, "Class")),
       };
 
       return p;
@@ -578,6 +582,15 @@ namespace RaceHorologyLib
       return category;
     }
 
+    ParticipantClass importClass(string name)
+    {
+      ParticipantClass found = null;
+      if (_classAssignment != null && !name.IsNullOrEmpty())
+        found = _classAssignment.Classes.Find(c => c.Name.ToLowerInvariant().Contains(name.ToLowerInvariant()));
+      return found;
+    }
+
+
   }
 
 
@@ -637,7 +650,8 @@ namespace RaceHorologyLib
       else
         partImported = insertParticpant(partCreated);
 
-      _partImportUtils.AssignClass(partImported);
+      if (partImported.Class == null)
+        _partImportUtils.AssignClass(partImported);
 
       return partImported;
     }
