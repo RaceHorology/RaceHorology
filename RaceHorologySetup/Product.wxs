@@ -7,7 +7,7 @@
   <Product Id="*" Name="Race Horology" Language="1033" Codepage="UTF-8" Version="!(bind.fileVersion.RaceHorology.exe)" Manufacturer="Sven Flossmann" UpgradeCode="d9e1706b-6d76-415d-8e23-ede1bab60b83">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
-    <Icon Id="RHLOGOFINAPP.ico" SourceFile="RH-LOGO-FIN-APP2.ico"/>
+    <Icon Id="RHLOGOFINAPP.ico" SourceFile="RH-LOGO-FIN-APP2.ico" />
     <Property Id="ARPPRODUCTICON" Value="RHLOGOFINAPP.ico" />
 
     <MajorUpgrade Schedule="afterInstallValidate" AllowDowngrades="no" DowngradeErrorMessage="Eine neuere Version von [ProductName] ist bereits installiert." />
@@ -90,25 +90,16 @@
   <Fragment>
     
     <Property Id="VCREDISTINSTALLED">
-      <RegistrySearch Id="VCRedistInstalledSearch"
-                      Root="HKCR"
-                      Key="Installer\Dependencies\VC,redist.x86,x86,14.34,bundle"
-                      Name="Version"
-                      Type="raw" 
-                      Win64="no"/>
+      <RegistrySearch Id="VCRedistInstalledSearch" Root="HKCR" Key="Installer\Dependencies\VC,redist.x86,x86,14.34,bundle" Name="Version" Type="raw" Win64="no" />
     </Property>
 
     <ComponentGroup Id="ThirdPartyComponents" Directory="ExtSources">
-      <Component Id="Component_VC_redist_x86" Guid="2B80F89A-990A-438E-A475-9E72d8A0198A" >
+      <Component Id="Component_VC_redist_x86" Guid="2B80F89A-990A-438E-A475-9E72d8A0198A">
         <File Id="ExtSources_VC_redist.x86.exe" Name="VC_redist.x86.exe" Source="$(var.RaceHorology_TargetDir)ExtSources\VC_redist.x86.exe" />
       </Component>
     </ComponentGroup>
 
-    <CustomAction Id="Install_VC_redist_x86"
-      Execute="immediate"
-      Return="asyncNoWait"
-      FileKey="ExtSources_VC_redist.x86.exe"
-      ExeCommand="/quiet /norestart" />
+    <CustomAction Id="Install_VC_redist_x86" Execute="immediate" Return="asyncNoWait" FileKey="ExtSources_VC_redist.x86.exe" ExeCommand="/quiet /norestart" />
 
       <InstallExecuteSequence>
         <Custom Action="Install_VC_redist_x86" After="InstallFinalize"><![CDATA[VCREDISTINSTALLED < "14.34.31931.0" AND NOT REMOVE]]></Custom>
@@ -426,6 +417,27 @@
       </Component>
       <Component Id="websocket_sharp.xml" Guid="30075543-5193-4ed1-a385-5930a8574dd6">
         <File Id="websocket_sharp.xml" Name="websocket-sharp.xml" Source="$(var.RaceHorology_TargetDir)websocket-sharp.xml" />
+      </Component>
+      <Component Id="SharpVectors.Dom.dll" Guid="f84c16c0-ccf8-4ab8-b076-396e0429d46c">
+        <File Id="SharpVectors.Dom.dll" Name="SharpVectors.Dom.dll" Source="$(var.RaceHorology_TargetDir)SharpVectors.Dom.dll" />
+      </Component>
+      <Component Id="SharpVectors.Runtime.Wpf.dll" Guid="c91c45bb-fbae-492e-a408-11f0c1f32042">
+        <File Id="SharpVectors.Runtime.Wpf.dll" Name="SharpVectors.Runtime.Wpf.dll" Source="$(var.RaceHorology_TargetDir)SharpVectors.Runtime.Wpf.dll" />
+      </Component>
+      <Component Id="SharpVectors.Css.dll" Guid="c3c8588a-a46d-490b-8db5-4f2e8d4b6a1e">
+        <File Id="SharpVectors.Css.dll" Name="SharpVectors.Css.dll" Source="$(var.RaceHorology_TargetDir)SharpVectors.Css.dll" />
+      </Component>
+      <Component Id="SharpVectors.Core.dll" Guid="9e94f2d1-c7d2-447a-b9ea-641c560b0114">
+        <File Id="SharpVectors.Core.dll" Name="SharpVectors.Core.dll" Source="$(var.RaceHorology_TargetDir)SharpVectors.Core.dll" />
+      </Component>
+      <Component Id="SharpVectors.Model.dll" Guid="02866895-b891-4785-9789-601368f377d8">
+        <File Id="SharpVectors.Model.dll" Name="SharpVectors.Model.dll" Source="$(var.RaceHorology_TargetDir)SharpVectors.Model.dll" />
+      </Component>
+      <Component Id="SharpVectors.Rendering.Wpf.dll" Guid="904d57c5-d454-4903-8c9e-25f3859e7ebd">
+        <File Id="SharpVectors.Rendering.Wpf.dll" Name="SharpVectors.Rendering.Wpf.dll" Source="$(var.RaceHorology_TargetDir)SharpVectors.Rendering.Wpf.dll" />
+      </Component>
+      <Component Id="SharpVectors.Converters.Wpf.dll" Guid="275d2d0f-0de5-4ed0-9781-a45ae4502e11">
+        <File Id="SharpVectors.Converters.Wpf.dll" Name="SharpVectors.Converters.Wpf.dll" Source="$(var.RaceHorology_TargetDir)SharpVectors.Converters.Wpf.dll" />
       </Component>    </ComponentGroup>
   </Fragment>
 
