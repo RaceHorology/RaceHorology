@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -33,12 +33,11 @@
  * 
  */
 
-using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.ObjectModel;
 using RaceHorologyLib;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace RaceHorologyLibTest
 {
@@ -168,7 +167,7 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void ObservableCollectionExtensions_Sort()
     {
-      Collection<int> collection = new Collection<int>{ 2, 3, 1, 8, 7, 9, 4, 6, 5 };
+      Collection<int> collection = new Collection<int> { 2, 3, 1, 8, 7, 9, 4, 6, 5 };
 
       collection.Sort(Comparer<int>.Default, 0, 2);
       CollectionAssert.AreEqual(new Collection<int> { 1, 2, 3, 8, 7, 9, 4, 6, 5 }, collection);
