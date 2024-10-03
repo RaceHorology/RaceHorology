@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RaceHorology"
         mc:Ignorable="d"
         Background="#e6eee5"
-        Title="Zeitmessgerät" Height="450" Width="800">
+        Title="Zeitmessgerät" MinHeight="450" MinWidth="600" MaxHeight="1024" MaxWidth="1200">
   <Grid x:Name="grdMain">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>

@@ -8,7 +8,8 @@
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              mc:Ignorable="d" 
              Background="#e6eee5"
-             d:DesignHeight="800" d:DesignWidth="600">
+             d:DesignHeight="600" d:DesignWidth="600"
+             MinHeight="500" MinWidth="600">
   <UserControl.Resources>
     <local:ComparisonToVisibleConverter x:Key="ComparisonToVisibleConverter" />
     <locallib:DateTimeConverter x:Key="DateTimeConverter" />
