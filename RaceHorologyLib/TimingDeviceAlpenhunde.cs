@@ -427,18 +427,23 @@ namespace RaceHorologyLib
         });
     }
 
+    protected void performPostAction(string subUrl)
+    {
+      _webClient.PostAsync(subUrl, null)
+        .ContinueWith((response) =>
+        {
+          Logger.Info("POST \"{0}\", Status-Code: {0}", subUrl, response.Result.StatusCode);
+        });
+    }
+
+
     private void checkAndSetSystemTime()
     {
       if (SystemInfo.SystemTime == null)
       {
         // Set System Time
         Logger.Info("Systemzeit nicht gesetzt => muss gesetzt werden");
-        var paramStr = String.Format("?action=date_time&sec={0}&usec=0", DateTime.Now.UnixEpoch(true));
-        _webClient.PostAsync("system/"+ paramStr, null)
-          .ContinueWith((response) =>
-          {
-            Logger.Info("Systemzeit gesetzt, Status-Code: {0}", response.Result.StatusCode);
-          });
+        performPostAction(String.Format("system/?action=date_time&sec={0}&usec=0", DateTime.Now.UnixEpoch(true)));
       }
       else
       {
