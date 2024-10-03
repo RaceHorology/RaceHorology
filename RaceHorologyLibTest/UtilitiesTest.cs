@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2023 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -209,12 +209,14 @@ namespace RaceHorologyLibTest
     public void UnixTimeTest()
     {
       var t1 = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
-      Assert.AreEqual(-1 * 60 * 60, t1.UnixEpoch(false));
+      var offset1 = TimeZoneInfo.Local.GetUtcOffset(t1);
+      Assert.AreEqual(-offset1.TotalSeconds, t1.UnixEpoch(false));
       Assert.AreEqual(0, t1.UnixEpoch(true));
 
       var t2 = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Local);
+      var offset2 = TimeZoneInfo.Local.GetUtcOffset(t2);
       Assert.AreEqual(1726351200, t2.UnixEpoch(false));
-      Assert.AreEqual(1726351200+2*3600, t2.UnixEpoch(true));
+      Assert.AreEqual(1726351200 + offset2.TotalSeconds, t2.UnixEpoch(true));
 
       Assert.AreEqual(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), DateTimeExtensions.ConvertFromUnixTimestamp(0, false));
       Assert.AreEqual(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), DateTimeExtensions.ConvertFromUnixTimestamp(0, true));
