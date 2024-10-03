@@ -85,15 +85,25 @@ namespace RaceHorology
 
     private void btnSynchronize_Click(object sender, RoutedEventArgs e)
     {
-      _timingDevice.Synchronize();
+      var doIt = ShowMessage("Soll wirklich neu synchronisiert werden?");
+      if (doIt)
+        _timingDevice.Synchronize();
     }
 
     private void btnChangeChannel_Click(object sender, RoutedEventArgs e)
     {
-      if (cmbChannel.SelectedItem is CBItem selected)
+      var doIt = ShowMessage("Soll der Kanal wirklich gewechselt werden?");
+      if (doIt && cmbChannel.SelectedItem is CBItem selected)
       {
         _timingDevice.SetChannel(Convert.ToInt32(selected.Value));
       }
     }
+
+    private bool ShowMessage(string message)
+    {
+      var res = MessageBox.Show(string.Format("{0}\n\nDie Zeitmessanlage wird dazu neu gestartet.", message), "Alpenhunde startet neu", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+      return res == MessageBoxResult.Yes;
+    }
+
   }
 }
