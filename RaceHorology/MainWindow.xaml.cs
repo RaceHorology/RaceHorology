@@ -670,11 +670,24 @@ namespace RaceHorology
         return;
       }
 
-      if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+
+      TimingDeviceBaseUC debugUC = null;
+      if (_timingDevice is TimingDeviceAlpenhunde alpenhundeTimingDevice)
       {
-        TimingDeviceDebugDlg debugDlg = new TimingDeviceDebugDlg(debugableTimingDevice);
-        debugDlg.Show();
+        debugUC = new TimingDeviceAlpenhundeUC();
+        debugUC.Init(alpenhundeTimingDevice);
       }
+      else if (_timingDevice is ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+      {
+        debugUC = new TimingDeviceDebugUC();
+        debugUC.Init(debugableTimingDevice);
+      }
+      if (debugUC != null)
+      {
+        var deviceDlg = new TimingDeviceDlg(debugUC);
+        deviceDlg.Show();
+      }
+
     }
 
     struct ExportConfig

@@ -33,12 +33,11 @@
  * 
  */
 
-using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.ObjectModel;
 using RaceHorologyLib;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace RaceHorologyLibTest
 {
@@ -168,7 +167,7 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void ObservableCollectionExtensions_Sort()
     {
-      Collection<int> collection = new Collection<int>{ 2, 3, 1, 8, 7, 9, 4, 6, 5 };
+      Collection<int> collection = new Collection<int> { 2, 3, 1, 8, 7, 9, 4, 6, 5 };
 
       collection.Sort(Comparer<int>.Default, 0, 2);
       CollectionAssert.AreEqual(new Collection<int> { 1, 2, 3, 8, 7, 9, 4, 6, 5 }, collection);
@@ -203,6 +202,29 @@ namespace RaceHorologyLibTest
       TimeSpan? t3 = new TimeSpan(0, 1, 1, 30, 126);
       Assert.AreEqual("01:01:30,12", t3.ToRaceTimeString());
 
+    }
+
+    [TestMethod]
+    public void UnixTimeTest()
+    {
+      var t1 = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
+      var offset1 = TimeZoneInfo.Local.GetUtcOffset(t1);
+      Assert.AreEqual(-offset1.TotalSeconds, t1.UnixEpoch(false));
+      Assert.AreEqual(0, t1.UnixEpoch(true));
+
+      var t2Local = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Local);
+      var t2UTC = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Utc);
+      var t2UTCEpoch = 1726358400; // 15.09.2024, 00:00:00
+
+      var offset2 = TimeZoneInfo.Local.GetUtcOffset(t2Local);
+      Assert.AreEqual(t2UTCEpoch - offset2.TotalSeconds, t2Local.UnixEpoch(false));
+      Assert.AreEqual(t2UTCEpoch, t2Local.UnixEpoch(true));
+
+      Assert.AreEqual(t2UTCEpoch, t2UTC.UnixEpoch(false));
+      Assert.AreEqual(t2UTCEpoch + offset2.TotalSeconds, t2UTC.UnixEpoch(true));
+
+      Assert.AreEqual(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), DateTimeExtensions.ConvertFromUnixTimestamp(0, false));
+      Assert.AreEqual(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), DateTimeExtensions.ConvertFromUnixTimestamp(0, true));
     }
   }
 }

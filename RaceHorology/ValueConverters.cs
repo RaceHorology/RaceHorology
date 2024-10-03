@@ -34,7 +34,10 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -68,6 +71,78 @@ namespace RaceHorology
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
+  public class ComparisonToVisibleConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      try
+      {
+        string inputParameter = parameter?.ToString() ?? "";
+
+        IEnumerable<string> paramList = inputParameter.Contains("|") ? inputParameter.Split(new[] { "|" }, StringSplitOptions.None) : new[] { inputParameter };
+
+        return paramList.Any(param => string.Equals(value?.ToString(), param)) ? Visibility.Visible : Visibility.Collapsed;
+      }
+      catch
+      {
+        return Visibility.Visible;
+      }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      return value?.ToString() != Visibility.Collapsed.ToString();
+    }
+  }
+
+  public class RTTIToImageConverter : IMultiValueConverter
+  {
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+      if (values.Length > 2)
+        throw new Exception("invalid number of argumnets");
+
+      try
+      {
+        string imageName = "status_unsync.svg";
+
+        int rssi = (int)values[0];
+        string syncStatus = values.Length > 1 ? (string)values[1] : "";
+
+        // Beschreibung nach Christian Hund:
+        //>= -105 dBm ist zwei Funkwellen / grün
+        //- 114 bis - 106dBm ist eine Funkwelle / grün
+        //<= -115dBm ist keine Funkwellen/ gelb
+        //- 999 bedeutet kein Signal mehr erhalten / ausser Funkreichweite
+        //- 1000 bedeutet noch kein Signal erhalten
+        if (syncStatus == "Synchronised" || syncStatus == "")
+        {
+          if (rssi >= -105)
+            imageName = "Status_RSSI-Funksehrgut.svg";
+          else if (rssi >= -114)
+            imageName = "Status_RSSI-Funkgut.svg";
+          else if (rssi > -999)
+            imageName = "Status_RSSI-keinFunk.svg";
+          else if (rssi == -999)
+            imageName = "Status_RSSI-not-found.svg";
+          else if (rssi == -1000)
+            imageName = "Status_RSSI-not-found.svg";
+        }
+        return new Uri("pack://application:,,,/Icons/alpenhunde/" + imageName);
+      }
+      catch (Exception)
+      {
+        return new Uri("pack://application:,,,/Icons/alpenhunde/status_unsync.svg");
+      }
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
     {
       throw new NotImplementedException();
     }

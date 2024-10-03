@@ -1,0 +1,23 @@
+﻿<Window x:Class="RaceHorology.TimingDeviceDlg"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RaceHorology"
+        mc:Ignorable="d"
+        Background="#e6eee5"
+        Title="Zeitmessgerät" MinHeight="450" MinWidth="600" MaxHeight="1024" MaxWidth="1200">
+  <Grid x:Name="grdMain">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+      <Button x:Name="btnOk" Content="Close" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Margin="0,0,0,0" IsDefault="True" Click="BtnOk_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>
