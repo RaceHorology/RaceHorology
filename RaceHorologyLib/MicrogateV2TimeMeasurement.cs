@@ -33,7 +33,6 @@
  * 
  */
 
-using DocumentFormat.OpenXml.Drawing;
 using System;
 using System.IO;
 using System.IO.Ports;
@@ -57,7 +56,7 @@ namespace RaceHorologyLib
       SerialNumber = string.Empty
     };
 
-  TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
+    TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
 
     public MicrogateV2TimeMeasurementBase()
     {
@@ -85,10 +84,26 @@ namespace RaceHorologyLib
     public abstract void Start();
     public abstract void Stop();
 
-    public abstract bool IsOnline { get; }
-    public abstract bool IsStarted { get; }
-    public abstract event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
+    protected StatusType _onlineStatus;
+    public StatusType OnlineStatus
+    {
+      protected set
+      {
+        if (_onlineStatus != value)
+        {
+          _onlineStatus = value;
+          var handler = StatusChanged;
+          handler?.Invoke(this, OnlineStatus);
+        }
+      }
+      get
+      {
+        return _onlineStatus;
+      }
+    }
+    public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
+    public abstract bool IsStarted { get; }
 
     protected void processLine(string dataLine)
     {
@@ -167,7 +182,8 @@ namespace RaceHorologyLib
           return null;
       }
 
-      switch (parsedData.Flag) {
+      switch (parsedData.Flag)
+      {
         case 'P': data.DisqualificationCode = 1; break;
         case 'A': data.DisqualificationCode = 2; break;
         case 'Q': data.DisqualificationCode = 3; break;
@@ -237,7 +253,7 @@ namespace RaceHorologyLib
     public override string GetStatusInfo()
     {
       if (_serialPortName.IsNullOrEmpty())
-      return "kein COM Port";
+        return "kein COM Port";
 
       return _serialPortName + ", " + _statusText;
     }
@@ -289,14 +305,23 @@ namespace RaceHorologyLib
 
         _internalStatus = value;
 
-        var handler = StatusChanged;
-        handler?.Invoke(this, IsOnline);
+        var onlineStatus = mapInternalToOnlineStatus(_onlineStatus, value);
+        if (onlineStatus != null)
+          OnlineStatus = (StatusType)onlineStatus;
       }
     }
 
-    public override bool IsOnline
+    private StatusType? mapInternalToOnlineStatus(StatusType oldStatus, EInternalStatus newInternalStatus)
     {
-      get { return _serialPort != null && _internalStatus == EInternalStatus.Running; }
+      var wasConnected = oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline;
+      switch (newInternalStatus)
+      {
+        case EInternalStatus.Initializing: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EInternalStatus.Running: return StatusType.Online;
+        case EInternalStatus.Stopped: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EInternalStatus.NoCOMPort: return wasConnected ? StatusType.Error_GotOffline : StatusType.NoDevice;
+        default: return null;
+      }
     }
 
     public override bool IsStarted
@@ -306,9 +331,6 @@ namespace RaceHorologyLib
         return _serialPort != null && !_stopRequest;
       }
     }
-
-
-    public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
     private void MainLoop()

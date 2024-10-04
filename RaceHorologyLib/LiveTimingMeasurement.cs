@@ -351,7 +351,7 @@ namespace RaceHorologyLib
       handler?.Invoke(this, IsRunning);
     }
 
-    public bool IsRunning { get => _isRunning && _timingDeviceMain?.IsOnline == true; }
+    public bool IsRunning { get => _isRunning && _timingDeviceMain?.OnlineStatus == StatusType.Online; }
 
     #endregion
 
@@ -360,7 +360,7 @@ namespace RaceHorologyLib
     /// <summary>
     /// Callback for the timing device to react on (e.g. disconnected, stopped, ...)
     /// </summary>
-    private void OnTimerStatusChanged(object sender, bool isRunning)
+    private void OnTimerStatusChanged(object sender, StatusType status)
     {
       // Just forward changes on status
       var handler = LiveTimingMeasurementStatusChanged;

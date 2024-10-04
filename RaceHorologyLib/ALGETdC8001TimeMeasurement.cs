@@ -34,12 +34,8 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -60,7 +56,7 @@ namespace RaceHorologyLib
       SerialNumber = string.Empty
     };
 
-  TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
+    TimeSpan _currentDayTimeDelta; // Contains the diff between ALGE TdC8001 and the local computer time
 
     public ALGETdC8001TimeMeasurementBase()
     {
@@ -88,9 +84,27 @@ namespace RaceHorologyLib
     public abstract void Start();
     public abstract void Stop();
 
-    public abstract bool IsOnline { get; }
+
+    protected StatusType _onlineStatus;
+    public StatusType OnlineStatus
+    {
+      protected set
+      {
+        if (_onlineStatus != value)
+        {
+          _onlineStatus = value;
+          var handler = StatusChanged;
+          handler?.Invoke(this, OnlineStatus);
+        }
+      }
+      get
+      {
+        return _onlineStatus;
+      }
+    }
+    public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
+
     public abstract bool IsStarted { get; }
-    public abstract event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
     protected void processLine(string dataLine)
@@ -100,7 +114,7 @@ namespace RaceHorologyLib
         _parser.Parse(dataLine);
       }
       catch (Exception)
-      {}
+      { }
 
       if (_parser.TimingData == null)
         return;
@@ -150,7 +164,7 @@ namespace RaceHorologyLib
         }
       }
       catch (FormatException)
-      {}
+      { }
     }
 
     public static TimeMeasurementEventArgs TransferToTimemeasurementData(in ALGETdC8001LiveTimingData parsedData)
@@ -161,7 +175,7 @@ namespace RaceHorologyLib
       TimeMeasurementEventArgs data = new TimeMeasurementEventArgs();
 
       // Sort out invalid data
-      if ( parsedData.Flag == 'p'
+      if (parsedData.Flag == 'p'
         || parsedData.Flag == 'b'
         || parsedData.Flag == 'm'
         || parsedData.Flag == 'n'
@@ -229,7 +243,7 @@ namespace RaceHorologyLib
 
     // Nothing to implement, download is initiated interactively on ALGE device via Classment transfer
     public EImportTimeFlags SupportedImportTimeFlags() { return EImportTimeFlags.RunTime; }
-    public void DownloadImportTimes(){}
+    public void DownloadImportTimes() { }
 
 
     #region Implementation of ILiveDateTimeProvider
@@ -303,7 +317,7 @@ namespace RaceHorologyLib
           new System.Threading.ThreadStart(this.MainLoop));
       _instanceCaller.Start();
     }
-    
+
     public override void Stop()
     {
       Logger.Info("Stop()");
@@ -341,23 +355,32 @@ namespace RaceHorologyLib
 
         _internalStatus = value;
 
-        var handler = StatusChanged;
-        handler?.Invoke(this, IsOnline);
+        var onlineStatus = mapInternalToOnlineStatus(_onlineStatus, value);
+        if (onlineStatus != null)
+          OnlineStatus = (StatusType)onlineStatus;
       }
     }
 
-    public override bool IsOnline { 
-      get { return _serialPort != null && _internalStatus == EInternalStatus.Running; } 
+    private StatusType? mapInternalToOnlineStatus(StatusType oldStatus, EInternalStatus newInternalStatus)
+    {
+      var wasConnected = oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline;
+      switch (newInternalStatus)
+      {
+        case EInternalStatus.Initializing: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EInternalStatus.Running: return StatusType.Online;
+        case EInternalStatus.Stopped: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EInternalStatus.NoCOMPort: return wasConnected ? StatusType.Error_GotOffline : StatusType.NoDevice;
+        default: return null;
+      }
     }
 
-    public override bool IsStarted {
-      get {
+    public override bool IsStarted
+    {
+      get
+      {
         return _serialPort != null && !_stopRequest;
       }
     }
-
-
-    public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
     private void MainLoop()
@@ -504,7 +527,7 @@ namespace RaceHorologyLib
 
 
     public enum ELineType
-    { 
+    {
       Unknown,
       TimeLine,
       ClassementStart,
@@ -512,7 +535,7 @@ namespace RaceHorologyLib
     }
 
 
-    public ALGETdC8001LiveTimingData TimingData { get; private set;}
+    public ALGETdC8001LiveTimingData TimingData { get; private set; }
     public EMode Mode { get; private set; }
 
 
@@ -581,7 +604,7 @@ namespace RaceHorologyLib
         parsedData.StartNumberModifier = dataLine[5];
       }
 
-      if (dataLine.Length > 5+1) // +1 because of parallel slalow => identifier for 'b' (blue course) or 'r' (red course)
+      if (dataLine.Length > 5 + 1) // +1 because of parallel slalow => identifier for 'b' (blue course) or 'r' (red course)
       {
         parsedData.Channel = dataLine.Substring(6, 2);
         parsedData.ChannelModifier = dataLine[8];
