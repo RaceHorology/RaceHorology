@@ -285,6 +285,8 @@ namespace RaceHorologyLib
     public delegate void LiveTimingMeasurementStatusEventHandler(object sender, bool isRunning);
     public event LiveTimingMeasurementStatusEventHandler LiveTimingMeasurementStatusChanged;
 
+    public event LiveTimingMeasurementDeviceStatusEventHandler LiveTimingMeasurementOnlineStatusChanged;
+
     public delegate void LiveTimingMeasurementConfigChangedEventHandler(object sender, bool configChanged);
     public event LiveTimingMeasurementConfigChangedEventHandler LiveTimingConfigChanged;
 
@@ -394,9 +396,12 @@ namespace RaceHorologyLib
     {
       TimingDeviceStatus.OnlineStatus = status;
 
+      var handler1 = LiveTimingMeasurementOnlineStatusChanged;
+      handler1?.Invoke(this, status);
+
       // Just forward changes on status
-      var handler = LiveTimingMeasurementStatusChanged;
-      handler?.Invoke(this, IsRunning);
+      var handler2 = LiveTimingMeasurementStatusChanged;
+      handler2?.Invoke(this, IsRunning);
     }
 
     /// <summary>

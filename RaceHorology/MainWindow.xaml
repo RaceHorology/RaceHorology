@@ -128,11 +128,11 @@
           <Label x:Name="lblTimingDevice" 
                  Content="---" 
                  Background="{Binding Path=OnlineStatus, Converter={StaticResource OnlineStatusToBrushConverter}}"
-                 HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12"  Grid.Column="1"/>
+                 HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" 
+                 Margin="0" VerticalAlignment="Top" FontSize="12"  Grid.Column="1"/>
           
-          <Button x:Name="btnTimingDeviceStartStop" Content="..." Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceStartStop_Click"/>
-
-          <Button x:Name="btnTimingDeviceDebug" Content="Details" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="3" Click="btnTimingDeviceDebug_Click"/>
+          <Button x:Name="btnTimingDeviceStartStop" Content="..." Margin="10,0,5,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceStartStop_Click"/>
+          <Button x:Name="btnTimingDeviceDebug" Content="Details" Margin="5,0,10,0" Padding="5,2,5,2"  Grid.Column="3" Click="btnTimingDeviceDebug_Click"/>
         </Grid>
       </StatusBarItem>
 

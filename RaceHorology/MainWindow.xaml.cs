@@ -41,6 +41,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Media;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -495,6 +496,7 @@ namespace RaceHorology
     private void InitializeTiming()
     {
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
+      _liveTimingMeasurement.LiveTimingMeasurementOnlineStatusChanged += liveTimingMeasurement_LiveTimingMeasurementOnlineStatusChanged;
 
       lblTimingDevice.DataContext = _liveTimingMeasurement.TimingDeviceStatus;
 
@@ -506,6 +508,15 @@ namespace RaceHorology
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
 
       InitializeTimingDevice();
+    }
+
+    private void liveTimingMeasurement_LiveTimingMeasurementOnlineStatusChanged(object sender, StatusType status)
+    {
+      if (status == StatusType.Error_GotOffline)
+      {
+        var sound = new SoundPlayer(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("RaceHorology.resources.error_offline.wav"));
+        sound.Play();
+      }
     }
 
     private void DeInitializeTiming()
