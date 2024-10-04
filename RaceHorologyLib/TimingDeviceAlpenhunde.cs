@@ -89,12 +89,12 @@ namespace RaceHorologyLib
     }
     private StatusType? mapInternalToOnlineStatus(StatusType oldStatus, EStatus newInternalStatus)
     {
-      var wasConnected = oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline;
+      var wasConnected = _isStarted && (oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline);
       switch (newInternalStatus)
       {
         case EStatus.NotConnected: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
         case EStatus.Connected: return StatusType.Online;
-        case EStatus.Connecting: return oldStatus;
+        case EStatus.Connecting: return wasConnected ? StatusType.Error_GotOffline : oldStatus;
         case EStatus.GotDisconnected: return StatusType.Error_GotOffline;
         default: return null;
       }

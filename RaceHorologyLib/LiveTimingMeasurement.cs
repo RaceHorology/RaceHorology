@@ -35,7 +35,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace RaceHorologyLib
@@ -220,6 +222,29 @@ namespace RaceHorologyLib
   }
 
 
+  public class TimingDeviceStatus : INotifyPropertyChanged
+  {
+    private StatusType _onlineStatus;
+    public StatusType OnlineStatus
+    {
+      get => _onlineStatus;
+      set { if (value != _onlineStatus) { _onlineStatus = value; NotifyPropertyChanged(); } }
+    }
+
+    #region INotifyPropertyChanged implementation
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    #endregion
+  }
+
+
+
   /// <summary>
   /// Reacts on the Live Timing Device (e.g. ALGE TdC8001) and updates the DataModel accordingly by transferring the received time data into the DataModel
   /// This is the main implementation for performaing the time measurement.
@@ -234,6 +259,8 @@ namespace RaceHorologyLib
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
     bool _autoAddParticipants;
+
+    public TimingDeviceStatus TimingDeviceStatus = new TimingDeviceStatus();
 
     /// <summary>
     /// Constructor
@@ -292,7 +319,10 @@ namespace RaceHorologyLib
           tdFull.StartnumberSelectedReceived += OnStartnumberSelectedReceived;
           tdFull.StatusChanged += OnTimerStatusChanged;
           if (mainDevice)
+          {
             _timingDeviceMain = tdFull;
+          }
+
         }
       }
 
@@ -362,6 +392,8 @@ namespace RaceHorologyLib
     /// </summary>
     private void OnTimerStatusChanged(object sender, StatusType status)
     {
+      TimingDeviceStatus.OnlineStatus = status;
+
       // Just forward changes on status
       var handler = LiveTimingMeasurementStatusChanged;
       handler?.Invoke(this, IsRunning);

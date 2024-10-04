@@ -496,6 +496,8 @@ namespace RaceHorology
     {
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
 
+      lblTimingDevice.DataContext = _liveTimingMeasurement.TimingDeviceStatus;
+
       _liveTimingStatusTimer = new System.Timers.Timer(300);
       _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
       _liveTimingStatusTimer.AutoReset = true;
