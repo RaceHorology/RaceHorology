@@ -35,20 +35,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
 
-  public enum EMeasurementPoint { 
-    Undefined, 
-    Start, 
-    Finish 
+  public enum EMeasurementPoint
+  {
+    Undefined,
+    Start,
+    Finish
   };
 
 
@@ -97,9 +94,9 @@ namespace RaceHorologyLib
     public bool BFinishTime;           // true if FinishTime is set
     public bool Valid;                 // true if timestamp is valid, false if time measurementdevice marked it as invalid
     public uint DisqualificationCode;  // normal result = 0, NaS = 1, NiZ = 2, DIS = 3
-    }
+  }
 
-  public class StartnumberSelectedEventArgs: EventArgs
+  public class StartnumberSelectedEventArgs : EventArgs
   {
     public StartnumberSelectedEventArgs()
     {
@@ -115,7 +112,7 @@ namespace RaceHorologyLib
 
   public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);
   public delegate void StartnumberSelectedEventHandler(object sender, StartnumberSelectedEventArgs e);
-  public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, bool isRunning);
+  public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, StatusType status);
 
 
   public class DeviceInfo
@@ -135,6 +132,14 @@ namespace RaceHorologyLib
 
   }
 
+
+  public enum StatusType
+  {
+    NoDevice, // Device not found, e.g. RS232 not found
+    Offline,  // Device is initially or intentionally offline
+    Online,   // Online
+    Error_GotOffline // Device is expected to be online but got disconnected or offline
+  };
 
   /// <summary>
   /// This Interface must be implemented from a Live Timing Measurement Device which supports online time measurement during the race.
@@ -161,7 +166,7 @@ namespace RaceHorologyLib
     /// Status property to get the real status of the measuring device. Might return false even if Start() has been called.
     /// IsOnline shall return true if everything works as expected and the device is connected / online.
     /// </summary>
-    bool IsOnline { get; }
+    StatusType OnlineStatus { get; }
 
     /// <summary>
     /// Returns information about the device itself, i.e. the device name
@@ -172,7 +177,7 @@ namespace RaceHorologyLib
     /// Returns information about the status of the device, i.e. online, disconnected, COM port not available, ...
     /// </summary>
     string GetStatusInfo();
-    
+
     /// <summary>
     /// This event must be fired if the status of the device changed.
     /// </summary>
@@ -264,7 +269,7 @@ namespace RaceHorologyLib
     {
       // Cleanup if already used
       if (_liveDateTimeProvider != null)
-      { 
+      {
         _liveDateTimeProvider.LiveDateTimeChanged -= OnLiveDateTimeChanged;
         _liveDateTimeProvider = null;
       }
@@ -282,7 +287,8 @@ namespace RaceHorologyLib
       if (timingDevice != null)
       {
         timingDevice.TimeMeasurementReceived += OnTimeMeasurementReceived;
-        if (timingDevice is ILiveTimeMeasurementDevice tdFull){
+        if (timingDevice is ILiveTimeMeasurementDevice tdFull)
+        {
           tdFull.StartnumberSelectedReceived += OnStartnumberSelectedReceived;
           tdFull.StatusChanged += OnTimerStatusChanged;
           if (mainDevice)
@@ -404,7 +410,7 @@ namespace RaceHorologyLib
             case 3: currentRaceRun.SetResultCode(participant, RunResult.EResultCode.DIS); break;
             default:
             case 0: //intentional allthroug
-                break;
+              break;
           }
 
         }
@@ -453,7 +459,7 @@ namespace RaceHorologyLib
       if (!_autoAddParticipants)
         return null;
 
-       if (startNumber == 0)
+      if (startNumber == 0)
         return null;
 
       Participant p = new Participant
@@ -502,7 +508,7 @@ namespace RaceHorologyLib
     {
       var onTrack = _raceRun.GetOnTrackList().ToArray();
 
-      foreach ( var lr in onTrack)
+      foreach (var lr in onTrack)
       {
         if (lr.GetStartTime() != null)
         {
