@@ -250,6 +250,7 @@ namespace RaceHorologyLib
     public MicrogateV1TimeMeasurement(string comport, string dumpDir) : base()
     {
       _serialPortName = comport;
+      _stopRequest = true;
       _internalStatus = EInternalStatus.Stopped;
       _dumpDir = dumpDir;
       _internalProtocol = string.Empty;
@@ -317,7 +318,7 @@ namespace RaceHorologyLib
 
     private StatusType? mapInternalToOnlineStatus(StatusType oldStatus, EInternalStatus newInternalStatus)
     {
-      var wasConnected = oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline;
+      var wasConnected = !_stopRequest && oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline;
       switch (newInternalStatus)
       {
         case EInternalStatus.Initializing: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
