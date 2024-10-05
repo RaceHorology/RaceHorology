@@ -34,7 +34,6 @@
  */
 
 using iText.IO.Font;
-using iText.IO.Font.Constants;
 using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Events;
@@ -42,13 +41,13 @@ using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas;
-using iText.Kernel.Pdf.Canvas.Wmf;
 using iText.Kernel.Pdf.Xobject;
 using iText.Layout;
 using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Layout;
 using iText.Layout.Properties;
+using iText.Layout.Renderer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -56,8 +55,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -71,7 +68,8 @@ namespace RaceHorologyLib
   }
 
 
-  public static class IPdfReportUtils {
+  public static class IPdfReportUtils
+  {
     static public void Generate(this IPDFReport report, string filePath, DateTime? creationDateTime = null)
     {
       using (var mStream = new MemoryStream())
@@ -1276,7 +1274,6 @@ namespace RaceHorologyLib
 
       var table = new Table(getTableColumnsWidths());
 
-
       table.SetWidth(UnitValue.CreatePercentValue(100));
       table.SetBorder(Border.NO_BORDER);
       table.SetPaddingBottom(0).SetMarginBottom(0);
@@ -1288,20 +1285,30 @@ namespace RaceHorologyLib
 
       var results = getView();
       var lr = results as System.Windows.Data.ListCollectionView;
+      var breaks = new List<int>();
+      var row = -1;
       if (results.Groups != null)
       {
         foreach (var group in results.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
           addLineToTable(table, cvGroup.GetName());
+          row++;
 
           int i = 0;
           foreach (var result in cvGroup.Items)
             if (addLineToTable(table, result, i))
+            {
               i++;
+              row++;
+            }
 
           if (i == 0)
+          {
             addCommentLineToTable(table, "keine Teilnehmer");
+            row++;
+          }
+          breaks.Add(row);
         }
       }
       else
@@ -1309,9 +1316,14 @@ namespace RaceHorologyLib
         int i = 0;
         foreach (var result in results.SourceCollection)
           if (addLineToTable(table, result, i))
+          {
             i++;
+            row++;
+          }
+        breaks.Add(row);
       }
 
+      table.SetNextRenderer(new SplitTableAtSpecificRowRenderer(table, breaks));
       return table;
     }
 
@@ -3166,6 +3178,115 @@ namespace RaceHorologyLib
 
         document.Add(table);
       }
+    }
+  }
+
+  class SplitTableAtSpecificRowRenderer : TableRenderer
+  {
+    private readonly List<int> breakPoints;
+
+
+    private int amountOfRowsThatAreGoingToBeRendered = 0;
+
+    public SplitTableAtSpecificRowRenderer(Table modelElement, List<int> breakPoints) : base(modelElement)
+    {
+      this.breakPoints = breakPoints;
+    }
+
+    public override IRenderer GetNextRenderer()
+    {
+      return new SplitTableAtSpecificRowRenderer((Table)modelElement, this.breakPoints);
+    }
+
+    public override LayoutResult Layout(LayoutContext layoutContext)
+    {
+      LayoutResult result = null;
+      while (result == null)
+      {
+        result = AttemptLayout(layoutContext, this.breakPoints);
+      }
+
+      for (var index = 0; index < this.breakPoints.Count; index++)
+      {
+        this.breakPoints[index] -= amountOfRowsThatAreGoingToBeRendered;
+      }
+
+      return result;
+    }
+
+    private LayoutResult AttemptLayout(LayoutContext layoutContext, List<int> breakPoints)
+    {
+      LayoutResult layoutResult = base.Layout(layoutContext);
+      if (layoutResult.GetStatus() == LayoutResult.FULL || breakPoints.Count == 0)
+      {
+        this.amountOfRowsThatAreGoingToBeRendered = GetAmountOfRows(layoutResult);
+        return layoutResult;
+      }
+
+      int breakPointToFix = CalculateBreakPoint(layoutContext);
+      if (breakPointToFix >= 0)
+      {
+        ForceAreaBreak(breakPointToFix);
+        this.amountOfRowsThatAreGoingToBeRendered = breakPointToFix - 1;
+        return null;
+      }
+
+      return layoutResult;
+    }
+
+
+    private int CalculateBreakPoint(LayoutContext layoutContext)
+    {
+      LayoutResult layoutResultWithoutSplits = AttemptLayout(layoutContext, new List<int>());
+      if (layoutResultWithoutSplits == null)
+      {
+        return int.MinValue;
+      }
+
+      int amountOfRowsThatFitWithoutSplit = GetAmountOfRows(layoutResultWithoutSplits);
+      int breakPointToFix = int.MinValue;
+      foreach (int breakPoint in new List<int>(breakPoints))
+      {
+        if (breakPoint <= amountOfRowsThatFitWithoutSplit)
+        {
+          breakPoints.Remove(breakPoint);
+          if (breakPoint < amountOfRowsThatFitWithoutSplit && breakPoint > breakPointToFix)
+          {
+            breakPointToFix = breakPoint;
+          }
+        }
+      }
+
+      return breakPointToFix;
+    }
+
+    private void ForceAreaBreak(int rowIndex)
+    {
+      rowIndex++;
+      if (rowIndex > rows.Count)
+      {
+        return;
+      }
+
+      foreach (CellRenderer cellRenderer in rows[rowIndex])
+      {
+        if (cellRenderer != null)
+        {
+          cellRenderer.GetChildRenderers()
+              .Insert(0, new AreaBreakRenderer(new AreaBreak(AreaBreakType.NEXT_PAGE)));
+          break;
+        }
+      }
+    }
+
+    private static int GetAmountOfRows(LayoutResult layoutResult)
+    {
+      if (layoutResult.GetSplitRenderer() == null)
+      {
+        return 0;
+      }
+
+      return ((SplitTableAtSpecificRowRenderer)layoutResult.GetSplitRenderer()).rows.Count;
     }
   }
 
