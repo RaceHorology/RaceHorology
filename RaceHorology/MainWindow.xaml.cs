@@ -544,7 +544,7 @@ namespace RaceHorology
       ILiveTimeMeasurementDevice newTimingDevice = null;
       if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE TdC"))
       {
-        newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+        newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, Properties.Settings.Default.TimingDevice_PortBitRate, dumpDir);
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE Timy (via USB)"))
       {
@@ -557,11 +557,11 @@ namespace RaceHorology
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Racetime 2"))
       {
-        newTimingDevice = new MicrogateV1TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+        newTimingDevice = new MicrogateV1TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, Properties.Settings.Default.TimingDevice_PortBitRate, dumpDir);
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Microgate"))
       {
-        newTimingDevice = new MicrogateV2TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+        newTimingDevice = new MicrogateV2TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, Properties.Settings.Default.TimingDevice_PortBitRate, dumpDir);
       }
 
       if (newTimingDevice != null)
@@ -613,6 +613,7 @@ namespace RaceHorology
             _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
           break;
         case "TimingDevice_Port":
+        case "TimingDevice_PortBitRate":
         case "TimingDevice_Type":
         case "TimingDevice_Url":
         case "TimingDevice_Debug_Dump":

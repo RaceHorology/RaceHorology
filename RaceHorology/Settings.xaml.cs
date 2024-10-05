@@ -163,12 +163,14 @@ namespace RaceHorology
       cbTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
       lblTimingDevicePort.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
 
+      cbTimingDeviceBitRate.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
+      lblTimingDeviceBitRate.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
+
       txtTimingDeviceUrl.Visibility = displayUrl ? Visibility.Visible : Visibility.Collapsed;
       lblTimingDeviceUrl.Visibility = displayUrl ? Visibility.Visible : Visibility.Collapsed;
 
       lblTimingDeviceDebug.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
       chkTimingDeviceDebugDump.Visibility = displayComPort ? Visibility.Visible : Visibility.Collapsed;
     }
-
   }
 }
