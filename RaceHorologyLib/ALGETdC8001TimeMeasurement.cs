@@ -48,6 +48,7 @@ namespace RaceHorologyLib
 
     ALGETdC8001LineParser _parser;
     protected string _statusText;
+    protected bool _isStarted;
     protected DeviceInfo _deviceInfo = new DeviceInfo
     {
       Manufacturer = "ALGE",
@@ -61,6 +62,7 @@ namespace RaceHorologyLib
     public ALGETdC8001TimeMeasurementBase()
     {
       _statusText = "Not running";
+      _isStarted = false;
       _parser = new ALGETdC8001LineParser();
     }
 
@@ -81,8 +83,14 @@ namespace RaceHorologyLib
     }
 
 
-    public abstract void Start();
-    public abstract void Stop();
+    public virtual void Start()
+    {
+      _isStarted = true;
+    }
+    public virtual void Stop()
+    {
+      _isStarted = false;
+    }
 
 
     protected StatusType _onlineStatus;
@@ -308,6 +316,7 @@ namespace RaceHorologyLib
 
       Logger.Info("Start()");
 
+      base.Start();
       _statusText = "Starting";
 
       _stopRequest = false;
@@ -324,6 +333,8 @@ namespace RaceHorologyLib
 
       if (_instanceCaller != null)
       {
+        base.Stop();
+
         _statusText = "Stopping";
 
         _stopRequest = true;
@@ -363,7 +374,7 @@ namespace RaceHorologyLib
 
     private StatusType? mapInternalToOnlineStatus(StatusType oldStatus, EInternalStatus newInternalStatus)
     {
-      var wasConnected = oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline;
+      var wasConnected = _isStarted && (oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline);
       switch (newInternalStatus)
       {
         case EInternalStatus.Initializing: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
