@@ -420,4 +420,96 @@ namespace RaceHorologyLib
   }
 
 
+  internal class DatabaseDelegatorTeams
+  {
+    private IAppDataModelDataBase _db;
+    AppDataModel _dm;
+
+    ItemsChangedNotifier _notifier;
+
+    public DatabaseDelegatorTeams(AppDataModel dm, IAppDataModelDataBase db)
+    {
+      _dm = dm;
+      _db = db;
+
+      _notifier = new ItemsChangedNotifier(_dm.GetTeams());
+
+      _notifier.ItemChanged += OnItemChanged;
+      _notifier.CollectionChanged += OnCollectionChanged;
+    }
+
+    void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is Team t)
+        _db.CreateOrUpdateTeam(t);
+    }
+
+    void OnCollectionChanged(object source, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (Team t in e.NewItems)
+            _db.CreateOrUpdateTeam(t);
+          break;
+
+        case NotifyCollectionChangedAction.Remove:
+          foreach (Team t in e.OldItems)
+            _db.RemoveTeam(t);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
+  internal class DatabaseDelegatorTeamGroups
+  {
+    private IAppDataModelDataBase _db;
+    AppDataModel _dm;
+
+    ItemsChangedNotifier _notifier;
+
+    public DatabaseDelegatorTeamGroups(AppDataModel dm, IAppDataModelDataBase db)
+    {
+      _dm = dm;
+      _db = db;
+
+      _notifier = new ItemsChangedNotifier(_dm.GetTeamGroups());
+
+      _notifier.ItemChanged += OnItemChanged;
+      _notifier.CollectionChanged += OnCollectionChanged;
+    }
+
+    void OnItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (sender is Team t)
+        _db.CreateOrUpdateTeam(t);
+    }
+
+    void OnCollectionChanged(object source, NotifyCollectionChangedEventArgs e)
+    {
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Add:
+          foreach (TeamGroup g in e.NewItems)
+            _db.CreateOrUpdateTeamGroup(g);
+          break;
+
+        case NotifyCollectionChangedAction.Remove:
+          foreach (TeamGroup g in e.OldItems)
+            _db.RemoveTeamGroup(g);
+          break;
+
+        case NotifyCollectionChangedAction.Move:
+        case NotifyCollectionChangedAction.Replace:
+        case NotifyCollectionChangedAction.Reset:
+          throw new Exception("not implemented");
+      }
+    }
+  }
+
 }
