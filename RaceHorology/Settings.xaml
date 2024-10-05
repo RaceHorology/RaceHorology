@@ -22,6 +22,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -33,12 +34,15 @@
           <Label x:Name="lblTimingDevicePort" Content="Schnittstelle:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="1" Grid.Column="0"/>
           <ComboBox x:Name="cbTimingDevicePort" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
-          <Label x:Name="lblTimingDeviceUrl" Content="IP-Addresse:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="2" Grid.Column="0"/>
-          <TextBox x:Name="txtTimingDeviceUrl" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          <Label x:Name="lblTimingDeviceBitRate" Content="Bitrate:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="2" Grid.Column="0"/>
+          <ComboBox x:Name="cbTimingDeviceBitRate" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
-          <Label x:Name="lblTimingDeviceDebug" Content="Debug Funktionen:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="3" Grid.Column="0"/>
-          <CheckBox x:Name="chkTimingDeviceDebugDump" Content="Speichern der Kommunikation als Dump-File" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-          <CheckBox x:Name="chkTimingDisplayPartcipantAssignment" Content="Zeitstempel-Teilnehmer-Zuweisungsbereich anzeigen" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          <Label x:Name="lblTimingDeviceUrl" Content="IP-Addresse:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="3" Grid.Column="0"/>
+          <TextBox x:Name="txtTimingDeviceUrl" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+          <Label x:Name="lblTimingDeviceDebug" Content="Debug Funktionen:" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Grid.Row="4" Grid.Column="0"/>
+          <CheckBox x:Name="chkTimingDeviceDebugDump" Content="Speichern der Kommunikation als Dump-File" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          <CheckBox x:Name="chkTimingDisplayPartcipantAssignment" Content="Zeitstempel-Teilnehmer-Zuweisungsbereich anzeigen" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
         </Grid>
       </TabItem>
