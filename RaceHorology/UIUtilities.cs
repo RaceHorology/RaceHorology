@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -72,7 +72,7 @@ namespace RaceHorology
 
       if (!itemSelected)
         cmb.SelectedIndex = -1;
-      
+
       return itemSelected;
     }
 
@@ -275,7 +275,7 @@ namespace RaceHorology
         mnuCol.IsChecked = shallBeVisible;
         if (col.Visibility == Visibility.Visible != shallBeVisible)
           col.Visibility = shallBeVisible ? Visibility.Visible : Visibility.Collapsed;
-        
+
         mnuCol.Click += MnuCol_Click;
         mnuCol.Checked += MnuCol_Checked;
         mnuCol.Unchecked += MnuCol_Unchecked;
@@ -465,10 +465,10 @@ namespace RaceHorology
 
 
 
-    /// <summary>
-    /// A TextBox that selects the whole text of the text box got the focus.
-    /// </summary>
-    public class ClickSelectTextBox : TextBox
+  /// <summary>
+  /// A TextBox that selects the whole text of the text box got the focus.
+  /// </summary>
+  public class ClickSelectTextBox : TextBox
   {
     public ClickSelectTextBox()
     {

@@ -33,6 +33,7 @@
  * 
  */
 
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -68,6 +69,29 @@ namespace RaceHorology
         var brush = (SolidColorBrush)brushes[1];
         return brush ?? Brushes.Transparent;
       }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
+  public class OnlineStatusToBrushConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      if (value == null)
+        return Brushes.Transparent;
+
+      switch ((StatusType)value)
+      {
+        case StatusType.Online: return Brushes.LightGreen;
+        case StatusType.Error_GotOffline: return Brushes.OrangeRed;
+        case StatusType.NoDevice: return Brushes.OrangeRed;
+      }
+      return Brushes.Transparent;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -693,6 +693,9 @@
       <Component Id="resources_count_down_low.wav" Guid="751c654c-9000-4b6c-b607-f06245d57202">
         <File Id="resources_count_down_low.wav" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\resources\count_down_low.wav" />
       </Component>
+      <Component Id="error_offline.wav" Guid="75CEF333-7C18-462E-8AC7-E6C467E851D3">
+        <File Id="error_offline.wav" KeyPath="yes" Source="$(var.RaceHorology_TargetDir)\resources\error_offline.wav" />
+      </Component>
       <Component Id="FreeSans.ttf" Guid="3844338f-29dd-476a-9a5c-50cb459a033b">
         <File Id="FreeSans.ttf" KeyPath="yes" Source="$(var.HarvestPath)\resources\FreeSans.ttf" />
       </Component>

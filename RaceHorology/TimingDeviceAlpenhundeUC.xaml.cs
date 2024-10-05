@@ -25,14 +25,14 @@ namespace RaceHorology
       DataContext = _timingDevice.SystemInfo;
 
       _timingDevice.StatusChanged += timingDevice_StatusChanged;
-      enableDisableControls(_timingDevice.IsOnline);
+      enableDisableControls(_timingDevice.OnlineStatus == StatusType.Online);
     }
 
-    private void timingDevice_StatusChanged(object sender, bool isRunning)
+    private void timingDevice_StatusChanged(object sender, StatusType status)
     {
       System.Windows.Application.Current.Dispatcher.Invoke(() =>
       {
-        enableDisableControls(isRunning);
+        enableDisableControls(status == StatusType.Online);
       });
     }
 
