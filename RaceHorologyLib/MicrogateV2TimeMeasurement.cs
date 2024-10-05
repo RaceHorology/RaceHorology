@@ -231,6 +231,7 @@ namespace RaceHorologyLib
 
     private string _serialPortName;
     private SerialPort _serialPort;
+    private int _comBitRate;
     private EInternalStatus _internalStatus;
     private string _dumpDir;
     System.IO.StreamWriter _dumpFile;
@@ -242,9 +243,10 @@ namespace RaceHorologyLib
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
-    public MicrogateV2TimeMeasurement(string comport, string dumpDir) : base()
+    public MicrogateV2TimeMeasurement(string comport, int comBitRate, string dumpDir) : base()
     {
       _serialPortName = comport;
+      _comBitRate = comBitRate;
       _internalStatus = EInternalStatus.Stopped;
       _stopRequest = true;
       _dumpDir = dumpDir;
@@ -341,7 +343,7 @@ namespace RaceHorologyLib
       if (_dumpDir != null)
         startWritingToDumpFile();
 
-      _serialPort = new SerialPort(_serialPortName, 115200, Parity.None, 8, StopBits.One);
+      _serialPort = new SerialPort(_serialPortName, _comBitRate, Parity.None, 8, StopBits.One);
       _serialPort.NewLine = "\n"; // LF, ASCII(10)
       _serialPort.Handshake = Handshake.RequestToSend;
       _serialPort.ReadTimeout = 1000;
