@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -141,7 +141,7 @@ namespace RaceHorologyLib
             lblGroup.GridTicks = GridTickTypes.None;
 
             // Second Level if possible
-            if (cvGroup.Name is ParticipantClass @class)
+            if (cvGroup.Name is ParticipantClass @class && @class.Group != null)
             {
               name2 = @class.Group.Name;
               if (name2Last == null) // init set to same name

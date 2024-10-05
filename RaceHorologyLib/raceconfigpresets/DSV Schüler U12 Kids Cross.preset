@@ -14,7 +14,7 @@
   "RaceResultView_PenaltyRuleMode": 1,
   "RaceResultView_PenaltyRuleCutOffValue": 30.0,
   "Run1_StartistView": "Startlist_1stRun_StartnumberAscending",
-  "Run1_StartistViewGrouping": "Participant.Group",
+  "Run1_StartistViewGrouping": "Participant.Class",
   "Run1_StartistViewParams": null,
   "Run2_StartistView": "Startlist_2nd_PreviousRun_30_OnlyWithResults",
   "Run2_StartistViewGrouping": "Participant.Group",

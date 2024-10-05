@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -35,20 +35,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
 
-  public enum EMeasurementPoint { 
-    Undefined, 
-    Start, 
-    Finish 
+  public enum EMeasurementPoint
+  {
+    Undefined,
+    Start,
+    Finish
   };
 
 
@@ -97,9 +96,9 @@ namespace RaceHorologyLib
     public bool BFinishTime;           // true if FinishTime is set
     public bool Valid;                 // true if timestamp is valid, false if time measurementdevice marked it as invalid
     public uint DisqualificationCode;  // normal result = 0, NaS = 1, NiZ = 2, DIS = 3
-    }
+  }
 
-  public class StartnumberSelectedEventArgs: EventArgs
+  public class StartnumberSelectedEventArgs : EventArgs
   {
     public StartnumberSelectedEventArgs()
     {
@@ -115,7 +114,7 @@ namespace RaceHorologyLib
 
   public delegate void TimeMeasurementEventHandler(object sender, TimeMeasurementEventArgs e);
   public delegate void StartnumberSelectedEventHandler(object sender, StartnumberSelectedEventArgs e);
-  public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, bool isRunning);
+  public delegate void LiveTimingMeasurementDeviceStatusEventHandler(object sender, StatusType status);
 
 
   public class DeviceInfo
@@ -135,6 +134,14 @@ namespace RaceHorologyLib
 
   }
 
+
+  public enum StatusType
+  {
+    NoDevice, // Device not found, e.g. RS232 not found
+    Offline,  // Device is initially or intentionally offline
+    Online,   // Online
+    Error_GotOffline // Device is expected to be online but got disconnected or offline
+  };
 
   /// <summary>
   /// This Interface must be implemented from a Live Timing Measurement Device which supports online time measurement during the race.
@@ -161,7 +168,7 @@ namespace RaceHorologyLib
     /// Status property to get the real status of the measuring device. Might return false even if Start() has been called.
     /// IsOnline shall return true if everything works as expected and the device is connected / online.
     /// </summary>
-    bool IsOnline { get; }
+    StatusType OnlineStatus { get; }
 
     /// <summary>
     /// Returns information about the device itself, i.e. the device name
@@ -172,7 +179,7 @@ namespace RaceHorologyLib
     /// Returns information about the status of the device, i.e. online, disconnected, COM port not available, ...
     /// </summary>
     string GetStatusInfo();
-    
+
     /// <summary>
     /// This event must be fired if the status of the device changed.
     /// </summary>
@@ -215,6 +222,29 @@ namespace RaceHorologyLib
   }
 
 
+  public class TimingDeviceStatus : INotifyPropertyChanged
+  {
+    private StatusType _onlineStatus;
+    public StatusType OnlineStatus
+    {
+      get => _onlineStatus;
+      set { if (value != _onlineStatus) { _onlineStatus = value; NotifyPropertyChanged(); } }
+    }
+
+    #region INotifyPropertyChanged implementation
+    public event PropertyChangedEventHandler PropertyChanged;
+    // This method is called by the Set accessor of each property.  
+    // The CallerMemberName attribute that is applied to the optional propertyName  
+    // parameter causes the property name of the caller to be substituted as an argument.  
+    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    #endregion
+  }
+
+
+
   /// <summary>
   /// Reacts on the Live Timing Device (e.g. ALGE TdC8001) and updates the DataModel accordingly by transferring the received time data into the DataModel
   /// This is the main implementation for performaing the time measurement.
@@ -229,6 +259,8 @@ namespace RaceHorologyLib
     ILiveDateTimeProvider _liveDateTimeProvider;
     bool _isRunning;
     bool _autoAddParticipants;
+
+    public TimingDeviceStatus TimingDeviceStatus = new TimingDeviceStatus();
 
     /// <summary>
     /// Constructor
@@ -253,6 +285,8 @@ namespace RaceHorologyLib
     public delegate void LiveTimingMeasurementStatusEventHandler(object sender, bool isRunning);
     public event LiveTimingMeasurementStatusEventHandler LiveTimingMeasurementStatusChanged;
 
+    public event LiveTimingMeasurementDeviceStatusEventHandler LiveTimingMeasurementOnlineStatusChanged;
+
     public delegate void LiveTimingMeasurementConfigChangedEventHandler(object sender, bool configChanged);
     public event LiveTimingMeasurementConfigChangedEventHandler LiveTimingConfigChanged;
 
@@ -264,7 +298,7 @@ namespace RaceHorologyLib
     {
       // Cleanup if already used
       if (_liveDateTimeProvider != null)
-      { 
+      {
         _liveDateTimeProvider.LiveDateTimeChanged -= OnLiveDateTimeChanged;
         _liveDateTimeProvider = null;
       }
@@ -282,11 +316,15 @@ namespace RaceHorologyLib
       if (timingDevice != null)
       {
         timingDevice.TimeMeasurementReceived += OnTimeMeasurementReceived;
-        if (timingDevice is ILiveTimeMeasurementDevice tdFull){
+        if (timingDevice is ILiveTimeMeasurementDevice tdFull)
+        {
           tdFull.StartnumberSelectedReceived += OnStartnumberSelectedReceived;
           tdFull.StatusChanged += OnTimerStatusChanged;
           if (mainDevice)
+          {
             _timingDeviceMain = tdFull;
+          }
+
         }
       }
 
@@ -345,7 +383,7 @@ namespace RaceHorologyLib
       handler?.Invoke(this, IsRunning);
     }
 
-    public bool IsRunning { get => _isRunning && _timingDeviceMain?.IsOnline == true; }
+    public bool IsRunning { get => _isRunning && _timingDeviceMain?.OnlineStatus == StatusType.Online; }
 
     #endregion
 
@@ -354,11 +392,16 @@ namespace RaceHorologyLib
     /// <summary>
     /// Callback for the timing device to react on (e.g. disconnected, stopped, ...)
     /// </summary>
-    private void OnTimerStatusChanged(object sender, bool isRunning)
+    private void OnTimerStatusChanged(object sender, StatusType status)
     {
+      TimingDeviceStatus.OnlineStatus = status;
+
+      var handler1 = LiveTimingMeasurementOnlineStatusChanged;
+      handler1?.Invoke(this, status);
+
       // Just forward changes on status
-      var handler = LiveTimingMeasurementStatusChanged;
-      handler?.Invoke(this, IsRunning);
+      var handler2 = LiveTimingMeasurementStatusChanged;
+      handler2?.Invoke(this, IsRunning);
     }
 
     /// <summary>
@@ -404,7 +447,7 @@ namespace RaceHorologyLib
             case 3: currentRaceRun.SetResultCode(participant, RunResult.EResultCode.DIS); break;
             default:
             case 0: //intentional allthroug
-                break;
+              break;
           }
 
         }
@@ -453,7 +496,7 @@ namespace RaceHorologyLib
       if (!_autoAddParticipants)
         return null;
 
-       if (startNumber == 0)
+      if (startNumber == 0)
         return null;
 
       Participant p = new Participant
@@ -502,7 +545,7 @@ namespace RaceHorologyLib
     {
       var onTrack = _raceRun.GetOnTrackList().ToArray();
 
-      foreach ( var lr in onTrack)
+      foreach (var lr in onTrack)
       {
         if (lr.GetStartTime() != null)
         {

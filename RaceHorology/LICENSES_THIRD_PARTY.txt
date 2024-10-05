@@ -193,3 +193,8 @@ Therefore users of fonts released with this exception need not concern themselve
 However anyone distributing the font software as software separately from the document, even if the way the font software was obtained was to extract it from a document, would have to comply with the GNU GPL.
 
 A modified version of the GNU FreeFont software must comply with the GNU GPL. It may optionally carry the same exception as the GNU FreeFont software itself, and we recommend releasing modified versions that way. If it does, then users will likewise be permitted to embed the modified version in documents and be exempt from the GNU GPL requirements on those documents. 
+
+
+------------- Sounds via Freesound ------------- 
+
+Error 4 by qubodup -- https://freesound.org/s/722378/ -- License: Attribution 4.0

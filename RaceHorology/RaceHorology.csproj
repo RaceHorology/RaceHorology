@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\CefSharp.Common.119.1.20\build\CefSharp.Common.props" Condition="Exists('..\packages\CefSharp.Common.119.1.20\build\CefSharp.Common.props')" />
   <Import Project="..\packages\cef.redist.x86.119.1.2\build\cef.redist.x86.props" Condition="Exists('..\packages\cef.redist.x86.119.1.2\build\cef.redist.x86.props')" />
@@ -102,6 +102,30 @@
     <Reference Include="QRCoder, Version=1.4.3.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.4.3\lib\net40\QRCoder.dll</HintPath>
     </Reference>
+    <Reference Include="SharpVectors.Converters.Wpf, Version=1.8.4.0, Culture=neutral, PublicKeyToken=b532964b8548be77, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Converters.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpVectors.Core, Version=1.8.4.0, Culture=neutral, PublicKeyToken=7407205e337c98ef, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpVectors.Css, Version=1.8.4.0, Culture=neutral, PublicKeyToken=7a46e3f532fdb787, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Css.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpVectors.Dom, Version=1.8.4.0, Culture=neutral, PublicKeyToken=517340b6277b1a7a, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Dom.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpVectors.Model, Version=1.8.4.0, Culture=neutral, PublicKeyToken=2236cfc76b505845, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Model.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpVectors.Rendering.Gdi, Version=1.8.4.0, Culture=neutral, PublicKeyToken=03902092284347e3, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Rendering.Gdi.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpVectors.Rendering.Wpf, Version=1.8.4.0, Culture=neutral, PublicKeyToken=d0902381100df30e, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Rendering.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpVectors.Runtime.Wpf, Version=1.8.4.0, Culture=neutral, PublicKeyToken=d16e717f0a981fb9, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Runtime.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -167,8 +191,11 @@
     <Compile Include="TeamResultsPrintUC.xaml.cs">
       <DependentUpon>TeamResultsPrintUC.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TimingDeviceDebugDlg.xaml.cs">
-      <DependentUpon>TimingDeviceDebugDlg.xaml</DependentUpon>
+    <Compile Include="TimingDeviceAlpenhundeUC.xaml.cs">
+      <DependentUpon>TimingDeviceAlpenhundeUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TimingDeviceDebugUC.xaml.cs">
+      <DependentUpon>TimingDeviceDebugUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChartTestsUC.xaml.cs">
       <DependentUpon>ChartTestsUC.xaml</DependentUpon>
@@ -249,6 +276,9 @@
       <DependentUpon>StdProgressUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="TimerPlus.cs" />
+    <Compile Include="TimingDeviceDlg.xaml.cs">
+      <DependentUpon>TimingDeviceDlg.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UIUtilities.cs" />
     <Compile Include="ValueConverters.cs" />
     <Page Include="About.xaml">
@@ -287,7 +317,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TimingDeviceDebugDlg.xaml">
+    <Page Include="TimingDeviceAlpenhundeUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TimingDeviceDebugUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -407,6 +441,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="TimingDeviceDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MruList.cs" />
@@ -491,6 +529,19 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="RH-LOGO-FIN-APP2.ico" />
+    <Resource Include="Icons\alpenhunde\channel.svg" />
+    <Resource Include="Icons\alpenhunde\connected_device.svg" />
+    <Resource Include="Icons\alpenhunde\light_barrier.svg" />
+    <Resource Include="Icons\alpenhunde\status_green.svg" />
+    <Resource Include="Icons\alpenhunde\Status_RSSI-Funkgut.svg" />
+    <Resource Include="Icons\alpenhunde\Status_RSSI-Funksehrgut.svg" />
+    <Resource Include="Icons\alpenhunde\Status_RSSI-keinFunk.svg" />
+    <Resource Include="Icons\alpenhunde\Status_RSSI-not-found.svg" />
+    <Resource Include="Icons\alpenhunde\status_unsync.svg" />
+    <Resource Include="Icons\alpenhunde\sync.svg" />
+    <EmbeddedResource Include="resources\error_offline.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

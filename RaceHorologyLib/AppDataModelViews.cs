@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -1237,7 +1237,7 @@ namespace RaceHorologyLib
     }
 
     public virtual TimeSpan? OrgRuntime { get { return base.GetRunTime(); } }
-    public virtual bool PenaltyApplied { get { return applyPenaltyByTime(); } }
+    public virtual bool PenaltyApplied { get { return applyPenaltyByTime() || applyPenaltyByResultCode(); } }
 
     /** Override to return the cut off time or the original time */
     public override TimeSpan? GetRunTime(bool calculateIfNotStored = true, bool considerResultCode = true)

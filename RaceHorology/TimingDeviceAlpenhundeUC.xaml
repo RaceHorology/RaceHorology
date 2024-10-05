@@ -1,0 +1,226 @@
+﻿<local:TimingDeviceBaseUC x:Class="RaceHorology.TimingDeviceAlpenhundeUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RaceHorology" 
+             xmlns:locallib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib" 
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             mc:Ignorable="d" 
+             Background="#e6eee5"
+             d:DesignHeight="600" d:DesignWidth="600"
+             MinHeight="500" MinWidth="600">
+  <UserControl.Resources>
+    <local:ComparisonToVisibleConverter x:Key="ComparisonToVisibleConverter" />
+    <locallib:DateTimeConverter x:Key="DateTimeConverter" />
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="300"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+
+    <Grid Grid.Column="0" Background="#304f7e" Margin="0,0,0,10">
+      <Grid.ColumnDefinitions></Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <Label Content="Status" Grid.Row="0" FontSize="16" Foreground="White" HorizontalAlignment="Center"/>
+
+      <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
+        <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/sync.svg" />
+        <Label Content="Sync und Signalstärke" Grid.Row="1" Foreground="White"/>
+      </StackPanel>
+
+      <Border Grid.Row="2" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10" >
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Start|Stop'}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center">
+              <svgc:SvgViewbox.Source>
+                <MultiBinding>
+                  <Binding Path="RSSIMaster" />
+                  <MultiBinding.Converter>
+                    <local:RTTIToImageConverter/>
+                  </MultiBinding.Converter>
+                </MultiBinding>
+              </svgc:SvgViewbox.Source>
+            </svgc:SvgViewbox>
+            <Label Content="Master" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
+          </Grid>
+          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Master|Stop'}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center">
+              <svgc:SvgViewbox.Source>
+                <MultiBinding>
+                  <Binding Path="RSSIStarter" />
+                  <Binding Path="StarterStatus" />
+                  <MultiBinding.Converter>
+                    <local:RTTIToImageConverter/>
+                  </MultiBinding.Converter>
+                </MultiBinding>
+              </svgc:SvgViewbox.Source>
+            </svgc:SvgViewbox>
+            <Label Content="Start" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
+          </Grid>
+          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Start|Master'}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center">
+              <svgc:SvgViewbox.Source>
+                <MultiBinding>
+                  <Binding Path="RSSIStopper" />
+                  <Binding Path="StopperStatus" />
+                  <MultiBinding.Converter>
+                    <local:RTTIToImageConverter/>
+                  </MultiBinding.Converter>
+                </MultiBinding>
+              </svgc:SvgViewbox.Source>
+            </svgc:SvgViewbox>
+            <Label Content="Stop" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
+        <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/light_barrier.svg" />
+        <Label Content="Nicht ausgerichtete Lichtschranken" Foreground="White" />
+      </StackPanel>
+      <Border Grid.Row="4" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Visibility="{Binding OpenLightBarrierName, Converter={StaticResource ComparisonToVisibleConverter}, ConverterParameter=''}">
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center" Source="Icons/alpenhunde/status_green.svg"/>
+            <Label Content="keine" Foreground="White" Background="#426db1" HorizontalAlignment="Center" Margin="0,-1,0,1"/>
+          </StackPanel>
+
+          <Grid Margin="10,8,10,4" Visibility="{Binding OpenLightBarrierName, Converter={StaticResource ComparisonToVisibleConverter}, ConverterParameter='Stopper'}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <svgc:SvgViewbox Grid.Row="0" Height="14" HorizontalAlignment="Center" Source="Icons/alpenhunde/status_unsync.svg"/>
+            <Label Content="{Binding OpenLightBarrierName}" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <Label Content="Akku-Ladezustand" Grid.Row="5" Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+      <Border Grid.Row="6" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+        <Grid >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Content="{Binding BatteryLevel}" ContentStringFormat="{}{0} %" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center" />
+
+        </Grid>
+      </Border>
+
+
+      <Label Content="Nächster Index 'IDX'" Grid.Row="7" Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+      <Border Grid.Row="8" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+        <Grid >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Content="{Binding Path=NextFreeIndex}" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+        </Grid>
+      </Border>
+
+      <StackPanel Grid.Row="9" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
+        <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/connected_device.svg" />
+        <Label Content="Aktuelle Station" Grid.Row="9" Foreground="White"/>
+      </StackPanel>
+      <Border Grid.Row="10" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+        <Grid >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Content="Master" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+        </Grid>
+      </Border>
+
+      <StackPanel Grid.Row="11" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0" >
+        <svgc:SvgViewbox Height="14" Source="Icons/alpenhunde/channel.svg" />
+        <Label Content="Kanal" Grid.Row="9" Foreground="White"/>
+      </StackPanel>
+      <Border Grid.Row="12" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10,0,10,0" >
+        <Grid >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Content="{Binding Path=Channel}" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+        </Grid>
+      </Border>
+      <StackPanel Grid.Row="13" Margin="10,10,10,0">
+        <Label Content="{Binding Path=SystemTime, Converter={StaticResource DateTimeConverter}}" ContentStringFormat="Systemzeit: {0}" Foreground="White" Padding="0,2"/>
+        <Label Content="{Binding Path=SerialNumber}" ContentStringFormat="Seriennummer des Systems: {0}" Foreground="White" Padding="0,2"/>
+        <Label Content="{Binding Path=FirmwareVersion}" ContentStringFormat="Firmware Version: {0}" Foreground="White" Padding="0,2" />
+      </StackPanel>
+    </Grid>
+    <Grid Grid.Column="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label Content="Funktionen:" Grid.Row="0"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,0">
+          <Button x:Name="btnSynchronize" Content="Neu Synchronisieren" Margin="5" Padding="5,2,5,2"  Click="btnSynchronize_Click"/>
+          <Button x:Name="btnFISExport" Content="FIS-Zeitstempel Export" Margin="5" Padding="5,2,5,2"   Click="btnFISExport_Click"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="0,0,0,15">
+          <ComboBox x:Name="cmbChannel" Width="100" Margin="5"/>
+          <Button x:Name="btnChangeChannel" Content="Kanal wechseln" Margin="5" Padding="5,2,5,2"  Click="btnChangeChannel_Click"/>
+        </StackPanel>
+
+        <GridSplitter Grid.Row="3"/>
+        <local:TimingDeviceDebugUC x:Name="ucDebug" Width="Auto" Height="Auto" Grid.Row="4"/>
+      </Grid>
+    </Grid>
+  </Grid>
+
+</local:TimingDeviceBaseUC>

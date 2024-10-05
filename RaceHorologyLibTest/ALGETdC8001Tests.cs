@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -33,13 +33,11 @@
  * 
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RaceHorologyLib;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 
 namespace RaceHorologyLibTest
@@ -73,18 +71,16 @@ namespace RaceHorologyLibTest
     {
       _dumpFile = new System.IO.StreamReader(_filePath);
 
-      StatusChanged.Invoke(this, true);
+      OnlineStatus = StatusType.Online;
     }
 
     public override void Stop()
     {
-      StatusChanged.Invoke(this, false);
+      OnlineStatus = StatusType.Offline;
       _dumpFile = null;
     }
 
-    public override bool IsOnline { get => true; }
     public override bool IsStarted { get => _dumpFile != null; }
-    public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
     public bool ProcessNextLine()
@@ -254,7 +250,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual(3U, parser.TimingData.StartNumber);
         Assert.AreEqual(ALGETdC8001LineParser.EMode.LiveTiming, parser.Mode);
       }
-      { 
+      {
         parser.Parse("s0003");
         Assert.AreEqual('s', parser.TimingData.Flag);
         Assert.AreEqual(3U, parser.TimingData.StartNumber);
@@ -511,7 +507,7 @@ namespace RaceHorologyLibTest
       ALGETdC8001LineParser parser = new ALGETdC8001LineParser();
 
       int line = 0;
-      foreach( var item in testData)
+      foreach (var item in testData)
       {
         parser.Parse(item.Item1);
         Assert.AreEqual(item.Item2, parser.Mode);
@@ -538,7 +534,7 @@ namespace RaceHorologyLibTest
         return ALGETdC8001TimeMeasurement.TransferToTimemeasurementData(parser.TimingData);
       }
 
-      { 
+      {
         var pd = ParseAndTransfer(" 0035 C0M 21:46:36.3900 00");
         Assert.AreEqual(35U, pd.StartNumber);
         Assert.AreEqual(true, pd.BStartTime);

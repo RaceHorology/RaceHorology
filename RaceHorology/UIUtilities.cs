@@ -1,5 +1,5 @@
-﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+/*
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -72,7 +72,7 @@ namespace RaceHorology
 
       if (!itemSelected)
         cmb.SelectedIndex = -1;
-      
+
       return itemSelected;
     }
 
@@ -275,7 +275,7 @@ namespace RaceHorology
         mnuCol.IsChecked = shallBeVisible;
         if (col.Visibility == Visibility.Visible != shallBeVisible)
           col.Visibility = shallBeVisible ? Visibility.Visible : Visibility.Collapsed;
-        
+
         mnuCol.Click += MnuCol_Click;
         mnuCol.Checked += MnuCol_Checked;
         mnuCol.Unchecked += MnuCol_Unchecked;
@@ -387,6 +387,82 @@ namespace RaceHorology
       });
     }
   }
+
+
+  public class ComboBoxDelayedEventHandler
+  {
+    private Timer timer;
+
+    /// <summary>
+    /// Ruft das Delay ab oder legt es fest.
+    /// </summary>
+    public double Delay
+    {
+      get { return this.timer.Interval; }
+      set { this.timer.Interval = value; }
+    }
+
+    /// <summary>
+    /// EventHandler, der an Events von Steuerelementen gebunden werden kann.
+    /// </summary>
+    public SelectionChangedEventHandler Delayed { get; private set; }
+
+    private SelectionChangedEventHandler handler;
+    private object forwardSender;
+    private SelectionChangedEventArgs forwardArgs;
+
+    /// <summary>
+    /// Erzeugt einen DelayedEventHandler mit der angegebenen Zeitspanne.
+    /// </summary>
+    /// <param name="delay">Das Delay, mit dem...</param>
+    /// <param name="handler">...der gewünscht Handler aufgerufen wird.</param>
+    public ComboBoxDelayedEventHandler(TimeSpan delay, SelectionChangedEventHandler handler)
+      : this((int)delay.TotalMilliseconds, handler)
+    {
+
+    }
+
+    /// <summary>
+    /// Erzeugt einen DelayedEventHandler mit der angegebenen Zeitspanne in Millisekunden.
+    /// </summary>
+    /// <param name="delayInMilliseconds">Das Delay in Millisekunden, mit dem...</param>
+    /// <param name="handler">...der gewünscht Handler aufgerufen wird.</param>
+    public ComboBoxDelayedEventHandler(int delayInMilliseconds, SelectionChangedEventHandler handler)
+    {
+      timer = new Timer
+      {
+        Enabled = false,
+        Interval = delayInMilliseconds
+      };
+      timer.Elapsed += new ElapsedEventHandler((s, e) =>
+      {
+        timer.Stop();
+        if (handler != null)
+        {
+          Application.Current.Dispatcher.Invoke(() =>
+          {
+            handler(this.forwardSender, this.forwardArgs);
+          });
+        }
+      });
+
+      this.handler = handler;
+
+      Delayed = new SelectionChangedEventHandler((sender, e) =>
+      {
+        ComboBox comboBox = sender as ComboBox;
+        if (comboBox != null && comboBox.IsEditable)
+        {
+          this.forwardSender = sender;
+          this.forwardArgs = e;
+          timer.Stop();
+          timer.Start();
+        }
+      });
+    }
+  }
+
+
 
 
   /// <summary>

@@ -17,6 +17,7 @@
     <CommandBinding Command="Close" Executed="CloseCommandBinding_Executed" />
     <CommandBinding Command="Properties" Executed="OptionsCommandBinding_Executed" />
     <CommandBinding Command="Help" Executed="HelpCommandBinding_Executed" />
+    <CommandBinding Command="rhcmd:RaceHorologyCommands.WA" Executed="WhatsAppInfoChannelCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.Documentation" Executed="OnlineDocumentationCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.AutoUpdate" Executed="AutoUpdaterCommandBinding_Executed" />
     <CommandBinding Command="rhcmd:RaceHorologyCommands.HandTime" Executed="HandTimeCommandBinding_Executed" />
@@ -29,6 +30,9 @@
     <KeyBinding Key="S" Modifiers="Control" Command="Save"/>
     <KeyBinding Key="F4" Modifiers="Control" Command="Close"/>
   </Window.InputBindings>
+  <Window.Resources>
+    <local:OnlineStatusToBrushConverter x:Key="OnlineStatusToBrushConverter" />
+  </Window.Resources>
 
   <Grid>
     <Grid.RowDefinitions>
@@ -67,8 +71,10 @@
       <MenuItem Name="mnuHelp" Header="Hilfe">
         <MenuItem Name="mnuOpenExternalDocumentation" Header="Online Dokumentation" Command="rhcmd:RaceHorologyCommands.Documentation" />
         <MenuItem Name="mnuAutoUpdater" Header="Suche nach Updates" Command="rhcmd:RaceHorologyCommands.AutoUpdate" />
+        <MenuItem Name="mnuWa" Header="WhatsApp Infokanal" Command="rhcmd:RaceHorologyCommands.WA" /> 
         <MenuItem Name="mnuInfo" Header="Info" Command="Help" />
-      </MenuItem>
+       </MenuItem>
+
     </Menu>
     <Grid x:Name="ucMainArea" Grid.Row="1" Background="#ffe6eee5">
       <Grid.ColumnDefinitions>
@@ -96,7 +102,15 @@
           </Grid.ColumnDefinitions>
 
           <Label x:Name="lblLiveTimingStatus" Content="Statustext für Online Livetiming: " Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
-          <TextBox x:Name="txtLiveTimingStatus" Grid.Column="1" Text="" Margin="0" Padding="2" AcceptsReturn="False" FontSize="12" TextWrapping="NoWrap" MinWidth="100" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          <ComboBox x:Name="cmbLiveTimingStatus" Grid.Column="1" IsEditable="True" Text="" Margin="0" Padding="2" FontSize="12"  MinWidth="100" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+            <ComboBoxItem Content="" />
+            <ComboBoxItem Content="Vorläufer auf der Strecke" />
+            <ComboBoxItem Content="Rennen gestartet" />
+            <ComboBoxItem Content="Rennen unterbrochen" />
+            <ComboBoxItem Content="1. Durchgang beendet" />
+            <ComboBoxItem Content="2. Durchgang beendet" />
+            <ComboBoxItem Content="Rennen beendet" />
+          </ComboBox>
         </Grid>
       </StatusBarItem>
 
@@ -111,11 +125,14 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Label x:Name="lblTimingDeviceLBL" Content="Live Zeitnahme: " Margin="0" VerticalAlignment="Top" FontSize="12" Grid.Column="0"/>
-          <Label x:Name="lblTimingDevice" Content="---" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="12"  Grid.Column="1"/>
+          <Label x:Name="lblTimingDevice" 
+                 Content="---" 
+                 Background="{Binding Path=OnlineStatus, Converter={StaticResource OnlineStatusToBrushConverter}}"
+                 HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" 
+                 Margin="0" VerticalAlignment="Top" FontSize="12"  Grid.Column="1"/>
           
-          <Button x:Name="btnTimingDeviceStartStop" Content="..." Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceStartStop_Click"/>
-
-          <Button x:Name="btnTimingDeviceDebug" Content="Protokoll" Margin="10,0,10,0" Padding="5,2,5,2"  Grid.Column="3" Click="btnTimingDeviceDebug_Click"/>
+          <Button x:Name="btnTimingDeviceStartStop" Content="..." Margin="10,0,5,0" Padding="5,2,5,2"  Grid.Column="2" Click="btnTimingDeviceStartStop_Click"/>
+          <Button x:Name="btnTimingDeviceDebug" Content="Details" Margin="5,0,10,0" Padding="5,2,5,2"  Grid.Column="3" Click="btnTimingDeviceDebug_Click"/>
         </Grid>
       </StatusBarItem>
 

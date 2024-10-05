@@ -1,5 +1,5 @@
-﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+/*
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -36,16 +36,11 @@
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using static RaceHorologyLib.PrintCertificateModel;
-using static RaceHorologyLib.RaceResultItem;
 
 namespace RaceHorologyLib
 {
@@ -88,7 +83,7 @@ namespace RaceHorologyLib
       var prop = GetCompetitionProperties();
       prop.Name = System.IO.Path.GetFileNameWithoutExtension(GetDBFileName());
       // A default country - to make DSVAlpinX happy
-      prop.Nation = "GER"; 
+      prop.Nation = "GER";
       UpdateCompetitionProperties(prop);
       // A Default location - to make DSVAlpinX happy
       storeRacePropertyInternal(null, "");
@@ -148,7 +143,7 @@ namespace RaceHorologyLib
       // Force closing the connection and destroy the connection pool
       OleDbConnection.ReleaseObjectPool();
       GC.Collect();
-      GC.WaitForPendingFinalizers(); 
+      GC.WaitForPendingFinalizers();
 
       _conn = null;
     }
@@ -450,13 +445,13 @@ namespace RaceHorologyLib
     {
       List<RunResult> runResult = new List<RunResult>();
 
-      string sql = @"SELECT tblZeit.*, tblZeit.durchgang, tblZeit.disziplin, tblTeilnehmer.startnrsg, tblTeilnehmer.startnrgs, tblTeilnehmer.startnrsl, tblTeilnehmer.startnrks, tblTeilnehmer.startnrps "+
-                   @"FROM tblTeilnehmer INNER JOIN tblZeit ON tblTeilnehmer.id = tblZeit.teilnehmer "+
+      string sql = @"SELECT tblZeit.*, tblZeit.durchgang, tblZeit.disziplin, tblTeilnehmer.startnrsg, tblTeilnehmer.startnrgs, tblTeilnehmer.startnrsl, tblTeilnehmer.startnrks, tblTeilnehmer.startnrps " +
+                   @"FROM tblTeilnehmer INNER JOIN tblZeit ON tblTeilnehmer.id = tblZeit.teilnehmer " +
                    @"WHERE(((tblZeit.durchgang) = @durchgang) AND((tblZeit.disziplin) = @disziplin))";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
       command.Parameters.Add(new OleDbParameter("@durchgang", run));
-      command.Parameters.Add(new OleDbParameter("@disziplin", (int) race.RaceType));
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
 
       // Execute command  
       using (OleDbDataReader reader = command.ExecuteReader())
@@ -586,7 +581,7 @@ namespace RaceHorologyLib
           participant.Id = id.ToString();
         }
       }
-      catch(Exception e)
+      catch (Exception e)
       {
         Logger.Warn(e, "CreateOrUpdateParticipant failed, SQL: {0}", GetDebugSqlString(cmd));
       }
@@ -619,7 +614,7 @@ namespace RaceHorologyLib
         Logger.Debug("... affected rows: {0}", temp);
 
         // Successfully deleted, remove participant from key list
-        _id2Participant.Remove(id); 
+        _id2Participant.Remove(id);
       }
       catch (Exception e)
       {
@@ -632,7 +627,7 @@ namespace RaceHorologyLib
     {
       // Test whether the participant exists
       uint id = GetParticipantId(raceParticipant.Participant);
-      
+
       if (id == 0) // Store first
       {
         Debug.Assert(false, "just for testing whether this happens");
@@ -761,7 +756,7 @@ namespace RaceHorologyLib
       using (OleDbCommand command = new OleDbCommand("SELECT COUNT(*) FROM tblZeit WHERE teilnehmer = @teilnehmer AND disziplin = @disziplin AND durchgang = @durchgang", _conn))
       {
         command.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
-        command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType)); 
+        command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
         command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
         object oId = command.ExecuteScalar();
 
@@ -792,7 +787,7 @@ namespace RaceHorologyLib
         cmd.Parameters.Add(new OleDbParameter("@ziel", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@ziel", FractionForTimeSpan((TimeSpan)result.GetFinishTime())));
-      if (result.GetRunTime(true,false) == null)
+      if (result.GetRunTime(true, false) == null)
         cmd.Parameters.Add(new OleDbParameter("@netto", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@netto", FractionForTimeSpan((TimeSpan)result.GetRunTime(true, false))));
@@ -802,7 +797,7 @@ namespace RaceHorologyLib
         cmd.Parameters.Add(new OleDbParameter("@disqualtext", result.DisqualText));
 
       cmd.Parameters.Add(new OleDbParameter("@teilnehmer", idParticipant));
-      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType)); 
+      cmd.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
       cmd.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
 
       cmd.CommandType = CommandType.Text;
@@ -981,7 +976,7 @@ namespace RaceHorologyLib
                 break;
             }
           }
-          catch (InvalidCastException){} 
+          catch (InvalidCastException) { }
         }
       }
 
@@ -1026,54 +1021,54 @@ namespace RaceHorologyLib
       // Location is stored in tblBewerb
       storeRacePropertyInternal(race, props.Location);
 
-      storeRacePropertyInternal(race,  0, props.Analyzer);
-      storeRacePropertyInternal(race,  2, props.Organizer);
-      storeRacePropertyInternal(race,  3, props.RaceReferee.Name );
-      storeRacePropertyInternal(race,  4, props.RaceReferee.Club );
-      storeRacePropertyInternal(race,  5, props.RaceManager.Name );
-      storeRacePropertyInternal(race,  6, props.RaceManager.Club );
-      storeRacePropertyInternal(race,  7, props.TrainerRepresentative.Name );
-      storeRacePropertyInternal(race,  8, props.TrainerRepresentative.Club );
+      storeRacePropertyInternal(race, 0, props.Analyzer);
+      storeRacePropertyInternal(race, 2, props.Organizer);
+      storeRacePropertyInternal(race, 3, props.RaceReferee.Name);
+      storeRacePropertyInternal(race, 4, props.RaceReferee.Club);
+      storeRacePropertyInternal(race, 5, props.RaceManager.Name);
+      storeRacePropertyInternal(race, 6, props.RaceManager.Club);
+      storeRacePropertyInternal(race, 7, props.TrainerRepresentative.Name);
+      storeRacePropertyInternal(race, 8, props.TrainerRepresentative.Club);
 
       // Coarse
-      storeRacePropertyInternal(race, 15, props.CoarseName );
-      storeRacePropertyInternal(race, 16, props.StartHeight.ToString() );
-      storeRacePropertyInternal(race, 17, props.FinishHeight.ToString() );
+      storeRacePropertyInternal(race, 15, props.CoarseName);
+      storeRacePropertyInternal(race, 16, props.StartHeight.ToString());
+      storeRacePropertyInternal(race, 17, props.FinishHeight.ToString());
       storeRacePropertyInternal(race, 18, (props.StartHeight - props.FinishHeight).ToString());
-      storeRacePropertyInternal(race, 19, props.CoarseLength.ToString() );
-      storeRacePropertyInternal(race, 20, props.CoarseHomologNo );
+      storeRacePropertyInternal(race, 19, props.CoarseLength.ToString());
+      storeRacePropertyInternal(race, 20, props.CoarseHomologNo);
 
       // Run 1
-      storeRacePropertyInternal(race, 21, props.RaceRun1.CoarseSetter.Name );
-      storeRacePropertyInternal(race, 22, props.RaceRun1.CoarseSetter.Club );
-      storeRacePropertyInternal(race, 23, props.RaceRun1.Forerunner1.Name );
-      storeRacePropertyInternal(race, 24, props.RaceRun1.Forerunner1.Club );
-      storeRacePropertyInternal(race, 25, props.RaceRun1.Forerunner2.Name );
-      storeRacePropertyInternal(race, 26, props.RaceRun1.Forerunner2.Club );
-      storeRacePropertyInternal(race, 27, props.RaceRun1.Forerunner3.Name );
-      storeRacePropertyInternal(race, 28, props.RaceRun1.Forerunner3.Club );
-      storeRacePropertyInternal(race, 29, props.RaceRun1.Gates.ToString() );
-      storeRacePropertyInternal(race, 30, props.RaceRun1.Turns.ToString() );
-      storeRacePropertyInternal(race, 31, props.RaceRun1.StartTime );
+      storeRacePropertyInternal(race, 21, props.RaceRun1.CoarseSetter.Name);
+      storeRacePropertyInternal(race, 22, props.RaceRun1.CoarseSetter.Club);
+      storeRacePropertyInternal(race, 23, props.RaceRun1.Forerunner1.Name);
+      storeRacePropertyInternal(race, 24, props.RaceRun1.Forerunner1.Club);
+      storeRacePropertyInternal(race, 25, props.RaceRun1.Forerunner2.Name);
+      storeRacePropertyInternal(race, 26, props.RaceRun1.Forerunner2.Club);
+      storeRacePropertyInternal(race, 27, props.RaceRun1.Forerunner3.Name);
+      storeRacePropertyInternal(race, 28, props.RaceRun1.Forerunner3.Club);
+      storeRacePropertyInternal(race, 29, props.RaceRun1.Gates.ToString());
+      storeRacePropertyInternal(race, 30, props.RaceRun1.Turns.ToString());
+      storeRacePropertyInternal(race, 31, props.RaceRun1.StartTime);
 
       // Run 2
-      storeRacePropertyInternal(race, 32, props.RaceRun2.CoarseSetter.Name );
-      storeRacePropertyInternal(race, 33, props.RaceRun2.CoarseSetter.Club );
-      storeRacePropertyInternal(race, 34, props.RaceRun2.Forerunner1.Name );
-      storeRacePropertyInternal(race, 35, props.RaceRun2.Forerunner1.Club );
-      storeRacePropertyInternal(race, 36, props.RaceRun2.Forerunner2.Name );
-      storeRacePropertyInternal(race, 37, props.RaceRun2.Forerunner2.Club );
-      storeRacePropertyInternal(race, 38, props.RaceRun2.Forerunner3.Name );
-      storeRacePropertyInternal(race, 39, props.RaceRun2.Forerunner3.Club );
-      storeRacePropertyInternal(race, 40, props.RaceRun2.Gates.ToString() );
-      storeRacePropertyInternal(race, 41, props.RaceRun2.Turns.ToString() );
-      storeRacePropertyInternal(race, 42, props.RaceRun2.StartTime );
+      storeRacePropertyInternal(race, 32, props.RaceRun2.CoarseSetter.Name);
+      storeRacePropertyInternal(race, 33, props.RaceRun2.CoarseSetter.Club);
+      storeRacePropertyInternal(race, 34, props.RaceRun2.Forerunner1.Name);
+      storeRacePropertyInternal(race, 35, props.RaceRun2.Forerunner1.Club);
+      storeRacePropertyInternal(race, 36, props.RaceRun2.Forerunner2.Name);
+      storeRacePropertyInternal(race, 37, props.RaceRun2.Forerunner2.Club);
+      storeRacePropertyInternal(race, 38, props.RaceRun2.Forerunner3.Name);
+      storeRacePropertyInternal(race, 39, props.RaceRun2.Forerunner3.Club);
+      storeRacePropertyInternal(race, 40, props.RaceRun2.Gates.ToString());
+      storeRacePropertyInternal(race, 41, props.RaceRun2.Turns.ToString());
+      storeRacePropertyInternal(race, 42, props.RaceRun2.StartTime);
 
       // Weather
-      storeRacePropertyInternal(race, 43, props.Weather );
-      storeRacePropertyInternal(race, 44, props.Snow );
-      storeRacePropertyInternal(race, 45, props.TempStart );
-      storeRacePropertyInternal(race, 46, props.TempFinish );
+      storeRacePropertyInternal(race, 43, props.Weather);
+      storeRacePropertyInternal(race, 44, props.Snow);
+      storeRacePropertyInternal(race, 45, props.TempStart);
+      storeRacePropertyInternal(race, 46, props.TempFinish);
     }
 
 
@@ -1173,11 +1168,11 @@ namespace RaceHorologyLib
     public void EnsureDSVAlpinBewerbsnummer(IList<Race> races)
     {
       var raceTypes = new Race.ERaceType[] { Race.ERaceType.DownHill, Race.ERaceType.SuperG, Race.ERaceType.GiantSlalom, Race.ERaceType.Slalom, Race.ERaceType.KOSlalom, Race.ERaceType.ParallelSlalom };
-      foreach(var rt in raceTypes)
+      foreach (var rt in raceTypes)
       {
         var race = races.FirstOrDefault(r => r.RaceType == rt);
         var bewerbsnummer = string.Empty;
-        if (race != null )
+        if (race != null)
           bewerbsnummer = race.AdditionalProperties?.RaceNumber;
 
         if (!(bewerbsnummer != string.Empty && Regex.IsMatch(bewerbsnummer, @"^\d{4}[A-Z]{4}")))
@@ -1293,14 +1288,14 @@ namespace RaceHorologyLib
         cmd.Parameters.Add(new OleDbParameter("@bname", competitionProps.Name));
 
       cmd.Parameters.Add(new OleDbParameter("@typ", (byte)competitionProps.Type));
-      
+
       cmd.Parameters.Add(new OleDbParameter("@punktewertung", competitionProps.WithPoints));
-      
+
       if (string.IsNullOrEmpty(competitionProps.Nation) || competitionProps.Nation.Length != 3)
         cmd.Parameters.Add(new OleDbParameter("@nation", DBNull.Value));
       else
         cmd.Parameters.Add("@nation", OleDbType.Char).Value = competitionProps.Nation;
-      
+
       cmd.Parameters.Add(new OleDbParameter("@saison", (short)competitionProps.Saeson));
 
       cmd.Parameters.Add(new OleDbParameter("@klassenwertung", competitionProps.KlassenWertung));
@@ -1345,7 +1340,7 @@ namespace RaceHorologyLib
 
 
       bool bNew = true;
-      using (OleDbCommand cmdQ= new OleDbCommand("SELECT COUNT(*) FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal", _conn))
+      using (OleDbCommand cmdQ = new OleDbCommand("SELECT COUNT(*) FROM RHTimestamps WHERE disziplin = @disziplin AND durchgang = @durchgang AND zeit = @zeit AND kanal = @kanal", _conn))
       {
         cmdQ.Parameters.Add(new OleDbParameter("@disziplin", (int)raceRun.GetRace().RaceType));
         cmdQ.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
@@ -1393,7 +1388,8 @@ namespace RaceHorologyLib
 
     public List<Timestamp> GetTimestamps(Race race, uint run)
     {
-      EMeasurementPoint measurementPoint(string dbText){
+      EMeasurementPoint measurementPoint(string dbText)
+      {
         switch (dbText)
         {
           case "START": return EMeasurementPoint.Start;
@@ -1425,7 +1421,7 @@ namespace RaceHorologyLib
           if (!reader.IsDBNull(reader.GetOrdinal("valid")))
             valid = reader.GetBoolean(reader.GetOrdinal("valid"));
 
-            EMeasurementPoint mp = measurementPoint(reader["kanal"].ToString());
+          EMeasurementPoint mp = measurementPoint(reader["kanal"].ToString());
           uint stnr = 0;
           if (!reader.IsDBNull(reader.GetOrdinal("startnummer")))
             stnr = (uint)(int)reader.GetValue(reader.GetOrdinal("startnummer"));
@@ -1582,7 +1578,7 @@ namespace RaceHorologyLib
     private ParticipantGroup GetParticipantGroup(uint id)
     {
       ReadParticipantGroups();
-      
+
       if (_id2ParticipantGroups.ContainsKey(id))
         return _id2ParticipantGroups[id];
 
@@ -1900,7 +1896,7 @@ namespace RaceHorologyLib
 
       cmd.Parameters.Add(new OleDbParameter("@kname", c.PrettyName));
       cmd.Parameters.Add(new OleDbParameter("@sortpos", c.SortPos));
-      cmd.Parameters.Add(new OleDbParameter("@synonyms", string.IsNullOrEmpty(c.Synonyms)? (object)DBNull.Value : (object)c.Synonyms));
+      cmd.Parameters.Add(new OleDbParameter("@synonyms", string.IsNullOrEmpty(c.Synonyms) ? (object)DBNull.Value : (object)c.Synonyms));
       cmd.Parameters.Add(new OleDbParameter("@id", id));
       cmd.CommandType = CommandType.Text;
 

@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -228,7 +228,8 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(reader.Data.Tables[0].Rows.Count > 0, "Some rows generated");
     }
 
-    [TestMethod, TestCategory("IntegrationDsvOnline")]
+    //[TestMethod, TestCategory("IntegrationDsvOnline")]
+    [TestMethod, TestCategory("HardwareDependent")]
     public void ImportPointListViaWeb_U18()
     {
       IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);

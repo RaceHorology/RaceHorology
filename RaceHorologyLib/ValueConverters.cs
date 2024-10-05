@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -233,6 +233,33 @@ namespace RaceHorologyLib
       throw new NotImplementedException();
     }
   }
+
+  public class DateTimeConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      try
+      {
+        string str = string.Empty;
+        string strParameter = parameter?.ToString();
+
+        if (value == null)
+          return "---";
+        if (value is DateTime dt)
+          return dt.ToString();
+      }
+      catch (Exception)
+      {
+      }
+      return "";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
 
 
 

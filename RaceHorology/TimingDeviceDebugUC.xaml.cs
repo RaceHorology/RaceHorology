@@ -14,33 +14,33 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
+
+// Protokoll Fenster auf aktuellen letzten Eintrag setzen
+
 namespace RaceHorology
 {
   /// <summary>
   /// Interaction logic for ALGEDebugDlg.xaml
   /// </summary>
-  public partial class TimingDeviceDebugDlg : Window
+  public partial class TimingDeviceDebugUC : TimingDeviceBaseUC
   {
     ILiveTimeMeasurementDeviceDebugInfo _debugableTimingDevice;
 
-    public TimingDeviceDebugDlg(ILiveTimeMeasurementDeviceDebugInfo debugableTimingDevice)
+    public TimingDeviceDebugUC()
     {
-      _debugableTimingDevice = debugableTimingDevice;
       InitializeComponent();
+    }
+
+    public override void Init(ILiveTimeMeasurementDeviceDebugInfo timingDevice)
+    {
+      _debugableTimingDevice = timingDevice;
 
       connectToAlge();
       tbAlgeLog.Text = _debugableTimingDevice.GetProtocol();
       ensureNewLineAtEnd();
-
-      Closing += onWindowClosing;
     }
 
-    private void BtnOk_Click(object sender, RoutedEventArgs e)
-    {
-      Close();
-    }
-
-    private void onWindowClosing(object sender, CancelEventArgs e)
+    public override void Closes()
     {
       disconnectFromAlge();
     }

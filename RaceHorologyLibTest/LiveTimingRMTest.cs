@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
  *
@@ -124,7 +124,7 @@ namespace RaceHorologyLibTest
         "Klasse|11|Buben 2010|10\n" +
         "Klasse|10|Mädchen 2009|11\n" +
         "Klasse|12|Buben 2009|12"
-        , classes );
+        , classes);
 
 
       string groups = cl.getGroups();
@@ -138,7 +138,22 @@ namespace RaceHorologyLibTest
         , groups);
 
       string categories = cl.getCategories();
-      Assert.AreEqual("Kategorie|M|M|1\nKategorie|W|W|2", categories);
+      Assert.AreEqual(
+        "Kategorie|W|Damen|1\n" +
+        "Kategorie|D|Damen 2|2\n" +
+        "Kategorie|M|Herren|3\n" +
+        "Kategorie|H|Herren 2|4\n" +
+        "Kategorie|0|G0|5\n" +
+        "Kategorie|1|G1|6\n" +
+        "Kategorie|2|G2|7\n" +
+        "Kategorie|3|G3|8\n" +
+        "Kategorie|4|G4|9\n" +
+        "Kategorie|5|G5|10\n" +
+        "Kategorie|6|G6|11\n" +
+        "Kategorie|7|G7|12\n" +
+        "Kategorie|8|G8|13\n" +
+        "Kategorie|9|G9|14"
+        , categories);
 
       string participants = cl.getParticipantsData();
       Assert.AreEqual(
@@ -146,11 +161,13 @@ namespace RaceHorologyLibTest
         , participants);
       string startList = cl.getStartListData(model.GetCurrentRaceRun());
       Assert.AreEqual(
-        "  4\n  2\n  5\n  3\n  1", 
+        "  4\n  2\n  5\n  3\n  1",
         startList);
 
       string timingData = cl.getTimingData(model.GetCurrentRaceRun());
-      Assert.AreEqual("  10000010,23\n  29000000,01\n  31999999,99\n  42999999,99\n  53999999,99Tor 1", timingData);
+      var dayTime = model.GetCurrentDayTime();
+      var curTimeString = string.Format("{0,3}{1,1}{2}", 999, ' ', dayTime.ToString(@"hhmmss\,ff", System.Globalization.CultureInfo.InvariantCulture));
+      Assert.AreEqual(string.Format("  10000010,23\n  29202350,03\n  31999999,99\n  42999999,99\n  53999999,99Tor 1\n{0}", curTimeString), timingData);
     }
 
 
@@ -172,7 +189,7 @@ namespace RaceHorologyLibTest
 
       string participants = cl.getParticipantsData();
       Assert.AreEqual(
-        "|||1|1||Name 1, Firstname 1|0|||-1,00\n|||2|2||Name 2, Firstname 2|0|||-1,00", 
+        "|||1|1||Name 1, Firstname 1|0|||-1,00\n|||2|2||Name 2, Firstname 2|0|||-1,00",
         participants);
 
       string startList = cl.getStartListData(race.GetRun(0));
