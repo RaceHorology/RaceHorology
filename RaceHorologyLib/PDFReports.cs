@@ -827,7 +827,10 @@ namespace RaceHorologyLib
       : base(race)
     {
       _pointsConverter = new PointsConverter();
+      OneGroupPerPage = false;
     }
+
+    public bool OneGroupPerPage { get; set; }
 
     protected abstract string getTitle();
     protected abstract void addContent(PdfDocument pdf, Document document);
@@ -1323,13 +1326,12 @@ namespace RaceHorologyLib
         breaks.Add(row);
       }
 
-      table.SetNextRenderer(new SplitTableAtSpecificRowRenderer(table, breaks));
+      TableRenderer tableRenderer;
+      if (OneGroupPerPage) tableRenderer = new ForceSplitTableAtSpecificRowRenderer(table, breaks);
+      else tableRenderer = new SplitTableAtSpecificRowRenderer(table, breaks);
+      table.SetNextRenderer(tableRenderer);
       return table;
     }
-
-
-
-
   }
 
   public class StartListReport : PDFReport
@@ -3184,8 +3186,6 @@ namespace RaceHorologyLib
   class SplitTableAtSpecificRowRenderer : TableRenderer
   {
     private readonly List<int> breakPoints;
-
-
     private int amountOfRowsThatAreGoingToBeRendered = 0;
 
     public SplitTableAtSpecificRowRenderer(Table modelElement, List<int> breakPoints) : base(modelElement)
@@ -3202,14 +3202,10 @@ namespace RaceHorologyLib
     {
       LayoutResult result = null;
       while (result == null)
-      {
         result = AttemptLayout(layoutContext, this.breakPoints);
-      }
 
       for (var index = 0; index < this.breakPoints.Count; index++)
-      {
         this.breakPoints[index] -= amountOfRowsThatAreGoingToBeRendered;
-      }
 
       return result;
     }
@@ -3239,9 +3235,7 @@ namespace RaceHorologyLib
     {
       LayoutResult layoutResultWithoutSplits = AttemptLayout(layoutContext, new List<int>());
       if (layoutResultWithoutSplits == null)
-      {
         return int.MinValue;
-      }
 
       int amountOfRowsThatFitWithoutSplit = GetAmountOfRows(layoutResultWithoutSplits);
       int breakPointToFix = int.MinValue;
@@ -3256,24 +3250,20 @@ namespace RaceHorologyLib
           }
         }
       }
-
       return breakPointToFix;
     }
 
     private void ForceAreaBreak(int rowIndex)
     {
       rowIndex++;
-      if (rowIndex > rows.Count)
-      {
+      if (rowIndex >= rows.Count)
         return;
-      }
 
       foreach (CellRenderer cellRenderer in rows[rowIndex])
       {
         if (cellRenderer != null)
         {
-          cellRenderer.GetChildRenderers()
-              .Insert(0, new AreaBreakRenderer(new AreaBreak(AreaBreakType.NEXT_PAGE)));
+          cellRenderer.GetChildRenderers().Insert(0, new AreaBreakRenderer(new AreaBreak(AreaBreakType.NEXT_PAGE)));
           break;
         }
       }
@@ -3282,11 +3272,86 @@ namespace RaceHorologyLib
     private static int GetAmountOfRows(LayoutResult layoutResult)
     {
       if (layoutResult.GetSplitRenderer() == null)
-      {
         return 0;
-      }
 
       return ((SplitTableAtSpecificRowRenderer)layoutResult.GetSplitRenderer()).rows.Count;
+    }
+  }
+
+
+  class ForceSplitTableAtSpecificRowRenderer : TableRenderer
+  {
+    private readonly List<int> breakPoints;
+
+    public ForceSplitTableAtSpecificRowRenderer(Table modelElement, List<int> breakPoints)
+      : base(modelElement)
+    {
+      this.breakPoints = breakPoints;
+    }
+
+    public override IRenderer GetNextRenderer()
+    {
+      return new ForceSplitTableAtSpecificRowRenderer((Table)modelElement, this.breakPoints);
+    }
+
+    public override LayoutResult Layout(LayoutContext layoutContext)
+    {
+      // If nothing to break => call base class
+      if (this.breakPoints.Count == 0)
+        return base.Layout(layoutContext);
+
+      // Check whether the rows would fit in the next page, if so, force a manual break
+      var rowsOnPage = determineRowsFittingOnPage(layoutContext);
+      var renderedRows = rowsOnPage;
+      if (rowsOnPage > this.breakPoints[0])
+      {
+        ForceAreaBreak(this.breakPoints[0]);
+        renderedRows = this.breakPoints[0] + 1;
+        this.breakPoints.RemoveAt(0);
+      }
+
+      // Layout the page
+      var result = base.Layout(layoutContext);
+
+      // Adapt the remaining breakpoints
+      for (var index = 0; index < this.breakPoints.Count; index++)
+        this.breakPoints[index] -= renderedRows;
+
+      return result;
+    }
+
+    private int determineRowsFittingOnPage(LayoutContext layoutContext)
+    {
+      LayoutResult layoutResult = base.Layout(layoutContext);
+      if (layoutResult == null)
+        return int.MinValue;
+
+      var rows = GetAmountOfRows(layoutResult);
+      return rows;
+    }
+
+    private int GetAmountOfRows(LayoutResult layoutResult)
+    {
+      if (layoutResult.GetSplitRenderer() == null)
+        return this.rows.Count;
+
+      return ((ForceSplitTableAtSpecificRowRenderer)layoutResult.GetSplitRenderer()).rows.Count;
+    }
+
+    private void ForceAreaBreak(int rowIndex)
+    {
+      rowIndex++;
+      if (rowIndex >= rows.Count)
+        return;
+
+      foreach (CellRenderer cellRenderer in rows[rowIndex])
+      {
+        if (cellRenderer != null)
+        {
+          cellRenderer.GetChildRenderers().Insert(0, new AreaBreakRenderer(new AreaBreak(AreaBreakType.NEXT_PAGE)));
+          break;
+        }
+      }
     }
   }
 
