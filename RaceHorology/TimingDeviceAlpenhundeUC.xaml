@@ -55,7 +55,7 @@
 
       <Border Grid.Row="2" Background="#426db1" BorderBrush="#426db1" BorderThickness="0" CornerRadius="8" Margin="10" >
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Start|Stop'}">
+          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Start|Stopper'}">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
@@ -72,7 +72,7 @@
             </svgc:SvgViewbox>
             <Label Content="Master" Grid.Column="0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center"/>
           </Grid>
-          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Master|Stop'}">
+          <Grid Margin="10,8,10,4" Visibility="{Binding CurrentDeviceName, Converter={StaticResource ComparisonToVisibleConverter},ConverterParameter='Master|Stopper'}">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
