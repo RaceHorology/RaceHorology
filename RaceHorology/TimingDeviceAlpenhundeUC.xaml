@@ -173,7 +173,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Content="Master" Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center"/>
+          <Label Content="{Binding CurrentDeviceName}"  Grid.Column="0" Foreground="White" Background="#426db1" HorizontalAlignment="Center" />
         </Grid>
       </Border>
 
