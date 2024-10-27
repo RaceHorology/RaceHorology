@@ -518,6 +518,9 @@
     <Resource Include="Icons\alpenhunde\Status_RSSI-not-found.svg" />
     <Resource Include="Icons\alpenhunde\status_unsync.svg" />
     <Resource Include="Icons\alpenhunde\sync.svg" />
+    <EmbeddedResource Include="resources\error_offline.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Content Include="webroot\css\bootstrap-vue.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -36,8 +36,6 @@
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -145,15 +143,25 @@ namespace RHAlgeTimyUSB
             _statusText = "kein Gerät gefunden"; break;
         }
 
-        var handler = StatusChanged;
-        handler?.Invoke(this, IsOnline);
+        var onlineStatus = mapInternalToOnlineStatus(_onlineStatus, value);
+        if (onlineStatus != null)
+          OnlineStatus = (StatusType)onlineStatus;
       }
     }
 
-    public override bool IsOnline
+    private StatusType? mapInternalToOnlineStatus(StatusType oldStatus, EInternalStatus newInternalStatus)
     {
-      get { return _internalStatus == EInternalStatus.Running; }
+      var wasConnected = oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline;
+      switch (newInternalStatus)
+      {
+        case EInternalStatus.Initializing: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EInternalStatus.Running: return StatusType.Online;
+        case EInternalStatus.Stopped: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EInternalStatus.NoDevice: return wasConnected ? StatusType.Error_GotOffline : StatusType.NoDevice;
+        default: return null;
+      }
     }
+
 
     public override bool IsStarted
     {
@@ -162,7 +170,6 @@ namespace RHAlgeTimyUSB
         return _timy != null;
       }
     }
-    public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
     #region Implementation of ILiveTimeMeasurementDeviceDebugInfo
     public event RawMessageReceivedEventHandler RawMessageReceived;

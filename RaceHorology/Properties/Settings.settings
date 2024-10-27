@@ -44,5 +44,8 @@
     <Setting Name="UpdateChannel" Type="System.String" Scope="User">
       <Value Profile="(Default)">Stabil</Value>
     </Setting>
+    <Setting Name="TimingDevice_PortBitRate" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">9600</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

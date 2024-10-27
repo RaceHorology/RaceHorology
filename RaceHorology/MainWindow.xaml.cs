@@ -33,25 +33,21 @@
  * 
  */
 
+using AutoUpdaterDotNET;
+using Microsoft.Win32;
+using RaceHorologyLib;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Media;
+using System.Net.NetworkInformation;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-
-using Microsoft.Win32;
-
-using RaceHorologyLib;
-
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
-
-using System.IO;
-using AutoUpdaterDotNET;
-
-using System.Diagnostics;
-using System.Reflection;
 
 namespace RaceHorology
 {
@@ -83,7 +79,7 @@ namespace RaceHorology
     public event SaveHandler Save;
   }
 
-  
+
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// Main entry point of the application
@@ -121,7 +117,7 @@ namespace RaceHorology
       {
         FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
         version = fvi.ProductVersion;
-      } 
+      }
       else
         version = "0.0.0.0"; // for Local Debug use
 
@@ -280,8 +276,8 @@ namespace RaceHorology
         return;
 
       var res = MessageBox.Show(
-        string.Format("Sollen wirklich alle Zeiten des Rennens {0} gelöscht werden?", race.ToString()), 
-        "Zeiten löschen?", 
+        string.Format("Sollen wirklich alle Zeiten des Rennens {0} gelöscht werden?", race.ToString()),
+        "Zeiten löschen?",
         MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
 
       if (res == MessageBoxResult.No)
@@ -500,6 +496,9 @@ namespace RaceHorology
     private void InitializeTiming()
     {
       _liveTimingMeasurement = new LiveTimingMeasurement(_dataModel, Properties.Settings.Default.AutoAddParticipants);
+      _liveTimingMeasurement.LiveTimingMeasurementOnlineStatusChanged += liveTimingMeasurement_LiveTimingMeasurementOnlineStatusChanged;
+
+      lblTimingDevice.DataContext = _liveTimingMeasurement.TimingDeviceStatus;
 
       _liveTimingStatusTimer = new System.Timers.Timer(300);
       _liveTimingStatusTimer.Elapsed += UpdateLiveTimingDeviceStatus;
@@ -509,6 +508,15 @@ namespace RaceHorology
       Properties.Settings.Default.PropertyChanged += SettingChangingHandler;
 
       InitializeTimingDevice();
+    }
+
+    private void liveTimingMeasurement_LiveTimingMeasurementOnlineStatusChanged(object sender, StatusType status)
+    {
+      if (status == StatusType.Error_GotOffline)
+      {
+        var sound = new SoundPlayer(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("RaceHorology.resources.error_offline.wav"));
+        sound.Play();
+      }
     }
 
     private void DeInitializeTiming()
@@ -534,8 +542,9 @@ namespace RaceHorology
         dumpDir = _dataModel.GetDB().GetDBPathDirectory();
 
       ILiveTimeMeasurementDevice newTimingDevice = null;
-      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE TdC")) {
-        newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+      if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE TdC"))
+      {
+        newTimingDevice = new ALGETdC8001TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, Properties.Settings.Default.TimingDevice_PortBitRate, dumpDir);
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("ALGE Timy (via USB)"))
       {
@@ -548,11 +557,11 @@ namespace RaceHorology
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Racetime 2"))
       {
-        newTimingDevice = new MicrogateV1TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+        newTimingDevice = new MicrogateV1TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, Properties.Settings.Default.TimingDevice_PortBitRate, dumpDir);
       }
       else if (Properties.Settings.Default.TimingDevice_Type.Contains("Microgate"))
       {
-        newTimingDevice = new MicrogateV2TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, dumpDir);
+        newTimingDevice = new MicrogateV2TimeMeasurement(Properties.Settings.Default.TimingDevice_Port, Properties.Settings.Default.TimingDevice_PortBitRate, dumpDir);
       }
 
       if (newTimingDevice != null)
@@ -604,6 +613,7 @@ namespace RaceHorology
             _liveTimingMeasurement.AutoAddParticipants = Properties.Settings.Default.AutoAddParticipants;
           break;
         case "TimingDevice_Port":
+        case "TimingDevice_PortBitRate":
         case "TimingDevice_Type":
         case "TimingDevice_Url":
         case "TimingDevice_Debug_Dump":
@@ -624,7 +634,7 @@ namespace RaceHorology
       if (timingDevice == null)
         return;
 
-      if (timingDevice.IsOnline)
+      if (timingDevice.IsStarted)
         timingDevice.Stop();
       else
         timingDevice.Start();
@@ -636,21 +646,18 @@ namespace RaceHorology
       bool timingDeviceOnline = false;
       var timingDevice = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveTimingDevice : null;
       var dateTimeProvider = _liveTimingMeasurement != null ? _liveTimingMeasurement.LiveDateTimeProvider : null;
-      bool connectInProgress = false;
 
       string str = "---";
-      if (timingDevice!=null && dateTimeProvider!=null)
-      { 
+      if (timingDevice != null && dateTimeProvider != null)
+      {
         str = timingDevice.GetDeviceInfo().PrettyName + " (" + timingDevice.GetStatusInfo() + ", " + dateTimeProvider.GetCurrentDayTime().ToString(@"hh\:mm\:ss") + ")";
-        timingDeviceOnline = timingDevice.IsOnline;
-        connectInProgress = timingDevice.IsStarted == true && timingDevice.IsStarted != timingDevice.IsOnline;
+        timingDeviceOnline = timingDevice.OnlineStatus == StatusType.Online;
       }
 
       Application.Current.Dispatcher.Invoke(() =>
       {
         lblTimingDevice.Content = str;
         btnTimingDeviceStartStop.Content = timingDeviceOnline ? "Trennen" : "Verbinden";
-        btnTimingDeviceStartStop.IsEnabled = timingDevice != null && !connectInProgress;
         btnTimingDeviceDebug.IsEnabled = timingDevice != null;
       });
     }

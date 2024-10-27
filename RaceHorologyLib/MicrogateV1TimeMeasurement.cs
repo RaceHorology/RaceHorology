@@ -34,12 +34,8 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -88,10 +84,26 @@ namespace RaceHorologyLib
     public abstract void Start();
     public abstract void Stop();
 
-    public abstract bool IsOnline { get; }
-    public abstract bool IsStarted { get; }
-    public abstract event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
+    protected StatusType _onlineStatus;
+    public StatusType OnlineStatus
+    {
+      protected set
+      {
+        if (_onlineStatus != value)
+        {
+          _onlineStatus = value;
+          var handler = StatusChanged;
+          handler?.Invoke(this, OnlineStatus);
+        }
+      }
+      get
+      {
+        return _onlineStatus;
+      }
+    }
+    public event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
+    public abstract bool IsStarted { get; }
 
     protected void processLine(string dataLine)
     {
@@ -100,7 +112,7 @@ namespace RaceHorologyLib
         _parser.Parse(dataLine);
       }
       catch (Exception)
-      {}
+      { }
 
       if (_parser.TimingData == null)
         return;
@@ -112,7 +124,7 @@ namespace RaceHorologyLib
           if (_parser.TimingData != null)
           {
             UpdateLiveDayTime(_parser.TimingData);
-            
+
             TimeMeasurementEventArgs timeMeasurmentData = TransferToTimemeasurementData(_parser.TimingData);
             if (timeMeasurmentData != null)
             {
@@ -130,7 +142,7 @@ namespace RaceHorologyLib
         }
       }
       catch (FormatException)
-      {}
+      { }
     }
 
     public static TimeMeasurementEventArgs TransferToTimemeasurementData(in MicrogateV1LiveTimingData parsedData)
@@ -195,7 +207,7 @@ namespace RaceHorologyLib
 
     // Nothing to implement, download is initiated interactively on ALGE device via Classment transfer
     public EImportTimeFlags SupportedImportTimeFlags() { return EImportTimeFlags.RunTime; }
-    public void DownloadImportTimes(){}
+    public void DownloadImportTimes() { }
 
 
     #region Implementation of ILiveDateTimeProvider
@@ -223,6 +235,7 @@ namespace RaceHorologyLib
     enum EInternalStatus { Stopped, Initializing, NoCOMPort, Running };
 
     private string _serialPortName;
+    private int _comBitRate;
     private SerialPort _serialPort;
     private EInternalStatus _internalStatus;
     private string _dumpDir;
@@ -235,9 +248,11 @@ namespace RaceHorologyLib
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
-    public MicrogateV1TimeMeasurement(string comport, string dumpDir) : base()
+    public MicrogateV1TimeMeasurement(string comport, int comBitRate, string dumpDir) : base()
     {
       _serialPortName = comport;
+      _comBitRate = comBitRate;
+      _stopRequest = true;
       _internalStatus = EInternalStatus.Stopped;
       _dumpDir = dumpDir;
       _internalProtocol = string.Empty;
@@ -267,7 +282,7 @@ namespace RaceHorologyLib
           new System.Threading.ThreadStart(this.MainLoop));
       _instanceCaller.Start();
     }
-    
+
     public override void Stop()
     {
       Logger.Info("Stop()");
@@ -289,7 +304,6 @@ namespace RaceHorologyLib
       _dumpFile = new System.IO.StreamWriter(dumpFilename, true); // Appending, just in case the filename clashes
     }
 
-
     private void setInternalStatus(EInternalStatus value)
     {
       if (_internalStatus != value)
@@ -298,23 +312,33 @@ namespace RaceHorologyLib
 
         _internalStatus = value;
 
-        var handler = StatusChanged;
-        handler?.Invoke(this, IsOnline);
+        var onlineStatus = mapInternalToOnlineStatus(_onlineStatus, value);
+        if (onlineStatus != null)
+          OnlineStatus = (StatusType)onlineStatus;
       }
     }
 
-    public override bool IsOnline { 
-      get { return _serialPort != null && _internalStatus == EInternalStatus.Running; } 
+    private StatusType? mapInternalToOnlineStatus(StatusType oldStatus, EInternalStatus newInternalStatus)
+    {
+      var wasConnected = !_stopRequest && oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline;
+      switch (newInternalStatus)
+      {
+        case EInternalStatus.Initializing: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EInternalStatus.Running: return StatusType.Online;
+        case EInternalStatus.Stopped: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EInternalStatus.NoCOMPort: return wasConnected ? StatusType.Error_GotOffline : StatusType.NoDevice;
+        default: return null;
+      }
     }
 
-    public override bool IsStarted {
-      get {
+
+    public override bool IsStarted
+    {
+      get
+      {
         return _serialPort != null && !_stopRequest;
       }
     }
-
-
-    public override event LiveTimingMeasurementDeviceStatusEventHandler StatusChanged;
 
 
     private void MainLoop()
@@ -324,7 +348,7 @@ namespace RaceHorologyLib
       if (_dumpDir != null)
         startWritingToDumpFile();
 
-      _serialPort = new SerialPort(_serialPortName, 9600, Parity.None, 8, StopBits.One);
+      _serialPort = new SerialPort(_serialPortName, _comBitRate, Parity.None, 8, StopBits.One);
       _serialPort.NewLine = "\r"; // LF, ASCII(10)
       _serialPort.Handshake = Handshake.RequestToSend;
       _serialPort.ReadTimeout = 1000;
@@ -459,7 +483,7 @@ namespace RaceHorologyLib
 
 
     public enum ELineType
-    { 
+    {
       Unknown,
       OnlineTimeLine,
       ClassementStart,
@@ -468,7 +492,7 @@ namespace RaceHorologyLib
     }
 
 
-    public MicrogateV1LiveTimingData TimingData { get; private set;}
+    public MicrogateV1LiveTimingData TimingData { get; private set; }
     public EMode Mode { get; private set; }
 
 
@@ -509,12 +533,10 @@ namespace RaceHorologyLib
 
       switch ((int)dataLine[0])
       {
-        case  2: return ELineType.ClassementStart;
-        case  3: return ELineType.ClassementEnd;
+        case 2: return ELineType.ClassementStart;
+        case 3: return ELineType.ClassementEnd;
         default: return ELineType.Unknown;
       }
-
-      return ELineType.Unknown;
     }
 
 

@@ -9,7 +9,7 @@ using WebSocket = WebSocketSharp.WebSocket;
 
 namespace RaceHorologyLib
 {
-  enum EStatus { NotConnected, Connecting, Connected };
+  enum EStatus { NotConnected, Connecting, Connected, GotDisconnected };
 
   public class TimeMeasurementEventArgsAlpenhunde : TimeMeasurementEventArgs
   {
@@ -28,7 +28,7 @@ namespace RaceHorologyLib
     private string _hostname;
     private string _baseUrl;
     private string _baseUrlWs;
-    private EStatus _status;
+    private EStatus _internalStatus;
 
     private object _lock = new object();
     private HttpClient _webClient;
@@ -75,21 +75,47 @@ namespace RaceHorologyLib
 
     #region Implementation of ILiveTimeMeasurementDevice
 
-    private void setInternalStatus(EStatus status)
+    private void setInternalStatus(EStatus internalStatus)
     {
-      if (_status != status)
+      if (_internalStatus != internalStatus)
       {
-        if (this._status == EStatus.Connected && status != EStatus.Connected)
+        if (this._internalStatus == EStatus.Connected && internalStatus != EStatus.Connected)
           _systemInfo.Reset();
-        this._status = status;
-        var handler = StatusChanged;
-        handler?.Invoke(this, IsOnline);
+        this._internalStatus = internalStatus;
+        var onlineStatus = mapInternalToOnlineStatus(_onlineStatus, internalStatus);
+        if (onlineStatus != null)
+          OnlineStatus = (StatusType)onlineStatus;
+      }
+    }
+    private StatusType? mapInternalToOnlineStatus(StatusType oldStatus, EStatus newInternalStatus)
+    {
+      var wasConnected = _isStarted && (oldStatus == StatusType.Online || oldStatus == StatusType.Error_GotOffline);
+      switch (newInternalStatus)
+      {
+        case EStatus.NotConnected: return wasConnected ? StatusType.Error_GotOffline : StatusType.Offline;
+        case EStatus.Connected: return StatusType.Online;
+        case EStatus.Connecting: return wasConnected ? StatusType.Error_GotOffline : oldStatus;
+        case EStatus.GotDisconnected: return StatusType.Error_GotOffline;
+        default: return null;
       }
     }
 
-    public bool IsOnline
+    private StatusType _onlineStatus;
+    public StatusType OnlineStatus
     {
-      get { return _status == EStatus.Connected; }
+      set
+      {
+        if (_onlineStatus != value)
+        {
+          _onlineStatus = value;
+          var handler = StatusChanged;
+          handler?.Invoke(this, OnlineStatus);
+        }
+      }
+      get
+      {
+        return _onlineStatus;
+      }
     }
 
     public TimeSpan GetCurrentDayTime()
@@ -109,7 +135,7 @@ namespace RaceHorologyLib
     public string GetStatusInfo()
     {
       var status = "unbekannt";
-      switch (_status)
+      switch (_internalStatus)
       {
         case EStatus.NotConnected: status = "nicht verbunden"; break;
         case EStatus.Connecting: status = "verbinde ..."; break;
@@ -198,7 +224,7 @@ namespace RaceHorologyLib
 
     private void OnRefresh(object source, ElapsedEventArgs e)
     {
-      if (IsOnline)
+      if (_internalStatus == EStatus.Connected)
         DownloadSystemStatus();
     }
 
@@ -210,7 +236,7 @@ namespace RaceHorologyLib
     public void Stop()
     {
       Logger.Info("Stop()");
-      _webSocket.Close();
+      _webSocket?.Close();
       _isStarted = false;
       cleanup(false);
     }
@@ -343,9 +369,9 @@ namespace RaceHorologyLib
         });
     }
 
-    public void Synchronize()
+    public void Restart()
     {
-      performPostAction("system/?action=sync_clock");
+      performPostAction("system/?action=restart");
     }
     public void SetChannel(int channel)
     {

@@ -40,8 +40,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Media;
-using System.Text;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -733,7 +731,7 @@ namespace RaceHorology
     private void UpdateLiveTimingStartStopButtons(bool isRunning)
     {
       // Enable buttons if Timing Device is generally online
-      bool enableButtons = _liveTimingMeasurement?.LiveTimingDevice?.IsOnline == true;
+      bool enableButtons = _liveTimingMeasurement?.LiveTimingDevice?.OnlineStatus == StatusType.Online;
 
       btnLiveTimingStart.IsEnabled = enableButtons;
       btnLiveTimingStop.IsEnabled = enableButtons;
