@@ -95,7 +95,7 @@ namespace RaceHorology
     {
       var doIt = ShowMessage("Soll wirklich neu synchronisiert werden?");
       if (doIt)
-        _timingDevice.Synchronize();
+        _timingDevice.Restart();
     }
 
     private void btnChangeChannel_Click(object sender, RoutedEventArgs e)
