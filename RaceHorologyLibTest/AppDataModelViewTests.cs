@@ -1429,18 +1429,18 @@ namespace RaceHorologyLibTest
         results.Add(1, rr1m00);
         results.Add(2, rr0m59);
         {
-          var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+          var tM = RaceResultViewProvider.MinimumTime(results.Values, out resCode, out disqualText);
           Assert.AreEqual(new TimeSpan(0, 0, 59), tM);
 
-          var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+          var tS = RaceResultViewProvider.SumTime(results.Values, out resCode, out disqualText);
           Assert.AreEqual(new TimeSpan(0, 1, 59), tS);
         }
         results.Add(3, rr1m01);
         {
-          var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+          var tM = RaceResultViewProvider.MinimumTime(results.Values, out resCode, out disqualText);
           Assert.AreEqual(new TimeSpan(0, 0, 59), tM);
 
-          var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+          var tS = RaceResultViewProvider.SumTime(results.Values, out resCode, out disqualText);
           Assert.AreEqual(new TimeSpan(0, 3, 00), tS);
         }
       }
@@ -1450,10 +1450,10 @@ namespace RaceHorologyLibTest
         results.Add(1, rr1m00);
         results.Add(2, rr1m00NIZ);
 
-        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        var tM = RaceResultViewProvider.MinimumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(new TimeSpan(0, 1, 00), tM);
 
-        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        var tS = RaceResultViewProvider.SumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(null, tS);
         Assert.AreEqual(RunResult.EResultCode.NiZ, resCode);
         Assert.IsTrue(string.IsNullOrEmpty(disqualText));
@@ -1464,10 +1464,10 @@ namespace RaceHorologyLibTest
         results.Add(1, rr1m00NAS);
         results.Add(2, rr1m00NIZ);
 
-        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        var tM = RaceResultViewProvider.MinimumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(null, tM);
 
-        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        var tS = RaceResultViewProvider.SumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(null, tS);
         Assert.AreEqual(RunResult.EResultCode.NaS, resCode);  // First run rules
         Assert.IsTrue(string.IsNullOrEmpty(disqualText));
@@ -1479,10 +1479,10 @@ namespace RaceHorologyLibTest
         results.Add(2, rr0m59);
         results.Add(3, rr1m00NIZ);
 
-        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        var tM = RaceResultViewProvider.MinimumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(new TimeSpan(0, 0, 59), tM);
 
-        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        var tS = RaceResultViewProvider.SumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(null, tS);
         Assert.AreEqual(RunResult.EResultCode.NiZ, resCode);
         Assert.IsTrue(string.IsNullOrEmpty(disqualText));
@@ -1494,10 +1494,10 @@ namespace RaceHorologyLibTest
         results.Add(2, rr1m00DIS1);
         results.Add(3, rr1m01);
 
-        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        var tM = RaceResultViewProvider.MinimumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(new TimeSpan(0, 1, 0), tM);
 
-        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        var tS = RaceResultViewProvider.SumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(null, tS);
         Assert.AreEqual(RunResult.EResultCode.DIS, resCode);
         Assert.AreEqual("Tor 1", disqualText);
@@ -1508,12 +1508,12 @@ namespace RaceHorologyLibTest
         results.Add(1, rr1m00DIS2);
         results.Add(2, rr1m00DIS1);
 
-        var tM = RaceResultViewProvider.MinimumTime(results, out resCode, out disqualText);
+        var tM = RaceResultViewProvider.MinimumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(null, tM);
         Assert.AreEqual(RunResult.EResultCode.DIS, resCode);
         Assert.AreEqual("Tor 2, Tor 1", disqualText);
 
-        var tS = RaceResultViewProvider.SumTime(results, out resCode, out disqualText);
+        var tS = RaceResultViewProvider.SumTime(results.Values, out resCode, out disqualText);
         Assert.AreEqual(null, tS);
         Assert.AreEqual(RunResult.EResultCode.DIS, resCode);
         Assert.AreEqual("Tor 2", disqualText);
