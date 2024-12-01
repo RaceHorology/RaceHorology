@@ -43,7 +43,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace RaceHorologyLib
@@ -56,7 +55,7 @@ namespace RaceHorologyLib
 
     public string GetHumanReadableError()
     {
-      switch(Message)
+      switch (Message)
       {
         case "missing racedate":
           return "Renndatum fehlt";
@@ -65,7 +64,7 @@ namespace RaceHorologyLib
         case "missing raceorganizer":
           return "Rennorganisator fehlt";
         case "missing racename":
-          return "Renndatum fehlt";
+          return "Rennname und/oder Beschreibung fehlt";
         case "missing raceplace":
           return "Rennort fehlt";
         case "not supported racetype":
@@ -369,11 +368,11 @@ namespace RaceHorologyLib
       if (race.AdditionalProperties?.RaceManager == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceManager).IsEmpty())
         throw new DSVExportException("missing racejury ChiefRace");
       writeJuryPerson(_writer, "ChiefRace", race.AdditionalProperties?.RaceManager);
-      
+
       if (race.AdditionalProperties?.RaceReferee == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.RaceReferee).IsEmpty())
         throw new DSVExportException("missing racejury Referee");
       writeJuryPerson(_writer, "Referee", race.AdditionalProperties?.RaceReferee);
-      
+
       if (race.AdditionalProperties?.TrainerRepresentative == null || ((AdditionalRaceProperties.Person)race.AdditionalProperties?.TrainerRepresentative).IsEmpty())
         throw new DSVExportException("missing racejury RepresentativeTrainer");
       writeJuryPerson(_writer, "RepresentativeTrainer", race.AdditionalProperties?.TrainerRepresentative);
@@ -555,7 +554,7 @@ namespace RaceHorologyLib
 
         if (!string.IsNullOrWhiteSpace(raceRunProperties.Forerunner1.Name))
           writeForeRunnerPerson(_writer, 1, raceRunProperties.Forerunner1);
-        else 
+        else
           throw new DSVExportException("missing forerunner");
         if (!string.IsNullOrWhiteSpace(raceRunProperties.Forerunner2.Name))
           writeForeRunnerPerson(_writer, 2, raceRunProperties.Forerunner2);
@@ -566,7 +565,7 @@ namespace RaceHorologyLib
       }
 
 
-      if ( !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Weather)
+      if (!string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Weather)
         || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.Snow)
         || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempStart)
         || !string.IsNullOrEmpty(raceRun.GetRace().AdditionalProperties.TempFinish))
