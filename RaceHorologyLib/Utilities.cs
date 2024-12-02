@@ -130,7 +130,7 @@ namespace RaceHorologyLib
       {
         NotifyCollectionChangedEventHandler handlerCC = CollectionChanged;
         handlerCC?.Invoke(
-          sender, 
+          sender,
           new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
       }
     }
@@ -224,11 +224,11 @@ namespace RaceHorologyLib
   public class CopyObservableCollection<TC, T> : ObservableCollection<TC> where T : class where TC : class
   {
     protected ObservableCollection<T> _source;
-    protected Cloner<TC,T> _cloner;
+    protected Cloner<TC, T> _cloner;
     protected bool _cloneOnPropertyChanged;
 
-    public delegate TClone Cloner<TClone,TSource>(TSource source);
-    public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC,T> cloner, bool cloneOnPropertyChanged)
+    public delegate TClone Cloner<TClone, TSource>(TSource source);
+    public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC, T> cloner, bool cloneOnPropertyChanged)
     {
       _source = source;
       _cloner = cloner;
@@ -266,14 +266,14 @@ namespace RaceHorologyLib
         }
 
       // Sync Lists
-      int i,j;
+      int i, j;
       switch (e.Action)
       {
         case NotifyCollectionChangedAction.Add:
           i = 0;
           foreach (T item in e.NewItems)
           {
-            Insert(e.NewStartingIndex+i, _cloner(item));
+            Insert(e.NewStartingIndex + i, _cloner(item));
             i++;
           }
           break;
@@ -309,7 +309,7 @@ namespace RaceHorologyLib
 
     private void FillInitially()
     {
-      for(int i=0; i<_source.Count(); i++)
+      for (int i = 0; i < _source.Count(); i++)
         Add(_cloner(_source[i]));
     }
 
@@ -329,7 +329,7 @@ namespace RaceHorologyLib
       _compare = compare;
 
       _source.CollectionChanged += onSource_CollectionChanged;
-      
+
       copyItems();
     }
 
@@ -410,7 +410,7 @@ namespace RaceHorologyLib
     /// <param name="col"></param>
     /// <param name="item"></param>
     /// <param name="comparer"></param>
-    public static void InsertSorted<TC>(this Collection<TC> collection, TC item, System.Collections.Generic.IComparer<TC> comparer)
+    public static void InsertSorted<TC>(this IList<TC> collection, TC item, System.Collections.Generic.IComparer<TC> comparer)
     {
       // Find right position and insert
       int i = 0;
@@ -437,10 +437,10 @@ namespace RaceHorologyLib
     /// <param name="comparer">The comparer to use</param>
     /// <param name="first">The first element to start the sort process. Specifiy 0 if from start.</param>
     /// <param name="last">The last element to include into the sort. Specify -1 for the last element.</param>
-    public static void Sort<TC>(this Collection<TC> collection, IComparer<TC> comparer, int first = 0, int last = -1)
+    public static void Sort<TC>(this IList<TC> collection, IComparer<TC> comparer, int first = 0, int last = -1)
     {
       int firstElement = 0;
-      int lastElement= collection.Count - 1;
+      int lastElement = collection.Count - 1;
 
       firstElement = Math.Min(first, collection.Count - 1);
 
@@ -565,9 +565,9 @@ namespace RaceHorologyLib
         if (info == null) { return false; }
       }
 
-      if (info == null) 
+      if (info == null)
         return false;
-  
+
       info.SetValue(obj, Convert.ChangeType(value, info.PropertyType));
       return true;
     }
@@ -710,8 +710,8 @@ namespace RaceHorologyLib
         str = roundedTimeSpan.TimeSpan.ToString(@"m\:ss\,ff");
       else if (formatString == "mm")
         str = roundedTimeSpan.TimeSpan.ToString(@"mm\:ss\,ff");
-      
-      else if (roundedTimeSpan.TimeSpan < new TimeSpan(0,1,0))
+
+      else if (roundedTimeSpan.TimeSpan < new TimeSpan(0, 1, 0))
         str = roundedTimeSpan.TimeSpan.ToString(@"s\,ff");
       else if (roundedTimeSpan.TimeSpan < new TimeSpan(1, 0, 0))
         str = roundedTimeSpan.TimeSpan.ToString(@"m\:ss\,ff");
@@ -719,7 +719,7 @@ namespace RaceHorologyLib
         str = roundedTimeSpan.TimeSpan.ToString(@"hh\:mm\:ss\,ff");
 
       if (bNegative)
-        return "-"  + str;
+        return "-" + str;
       else
         return str;
     }
