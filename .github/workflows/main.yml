@@ -74,15 +74,15 @@ jobs:
            msbuild /p:Configuration=Debug /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE
            
-      - name: Sign Assemblys
-        uses: GermanBluefox/code-sign-action@v7
-        with:
-          certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
-          password: '${{ secrets.SIGNINGPASSWORD }}'
-          certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
-          folder: '${{ github.workspace }}\RaceHorology\bin\x86\Release'
-          recursive: true
-          timestampUrl: 'http://timestamp.digicert.com'
+      # - name: Sign Assemblys
+      #   uses: GermanBluefox/code-sign-action@v7
+      #   with:
+      #     certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
+      #     password: '${{ secrets.SIGNINGPASSWORD }}'
+      #     certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
+      #     folder: '${{ github.workspace }}\RaceHorology\bin\x86\Release'
+      #     recursive: true
+      #     timestampUrl: 'http://timestamp.digicert.com'
 
       - name: Upload Test Programm
         uses: actions/upload-artifact@v4
