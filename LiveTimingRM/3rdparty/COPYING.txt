@@ -1,0 +1,3 @@
+(c) für die Library rmlt.dll liegt be Bernd Altmann und ist nicht über die GNU Affero General Public License von Race Horology gedeckt.
+
+Race Horology hat die Genehmigung diese Library zu nutzen.
