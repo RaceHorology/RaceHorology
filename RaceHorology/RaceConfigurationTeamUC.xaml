@@ -26,17 +26,8 @@
       <!--<ComboBoxItem Content="Punkte" />-->
     </ComboBox>
     <Label x:Name="lblTeamSize" Content="Teamgröße:" Grid.Column="2" Margin="20 5 5 5"/>
-    <ComboBox x:Name="cmbTeamSize" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="5" Width="80" >
-      <ComboBoxItem Content="2" />
-      <ComboBoxItem Content="3" />
-      <ComboBoxItem Content="4" />
-      <ComboBoxItem Content="5" />
-      <ComboBoxItem Content="6" />
-      <ComboBoxItem Content="7" />
-      <ComboBoxItem Content="8" />
-      <ComboBoxItem Content="9" />
-      <ComboBoxItem Content="10" />
-    </ComboBox>
+    <ComboBox x:Name="cmbTeamSize" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="5" Width="80" />
+
     <GroupBox x:Name="frame" Header="Strafe wenn nicht Mindestanzahl des anderen Geschlechts erreicht wird: " Grid.Row="1" Grid.ColumnSpan="5" Margin="5">
       <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0 0 0 0">
         <Grid.ColumnDefinitions>
@@ -48,11 +39,7 @@
           <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Label x:Name="lblPenaltySex" Content="Mindestanzahl beider Geschlechter" Grid.Column="0" Grid.Row="0" Margin="5" />
-        <ComboBox x:Name="cmbPenaltySex" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Grid.Column="3" Margin="5" >
-          <ComboBoxItem Content="1" />
-          <ComboBoxItem Content="2" />
-          <ComboBoxItem Content="3" />
-        </ComboBox>
+        <ComboBox x:Name="cmbPenaltySex" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Grid.Column="3" Margin="5" />
         <Label x:Name="lblPenaltyTime" Content="Sekunden"  Grid.Column="0" Grid.Row="1" Margin="5"/>
         <TextBox x:Name="txtPenaltyTime" Width="50"  Grid.Column="1" Grid.Row="1" Margin="5" />
       </Grid>

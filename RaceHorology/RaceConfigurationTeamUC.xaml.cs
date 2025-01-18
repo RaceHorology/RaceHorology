@@ -1,4 +1,5 @@
-﻿using RaceHorologyLib;
+﻿using CefSharp.DevTools.CSS;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +26,23 @@ namespace RaceHorology
     public RaceConfigurationTeamUC()
     {
       InitializeComponent();
+
+      for (int i = 2; i < 10; i++)
+        cmbTeamSize.Items.Add(new CBItem { Text = i.ToString(), Value = i });
+
+      for (int i = 0;i<6;i++)
+        cmbPenaltySex.Items.Add(new CBItem { Text = i==0?"keine":i.ToString(), Value = i });
     }
     public TeamRaceResultConfig GetConfig()
     {
       var cfg = new TeamRaceResultConfig { Modus = PointOrTime.Time };
       try { cfg.Penalty_TimeInSeconds = double.Parse(txtPenaltyTime.Text); } catch (Exception) { }
-      cfg.NumberOfMembersMax = cmbTeamSize.SelectedIndex + 2;
-      cfg.Penalty_NumberOfMembersMinDifferentSex = cmbPenaltySex.SelectedIndex;
+
+      if (cmbTeamSize.SelectedItem is CBItem selectedSize)
+        cfg.NumberOfMembersMax = (int) selectedSize.Value;
+
+      if (cmbPenaltySex.SelectedItem is CBItem selectedSex)
+        cfg.Penalty_NumberOfMembersMinDifferentSex = (int)selectedSex.Value;
       _config = cfg;
       return _config;
     }
@@ -42,8 +53,8 @@ namespace RaceHorology
       {
         if (_config.Modus == PointOrTime.Time)
           cmbMode.SelectedIndex = 0;
-        cmbTeamSize.SelectedIndex = _config.NumberOfMembersMax - 2;
-        cmbPenaltySex.SelectedIndex = _config.Penalty_NumberOfMembersMinDifferentSex;
+        cmbTeamSize.SelectCBItem(_config.NumberOfMembersMax);
+        cmbPenaltySex.SelectCBItem(_config.Penalty_NumberOfMembersMinDifferentSex);
         txtPenaltyTime.Text = string.Format("{0}", _config.Penalty_TimeInSeconds);
       }
     }
