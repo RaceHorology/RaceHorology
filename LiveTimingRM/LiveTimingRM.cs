@@ -373,11 +373,11 @@ public class LiveTimingRM : ILiveTiming
         _currentLvStruct.TypZeiten = "diff"; 
 
     // "Klasse", "Gruppe", "Kategorie"
-    _currentLvStruct.Gruppierung = "Klasse";
+    _currentLvStruct.Gruppierung = "Kategorie";
     if (!string.IsNullOrEmpty(_race.RaceConfiguration.DefaultGrouping))
-      if (_race.RaceConfiguration.DefaultGrouping.Contains("Class"))
+      if (_race.RaceConfiguration.DefaultGrouping.Contains("Class") && _race.GetDataModel().GetParticipantClasses().Count > 0)
         _currentLvStruct.Gruppierung = "Klasse";
-      else if (_race.RaceConfiguration.DefaultGrouping.Contains("Group"))
+      else if (_race.RaceConfiguration.DefaultGrouping.Contains("Group") && _race.GetDataModel().GetParticipantGroups().Count > 0)
         _currentLvStruct.Gruppierung = "Gruppe";
       else if (_race.RaceConfiguration.DefaultGrouping.Contains("Sex"))
         _currentLvStruct.Gruppierung = "Kategorie";
@@ -412,7 +412,16 @@ public class LiveTimingRM : ILiveTiming
 
     string data = "";
 
-    data += getClasses() + "\n" + getGroups() + "\n" + getCategories();
+    var classes = getClasses();
+    var groups = getGroups();
+    var cats= getCategories();
+
+    if (!string.IsNullOrEmpty(classes))
+      data += classes + "\n";
+    if (!string.IsNullOrEmpty(groups))
+      data += groups + "\n";
+    if (!string.IsNullOrEmpty(cats))
+      data += cats;
 
     Task task = Task.Run(() =>
     {
