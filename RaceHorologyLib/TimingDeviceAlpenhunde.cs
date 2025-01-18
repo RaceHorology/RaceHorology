@@ -369,9 +369,9 @@ namespace RaceHorologyLib
         });
     }
 
-    public void Synchronize()
+    public void Restart()
     {
-      performPostAction("system/?action=sync_clock");
+      performPostAction("system/?action=restart");
     }
     public void SetChannel(int channel)
     {
