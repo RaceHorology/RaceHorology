@@ -1,15 +1,11 @@
 ﻿using CefSharp;
 using CefSharp.Wpf;
-using RaceHorology.Properties;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Web;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace RaceHorology
 {
@@ -74,12 +70,46 @@ namespace RaceHorology
       _race = race;
 
       List<ReportItem> items = new List<ReportItem>();
-      items.Add(new ReportItem { Text = "Startliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new StartListReport(rr) : (IPDFReport)new StartListReport2ndRun(rr); } });
-      items.Add(new ReportItem { Text = "Teilergebnisliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RaceRunResultReport(rr); } });
-      items.Add(new ReportItem { Text = "Ergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return (r.GetResultViewProvider() is DSVSchoolRaceResultViewProvider) ? new DSVSchoolRaceResultReport(r) : (r.GetResultViewProvider() is FISRaceResultViewProvider) ? new FISRaceResultReport(r) : new RaceResultReport(r); } });
-      items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => { return new CertificatesPrintUC(); } }) ;
-      items.Add(new ReportItem { Text = "Zeitnehmer Checkliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new TimerReport(rr) : (IPDFReport)new TimerReport(rr); } });
-      items.Add(new ReportItem { Text = "Schiedsrichter Protokoll", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
+      items.Add(new ReportItem
+      {
+        Text = "Startliste",
+        NeedsRaceRun = true,
+        CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new StartListReport(rr) : (IPDFReport)new StartListReport2ndRun(rr); },
+        UserControl = () => new StdListPrintUC()
+      });
+      items.Add(new ReportItem
+      {
+        Text = "Teilergebnisliste",
+        NeedsRaceRun = true,
+        CreateReport = (r, rr) => { return new RaceRunResultReport(rr); },
+        UserControl = () => new StdListPrintUC()
+      });
+      items.Add(new ReportItem
+      {
+        Text = "Ergebnisliste",
+        NeedsRaceRun = false,
+        CreateReport = (r, rr) => { return (r.GetResultViewProvider() is DSVSchoolRaceResultViewProvider) ? new DSVSchoolRaceResultReport(r) : (r.GetResultViewProvider() is FISRaceResultViewProvider) ? new FISRaceResultReport(r) : new RaceResultReport(r); },
+        UserControl = () => new StdListPrintUC()
+      });
+      items.Add(new ReportItem
+      {
+        Text = "Urkunden",
+        NeedsRaceRun = false,
+        CreateReport = (r, rr) => { return new Certificates(r, 10); },
+        UserControl = () => { return new CertificatesPrintUC(); }
+      });
+      items.Add(new ReportItem
+      {
+        Text = "Zeitnehmer Checkliste",
+        NeedsRaceRun = true,
+        CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new TimerReport(rr) : (IPDFReport)new TimerReport(rr); }
+      });
+      items.Add(new ReportItem
+      {
+        Text = "Schiedsrichter Protokoll",
+        NeedsRaceRun = true,
+        CreateReport = (r, rr) => { return new RefereeProtocol(rr); }
+      });
 
       cmbReport.ItemsSource = items;
       cmbReport.SelectedIndex = 0;
@@ -186,7 +216,7 @@ namespace RaceHorology
           CBItem selected = cmbRaceRun.SelectedValue as CBItem;
           selectedRaceRun = selected?.Value as RaceRun;
         }
-        if (_currentRI == ri && (!ri.NeedsRaceRun || ri.NeedsRaceRun && _currentRIRun == selectedRaceRun))
+        if (_currentRI == ri && (!ri.NeedsRaceRun || (ri.NeedsRaceRun && _currentRIRun == selectedRaceRun)))
           return _currentReport;
 
         if (_currentSubUC != null)
@@ -196,6 +226,7 @@ namespace RaceHorology
         }
 
         _currentRI = ri;
+        _currentRIRun = selectedRaceRun;
         _currentReport = ri.CreateReport(_race, selectedRaceRun);
 
         if (ri.UserControl != null)

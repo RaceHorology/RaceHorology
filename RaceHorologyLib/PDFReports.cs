@@ -980,7 +980,6 @@ namespace RaceHorologyLib
 
       Table table = getResultsTable();
       document.Add(table);
-
     }
 
 
