@@ -96,15 +96,15 @@ jobs:
            msbuild /p:Configuration=Release /p:Platform=x86 /p:Version=${{ steps.version.outputs.version }} $Env:GITHUB_WORKSPACE\RaceHorologySetup
            ren ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup.msi ${{ github.workspace }}\RaceHorologySetup\bin\Release\RaceHorologySetup-${{ steps.version.outputs.version }}.msi
 
-      - name: Sign Installer
-        uses: GermanBluefox/code-sign-action@v7
-        with:
-          certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
-          password: '${{ secrets.SIGNINGPASSWORD }}'
-          certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
-          folder: '${{ github.workspace }}\RaceHorologySetup\bin\Release\'
-          recursive: false
-          timestampUrl: 'http://timestamp.digicert.com'
+      # - name: Sign Installer
+      #   uses: GermanBluefox/code-sign-action@v7
+      #   with:
+      #     certificate: '${{ secrets.SIGNINGCERTIFICATE }}'
+      #     password: '${{ secrets.SIGNINGPASSWORD }}'
+      #     certificatesha1: '${{ secrets.SIGNINGCERTHASH }}'
+      #     folder: '${{ github.workspace }}\RaceHorologySetup\bin\Release\'
+      #     recursive: false
+      #     timestampUrl: 'http://timestamp.digicert.com'
           
       - name: Upload Installer
         uses: actions/upload-artifact@v4
