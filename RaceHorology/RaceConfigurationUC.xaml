@@ -220,7 +220,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <DockPanel Height="25" Grid.ColumnSpan="2">
-          <Label DockPanel.Dock="Left" Content="Weitere Wertungen"/>
+          <Label DockPanel.Dock="Left" Content="Weitere Wertungen (experimentell)"/>
           <Separator/>
         </DockPanel>
       </Grid>
