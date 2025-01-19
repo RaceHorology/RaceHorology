@@ -74,6 +74,7 @@ namespace RaceHorology
     ComboBox _cmbLiveTimingStatus;
 
     public ObservableCollection<ParticipantClass> ParticipantClasses { get; }
+    public ObservableCollection<Team> Teams { get; }
     public ObservableCollection<ParticipantCategory> ParticipantCategories { get; }
 
     public CompetitionUC(AppDataModel dm, LiveTimingMeasurement liveTimingMeasurement, ComboBox cmbLiveTimingStatus)
@@ -83,6 +84,7 @@ namespace RaceHorology
       _fisData = new FISInterfaceModel(_dm);
 
       ParticipantClasses = _dm.GetParticipantClasses();
+      Teams = _dm.GetTeams();
       ParticipantCategories = _dm.GetParticipantCategories();
 
       _liveTimingMeasurement = liveTimingMeasurement;
@@ -107,6 +109,7 @@ namespace RaceHorology
       ucSaveOrReset.Init("Teilnehmeränderungen", null, null, null, storeParticipant, resetParticipant);
 
       ucClassesAndGroups.Init(_dm);
+      ucTeams.Init(_dm);
       ucDSVImport.Init(_dm, _dsvData);
       ucFISImport.Init(_dm, _fisData);
 
@@ -394,6 +397,7 @@ namespace RaceHorology
       updatePartcipantEditField(txtCode, GetPropertyValues(items, "Code"));
       updatePartcipantEditField(txtNation, GetPropertyValues(items, "Nation"));
       updatePartcipantCombobox(cmbClass, GetPropertyValues(items, "Class"));
+      updatePartcipantCombobox(cmbTeam, GetPropertyValues(items, "TeamVal"));
 
       for (int i = 0; i < spRaces.Children.Count; i++)
       {
@@ -500,6 +504,7 @@ namespace RaceHorology
       storePartcipantEditField(txtCode, items, "Code");
       storePartcipantEditField(txtNation, items, "Nation");
       storePartcipantComboBox(cmbClass, items, "Class");
+      storePartcipantComboBox(cmbTeam, items, "TeamVal");
 
       for (int i = 0; i < spRaces.Children.Count; i++)
       {
@@ -867,11 +872,13 @@ namespace RaceHorology
     ParticpantOfRace _participantOfRace;
     PointsOfRace _pointsOfRace;
     bool _existsInImportList;
+    AppDataModel _dm;
 
     IImportListProvider[] _importList;
 
-    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider[] importList)
+    public ParticipantEdit(Participant p, IList<Race> races, IImportListProvider[] importList, AppDataModel dm)
     {
+      _dm = dm;
       _participant = p;
       _participant.PropertyChanged += OnParticpantPropertyChanged;
 
@@ -975,6 +982,28 @@ namespace RaceHorology
       get => _participant.Group;
     }
 
+    public Team TeamVal
+    {
+      get => _participant.Team;
+      set => _participant.Team = value;
+    }
+
+    public string Team
+    {
+      get => _participant.Team?.Name ?? "";
+      set
+      {
+        var team = _dm.GetTeams().FirstOrDefault(t => t.Name == value);
+        if (team == null)
+        {
+          var sortpos = _dm.GetTeams().Max(t => t.SortPos);
+          team = new Team(null, null, value, sortpos + 1);
+          _dm.GetTeams().Add(team);
+        }
+        _participant.Team = team;
+      }
+    }
+
 
     public ParticpantOfRace ParticipantOfRace
     {
@@ -1036,7 +1065,7 @@ namespace RaceHorology
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
     public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider[] importList) 
-      : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList), false)
+      : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList, dm), false)
     { }
 
   }

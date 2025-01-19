@@ -315,6 +315,7 @@ namespace RaceHorologyLib
       { "SvId", new List<string>{ "DSV-Id", "SvId", "SkiverbandId", "id" } },
       { "Points", new List<string>{"Points", "Punkte"} },
       { "StartNumber", new List<string>{"start number", "Startnummer", "SN", "Bib"} },
+      { "Team", new List<string>{"Mannschaft", "Team", "team"} },
     };
 
     public RaceMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
@@ -443,11 +444,13 @@ namespace RaceHorologyLib
   public class ParticipantImportUtils : BaseImportUtils
   {
     protected IList<ParticipantCategory> _categories;
+    protected IList<Team> _teams;
 
-    public ParticipantImportUtils(Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null)
+    public ParticipantImportUtils(Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null, IList<Team> teams = null)
       : base(mapping, classAssignment)
     {
       _categories = categories;
+      _teams = teams;
     }
 
     public Participant CreateParticipant(DataRow row)
@@ -463,6 +466,7 @@ namespace RaceHorologyLib
         Code = GetValueAsString(row, "Code"),
         Year = GetValueAsUint(row, "Year"),
         Class = importClass(GetValueAsString(row, "Class")),
+        Team = importTeam(GetValueAsString(row, "Team")),
       };
 
       return p;
@@ -590,6 +594,20 @@ namespace RaceHorologyLib
       return found;
     }
 
+    Team importTeam(string name)
+    {
+      if (_teams == null || name.IsNullOrEmpty())
+        return null;
+
+      Team found = _teams.FirstOrDefault(t => t.Name.ToLowerInvariant().Contains(name.ToLowerInvariant()));
+      if (found == null)
+      {
+        found = new Team(null, null, name, 999);
+        _teams.Add(found);
+      }
+      return found;
+    }
+
 
   }
 
@@ -607,10 +625,10 @@ namespace RaceHorologyLib
     IList<Participant> _particpants;
     ParticipantImportUtils _partImportUtils;
 
-    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null) 
+    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null, IList<Team> teams = null) 
     {
       _particpants = particpants;
-      _partImportUtils = new ParticipantImportUtils(mapping, categories, classAssignment);
+      _partImportUtils = new ParticipantImportUtils(mapping, categories, classAssignment, teams);
     }
 
 
@@ -677,11 +695,11 @@ namespace RaceHorologyLib
     ParticipantImportUtils _partImportUtils;
     ParticipantImport _participantImport;
 
-    public RaceImport(Race race, Mapping mapping, ClassAssignment classAssignment = null)
+    public RaceImport(Race race, Mapping mapping, ClassAssignment classAssignment = null, IList<Team> teams = null)
     {
       _race = race;
-      _partImportUtils = new ParticipantImportUtils(mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment);
-      _participantImport = new ParticipantImport(_race.GetDataModel().GetParticipants(), mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment);
+      _partImportUtils = new ParticipantImportUtils(mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment, teams);
+      _participantImport = new ParticipantImport(_race.GetDataModel().GetParticipants(), mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment, teams);
     }
 
 

@@ -44,28 +44,27 @@ using System.Threading.Tasks;
 namespace RaceHorologyLib
 {
 
-
-  public class ParticipantGroup : INotifyPropertyChanged, IComparable<ParticipantGroup>, IComparable
+  public class HasSortableName : INotifyPropertyChanged, IComparable<HasSortableName>, IComparable
   {
-    private string _id;
-    private string _name;
-    private uint _sortpos;
+    protected string _id;
+    protected string _name;
+    protected uint _sortpos;
 
-    public ParticipantGroup()
+    public HasSortableName()
     {
       _id = null;
       _name = "";
       _sortpos = uint.MaxValue;
     }
 
-    public ParticipantGroup(string id, string name, uint sortpos)
+    public HasSortableName(string id, string name, uint sortpos)
     {
       _id = id;
       _name = name;
       _sortpos = sortpos;
     }
 
-    public string Id
+    public virtual string Id
     {
       get => _id;
       set
@@ -78,24 +77,24 @@ namespace RaceHorologyLib
       }
     }
 
-    public string Name
+    public virtual string Name
     {
       get => _name;
       set
       {
         if (_name != value)
         {
-          _name = value; 
+          _name = value;
           NotifyPropertyChanged();
         }
       }
     }
 
-    public uint SortPos
+    public virtual uint SortPos
     {
       get => _sortpos;
       set
-      { 
+      {
         if (_sortpos != value)
         {
           _sortpos = value;
@@ -110,7 +109,7 @@ namespace RaceHorologyLib
     }
 
 
-    public int CompareTo(ParticipantGroup other)
+    public virtual int CompareTo(HasSortableName other)
     {
       if (_sortpos == other._sortpos)
         return _name.CompareTo(other._name);
@@ -120,7 +119,7 @@ namespace RaceHorologyLib
 
     int IComparable.CompareTo(object obj)
     {
-      if (obj is ParticipantGroup other)
+      if (obj is HasSortableName other)
         return CompareTo(other);
 
       return -1;
@@ -132,73 +131,53 @@ namespace RaceHorologyLib
     // This method is called by the Set accessor of each property.  
     // The CallerMemberName attribute that is applied to the optional propertyName  
     // parameter causes the property name of the caller to be substituted as an argument.  
-    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+    protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+    protected void triggerPropertyChanged(PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, eargs);
+    }
+
 
     #endregion
-
   }
+
+  public class ParticipantGroup : HasSortableName
+  {
+    public ParticipantGroup() : base() { }
+    public ParticipantGroup(string id, string name, uint sortpos) : base(id, name, sortpos) { }
+  };
+
+  public class TeamGroup : HasSortableName
+  {
+    public TeamGroup() : base() { }
+    public TeamGroup(string id, string name, uint sortpos) : base(id, name, sortpos) { }
+  };
 
   /// <summary>
   /// Represents the participant's class
   /// Defines a relation via IComparable based on its sortkey
   /// </summary>
-  public class ParticipantClass : INotifyPropertyChanged, IComparable<ParticipantClass>, IComparable
+  public class ParticipantClass : HasSortableName
   {
-    private string _id;
     private ParticipantGroup _group;
-    private string _name;
     private ParticipantCategory _sex;
     private uint _year; // ältester mit erfaßter Jahrgang
-    private uint _sortpos;
 
-
-    public ParticipantClass()
+    public ParticipantClass() : base()
     {
-      _id = null;
       _group = null;
-      _name = "";
       _sex = null;
       _year = 0;
-      _sortpos = uint.MaxValue;
     }
 
-    public ParticipantClass(string id, ParticipantGroup parentGroup, string name, ParticipantCategory sex, uint year, uint sortpos)
+    public ParticipantClass(string id, ParticipantGroup parentGroup, string name, ParticipantCategory sex, uint year, uint sortpos) : base(id, name, sortpos)
     {
-      _id = id;
       Group = parentGroup;
-      _name = name;
       _sex = sex;
       _year = year;
-      _sortpos = sortpos;
-    }
-
-    public string Id
-    {
-      get => _id;
-      set
-      {
-        if (_id != value)
-        {
-          _id = value;
-          NotifyPropertyChanged();
-        }
-      }
-    }
-
-    public string Name
-    {
-      get => _name;
-      set
-      {
-        if (_name != value)
-        {
-          _name = value;
-          NotifyPropertyChanged();
-        }
-      }
     }
 
     public ParticipantCategory Sex
@@ -211,19 +190,6 @@ namespace RaceHorologyLib
     {
       get => _year;
       set { _year = value; NotifyPropertyChanged(); }
-    }
-
-    public uint SortPos
-    {
-      get => _sortpos;
-      set
-      {
-        if (_sortpos != value)
-        {
-          _sortpos = value;
-          NotifyPropertyChanged();
-        }
-      }
     }
 
     public ParticipantGroup Group
@@ -249,39 +215,22 @@ namespace RaceHorologyLib
       return _name;
     }
 
-    public int CompareTo(ParticipantClass other)
+    public override int CompareTo(HasSortableName other)
     {
-      if (_sortpos == other._sortpos)
-        return _name.CompareTo(other._name);
+      if (other is ParticipantClass otherPC)
+      {
+        if (_sortpos == otherPC._sortpos)
+          return _name.CompareTo(otherPC._name);
 
-      return _sortpos.CompareTo(other._sortpos);
+        return _sortpos.CompareTo(otherPC._sortpos);
+      }
+      return base.CompareTo(other);
     }
 
-    int IComparable.CompareTo(object obj)
+    protected void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
     {
-      if (obj is ParticipantClass other)
-        return CompareTo(other);
-
-      return -1;
+      triggerPropertyChanged(new PropertyChangedEventArgs("Group"));
     }
-
-
-    #region INotifyPropertyChanged implementation
-
-    public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
-    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    private void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
-    }
-    #endregion
   }
 
 
@@ -439,6 +388,47 @@ namespace RaceHorologyLib
   }
 
 
+
+  public class Team : HasSortableName
+  {
+    protected TeamGroup _group;
+
+    public Team() : base()
+    { }
+
+    public Team(string id, TeamGroup group, string name, uint sortpos) : base(id, name, sortpos)
+    {
+      _group = group;
+    }
+
+    public override string ToString()
+    {
+      return _name;
+    }
+    public TeamGroup Group
+    {
+      get => _group;
+      set
+      {
+        if (_group != value)
+        {
+          if (_group != null)
+            _group.PropertyChanged -= OnGroupChanged;
+
+          _group = value; NotifyPropertyChanged();
+
+          if (_group != null)
+            _group.PropertyChanged += OnGroupChanged;
+        }
+      }
+    }
+    protected void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      triggerPropertyChanged(new PropertyChangedEventArgs("Group"));
+    }
+  }
+
+
   public enum EParticipantColor { NoColor, Red, Blue };
 
   /// <summary>
@@ -457,6 +447,7 @@ namespace RaceHorologyLib
     private string _code;
     private string _svid;
     private ParticipantClass _class;
+    private Team _team;
 
     public string Id
     {
@@ -538,9 +529,9 @@ namespace RaceHorologyLib
     public ParticipantClass Class
     {
       get => _class;
-      set 
-      { 
-        if (_class != value) 
+      set
+      {
+        if (_class != value)
         {
           if (_class != null)
             _class.PropertyChanged -= OnClassChanged;
@@ -560,9 +551,40 @@ namespace RaceHorologyLib
         }
       }
     }
+
+    public Team Team
+    {
+      get => _team;
+      set
+      {
+        if (_team != value)
+        {
+          if (_team != null)
+            _team.PropertyChanged -= OnTeamChanged;
+
+          if (_team?.Group != null)
+            (_team?.Group).PropertyChanged -= OnTeamGroupChanged;
+
+          _team = value;
+          NotifyPropertyChanged();
+          NotifyPropertyChanged("Team");
+
+          if (_team != null)
+            _team.PropertyChanged += OnTeamChanged;
+
+          if (_team?.Group != null)
+            (_team?.Group).PropertyChanged += OnTeamGroupChanged;
+        }
+      }
+    }
+
     public ParticipantGroup Group
     {
       get => _class?.Group;
+    }
+    public TeamGroup TeamGroup
+    {
+      get => _team?.Group;
     }
 
     public override string ToString()
@@ -582,13 +604,14 @@ namespace RaceHorologyLib
       Code = other.Code;
       Nation = other.Nation;
       Class = other.Class;
+      Team = other.Team;
     }
 
 
 
     public bool IsEqualTo(Participant other)
     {
-      return Name == other.Name 
+      return Name == other.Name
        && Firstname == other.Firstname
        && Sex == other.Sex
        && Year == other.Year
@@ -620,6 +643,16 @@ namespace RaceHorologyLib
     private void OnGroupChanged(object source, PropertyChangedEventArgs eargs)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Group"));
+    }
+
+    private void OnTeamChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Team"));
+    }
+
+    private void OnTeamGroupChanged(object source, PropertyChangedEventArgs eargs)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TeamGroup"));
     }
 
     private void OnSexChanged(object source, PropertyChangedEventArgs eargs)
@@ -694,6 +727,7 @@ namespace RaceHorologyLib
 
     public ParticipantClass Class { get => _participant.Class; }
     public ParticipantGroup Group { get => _participant.Group; }
+    public Team Team { get => _participant.Team; }
 
     public uint StartNumber
     {
@@ -775,8 +809,8 @@ namespace RaceHorologyLib
     public ParticipantGroup Group { get => _participant.Group; }
     public ParticipantCategory Sex { get { return _participant.Sex; } }
     public string Nation { get { return _participant.Nation; } }
-    public string SvId{ get { return _participant.SvId; } }
-    public string Code{ get { return _participant.Code; } }
+    public string SvId { get { return _participant.SvId; } }
+    public string Code { get { return _participant.Code; } }
 
     public bool Started
     {
@@ -845,7 +879,7 @@ namespace RaceHorologyLib
       _resultPreviousRun = resultPreviousRun;
     }
 
-    public StartListEntryAdditionalRun(StartListEntry sle, RunResult resultPreviousRun) 
+    public StartListEntryAdditionalRun(StartListEntry sle, RunResult resultPreviousRun)
       : base(sle.Participant)
     {
       _resultPreviousRun = resultPreviousRun;
@@ -884,7 +918,7 @@ namespace RaceHorologyLib
     protected TimeSpan? _finishTime;
     protected EResultCode _resultCode;
     protected string _disqualText;
-    
+
     #endregion
 
 
@@ -1056,8 +1090,8 @@ namespace RaceHorologyLib
 
     public override string ToString()
     {
-      return 
-        _participant.ToString() + 
+      return
+        _participant.ToString() +
         ", T: " + Runtime?.ToString(@"mm\:s\,ff") + "(" + _startTime?.ToString(@"hh\:mm\:s\,ff") + "," + _finishTime?.ToString(@"hh\:mm\:s\,ff") + ")";
     }
 
@@ -1131,20 +1165,22 @@ namespace RaceHorologyLib
     }
   }
 
+  public interface IHasPositions
+  {
+    uint Position { get; set; }
+    TimeSpan? Runtime { get; }
+    RunResult.EResultCode ResultCode { get; }
+    string DisqualText { get; }
+    TimeSpan? DiffToFirst { get; set; }
+    double DiffToFirstPercentage { get; set; }
+  }
 
   /// <summary>
   /// Base Interface for results with position (either for the race or a race run)
   /// </summary>
-  public interface IResultWithPosition
+  public interface IResultWithPosition : IHasPositions
   {
     RaceParticipant Participant { get; }
-
-    uint Position { get; }
-    TimeSpan? DiffToFirst { get; }
-
-    TimeSpan? Runtime { get; }
-    RunResult.EResultCode ResultCode { get; }
-    string DisqualText { get; }
   }
 
 
@@ -1190,9 +1226,9 @@ namespace RaceHorologyLib
     public bool JustModified
     {
       get { return _justModified; }
-      set 
-      { 
-        if (_justModified != value) 
+      set
+      {
+        if (_justModified != value)
         {
           _justModified = value;
           NotifyPropertyChanged();
@@ -1200,8 +1236,9 @@ namespace RaceHorologyLib
           // Reset after 5 sec
           if (_justModified)
           {
-            Task.Delay(5000).ContinueWith(t => {
-              JustModified = false; 
+            Task.Delay(5000).ContinueWith(t =>
+            {
+              JustModified = false;
             }, TaskScheduler.FromCurrentSynchronizationContext());
           }
         }
@@ -1397,11 +1434,16 @@ namespace RaceHorologyLib
         {
           _justModified = value;
           NotifyPropertyChanged();
-          
+
           // Reset after 5 sec
           if (_justModified)
           {
-            Task.Delay(5000).ContinueWith(t => { JustModified = false; });
+            Task.Delay(5000).ContinueWith(t => {
+              System.Windows.Application.Current.Dispatcher.Invoke(() =>
+              {
+                JustModified = false;
+              });
+            });
           }
         }
       }
