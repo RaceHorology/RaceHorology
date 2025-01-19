@@ -604,6 +604,7 @@ namespace RaceHorologyLib
       Code = other.Code;
       Nation = other.Nation;
       Class = other.Class;
+      Team = other.Team;
     }
 
 
