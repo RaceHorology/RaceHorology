@@ -286,9 +286,7 @@ namespace RaceHorologyLib
       if (e.NewItems != null)
       {
         foreach (INotifyPropertyChanged item in e.NewItems)
-          _viewList.Add(CreateStartListEntry((RaceParticipant)item));
-
-        sortViewList();
+          _viewList.InsertSorted(CreateStartListEntry((RaceParticipant)item), _comparer);
       }
     }
 
@@ -1645,7 +1643,10 @@ namespace RaceHorologyLib
         );
 
       if (significantChange && rri.TotalTime == oldTime)
+      {
         Logger.Debug("Significant change although time did not change: {0}", rri.TotalTime);
+        return false;
+      }
 
       return significantChange;
     }
