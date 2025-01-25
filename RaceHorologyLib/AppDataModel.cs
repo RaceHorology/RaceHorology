@@ -66,6 +66,12 @@ namespace RaceHorologyLib
     ObservableCollection<ParticipantClass> _particpantClasses;
     DatabaseDelegatorClasses _particpantClassesDelegatorDB;
 
+    ObservableCollection<Team> _teams;
+    DatabaseDelegatorTeams _teamsDelegatorDB;
+
+    ObservableCollection<TeamGroup> _teamGroups;
+    DatabaseDelegatorTeamGroups _teamGroupsDelegatorDB;
+
     ObservableCollection<ParticipantCategory> _particpantCategories;
     DatabaseDelegatorCategories _particpantCategoriesDelegatorDB;
 
@@ -137,10 +143,17 @@ namespace RaceHorologyLib
       _particpantClasses.CollectionChanged += OnClassCollectionChanged;
       _particpantCategories = new ObservableCollection<ParticipantCategory>(_db.GetParticipantCategories());
       _particpantCategories.CollectionChanged += OnCategoryCollectionChanged;
+      _teams = new ObservableCollection<Team>(_db.GetTeams());
+      _teams.CollectionChanged += OnTeamsCollectionChanged;
+      _teamGroups = new ObservableCollection<TeamGroup>(_db.GetTeamGroups());
+      _teamGroups.CollectionChanged += OnTeamGroupsCollectionChanged;
+
 
       _particpantGroupsDelegatorDB = new DatabaseDelegatorGroups(this, _db);
       _particpantClassesDelegatorDB = new DatabaseDelegatorClasses(this, _db);
       _particpantCategoriesDelegatorDB = new DatabaseDelegatorCategories(this, _db);
+      _teamsDelegatorDB = new DatabaseDelegatorTeams(this, _db);
+      _teamGroupsDelegatorDB = new DatabaseDelegatorTeamGroups(this, _db);
 
 
       //// Particpants ////
@@ -222,6 +235,14 @@ namespace RaceHorologyLib
     public ObservableCollection<ParticipantClass> GetParticipantClasses()
     {
       return _particpantClasses;
+    }
+    public ObservableCollection<Team> GetTeams()
+    {
+      return _teams;
+    }
+    public ObservableCollection<TeamGroup> GetTeamGroups()
+    {
+      return _teamGroups;
     }
 
     #region Race Management
@@ -515,6 +536,42 @@ namespace RaceHorologyLib
       }
     }
 
+    private void OnTeamsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeTeamFromParticipants(Team t)
+      {
+        foreach (var p in _participants)
+          if (p.Team == t)
+            p.Team = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (Team t in e.OldItems)
+            removeTeamFromParticipants(t);
+          break;
+      }
+    }
+    private void OnTeamGroupsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      void removeTeamGroupFromTeams(TeamGroup g)
+      {
+        foreach (var v in _teams)
+          if (v.Group == g)
+            v.Group = null;
+      }
+
+      switch (e.Action)
+      {
+        case NotifyCollectionChangedAction.Remove:
+          foreach (TeamGroup v in e.OldItems)
+            removeTeamGroupFromTeams(v);
+          break;
+      }
+    }
+
+
     #endregion
 
 
@@ -709,6 +766,7 @@ namespace RaceHorologyLib
     private ItemsChangeObservableCollection<RaceParticipant> _participants;
     private List<(RaceRun, DatabaseDelegatorRaceRun)> _runs;
     private RaceResultViewProvider _raceResultsProvider;
+    private TeamRaceResultViewProvider _teamResultsProvider;
 
 
     public ERaceType RaceType { get { return _properties.RaceType; } }
@@ -1200,6 +1258,16 @@ namespace RaceHorologyLib
     public void SetResultViewProvider(RaceResultViewProvider raceVP)
     {
       _raceResultsProvider = raceVP;
+    }
+
+
+    public TeamRaceResultViewProvider GetTeamResultsViewProvider()
+    {
+      return _teamResultsProvider;
+    }
+    public void SetTeamResultsViewProvider(TeamRaceResultViewProvider vp)
+    {
+      _teamResultsProvider = vp;
     }
 
 
@@ -2023,72 +2091,4 @@ namespace RaceHorologyLib
       return true;
     }
   }
-
-
-
-
-  /// <summary>
-  /// Defines the interface to the actual database engine
-  /// </summary>
-  /// <remarks>Assuming the database format changes we can simply create another implementation.</remarks>
-  public interface IAppDataModelDataBase
-  {
-
-    void Close();
-
-    string GetDBPath();
-    string GetDBFileName();
-    string GetDBPathDirectory();
-
-
-    ItemsChangeObservableCollection<Participant> GetParticipants();
-
-    List<ParticipantGroup> GetParticipantGroups();
-    List<ParticipantClass> GetParticipantClasses();
-    List<ParticipantCategory> GetParticipantCategories();
-
-    List<Race.RaceProperties> GetRaces();
-    List<RaceParticipant> GetRaceParticipants(Race race, bool ignoreAktiveFlag = false);
-
-    List<RunResult> GetRaceRun(Race race, uint run);
-
-    AdditionalRaceProperties GetRaceProperties(Race race);
-    void StoreRaceProperties(Race race, AdditionalRaceProperties props);
-
-    string GetTimingDevice(Race race);
-    void StoreTimingDevice(Race race, string timingDevice);
-
-    void CreateOrUpdateParticipant(Participant participant);
-    void RemoveParticipant(Participant participant);
-
-    void CreateOrUpdateClass(ParticipantClass c);
-    void RemoveClass(ParticipantClass c);
-    void CreateOrUpdateGroup(ParticipantGroup g);
-    void RemoveGroup(ParticipantGroup g);
-    void CreateOrUpdateCategory(ParticipantCategory c);
-    void RemoveCategory(ParticipantCategory c);
-
-
-    void CreateOrUpdateRaceParticipant(RaceParticipant participant);
-    void RemoveRaceParticipant(RaceParticipant raceParticipant);
-
-    void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result);
-    void DeleteRunResult(Race race, RaceRun raceRun, RunResult result);
-
-    void UpdateRace(Race race, bool active);
-
-
-
-    void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp);
-    List<Timestamp> GetTimestamps(Race raceRun, uint run);
-    void RemoveTimestamp(RaceRun raceRun, Timestamp timestamp);
-
-
-    PrintCertificateModel GetCertificateModel(Race race);
-
-
-    void StoreKeyValue(string key, string value);
-    string GetKeyValue(string key);
-  };
-
 }

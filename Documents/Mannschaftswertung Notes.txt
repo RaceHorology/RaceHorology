@@ -1,0 +1,20 @@
+
+
+MannschaftsGruppe
+1.     MannschaftName                                    Zeit   Punkte
+   [X] Teammember 1      Klasse/Gruppe       JG  M       Zeit   Punkte
+   [X] Teammember 2      Klasse/Gruppe       JG  W       Zeit   Punkte
+2.     Mannschaftsname   Mannschaftsgruppe               Zeit   Punkte
+   [X] Teammember 1      Klasse/Gruppe       JG  M       Zeit   Punkte
+   [X] Teammember 2      Klasse/Gruppe       JG  W       Zeit   Punkte
+MannschaftsGruppe
+1.     MannschaftName                                    Zeit   Punkte
+   [X] Teammember 1      Klasse/Gruppe       JG  M       Zeit   Punkte
+   [X] Teammember 2      Klasse/Gruppe       JG  W       Zeit   Punkte
+2.     Mannschaftsname   Mannschaftsgruppe               Zeit   Punkte
+   [X] Teammember 1      Klasse/Gruppe       JG  M       Zeit   Punkte
+   [X] Teammember 2      Klasse/Gruppe       JG  W       Zeit   Punkte
+
+
+Gruppierung -> Mannschaftsgruppe
+Darstellung als flache Liste

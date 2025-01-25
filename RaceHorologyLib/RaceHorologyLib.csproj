@@ -75,10 +75,12 @@
     <Compile Include="AppDataModelCalculations.cs" />
     <Compile Include="AppDataModelDB.cs" />
     <Compile Include="AppDataModelViews.cs" />
+    <Compile Include="Teams.cs" />
     <Compile Include="ClassesGroupsCategories.cs" />
     <Compile Include="COMPortViewModel.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="AppDataModelDataTypes.cs" />
+    <Compile Include="DatabaseInterface.cs" />
     <Compile Include="DSVAlpin2HTTPServer.cs" />
     <Compile Include="DSVCalculations.cs" />
     <Compile Include="DSVExport.cs" />
@@ -108,6 +110,7 @@
     <Compile Include="ResultCharts.cs" />
     <Compile Include="StartnumberAssignment.cs" />
     <Compile Include="TagHeuer.cs" />
+    <Compile Include="TeamRaceResultViewProvider.cs" />
     <Compile Include="TimingDeviceAlpenhunde.cs" />
     <Compile Include="UserInterfaceViewModels.cs" />
     <Compile Include="Utilities.cs" />

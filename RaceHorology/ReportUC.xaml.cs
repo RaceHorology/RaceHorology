@@ -91,6 +91,7 @@ namespace RaceHorology
         CreateReport = (r, rr) => { return (r.GetResultViewProvider() is DSVSchoolRaceResultViewProvider) ? new DSVSchoolRaceResultReport(r) : (r.GetResultViewProvider() is FISRaceResultViewProvider) ? new FISRaceResultReport(r) : new RaceResultReport(r); },
         UserControl = () => new StdListPrintUC()
       });
+      items.Add(new ReportItem { Text = "Mannschaftsergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return new TeamRaceResultReport(r); }, UserControl = () => new TeamResultsPrintUC() });
       items.Add(new ReportItem
       {
         Text = "Urkunden",

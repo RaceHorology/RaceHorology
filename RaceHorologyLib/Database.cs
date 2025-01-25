@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -33,6 +33,7 @@
  * 
  */
 
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -58,6 +59,8 @@ namespace RaceHorologyLib
     private Dictionary<uint, ParticipantGroup> _id2ParticipantGroups;
     private Dictionary<uint, ParticipantClass> _id2ParticipantClasses;
     private Dictionary<char, ParticipantCategory> _id2ParticipantCategory;
+    private Dictionary<uint, TeamGroup> _id2TeamGroups;
+    private Dictionary<uint, Team> _id2Teams;
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -118,6 +121,8 @@ namespace RaceHorologyLib
       _id2ParticipantGroups = new Dictionary<uint, ParticipantGroup>();
       _id2ParticipantClasses = new Dictionary<uint, ParticipantClass>();
       _id2ParticipantCategory = new Dictionary<char, ParticipantCategory>();
+      _id2TeamGroups = new Dictionary<uint, TeamGroup>();
+      _id2Teams = new Dictionary<uint, Team>();
     }
 
     public void Close()
@@ -129,6 +134,8 @@ namespace RaceHorologyLib
       _id2ParticipantGroups = null;
       _id2ParticipantClasses = null;
       _id2ParticipantCategory = null;
+      _id2TeamGroups = null;
+      _id2Teams = null;
 
       _conn.Close();
       _conn.Dispose();
@@ -314,6 +321,30 @@ namespace RaceHorologyLib
       return cats;
     }
 
+    public List<TeamGroup> GetTeamGroups()
+    {
+      ReadTeamGroups();
+
+      List<TeamGroup> groups = new List<TeamGroup>();
+      foreach (var p in _id2TeamGroups)
+        groups.Add(p.Value);
+
+      return groups;
+    }
+
+
+    public List<Team> GetTeams()
+    {
+      ReadTeams();
+
+      List<Team> classes = new List<Team>();
+      foreach (var p in _id2Teams)
+        classes.Add(p.Value);
+
+      return classes;
+    }
+
+
 
     public List<Race.RaceProperties> GetRaces()
     {
@@ -484,7 +515,7 @@ namespace RaceHorologyLib
       if (!bNew)
       {
         string sql = @"UPDATE tblTeilnehmer " +
-                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, svid = @svid, code = @code, klasse = @klasse, jahrgang = @jahrgang " +
+                     @"SET nachname = @nachname, vorname = @vorname, sex = @sex, verein = @verein, nation = @nation, svid = @svid, code = @code, klasse = @klasse, mannschaft = @mannschaft, jahrgang = @jahrgang " +
                      @"WHERE id = @id";
         cmd = new OleDbCommand(sql, _conn);
       }
@@ -492,8 +523,8 @@ namespace RaceHorologyLib
       {
         id = GetNewId("tblTeilnehmer"); // Figure out the new ID
 
-        string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, svid, code, klasse, jahrgang, id) " +
-                     @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @svid, @code, @klasse, @jahrgang, @id) ";
+        string sql = @"INSERT INTO tblTeilnehmer (nachname, vorname, sex, verein, nation, svid, code, klasse, mannschaft, jahrgang, id) " +
+                     @"VALUES (@nachname, @vorname, @sex, @verein, @nation, @svid, @code, @klasse, @mannschaft, @jahrgang, @id) ";
         cmd = new OleDbCommand(sql, _conn);
       }
 
@@ -523,7 +554,15 @@ namespace RaceHorologyLib
       else
         cmd.Parameters.Add(new OleDbParameter("@code", participant.Code));
 
-      cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class)));
+      if (participant.Class == null)
+        cmd.Parameters.Add(new OleDbParameter("@klasse", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class)));
+      
+      if (participant.Team == null)
+        cmd.Parameters.Add(new OleDbParameter("@mannschaft", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@mannschaft", GetTeamId(participant.Team)));
       cmd.Parameters.Add(new OleDbParameter("@jahrgang", participant.Year));
       cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
 
@@ -1474,6 +1513,7 @@ namespace RaceHorologyLib
           Code = reader["code"].ToString(),
           Class = GetParticipantClass(GetValueUInt(reader, "klasse")),
           Year = GetValueUInt(reader, "jahrgang"),
+          Team = GetTeam(GetValueUInt(reader, "mannschaft")),
         };
         _id2Participant.Add(id, p);
 
@@ -1901,6 +1941,267 @@ namespace RaceHorologyLib
       {
         Logger.Warn(e, "RemoveCategory failed, SQL: {0}", GetDebugSqlString(cmd));
       }
+    }
+
+
+
+    /* ************************ TeamGroups ********************* */
+    public void ReadTeamGroups()
+    {
+      if (_id2TeamGroups.Count() > 0)
+        return;
+
+      string sql = @"SELECT * FROM tblGrpMannschaft";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          CreateTeamGroupFromDB(reader);
+        }
+      }
+    }
+
+    private TeamGroup CreateTeamGroupFromDB(OleDbDataReader reader)
+    {
+      uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
+
+      if (_id2TeamGroups.ContainsKey(id))
+        return _id2TeamGroups[id];
+      else
+      {
+        TeamGroup p = new TeamGroup(
+          reader["id"].ToString(),
+          reader["grpname"].ToString(),
+          GetValueUInt(reader, "sortpos")
+        );
+        _id2TeamGroups.Add(id, p);
+
+        return p;
+      }
+    }
+
+    private uint GetTeamGroupId(TeamGroup group)
+    {
+      ReadTeamGroups();
+      return _id2TeamGroups.Where(x => x.Value == group).FirstOrDefault().Key;
+    }
+
+    private TeamGroup GetTeamGroup(uint id)
+    {
+      ReadTeamGroups();
+
+      if (_id2TeamGroups.ContainsKey(id))
+        return _id2TeamGroups[id];
+
+      return null;
+    }
+
+    public void CreateOrUpdateTeamGroup(TeamGroup g)
+    {
+      // Test whether the participant exists
+      uint id = GetTeamGroupId(g);
+      bool bNew = (id == 0);
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblGrpMannschaft " +
+                     @"SET grpname = @grpname, sortpos = @sortpos " +
+                     @"WHERE id = @id";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        id = GetNewId("tblGrpMannschaft"); // Figure out the new ID
+
+        string sql = @"INSERT INTO tblGrpMannschaft (grpname, sortpos, id) " +
+                     @"VALUES (@grpname, @sortpos, @id) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+
+      cmd.Parameters.Add(new OleDbParameter("@grpname", g.Name));
+      cmd.Parameters.Add(new OleDbParameter("@sortpos", g.SortPos));
+      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.CommandType = CommandType.Text;
+
+      try
+      {
+        Logger.Debug("CreateOrUpdateTeamGroup(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+
+        if (bNew)
+        {
+          _id2TeamGroups.Add((uint)id, g);
+          g.Id = id.ToString();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateTeamGroup failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void RemoveTeamGroup(TeamGroup g)
+    {
+      uint id = GetTeamGroupId(g);
+
+      if (id == 0)
+        throw new Exception("RemoveTeamGroup: id not found");
+
+      string sql = @"DELETE FROM tblGrpMannschaft " +
+                   @"WHERE id = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveTeamGroup(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveTeamGroup failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+
+    /* ************************ Classes ********************* */
+    public void ReadTeams()
+    {
+      if (_id2Teams.Count() > 0)
+        return;
+
+      string sql = @"SELECT * FROM tblMannschaft";
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      // Execute command  
+      using (OleDbDataReader reader = command.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          CreateTeamFromDB(reader);
+        }
+      }
+    }
+
+    public void CreateOrUpdateTeam(Team t)
+    {
+      // Test whether the participant exists
+      uint id = GetTeamId(t);
+      bool bNew = (id == 0);
+
+      OleDbCommand cmd;
+      if (!bNew)
+      {
+        string sql = @"UPDATE tblMannschaft " +
+                     @"SET mname = @mname, gruppe = @gruppe, sortpos = @sortpos " +
+                     @"WHERE id = @id";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+      else
+      {
+        id = GetNewId("tblMannschaft"); // Figure out the new ID
+
+        string sql = @"INSERT INTO tblMannschaft (mname, gruppe, sortpos, id) " +
+                     @"VALUES (@mname, @gruppe, @sortpos, @id) ";
+        cmd = new OleDbCommand(sql, _conn);
+      }
+
+      uint gid = GetTeamGroupId(t.Group);
+      cmd.Parameters.Add(new OleDbParameter("@mname", t.Name));
+      if (gid == 0)
+        cmd.Parameters.Add(new OleDbParameter("@gruppe", DBNull.Value));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@gruppe", gid));
+      cmd.Parameters.Add(new OleDbParameter("@sortpos", t.SortPos));
+      cmd.Parameters.Add(new OleDbParameter("@id", (ulong)id));
+      cmd.CommandType = CommandType.Text;
+
+      try
+      {
+        Logger.Debug("CreateOrUpdateTeam(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated");
+
+        if (bNew)
+        {
+          _id2Teams.Add((uint)id, t);
+          t.Id = id.ToString();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateTeam failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    public void RemoveTeam(Team t)
+    {
+      uint id = GetTeamId(t);
+
+      if (id == 0)
+        throw new Exception("RemoveTeam: id not found");
+
+      string sql = @"DELETE FROM tblMannschaft " +
+                   @"WHERE id = @id";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      cmd.CommandType = CommandType.Text;
+
+      cmd.Parameters.Add(new OleDbParameter("@id", id));
+      try
+      {
+        Logger.Debug("RemoveTeam(), SQL: {0}", GetDebugSqlString(cmd));
+        int temp = cmd.ExecuteNonQuery();
+        Logger.Debug("... affected rows: {0}", temp);
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "RemoveTeam failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+
+    //
+    private Team CreateTeamFromDB(OleDbDataReader reader)
+    {
+      uint id = (uint)(int)reader.GetValue(reader.GetOrdinal("id"));
+
+      if (_id2Teams.ContainsKey(id))
+        return _id2Teams[id];
+      else
+      {
+        Team p = new Team(
+          reader["id"].ToString(),
+          GetTeamGroup(GetValueUInt(reader, "gruppe")),
+          reader["mname"].ToString(),
+          GetValueUInt(reader, "sortpos")
+        );
+        _id2Teams.Add(id, p);
+
+        return p;
+      }
+    }
+
+    private uint GetTeamId(Team t)
+    {
+      ReadTeams();
+      return _id2Teams.Where(x => x.Value == t).FirstOrDefault().Key;
+    }
+
+    private Team GetTeam(uint id)
+    {
+      ReadTeams();
+      if (_id2Teams.ContainsKey(id))
+        return _id2Teams[id];
+
+      return null;
     }
 
 

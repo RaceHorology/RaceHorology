@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +33,7 @@ namespace RaceHorology
     }
 
 
-    public void Init(RaceConfiguration raceConfig, Race.ERaceType? raceType )
+    public void Init(RaceConfiguration raceConfig, Race.ERaceType? raceType)
     {
       // ApplicationFolder + raceconfigpresets
       _raceConfigurationPresets = new RaceConfigurationPresets(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"raceconfigpresets"));
@@ -93,9 +93,16 @@ namespace RaceHorology
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht)", Value = "Startlist_2nd_PreviousRun_all_OnlyWithResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_all_AlsoWithoutResults" });
 
+      chkTeam.Checked += ChkTeam_CheckChanged;
+      chkTeam.Unchecked += ChkTeam_CheckChanged;
+
       ResetConfigurationSelectionUI(_raceConfiguration);
     }
 
+    private void ChkTeam_CheckChanged(object sender, RoutedEventArgs e)
+    {
+      ucTeam.IsEnabled = chkTeam.IsChecked == true;
+    }
 
     private void CmbTemplate_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -203,6 +210,10 @@ namespace RaceHorology
       chkConfigFieldsCode.IsChecked = cfg.ActiveFields.Contains("Code");
       chkConfigFieldsPoints.IsChecked = cfg.ActiveFields.Contains("Points");
       chkConfigFieldsPercentage.IsChecked = cfg.ActiveFields.Contains("Percentage");
+
+      chkTeam.IsChecked = cfg.TeamRaceResultConfig != null;
+      ucTeam.SetConfig(cfg.TeamRaceResultConfig);
+
     }
 
     private bool StoreConfigurationSelectionUI(ref RaceConfiguration cfg)
@@ -251,6 +262,8 @@ namespace RaceHorology
       try { cfg.ValueZ = double.Parse(txtValueZ.Text); } catch (Exception) { }
       try { cfg.MinimumPenalty = double.Parse(txtMinPenalty.Text); } catch (Exception) { }
       try { cfg.ValueCutOff = double.Parse(txtValueCutOff.Text); } catch (Exception) { }
+
+      cfg.TeamRaceResultConfig = chkTeam.IsChecked == true ? ucTeam.GetConfig() : null;
 
       void enableField(List<string> fieldList, string field, bool? enabled)
       {

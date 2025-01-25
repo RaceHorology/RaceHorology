@@ -248,12 +248,17 @@ namespace RaceHorology
       RaceResultViewProvider vp = _thisRace.GetResultViewProvider();
 
       UiUtilities.FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping);
+      cmbTotalResultGrouping.Items.Add(new CBItem { Text = "Mannschafts-Gruppe", Value = "Team.Group" });
+
 
       cmbTotalResult.Items.Clear();
       cmbTotalResult.Items.Add(new CBItem { Text = "Teilnehmer", Value = new CBObjectTotalResults { Type = "participants" } });
       FillCmbTotalsResultsWithRaceSpecifics(cmbTotalResult);
       cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = new CBObjectTotalResults { Type = "raceresults" } });
       cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
+
+      if (_thisRace.GetTeamResultsViewProvider()!= null)
+        cmbTotalResult.Items.Add(new CBItem { Text = "Mannschaftswertung", Value = new CBObjectTotalResults { Type = "teamresults" } });
     }
 
 
@@ -319,6 +324,8 @@ namespace RaceHorology
           displayView(selObj.RaceRun.GetResultViewProvider());
         else if (selObj.Type == "startlist_run")
           displayView(selObj.RaceRun.GetStartListProvider());
+        else if (selObj.Type == "teamresults")
+          displayView(_thisRace.GetTeamResultsViewProvider());
 
         configureExport(selected);
       }
@@ -342,6 +349,24 @@ namespace RaceHorology
 
       return dgc;
     }
+    DataGridCheckBoxColumn createColumnCheckbox(string columnName, string property, string header)
+    {
+      var dgc = new DataGridCheckBoxColumn
+      {
+        Header = header
+      };
+      Binding b = new Binding(property)
+      {
+        Mode = BindingMode.TwoWay,
+      };
+
+      dgc.Binding = b;
+
+      DataGridUtil.SetName(dgc, columnName);
+
+      return dgc;
+    }
+
 
     DataGridTextColumn createColumnAnmerkung()
     {
@@ -520,20 +545,22 @@ namespace RaceHorology
       if (_viewProvider == null)
         return;
 
-      if (!(_viewProvider is StartListViewProvider))
-        dgView.Columns.Add(createColumnPosition("Pos", "Position", "Position", false));
-
-      dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
-      dgView.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
-      dgView.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
-      dgView.Columns.Add(createColumn("Year", "Participant.Year", "Jg."));
-      dgView.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
-      dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
-      dgView.Columns.Add(createColumn("Nation", "Participant.Nation", "Nat."));
+      void addCommonColumns()
+      {
+        dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
+        dgView.Columns.Add(createColumn("Name", "Participant.Name", "Name"));
+        dgView.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
+        dgView.Columns.Add(createColumn("Year", "Participant.Year", "Jg."));
+        dgView.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
+        dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
+        dgView.Columns.Add(createColumn("Nation", "Participant.Nation", "Nat."));
+      }
 
       // Race Run Results
       if (_viewProvider is RaceRunResultViewProvider rrrVP)
       {
+        dgView.Columns.Add(createColumnPosition("Pos", "Position", "Position", false));
+        addCommonColumns();
         dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
         dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
         dgView.Columns.Add(createColumnDiffInPercentage("[%]", "DiffToFirstPercentage"));
@@ -541,10 +568,11 @@ namespace RaceHorology
 
         setWarningLabelHandler(new RaceRunCompletedWarningLabelHandler(rrrVP.RaceRun, lblWarning));
       }
-
       // Total Results
       else if (_viewProvider is RaceResultViewProvider)
       {
+        dgView.Columns.Add(createColumnPosition("Pos", "Position", "Position", false));
+        addCommonColumns();
         foreach (var r in _thisRace.GetRuns())
         {
           dgView.Columns.Add(createColumnTime(string.Format("Zeit {0}", r.Run), string.Format("SubResults[{0}].Runtime", r.Run), string.Format("SubResults[{0}].RunResultCode ", r.Run)));
@@ -560,9 +588,33 @@ namespace RaceHorology
 
         setWarningLabelHandler(new RaceCompletedWarningLabelHandler(_thisRace, lblWarning));
       }
+      // Team Results
+      else if (_viewProvider is TeamRaceResultViewProvider)
+      {
+        dgView.Columns.Add(createColumn("StartNumber", "Participant.StartNumber", "StNr"));
+        dgView.Columns.Add(createColumn("Name", "Name", "Name"));
+        dgView.Columns.Add(createColumn("Firstname", "Participant.Firstname", "Vorname"));
+        dgView.Columns.Add(createColumn("Year", "Participant.Year", "Jg."));
+        dgView.Columns.Add(createColumn("Class", "Participant.Class", "Klasse"));
+        dgView.Columns.Add(createColumn("Club", "Participant.Club", "Verein"));
+        dgView.Columns.Add(createColumn("Nation", "Participant.Nation", "Nat."));
+
+        dgView.Columns.Add(createColumnCheckbox("Consider", "Consider", "In Wertung"));
+        dgView.Columns.Add(createColumn("Team", "Team", "Team"));
+        dgView.Columns.Add(createColumn("TeamGroup", "Team.Group", "Team"));
+
+        dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
+        dgView.Columns.Add(createColumnDiff("Diff", "DiffToFirst"));
+        dgView.Columns.Add(createColumn("Points", "Points", "Punkte"));
+
+        dgView.Columns.Add(createColumnAnmerkung());
+
+        setWarningLabelHandler(new RaceCompletedWarningLabelHandler(_thisRace, lblWarning));
+      }
       // Start List
       else if (_viewProvider is StartListViewProvider)
       {
+        addCommonColumns();
         if (_viewProvider is BasedOnResultsFirstRunStartListViewProvider slVP2)
         {
           dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
