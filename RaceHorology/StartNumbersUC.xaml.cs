@@ -205,7 +205,7 @@ namespace RaceHorology
       // Refill the cmbNextGroup according to grouping
       cmbNextGroup.Items.Clear();
       var groups = _rpSelector.Group2Participant.Keys.ToList();
-      groups.Sort();
+      groups.Sort(HasSortableName.ComparisonWithStringFallback);
       foreach (var g in groups)
       {
         cmbNextGroup.Items.Add(new CBItem { Text = g.ToString(), Value = g });

@@ -125,6 +125,13 @@ namespace RaceHorologyLib
       return -1;
     }
 
+    public static Comparison<object> ComparisonWithStringFallback = (a, b) =>
+    {
+      if (a is HasSortableName aa && b is HasSortableName bb)
+        return aa.CompareTo(bb);
+      return a.ToString().CompareTo(b.ToString());
+    };
+
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
