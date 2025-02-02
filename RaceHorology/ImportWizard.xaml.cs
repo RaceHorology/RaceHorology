@@ -1,18 +1,9 @@
 ﻿using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace RaceHorology
 {
@@ -32,7 +23,7 @@ namespace RaceHorology
       _dm = dm;
 
       InitializeComponent();
-      
+
     }
 
     private void ImportWizard_Loaded(object sender, EventArgs e)
@@ -44,7 +35,7 @@ namespace RaceHorology
     protected bool selectImportFile()
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
-      openFileDialog.Filter = 
+      openFileDialog.Filter =
         "Import Files (*.csv;*.tsv;*.txt;*xls;*.xlsx;*.zip)|*.csv;*.tsv;*.txt;*xls;*.xlsx;*.zip" + "|" +
         "Alle Dateien|*.*";
       if (openFileDialog.ShowDialog() == true)
@@ -55,7 +46,7 @@ namespace RaceHorology
           _importReader = new ImportZipReader(path);
         else
           _importReader = new ImportReader(path);
-        
+
         _importMapping = new RaceMapping(_importReader.Columns);
         mappingUC.Mapping = _importMapping;
 
@@ -114,34 +105,40 @@ namespace RaceHorology
     {
       string messageTextDetails = "";
 
+      var onlyUpdateExisting = chkOnlyUpdateExisting.IsChecked == true;
+
       if (lbRaces.SelectedItems.Count > 0)
-      { 
+      {
         foreach (var r in lbRaces.SelectedItems)
         {
           Race race = r as Race;
           if (race != null)
           {
             RaceImport imp = new RaceImport(race, _importMapping, new ClassAssignment(_dm.GetParticipantClasses()), _dm.GetTeams());
+            imp.OnlyUpdateExisting = onlyUpdateExisting;
             ImportResults results = imp.DoImport(_importReader.Data);
 
             messageTextDetails += string.Format(
               "Zusammenfassung für das Rennen {0}:\n" +
               "- Erfolgreich importierte Teilnehmer: {1}\n" +
-              "- Nicht importierte Teilnehmer: {2}\n\n",
-              race.ToString(), results.SuccessCount, results.ErrorCount);
+              "- Übersprungene Teilnehmer: {2}\n",
+              "- Fehlerhafte Teilnehmer (nicht importiert): {3}\n\n",
+              race.ToString(), results.SuccessCount, results.SkipCount, results.ErrorCount);
           }
         }
       }
       else
       {
         ParticipantImport imp = new ParticipantImport(_dm.GetParticipants(), _importMapping, _dm.GetParticipantCategories(), new ClassAssignment(_dm.GetParticipantClasses()), _dm.GetTeams());
+        imp.OnlyUpdateExisting = onlyUpdateExisting;
         ImportResults results = imp.DoImport(_importReader.Data);
 
         messageTextDetails += string.Format(
           "Zusammenfassung für den allgemeinen Teilnehmerimport:\n" +
           "- Erfolgreich importierte Teilnehmer: {0}\n" +
-          "- Nicht importierte Teilnehmer: {1}\n\n",
-          results.SuccessCount, results.ErrorCount);
+          "- Übersprungene Teilnehmer: {1}\n",
+          "- Fehlerhafte Teilnehmer (nicht importiert): {2}\n\n",
+          results.SuccessCount, results.SkipCount, results.ErrorCount);
       }
       MessageBox.Show("Der Importvorgang wurde abgeschlossen: \n\n" + messageTextDetails, "Importvorgang", MessageBoxButton.OK, MessageBoxImage.Information);
 

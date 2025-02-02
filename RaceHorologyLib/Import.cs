@@ -41,8 +41,6 @@ using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -51,7 +49,7 @@ namespace RaceHorologyLib
   {
 
     DataSet Data { get; }
-    
+
     List<string> Columns { get; }
   }
 
@@ -283,7 +281,7 @@ namespace RaceHorologyLib
     };
 
     public ParticipantMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
-    { 
+    {
     }
 
     protected override List<string> synonyms(string field)
@@ -333,10 +331,12 @@ namespace RaceHorologyLib
   public class ImportResults
   {
     int _success = 0;
+    int _skip = 0;
     int _error = 0;
     List<string> _errors;
 
     public int SuccessCount { get { return _success; } }
+    public int SkipCount { get { return _skip; } }
     public int ErrorCount { get { return _error; } }
     public List<string> Errors { get { return _errors; } }
 
@@ -349,6 +349,10 @@ namespace RaceHorologyLib
     public void AddSuccess()
     {
       _success++;
+    }
+    public void AddSkip()
+    {
+      _skip++;
     }
 
     public void AddError()
@@ -379,6 +383,11 @@ namespace RaceHorologyLib
     {
       _mapping = mapping;
       _classAssignment = classAssignment;
+    }
+
+    public bool IsColumnAssigned(string field)
+    {
+      return _mapping.MappedField(field) != null;
     }
 
     public object GetValueAsObject(DataRow row, string field)
@@ -424,7 +433,7 @@ namespace RaceHorologyLib
       {
         return Convert.ToUInt32(v);
       }
-      catch(Exception)
+      catch (Exception)
       {
         return @default;
       }
@@ -516,7 +525,7 @@ namespace RaceHorologyLib
       if (!string.IsNullOrEmpty(p1.Code) && !string.IsNullOrEmpty(p2.Code))
         return p1.Code == p2.Code;
 
-      return p1.Fullname == p2.Fullname;
+      return p1.Fullname == p2.Fullname && p1.Year == p2.Year;
     }
 
 
@@ -625,25 +634,29 @@ namespace RaceHorologyLib
     IList<Participant> _particpants;
     ParticipantImportUtils _partImportUtils;
 
-    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null, IList<Team> teams = null) 
+
+    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null, IList<Team> teams = null)
     {
       _particpants = particpants;
       _partImportUtils = new ParticipantImportUtils(mapping, categories, classAssignment, teams);
     }
 
+    public bool OnlyUpdateExisting { get; set; } = false;
 
-    public  ImportResults DoImport(DataSet ds)
+
+    public ImportResults DoImport(DataSet ds)
     {
       ImportResults impRes = new ImportResults();
 
       var rows = ds.Tables[0].Rows;
 
-      foreach(DataRow row in rows)
+      foreach (DataRow row in rows)
       {
         try
         {
-          ImportRow(row);
-          impRes.AddSuccess();
+          var participant = ImportRow(row);
+          if (participant != null) impRes.AddSuccess();
+          else impRes.AddSkip();
         }
         catch (Exception)
         {
@@ -655,21 +668,24 @@ namespace RaceHorologyLib
     }
 
 
-    public Participant ImportRow(DataRow row) 
+    public Participant ImportRow(DataRow row)
     {
       Participant partImported = null;
 
-      Participant partCreated = _partImportUtils.CreateParticipant(row);
+      Participant partCreated = _partImportUtils.CreateParticipant(row); // Only import assigned field
 
       Participant partExisting = findExistingParticpant(partCreated);
 
       if (partExisting != null)
-        partImported = _partImportUtils.UpdateParticipant(partExisting, partCreated);
-      else
+        partImported = _partImportUtils.UpdateParticipant(partExisting, partCreated); // Only update assigned fields
+      else if (!OnlyUpdateExisting)
         partImported = insertParticpant(partCreated);
 
-      if (partImported.Class == null)
-        _partImportUtils.AssignClass(partImported);
+      if (partImported != null)
+      {
+        if (partImported.Class == null)
+          _partImportUtils.AssignClass(partImported);
+      }
 
       return partImported;
     }
@@ -700,6 +716,14 @@ namespace RaceHorologyLib
       _race = race;
       _partImportUtils = new ParticipantImportUtils(mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment, teams);
       _participantImport = new ParticipantImport(_race.GetDataModel().GetParticipants(), mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment, teams);
+      _participantImport.OnlyUpdateExisting = this.OnlyUpdateExisting = false;
+    }
+
+    bool _onlyUpdateExisting;
+    public bool OnlyUpdateExisting
+    {
+      get { return _onlyUpdateExisting; }
+      set { if (_onlyUpdateExisting != value) { _onlyUpdateExisting = value; _participantImport.OnlyUpdateExisting = value; } }
     }
 
 
@@ -713,7 +737,8 @@ namespace RaceHorologyLib
         try
         {
           RaceParticipant rp = ImportRow(row);
-          impRes.AddSuccess();
+          if (rp != null) impRes.AddSuccess();
+          else impRes.AddSkip();
         }
         catch (Exception)
         {
@@ -728,13 +753,15 @@ namespace RaceHorologyLib
     public RaceParticipant ImportRow(DataRow row)
     {
       Participant importedParticipant = _participantImport.ImportRow(row);
+      if (importedParticipant != null)
+      {
+        double points = _partImportUtils.GetPoints(row);
+        uint sn = _partImportUtils.GetStartNumber(row);
 
-      double points = _partImportUtils.GetPoints(row);
-      uint sn = _partImportUtils.GetStartNumber(row);
-
-      RaceParticipant rp = _race.AddParticipant(importedParticipant, sn, points);
-
-      return rp;
+        RaceParticipant rp = _race.AddParticipant(importedParticipant, sn, points);
+        return rp;
+      }
+      return null;
     }
   }
 
@@ -763,7 +790,7 @@ namespace RaceHorologyLib
       ImportResults impRes = new ImportResults();
 
       // Update the points for all participants in the race
-      foreach(var rp in _race.GetParticipants() )
+      foreach (var rp in _race.GetParticipants())
       {
         string key = string.Format("{0}_{1}", rp.Code, rp.SvId);
 
