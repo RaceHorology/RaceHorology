@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -544,14 +544,14 @@ namespace RaceHorologyLib
       bool bRes = false;
       try
       {
-        bRes = p1.Name == getNameComaSeparated(GetValueAsString(row, "Name"))
-          && p1.Firstname == getFirstNameComaSeparated(GetValueAsString(row, "Firstname"))
-          && p1.Sex == importSex(GetValueAsString(row, "Sex"))
-          && p1.Club == GetValueAsString(row, "Club")
-          && p1.Nation == GetValueAsString(row, "Nation")
-          && p1.SvId == GetValueAsString(row, "SvId")
-          && p1.Code == GetValueAsString(row, "Code")
-          && p1.Year == GetValueAsUint(row, "Year");
+        bRes = (!IsColumnAssigned("Name") || p1.Name == getNameComaSeparated(GetValueAsString(row, "Name")))
+          && (!IsColumnAssigned("Firstname") || p1.Firstname == getFirstNameComaSeparated(GetValueAsString(row, "Firstname")))
+          && (!IsColumnAssigned("Sex") || p1.Sex == importSex(GetValueAsString(row, "Sex")))
+          && (!IsColumnAssigned("Club") || p1.Club == GetValueAsString(row, "Club"))
+          && (!IsColumnAssigned("Nation") || p1.Nation == GetValueAsString(row, "Nation"))
+          && (!IsColumnAssigned("SvId") || p1.SvId == GetValueAsString(row, "SvId"))
+          && (!IsColumnAssigned("Code") || p1.Code == GetValueAsString(row, "Code"))
+          && (!IsColumnAssigned("Year") || p1.Year == GetValueAsUint(row, "Year"));
       }
       catch (Exception)
       { }
