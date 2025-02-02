@@ -387,7 +387,8 @@ namespace RaceHorologyLib
 
     public bool IsColumnAssigned(string field)
     {
-      return _mapping.MappedField(field) != null;
+      var columnName = _mapping.MappedField(field);
+      return !(columnName == null || columnName == "---" || columnName == "");
     }
 
     public object GetValueAsObject(DataRow row, string field)
@@ -464,20 +465,27 @@ namespace RaceHorologyLib
 
     public Participant CreateParticipant(DataRow row)
     {
-      Participant p = new Participant
-      {
-        Name = getNameComaSeparated(GetValueAsString(row, "Name")),
-        Firstname = getFirstNameComaSeparated(GetValueAsString(row, "Firstname")),
-        Sex = importSex(GetValueAsString(row, "Sex")),
-        Club = GetValueAsString(row, "Club"),
-        Nation = GetValueAsString(row, "Nation"),
-        SvId = GetValueAsString(row, "SvId"),
-        Code = GetValueAsString(row, "Code"),
-        Year = GetValueAsUint(row, "Year"),
-        Class = importClass(GetValueAsString(row, "Class")),
-        Team = importTeam(GetValueAsString(row, "Team")),
-      };
-
+      Participant p = new Participant();
+      if (IsColumnAssigned("Name"))
+        p.Name = getNameComaSeparated(GetValueAsString(row, "Name"));
+      if (IsColumnAssigned("Firstname"))
+        p.Firstname = getFirstNameComaSeparated(GetValueAsString(row, "Firstname"));
+      if (IsColumnAssigned("Sex"))
+        p.Sex = importSex(GetValueAsString(row, "Sex"));
+      if (IsColumnAssigned("Club"))
+        p.Club = GetValueAsString(row, "Club");
+      if (IsColumnAssigned("Nation"))
+        p.Nation = GetValueAsString(row, "Nation");
+      if (IsColumnAssigned("SvId"))
+        p.SvId = GetValueAsString(row, "SvId");
+      if (IsColumnAssigned("Code"))
+        p.Code = GetValueAsString(row, "Code");
+      if (IsColumnAssigned("Year"))
+        p.Year = GetValueAsUint(row, "Year");
+      if (IsColumnAssigned("Class"))
+        p.Class = importClass(GetValueAsString(row, "Class"));
+      if (IsColumnAssigned("Team"))
+        p.Team = importTeam(GetValueAsString(row, "Team"));
       return p;
     }
 
@@ -525,7 +533,9 @@ namespace RaceHorologyLib
       if (!string.IsNullOrEmpty(p1.Code) && !string.IsNullOrEmpty(p2.Code))
         return p1.Code == p2.Code;
 
-      return p1.Fullname == p2.Fullname && p1.Year == p2.Year;
+      return p1.Fullname == p2.Fullname
+        && (!IsColumnAssigned("Year") || p1.Year == p2.Year)
+        && (!IsColumnAssigned("Sex") || p1.Sex == p2.Sex);
     }
 
 
@@ -558,7 +568,26 @@ namespace RaceHorologyLib
 
     public Participant UpdateParticipant(Participant partExisting, Participant partImp)
     {
-      partExisting.Assign(partImp);
+      if (IsColumnAssigned("Name"))
+        partExisting.Name = partImp.Name;
+      if (IsColumnAssigned("Firstname"))
+        partExisting.Firstname = partImp.Firstname;
+      if (IsColumnAssigned("Sex"))
+        partExisting.Sex = partImp.Sex;
+      if (IsColumnAssigned("Year"))
+        partExisting.Year = partImp.Year;
+      if (IsColumnAssigned("Club"))
+        partExisting.Club = partImp.Club;
+      if (IsColumnAssigned("SvId"))
+        partExisting.SvId = partImp.SvId;
+      if (IsColumnAssigned("Code"))
+        partExisting.Code = partImp.Code;
+      if (IsColumnAssigned("Nation"))
+        partExisting.Nation = partImp.Nation;
+      if (IsColumnAssigned("Class"))
+        partExisting.Class = partImp.Class;
+      if (IsColumnAssigned("Team"))
+        partExisting.Team = partImp.Team;
       return partExisting;
     }
 
@@ -619,13 +648,6 @@ namespace RaceHorologyLib
 
 
   }
-
-
-
-
-
-
-
 
 
 

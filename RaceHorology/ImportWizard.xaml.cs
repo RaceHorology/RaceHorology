@@ -121,7 +121,7 @@ namespace RaceHorology
             messageTextDetails += string.Format(
               "Zusammenfassung für das Rennen {0}:\n" +
               "- Erfolgreich importierte Teilnehmer: {1}\n" +
-              "- Übersprungene Teilnehmer: {2}\n",
+              "- Übersprungene Teilnehmer: {2}\n" +
               "- Fehlerhafte Teilnehmer (nicht importiert): {3}\n\n",
               race.ToString(), results.SuccessCount, results.SkipCount, results.ErrorCount);
           }
@@ -136,7 +136,7 @@ namespace RaceHorology
         messageTextDetails += string.Format(
           "Zusammenfassung für den allgemeinen Teilnehmerimport:\n" +
           "- Erfolgreich importierte Teilnehmer: {0}\n" +
-          "- Übersprungene Teilnehmer: {1}\n",
+          "- Übersprungene Teilnehmer: {1}\n" +
           "- Fehlerhafte Teilnehmer (nicht importiert): {2}\n\n",
           results.SuccessCount, results.SkipCount, results.ErrorCount);
       }
