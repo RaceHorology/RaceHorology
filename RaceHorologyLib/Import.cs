@@ -560,12 +560,6 @@ namespace RaceHorologyLib
     }
 
 
-    public bool EqualsParticipant(Participant p1, Participant p2)
-    {
-      return p1.IsEqualTo(p2);
-    }
-
-
     public Participant UpdateParticipant(Participant partExisting, Participant partImp)
     {
       if (IsColumnAssigned("Name"))
