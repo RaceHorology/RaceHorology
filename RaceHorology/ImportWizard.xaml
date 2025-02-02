@@ -38,13 +38,16 @@
         <RowDefinition Height="*"/>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
       <Label Content="Feld-Zuordnung:" Grid.Row="0" Grid.Column="0" FontSize="16"/>
       <local:MappingUC x:Name="mappingUC" Grid.Row="1" Grid.Column="0" />
 
-      <Label Content="Rennen:" Grid.Row="2" FontSize="16"/>
-      <ListBox x:Name="lbRaces" Grid.Row="3" />
+      <CheckBox x:Name="chkOnlyUpdateExisting" Content="Bestehende Teilnehmer nur aktualisieren"  Margin="0,5" Grid.Row="2" />
+
+      <Label Content="Rennen:" Grid.Row="3" FontSize="16"/>
+      <ListBox x:Name="lbRaces" Grid.Row="4" />
     </Grid>
 
     

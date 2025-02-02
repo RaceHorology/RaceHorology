@@ -40,7 +40,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Data;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -62,7 +61,7 @@ namespace RaceHorologyLib
 
     ObservableCollection<ParticipantGroup> _particpantGroups;
     DatabaseDelegatorGroups _particpantGroupsDelegatorDB;
-    
+
     ObservableCollection<ParticipantClass> _particpantClasses;
     DatabaseDelegatorClasses _particpantClassesDelegatorDB;
 
@@ -89,7 +88,7 @@ namespace RaceHorologyLib
 
     private Dictionary<Participant, DateTime> _interactiveTimeMeasurements; // Contains the time measurements made interactively
 
-    public class CurrentRaceEventArgs :  EventArgs
+    public class CurrentRaceEventArgs : EventArgs
     {
       public Race CurrentRace { get; set; }
       public RaceRun CurrentRaceRun { get; set; }
@@ -355,16 +354,16 @@ namespace RaceHorologyLib
 
     public RaceConfiguration GlobalRaceConfig
     {
-      get 
-      { 
-        return _globalRaceConfig; 
+      get
+      {
+        return _globalRaceConfig;
       }
-      
-      set 
-      { 
-        _globalRaceConfig = value.Copy(); 
-        storeRaceConfig(); 
-        NotifyPropertyChanged(); 
+
+      set
+      {
+        _globalRaceConfig = value.Copy();
+        storeRaceConfig();
+        NotifyPropertyChanged();
       }
     }
 
@@ -420,11 +419,11 @@ namespace RaceHorologyLib
           dsvAlpinDB.UpdateCompetitionProperties(compProps);
 
           // Enusre that the bewerbsnummer is set correctly
-          if ( compProps.Type == CompetitionProperties.ECompetitionType.DSV_Points 
+          if (compProps.Type == CompetitionProperties.ECompetitionType.DSV_Points
             || compProps.Type == CompetitionProperties.ECompetitionType.DSV_NoPoints
             || compProps.Type == CompetitionProperties.ECompetitionType.DSV_SchoolPoints
-            || compProps.Type == CompetitionProperties.ECompetitionType.DSV_SchoolNoPoints )
-          dsvAlpinDB.EnsureDSVAlpinBewerbsnummer( _races );
+            || compProps.Type == CompetitionProperties.ECompetitionType.DSV_SchoolNoPoints)
+            dsvAlpinDB.EnsureDSVAlpinBewerbsnummer(_races);
         }
       }
     }
@@ -476,7 +475,7 @@ namespace RaceHorologyLib
     {
       void removeGroupFromClasses(ParticipantGroup g)
       {
-        foreach(var c in _particpantClasses)
+        foreach (var c in _particpantClasses)
           if (c.Group == g)
             c.Group = null;
       }
@@ -808,8 +807,9 @@ namespace RaceHorologyLib
     }
 
     string _timingDevice;
-    public string TimingDevice {
-      get { return _timingDevice; } 
+    public string TimingDevice
+    {
+      get { return _timingDevice; }
       protected set
       {
         if (_timingDevice != value)
@@ -822,12 +822,12 @@ namespace RaceHorologyLib
 
     public RaceConfiguration RaceConfiguration
     {
-      get 
-      { 
+      get
+      {
         return _raceConfiguration;
       }
-      
-      set 
+
+      set
       {
         if (value != null)
         {
@@ -905,7 +905,7 @@ namespace RaceHorologyLib
       _raceParticipantDBDelegator = new DatabaseDelegatorRaceParticipant(this, _db);
       // Store and Race related things
       _raceDBDelegator = new DatabaseDelegatorRace(this, db);
-      
+
       ViewConfigurator viewConfigurator = new ViewConfigurator(this);
       viewConfigurator.ConfigureRace(this);
     }
@@ -1124,7 +1124,7 @@ namespace RaceHorologyLib
     {
       if (0 <= run && run < GetMaxRun())
         return _runs.ElementAt(run).Item1;
-      
+
       throw new Exception("invalid race run in GetRun()");
     }
 
@@ -1151,7 +1151,7 @@ namespace RaceHorologyLib
       // First run does not have a previous run
       if (i == 0)
         return null;
-      
+
       --i;
       return _runs[i].Item1;
     }
@@ -1191,7 +1191,7 @@ namespace RaceHorologyLib
     /// </summary>
     /// <param name="participant">The particpant to add</param>
     /// <returns>The the corresponding RaceParticipant object</returns>
-    public RaceParticipant AddParticipant(Participant participant, uint startnumber= 0, double points = -1)
+    public RaceParticipant AddParticipant(Participant participant, uint startnumber = 0, double points = -1)
     {
       if (points == -1)
       {
@@ -1221,6 +1221,11 @@ namespace RaceHorologyLib
           var rr = _db.GetRaceRun(this, run.Run).FindAll(r => r.Participant.Participant == participant);
           run.InsertResults(rr);
         }
+      }
+      else
+      {
+        raceParticipant.Points = points;
+        raceParticipant.StartNumber = startnumber;
       }
 
       return raceParticipant;
@@ -1362,7 +1367,7 @@ namespace RaceHorologyLib
     public static bool IsConsistent(Race race)
     {
       HashSet<uint> startnumbers = new HashSet<uint>();
-      foreach(var rp in race.GetParticipants())
+      foreach (var rp in race.GetParticipants())
       {
         var stnr = rp.StartNumber;
         if (stnr == 0 || !startnumbers.Add(stnr))
@@ -1390,18 +1395,18 @@ namespace RaceHorologyLib
 
     public RunResult OriginalResult { get { return _original; } }
 
-    public EParticipantColor? MarkedForMeasurement 
-    { 
+    public EParticipantColor? MarkedForMeasurement
+    {
       get => _markedForMeasurement;
-      
-      set 
-      { 
+
+      set
+      {
         if (value != _markedForMeasurement)
         {
           _markedForMeasurement = value;
           NotifyPropertyChanged();
         }
-      } 
+      }
     }
 
     /// <summary>
@@ -1518,7 +1523,7 @@ namespace RaceHorologyLib
     /// <summary>
     /// True in case all participants have a valid time or a status other than NotSet or Normal
     /// </summary>
-    public bool IsComplete 
+    public bool IsComplete
     {
       get { return _isComplete; }
       private set { if (_isComplete != value) { _isComplete = value; NotifyPropertyChanged(); } }
@@ -1740,7 +1745,7 @@ namespace RaceHorologyLib
     }
     public EParticipantColor? IsMarkedForStartMeasurement(RaceParticipant participant)
     {
-      foreach(var entry in _markedParticipantForStartMeasurement)
+      foreach (var entry in _markedParticipantForStartMeasurement)
       {
         if (entry.Value == participant)
           return entry.Key;
@@ -1847,7 +1852,7 @@ namespace RaceHorologyLib
 
     public void InsertTimestamps(List<Timestamp> timestamps)
     {
-      foreach(var item in timestamps)
+      foreach (var item in timestamps)
         _timestamps.Add(item);
     }
 
@@ -1911,7 +1916,7 @@ namespace RaceHorologyLib
         return false;
 
       if (_results.FirstOrDefault(
-        r => (r.ResultCode == RunResult.EResultCode.Normal && r.Runtime != null) 
+        r => (r.ResultCode == RunResult.EResultCode.Normal && r.Runtime != null)
           || (r.ResultCode != RunResult.EResultCode.NotSet && r.ResultCode != RunResult.EResultCode.Normal)) != null)
         return true;
 
@@ -2017,11 +2022,11 @@ namespace RaceHorologyLib
         return;
 
       int idxFinishDst = 0;
-      for(int idxStart = startList.Count-1; idxStart>0; idxStart--)
+      for (int idxStart = startList.Count - 1; idxStart > 0; idxStart--)
       {
         var entryStartList = startList[idxStart];
 
-        int idxFinishSrc = idxFinishDst; 
+        int idxFinishSrc = idxFinishDst;
         while (idxFinishSrc < _inFinish.Count)
         {
           if (_inFinish[idxFinishSrc].Participant == entryStartList.Participant)
