@@ -35,9 +35,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
@@ -60,7 +57,7 @@ namespace RaceHorologyLib
 
       public override string ToString()
       {
-        return string.Format("Zeit: {0}, ListPoints: {1}, Best5Points {2}({4}), RacePoints: {3}", 
+        return string.Format("Zeit: {0}, ListPoints: {1}, Best5Points {2}({4}), RacePoints: {3}",
           RRI.TotalTime, RRI.Participant.Points, DSVPoints, RacePoints, TopFive);
       }
     }
@@ -68,7 +65,7 @@ namespace RaceHorologyLib
     private Race _race;
     private RaceResultViewProvider _vpSource;
     private char _sex;
-    
+
     private double _valueF;
     private double _valueA;
     private double _valueZ;
@@ -95,7 +92,7 @@ namespace RaceHorologyLib
     public double CalculatedPenalty { get { return _penaltyRounded; } }
     public double CalculatedPenaltyWithAdded { get { return _penaltyWithAdder; } }
     public double AppliedPenalty { get { return _appliedPenalty; } }
-    public double MinPenalty {  get { return _minPenalty; } }
+    public double MinPenalty { get { return _minPenalty; } }
 
     public bool CalculationValid { get { return _calculationValid; } }
 
@@ -107,7 +104,7 @@ namespace RaceHorologyLib
     public double PenaltyC { get { return _penaltyC; } }
 
     public List<TopTenResult> TopTen { get { return _topTen; } }
-    public List<RaceResultItem> TopFiveDSV {  get { return _topFiveDSV; } }
+    public List<RaceResultItem> TopFiveDSV { get { return _topFiveDSV; } }
 
 
     public DSVRaceCalculation(Race race, RaceResultViewProvider vpSource, char sex)
@@ -179,7 +176,7 @@ namespace RaceHorologyLib
       List<RaceResultItem> items = new List<RaceResultItem>();
 
       // Copy from Results
-      foreach ( var item in results)
+      foreach (var item in results)
       {
         if (item is RaceResultItem rri)
           if (sexMatched(rri) && hasResult(rri))
@@ -193,18 +190,18 @@ namespace RaceHorologyLib
 
       int i = 0;
       TimeSpan? lastTime10th = null;
-      while(i < 10 && i < items.Count)
+      while (i < 10 && i < items.Count)
       {
         // Store the best time
-        if (i==0)
+        if (i == 0)
           _bestTime = items[i].TotalTime;
 
         _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
-        
+
         // Remember time of 10th
         if (_topTen.Count == 10)
           lastTime10th = items[i].TotalTime;
-        
+
         i++;
       }
 
@@ -213,20 +210,20 @@ namespace RaceHorologyLib
       while (i < items.Count)
       {
         if (lastTime10th != null && lastTime10th == items[i].TotalTime)
-        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
+          _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
         i++;
       }
     }
 
     void markBestFive()
     {
-      for(int i=0; i<5; i++)
+      for (int i = 0; i < 5; i++)
       {
         int nextBest = int.MaxValue;
         double nextBestValue = double.MaxValue;
 
         // Iterate from back i.e., pick the worsest in case of same points (FIS Points Rules §4.4.4, §4.4.6) 
-        for ( int j = _topTen.Count-1;  j>=0; j--)
+        for (int j = _topTen.Count - 1; j >= 0; j--)
         {
           var item = _topTen[j];
 
@@ -270,7 +267,7 @@ namespace RaceHorologyLib
     {
       double valueB = .0;
 
-      foreach(var rri in _topFiveDSV)
+      foreach (var rri in _topFiveDSV)
       {
         valueB += rri.Participant.Points;
       }
@@ -335,7 +332,8 @@ namespace RaceHorologyLib
       if (_sex == char.MinValue)
         return true;
 
-      return rri?.Participant?.Sex?.Name == _sex;
+      var sex = rri?.Participant?.Sex?.Name;
+      return sex != null && Char.ToUpper((char)sex) == _sex;
     }
 
     bool hasResult(RaceResultItem rri)
