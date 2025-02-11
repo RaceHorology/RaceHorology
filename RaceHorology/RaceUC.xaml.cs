@@ -225,6 +225,22 @@ namespace RaceHorology
       }
     }
 
+    private void btnExpCol_Click(object sender, RoutedEventArgs ea)
+    {
+      if (expCourseData.IsExpanded == true) {
+        expCourseData.IsExpanded = false;
+        expRun1.IsExpanded = false;
+        expRun2.IsExpanded = false;
+        exp_Weatherdata.IsExpanded = false;
+
+      } else {
+        expCourseData.IsExpanded = true;
+        expRun1.IsExpanded = true;
+        expRun2.IsExpanded = true;
+        exp_Weatherdata.IsExpanded = true;
+      }
+    }
+
 
     private void txtHeight_TextChanged(object sender, TextChangedEventArgs e)
     {
