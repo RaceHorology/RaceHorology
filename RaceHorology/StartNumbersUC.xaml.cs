@@ -37,17 +37,9 @@ using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace RaceHorology
 {
@@ -97,9 +89,9 @@ namespace RaceHorology
       dgStartList.ItemsSource = _startNUmberAssignmentFilter.View;
 
       _participantFilter = new CollectionViewSource() { Source = _race.GetParticipants() };
-      _participantFilter.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) 
-      { 
-        RaceParticipant rr = (RaceParticipant)ea.Item; ea.Accepted = !_snaWorkspace.IsAssigned(rr); 
+      _participantFilter.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea)
+      {
+        RaceParticipant rr = (RaceParticipant)ea.Item; ea.Accepted = !_snaWorkspace.IsAssigned(rr);
       });
       dgParticipants.ItemsSource = _participantFilter.View;
       //RaceUC.EnableOrDisableColumns(_race, dgStartList);
@@ -115,6 +107,9 @@ namespace RaceHorology
       switch (_race.RaceConfiguration.Run1_StartistView)
       {
         case "Startlist_1stRun_StartnumberAscending":
+          nVerlosung = int.MaxValue;
+          break;
+        case "Startlist_1stRun_StartnumberDescending":
           nVerlosung = int.MaxValue;
           break;
         case "Startlist_1stRun_Points_0":
@@ -162,7 +157,7 @@ namespace RaceHorology
     }
 
     private void OnNextStartnumberChanged(object source, EventArgs e)
-    { 
+    {
       txtNextStartNumber.Text = _snaWorkspace.NextFreeStartNumber.ToString();
       txtNextStartNumberManual.Text = _snaWorkspace.NextFreeStartNumber.ToString();
     }
@@ -263,7 +258,7 @@ namespace RaceHorology
         uint sn = uint.Parse(txtNextStartNumberManual.Text);
 
         var selParticipants = dgParticipants.SelectedItems.OfType<RaceParticipant>().ToList();
-        
+
         _snaWorkspace.SetNextStartNumber(sn);
         foreach (var selParticipant in selParticipants)
         {

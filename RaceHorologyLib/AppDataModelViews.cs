@@ -40,8 +40,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using static RaceHorologyLib.ViewProviderHelpers;
 
@@ -234,16 +232,18 @@ namespace RaceHorologyLib
     protected ItemsChangedNotifier _sourceItemChangedNotifier;
 
     protected StartListEntryComparer _comparer;
+    protected StartListEntryComparer.Direction _direction;
 
 
-    public FirstRunStartListViewProvider()
+    public FirstRunStartListViewProvider(StartListEntryComparer.Direction direction = StartListEntryComparer.Direction.Ascending)
     {
-      _comparer = new StartListEntryComparer();
+      _direction = direction;
+      _comparer = new StartListEntryComparer(direction);
     }
 
     public override ViewProvider Clone()
     {
-      return new FirstRunStartListViewProvider();
+      return new FirstRunStartListViewProvider(_direction);
     }
 
     // Input: List<RaceParticipant>
@@ -1757,7 +1757,7 @@ namespace RaceHorologyLib
       var bestNIn = new Dictionary<uint, IResultWithPosition>();
       var bestN = new Dictionary<uint, IResultWithPosition>();
       uint iKey = 0;
-      foreach(var r in results)
+      foreach (var r in results)
       {
         bestNIn.Add(iKey, r);
         iKey++;
