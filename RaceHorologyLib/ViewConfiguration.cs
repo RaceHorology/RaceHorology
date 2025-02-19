@@ -36,8 +36,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
@@ -52,6 +50,7 @@ namespace RaceHorologyLib
       _prototypes = new Dictionary<string, ViewProvider>();
 
       _prototypes["Startlist_1stRun_StartnumberAscending"] = new FirstRunStartListViewProvider();
+      _prototypes["Startlist_1stRun_StartnumberDescending"] = new FirstRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
       _prototypes["Startlist_1stRun_Points_0"] = new DSVFirstRunStartListViewProvider(0);
       _prototypes["Startlist_1stRun_Points_15"] = new DSVFirstRunStartListViewProvider(15);
       _prototypes["Startlist_1stRun_Points_30"] = new DSVFirstRunStartListViewProvider(30);
