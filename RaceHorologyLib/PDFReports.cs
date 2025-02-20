@@ -34,7 +34,6 @@
  */
 
 using iText.IO.Font;
-using iText.IO.Font.Constants;
 using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Events;
@@ -42,7 +41,6 @@ using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas;
-using iText.Kernel.Pdf.Canvas.Wmf;
 using iText.Kernel.Pdf.Xobject;
 using iText.Layout;
 using iText.Layout.Borders;
@@ -56,8 +54,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -2661,7 +2657,7 @@ namespace RaceHorologyLib
 
       {
         document.Add(
-          new Paragraph(string.Format("Die besten 5 gestarten Teilnehmer des Bewerbs (laut Punkteliste):"))
+          new Paragraph(string.Format("Die besten 5 gestarteten Teilnehmer des Bewerbs (laut Punkteliste):"))
           .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetFontSize(fontSizeNormal)
           .SetHorizontalAlignment(HorizontalAlignment.CENTER)
@@ -3000,7 +2996,7 @@ namespace RaceHorologyLib
 
       {
         document.Add(
-          new Paragraph(string.Format("Die besten 5 gestarten Teilnehmer des Bewerbs (laut Punkteliste):"))
+          new Paragraph(string.Format("Die besten 5 gestarteten Teilnehmer des Bewerbs (laut Punkteliste):"))
           .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetFontSize(fontSizeNormal)
           .SetHorizontalAlignment(HorizontalAlignment.CENTER)
@@ -3349,11 +3345,11 @@ namespace RaceHorologyLib
       // Year
       if (_race.IsFieldActive("Year"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
-          item.Original?.Participant != null ? string.Format("{0}",item.Original.Participant.Year) : "", font)));
+          item.Original?.Participant != null ? string.Format("{0}", item.Original.Participant.Year) : "", font)));
       // VB
       if (_race.IsFieldActive("Nation"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
-          item.Original?.Participant != null ? item.Original.Participant.Participant.Nation: "", font)));
+          item.Original?.Participant != null ? item.Original.Participant.Participant.Nation : "", font)));
       // Club
       if (_race.IsFieldActive("Club"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
