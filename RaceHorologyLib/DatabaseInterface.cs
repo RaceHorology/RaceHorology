@@ -102,6 +102,7 @@ namespace RaceHorologyLib
 
 
     PrintCertificateModel GetCertificateModel(Race race);
+    Dictionary<string, string> GetRefereeReportData(Race race);
 
 
     void StoreKeyValue(string key, string value);

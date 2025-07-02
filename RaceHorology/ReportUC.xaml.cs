@@ -81,8 +81,9 @@ namespace RaceHorology
       items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => new CertificatesPrintUC() });
       items.Add(new ReportItem { Text = "Zeitnehmer Checkliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new TimerReport(rr) : (IPDFReport)new TimerReport(rr); } });
       items.Add(new ReportItem { Text = "Schiedsrichter Protokoll", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
+      items.Add(new ReportItem { Text = "Schiedsrichterbericht", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeReport(rr); } });
 
-      cmbReport.ItemsSource = items;
+            cmbReport.ItemsSource = items;
       cmbReport.SelectedIndex = 0;
 
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);

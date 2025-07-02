@@ -2204,10 +2204,43 @@ namespace RaceHorologyLib
       return null;
     }
 
+    public Dictionary<string, string> GetRefereeReportData(Race race)
+    {
+        var pcm = new PrintCertificateModel();
+
+        string sql = @"SELECT * " +
+                        @"FROM XtblSRBericht " +
+                        @"WHERE Disziplin = @disziplin";
+
+        OleDbCommand command = new OleDbCommand(sql, _conn);
+        command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+        Dictionary<string, string> dict = new Dictionary<string, string>();
+
+        try
+        {
+            // Execute command  
+            using (OleDbDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (!reader.IsDBNull(reader.GetOrdinal("Feld")) && !reader.IsDBNull(reader.GetOrdinal("Wert")))
+                    {
+                        dict.Add(reader["Feld"].ToString().Trim(), reader["Wert"].ToString().Trim());   
+                    }
+                }
+            }
+        }
+        catch (System.Data.OleDb.OleDbException)
+        {
+            return dict;
+        }
+
+        return dict;
+    }
 
 
 
-    public PrintCertificateModel GetCertificateModel(Race race)
+        public PrintCertificateModel GetCertificateModel(Race race)
     {
       var pcm = new PrintCertificateModel();
 
