@@ -35,83 +35,121 @@ namespace RaceHorologyLib
         public ObservableCollection<RefereeReportItem> RefReportItemList { get; set; }
 
 
+        public string SavedText { 
+            get; 
+            set; 
+        }
+
         /// <summary>
         /// Default items with key from DSVAlpinX, a label text and the indicator if this value can be found in 
         /// existing properties
         /// </summary>
-        private List<RefereeReportItem> defaultItemList = new List<RefereeReportItem>()
+        /// 
+        public List<RefereeReportItem> defaultItemList = new List<RefereeReportItem>()
         {
-            new RefereeReportItem("Anz_Klassifizierte",    false,     "Klassifizierte"),
-            new RefereeReportItem("Anz_NichtamStartDG1",   false,     "Nicht am Start"),
-            new RefereeReportItem("Anz_Teilnehmer",        false,     "Teilnehmer"),
-            new RefereeReportItem("Aussteller_Email",      true,      "E-Mail"),
-            new RefereeReportItem("Aussteller_KrNr",       true,      "KR-Nr."),
-            new RefereeReportItem("Aussteller_Name",       false,     "Name"),
-            new RefereeReportItem("Aussteller_Telefon",    true,      "Tel."),
-            new RefereeReportItem("Bem_Bestzeit",          true,     "Bem. Bestzeit", "Keine"),
-            new RefereeReportItem("Bem_Hoehendifferenz",   true,     "Bem. Höhendifferenz ", "Keine"),
-            new RefereeReportItem("Bem_Kurssetzer",        true,     "Bem. Kurssetzer ", "Keine"),
-            new RefereeReportItem("Bem_Streckenlaenge",    true,     "Bem. Streckenlänge ", "Keine"),
-            new RefereeReportItem("Bem_Tore",              true,     "Bem. Tore ", "Keine"),
-            new RefereeReportItem("Bemerkungen",           true,     "Bemerkungen\r\nSonstiges", "Keine"),
-            new RefereeReportItem("DG1_Bestzeit",          true,     "Bestzeit DG1"),
-            new RefereeReportItem("DG1_Hoehendifferenz",   false,     "Höhendifferenz "),
-            new RefereeReportItem("DG1_Kurssetzer",        false,     "Kurssetzer"),
-            new RefereeReportItem("DG1_Richtaend",         false,     "# Tore / Richtg. Änderung "),
-            new RefereeReportItem("DG1_Streckenlaenge",    false,     "Streckenlänge "),
-            new RefereeReportItem("DG1_Tore",              false,     "# Tore / Richtg. Änderung"),
-            new RefereeReportItem("DG2_Bestzeit",          true,     "Bestzeit DG2"),
-            new RefereeReportItem("DG2_Hoehendifferenz",   false,     "Höhendifferenz "),
-            new RefereeReportItem("DG2_Kurssetzer",        false,     "Kurssetzer"),
-            new RefereeReportItem("DG2_Richtaend",         false,     "# Tore / Richtg. Änderung"),
-            new RefereeReportItem("DG2_Streckenlaenge",    false,     "Streckenlänge "),
-            new RefereeReportItem("DG2_Tore",              false,     "# Tore / Richtg. Änderung "),
-            new RefereeReportItem("Disziplin",             false,     "Disziplin"),
-            new RefereeReportItem("EDVKR",                 false,     "EDV-KR")  ,
-            new RefereeReportItem("EDVKR_V",               true,      "EDV-KR Verein"),
-            new RefereeReportItem("Einschaltzeit",         false,     "Einschaltzeit"),
-            new RefereeReportItem("Funkverbindung",        false,     "Funk"),
-            new RefereeReportItem("homologiert",           false,     "FIS homologiert"),
-            new RefereeReportItem("Kabelverbindung",       false,     "Kabel"),
-            new RefereeReportItem("Landesverband",         false,     "Landesverband"),
-            new RefereeReportItem("Org_Auslosung",         true,      "Auslosung", "Per Race Horology"),
-            new RefereeReportItem("Org_MedLeiter",         true,      "Med. Leiter"),
-            new RefereeReportItem("Org_Siegerehrung",      true,      "Siegerehrung", "xxx Min. nach Rennende"),
-            new RefereeReportItem("Org_Torrichter",        false,     "Torrichter"),
+            //Info
             new RefereeReportItem("Organisator",           false,     "Organisator"),
-            new RefereeReportItem("ProblemeZeitmessung",   true,      "Probleme Zeitmessung", "Nein"),
-            new RefereeReportItem("Proteste",              true,      "Wurden Proteste eingereicht?", "Nein"),
-            new RefereeReportItem("Punkteberechnung",      true,      "DSV-Punkteberechnung", "Nein") ,
-            new RefereeReportItem("Rennleiter",            false,     "Rennleiter"),
-            new RefereeReportItem("Rennleiter_V",          false,     "Rennleiter Verein"),
+            new RefereeReportItem("Landesverband",         false,     "Landesverband"),
+            new RefereeReportItem("Datum",                 false,     "Datum"),
+            new RefereeReportItem("Veranstaltung",         false,     "Veranstaltung"),
+            new RefereeReportItem("Disziplin",             false,     "Disziplin"),
             new RefereeReportItem("RennNr",                false,     "Renn-Nr."),
-            new RefereeReportItem("Rennstrecke",           false,     "Ort und Name der Rennstrecke")    ,
-            new RefereeReportItem("Rettungsdienst",        true,      "War der Rettungsdienst ausreichend?", "Ja"),
-            new RefereeReportItem("Sanktionen",            true,      "Sanktionen gegen Wettkämpfer?", "Nein") ,
+
+            //Jury/Kampftrichter
             new RefereeReportItem("Schiedsrichter",        false,     "Schiedsrichter ") ,
             new RefereeReportItem("Schiedsrichter_V",      false,     "Schiedsrichter Verein"),
-            new RefereeReportItem("Stangen",               true,      "Verwendete Stangen und Torflaggen"),
-            new RefereeReportItem("StartersterLaeufer",    false,     "Start 1. Läufer"),
-            new RefereeReportItem("Startrichter",          false,     "Startrichter"),
-            new RefereeReportItem("Startrichter_V",        false,     "Startrichter Verein"),
-            new RefereeReportItem("StreckeGefahren",       true,      "Spezielle Gefahren der Strecke", "Keine"),
-            new RefereeReportItem("Streckenverbesserung",  true,      "Streckenverbesserung durch die Jury?", "Keine"),
-            new RefereeReportItem("Streckenzustand",       true,      "Vorbereitung und Schneeverhältnisse"),
-            new RefereeReportItem("Synchronzeit",          true,      "Synchronzeit"),
+            new RefereeReportItem("Rennleiter",            false,     "Rennleiter"),
+            new RefereeReportItem("Rennleiter_V",          false,     "Rennleiter Verein"),
             new RefereeReportItem("Trainervertreter",      false,     "Trainervertreter"),
             new RefereeReportItem("Trainervertreter_V",    false,     "Trainervertreter Verein"),
-            new RefereeReportItem("Unfaelle",              true,      "Gab es Unfälle während des Rennens?\r\n(Zusatzbericht erforderlich)"),
-            new RefereeReportItem("Unterstuetzung",        true,      "Unterstützung der Jury durch Organisator?", "Gut"),
-            new RefereeReportItem("Veranstaltung",         false,     "Veranstaltung"),
-            new RefereeReportItem("Witterung",             false,      "Witterungs- und Sichtverhältnisse"),
-            new RefereeReportItem("Zeitmessgeraet",        false,     "Zeitmessgeraet"),
+            new RefereeReportItem("EDVKR",                 false,     "EDV-KR")  ,
+            new RefereeReportItem("EDVKR_V",               true,      "EDV-KR Verein"),
+            new RefereeReportItem("Startrichter",          false,     "Startrichter"),
+            new RefereeReportItem("Startrichter_V",        false,     "Startrichter Verein"),
             new RefereeReportItem("Zielrichter",           true,      "Zielrichter"),
             new RefereeReportItem("Zielrichter_V",         true,      "Zielrichter Verein"),
+
+            //Organisation
+            new RefereeReportItem("Org_Auslosung",         true,      "Auslosung", "Per Race Horology"),
+            new RefereeReportItem("Org_Siegerehrung",      true,      "Siegerehrung", "xxx Min. nach Rennende"),
+            new RefereeReportItem("Org_MedLeiter",         true,      "Med. Leiter"),
+            new RefereeReportItem("Org_Torrichter",        false,     "Torrichter"),
+
+            //Zeitmessung Auswertung
+            new RefereeReportItem("Punkteberechnung",      true,      "DSV-Punkteberechnung", "Nein") ,
+            new RefereeReportItem("StartersterLaeufer",    false,     "Start 1. Läufer"),
+            new RefereeReportItem("Zeitmessgeraet",        false,     "Zeitmessgeraet"),
+            new RefereeReportItem("Einschaltzeit",         false,     "Einschaltzeit"),
+            new RefereeReportItem("Synchronzeit",          true,      "Synchronzeit"),
+            new RefereeReportItem("Kabelverbindung",       false,     "Kabel"),
+            new RefereeReportItem("Funkverbindung",        false,     "Funk"),
+            new RefereeReportItem("ProblemeZeitmessung",   true,      "Probleme Zeitmessung", "Nein"),
+            new RefereeReportItem("Anz_Teilnehmer",        false,     "Teilnehmer"),
+            new RefereeReportItem("Anz_NichtamStartDG1",   false,     "Nicht am Start"),
+            new RefereeReportItem("Anz_Klassifizierte",    false,     "Klassifizierte"),
+
+            //Rennstrecke
+            new RefereeReportItem("Rennstrecke",           false,     "Ort und Name der Rennstrecke")    ,
+            new RefereeReportItem("homologiert",           false,     "FIS homologiert"),
+            new RefereeReportItem("Streckenzustand",       true,      "Vorbereitung und Schneeverhältnisse"),
+            new RefereeReportItem("DG1_Kurssetzer",        false,     "Kurssetzer"),
+            new RefereeReportItem("DG2_Kurssetzer",        false,     "Kurssetzer"),
+            new RefereeReportItem("Bem_Kurssetzer",        true,      "Bem. Kurssetzer ", "Keine"),
+            new RefereeReportItem("DG1_Streckenlaenge",    false,     "Streckenlänge "),
+            new RefereeReportItem("DG2_Streckenlaenge",    false,     "Streckenlänge "),
+            new RefereeReportItem("Bem_Streckenlaenge",    true,      "Bem. Streckenlänge ", "Keine"),
+            new RefereeReportItem("DG1_Hoehendifferenz",   false,     "Höhendifferenz "),
+            new RefereeReportItem("DG2_Hoehendifferenz",   false,     "Höhendifferenz "),
+            new RefereeReportItem("Bem_Hoehendifferenz",   true,      "Bem. Höhendifferenz ", "Keine"),
+            new RefereeReportItem("DG1_Tore",              false,     "# Tore / Richtg. Änderung"),
+            new RefereeReportItem("DG1_Richtaend",         false,     "# Tore / Richtg. Änderung "),
+            new RefereeReportItem("DG2_Tore",              false,     "# Tore / Richtg. Änderung "),
+            new RefereeReportItem("DG2_Richtaend",         false,     "# Tore / Richtg. Änderung"),
+            new RefereeReportItem("Bem_Tore",              true,      "Bem. Tore ", "Keine"),
+            new RefereeReportItem("DG1_Bestzeit",          true,      "Bestzeit DG1"),
+            new RefereeReportItem("DG2_Bestzeit",          true,      "Bestzeit DG2"),
+            new RefereeReportItem("Bem_Bestzeit",          true,      "Bem. Bestzeit", "Keine"),
+
+            //Sicherheit
+            new RefereeReportItem("StreckeGefahren",       true,      "Spezielle Gefahren der Strecke", "Keine"),
+            new RefereeReportItem("Stangen",               true,      "Verwendete Stangen und Torflaggen"),
+            new RefereeReportItem("Streckenverbesserung",  true,      "Streckenverbesserung durch die Jury?", "Keine"),
+            new RefereeReportItem("Rettungsdienst",        true,      "War der Rettungsdienst ausreichend?", "Ja"),
+            new RefereeReportItem("Unfaelle",              true,      "Gab es Unfälle während des Rennens?\r\n(Zusatzbericht erforderlich)"),
+
+            //Rennabwicklung           
+            new RefereeReportItem("Witterung",             false,      "Witterungs- und Sichtverhältnisse"),
+            new RefereeReportItem("Proteste",              true,      "Wurden Proteste eingereicht?", "Nein"),
+            new RefereeReportItem("Sanktionen",            true,      "Sanktionen gegen Wettkämpfer?", "Nein") ,
+            new RefereeReportItem("Unterstuetzung",        true,      "Unterstützung der Jury durch Organisator?", "Gut"), 
+            new RefereeReportItem("Bemerkungen",           true,     "Bemerkungen\r\nSonstiges", "Keine"),
+
+            //Aussteller
+            new RefereeReportItem("Aussteller_Name",       false,     "Name"),
+            new RefereeReportItem("Aussteller_Telefon",    true,      "Tel."),
+            new RefereeReportItem("Aussteller_Email",      true,      "E-Mail"),
+            new RefereeReportItem("Aussteller_KrNr",       true,      "KR-Nr."),
+
         };
 
-        public RefereeReportItems()
+        public RefereeReportItems(Race race)
         {
             RefReportItemList = new ObservableCollection<RefereeReportItem>(defaultItemList);
+
+            Dictionary<string, string> d = race.GetDataModel().GetDB().GetRefereeReportData(race);
+
+            foreach (RefereeReportItem rritem in RefReportItemList)
+            {
+                if (d.ContainsKey(rritem.Key))
+                {
+                    rritem.Value = d[rritem.Key];
+                }
+                else
+                {
+                    race.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(rritem, race, false);
+                }
+            }
+
         }
 
         /// <summary>
@@ -213,36 +251,13 @@ namespace RaceHorologyLib
             var runRes = rr.GetResultList().Where(res => res.ResultCode == RunResult.EResultCode.NaS);
   
             UpdateItemValue("Anz_NichtamStartDG1", runRes.Count().ToString());
-          
 
-            //new RefereeReportItem("Einschaltzeit", false, "Einschaltzeit"),
-            //new RefereeReportItem("Funkverbindung", false, "Funk"),
-            //new RefereeReportItem("Kabelverbindung", false, "Kabel"),
-            //new RefereeReportItem("Landesverband", false, "Landesverband"),
-            //new RefereeReportItem("Org_Auslosung", true, "Auslosung", "Per Race Horology"),
-            //new RefereeReportItem("Org_MedLeiter", true, "Med. Leiter"),
-            //new RefereeReportItem("Org_Siegerehrung", true, "Siegerehrung", "xxx Min. nach Rennende"),
-            //new RefereeReportItem("Org_Torrichter", false, "Torrichter"),
+            foreach (RefereeReportItem item in RefReportItemList)
+            {
+                r.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(item, r, true);
+            }
 
-            //new RefereeReportItem("ProblemeZeitmessung", true, "Probleme Zeitmessung", "Nein"),
-            //new RefereeReportItem("Proteste", true, "Wurden Proteste eingereicht?", "Nein"),
-            //new RefereeReportItem("Punkteberechnung", true, "DSV-Punkteberechnung", "Nein") ,
-
-            //new RefereeReportItem("Rettungsdienst", true, "War der Rettungsdienst ausreichend?", "Ja"),
-            //new RefereeReportItem("Sanktionen", true, "Sanktionen gegen Wettkämpfer?", "Nein") ,
-
-            //new RefereeReportItem("Stangen", true, "Verwendete Stangen und Torflaggen"),
-            //new RefereeReportItem("Startrichter", false, "Startrichter"),
-            //new RefereeReportItem("Startrichter_V", false, "Startrichter Verein"),
-            //new RefereeReportItem("StreckeGefahren", true, "Spezielle Gefahren der Strecke", "Keine"),
-            //new RefereeReportItem("Streckenverbesserung", true, "Streckenverbesserung durch die Jury?", "Keine"),
-            //new RefereeReportItem("Streckenzustand", true, "Vorbereitung und Schneeverhältnisse"),
-            //new RefereeReportItem("Synchronzeit", true, "Synchronzeit"),
-
-            //new RefereeReportItem("Unfaelle", true, "Gab es Unfälle während des Rennens?\\r\\n(Zusatzbericht erforderlich)"),
-            //new RefereeReportItem("Unterstuetzung", true, "Unterstützung der Jury durch Organisator?", "Gut"),
-
-
+            SavedText = "Angaben gespeichert";
         }
 
         public void UpdateItemValue(string key, string newValue)

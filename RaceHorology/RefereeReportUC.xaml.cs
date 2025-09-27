@@ -24,18 +24,21 @@ namespace RaceHorology
         public RefereeReportItems ReportItems { get; set; }
         private Race _race;
 
+
         public RefereeReportUC()
         {
             InitializeComponent();
-            ReportItems = new RefereeReportItems();
 
-        
-            this.DataContext = ReportItems;
+
+    
         }
 
         public void Init(Race race)
         {
             _race = race;
+            ReportItems = new RefereeReportItems(_race);
+
+            this.DataContext = ReportItems;
         }
 
         private void btnApply_Click(object sender, RoutedEventArgs e)
@@ -44,8 +47,7 @@ namespace RaceHorology
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
-        { 
-        
+        {
         }
     }
 }

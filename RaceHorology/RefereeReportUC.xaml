@@ -16,9 +16,9 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Margin="5"
-                                Visibility="{Binding IsAdditional, Converter={StaticResource BoolToVisibilityConverter}}">
+                            Visibility="{Binding IsAdditional, Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="{Binding Text}" Width="300" VerticalAlignment="Center"/>
-                            <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
+                            <TextBox IsEnabled="{Binding IsAdditional}" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -26,7 +26,7 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
                 <Button x:Name="btnApply" Content="Speichern" ToolTip="STRG + S" Margin="5,0,5,0" Padding="0" MinWidth="100" Click="btnApply_Click"/>
-                <Label x:Name="lbSaved" Content="{Binding SavedText}" Width="434" Margin="5" Padding="0" VerticalAlignment="Center"/>
+                <Label Content="{Binding SavedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="434" Margin="5" Padding="0" VerticalAlignment="Center"/>
                 <Button x:Name="btnReset" Content="Zurücksetzen" Margin="0,0,5,0" Padding="5" MinWidth="100" Click="btnReset_Click"/>
             </StackPanel>
         </StackPanel>

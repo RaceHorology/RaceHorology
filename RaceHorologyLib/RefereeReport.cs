@@ -169,6 +169,7 @@ namespace RaceHorologyLib
 
             Race r = rr.GetRace();
             d = r.GetDataModel().GetDB().GetRefereeReportData(r);
+
         }
 
         protected override ReportHeader createHeader()

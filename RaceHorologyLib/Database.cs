@@ -34,6 +34,7 @@
  */
 
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using DocumentFormat.OpenXml.InkML;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -161,10 +162,27 @@ namespace RaceHorologyLib
       checkOrUpgradeSchema_RHMisc();
       checkOrUpgradeSchema_tblKategorie();
       checkOrUpgradeSchema_RHTimestamps();
+      checkOrUpgradeSchema_ReferreReport();
       checkOrUpgradeDBVersion();
     }
 
-    void checkOrUpgradeSchema_RHMisc()
+    void checkOrUpgradeSchema_ReferreReport()
+    {
+        if (existsTable("XtblSRBericht"))
+            return;
+
+            // Create TABLE 
+            string sql = @"
+            CREATE TABLE XtblSRBericht (
+                [Disziplin] BYTE NOT NULL, 
+                [Feld] LONGTEXT,
+                [Wert] LONGTEXT    
+            )";
+            OleDbCommand cmd = new OleDbCommand(sql, _conn);
+            int res = cmd.ExecuteNonQuery();
+        }
+
+        void checkOrUpgradeSchema_RHMisc()
     {
       if (existsTable("RHMisc"))
         return;
@@ -2204,7 +2222,52 @@ namespace RaceHorologyLib
       return null;
     }
 
-    public Dictionary<string, string> GetRefereeReportData(Race race)
+
+        public void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race, bool update )
+        {
+
+            OleDbCommand cmd;
+            if (update)
+            {
+                string sql = @"UPDATE XtblSRBericht " +
+                             @"SET Wert = @Wert " +
+                             @"WHERE Disziplin = @Disziplin AND Feld = @Feld";
+                cmd = new OleDbCommand(sql, _conn);
+            }
+            else
+            {
+               
+                string sql = @"INSERT INTO XtblSRBericht (Disziplin, Feld, Wert) " +
+                             @"VALUES (@Disziplin, @Feld, @Wert) ";
+                cmd = new OleDbCommand(sql, _conn);
+            }
+
+            if (string.IsNullOrEmpty(rrItem.Value))
+                cmd.Parameters.Add(new OleDbParameter("@Wert", ""));
+            else
+                cmd.Parameters.Add(new OleDbParameter("@Wert", rrItem.Value));
+
+            cmd.Parameters.Add(new OleDbParameter("@Disziplin", (int)race.RaceType));
+            cmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
+             
+
+            cmd.CommandType = CommandType.Text;
+
+            try
+            {
+                Logger.Debug("CreateOrUpdateReferreReportItem(), SQL: {0}", GetDebugSqlString(cmd));
+
+                int temp = cmd.ExecuteNonQuery();
+                Debug.Assert(temp == 1, "Database could not be updated");
+
+            }
+            catch (Exception e)
+            {
+                Logger.Warn(e, "CreateOrUpdateReferreReportItem failed, SQL: {0}", GetDebugSqlString(cmd));
+            }
+        }
+
+        public Dictionary<string, string> GetRefereeReportData(Race race)
     {
         var pcm = new PrintCertificateModel();
 
