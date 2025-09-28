@@ -26,7 +26,15 @@ namespace RaceHorology.Commands
 				typeof(RaceHorologyCommands)
 			);
 
-		public static readonly RoutedUICommand ImportTime = new RoutedUICommand
+        public static readonly RoutedUICommand CertDesigner = new RoutedUICommand
+			(
+				"CertDesigner",
+				"CertDesigner",
+				typeof(RaceHorologyCommands)
+			);
+
+
+        public static readonly RoutedUICommand ImportTime = new RoutedUICommand
 			(
 				"ImportTime",
 				"ImportTime",

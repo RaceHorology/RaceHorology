@@ -1,0 +1,181 @@
+﻿<UserControl x:Class="RaceHorology.CertificateDesignerUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RaceHorology"
+             xmlns:racehorologylib="clr-namespace:RaceHorologyLib;assembly=RaceHorologyLib"
+             mc:Ignorable="d" 
+             d:DesignHeight="768" d:DesignWidth="1024">
+    <UserControl.Resources>
+        <racehorologylib:TimeSpanConverter x:Key="TimeSpanConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <Button Content="Load Image" Click="OnLoadImageBackground_Click"/>
+                <Button Content="Load PDF" Click="OnLoadPdfBackground_Click"/>
+                <Separator/>
+                <Button Content="Save Layout" Click="OnSaveLayout_Click"/>
+                <Button Content="Load Layout" Click="OnLoadLayout_Click"/>
+                <Separator/>
+                <Button Content="Export PNG" Click="OnExportPng"/>
+                <Button Content="Print" Click="OnPrint"/>
+                <Separator/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <!-- Main area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+   
+
+            <!-- Property panel -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Felder"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Margin="12"/>
+
+                <ListView x:Name="FieldList" Height="300"
+          Grid.Row="1"
+          Margin="12"
+          ItemsSource="{Binding Fields, RelativeSource={RelativeSource AncestorType=UserControl}}"
+          SelectedItem="{Binding SelectedField, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Value" Width="200" DisplayMemberBinding="{Binding Value}" />
+                            <GridViewColumn Header="Size"  Width="40" DisplayMemberBinding="{Binding FontSize}" />
+                            <GridViewColumn Header="Align" Width="40" DisplayMemberBinding="{Binding TextAlignment}" />
+                            <GridViewColumn Header="X"     Width="40" DisplayMemberBinding="{Binding X, StringFormat=F0}" />
+                            <GridViewColumn Header="Y"     Width="40" DisplayMemberBinding="{Binding Y, StringFormat=F0}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                
+
+                <Border Grid.Row="2"
+                        Margin="12"          
+                        Padding="10"
+                        CornerRadius="8">
+                    <StackPanel>
+                        <TextBlock Text="Selected Field Properties"
+                                   FontWeight="Bold"
+                                   Margin="0 0 0 8"/>
+
+                        <!-- Text -->
+                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                            <TextBlock Text="Text:" Width="100"/>
+                            <TextBox Text="{Binding SelectedField.Value, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                            <TextBlock Text="Seriendruckfeld:" Width="100"/>
+                            <ComboBox Width="200"
+            ItemsSource="{Binding Presets, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            SelectionChanged="OnPresetSelectionChanged"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                            <TextBlock Text="Schriftart:" Width="100" Foreground="White"/>
+                            <ComboBox Width="220"
+            ItemsSource="{Binding SystemFonts, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            DisplayMemberPath="Source"
+            SelectedValuePath="Source"
+            SelectedValue="{Binding SelectedField.FontFamilyName, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <!-- Font size -->
+                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                            <TextBlock Text="Größe:" Width="100"/>
+                            <Slider Minimum="8" Maximum="96" Width="200"
+                                    Value="{Binding SelectedField.FontSize, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
+                            <TextBlock Text="{Binding SelectedField.FontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                       Margin="6 0 0 0"
+                                       />
+                        </StackPanel>
+
+                        <!-- Bold -->
+                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                            <TextBlock Text="Fett:" Width="100"/>
+                            <CheckBox IsChecked="{Binding SelectedField.IsBold, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                        </StackPanel>
+
+                        <!-- Alignment -->
+                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                            <TextBlock Text="Ausrichtung:" Width="100"/>
+                            <ComboBox Width="120"
+                                      SelectedValuePath="Content"
+                                      SelectedValue="{Binding SelectedField.TextAlignment, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <ComboBoxItem Content="Left"/>
+                                <ComboBoxItem Content="Center"/>
+                                <ComboBoxItem Content="Right"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- X/Y -->
+                        <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                            <TextBlock Text="X:" Width="100"/>
+                            <TextBox Width="80"
+                                     Text="{Binding SelectedField.X, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="Y:" Width="40" Margin="12 0 0 0"/>
+                            <TextBox Width="80"
+                                     Text="{Binding SelectedField.Y, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                            <Button Width="100" Content="Feld hinzufügen" Click="OnAddField"/>
+                            <Button Width="100" Margin="10 0 0 0" Content="Feld löschen" Click="OnDeleteField">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedField, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+
+            </Grid>
+            <!-- Design surface -->
+            <ScrollViewer Grid.Column="1"
+                       HorizontalScrollBarVisibility="Auto"
+                       VerticalScrollBarVisibility="Auto">
+                <Grid Background="#FFFFFF">
+                    <!-- Background (image or rendered PDF page) -->
+                    <Image x:Name="BackgroundImage"
+                        Stretch="Uniform"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                    <!-- Overlay for draggable fields (pixel coordinates) -->
+                    <Canvas x:Name="OverlayCanvas" Background="Transparent"/>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>
+<!--<StackPanel Orientation="Horizontal" Grid.Row="7" Grid.ColumnSpan="5" HorizontalAlignment="Right" Margin="0,5,0,5" >
+            <Button x:Name="btnCancel" Content="Abbrechen" Grid.Row="7" Grid.Column="3" Margin="5" Padding="5" MinWidth="100" Click="btnCancel_Click"/>
+            <Button x:Name="btnSave" Content="Speichern" Grid.Row="7" Grid.Column="4" Margin="5" Padding="5" MinWidth="100" Click="btnSave_Click"/>
+        </StackPanel>-->
