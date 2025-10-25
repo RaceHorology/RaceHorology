@@ -2233,6 +2233,16 @@ namespace RaceHorologyLib
                              @"SET Wert = @Wert " +
                              @"WHERE Disziplin = @Disziplin AND Feld = @Feld";
                 cmd = new OleDbCommand(sql, _conn);
+
+
+                if (string.IsNullOrEmpty(rrItem.Value))
+                    cmd.Parameters.Add(new OleDbParameter("@Wert", ""));
+                else
+                    cmd.Parameters.Add(new OleDbParameter("@Wert", rrItem.Value));
+
+                cmd.Parameters.Add(new OleDbParameter("@Disziplin", (int)race.RaceType));
+                cmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
+
             }
             else
             {
@@ -2240,16 +2250,19 @@ namespace RaceHorologyLib
                 string sql = @"INSERT INTO XtblSRBericht (Disziplin, Feld, Wert) " +
                              @"VALUES (@Disziplin, @Feld, @Wert) ";
                 cmd = new OleDbCommand(sql, _conn);
+
+
+                cmd.Parameters.Add(new OleDbParameter("@Disziplin", (int)race.RaceType));
+                cmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
+
+
+                if (string.IsNullOrEmpty(rrItem.Value))
+                    cmd.Parameters.Add(new OleDbParameter("@Wert", ""));
+                else
+                    cmd.Parameters.Add(new OleDbParameter("@Wert", rrItem.Value));
+
             }
 
-            if (string.IsNullOrEmpty(rrItem.Value))
-                cmd.Parameters.Add(new OleDbParameter("@Wert", ""));
-            else
-                cmd.Parameters.Add(new OleDbParameter("@Wert", rrItem.Value));
-
-            cmd.Parameters.Add(new OleDbParameter("@Disziplin", (int)race.RaceType));
-            cmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
-             
 
             cmd.CommandType = CommandType.Text;
 
@@ -2258,7 +2271,7 @@ namespace RaceHorologyLib
                 Logger.Debug("CreateOrUpdateReferreReportItem(), SQL: {0}", GetDebugSqlString(cmd));
 
                 int temp = cmd.ExecuteNonQuery();
-                Debug.Assert(temp == 1, "Database could not be updated");
+                Debug.Assert(temp == 1, "Database could not be updated" + GetDebugSqlString(cmd));
 
             }
             catch (Exception e)

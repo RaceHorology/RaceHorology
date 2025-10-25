@@ -113,6 +113,12 @@ namespace RaceHorology
       {
         cmbRaceRun.IsEnabled = ri.NeedsRaceRun;
 
+        if (ri.Text=="Schiedsrichterbericht")
+        {
+            RefereeReportItems ReportItems = new RefereeReportItems(_race);
+            ReportItems.updateList(_race);
+        }
+
         triggerRefresh();
       }
     }

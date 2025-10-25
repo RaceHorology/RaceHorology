@@ -37,6 +37,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
 using System.IO;
@@ -271,8 +272,25 @@ namespace RaceHorologyLibTest
     public string GetTimingDevice(Race race) { return "Alge TdC8000/8001"; }
     public void StoreTimingDevice(Race race, string timingDevice){}
 
+    public Dictionary<string, string> GetRefereeReportData(Race race)
+    {
 
-    public PrintCertificateModel GetCertificateModel(Race race)
+        Dictionary<string, string> dict = new Dictionary<string, string>();
+
+
+        return dict;
+    }
+
+
+
+    public void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race, bool update)
+    {
+
+         
+    }
+
+
+        public PrintCertificateModel GetCertificateModel(Race race)
     {
       var pcm = new PrintCertificateModel();
       pcm.TextItems = new List<TextItem>()
