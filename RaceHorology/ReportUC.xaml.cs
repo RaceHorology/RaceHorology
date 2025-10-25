@@ -104,7 +104,17 @@ namespace RaceHorology
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
     {
-      refreshPdf();
+        if (cmbReport.SelectedItem is ReportItem ri)
+        { 
+
+            if (ri.Text == "Schiedsrichterbericht")
+            {
+                RefereeReportItems ReportItems = new RefereeReportItems(_race);
+                ReportItems.updateList(_race);
+            }      
+        }
+
+        refreshPdf();
     }
 
     private void cmbReport_SelectionChanged(object sender, SelectionChangedEventArgs e)
