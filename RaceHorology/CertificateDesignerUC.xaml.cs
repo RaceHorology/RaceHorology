@@ -55,6 +55,8 @@ namespace RaceHorology
             InitializeComponent();
 
             DataContext = this;
+
+            ApplyA4DesignSurface();
         }
 
 
@@ -121,17 +123,91 @@ namespace RaceHorology
 
         public event EventHandler<FieldVM> SelectedFieldChanged;
 
-   
+
+        private double _zoom = 0.75; // Startwert für Laptops
+        private void ApplyZoom(double z)
+        {
+            if (z < 0.25) z = 0.25; if (z > 3.0) z = 3.0;
+            _zoom = z;
+            if (ZoomTransform != null) { ZoomTransform.ScaleX = z; ZoomTransform.ScaleY = z; }
+        }
+
+        // Preset aus ComboBox
+        private void OnZoomPresetChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var cb = sender as ComboBox; if (cb?.SelectedValue == null) return;
+            double z; if (double.TryParse(cb.SelectedValue.ToString(), System.Globalization.NumberStyles.Any,
+                                          System.Globalization.CultureInfo.InvariantCulture, out z))
+                ApplyZoom(z);
+        }
+
+        // Fit-to-Window (passt A4 in die ScrollViewer-Viewportgröße)
+        private void FitToWindow()
+        {
+            // ScrollViewer ist der direkte Parent in deinem Layout
+            var sv = FindParent<ScrollViewer>(DesignFrame);
+            if (sv == null) return;
+
+            // A4-DIPs (wie von dir gesetzt)
+            double wDip = DesignFrame.Width;  // ≈ 793.7
+            double hDip = DesignFrame.Height; // ≈ 1122.5
+
+            // etwas Rand einplanen
+            double pad = 24;
+            double availW = Math.Max(0, sv.ViewportWidth - pad);
+            double availH = Math.Max(0, sv.ViewportHeight - pad);
+            if (availW <= 0 || availH <= 0 || wDip <= 0 || hDip <= 0) return;
+
+            double z = Math.Min(availW / wDip, availH / hDip);
+            ApplyZoom(z);
+        }
+
+        // Helper: Parent suchen
+        private static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject p = VisualTreeHelper.GetParent(child);
+            while (p != null && !(p is T)) p = VisualTreeHelper.GetParent(p);
+            return p as T;
+        }
+
+        // Bei Größenänderung automatisch anpassen (optional)
+        private void OnRootSizeChanged(object sender, SizeChangedEventArgs e) => FitToWindow();
+
+        // Konstanten: DIN A4 in DIPs (1 DIP = 1/96")
+        const double DpiDip = 96.0;
+        const double A4WidthIn = 210.0 / 25.4;  // 210 mm
+        const double A4HeightIn = 297.0 / 25.4;  // 297 mm
+        static readonly double A4WidthDip = A4WidthIn * DpiDip; // ≈ 793.7
+        static readonly double A4HeightDip = A4HeightIn * DpiDip; // ≈ 1122.5
+
+        private void ApplyA4DesignSurface()
+        {
+            // Rahmen/Bereich
+            DesignFrame.Width = A4WidthDip;
+            DesignFrame.Height = A4HeightDip;
+
+            // Innenleben exakt gleich groß halten
+            BackgroundImage.Width = A4WidthDip;
+            BackgroundImage.Height = A4HeightDip;
+
+            OverlayCanvas.Width = A4WidthDip;
+            OverlayCanvas.Height = A4HeightDip;
+
+            // ... Width/Height für BackgroundImage & OverlayCanvas setzen ...
+            OverlayCanvas.Clip = new RectangleGeometry(new Rect(0, 0, OverlayCanvas.Width, OverlayCanvas.Height));
+        }
+
+        // Optional: mm → DIP (für numerische Platzierung in mm)
+        public static double MmToDip(double mm) => (mm / 25.4) * DpiDip;
+        public static Point MmToDip(double mmX, double mmY) => new Point(MmToDip(mmX), MmToDip(mmY));
+
 
         // ===================== Public API =====================
         public void SetBackground(BitmapSource bmp)
         {
             if (bmp == null) throw new ArgumentNullException("bmp");
             BackgroundImage.Source = bmp;
-            BackgroundImage.Width = bmp.PixelWidth;
-            BackgroundImage.Height = bmp.PixelHeight;
-            OverlayCanvas.Width = bmp.PixelWidth;
-            OverlayCanvas.Height = bmp.PixelHeight;
+            ApplyA4DesignSurface();
             RebuildOverlay();
         }
 
@@ -225,6 +301,34 @@ namespace RaceHorology
                 OverlayCanvas.Children.Add(CreateDraggable(Fields[i]));
         }
 
+        private void SetClampedPosition(FrameworkElement el, double x, double y)
+        {
+            if (OverlayCanvas == null) return;
+
+            double maxX = Math.Max(0, OverlayCanvas.Width - el.ActualWidth);
+            double maxY = Math.Max(0, OverlayCanvas.Height - el.ActualHeight);
+
+            x = Math.Min(Math.Max(0, x), maxX);
+            y = Math.Min(Math.Max(0, y), maxY);
+
+            Canvas.SetLeft(el, x);
+            Canvas.SetTop(el, y);
+        }
+
+        private void ClampVmToCanvas(FieldVM vm, FrameworkElement el)
+        {
+            if (vm == null || el == null) return;
+
+            double maxX = Math.Max(0, OverlayCanvas.Width - el.ActualWidth);
+            double maxY = Math.Max(0, OverlayCanvas.Height - el.ActualHeight);
+
+            vm.X = Math.Min(Math.Max(0, vm.X), maxX);
+            vm.Y = Math.Min(Math.Max(0, vm.Y), maxY);
+
+            Canvas.SetLeft(el, vm.X);
+            Canvas.SetTop(el, vm.Y);
+        }
+
         private FrameworkElement CreateDraggable(FieldVM vm)
         {
             var text = new TextBlock();
@@ -240,6 +344,8 @@ namespace RaceHorology
             text.SetBinding(TextBlock.TextProperty, new Binding("Value"));      // falls Merge, weglassen
             text.SetBinding(TextBlock.FontSizeProperty, new Binding("FontSize"));
 
+
+
             // auf Änderungen reagieren
             vm.PropertyChanged += delegate (object s, PropertyChangedEventArgs e)
             {
@@ -253,6 +359,12 @@ namespace RaceHorology
 
             // Drag behavior on a Border container
             var border = new Border { Background = Brushes.Transparent, Child = text, Padding = new Thickness(2) };
+            // initial setzen (nachdem border geladen ist, damit ActualWidth/ActualHeight stimmen)
+            border.Loaded += (s, e) => ClampVmToCanvas(vm, border);
+            // bei Größenänderung (FontSize, FontFamily etc.) neu clampen
+            border.SizeChanged += (s, e) => ClampVmToCanvas(vm, border);
+
+            // Startposition
             Canvas.SetLeft(border, vm.X);
             Canvas.SetTop(border, vm.Y);
 
@@ -270,16 +382,19 @@ namespace RaceHorology
                 border.CaptureMouse();
                 e.Handled = true;
             };
+
+            // Drag
             border.MouseMove += delegate (object s, MouseEventArgs e)
             {
                 if (!dragging) return;
                 Point pos = e.GetPosition(OverlayCanvas);
                 double x = startLeft + (pos.X - dragStart.X);
                 double y = startTop + (pos.Y - dragStart.Y);
-                Canvas.SetLeft(border, x);
-                Canvas.SetTop(border, y);
-                vm.X = x; vm.Y = y;
+                SetClampedPosition(border, x, y);
+                vm.X = Canvas.GetLeft(border);
+                vm.Y = Canvas.GetTop(border);
             };
+
             border.MouseLeftButtonUp += delegate (object s, MouseButtonEventArgs e)
             {
                 if (!dragging) return;
@@ -288,11 +403,13 @@ namespace RaceHorology
                 e.Handled = true;
             };
 
-            // Keep Canvas in sync if X/Y edited elsewhere
+
+
             vm.PropertyChanged += delegate (object s, PropertyChangedEventArgs e)
             {
-                if (e.PropertyName == "X") Canvas.SetLeft(border, vm.X);
-                else if (e.PropertyName == "Y") Canvas.SetTop(border, vm.Y);
+                if (e.PropertyName == "X" || e.PropertyName == "Y")
+                    ClampVmToCanvas(vm, border);
+
             };
 
             return border;
@@ -360,6 +477,7 @@ namespace RaceHorology
 
         private void OnAddField(object sender, RoutedEventArgs e)
         {
+
             var f = new FieldVM { Key = "Custom", Label = "Custom", Value = "New Field", X = 50, Y = 50, FontSize = 24 };
             Fields.Add(f);
             SelectedField = f;
@@ -447,6 +565,14 @@ namespace RaceHorology
     [DataContract]
     public class FieldVM : INotifyPropertyChanged
     {
+        protected bool SetField<T>(ref T storage, T value, [CallerMemberName] string prop = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+            storage = value;
+            OnPropertyChanged(prop);
+            return true;
+        }
+
         [DataMember(Order = 0)] public string Key { get; set; }
         [DataMember(Order = 1)] public string Label { get; set; }
 
@@ -454,10 +580,10 @@ namespace RaceHorology
         [DataMember(Order = 2)] public string Value { get { return _value; } set { _value = value; OnPropertyChanged(); } }
 
         private double _x;
-        [DataMember(Order = 3)] public double X { get { return _x; } set { _x = value; OnPropertyChanged(); } }
+        [DataMember(Order = 3)] public double X { get => _x; set => SetField(ref _x, value); }
 
         private double _y;
-        [DataMember(Order = 4)] public double Y { get { return _y; } set { _y = value; OnPropertyChanged(); } }
+        [DataMember(Order = 4)] public double Y { get => _y; set => SetField(ref _y, value); }
 
         private double _fontSize = 24.0;
         [DataMember(Order = 5)] public double FontSize { get { return _fontSize; } set { _fontSize = value; OnPropertyChanged(); } }

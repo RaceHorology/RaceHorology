@@ -28,6 +28,16 @@
                 <Button Content="Export PNG" Click="OnExportPng"/>
                 <Button Content="Print" Click="OnPrint"/>
                 <Separator/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Zoom:" Margin="6,0,4,0"/>
+                    <ComboBox Width="80" SelectedValuePath="Tag" SelectionChanged="OnZoomPresetChanged">
+                        <ComboBoxItem Content="50%" Tag="0.5"/>
+                        <ComboBoxItem Content="75%" Tag="0.75"/>
+                        <ComboBoxItem Content="100%" Tag="1"/>
+                        <ComboBoxItem Content="125%" Tag="1.25"/>
+                        <ComboBoxItem Content="150%" Tag="1.5"/>
+                    </ComboBox>
+                </StackPanel>
             </ToolBar>
         </ToolBarTray>
 
@@ -43,6 +53,7 @@
             <!-- Property panel -->
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -70,107 +81,123 @@
                 </ListView>
                 
 
-                <Border Grid.Row="2"
-                        Margin="12"          
-                        Padding="10"
-                        CornerRadius="8">
-                    <StackPanel>
-                        <TextBlock Text="Selected Field Properties"
-                                   FontWeight="Bold"
-                                   Margin="0 0 0 8"/>
+            <Border Grid.Row="2"
+                    Margin="12"          
+                    Padding="10"
+                    BorderThickness="2" BorderBrush="Gray">
+                <StackPanel>
+                    <TextBlock Text="Feld Editor"
+                                FontWeight="Bold"
+                                Margin="0 0 0 8"/>
 
-                        <!-- Text -->
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Text:" Width="100"/>
-                            <TextBox Text="{Binding SelectedField.Value, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Seriendruckfeld:" Width="100"/>
-                            <ComboBox Width="200"
-            ItemsSource="{Binding Presets, RelativeSource={RelativeSource AncestorType=UserControl}}"
-            SelectionChanged="OnPresetSelectionChanged"/>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Schriftart:" Width="100" Foreground="White"/>
-                            <ComboBox Width="220"
-            ItemsSource="{Binding SystemFonts, RelativeSource={RelativeSource AncestorType=UserControl}}"
-            DisplayMemberPath="Source"
-            SelectedValuePath="Source"
-            SelectedValue="{Binding SelectedField.FontFamilyName, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
-                        </StackPanel>
-
-                        <!-- Font size -->
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Größe:" Width="100"/>
-                            <Slider Minimum="8" Maximum="96" Width="200"
-                                    Value="{Binding SelectedField.FontSize, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
-                            <TextBlock Text="{Binding SelectedField.FontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                       Margin="6 0 0 0"
-                                       />
-                        </StackPanel>
-
-                        <!-- Bold -->
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Fett:" Width="100"/>
-                            <CheckBox IsChecked="{Binding SelectedField.IsBold, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
-                        </StackPanel>
-
-                        <!-- Alignment -->
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Ausrichtung:" Width="100"/>
-                            <ComboBox Width="120"
-                                      SelectedValuePath="Content"
-                                      SelectedValue="{Binding SelectedField.TextAlignment, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                <ComboBoxItem Content="Left"/>
-                                <ComboBoxItem Content="Center"/>
-                                <ComboBoxItem Content="Right"/>
-                            </ComboBox>
-                        </StackPanel>
-
-                        <!-- X/Y -->
-                        <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
-                            <TextBlock Text="X:" Width="100"/>
-                            <TextBox Width="80"
-                                     Text="{Binding SelectedField.X, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBlock Text="Y:" Width="40" Margin="12 0 0 0"/>
-                            <TextBox Width="80"
-                                     Text="{Binding SelectedField.Y, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
-                            <Button Width="100" Content="Feld hinzufügen" Click="OnAddField"/>
-                            <Button Width="100" Margin="10 0 0 0" Content="Feld löschen" Click="OnDeleteField">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedField, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
-                                                <Setter Property="IsEnabled" Value="False"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </StackPanel>
+                    <!-- Text -->
+                    <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                        <TextBlock Text="Text:" Width="100"/>
+                        <TextBox Text="{Binding SelectedField.Value, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
                     </StackPanel>
-                </Border>
 
+                    <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                        <TextBlock Text="Seriendruckfeld:" Width="100"/>
+                        <ComboBox Width="200"
+                        ItemsSource="{Binding Presets, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        SelectionChanged="OnPresetSelectionChanged"/>
+                    </StackPanel>
 
+                    <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                        <TextBlock Text="Schriftart:" Width="100"/>
+                        <ComboBox Width="200"
+                        ItemsSource="{Binding SystemFonts, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        DisplayMemberPath="Source"
+                        SelectedValuePath="Source"
+                        SelectedValue="{Binding SelectedField.FontFamilyName, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <!-- Font size -->
+                    <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                        <TextBlock Text="Font Size:" Width="100"/>
+                        <Slider Minimum="8"
+                            Maximum="96"
+                            Width="200"
+                            Value="{Binding SelectedField.FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="1"
+                            IsSnapToTickEnabled="True"
+                            SmallChange="1"
+                            LargeChange="2"
+                            AutoToolTipPlacement="BottomRight"
+                            AutoToolTipPrecision="0"/>
+                        <TextBlock Text="{Binding SelectedField.FontSize, StringFormat=F0}"
+                        Margin="0 4 0 0"/>
+                    </StackPanel>
+
+                    <!-- Bold -->
+                    <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                        <TextBlock Text="Fett:" Width="100"/>
+                        <CheckBox IsChecked="{Binding SelectedField.IsBold, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                    </StackPanel>
+
+                    <!-- Alignment -->
+                    <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                        <TextBlock Text="Ausrichtung:" Width="100"/>
+                        <ComboBox Width="100"
+                                    SelectedValuePath="Content"
+                                    SelectedValue="{Binding SelectedField.TextAlignment, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <ComboBoxItem Content="Left"/>
+                            <ComboBoxItem Content="Center"/>
+                            <ComboBoxItem Content="Right"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- X/Y -->
+                    <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                        <TextBlock Text="X:" Width="100"/>
+                        <TextBox Width="80"
+                                    Text="{Binding SelectedField.X, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Y:" Width="40" Margin="12 0 0 0"/>
+                        <TextBox Width="80"
+                                    Text="{Binding SelectedField.Y, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+
+                        
+                </StackPanel>
+            </Border>
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="10 10 0 0">
+                    <Button Width="100" Content="Feld hinzufügen" Click="OnAddField"/>
+                    <Button Width="100" Margin="10 0 0 0" Content="Feld löschen" Click="OnDeleteField">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedField, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
             </Grid>
             <!-- Design surface -->
             <ScrollViewer Grid.Column="1"
-                       HorizontalScrollBarVisibility="Auto"
-                       VerticalScrollBarVisibility="Auto">
-                <Grid Background="#FFFFFF">
-                    <!-- Background (image or rendered PDF page) -->
-                    <Image x:Name="BackgroundImage"
-                        Stretch="Uniform"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"/>
-                    <!-- Overlay for draggable fields (pixel coordinates) -->
-                    <Canvas x:Name="OverlayCanvas" Background="Transparent"/>
-                </Grid>
+              HorizontalScrollBarVisibility="Auto"
+              VerticalScrollBarVisibility="Auto"
+              Background="#F3F3F3">
+                <!-- Sichtbarer Rahmen um die A4-Fläche -->
+                <Border x:Name="DesignFrame" BorderBrush="#7F808080" BorderThickness="2" CornerRadius="4"
+                Background="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                SnapsToDevicePixels="True">     
+                    <Border.RenderTransform>
+                        <ScaleTransform x:Name="ZoomTransform" ScaleX="0.75" ScaleY="0.75"/>
+                        <!-- Start: 75% -->
+                    </Border.RenderTransform>
+
+                    <Grid>
+                       
+                        <Image x:Name="BackgroundImage"
+                         Stretch="Fill"/>
+                        <!-- Overlay für verschiebbare Felder -->
+                        <Canvas x:Name="OverlayCanvas" Background="Transparent"/>
+                    </Grid>
+                </Border>
             </ScrollViewer>
         </Grid>
     </Grid>
