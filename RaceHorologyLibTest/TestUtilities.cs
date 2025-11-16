@@ -37,6 +37,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
@@ -196,104 +197,104 @@ namespace RaceHorologyLibTest
   }
 
 
-  public class DummyDataBase : IAppDataModelDataBase
-  {
-    List<Race.RaceProperties> _races;
-    string _basePath;
-
-    public DummyDataBase(string basePath, bool createRace = false)
+    public class DummyDataBase : IAppDataModelDataBase
     {
-      _races = new List<Race.RaceProperties>();
-      if (createRace)
-      {
-        _races.Add(new Race.RaceProperties
+        List<Race.RaceProperties> _races;
+        string _basePath;
+
+        public DummyDataBase(string basePath, bool createRace = false)
         {
-          RaceType = Race.ERaceType.GiantSlalom,
-          Runs = 2
-        });
-      }
-      _basePath = basePath;
-    }
+            _races = new List<Race.RaceProperties>();
+            if (createRace)
+            {
+                _races.Add(new Race.RaceProperties
+                {
+                    RaceType = Race.ERaceType.GiantSlalom,
+                    Runs = 2
+                });
+            }
+            _basePath = basePath;
+        }
 
 
-    public void Close()
-    {
-      // Simply nothing todo
-    }
+        public void Close()
+        {
+            // Simply nothing todo
+        }
 
-    public string GetDBPath() { return System.IO.Path.Combine(_basePath, GetDBFileName()); }
-    public string GetDBFileName() { return "dummy.mdb"; }
-    public string GetDBPathDirectory() { return _basePath; }
-
-
-    public ItemsChangeObservableCollection<Participant> GetParticipants() { return new ItemsChangeObservableCollection<Participant>(); }
-
-    public List<ParticipantGroup> GetParticipantGroups() { return new List<ParticipantGroup>(); }
-    public List<ParticipantClass> GetParticipantClasses() { return new List<ParticipantClass>(); }
-    public List<ParticipantCategory> GetParticipantCategories() { return new List<ParticipantCategory>(); }
-    public List<Team> GetTeams() { return new List<Team>(); }
-    public List<TeamGroup> GetTeamGroups() { return new List<TeamGroup>(); }
+        public string GetDBPath() { return System.IO.Path.Combine(_basePath, GetDBFileName()); }
+        public string GetDBFileName() { return "dummy.mdb"; }
+        public string GetDBPathDirectory() { return _basePath; }
 
 
-    public List<Race.RaceProperties> GetRaces() { return _races; }
-    public List<RaceParticipant> GetRaceParticipants(Race race, bool ignoreActiveFlag = false) { return new List<RaceParticipant>(); }
+        public ItemsChangeObservableCollection<Participant> GetParticipants() { return new ItemsChangeObservableCollection<Participant>(); }
 
-    public List<RunResult> GetRaceRun(Race race, uint run) { return new List<RunResult>(); }
-
-    public AdditionalRaceProperties GetRaceProperties(Race race) { return null; }
-    public void StoreRaceProperties(Race race, AdditionalRaceProperties props) { }
-
-    public void CreateOrUpdateParticipant(Participant participant) { }
-    public void RemoveParticipant(Participant participant) { }
-
-    public void CreateOrUpdateRaceParticipant(RaceParticipant participant) { }
-    public void RemoveRaceParticipant(RaceParticipant raceParticipant) { }
-
-    public void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result) { }
-    public void DeleteRunResult(Race race, RaceRun raceRun, RunResult result) { }
-
-    public void UpdateRace(Race race, bool active) { }
-
-    public void CreateOrUpdateClass(ParticipantClass c) { }
-
-    public void RemoveClass(ParticipantClass c) { }
-
-    public void CreateOrUpdateGroup(ParticipantGroup g) { }
-
-    public void RemoveGroup(ParticipantGroup g) { }
-    public void CreateOrUpdateCategory(ParticipantCategory c) { }
-    public void RemoveCategory(ParticipantCategory c) { }
-
-    public void CreateOrUpdateTeam(Team t) { }
-    public void RemoveTeam(Team c) { }
-    public void CreateOrUpdateTeamGroup(TeamGroup tg) { }
-    public void RemoveTeamGroup(TeamGroup tg) { }
-
-    public string GetTimingDevice(Race race) { return "Alge TdC8000/8001"; }
-    public void StoreTimingDevice(Race race, string timingDevice){}
-
-    public Dictionary<string, string> GetRefereeReportData(Race race)
-    {
-
-        Dictionary<string, string> dict = new Dictionary<string, string>();
+        public List<ParticipantGroup> GetParticipantGroups() { return new List<ParticipantGroup>(); }
+        public List<ParticipantClass> GetParticipantClasses() { return new List<ParticipantClass>(); }
+        public List<ParticipantCategory> GetParticipantCategories() { return new List<ParticipantCategory>(); }
+        public List<Team> GetTeams() { return new List<Team>(); }
+        public List<TeamGroup> GetTeamGroups() { return new List<TeamGroup>(); }
 
 
-        return dict;
-    }
+        public List<Race.RaceProperties> GetRaces() { return _races; }
+        public List<RaceParticipant> GetRaceParticipants(Race race, bool ignoreActiveFlag = false) { return new List<RaceParticipant>(); }
+
+        public List<RunResult> GetRaceRun(Race race, uint run) { return new List<RunResult>(); }
+
+        public AdditionalRaceProperties GetRaceProperties(Race race) { return null; }
+        public void StoreRaceProperties(Race race, AdditionalRaceProperties props) { }
+
+        public void CreateOrUpdateParticipant(Participant participant) { }
+        public void RemoveParticipant(Participant participant) { }
+
+        public void CreateOrUpdateRaceParticipant(RaceParticipant participant) { }
+        public void RemoveRaceParticipant(RaceParticipant raceParticipant) { }
+
+        public void CreateOrUpdateRunResult(Race race, RaceRun raceRun, RunResult result) { }
+        public void DeleteRunResult(Race race, RaceRun raceRun, RunResult result) { }
+
+        public void UpdateRace(Race race, bool active) { }
+
+        public void CreateOrUpdateClass(ParticipantClass c) { }
+
+        public void RemoveClass(ParticipantClass c) { }
+
+        public void CreateOrUpdateGroup(ParticipantGroup g) { }
+
+        public void RemoveGroup(ParticipantGroup g) { }
+        public void CreateOrUpdateCategory(ParticipantCategory c) { }
+        public void RemoveCategory(ParticipantCategory c) { }
+
+        public void CreateOrUpdateTeam(Team t) { }
+        public void RemoveTeam(Team c) { }
+        public void CreateOrUpdateTeamGroup(TeamGroup tg) { }
+        public void RemoveTeamGroup(TeamGroup tg) { }
+
+        public string GetTimingDevice(Race race) { return "Alge TdC8000/8001"; }
+        public void StoreTimingDevice(Race race, string timingDevice) { }
+
+        public Dictionary<string, string> GetRefereeReportData(Race race)
+        {
+
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+
+
+            return dict;
+        }
 
 
 
-    public void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race, bool update)
-    {
+        public void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race, bool update)
+        {
 
-         
-    }
+
+        }
 
 
         public PrintCertificateModel GetCertificateModel(Race race)
-    {
-      var pcm = new PrintCertificateModel();
-      pcm.TextItems = new List<TextItem>()
+        {
+            var pcm = new PrintCertificateModel();
+            pcm.TextItems = new ObservableCollection<TextItem>()
       {
         new TextItem { Text = "Test Race", Font = "TxFont\r\nMicrosoft Sans Serif, kursiv, 28", Alignment = (TextItemAlignment) 2, VPos = 1345, HPos = 1050},
         new TextItem { Text = "2022", Font = "TxFont\r\nMicrosoft Sans Serif, 28", Alignment = (TextItemAlignment) 2, VPos = 1480, HPos = 1050},
@@ -305,11 +306,15 @@ namespace RaceHorologyLibTest
         new TextItem { Text = "Kirchberg in Tirol, <Bewerbsdatum>", Font = "Arial, 12", Alignment = (TextItemAlignment) 0, VPos = 2389, HPos = 240},
         new TextItem { Text = "WSV Glonn", Font = "Arial, 12", Alignment = (TextItemAlignment) 1, VPos = 2389, HPos = 1820}
       };
-      return pcm;
-    }
+            return pcm;
+        }
+
+        void SaveCertificateModel(Race race, PrintCertificateModel model)
+        {
+        }
 
 
-    Dictionary<string, string> _keyValueStore = new Dictionary<string, string>();
+        Dictionary<string, string> _keyValueStore = new Dictionary<string, string>();
     public void StoreKeyValue(string key, string value) 
     {
       _keyValueStore[key] = value;

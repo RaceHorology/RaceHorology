@@ -2316,7 +2316,7 @@ namespace RaceHorologyLib
 
 
 
-        public PrintCertificateModel GetCertificateModel(Race race)
+    public PrintCertificateModel GetCertificateModel(Race race)
     {
       var pcm = new PrintCertificateModel();
 
@@ -2357,9 +2357,49 @@ namespace RaceHorologyLib
       return pcm;
     }
 
+        public void SaveCertificateModel(Race race, PrintCertificateModel model)
+        {
+            int disziplin = (int)race.RaceType;
 
+            // 1) Delete all old rows for this Disziplin
+            string deleteSql =
+                @"DELETE FROM XtblUrkunde WHERE Disziplin = @d";
 
-    private static int GetLatestAutonumber(OleDbConnection connection)
+            using (var deleteCmd = new OleDbCommand(deleteSql, _conn))
+            {
+                deleteCmd.Parameters.Add(new OleDbParameter("@d", disziplin));
+                deleteCmd.ExecuteNonQuery();
+            }
+
+            // 2) Insert each TextItem in order
+            string insertSql =
+                @"INSERT INTO XtblUrkunde
+            (Disziplin, id, TxText, TxFont, TxAlign, TxVpos, TxHpos)
+          VALUES
+            (@d, @id, @text, @font, @align, @vpos, @hpos)";
+            
+            int id = 1;
+
+            foreach (var item in model.TextItems)
+            {
+                using (var insertCmd = new OleDbCommand(insertSql, _conn))
+                {
+                    insertCmd.Parameters.Add(new OleDbParameter("@d", disziplin));
+                    insertCmd.Parameters.Add(new OleDbParameter("@id", id));
+                    insertCmd.Parameters.Add(new OleDbParameter("@text", item.Text ?? ""));
+                    insertCmd.Parameters.Add(new OleDbParameter("@font", item.Font ?? ""));
+                    insertCmd.Parameters.Add(new OleDbParameter("@align", (short)item.Alignment));
+                    insertCmd.Parameters.Add(new OleDbParameter("@vpos", (short)item.VPos));
+                    insertCmd.Parameters.Add(new OleDbParameter("@hpos", (short)item.HPos));
+
+                    insertCmd.ExecuteNonQuery();
+
+                    id++;
+                }
+            }
+        }
+
+        private static int GetLatestAutonumber(OleDbConnection connection)
     {
       using (OleDbCommand command = new OleDbCommand("SELECT @@IDENTITY;", connection))
       {

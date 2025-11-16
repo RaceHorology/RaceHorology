@@ -1,44 +1,225 @@
+using DocumentFormat.OpenXml.Spreadsheet;
+using iText.IO.Font;
+using iText.Kernel.Font;
 using iText.Kernel.Pdf;
+using iText.Kernel.XMP.Impl;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using static RaceHorologyLib.PrintCertificateModel;
-using iText.IO.Font;
-using iText.Kernel.Font;
-using Microsoft.Win32;
-using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
-using DocumentFormat.OpenXml.Spreadsheet;
-using iText.Kernel.XMP.Impl;
+using System.Globalization;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Text.RegularExpressions;
+using static RaceHorologyLib.PrintCertificateModel;
+
+
 
 namespace RaceHorologyLib
 {
-  public class PrintCertificateModel
-  {
-    public enum TextItemAlignment { Left = 0, Center = 2, Right = 1 };
-    public struct TextItem
+
+    public class PrintCertificateModel : INotifyPropertyChanged
     {
-      public string Text;
-      public string Font;
-      public TextItemAlignment Alignment;
-      public int VPos;
-      public int HPos;
+        public enum TextItemAlignment { Left = 0, Center = 2, Right = 1 };
+
+        [DataContract]
+        public class TextItem : INotifyPropertyChanged
+        {
+
+            public TextItemAlignment Alignment;
+
+
+            protected bool SetField<T>(ref T storage, T value, [CallerMemberName] string prop = null)
+            {
+                if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+                storage = value;
+                OnPropertyChanged(prop);
+                return true;
+            }
+
+            private string _text = string.Empty;
+            [DataMember(Order = 0)] public string Text { get { return _text; } set { _text = value; OnPropertyChanged(); } }
+
+            private int _hPos;
+            [DataMember(Order = 1)] public int HPos { get => _hPos; set => SetField(ref _hPos, value); }
+
+            private int _vPos;
+            [DataMember(Order = 2)] public int VPos { get => _vPos; set => SetField(ref _vPos, value); }
+
+            private TextAlignment _textAlignment = TextAlignment.LEFT; // "Left", "Center", "Right"
+            [DataMember(Order = 3)] public TextAlignment TextAlignment { get { return _textAlignment; } set { _textAlignment = value; OnPropertyChanged(); } }
+
+   
+            // ===== Composite font string from DB =====
+            private string _font = "Segoe UI, 12";
+            [DataMember(Order = 4)]
+            public string Font
+            {
+                get => _font;
+                set
+                {
+                    if (value == _font) return;
+                    _font = value ?? "";
+                    OnPropertyChanged();      // notify Font changed
+                                              // Parse into parts without causing loops:
+                    ParseFontString(_font, out var fam, out var bold, out var italic, out var size);
+                    _updatingFromComposite = true;
+                    try
+                    {
+                        // Only set if changed to avoid redundant events
+                        FontFamilyName = fam;
+                        IsBold = bold;
+                        IsItalic = italic;
+                        FontSize = size;
+                    }
+                    finally { _updatingFromComposite = false; }
+                }
+            }
+
+   
+            private bool _isBold;
+            [DataMember(Order = 5)]
+            public bool IsBold
+            {
+                get => _isBold;
+                set
+                {
+                    if (!SetField(ref _isBold, value)) return;
+                    RebuildFontIfNeeded();
+                }
+            }
+
+            private bool _isItalic;
+            [DataMember(Order = 6)]
+            public bool IsItalic
+            {
+                get => _isItalic;
+                set
+                {
+                    if (!SetField(ref _isItalic, value)) return;
+                    RebuildFontIfNeeded();
+                }
+            }
+
+            private double _fontSize = 24.0;
+            [DataMember(Order = 7)]
+            public double FontSize
+            {
+                get
+                {
+                    return _fontSize;
+                }
+                set
+                {
+                    if (!SetField(ref _fontSize, value)) return;
+                    RebuildFontIfNeeded();
+                }
+            }
+
+            // In FieldVM:
+            [DataMember(Order = 8)]
+            public string FontFamilyName
+            {
+                 get { return _fontFamilyName; }
+                 set
+                {
+                    if (!SetField(ref _fontFamilyName, value)) return;
+                    RebuildFontIfNeeded();
+                }
+            }
+            
+            private string _fontFamilyName = "Segoe UI"; // Default
+
+            // ===== Loop prevention =====
+            private bool _updatingFromComposite;   // set when parsing Font->parts
+            private bool _updatingComposite;       // set when composing parts->Font
+
+            private void RebuildFontIfNeeded()
+            {
+                if (_updatingFromComposite) return; // don't echo while parsing
+
+                var composed = ComposeFontString(FontFamilyName, IsBold, IsItalic, FontSize);
+                if (string.Equals(composed, _font, System.StringComparison.Ordinal)) return;
+
+                _updatingComposite = true;
+                try
+                {
+                    _font = composed;
+                    OnPropertyChanged(nameof(Font)); // raise once after rebuild
+                }
+                finally { _updatingComposite = false; }
+            }
+
+
+            // ===== Parsing/composing helpers =====
+            private static void ParseFontString(string s, out string family, out bool bold, out bool italic, out double sizePt)
+            {
+                family = "Segoe UI"; bold = false; italic = false; sizePt = 12.0;
+                if (string.IsNullOrWhiteSpace(s)) return;
+
+                var tokens = s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (tokens.Length == 0) return;
+
+                family = tokens[0].Trim();
+                for (int i = 1; i < tokens.Length; i++)
+                {
+                    var t = tokens[i].Trim();
+                    if (t.Length == 0) continue;
+
+                    // styles
+                    if (t.Equals("fett", System.StringComparison.OrdinalIgnoreCase)) { bold = true; continue; }
+                    if (t.Equals("kursiv", System.StringComparison.OrdinalIgnoreCase)) { italic = true; continue; }
+
+                    // size: accept "12", "12pt"
+                    if (double.TryParse(t.TrimEnd().TrimEnd('p', 't'),
+                            NumberStyles.Float, CultureInfo.InvariantCulture, out var n))
+                    {
+                        sizePt = n;
+                    }
+                }
+            }
+
+            private static string ComposeFontString(string family, bool bold, bool italic, double sizePt)
+            {
+                var sb = new StringBuilder();
+                sb.Append(string.IsNullOrWhiteSpace(family) ? "Segoe UI" : family.Trim());
+                if (bold) sb.Append(", fett");
+                if (italic) sb.Append(", kursiv");
+                sb.Append(", ").Append(sizePt.ToString("0.###", CultureInfo.InvariantCulture));
+
+                return sb.ToString();
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            private void OnPropertyChanged([CallerMemberName] string n = null)
+            { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
+
+        }
+
+         private ObservableCollection<TextItem> _textItems;
+         public ObservableCollection<TextItem> TextItems { get { return _textItems; } set { _textItems = value; OnPropertyChanged(); } }
+
+
+        public PrintCertificateModel()
+        {
+            TextItems = new ObservableCollection<TextItem>();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string n = null)
+        { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
+
     }
 
-    public List<TextItem> TextItems;
 
-    public PrintCertificateModel() 
-    {
-      TextItems = new List<TextItem>();
-    }
-
-  }
-
-
-  internal class CertificatesUtils
+  public class CertificatesUtils
   {
     protected Dictionary<string, PdfFont> _fontCache;
 
@@ -94,6 +275,22 @@ namespace RaceHorologyLib
       }
     }
 
+        /// <summary>
+        /// For converting later to System.Windows.TextAllignment
+        /// </summary>
+        /// <param name="al"></param>
+        /// <returns></returns>
+        public static int mapAlignmentInt(TextItemAlignment al)
+        {
+            switch (al)
+            {
+                case TextItemAlignment.Left: return (int)TextAlignment.LEFT;
+                case TextItemAlignment.Right: return (int)TextAlignment.RIGHT;
+                case TextItemAlignment.Center: return (int)TextAlignment.CENTER;
+            }
+            return (int)TextAlignment.LEFT;
+        }
+
     public static TextAlignment mapAlignment(TextItemAlignment al)
     {
       switch (al)
@@ -103,6 +300,24 @@ namespace RaceHorologyLib
         case TextItemAlignment.Center: return TextAlignment.CENTER;
       }
       return TextAlignment.LEFT;
+    }
+
+
+    public static string MapFontFamily(string font)
+    {
+        var fontParts = font.Split(',');
+        fontParts = Array.ConvertAll(fontParts, (f) => f.Trim());
+
+        try
+        {
+            return fontParts[0];
+        }
+
+
+        catch (Exception)
+        {
+            return "Arial";
+        }
     }
 
     public static int MapFontSize(string font)

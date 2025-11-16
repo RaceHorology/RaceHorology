@@ -1,12 +1,15 @@
-﻿using System;
+﻿using RaceHorologyLib;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,8 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using RaceHorologyLib;
-using System.ComponentModel.Design;
+using static RaceHorologyLib.PrintCertificateModel;
 
 namespace RaceHorology
 {
@@ -28,6 +30,7 @@ namespace RaceHorology
 
         private AppDataModel _dm;
         private Race _race;
+
 
         public event EventHandler Finished;
 
@@ -50,6 +53,8 @@ namespace RaceHorology
         public ObservableCollection<FontFamily> SystemFonts { get; } =
             new ObservableCollection<FontFamily>(Fonts.SystemFontFamilies.OrderBy(f => f.Source));
 
+        public PrintCertificateModel _certificateModel { get; set; }
+
         public CertificateDesignerUC()
         {
             InitializeComponent();
@@ -63,39 +68,29 @@ namespace RaceHorology
         public void Init(AppDataModel dm, Race race)
         {
             _dm = dm;
-
-
             _race = race;
 
+            _certificateModel = _race.GetDataModel().GetDB().GetCertificateModel(_race);
 
+            RebuildOverlay();
         }
 
-
+      
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                _race.GetDataModel().GetDB().SaveCertificateModel(_race, _certificateModel);
+            }
+            catch (Exception ex)
+            {
 
-            Finished?.Invoke(this, new EventArgs());
+            }
         }
 
-        private void btnCancel_Click(object sender, RoutedEventArgs e)
-        {
-            Finished?.Invoke(this, new EventArgs());
-        }
+   
 
-        // (Optional) eigene Liste setzen:
-        public void SetFontFamilies(IEnumerable<FontFamily> fonts)
-        {
-            SystemFonts.Clear();
-            if (fonts == null) return;
-            foreach (var f in fonts) SystemFonts.Add(f);
-        }
-        public void SetPresets(IEnumerable<string> tokens)
-        {
-            Presets.Clear();
-            if (tokens == null) return;
-            foreach (var t in tokens)
-                if (!string.IsNullOrWhiteSpace(t)) Presets.Add(t);
-        }
+   
 
         // Handler: überschreibt sofort den Freitext von SelectedField
         private void OnPresetSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -103,25 +98,23 @@ namespace RaceHorology
             if (SelectedField == null) return;
             var cb = sender as ComboBox; if (cb == null) return;
             var token = cb.SelectedItem as string; if (string.IsNullOrEmpty(token)) return;
-            SelectedField.Value = token; // z.B. "<Date>"
+            SelectedField.Text = token; // z.B. "<Date>"
         }
 
-        private void OnPresetClear(object sender, RoutedEventArgs e)
-        {
-            if (SelectedField == null) return;
-            SelectedField.Value = string.Empty;
-        }
 
-        public ObservableCollection<FieldVM> Fields { get; private set; } = new ObservableCollection<FieldVM>();
-
-        private FieldVM _selectedField;
-        public FieldVM SelectedField
+        private TextItem _selectedField;
+        public TextItem SelectedField
         {
             get { return _selectedField; }
-            set { _selectedField = value; OnPropertyChanged(); if (SelectedFieldChanged != null) SelectedFieldChanged(this, value); }
+            set 
+            { 
+                _selectedField = value; 
+                OnPropertyChanged(); 
+                if (SelectedFieldChanged != null) 
+                    SelectedFieldChanged(this, value); }
         }
 
-        public event EventHandler<FieldVM> SelectedFieldChanged;
+        public event EventHandler<TextItem> SelectedFieldChanged;
 
 
         private double _zoom = 0.75; // Startwert für Laptops
@@ -169,12 +162,23 @@ namespace RaceHorology
             while (p != null && !(p is T)) p = VisualTreeHelper.GetParent(p);
             return p as T;
         }
+        public static double TenthMmToDip(int tenthMm)
+        {
+            return (tenthMm / 10.0) * (DpiDip / 25.4);
+        }
+
+        public static int DipToTenthMm(double dip)
+        {
+            return (int)Math.Round((dip * 25.4 / DpiDip) * 10.0);
+        }
 
         // Bei Größenänderung automatisch anpassen (optional)
         private void OnRootSizeChanged(object sender, SizeChangedEventArgs e) => FitToWindow();
 
         // Konstanten: DIN A4 in DIPs (1 DIP = 1/96")
         const double DpiDip = 96.0;
+        const double MM_TO_DIP = DpiDip / 25.4;        // 1 mm
+        const double TENTH_MM_TO_DIP = MM_TO_DIP / 10; // 0.1 mm
         const double A4WidthIn = 210.0 / 25.4;  // 210 mm
         const double A4HeightIn = 297.0 / 25.4;  // 297 mm
         static readonly double A4WidthDip = A4WidthIn * DpiDip; // ≈ 793.7
@@ -197,9 +201,6 @@ namespace RaceHorology
             OverlayCanvas.Clip = new RectangleGeometry(new Rect(0, 0, OverlayCanvas.Width, OverlayCanvas.Height));
         }
 
-        // Optional: mm → DIP (für numerische Platzierung in mm)
-        public static double MmToDip(double mm) => (mm / 25.4) * DpiDip;
-        public static Point MmToDip(double mmX, double mmY) => new Point(MmToDip(mmX), MmToDip(mmY));
 
 
         // ===================== Public API =====================
@@ -228,45 +229,25 @@ namespace RaceHorology
                 return;
             }
 
-#if PDFIUM
-            if (ext == ".pdf")
-            {
-                try
-                {
-                    using (var doc = PdfiumViewer.PdfDocument.Load(filePath))
-                    using (var img = doc.Render(0, 300, 300, true)) // first page @300 DPI
-                    {
-                        var bi = ConvertDrawingBitmapToBitmapImage(img);
-                        SetBackground(bi);
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Failed to render PDF: " + ex.Message);
-                    return;
-                }
-            }
-#endif
             throw new NotSupportedException("Unsupported background format: " + ext);
         }
 
         public void SaveLayout(Stream stream)
         {
             if (stream == null) throw new ArgumentNullException("stream");
-            var ser = new DataContractJsonSerializer(typeof(ObservableCollection<FieldVM>));
-            ser.WriteObject(stream, Fields);
+            var ser = new DataContractJsonSerializer(typeof(ObservableCollection<TextItem>));
+            ser.WriteObject(stream, _certificateModel.TextItems);
         }
 
         public void LoadLayout(Stream stream)
         {
             if (stream == null) throw new ArgumentNullException("stream");
-            var ser = new DataContractJsonSerializer(typeof(ObservableCollection<FieldVM>));
-            var loaded = ser.ReadObject(stream) as ObservableCollection<FieldVM>;
+            var ser = new DataContractJsonSerializer(typeof(ObservableCollection<TextItem>));
+            var loaded = ser.ReadObject(stream) as ObservableCollection<TextItem>;
             if (loaded != null)
             {
-                Fields.Clear();
-                foreach (var f in loaded) Fields.Add(f);
+                _certificateModel.TextItems.Clear();
+                foreach (var f in loaded) _certificateModel.TextItems.Add(f);
                 RebuildOverlay();
             }
         }
@@ -297,8 +278,8 @@ namespace RaceHorology
         private void RebuildOverlay()
         {
             OverlayCanvas.Children.Clear();
-            for (int i = 0; i < Fields.Count; i++)
-                OverlayCanvas.Children.Add(CreateDraggable(Fields[i]));
+            for (int i = 0; i < _certificateModel.TextItems.Count; i++)
+                OverlayCanvas.Children.Add(CreateDraggable(_certificateModel.TextItems[i]));
         }
 
         private void SetClampedPosition(FrameworkElement el, double x, double y)
@@ -315,33 +296,59 @@ namespace RaceHorology
             Canvas.SetTop(el, y);
         }
 
-        private void ClampVmToCanvas(FieldVM vm, FrameworkElement el)
+        private void ClampVmToCanvas(TextItem vm, FrameworkElement el)
         {
+            //if (vm == null || el == null) return;
+
+            //double maxX = Math.Max(0, OverlayCanvas.Width - el.ActualWidth);
+            //double maxY = Math.Max(0, OverlayCanvas.Height - el.ActualHeight);
+
+            //vm.HPos = (int)Math.Min(Math.Max(0, vm.HPos), maxX);
+            //vm.VPos = (int)Math.Min(Math.Max(0, vm.VPos), maxY);
+
+            //Canvas.SetLeft(el, vm.HPos);
+            //Canvas.SetTop(el, vm.VPos);
             if (vm == null || el == null) return;
 
-            double maxX = Math.Max(0, OverlayCanvas.Width - el.ActualWidth);
-            double maxY = Math.Max(0, OverlayCanvas.Height - el.ActualHeight);
+            // compute canvas limits (DIP)
+            double maxXdip = Math.Max(0, OverlayCanvas.Width - el.ActualWidth);
+            double maxYdip = Math.Max(0, OverlayCanvas.Height - el.ActualHeight);
 
-            vm.X = Math.Min(Math.Max(0, vm.X), maxX);
-            vm.Y = Math.Min(Math.Max(0, vm.Y), maxY);
+            // convert model position (tenth mm → DIP)
+            double wantedX = TenthMmToDip(vm.HPos);
+            double wantedY = TenthMmToDip(vm.VPos);
 
-            Canvas.SetLeft(el, vm.X);
-            Canvas.SetTop(el, vm.Y);
+            // clamp DIP values
+            double clampedX = Math.Min(Math.Max(0, wantedX), maxXdip);
+            double clampedY = Math.Min(Math.Max(0, wantedY), maxYdip);
+
+            // apply to UI
+            Canvas.SetLeft(el, clampedX);
+            Canvas.SetTop(el, clampedY);
+
+            // convert DIP → tenths of mm (round!) and write back
+            int newH = DipToTenthMm(clampedX);
+            int newV = DipToTenthMm(clampedY);
+
+            if (newH != vm.HPos) vm.HPos = newH;
+            if (newV != vm.VPos) vm.VPos = newV;
         }
 
-        private FrameworkElement CreateDraggable(FieldVM vm)
+        private FrameworkElement CreateDraggable(TextItem vm)
         {
             var text = new TextBlock();
             text.DataContext = vm;
-            text.Text = vm.Value;                 // oder ResolveEffectiveText(vm) falls du Merge hast
+            text.Text = vm.Text;                 // oder ResolveEffectiveText(vm) falls du Merge hast
             text.FontSize = vm.FontSize;
             text.FontWeight = vm.IsBold ? FontWeights.Bold : FontWeights.Normal;
             text.Foreground = Brushes.Black;
-            text.TextAlignment = ToTextAlignment(vm.TextAlignment);
-            text.FontFamily = new FontFamily(vm.FontFamilyName);   // NEU
+            text.TextAlignment = ToTextAlignment(CertificatesUtils.mapAlignmentInt(vm.Alignment));
+
+
+            text.FontFamily = new FontFamily(CertificatesUtils.MapFontFamily(vm.Font));   // NEU
 
             // bestehende Bindings
-            text.SetBinding(TextBlock.TextProperty, new Binding("Value"));      // falls Merge, weglassen
+            text.SetBinding(TextBlock.TextProperty, new Binding("Text"));      // falls Merge, weglassen
             text.SetBinding(TextBlock.FontSizeProperty, new Binding("FontSize"));
 
 
@@ -352,7 +359,7 @@ namespace RaceHorology
                 if (e.PropertyName == "IsBold")
                     text.FontWeight = vm.IsBold ? FontWeights.Bold : FontWeights.Normal;
                 else if (e.PropertyName == "TextAlignment")
-                    text.TextAlignment = ToTextAlignment(vm.TextAlignment);
+                    text.TextAlignment = ToTextAlignment(CertificatesUtils.mapAlignmentInt(vm.Alignment));
                 else if (e.PropertyName == "FontFamilyName")       // NEU
                     text.FontFamily = new FontFamily(vm.FontFamilyName);
             };
@@ -365,8 +372,10 @@ namespace RaceHorology
             border.SizeChanged += (s, e) => ClampVmToCanvas(vm, border);
 
             // Startposition
-            Canvas.SetLeft(border, vm.X);
-            Canvas.SetTop(border, vm.Y);
+            //Canvas.SetLeft(border, vm.HPos);
+            //Canvas.SetTop(border, vm.VPos);
+            Canvas.SetLeft(border, TenthMmToDip(vm.HPos));
+            Canvas.SetTop(border, TenthMmToDip(vm.VPos));
 
             Point dragStart = new Point();
             bool dragging = false;
@@ -391,8 +400,10 @@ namespace RaceHorology
                 double x = startLeft + (pos.X - dragStart.X);
                 double y = startTop + (pos.Y - dragStart.Y);
                 SetClampedPosition(border, x, y);
-                vm.X = Canvas.GetLeft(border);
-                vm.Y = Canvas.GetTop(border);
+                //vm.HPos = (int)Canvas.GetLeft(border);
+                //vm.VPos = (int)Canvas.GetTop(border);
+                vm.HPos = DipToTenthMm(Canvas.GetLeft(border));
+                vm.VPos = DipToTenthMm(Canvas.GetTop(border));
             };
 
             border.MouseLeftButtonUp += delegate (object s, MouseButtonEventArgs e)
@@ -407,7 +418,7 @@ namespace RaceHorology
 
             vm.PropertyChanged += delegate (object s, PropertyChangedEventArgs e)
             {
-                if (e.PropertyName == "X" || e.PropertyName == "Y")
+                if (e.PropertyName == "HPos" || e.PropertyName == "VPos")
                     ClampVmToCanvas(vm, border);
 
             };
@@ -415,10 +426,10 @@ namespace RaceHorology
             return border;
         }
 
-        private static TextAlignment ToTextAlignment(string value)
+        private static TextAlignment ToTextAlignment(int value)
         {
-            if (string.Equals(value, "Center", StringComparison.OrdinalIgnoreCase)) return TextAlignment.Center;
-            if (string.Equals(value, "Right", StringComparison.OrdinalIgnoreCase)) return TextAlignment.Right;
+            if (value==1) return TextAlignment.Center;
+            if (value==2) return TextAlignment.Right;
             return TextAlignment.Left;
         }
 
@@ -433,19 +444,6 @@ namespace RaceHorology
             }
         }
 
-        private void OnLoadPdfBackground_Click(object sender, RoutedEventArgs e)
-        {
-            var dlg = new Microsoft.Win32.OpenFileDialog { Filter = "PDF|*.pdf" };
-            if (dlg.ShowDialog() == true)
-            {
-#if PDFIUM
-                try { LoadBackground(dlg.FileName); }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
-#else
-                MessageBox.Show("To enable PDF preview, install PdfiumViewer.Core + PdfiumCore.Native and define PDFIUM.");
-#endif
-            }
-        }
 
         private void OnSaveLayout_Click(object sender, RoutedEventArgs e)
         {
@@ -478,8 +476,8 @@ namespace RaceHorology
         private void OnAddField(object sender, RoutedEventArgs e)
         {
 
-            var f = new FieldVM { Key = "Custom", Label = "Custom", Value = "New Field", X = 50, Y = 50, FontSize = 24 };
-            Fields.Add(f);
+            var f = new TextItem { Text = "Neues Feld", HPos = 50, VPos = 50};
+            _certificateModel.TextItems.Add(f);
             SelectedField = f;
             RebuildOverlay();
         }
@@ -493,50 +491,17 @@ namespace RaceHorology
             }
 
             // Optional: Sicherheitsabfrage
-            var ok = MessageBox.Show($"Feld \"{SelectedField.Label}\" löschen?",
+            var ok = MessageBox.Show($"Feld \"{SelectedField.Text}\" löschen?",
                 "Löschen", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (ok != MessageBoxResult.Yes) return;
 
             var victim = SelectedField;
-            Fields.Remove(victim);
+            _certificateModel.TextItems.Remove(victim);
             SelectedField = null;
             RebuildOverlay();
         }
 
-        private void OnExportPng(object sender, RoutedEventArgs e)
-        {
-            if (BackgroundImage.Source == null) { MessageBox.Show("Please load a background first."); return; }
-            var dlg = new Microsoft.Win32.SaveFileDialog { Filter = "PNG Image|*.png" };
-            if (dlg.ShowDialog() == true)
-            {
-                try
-                {
-                    var rtb = RenderComposite(300);
-                    using (var fs = new FileStream(dlg.FileName, FileMode.Create))
-                    {
-                        var enc = new PngBitmapEncoder();
-                        enc.Frames.Add(BitmapFrame.Create(rtb));
-                        enc.Save(fs);
-                    }
-                }
-                catch (Exception ex) { MessageBox.Show("Export failed: " + ex.Message); }
-            }
-        }
-
-        private void OnPrint(object sender, RoutedEventArgs e)
-        {
-            var pd = new PrintDialog();
-            if (pd.ShowDialog() == true)
-            {
-                double w = OverlayCanvas.Width, h = OverlayCanvas.Height;
-                var visual = new Grid { Width = w, Height = h };
-                visual.Children.Add(new Image { Source = BackgroundImage.Source, Width = w, Height = h });
-                visual.Children.Add(new Rectangle { Width = w, Height = h, Fill = new VisualBrush(OverlayCanvas) });
-                visual.Measure(new Size(w, h));
-                visual.Arrange(new Rect(0, 0, w, h));
-                pd.PrintVisual(visual, "Ski Certificate");
-            }
-        }
+       
         // ================================================================
 
 #if PDFIUM
@@ -557,56 +522,57 @@ namespace RaceHorology
         }
 #endif
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string n = null)
-        { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
-    }
-
-    [DataContract]
-    public class FieldVM : INotifyPropertyChanged
-    {
-        protected bool SetField<T>(ref T storage, T value, [CallerMemberName] string prop = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
-            storage = value;
-            OnPropertyChanged(prop);
-            return true;
-        }
-
-        [DataMember(Order = 0)] public string Key { get; set; }
-        [DataMember(Order = 1)] public string Label { get; set; }
-
-        private string _value = string.Empty;
-        [DataMember(Order = 2)] public string Value { get { return _value; } set { _value = value; OnPropertyChanged(); } }
-
-        private double _x;
-        [DataMember(Order = 3)] public double X { get => _x; set => SetField(ref _x, value); }
-
-        private double _y;
-        [DataMember(Order = 4)] public double Y { get => _y; set => SetField(ref _y, value); }
-
-        private double _fontSize = 24.0;
-        [DataMember(Order = 5)] public double FontSize { get { return _fontSize; } set { _fontSize = value; OnPropertyChanged(); } }
-
-        private bool _isBold;
-        [DataMember(Order = 6)] public bool IsBold { get { return _isBold; } set { _isBold = value; OnPropertyChanged(); } }
-
-        private string _textAlignment = "Left"; // "Left", "Center", "Right"
-        [DataMember(Order = 7)] public string TextAlignment { get { return _textAlignment; } set { _textAlignment = value; OnPropertyChanged(); } }
-
-        // In FieldVM:
-        [DataMember(Order = 8)]
-        public string FontFamilyName
-        {
-            get { return _fontFamilyName; }
-            set { _fontFamilyName = value; OnPropertyChanged(); }
-        }
-        private string _fontFamilyName = "Segoe UI"; // Default
-
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string n = null)
         { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
     }
+
+    //[DataContract]
+    //public class FieldVM : INotifyPropertyChanged
+    //{
+    //    protected bool SetField<T>(ref T storage, T value, [CallerMemberName] string prop = null)
+    //    {
+    //        if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+    //        storage = value;
+    //        OnPropertyChanged(prop);
+    //        return true;
+    //    }
+
+    //    [DataMember(Order = 0)] public string Key { get; set; }
+    //    [DataMember(Order = 1)] public string Label { get; set; }
+
+    //    private string _value = string.Empty;
+    //    [DataMember(Order = 2)] public string Value { get { return _value; } set { _value = value; OnPropertyChanged(); } }
+
+    //    private double _x;
+    //    [DataMember(Order = 3)] public double X { get => _x; set => SetField(ref _x, value); }
+
+    //    private double _y;
+    //    [DataMember(Order = 4)] public double Y { get => _y; set => SetField(ref _y, value); }
+
+    //    private double _fontSize = 24.0;
+    //    [DataMember(Order = 5)] public double FontSize { get { return _fontSize; } set { _fontSize = value; OnPropertyChanged(); } }
+
+    //    private bool _isBold;
+    //    [DataMember(Order = 6)] public bool IsBold { get { return _isBold; } set { _isBold = value; OnPropertyChanged(); } }
+
+    //    private string _textAlignment = "Left"; // "Left", "Center", "Right"
+    //    [DataMember(Order = 7)] public string TextAlignment { get { return _textAlignment; } set { _textAlignment = value; OnPropertyChanged(); } }
+
+    //    // In FieldVM:
+    //    [DataMember(Order = 8)]
+    //    public string FontFamilyName
+    //    {
+    //        get { return _fontFamilyName; }
+    //        set { _fontFamilyName = value; OnPropertyChanged(); }
+    //    }
+    //    private string _fontFamilyName = "Segoe UI"; // Default
+
+
+    //    public event PropertyChangedEventHandler PropertyChanged;
+    //    private void OnPropertyChanged([CallerMemberName] string n = null)
+    //    { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
+    //}
 
 }
