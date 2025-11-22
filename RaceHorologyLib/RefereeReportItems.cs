@@ -64,6 +64,8 @@ namespace RaceHorologyLib
             new RefereeReportItem("Trainervertreter_V",    false,     "Trainervertreter Verein"),
             new RefereeReportItem("EDVKR",                 false,     "EDV-KR")  ,
             new RefereeReportItem("EDVKR_V",               true,      "EDV-KR Verein"),
+            new RefereeReportItem("EDVKR_Email",           true,      "EDV-KR Email")  ,
+            new RefereeReportItem("EDVKR_Telefon",         true,      "EDV-KR Telefon"),
             new RefereeReportItem("Startrichter",          false,     "Startrichter"),
             new RefereeReportItem("Startrichter_V",        false,     "Startrichter Verein"),
             new RefereeReportItem("Zielrichter",           true,      "Zielrichter"),
@@ -81,12 +83,14 @@ namespace RaceHorologyLib
             new RefereeReportItem("Zeitmessgeraet",        false,     "Zeitmessgeraet"),
             new RefereeReportItem("Einschaltzeit",         false,     "Einschaltzeit"),
             new RefereeReportItem("Synchronzeit",          true,      "Synchronzeit"),
-            new RefereeReportItem("Kabelverbindung",       false,     "Kabel"),
-            new RefereeReportItem("Funkverbindung",        false,     "Funk"),
-            new RefereeReportItem("ProblemeZeitmessung",   true,      "Probleme Zeitmessung", "Nein"),
+            new RefereeReportItem("Kabelverbindung",       true,      "Kabel"),
+            new RefereeReportItem("Funkverbindung",        true,      "Funk"),
+            //new RefereeReportItem("ProblemeZeitmessung",   true,      "Probleme Zeitmessung", "Nein"),
             new RefereeReportItem("Anz_Teilnehmer",        false,     "Teilnehmer"),
             new RefereeReportItem("Anz_NichtamStartDG1",   false,     "Nicht am Start"),
             new RefereeReportItem("Anz_Klassifizierte",    false,     "Klassifizierte"),
+            new RefereeReportItem("SyncZeit1Min",          true,      "Sync-Zeit nach 1. Min."),
+            new RefereeReportItem("Zeitmessstreifen",      true,      "Zeitmessstreifen", "Ja"),
 
             //Rennstrecke
             new RefereeReportItem("Rennstrecke",           false,     "Ort und Name der Rennstrecke")    ,
@@ -118,17 +122,17 @@ namespace RaceHorologyLib
             new RefereeReportItem("Unfaelle",              true,      "Gab es Unfälle während des Rennens?\r\n(Zusatzbericht erforderlich)"),
 
             //Rennabwicklung           
-            new RefereeReportItem("Witterung",             false,      "Witterungs- und Sichtverhältnisse"),
+            new RefereeReportItem("Witterung",             false,     "Witterungs- und Sichtverhältnisse"),
             new RefereeReportItem("Proteste",              true,      "Wurden Proteste eingereicht?", "Nein"),
-            new RefereeReportItem("Sanktionen",            true,      "Sanktionen gegen Wettkämpfer?", "Nein") ,
-            new RefereeReportItem("Unterstuetzung",        true,      "Unterstützung der Jury durch Organisator?", "Gut"), 
-            new RefereeReportItem("Bemerkungen",           true,     "Bemerkungen\r\nSonstiges", "Keine"),
+            new RefereeReportItem("Sanktionen",            true,      "Sanktionen gegen Athleten?", "Nein") ,
+            //new RefereeReportItem("Unterstuetzung",        true,      "Unterstützung der Jury durch Organisator?", "Gut"), 
+            //new RefereeReportItem("Bemerkungen",           true,     "Bemerkungen\r\nSonstiges", "Keine"),
 
             //Aussteller
             new RefereeReportItem("Aussteller_Name",       false,     "Name"),
             new RefereeReportItem("Aussteller_Telefon",    true,      "Tel."),
             new RefereeReportItem("Aussteller_Email",      true,      "E-Mail"),
-            new RefereeReportItem("Aussteller_KrNr",       true,      "KR-Nr."),
+            //new RefereeReportItem("Aussteller_KrNr",       true,      "KR-Nr."),
 
         };
 

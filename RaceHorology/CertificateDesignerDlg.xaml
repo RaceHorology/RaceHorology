@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RaceHorology"
         Background="#e6eee5"
         mc:Ignorable="d"
-        Title="Urkunden Designer" Height="768" Width="1024">
+        Title="Urkunden Designer" Height="768" Width="1024"  Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>

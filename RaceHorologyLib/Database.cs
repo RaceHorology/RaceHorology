@@ -42,6 +42,7 @@ using System.Data.OleDb;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web.UI.WebControls;
 
 namespace RaceHorologyLib
 {
@@ -163,10 +164,33 @@ namespace RaceHorologyLib
       checkOrUpgradeSchema_tblKategorie();
       checkOrUpgradeSchema_RHTimestamps();
       checkOrUpgradeSchema_ReferreReport();
+      checkOrUpgradeSchema_Certifiate();
       checkOrUpgradeDBVersion();
     }
 
-    void checkOrUpgradeSchema_ReferreReport()
+
+        void checkOrUpgradeSchema_Certifiate()
+        {
+            if (existsTable("XtblUrkunde"))
+                return;
+            
+            // Create TABLE 
+            string sql = @"
+            CREATE TABLE XtblUrkunde (
+                [Disziplin] LONG NOT NULL, 
+                [id] LONG NOT NULL, 
+                [TxText] TEXT(150),
+                [TxFont] TEXT(50), 
+                [TxAlign] SMALLINT,   
+                [TxVpos] SMALLINT,   
+                [TxHpos] SMALLINT    
+            )";
+
+            OleDbCommand cmd = new OleDbCommand(sql, _conn);
+            int res = cmd.ExecuteNonQuery();
+        }
+
+        void checkOrUpgradeSchema_ReferreReport()
     {
         if (existsTable("XtblSRBericht"))
             return;

@@ -34,6 +34,8 @@ namespace RaceHorology
 
         public event EventHandler Finished;
 
+        private string _feedBackText = string.Empty;
+        public string FeedBackText { get { return _feedBackText; } set { _feedBackText = value; OnPropertyChanged(); } }
 
         // in der Klasse CertificateDesigner hinzufügen:
         public ObservableCollection<string> Presets { get; } =
@@ -53,6 +55,10 @@ namespace RaceHorology
         public ObservableCollection<FontFamily> SystemFonts { get; } =
             new ObservableCollection<FontFamily>(Fonts.SystemFontFamilies.OrderBy(f => f.Source));
 
+
+        private bool _showHelperLines = false;
+
+
         public PrintCertificateModel _certificateModel { get; set; }
 
         public CertificateDesignerUC()
@@ -62,6 +68,8 @@ namespace RaceHorology
             DataContext = this;
 
             ApplyA4DesignSurface();
+
+            DesignFrame.SizeChanged += (_, __) => DrawHelperLines();
         }
 
 
@@ -71,33 +79,55 @@ namespace RaceHorology
             _race = race;
 
             _certificateModel = _race.GetDataModel().GetDB().GetCertificateModel(_race);
+            if (_certificateModel.TextItems.Count > 0)
+            {
+                FeedBackText = "Design Felder geladen";
+            }
+            else 
+            {
+                FeedBackText = "Keine Felder vorhanden";
+            }
+
 
             RebuildOverlay();
+
+            ApplyZoom(_zoom);
         }
 
-      
-        private void btnSave_Click(object sender, RoutedEventArgs e)
+
+        public void SaveToLayoutToDatabase()
         {
             try
             {
                 _race.GetDataModel().GetDB().SaveCertificateModel(_race, _certificateModel);
+
+                FeedBackText = "Speichern erfolgreich";
             }
             catch (Exception ex)
             {
-
+                FeedBackText = ex.Message;
             }
         }
 
-   
-
-   
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            SaveToLayoutToDatabase();
+        }   
 
         // Handler: überschreibt sofort den Freitext von SelectedField
         private void OnPresetSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SelectedField == null) return;
-            var cb = sender as ComboBox; if (cb == null) return;
-            var token = cb.SelectedItem as string; if (string.IsNullOrEmpty(token)) return;
+            if (SelectedField == null) 
+                return;
+            var cb = sender as ComboBox; 
+            if (cb == null)
+                return;
+            
+            var token = cb.SelectedItem as string; 
+            
+            if (string.IsNullOrEmpty(token)) 
+                return;
+
             SelectedField.Text = token; // z.B. "<Date>"
         }
 
@@ -109,7 +139,9 @@ namespace RaceHorology
             set 
             { 
                 _selectedField = value; 
-                OnPropertyChanged(); 
+                OnPropertyChanged();
+                UpdateSelectionBorders();
+
                 if (SelectedFieldChanged != null) 
                     SelectedFieldChanged(this, value); }
         }
@@ -117,7 +149,7 @@ namespace RaceHorology
         public event EventHandler<TextItem> SelectedFieldChanged;
 
 
-        private double _zoom = 0.75; // Startwert für Laptops
+        private double _zoom = 0.5; // Startwert für Laptops
         private void ApplyZoom(double z)
         {
             if (z < 0.25) z = 0.25; if (z > 3.0) z = 3.0;
@@ -128,32 +160,40 @@ namespace RaceHorology
         // Preset aus ComboBox
         private void OnZoomPresetChanged(object sender, SelectionChangedEventArgs e)
         {
-            var cb = sender as ComboBox; if (cb?.SelectedValue == null) return;
-            double z; if (double.TryParse(cb.SelectedValue.ToString(), System.Globalization.NumberStyles.Any,
+            var cb = sender as ComboBox;
+            
+            if (cb?.SelectedValue == null) 
+                return;
+
+            double z; 
+            
+            if (double.TryParse(cb.SelectedValue.ToString(), System.Globalization.NumberStyles.Any,
                                           System.Globalization.CultureInfo.InvariantCulture, out z))
-                ApplyZoom(z);
+            ApplyZoom(z);
+
+             DrawHelperLines();
         }
 
         // Fit-to-Window (passt A4 in die ScrollViewer-Viewportgröße)
-        private void FitToWindow()
-        {
-            // ScrollViewer ist der direkte Parent in deinem Layout
-            var sv = FindParent<ScrollViewer>(DesignFrame);
-            if (sv == null) return;
+        //private void FitToWindow()
+        //{
+        //    // ScrollViewer ist der direkte Parent in deinem Layout
+        //    var sv = FindParent<ScrollViewer>(DesignFrame);
+        //    if (sv == null) return;
 
-            // A4-DIPs (wie von dir gesetzt)
-            double wDip = DesignFrame.Width;  // ≈ 793.7
-            double hDip = DesignFrame.Height; // ≈ 1122.5
+        //    // A4-DIPs (wie von dir gesetzt)
+        //    double wDip = DesignFrame.Width;  // ≈ 793.7
+        //    double hDip = DesignFrame.Height; // ≈ 1122.5
 
-            // etwas Rand einplanen
-            double pad = 24;
-            double availW = Math.Max(0, sv.ViewportWidth - pad);
-            double availH = Math.Max(0, sv.ViewportHeight - pad);
-            if (availW <= 0 || availH <= 0 || wDip <= 0 || hDip <= 0) return;
+        //    // etwas Rand einplanen
+        //    double pad = 24;
+        //    double availW = Math.Max(0, sv.ViewportWidth - pad);
+        //    double availH = Math.Max(0, sv.ViewportHeight - pad);
+        //    if (availW <= 0 || availH <= 0 || wDip <= 0 || hDip <= 0) return;
 
-            double z = Math.Min(availW / wDip, availH / hDip);
-            ApplyZoom(z);
-        }
+        //    double z = Math.Min(availW / wDip, availH / hDip);
+        //    ApplyZoom(z);
+        //}
 
         // Helper: Parent suchen
         private static T FindParent<T>(DependencyObject child) where T : DependencyObject
@@ -173,7 +213,7 @@ namespace RaceHorology
         }
 
         // Bei Größenänderung automatisch anpassen (optional)
-        private void OnRootSizeChanged(object sender, SizeChangedEventArgs e) => FitToWindow();
+        //private void OnRootSizeChanged(object sender, SizeChangedEventArgs e) => FitToWindow();
 
         // Konstanten: DIN A4 in DIPs (1 DIP = 1/96")
         const double DpiDip = 96.0;
@@ -341,6 +381,7 @@ namespace RaceHorology
             text.Text = vm.Text;                 // oder ResolveEffectiveText(vm) falls du Merge hast
             text.FontSize = vm.FontSize;
             text.FontWeight = vm.IsBold ? FontWeights.Bold : FontWeights.Normal;
+            text.FontStyle = vm.IsItalic ? FontStyles.Italic: FontStyles.Normal;
             text.Foreground = Brushes.Black;
             text.TextAlignment = ToTextAlignment(CertificatesUtils.mapAlignmentInt(vm.Alignment));
 
@@ -358,14 +399,27 @@ namespace RaceHorology
             {
                 if (e.PropertyName == "IsBold")
                     text.FontWeight = vm.IsBold ? FontWeights.Bold : FontWeights.Normal;
+                else if (e.PropertyName == "IsItalic")
+                    text.FontStyle = vm.IsItalic ? FontStyles.Italic : FontStyles.Normal;
                 else if (e.PropertyName == "TextAlignment")
                     text.TextAlignment = ToTextAlignment(CertificatesUtils.mapAlignmentInt(vm.Alignment));
                 else if (e.PropertyName == "FontFamilyName")       // NEU
                     text.FontFamily = new FontFamily(vm.FontFamilyName);
             };
 
-            // Drag behavior on a Border container
-            var border = new Border { Background = Brushes.Transparent, Child = text, Padding = new Thickness(2) };
+            // Drag behavior on a Border container  
+            var border = new Border
+            {
+                Background = Brushes.Transparent,
+                Child = text,
+                Padding = new Thickness(2),
+                BorderBrush = Brushes.Transparent,   // default = no visible border
+                BorderThickness = new Thickness(1)
+     
+            };
+
+            border.Tag = vm;
+
             // initial setzen (nachdem border geladen ist, damit ActualWidth/ActualHeight stimmen)
             border.Loaded += (s, e) => ClampVmToCanvas(vm, border);
             // bei Größenänderung (FontSize, FontFamily etc.) neu clampen
@@ -384,6 +438,7 @@ namespace RaceHorology
             border.MouseLeftButtonDown += delegate (object s, MouseButtonEventArgs e)
             {
                 SelectedField = vm;
+                UpdateSelectionBorders();
                 dragging = true;
                 dragStart = e.GetPosition(OverlayCanvas);
                 startLeft = Canvas.GetLeft(border); if (double.IsNaN(startLeft)) startLeft = 0.0;
@@ -414,6 +469,17 @@ namespace RaceHorology
                 e.Handled = true;
             };
 
+            border.MouseEnter += (_, __) =>
+            {
+                if (vm != SelectedField)
+                    border.BorderBrush = Brushes.LightBlue;
+            };
+
+            border.MouseLeave += (_, __) =>
+            {
+                if (vm != SelectedField)
+                    border.BorderBrush = Brushes.Transparent;
+            };
 
 
             vm.PropertyChanged += delegate (object s, PropertyChangedEventArgs e)
@@ -426,6 +492,19 @@ namespace RaceHorology
             return border;
         }
 
+        private void UpdateSelectionBorders()
+        {
+            foreach (var child in OverlayCanvas.Children.OfType<Border>())
+            {
+                if (child.Tag is TextItem item)
+                {
+                    bool selected = item == SelectedField;
+
+                    child.BorderBrush = selected ? Brushes.DodgerBlue : Brushes.Transparent;
+                    child.BorderThickness = selected ? new Thickness(1.5) : new Thickness(1);
+                }
+            }
+        }
         private static TextAlignment ToTextAlignment(int value)
         {
             if (value==1) return TextAlignment.Center;
@@ -501,7 +580,153 @@ namespace RaceHorology
             RebuildOverlay();
         }
 
-       
+
+        private void OnHelperLinesToggled(object sender, RoutedEventArgs e)
+        {
+            _showHelperLines = cbHelperLines.IsChecked == true;
+            DrawHelperLines();
+        }
+
+        private void DrawHelperLines()
+        {
+            if (HelperLinesCanvas == null || DesignFrame == null)
+                return;
+
+            HelperLinesCanvas.Children.Clear();
+
+            if (!_showHelperLines)
+                return;
+
+            // Your logical grid step in tenth-mm
+            const int GRID_TENTH_MM = 25;   // or 5 or 25 as you prefer
+
+            // Convert to DIP for drawing
+            double spacingDip = TenthMmToDip(GRID_TENTH_MM);
+
+            double width = DesignFrame.ActualWidth;
+            double height = DesignFrame.ActualHeight;
+
+            if (width <= 0 || height <= 0)
+                return;
+
+            // Vertical lines
+            for (double x = spacingDip; x < width; x += spacingDip)
+            {
+                HelperLinesCanvas.Children.Add(new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = height,
+                    Stroke = Brushes.DarkGray,
+                    StrokeThickness = 1,
+                    Opacity = 0.5
+                });
+            }
+
+            // Horizontal lines
+            for (double y = spacingDip; y < height; y += spacingDip)
+            {
+                HelperLinesCanvas.Children.Add(new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = width,
+                    Y2 = y,
+                    Stroke = Brushes.DarkGray,
+                    StrokeThickness = 1,
+                    Opacity = 0.5
+                });
+            }
+
+            // Center lines
+            HelperLinesCanvas.Children.Add(new Line
+            {
+                X1 = width / 2,
+                Y1 = 0,
+                X2 = width / 2,
+                Y2 = height,
+                Stroke = Brushes.Red,
+                StrokeThickness = 1.5,
+                StrokeDashArray = new DoubleCollection { 4, 4 }
+            });
+
+            HelperLinesCanvas.Children.Add(new Line
+            {
+                X1 = 0,
+                Y1 = height / 2,
+                X2 = width,
+                Y2 = height / 2,
+                Stroke = Brushes.Red,
+                StrokeThickness = 1.5,
+                StrokeDashArray = new DoubleCollection { 4, 4 }
+            });
+        }
+
+        const int GRID = 5;   // or 10 — set what you prefer
+        const int SMALL_MOVE = GRID;   // or 10 — set what you prefer
+        const int LARGE_MOVE = GRID*5;   // or 10 — set what you prefer
+        private int SnapNearest(int value, int grid)
+        {
+            return (int)(Math.Round(value / (double)grid) * grid);
+        }
+
+        private void MoveField(double dx, double dy, int step)
+        {
+            if (SelectedField == null)
+                return;
+
+            const int GRID = 5;  // or 10, depending on your grid spacing
+
+            // Snap to nearest grid (in tenth-mm)
+            SelectedField.HPos = SnapNearest(SelectedField.HPos, GRID);
+            SelectedField.VPos = SnapNearest(SelectedField.VPos, GRID);
+
+            // Move directly in tenth-mm
+            SelectedField.HPos += (int)(dx * step);
+            SelectedField.VPos += (int)(dy * step);
+        }
+
+        private void MoveUpSmall(object s, RoutedEventArgs e) => MoveField(0, -1, SMALL_MOVE);
+        private void MoveDownSmall(object s, RoutedEventArgs e) => MoveField(0, 1, SMALL_MOVE);
+        private void MoveLeftSmall(object s, RoutedEventArgs e) => MoveField(-1, 0, SMALL_MOVE);
+        private void MoveRightSmall(object s, RoutedEventArgs e) => MoveField(1, 0, SMALL_MOVE);
+
+        private void MoveUpLeftSmall(object s, RoutedEventArgs e) => MoveField(-1, -1, SMALL_MOVE);
+        private void MoveUpRightSmall(object s, RoutedEventArgs e) => MoveField(1, -1, SMALL_MOVE);
+        private void MoveDownLeftSmall(object s, RoutedEventArgs e) => MoveField(-1, 1, SMALL_MOVE);
+        private void MoveDownRightSmall(object s, RoutedEventArgs e) => MoveField(1, 1, SMALL_MOVE);
+
+        private void MoveUpLarge(object s, RoutedEventArgs e) => MoveField(0, -1, LARGE_MOVE);
+        private void MoveDownLarge(object s, RoutedEventArgs e) => MoveField(0, 1, LARGE_MOVE);
+        private void MoveLeftLarge(object s, RoutedEventArgs e) => MoveField(-1, 0, LARGE_MOVE);
+        private void MoveRightLarge(object s, RoutedEventArgs e) => MoveField(1, 0, LARGE_MOVE);
+
+        private void MoveUpLeftLarge(object s, RoutedEventArgs e) => MoveField(-1, -1, LARGE_MOVE);
+        private void MoveUpRightLarge(object s, RoutedEventArgs e) => MoveField(1, -1, LARGE_MOVE);
+        private void MoveDownLeftLarge(object s, RoutedEventArgs e) => MoveField(-1, 1, LARGE_MOVE);
+        private void MoveDownRightLarge(object s, RoutedEventArgs e) => MoveField(1, 1, LARGE_MOVE);
+
+        private void CenterHorizontally(object s, RoutedEventArgs e)
+        {
+            if (SelectedField == null)
+                return;
+
+            double fieldWidth = GetFieldWidth(SelectedField);
+            double centerDip = (DesignFrame.ActualWidth - fieldWidth) / 2;
+
+            SelectedField.HPos = DipToTenthMm(centerDip);
+        }
+
+        private double GetFieldWidth(TextItem vm)
+        {
+            foreach (var child in OverlayCanvas.Children.OfType<Border>())
+                if (child.Tag == vm)
+                    return child.ActualWidth;
+
+            return 0;
+        }
+
         // ================================================================
 
 #if PDFIUM
@@ -527,52 +752,5 @@ namespace RaceHorology
         private void OnPropertyChanged([CallerMemberName] string n = null)
         { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
     }
-
-    //[DataContract]
-    //public class FieldVM : INotifyPropertyChanged
-    //{
-    //    protected bool SetField<T>(ref T storage, T value, [CallerMemberName] string prop = null)
-    //    {
-    //        if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
-    //        storage = value;
-    //        OnPropertyChanged(prop);
-    //        return true;
-    //    }
-
-    //    [DataMember(Order = 0)] public string Key { get; set; }
-    //    [DataMember(Order = 1)] public string Label { get; set; }
-
-    //    private string _value = string.Empty;
-    //    [DataMember(Order = 2)] public string Value { get { return _value; } set { _value = value; OnPropertyChanged(); } }
-
-    //    private double _x;
-    //    [DataMember(Order = 3)] public double X { get => _x; set => SetField(ref _x, value); }
-
-    //    private double _y;
-    //    [DataMember(Order = 4)] public double Y { get => _y; set => SetField(ref _y, value); }
-
-    //    private double _fontSize = 24.0;
-    //    [DataMember(Order = 5)] public double FontSize { get { return _fontSize; } set { _fontSize = value; OnPropertyChanged(); } }
-
-    //    private bool _isBold;
-    //    [DataMember(Order = 6)] public bool IsBold { get { return _isBold; } set { _isBold = value; OnPropertyChanged(); } }
-
-    //    private string _textAlignment = "Left"; // "Left", "Center", "Right"
-    //    [DataMember(Order = 7)] public string TextAlignment { get { return _textAlignment; } set { _textAlignment = value; OnPropertyChanged(); } }
-
-    //    // In FieldVM:
-    //    [DataMember(Order = 8)]
-    //    public string FontFamilyName
-    //    {
-    //        get { return _fontFamilyName; }
-    //        set { _fontFamilyName = value; OnPropertyChanged(); }
-    //    }
-    //    private string _fontFamilyName = "Segoe UI"; // Default
-
-
-    //    public event PropertyChangedEventHandler PropertyChanged;
-    //    private void OnPropertyChanged([CallerMemberName] string n = null)
-    //    { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
-    //}
 
 }

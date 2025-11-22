@@ -309,7 +309,7 @@ namespace RaceHorologyLibTest
             return pcm;
         }
 
-        void SaveCertificateModel(Race race, PrintCertificateModel model)
+        public void SaveCertificateModel(Race race, PrintCertificateModel model)
         {
         }
 

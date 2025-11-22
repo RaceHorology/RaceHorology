@@ -24,17 +24,8 @@
                 <Button Content="JSON Layout Speichern" Click="OnSaveLayout_Click"/>
                 <Separator/>
                 <Button Content="JSON Layout Laden" Click="OnLoadLayout_Click"/>
-                <Separator/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Zoom:" Margin="6,0,4,0"/>
-                    <ComboBox Width="80" SelectedValuePath="Tag" SelectionChanged="OnZoomPresetChanged">
-                        <ComboBoxItem Content="50%" Tag="0.5"/>
-                        <ComboBoxItem Content="75%" Tag="0.75"/>
-                        <ComboBoxItem Content="100%" Tag="1"/>
-                        <ComboBoxItem Content="125%" Tag="1.25"/>
-                        <ComboBoxItem Content="150%" Tag="1.5"/>
-                    </ComboBox>
-                </StackPanel>
+                
+               
             </ToolBar>
         </ToolBarTray>
 
@@ -55,6 +46,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="Felder"
@@ -62,15 +54,15 @@
                            FontWeight="Bold"
                            Margin="12"/>
 
-                <ListView x:Name="FieldList" Height="300"
-          Grid.Row="1"
-          Margin="12"
-          ItemsSource="{Binding _certificateModel.TextItems, RelativeSource={RelativeSource AncestorType=UserControl}}"
-          SelectedItem="{Binding SelectedField, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                <ListView x:Name="FieldList" Height="250"
+                      Grid.Row="1"
+                      Margin="5"  
+                      ItemsSource="{Binding _certificateModel.TextItems, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      SelectedItem="{Binding SelectedField, RelativeSource={RelativeSource AncestorType=UserControl}}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Value" Width="125" DisplayMemberBinding="{Binding Text}" />
-                            <GridViewColumn Header="Font"  Width="175" DisplayMemberBinding="{Binding Font}" />
+                            <GridViewColumn Header="Font"  Width="170" DisplayMemberBinding="{Binding Font}" />
                             <GridViewColumn Header="Align" Width="40" DisplayMemberBinding="{Binding TextAlignment}" />
                             <GridViewColumn Header="HPos"  Width="40" DisplayMemberBinding="{Binding HPos, StringFormat=F0}" />
                             <GridViewColumn Header="VPos"  Width="40" DisplayMemberBinding="{Binding VPos, StringFormat=F0}" />
@@ -80,7 +72,7 @@
 
 
                 <Border Grid.Row="2"
-                    Margin="12"          
+                    Margin="5"          
                     Padding="10"
                     BorderThickness="2" BorderBrush="Gray">
                     <StackPanel>
@@ -124,90 +116,178 @@
                             AutoToolTipPlacement="BottomRight"
                             AutoToolTipPrecision="0"/>
                             <TextBlock Text="{Binding SelectedField.FontSize, StringFormat=F0}"
-                        Margin="0 4 0 0"/>
+                                 Margin="0 4 0 0"/>
+                            
                         </StackPanel>
+                         
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel>
+                                <!-- Bold -->
+                                <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                                    <TextBlock Text="Fett:" Width="100"/>
+                                    <CheckBox IsChecked="{Binding SelectedField.IsBold, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                </StackPanel>
 
-                        <!-- Bold -->
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Fett:" Width="100"/>
-                            <CheckBox IsChecked="{Binding SelectedField.IsBold, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
-                        </StackPanel>
-
-                        <!-- IsItalic -->
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Kursiv:" Width="100"/>
-                            <CheckBox IsChecked="{Binding SelectedField.IsItalic, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
-                        </StackPanel>
+                                <!-- IsItalic -->
+                                <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                                    <TextBlock Text="Kursiv:" Width="100"/>
+                                    <CheckBox IsChecked="{Binding SelectedField.IsItalic, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                </StackPanel>
 
 
-                        <!-- Alignment -->
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
-                            <TextBlock Text="Ausrichtung:" Width="100"/>
-                            <ComboBox Width="100"
+                                <!-- Alignment -->
+                                <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                                    <TextBlock Text="Ausrichtung:" Width="100"/>
+                                    <ComboBox Width="100"
                                     SelectedValuePath="Content"
                                     SelectedValue="{Binding SelectedField.TextAlignment, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                <ComboBoxItem Content="Left"/>
-                                <ComboBoxItem Content="Center"/>
-                                <ComboBoxItem Content="Right"/>
-                            </ComboBox>
-                        </StackPanel>
+                                        <ComboBoxItem Content="Left"/>
+                                        <ComboBoxItem Content="Center"/>
+                                        <ComboBoxItem Content="Right"/>
+                                    </ComboBox>
+                                </StackPanel>
 
-                        <!-- X/Y -->
-                        <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
-                            <TextBlock Text="X:" Width="100"/>
-                            <TextBox Width="80"
+                                <!-- X/Y -->
+                                <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                                    <TextBlock Text="X:" Width="100"/>
+                                    <TextBox Width="80"
                                     Text="{Binding SelectedField.HPos, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBlock Text="Y:" Width="40" Margin="12 0 0 0"/>
-                            <TextBox Width="80"
-                                    Text="{Binding SelectedField.VPos, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
 
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                                    <TextBlock Text="Y:" Width="100"/>
+                                    <TextBox Width="80"
+                             Text="{Binding SelectedField.VPos, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel>
+
+                                <Grid Margin="20 10 10 10">
+                                    <!-- 5 rows × 5 columns -->
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                    </Grid.ColumnDefinitions>
+
+
+                                    <Button Margin="1" Grid.Row="0" Grid.Column="0" Content="↖↖"  Click="MoveUpLeftLarge"/>
+                                    <Button Margin="1" Grid.Row="0" Grid.Column="2" Content="↑↑"   Click="MoveUpLarge"/>
+                                    <Button Margin="1" Grid.Row="0" Grid.Column="4" Content="↗↗"  Click="MoveUpRightLarge"/>
+
+                                    <Button Margin="1" Grid.Row="1" Grid.Column="1" Content="↖" Click="MoveUpLeftSmall"/>
+                                    <Button Margin="1" Grid.Row="1" Grid.Column="2" Content="↑" Click="MoveUpSmall"/>
+                                    <Button Margin="1" Grid.Row="1" Grid.Column="3" Content="↗" Click="MoveUpRightSmall"/>
+
+                                    <!-- Row 2 — small left/down/right -->
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="0" Content="←←" Click="MoveLeftLarge"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="1" Content="←"  Click="MoveLeftSmall"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="2" Content="C" Click="CenterHorizontally"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="3" Content="→"  Click="MoveRightSmall"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="4" Content="→→" Click="MoveRightLarge"/>
+
+                                    <Button Margin="1" Grid.Row="3" Grid.Column="1" Content="↙" Click="MoveDownLeftSmall"/>
+                                    <Button Margin="1" Grid.Row="3" Grid.Column="2" Content="↓" Click="MoveDownSmall"/>
+                                    <Button Margin="1" Grid.Row="3" Grid.Column="3" Content="↘" Click="MoveDownRightSmall"/>
+
+                                    <Button Margin="1" Grid.Row="4" Grid.Column="0" Content="↙↙" Click="MoveDownLeftLarge"/>
+                                    <Button Margin="1" Grid.Row="4" Grid.Column="2" Content="↓↓" Click="MoveDownLarge"/>
+                                    <Button Margin="1" Grid.Row="4" Grid.Column="4" Content="↘↘" Click="MoveDownRightLarge"/>
+
+                                </Grid>
+
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 20 0 0">
+                            <Button Width="100" Content="Feld hinzufügen" Click="OnAddField"/>
+                            <Button Width="100" Margin="10 0 0 0" Content="Feld löschen" Click="OnDeleteField">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedField, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
 
                     </StackPanel>
                 </Border>
 
-                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="10 10 0 0">
-                    <Button Width="100" Content="Feld hinzufügen" Click="OnAddField"/>
-                    <Button Width="100" Margin="10 0 0 0" Content="Feld löschen" Click="OnDeleteField">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedField, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </StackPanel>
+         
 
                 <StackPanel Orientation="Horizontal" Grid.Row="4" Margin="5,15,0,5" >
                     <Button x:Name="btnSave" Content="Speichern" Margin="5" Padding="5" MinWidth="100" Click="btnSave_Click"/>
+                    <TextBlock Text="{Binding FeedBackText}" Grid.Row="5" Width="300" HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="5"/>
                 </StackPanel>
+
+             
             </Grid>
-            <!-- Design surface -->
-            <ScrollViewer Grid.Column="1"
-              HorizontalScrollBarVisibility="Auto"
-              VerticalScrollBarVisibility="Auto"
-              Background="#F3F3F3">
-                <!-- Sichtbarer Rahmen um die A4-Fläche -->
-                <Border x:Name="DesignFrame" BorderBrush="#7F808080" BorderThickness="2" CornerRadius="4"
-                Background="White" HorizontalAlignment="Center" VerticalAlignment="Center"
-                SnapsToDevicePixels="True">
-                    <Border.RenderTransform>
-                        <ScaleTransform x:Name="ZoomTransform" ScaleX="0.75" ScaleY="0.75"/>
-                        <!-- Start: 75% -->
-                    </Border.RenderTransform>
 
-                    <Grid>
+            <StackPanel Grid.Column="1">
+                <StackPanel Orientation="Horizontal">
 
-                        <Image x:Name="BackgroundImage"
-                         Stretch="Fill"/>
-                        <!-- Overlay für verschiebbare Felder -->
-                        <Canvas x:Name="OverlayCanvas" Background="Transparent"/>
-                    </Grid>
-                </Border>
-            </ScrollViewer>
+                    <TextBlock Text="Zoom" FontSize="20" FontWeight="Bold" Margin="12"/>
+                    <ComboBox Width="80" SelectedValuePath="Tag" SelectionChanged="OnZoomPresetChanged" Height="25" SelectedIndex="0">
+                        <ComboBoxItem Content="50%" Tag="0.5"/>
+                        <ComboBoxItem Content="75%" Tag="0.75"/>
+                        <ComboBoxItem Content="100%" Tag="1"/>
+                    </ComboBox>
+
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                        <TextBlock Text="Hilfslinien anzeigen" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <CheckBox x:Name="cbHelperLines"
+                              VerticalAlignment="Center"
+                              Checked="OnHelperLinesToggled"
+                              Unchecked="OnHelperLinesToggled"/>
+                    </StackPanel>
+                </StackPanel>
+                <!-- Design surface -->
+                <ScrollViewer  Margin="5"  
+                 HorizontalScrollBarVisibility="Auto"
+                 VerticalScrollBarVisibility="Auto"
+                 Background="#F3F3F3">
+                    <!-- Sichtbarer Rahmen um die A4-Fläche -->
+                    <Border x:Name="DesignFrame" BorderBrush="#7F808080" BorderThickness="2" CornerRadius="4"
+                   Background="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   SnapsToDevicePixels="True">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ZoomTransform" ScaleX="0.75" ScaleY="0.75"/>
+                            <!-- Start: 75% -->
+                        </Border.RenderTransform>
+
+                        <Grid>
+
+                            <Image x:Name="BackgroundImage"
+                                    Stretch="Fill"/>
+
+
+                            <Canvas x:Name="HelperLinesCanvas"
+                                    IsHitTestVisible="False"
+                                    Background="Transparent"/>
+                            
+                            <!-- Overlay für verschiebbare Felder -->
+                            <Canvas x:Name="OverlayCanvas" Background="Transparent"/>
+                        </Grid>
+                    </Border>
+                </ScrollViewer>
+            </StackPanel>
+         
             
             
         </Grid>
