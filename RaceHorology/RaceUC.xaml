@@ -686,20 +686,16 @@
             </Grid>
           </Grid>
         </Grid>
-
       </TabItem>
       <TabItem x:Name="tabItemDisqualify" Header="Ausscheidungen" FontSize="12">
         <local:DisqualifyUC x:Name="ucDisqualify">
-
         </local:DisqualifyUC>
       </TabItem>
-            <TabItem x:Name="tabItemReferreReport" Header="SR Bericht" FontSize="12">
-                <local:RefereeReportUC x:Name="ucRefereeReport">
-
-                </local:RefereeReportUC>
-            </TabItem>
-
-        </TabControl>
+      <TabItem x:Name="tabItemReferreReport" Header="SR Bericht" FontSize="12">
+        <local:RefereeReportUC x:Name="ucRefereeReport">
+        </local:RefereeReportUC>
+      </TabItem>
+    </TabControl>
 
     <GridSplitter x:Name="gridSplitter4" VerticalAlignment="Stretch" Width="5" Grid.Column="1" HorizontalAlignment="Center" />
 
