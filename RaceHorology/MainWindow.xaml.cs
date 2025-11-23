@@ -250,20 +250,18 @@ namespace RaceHorology
 
     private void CertificateDesignerCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
-        var race = _dataModel.GetCurrentRace();
+      var race = _dataModel.GetCurrentRace();
 
-        if (race == null)
-            return;
+      if (race == null)
+        return;
 
-        CertificateDesignerDlg dlg = new CertificateDesignerDlg();
-        dlg.Init(_dataModel, race);
-        dlg.Owner = this;
-        dlg.Show();
+      CertificateDesignerDlg dlg = new CertificateDesignerDlg();
+      dlg.Init(_dataModel, race);
+      dlg.Owner = this;
+      dlg.Show();
     }
 
-
-
-        private void ImportTimeCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    private void ImportTimeCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
       var race = _dataModel.GetCurrentRace();
 
