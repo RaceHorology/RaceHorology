@@ -341,3 +341,5 @@ healthchecksdb
 *.ldb
 
 RaceHorologyLibTest/TestDataBases/Import/temp/
+
+.vscode/
