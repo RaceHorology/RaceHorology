@@ -1,15 +1,11 @@
 ﻿using CefSharp;
 using CefSharp.Wpf;
-using RaceHorology.Properties;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Web;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace RaceHorology
 {
@@ -83,7 +79,7 @@ namespace RaceHorology
       items.Add(new ReportItem { Text = "Schiedsrichter Protokoll", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
       items.Add(new ReportItem { Text = "Schiedsrichterbericht", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeReport(rr); } });
 
-            cmbReport.ItemsSource = items;
+      cmbReport.ItemsSource = items;
       cmbReport.SelectedIndex = 0;
 
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
@@ -104,17 +100,18 @@ namespace RaceHorology
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
     {
-        if (cmbReport.SelectedItem is ReportItem ri)
-        { 
+      // TODO_REFEREE: this looks strange
+      if (cmbReport.SelectedItem is ReportItem ri)
+      {
 
-            if (ri.Text == "Schiedsrichterbericht")
-            {
-                RefereeReportItems ReportItems = new RefereeReportItems(_race);
-                ReportItems.updateList(_race);
-            }      
+        if (ri.Text == "Schiedsrichterbericht")
+        {
+          RefereeReportItems ReportItems = new RefereeReportItems(_race);
+          ReportItems.updateList(_race);
         }
+      }
 
-        refreshPdf();
+      refreshPdf();
     }
 
     private void cmbReport_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -123,10 +120,10 @@ namespace RaceHorology
       {
         cmbRaceRun.IsEnabled = ri.NeedsRaceRun;
 
-        if (ri.Text=="Schiedsrichterbericht")
+        if (ri.Text == "Schiedsrichterbericht")
         {
-            RefereeReportItems ReportItems = new RefereeReportItems(_race);
-            ReportItems.updateList(_race);
+          RefereeReportItems ReportItems = new RefereeReportItems(_race);
+          ReportItems.updateList(_race);
         }
 
         triggerRefresh();

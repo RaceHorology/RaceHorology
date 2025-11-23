@@ -2,50 +2,48 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
-    public class RefereeReportItem
+  public class RefereeReportItem
+  {
+    public string Key { get; set; }
+    public string Value { get; set; }
+    public string Text { get; set; }
+    public bool IsAdditional { get; set; }
+
+    public RefereeReportItem(string key, bool isAdditional, string text, string defaultValue = "")
     {
-        public string Key { get; set; }
-        public string Value { get; set; }
-        public string Text { get; set; }
-        public bool IsAdditional { get; set; }
+      Key = key;
+      Text = text;
+      IsAdditional = isAdditional;
 
-        public RefereeReportItem(string key, bool isAdditional, string text, string defaultValue = "") 
-        {
-            Key = key;
-            Text = text;
-            IsAdditional = isAdditional;
+      if (defaultValue != string.Empty)
+        Value = defaultValue;
+      else
+        Value = string.Empty;
+    }
+  }
 
-            if (defaultValue != string.Empty)
-                Value = defaultValue;
-            else
-                Value = string.Empty;
-        }
+
+
+  public class RefereeReportItems
+  {
+    public ObservableCollection<RefereeReportItem> RefReportItemList { get; set; }
+
+
+    public string SavedText
+    {
+      get;
+      set;
     }
 
-
-
-    public class RefereeReportItems
-    {
-        public ObservableCollection<RefereeReportItem> RefReportItemList { get; set; }
-
-
-        public string SavedText { 
-            get; 
-            set; 
-        }
-
-        /// <summary>
-        /// Default items with key from DSVAlpinX, a label text and the indicator if this value can be found in 
-        /// existing properties
-        /// </summary>
-        /// 
-        public List<RefereeReportItem> defaultItemList = new List<RefereeReportItem>()
+    /// <summary>
+    /// Default items with key from DSVAlpinX, a label text and the indicator if this value can be found in 
+    /// existing properties
+    /// </summary>
+    /// 
+    public List<RefereeReportItem> defaultItemList = new List<RefereeReportItem>()
         {
             //Info
             new RefereeReportItem("Organisator",           false,     "Organisator"),
@@ -136,141 +134,141 @@ namespace RaceHorologyLib
 
         };
 
-        public RefereeReportItems(Race race)
+    public RefereeReportItems(Race race)
+    {
+      RefReportItemList = new ObservableCollection<RefereeReportItem>(defaultItemList);
+
+      Dictionary<string, string> d = race.GetDataModel().GetDB().GetRefereeReportData(race);
+
+      foreach (RefereeReportItem rritem in RefReportItemList)
+      {
+        if (d.ContainsKey(rritem.Key))
         {
-            RefReportItemList = new ObservableCollection<RefereeReportItem>(defaultItemList);
-
-            Dictionary<string, string> d = race.GetDataModel().GetDB().GetRefereeReportData(race);
-
-            foreach (RefereeReportItem rritem in RefReportItemList)
-            {
-                if (d.ContainsKey(rritem.Key))
-                {
-                    rritem.Value = d[rritem.Key];
-                }
-                else
-                {
-                    race.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(rritem, race, false);
-                }
-            }
-
+          rritem.Value = d[rritem.Key];
         }
-
-        /// <summary>
-        /// Returns string for racetype 
-        /// Optional move in Raca class?
-        /// </summary>
-        /// <param name="race"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        private string getDisciplin(Race race)
+        else
         {
-            switch (race.RaceType)
-            {
-                case Race.ERaceType.DownHill: return "DH";
-                case Race.ERaceType.GiantSlalom: return "GS";
-                case Race.ERaceType.Slalom: return "SL";
-                case Race.ERaceType.SuperG: return "SG";
-                case Race.ERaceType.ParallelSlalom: return "PS";
-                case Race.ERaceType.KOSlalom: return "KO";
-
-                default:
-                    throw new Exception(string.Format("???", race.RaceType));
-            }
+          race.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(rritem, race, false);
         }
+      }
 
-        public void updateList(Race r)
-        {
-           
-
-            UpdateItemValue("Organisator", r.AdditionalProperties.Organizer);
-            UpdateItemValue("Veranstaltung", r.AdditionalProperties.Description);
-            UpdateItemValue("RennNr", r.AdditionalProperties.RaceNumber);
-            UpdateItemValue("Schiedsrichter", r.AdditionalProperties.RaceReferee.Name);
-            UpdateItemValue("Schiedsrichter_V", r.AdditionalProperties.RaceReferee.Club);
-            UpdateItemValue("Aussteller_Name", r.AdditionalProperties.RaceReferee.Name);
-
-            UpdateItemValue("Rennleiter", r.AdditionalProperties.RaceManager.Name);
-            UpdateItemValue("Rennleiter_V", r.AdditionalProperties.RaceManager.Club);
-            UpdateItemValue("Trainervertreter", r.AdditionalProperties.TrainerRepresentative.Name);
-            UpdateItemValue("Trainervertreter_V", r.AdditionalProperties.TrainerRepresentative.Club);
-
-            UpdateItemValue("EDVKR", r.AdditionalProperties.Analyzer);
-
-            UpdateItemValue("Disziplin", getDisciplin(r));
-
-            UpdateItemValue("Zeitmessgeraet", r.TimingDevice);
-
-            if (r.AdditionalProperties.StartHeight > 0 && r.AdditionalProperties.FinishHeight > 0)
-            {
-                UpdateItemValue("DG1_Hoehendifferenz", (r.AdditionalProperties.StartHeight - r.AdditionalProperties.FinishHeight).ToString());
-                UpdateItemValue("DG2_Hoehendifferenz", (r.AdditionalProperties.StartHeight - r.AdditionalProperties.FinishHeight).ToString());
-            }
-
-            UpdateItemValue("DG1_Kurssetzer", r.AdditionalProperties.RaceRun1.CoarseSetter.Name);
-            UpdateItemValue("DG1_Richtaend", r.AdditionalProperties.RaceRun1.Turns.ToString());
-            UpdateItemValue("DG1_Streckenlaenge", r.AdditionalProperties.CoarseLength.ToString());
-            UpdateItemValue("DG1_Tore", r.AdditionalProperties.RaceRun1.Gates.ToString());
-
-            UpdateItemValue("DG2_Kurssetzer", r.AdditionalProperties.RaceRun2.CoarseSetter.Name);
-            UpdateItemValue("DG2_Richtaend", r.AdditionalProperties.RaceRun2.Turns.ToString());
-            UpdateItemValue("DG2_Streckenlaenge", r.AdditionalProperties.CoarseLength.ToString());
-            UpdateItemValue("DG2_Tore", r.AdditionalProperties.RaceRun2.Gates.ToString());
-
-
-            UpdateItemValue("Rennstrecke", r.AdditionalProperties.CoarseName);
-
-            if (r.AdditionalProperties.CoarseHomologNo != string.Empty)
-            {
-                UpdateItemValue("homologiert", r.AdditionalProperties.CoarseHomologNo);
-            }
-            else
-            {
-                UpdateItemValue("homologiert", "Nein");
-            }
-
-            UpdateItemValue("Witterung", r.AdditionalProperties.Weather);
-
-            //Or from timing list?
-            UpdateItemValue("StartersterLaeufer", r.AdditionalProperties.RaceRun1.StartTime);
-
-
-            int participants = r.GetParticipants().Count();
-            int particpantsClassified = 0;
-
-            var endresult = r.GetResultViewProvider().GetView();
-            foreach (var o in endresult)
-            {
-                if (o is RaceResultItem res)
-                {
-                    if (res.Position > 0)
-                        particpantsClassified++;
-                }
-            }
-
-            UpdateItemValue("Anz_Teilnehmer", participants.ToString());
-            UpdateItemValue("Anz_Klassifizierte", particpantsClassified.ToString());
-
-            RaceRun rr = r.GetRun(0);
-            var runRes = rr.GetResultList().Where(res => res.ResultCode == RunResult.EResultCode.NaS);
-  
-            UpdateItemValue("Anz_NichtamStartDG1", runRes.Count().ToString());
-
-            foreach (RefereeReportItem item in RefReportItemList)
-            {
-                r.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(item, r, true);
-            }
-
-            SavedText = "Angaben gespeichert";
-        }
-
-        public void UpdateItemValue(string key, string newValue)
-        {
-            var item = RefReportItemList.FirstOrDefault(i => i.Key == key);
-            if (item != null)
-            {
-                item.Value = newValue;
-            }
-        }
     }
+
+    /// <summary>
+    /// Returns string for racetype 
+    /// Optional move in Raca class?
+    /// </summary>
+    /// <param name="race"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    private string getDisciplin(Race race)
+    {
+      switch (race.RaceType)
+      {
+        case Race.ERaceType.DownHill: return "DH";
+        case Race.ERaceType.GiantSlalom: return "GS";
+        case Race.ERaceType.Slalom: return "SL";
+        case Race.ERaceType.SuperG: return "SG";
+        case Race.ERaceType.ParallelSlalom: return "PS";
+        case Race.ERaceType.KOSlalom: return "KO";
+
+        default:
+          throw new Exception(string.Format("???", race.RaceType));
+      }
+    }
+
+    public void updateList(Race r)
+    {
+
+
+      UpdateItemValue("Organisator", r.AdditionalProperties.Organizer);
+      UpdateItemValue("Veranstaltung", r.AdditionalProperties.Description);
+      UpdateItemValue("RennNr", r.AdditionalProperties.RaceNumber);
+      UpdateItemValue("Schiedsrichter", r.AdditionalProperties.RaceReferee.Name);
+      UpdateItemValue("Schiedsrichter_V", r.AdditionalProperties.RaceReferee.Club);
+      UpdateItemValue("Aussteller_Name", r.AdditionalProperties.RaceReferee.Name);
+
+      UpdateItemValue("Rennleiter", r.AdditionalProperties.RaceManager.Name);
+      UpdateItemValue("Rennleiter_V", r.AdditionalProperties.RaceManager.Club);
+      UpdateItemValue("Trainervertreter", r.AdditionalProperties.TrainerRepresentative.Name);
+      UpdateItemValue("Trainervertreter_V", r.AdditionalProperties.TrainerRepresentative.Club);
+
+      UpdateItemValue("EDVKR", r.AdditionalProperties.Analyzer);
+
+      UpdateItemValue("Disziplin", getDisciplin(r));
+
+      UpdateItemValue("Zeitmessgeraet", r.TimingDevice);
+
+      if (r.AdditionalProperties.StartHeight > 0 && r.AdditionalProperties.FinishHeight > 0)
+      {
+        UpdateItemValue("DG1_Hoehendifferenz", (r.AdditionalProperties.StartHeight - r.AdditionalProperties.FinishHeight).ToString());
+        UpdateItemValue("DG2_Hoehendifferenz", (r.AdditionalProperties.StartHeight - r.AdditionalProperties.FinishHeight).ToString());
+      }
+
+      UpdateItemValue("DG1_Kurssetzer", r.AdditionalProperties.RaceRun1.CoarseSetter.Name);
+      UpdateItemValue("DG1_Richtaend", r.AdditionalProperties.RaceRun1.Turns.ToString());
+      UpdateItemValue("DG1_Streckenlaenge", r.AdditionalProperties.CoarseLength.ToString());
+      UpdateItemValue("DG1_Tore", r.AdditionalProperties.RaceRun1.Gates.ToString());
+
+      UpdateItemValue("DG2_Kurssetzer", r.AdditionalProperties.RaceRun2.CoarseSetter.Name);
+      UpdateItemValue("DG2_Richtaend", r.AdditionalProperties.RaceRun2.Turns.ToString());
+      UpdateItemValue("DG2_Streckenlaenge", r.AdditionalProperties.CoarseLength.ToString());
+      UpdateItemValue("DG2_Tore", r.AdditionalProperties.RaceRun2.Gates.ToString());
+
+
+      UpdateItemValue("Rennstrecke", r.AdditionalProperties.CoarseName);
+
+      if (r.AdditionalProperties.CoarseHomologNo != string.Empty)
+      {
+        UpdateItemValue("homologiert", r.AdditionalProperties.CoarseHomologNo);
+      }
+      else
+      {
+        UpdateItemValue("homologiert", "Nein");
+      }
+
+      UpdateItemValue("Witterung", r.AdditionalProperties.Weather);
+
+      //Or from timing list?
+      UpdateItemValue("StartersterLaeufer", r.AdditionalProperties.RaceRun1.StartTime);
+
+
+      int participants = r.GetParticipants().Count();
+      int particpantsClassified = 0;
+
+      var endresult = r.GetResultViewProvider().GetView();
+      foreach (var o in endresult)
+      {
+        if (o is RaceResultItem res)
+        {
+          if (res.Position > 0)
+            particpantsClassified++;
+        }
+      }
+
+      UpdateItemValue("Anz_Teilnehmer", participants.ToString());
+      UpdateItemValue("Anz_Klassifizierte", particpantsClassified.ToString());
+
+      RaceRun rr = r.GetRun(0);
+      var runRes = rr.GetResultList().Where(res => res.ResultCode == RunResult.EResultCode.NaS);
+
+      UpdateItemValue("Anz_NichtamStartDG1", runRes.Count().ToString());
+
+      foreach (RefereeReportItem item in RefReportItemList)
+      {
+        r.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(item, r, true);
+      }
+
+      SavedText = "Angaben gespeichert";
+    }
+
+    public void UpdateItemValue(string key, string newValue)
+    {
+      var item = RefReportItemList.FirstOrDefault(i => i.Key == key);
+      if (item != null)
+      {
+        item.Value = newValue;
+      }
+    }
+  }
 }
