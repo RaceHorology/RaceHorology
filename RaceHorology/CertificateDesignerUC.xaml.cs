@@ -22,6 +22,7 @@ namespace RaceHorology
 
     private AppDataModel _dm;
     private Race _race;
+    public event EventHandler Finished;
 
 
     private string _feedBackText = string.Empty;
