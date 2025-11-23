@@ -175,7 +175,6 @@
     <Compile Include="CertificatesPrintUC.xaml.cs">
       <DependentUpon>CertificatesPrintUC.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converter.cs" />
     <Compile Include="RaceConfigurationTeamUC.xaml.cs">
       <DependentUpon>RaceConfigurationTeamUC.xaml</DependentUpon>
     </Compile>
