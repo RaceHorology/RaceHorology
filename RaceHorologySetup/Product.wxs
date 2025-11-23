@@ -256,9 +256,6 @@
       <Component Id="libGLESv2.dll" Guid="2be0e442-c51f-40b1-a078-0c5848c9cb5f">
         <File Id="libGLESv2.dll" Name="libGLESv2.dll" Source="$(var.RaceHorology_TargetDir)libGLESv2.dll" />
       </Component>
-      <Component Id="LICENSE.txt" Guid="226d8a3d-8eee-4a5e-867e-9a6bd76360c0">
-        <File Id="LICENSE.txt" Name="LICENSE.txt" Source="$(var.RaceHorology_TargetDir)LICENSE.txt" />
-      </Component>
       <Component Id="LiveTimingFIS.dll" Guid="ca2f58d9-4871-4b35-87a5-194f3e430604">
         <File Id="LiveTimingFIS.dll" Name="LiveTimingFIS.dll" Source="$(var.RaceHorology_TargetDir)LiveTimingFIS.dll" />
       </Component>
@@ -346,9 +343,6 @@
       <Component Id="RaceHorologyLib.pdb" Guid="47ccab44-478f-4006-ba13-2758699ada28">
         <File Id="RaceHorologyLib.pdb" Name="RaceHorologyLib.pdb" Source="$(var.RaceHorology_TargetDir)RaceHorologyLib.pdb" />
       </Component>
-      <Component Id="README.txt" Guid="da7b5dc3-389a-4d38-a34d-67dd4ee843ef">
-        <File Id="README.txt" Name="README.txt" Source="$(var.RaceHorology_TargetDir)README.txt" />
-      </Component>
       <Component Id="resources.pak" Guid="2f5772b5-8c03-4427-b213-32c30131fc19">
         <File Id="resources.pak" Name="resources.pak" Source="$(var.RaceHorology_TargetDir)resources.pak" />
       </Component>
@@ -360,9 +354,6 @@
       </Component>
       <Component Id="rmlt.dll" Guid="ff52d697-2387-4ecc-9716-a191bdded463">
         <File Id="rmlt.dll" Name="rmlt.dll" Source="$(var.RaceHorology_TargetDir)rmlt.dll" />
-      </Component>
-      <Component Id="snapshot_blob.bin" Guid="5fd94445-757b-4361-b13f-166a1d727c29">
-        <File Id="snapshot_blob.bin" Name="snapshot_blob.bin" Source="$(var.RaceHorology_TargetDir)snapshot_blob.bin" />
       </Component>
       <Component Id="StringComparison.dll" Guid="5b878adf-fd78-4a13-ba31-6acd4ca96923">
         <File Id="StringComparison.dll" Name="StringComparison.dll" Source="$(var.RaceHorology_TargetDir)StringComparison.dll" />
@@ -635,6 +626,501 @@
       </Component>
       <Component Id="locales_zh_TW.pak" Guid="c21f1058-aa77-455a-b650-0e73315c6b44">
         <File Id="locales_zh_TW.pak" Name="zh-TW.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-TW.pak" />
+      </Component>
+      <Component Id="locales_hi_NEUTER.pak" Guid="d76b02da-89a9-4f8a-95ea-ce89551b29b4">
+        <File Id="locales_hi_NEUTER.pak" Name="hi_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\hi_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_lt_FEMININE.pak" Guid="182513c5-2998-41f9-b7b9-0c2ec2f3f058">
+        <File Id="locales_lt_FEMININE.pak" Name="lt_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\lt_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_lt_MASCULINE.pak" Guid="29a246e9-37c4-4a9f-b388-d3cf06735784">
+        <File Id="locales_lt_MASCULINE.pak" Name="lt_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\lt_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_lt_NEUTER.pak" Guid="dbf84b55-6c81-4a4a-b649-c24c0d86b245">
+        <File Id="locales_lt_NEUTER.pak" Name="lt_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\lt_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_lv_FEMININE.pak" Guid="9f0c5749-77b6-423e-a0e2-70772841a5a5">
+        <File Id="locales_lv_FEMININE.pak" Name="lv_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\lv_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_lv_MASCULINE.pak" Guid="d951ba1d-09d9-4ecf-939d-b083e59ccab8">
+        <File Id="locales_lv_MASCULINE.pak" Name="lv_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\lv_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_lv_NEUTER.pak" Guid="87a1a040-f146-427d-b159-906ab69f4525">
+        <File Id="locales_lv_NEUTER.pak" Name="lv_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\lv_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_ml_FEMININE.pak" Guid="7570fe8a-bcd3-4c05-82b6-867747f80984">
+        <File Id="locales_ml_FEMININE.pak" Name="ml_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ml_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ml_MASCULINE.pak" Guid="e1aaab44-b4e6-4e0f-a12c-d8cd3b064c6b">
+        <File Id="locales_ml_MASCULINE.pak" Name="ml_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ml_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ml_NEUTER.pak" Guid="a093e354-0d98-484f-a5c9-ed646ef65c7f">
+        <File Id="locales_ml_NEUTER.pak" Name="ml_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ml_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_mr_FEMININE.pak" Guid="a5fbae85-c7ea-4366-8312-3a4fab02d001">
+        <File Id="locales_mr_FEMININE.pak" Name="mr_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\mr_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_mr_MASCULINE.pak" Guid="9d8a7c6e-4772-4b79-821b-16358b715ff9">
+        <File Id="locales_mr_MASCULINE.pak" Name="mr_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\mr_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_mr_NEUTER.pak" Guid="85e174bf-a7f1-4cd9-97cc-442f317ce775">
+        <File Id="locales_mr_NEUTER.pak" Name="mr_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\mr_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_ms_FEMININE.pak" Guid="a5a39640-82a3-4a7c-8e55-a9af46efe2e9">
+        <File Id="locales_ms_FEMININE.pak" Name="ms_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ms_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ms_MASCULINE.pak" Guid="3aac4096-0240-4fcb-9ac6-17a11e9a20b6">
+        <File Id="locales_ms_MASCULINE.pak" Name="ms_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ms_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ms_NEUTER.pak" Guid="04706e6f-5ed8-4ab7-84f0-1dc6181559bc">
+        <File Id="locales_ms_NEUTER.pak" Name="ms_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ms_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_nb_FEMININE.pak" Guid="9e3ec59c-89da-44a5-b54e-9baff9a1f8a8">
+        <File Id="locales_nb_FEMININE.pak" Name="nb_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\nb_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_nb_MASCULINE.pak" Guid="df2ababd-e59c-4cde-975a-32521c4ba659">
+        <File Id="locales_nb_MASCULINE.pak" Name="nb_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\nb_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_nb_NEUTER.pak" Guid="b2dffeaa-d4e5-4e64-bf23-9f2c3b5ee7f9">
+        <File Id="locales_nb_NEUTER.pak" Name="nb_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\nb_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_nl_FEMININE.pak" Guid="51040d6e-f736-455f-b510-8fde9f1d3491">
+        <File Id="locales_nl_FEMININE.pak" Name="nl_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\nl_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_nl_MASCULINE.pak" Guid="3b2dc42b-f861-4884-922b-e8ceca6f6af8">
+        <File Id="locales_nl_MASCULINE.pak" Name="nl_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\nl_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_nl_NEUTER.pak" Guid="3563760e-b59f-4952-b25d-891d3dd7e597">
+        <File Id="locales_nl_NEUTER.pak" Name="nl_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\nl_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_pl_FEMININE.pak" Guid="781208b0-eee8-48b1-87d4-2ce22046f775">
+        <File Id="locales_pl_FEMININE.pak" Name="pl_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\pl_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ko_NEUTER.pak" Guid="9706439b-cf2c-4a30-bfc0-43d6918d68bc">
+        <File Id="locales_ko_NEUTER.pak" Name="ko_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ko_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_pl_MASCULINE.pak" Guid="7d4bb830-2ac3-448e-a7a3-72e1af8a2eba">
+        <File Id="locales_pl_MASCULINE.pak" Name="pl_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\pl_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ko_MASCULINE.pak" Guid="1d574e47-8640-4a4e-a0da-a9dc331bb3e0">
+        <File Id="locales_ko_MASCULINE.pak" Name="ko_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ko_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_kn_NEUTER.pak" Guid="67461699-df33-4091-a93a-60fe10a3e661">
+        <File Id="locales_kn_NEUTER.pak" Name="kn_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\kn_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_he_FEMININE.pak" Guid="5f166719-253c-4044-a0f6-3bf108e84d46">
+        <File Id="locales_he_FEMININE.pak" Name="he_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\he_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_he_MASCULINE.pak" Guid="8dd1c774-2d2d-456a-9a59-4526dc1193dc">
+        <File Id="locales_he_MASCULINE.pak" Name="he_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\he_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_he_NEUTER.pak" Guid="54d4e4f3-20a8-4325-b813-b17eee1e8875">
+        <File Id="locales_he_NEUTER.pak" Name="he_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\he_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_hi_FEMININE.pak" Guid="ba2ddd11-d738-49d2-94ce-a3b3ae41036e">
+        <File Id="locales_hi_FEMININE.pak" Name="hi_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\hi_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_hi_MASCULINE.pak" Guid="58fb9040-c2e2-424c-97ee-e8b3db0d0e0b">
+        <File Id="locales_hi_MASCULINE.pak" Name="hi_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\hi_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_uk_NEUTER.pak" Guid="927ab155-2b98-40d4-9d8c-790a42b8f8fc">
+        <File Id="locales_uk_NEUTER.pak" Name="uk_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\uk_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_hr_FEMININE.pak" Guid="5d553f74-2b0d-4fa1-92b9-bcf8e0136457">
+        <File Id="locales_hr_FEMININE.pak" Name="hr_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\hr_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_hr_MASCULINE.pak" Guid="a4c24497-9527-44e0-bc2d-3ea93c094af4">
+        <File Id="locales_hr_MASCULINE.pak" Name="hr_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\hr_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_hr_NEUTER.pak" Guid="00f2134e-3bd9-4679-9fe2-5711db8f0b45">
+        <File Id="locales_hr_NEUTER.pak" Name="hr_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\hr_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_hu_FEMININE.pak" Guid="6595dd5e-f629-4941-ada4-51427e3d5843">
+        <File Id="locales_hu_FEMININE.pak" Name="hu_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\hu_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_hu_MASCULINE.pak" Guid="faf707c2-124a-42ae-ba1e-3cd6d110ec13">
+        <File Id="locales_hu_MASCULINE.pak" Name="hu_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\hu_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_hu_NEUTER.pak" Guid="cf7b2326-7cb7-44b3-9748-74024e697a98">
+        <File Id="locales_hu_NEUTER.pak" Name="hu_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\hu_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_id_FEMININE.pak" Guid="0fae4cd9-7952-4245-afd6-daf07c76b0e6">
+        <File Id="locales_id_FEMININE.pak" Name="id_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\id_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_id_MASCULINE.pak" Guid="f80aacfb-cbf1-466e-8aba-05c5b6384074">
+        <File Id="locales_id_MASCULINE.pak" Name="id_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\id_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_id_NEUTER.pak" Guid="85283b47-f2be-48d0-bd4f-9c9d5c403500">
+        <File Id="locales_id_NEUTER.pak" Name="id_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\id_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_it_FEMININE.pak" Guid="ffd2d122-7b4a-4aa5-a992-0d450b80db04">
+        <File Id="locales_it_FEMININE.pak" Name="it_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\it_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_it_MASCULINE.pak" Guid="94b39b5e-e5ce-4f89-a8a1-153100a0b612">
+        <File Id="locales_it_MASCULINE.pak" Name="it_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\it_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_it_NEUTER.pak" Guid="5652037c-9b24-4888-808c-5d0d25a56536">
+        <File Id="locales_it_NEUTER.pak" Name="it_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\it_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_ja_FEMININE.pak" Guid="40144b22-00ee-41b2-9be9-caa292a852a7">
+        <File Id="locales_ja_FEMININE.pak" Name="ja_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ja_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ja_MASCULINE.pak" Guid="1620b20a-8a2e-4b6f-9f38-84d12d8abce4">
+        <File Id="locales_ja_MASCULINE.pak" Name="ja_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ja_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ja_NEUTER.pak" Guid="09c1c25e-045a-4534-8884-f9688c021b9f">
+        <File Id="locales_ja_NEUTER.pak" Name="ja_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ja_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_kn_FEMININE.pak" Guid="9b23ba51-e06a-4725-9400-40e80fbd2faa">
+        <File Id="locales_kn_FEMININE.pak" Name="kn_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\kn_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_kn_MASCULINE.pak" Guid="b380b2f6-8b1d-4996-954c-ec6032ff3a1f">
+        <File Id="locales_kn_MASCULINE.pak" Name="kn_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\kn_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ko_FEMININE.pak" Guid="3f912f9e-4310-4395-925a-79ee201b2792">
+        <File Id="locales_ko_FEMININE.pak" Name="ko_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ko_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_gu_NEUTER.pak" Guid="b13c31a6-0434-42d7-9497-d6c5ceb9ed92">
+        <File Id="locales_gu_NEUTER.pak" Name="gu_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\gu_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_pl_NEUTER.pak" Guid="fea78c1e-0b6f-43f7-b394-651b869b3d38">
+        <File Id="locales_pl_NEUTER.pak" Name="pl_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\pl_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_pt_BR_FEMININE.pak" Guid="168d8f54-e8c4-4470-b28e-d8019e7f6858">
+        <File Id="locales_pt_BR_FEMININE.pak" Name="pt-BR_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\pt-BR_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_sv_NEUTER.pak" Guid="265b265f-e2bb-43b4-86bf-34eb2a1c9273">
+        <File Id="locales_sv_NEUTER.pak" Name="sv_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\sv_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_vi_NEUTER.pak" Guid="4f04e891-f796-475c-aae9-85e46c408666">
+        <File Id="locales_vi_NEUTER.pak" Name="vi_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\vi_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_sw_FEMININE.pak" Guid="1e54e0db-29ac-4816-ae48-902341626d96">
+        <File Id="locales_sw_FEMININE.pak" Name="sw_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\sw_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_sw_MASCULINE.pak" Guid="36e6bc57-4012-419e-85bd-f7b7236ebd40">
+        <File Id="locales_sw_MASCULINE.pak" Name="sw_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\sw_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_sw_NEUTER.pak" Guid="cecdf2cb-fbb1-4a6a-a8d5-e4a54864dafe">
+        <File Id="locales_sw_NEUTER.pak" Name="sw_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\sw_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_vi_MASCULINE.pak" Guid="0b0fdf2d-523b-4d9b-b322-dd728e75f5e7">
+        <File Id="locales_vi_MASCULINE.pak" Name="vi_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\vi_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ta_FEMININE.pak" Guid="f26d0a25-921c-4285-92d3-18fb9460901d">
+        <File Id="locales_ta_FEMININE.pak" Name="ta_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ta_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ta_MASCULINE.pak" Guid="41a4f0c0-937f-4d8a-8b12-8f2c6fdfa32e">
+        <File Id="locales_ta_MASCULINE.pak" Name="ta_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ta_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ta_NEUTER.pak" Guid="a7f263e3-ca13-4929-8961-be1bc8093d27">
+        <File Id="locales_ta_NEUTER.pak" Name="ta_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ta_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_vi_FEMININE.pak" Guid="b0aaa105-7eac-4dac-9680-db7df4925172">
+        <File Id="locales_vi_FEMININE.pak" Name="vi_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\vi_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_te_FEMININE.pak" Guid="9cd18e06-05cf-4b98-9244-bf380d684f15">
+        <File Id="locales_te_FEMININE.pak" Name="te_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\te_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_te_MASCULINE.pak" Guid="6757fb23-fa74-4162-a587-9f52adcc76ee">
+        <File Id="locales_te_MASCULINE.pak" Name="te_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\te_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_te_NEUTER.pak" Guid="226134a6-4684-4b94-9be9-e3b1c9093c3f">
+        <File Id="locales_te_NEUTER.pak" Name="te_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\te_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_th_FEMININE.pak" Guid="724768a6-5dc9-499a-b784-5a87b1a8d1b5">
+        <File Id="locales_th_FEMININE.pak" Name="th_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\th_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_th_MASCULINE.pak" Guid="c2259cfc-e6fa-45bb-97d5-df377347e7d4">
+        <File Id="locales_th_MASCULINE.pak" Name="th_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\th_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_th_NEUTER.pak" Guid="86132354-0b6e-4497-8694-cd642cd88c0b">
+        <File Id="locales_th_NEUTER.pak" Name="th_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\th_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_ur_NEUTER.pak" Guid="3e7dec8e-98ba-4188-9829-62f4fe3b44df">
+        <File Id="locales_ur_NEUTER.pak" Name="ur_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ur_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_tr_FEMININE.pak" Guid="e95a97df-9e9a-45ce-8eb2-667408b0b928">
+        <File Id="locales_tr_FEMININE.pak" Name="tr_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\tr_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_tr_MASCULINE.pak" Guid="0c9da514-526f-41dd-8954-5229837bf8ac">
+        <File Id="locales_tr_MASCULINE.pak" Name="tr_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\tr_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_tr_NEUTER.pak" Guid="c9e3b337-b426-448e-a9e7-e46042c3574c">
+        <File Id="locales_tr_NEUTER.pak" Name="tr_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\tr_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_ur_MASCULINE.pak" Guid="bd6e7b39-9c67-44a3-a6fe-b6983e8e4570">
+        <File Id="locales_ur_MASCULINE.pak" Name="ur_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ur_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_uk_FEMININE.pak" Guid="2ef1dcc0-9c72-4120-83bf-51f5012db196">
+        <File Id="locales_uk_FEMININE.pak" Name="uk_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\uk_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_uk_MASCULINE.pak" Guid="57fde81c-22a9-471c-a9a1-2432450712c0">
+        <File Id="locales_uk_MASCULINE.pak" Name="uk_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\uk_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_sv_MASCULINE.pak" Guid="4ecf4b32-9f36-49b6-b547-a2347c172a2d">
+        <File Id="locales_sv_MASCULINE.pak" Name="sv_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\sv_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_zh_TW_NEUTER.pak" Guid="de504bdd-c857-4df3-a3bc-16ccdb7bb7a5">
+        <File Id="locales_zh_TW_NEUTER.pak" Name="zh-TW_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-TW_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_sv_FEMININE.pak" Guid="79d6919b-8ce5-49a4-81f3-e3ea0486fa57">
+        <File Id="locales_sv_FEMININE.pak" Name="sv_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\sv_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_sr_MASCULINE.pak" Guid="7b4b6c2d-45c9-4514-b567-5fa209fc5373">
+        <File Id="locales_sr_MASCULINE.pak" Name="sr_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\sr_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_pt_BR_MASCULINE.pak" Guid="cdf74668-0fda-4b9b-abea-0401b46490b0">
+        <File Id="locales_pt_BR_MASCULINE.pak" Name="pt-BR_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\pt-BR_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_pt_BR_NEUTER.pak" Guid="031b0308-26c0-4391-b6f0-f10ea751601b">
+        <File Id="locales_pt_BR_NEUTER.pak" Name="pt-BR_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\pt-BR_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_zh_TW_MASCULINE.pak" Guid="6d5d72ab-fd6b-42bd-9c07-f9205877ab36">
+        <File Id="locales_zh_TW_MASCULINE.pak" Name="zh-TW_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-TW_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_pt_PT_FEMININE.pak" Guid="f17bec1e-415f-4d0d-808c-db18a0f596f7">
+        <File Id="locales_pt_PT_FEMININE.pak" Name="pt-PT_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\pt-PT_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_pt_PT_MASCULINE.pak" Guid="de0cf5a5-447f-4d4e-b678-6804e3de2a16">
+        <File Id="locales_pt_PT_MASCULINE.pak" Name="pt-PT_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\pt-PT_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_pt_PT_NEUTER.pak" Guid="3be94365-0503-4eba-80d0-ef7fb7ef5492">
+        <File Id="locales_pt_PT_NEUTER.pak" Name="pt-PT_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\pt-PT_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_zh_TW_FEMININE.pak" Guid="eb14ff5b-e310-4b7d-9be1-a1cc27851495">
+        <File Id="locales_zh_TW_FEMININE.pak" Name="zh-TW_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-TW_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ro_FEMININE.pak" Guid="7a6edaa1-97cb-485e-bada-796953c9e513">
+        <File Id="locales_ro_FEMININE.pak" Name="ro_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ro_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ro_MASCULINE.pak" Guid="ba39e00e-54a6-41ee-9cec-ce71f1feab20">
+        <File Id="locales_ro_MASCULINE.pak" Name="ro_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ro_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ro_NEUTER.pak" Guid="8a973342-fb6d-43db-b349-e2523343509d">
+        <File Id="locales_ro_NEUTER.pak" Name="ro_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ro_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_ru_FEMININE.pak" Guid="64e07dd0-3ecf-4a4e-b9f9-a0c5fc887f96">
+        <File Id="locales_ru_FEMININE.pak" Name="ru_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ru_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ru_MASCULINE.pak" Guid="a0ee6ee8-835b-4f4d-ad72-35824643e26d">
+        <File Id="locales_ru_MASCULINE.pak" Name="ru_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ru_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ru_NEUTER.pak" Guid="2204f1c5-8dde-482b-9e9f-27f520485697">
+        <File Id="locales_ru_NEUTER.pak" Name="ru_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ru_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_zh_CN_NEUTER.pak" Guid="66767ffe-21da-495e-a252-5f5bcda519fd">
+        <File Id="locales_zh_CN_NEUTER.pak" Name="zh-CN_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-CN_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_sk_FEMININE.pak" Guid="59af35bf-ab4b-41a7-b13e-868cb9e75e69">
+        <File Id="locales_sk_FEMININE.pak" Name="sk_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\sk_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_sk_MASCULINE.pak" Guid="29afe3fe-7013-41b4-9df3-9df33ca8dc9f">
+        <File Id="locales_sk_MASCULINE.pak" Name="sk_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\sk_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_sk_NEUTER.pak" Guid="f1f908ac-eb50-487e-83c6-73346aa50b90">
+        <File Id="locales_sk_NEUTER.pak" Name="sk_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\sk_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_zh_CN_MASCULINE.pak" Guid="599d1f84-d79b-4489-ae63-8df4ccf56cf3">
+        <File Id="locales_zh_CN_MASCULINE.pak" Name="zh-CN_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-CN_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_sl_FEMININE.pak" Guid="f116d8f7-c524-4d7b-91d4-06fa0814caa0">
+        <File Id="locales_sl_FEMININE.pak" Name="sl_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\sl_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_sl_MASCULINE.pak" Guid="eb3ac578-0802-4bdc-acfa-1908b2c56976">
+        <File Id="locales_sl_MASCULINE.pak" Name="sl_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\sl_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_sl_NEUTER.pak" Guid="266c438d-b671-419a-9616-2325c0ddb76e">
+        <File Id="locales_sl_NEUTER.pak" Name="sl_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\sl_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_zh_CN_FEMININE.pak" Guid="6d22d273-fd1c-422b-ae3c-d1bff1a23148">
+        <File Id="locales_zh_CN_FEMININE.pak" Name="zh-CN_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\zh-CN_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_sr_FEMININE.pak" Guid="64ef8517-8110-4397-86ff-80d79afc0a35">
+        <File Id="locales_sr_FEMININE.pak" Name="sr_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\sr_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_sr_NEUTER.pak" Guid="cc88a941-c82a-444c-94b2-5ad18258c4fb">
+        <File Id="locales_sr_NEUTER.pak" Name="sr_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\sr_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_gu_MASCULINE.pak" Guid="8a194614-6358-4464-b07a-0b0e24104f15">
+        <File Id="locales_gu_MASCULINE.pak" Name="gu_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\gu_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ur_FEMININE.pak" Guid="efccc226-bf48-4acf-b1c5-8e5ee403c2c0">
+        <File Id="locales_ur_FEMININE.pak" Name="ur_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ur_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_en_GB_MASCULINE.pak" Guid="f567468b-f53e-44b5-a9be-32efef3b8421">
+        <File Id="locales_en_GB_MASCULINE.pak" Name="en-GB_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\en-GB_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_gu_FEMININE.pak" Guid="dc3ff702-924b-46f0-9d30-e14a4693e9b5">
+        <File Id="locales_gu_FEMININE.pak" Name="gu_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\gu_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_da_FEMININE.pak" Guid="37d7521d-218e-4110-adab-01cc9034c515">
+        <File Id="locales_da_FEMININE.pak" Name="da_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\da_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_da_MASCULINE.pak" Guid="6e4873e3-36bd-496e-a372-72607ad640a4">
+        <File Id="locales_da_MASCULINE.pak" Name="da_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\da_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_da_NEUTER.pak" Guid="f43aaf46-e570-4bf0-9e24-9e8dbe9c8780">
+        <File Id="locales_da_NEUTER.pak" Name="da_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\da_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_de_FEMININE.pak" Guid="476c46c8-41e5-4615-acd1-604a4800f9d0">
+        <File Id="locales_de_FEMININE.pak" Name="de_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\de_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_de_MASCULINE.pak" Guid="14ed7fc1-e0ab-4cce-b1f2-11f0c2dfdb99">
+        <File Id="locales_de_MASCULINE.pak" Name="de_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\de_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_cs_NEUTER.pak" Guid="04a47ead-a8d1-4a13-af6d-cfd5b6be04d6">
+        <File Id="locales_cs_NEUTER.pak" Name="cs_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\cs_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_de_NEUTER.pak" Guid="bc70c89a-2004-4bd3-993a-849130adc5a0">
+        <File Id="locales_de_NEUTER.pak" Name="de_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\de_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_el_MASCULINE.pak" Guid="9c995c77-c323-4464-8d8e-5555000250c5">
+        <File Id="locales_el_MASCULINE.pak" Name="el_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\el_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_el_NEUTER.pak" Guid="6c1c1826-8e55-46f3-9f11-39fa5ebee54e">
+        <File Id="locales_el_NEUTER.pak" Name="el_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\el_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_en_GB_FEMININE.pak" Guid="c3692fb9-798d-4eb9-a130-b314c96522c2">
+        <File Id="locales_en_GB_FEMININE.pak" Name="en-GB_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\en-GB_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_af_MASCULINE.pak" Guid="d8e0528d-e62a-459b-a68f-1a3c5c40c24e">
+        <File Id="locales_af_MASCULINE.pak" Name="af_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\af_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_en_GB_NEUTER.pak" Guid="21ed1446-353b-4cd4-8d5a-50bb8ac38e56">
+        <File Id="locales_en_GB_NEUTER.pak" Name="en-GB_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\en-GB_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_en_US_FEMININE.pak" Guid="08d27251-68b7-4355-add2-5c9a17337d3f">
+        <File Id="locales_en_US_FEMININE.pak" Name="en-US_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\en-US_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_el_FEMININE.pak" Guid="d5c1c04f-06f7-460b-9ad6-40cd1de5bd67">
+        <File Id="locales_el_FEMININE.pak" Name="el_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\el_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_cs_MASCULINE.pak" Guid="d711cd0d-0ebb-41cd-a0ea-a31340d1d941">
+        <File Id="locales_cs_MASCULINE.pak" Name="cs_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\cs_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_cs_FEMININE.pak" Guid="10967c8a-d259-434a-9f4c-55c32510540e">
+        <File Id="locales_cs_FEMININE.pak" Name="cs_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\cs_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ca_NEUTER.pak" Guid="ef7a7920-b0ac-449a-84c2-10ba357dfa7c">
+        <File Id="locales_ca_NEUTER.pak" Name="ca_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ca_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_am_FEMININE.pak" Guid="bd9ce456-e3ed-48bc-8514-05a3499b34ff">
+        <File Id="locales_am_FEMININE.pak" Name="am_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\am_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_am_MASCULINE.pak" Guid="81729d8c-335d-42ff-bf01-bcb8e96f3fac">
+        <File Id="locales_am_MASCULINE.pak" Name="am_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\am_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_am_NEUTER.pak" Guid="a0a9b365-89ae-4839-b2da-f9d0a3fc44f5">
+        <File Id="locales_am_NEUTER.pak" Name="am_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\am_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_af_FEMININE.pak" Guid="76005c88-02ab-4009-bbfc-32cbdee44aa5">
+        <File Id="locales_af_FEMININE.pak" Name="af_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\af_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ar_FEMININE.pak" Guid="666cf465-35be-4692-b2d0-557f9472f4e5">
+        <File Id="locales_ar_FEMININE.pak" Name="ar_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ar_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ar_MASCULINE.pak" Guid="046b29c5-8b42-4332-abc9-f5187dd033f4">
+        <File Id="locales_ar_MASCULINE.pak" Name="ar_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ar_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_ar_NEUTER.pak" Guid="946d1313-46eb-479e-8c64-99e7965b5c8d">
+        <File Id="locales_ar_NEUTER.pak" Name="ar_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\ar_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_bg_FEMININE.pak" Guid="2287f526-b0d8-4001-862b-dfb9dd2c38ea">
+        <File Id="locales_bg_FEMININE.pak" Name="bg_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\bg_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_bg_MASCULINE.pak" Guid="301d913f-0f85-4ef8-9ce5-7f44b5900d0d">
+        <File Id="locales_bg_MASCULINE.pak" Name="bg_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\bg_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_bg_NEUTER.pak" Guid="0ab2d291-1b77-4a50-9cd3-bf0b510437d0">
+        <File Id="locales_bg_NEUTER.pak" Name="bg_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\bg_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_bn_FEMININE.pak" Guid="80dcbfa4-0ba2-4c3b-927a-a9ca53d11781">
+        <File Id="locales_bn_FEMININE.pak" Name="bn_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\bn_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_bn_MASCULINE.pak" Guid="a4d04d7b-26fb-4036-af8f-4159447522cf">
+        <File Id="locales_bn_MASCULINE.pak" Name="bn_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\bn_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_bn_NEUTER.pak" Guid="7250a374-cb86-4240-8a40-7aefd7879de0">
+        <File Id="locales_bn_NEUTER.pak" Name="bn_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\bn_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_ca_FEMININE.pak" Guid="df72b262-f377-4838-9281-9d7368b2ca65">
+        <File Id="locales_ca_FEMININE.pak" Name="ca_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\ca_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_ca_MASCULINE.pak" Guid="4f78a10f-c8f2-44bc-b3a6-224e73a2a92a">
+        <File Id="locales_ca_MASCULINE.pak" Name="ca_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\ca_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_en_US_MASCULINE.pak" Guid="a3bb6d5c-e3a1-4046-808b-f9bea76980d0">
+        <File Id="locales_en_US_MASCULINE.pak" Name="en-US_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\en-US_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_en_US_NEUTER.pak" Guid="dc43dc6a-fd00-40a3-876c-1647e498ae4b">
+        <File Id="locales_en_US_NEUTER.pak" Name="en-US_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\en-US_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_af_NEUTER.pak" Guid="85145470-26e7-4c12-b981-97f5cef0b270">
+        <File Id="locales_af_NEUTER.pak" Name="af_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\af_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_fa_FEMININE.pak" Guid="922a588a-59cc-435a-8bbb-3631996b4d82">
+        <File Id="locales_fa_FEMININE.pak" Name="fa_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\fa_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_fa_MASCULINE.pak" Guid="446909fc-ab07-4f8a-a877-43d19d846fb0">
+        <File Id="locales_fa_MASCULINE.pak" Name="fa_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\fa_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_es_419_FEMININE.pak" Guid="56c916fc-efef-4dbe-866f-95d983f353af">
+        <File Id="locales_es_419_FEMININE.pak" Name="es-419_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\es-419_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_fil_FEMININE.pak" Guid="f411ecf6-a74f-4aac-84c9-982d10ed857c">
+        <File Id="locales_fil_FEMININE.pak" Name="fil_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\fil_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_fil_MASCULINE.pak" Guid="459aa1ef-190d-482b-88eb-70cc5a680334">
+        <File Id="locales_fil_MASCULINE.pak" Name="fil_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\fil_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_et_NEUTER.pak" Guid="289950eb-dcab-41ae-aca9-7728ae262cbf">
+        <File Id="locales_et_NEUTER.pak" Name="et_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\et_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_fil_NEUTER.pak" Guid="43f4cfcd-2e16-4f1d-b28b-19e0f229bf14">
+        <File Id="locales_fil_NEUTER.pak" Name="fil_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\fil_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_et_MASCULINE.pak" Guid="897f5033-2687-4457-85b3-2016fd39284d">
+        <File Id="locales_et_MASCULINE.pak" Name="et_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\et_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_et_FEMININE.pak" Guid="76600d30-e347-48cd-bb69-47b343c5d50d">
+        <File Id="locales_et_FEMININE.pak" Name="et_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\et_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_fi_FEMININE.pak" Guid="9154b21a-8326-43eb-8977-4eb4e5436508">
+        <File Id="locales_fi_FEMININE.pak" Name="fi_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\fi_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_fa_NEUTER.pak" Guid="271e8b46-9657-426d-929b-fcdb52f49237">
+        <File Id="locales_fa_NEUTER.pak" Name="fa_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\fa_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_es_NEUTER.pak" Guid="ddc6376d-9d45-4c73-98dc-6e8cd7aa2db3">
+        <File Id="locales_es_NEUTER.pak" Name="es_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\es_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_fi_MASCULINE.pak" Guid="d1ca13de-2b5a-4b5d-ae0d-538a1745f91d">
+        <File Id="locales_fi_MASCULINE.pak" Name="fi_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\fi_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_fi_NEUTER.pak" Guid="d6b6d181-f2f4-4a07-a6c1-0b8b2ee2fce9">
+        <File Id="locales_fi_NEUTER.pak" Name="fi_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\fi_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_fr_NEUTER.pak" Guid="d9c1ca26-1391-4fc0-8f34-32a420b47e75">
+        <File Id="locales_fr_NEUTER.pak" Name="fr_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\fr_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_es_419_MASCULINE.pak" Guid="35897371-28af-4232-95a2-69e09222f82a">
+        <File Id="locales_es_419_MASCULINE.pak" Name="es-419_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\es-419_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_es_419_NEUTER.pak" Guid="24188f28-d3f7-4af6-abae-4e40630d8fc1">
+        <File Id="locales_es_419_NEUTER.pak" Name="es-419_NEUTER.pak" Source="$(var.RaceHorology_TargetDir)locales\es-419_NEUTER.pak" />
+      </Component>
+      <Component Id="locales_es_MASCULINE.pak" Guid="42b4b9e1-b1f1-4ff7-8210-3328a737540a">
+        <File Id="locales_es_MASCULINE.pak" Name="es_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\es_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_fr_FEMININE.pak" Guid="b4331999-a5a5-48de-aaf0-0cd38ad7da9d">
+        <File Id="locales_fr_FEMININE.pak" Name="fr_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\fr_FEMININE.pak" />
+      </Component>
+      <Component Id="locales_fr_MASCULINE.pak" Guid="03da3780-5c42-47b9-a699-a644543e1cd6">
+        <File Id="locales_fr_MASCULINE.pak" Name="fr_MASCULINE.pak" Source="$(var.RaceHorology_TargetDir)locales\fr_MASCULINE.pak" />
+      </Component>
+      <Component Id="locales_es_FEMININE.pak" Guid="84882e68-7a47-4048-bf81-4ab49246329b">
+        <File Id="locales_es_FEMININE.pak" Name="es_FEMININE.pak" Source="$(var.RaceHorology_TargetDir)locales\es_FEMININE.pak" />
       </Component>
     </ComponentGroup>
   </Fragment>
