@@ -34,7 +34,6 @@
  */
 
 using iText.IO.Font;
-using iText.IO.Font.Constants;
 using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Events;
@@ -42,7 +41,6 @@ using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas;
-using iText.Kernel.Pdf.Canvas.Wmf;
 using iText.Kernel.Pdf.Xobject;
 using iText.Layout;
 using iText.Layout.Borders;
@@ -56,8 +54,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -270,7 +266,7 @@ namespace RaceHorologyLib
     Image _banner;
     float _bannerHeight = 0F;
 
-        bool _displayDSVLogo = false;
+    bool _displayDSVLogo = false;
     string _headline;
     Image _logo1;
     Image _logo2;
@@ -278,7 +274,8 @@ namespace RaceHorologyLib
     Image _logoRH;
 
 
-    public ReportHeader(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true, bool displayBDSVLogo= false, string headline="")
+    // TODO_REFEREE: Split Referee Report
+    public ReportHeader(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, bool displayBanner = true, bool displayDSVLogo = false, string headline = "")
     {
       _pdfDoc = pdfDoc;
       _doc = doc;
@@ -286,7 +283,7 @@ namespace RaceHorologyLib
       _race = race;
       _listName = listName;
       _pageMargins = pageMargins;
-      _displayDSVLogo = displayBDSVLogo;
+      _displayDSVLogo = displayDSVLogo;
       _headline = headline;
       var pageSize = PageSize.A4; // Assumption
 
@@ -410,15 +407,15 @@ namespace RaceHorologyLib
             .SetPadding(padding)
             .SetFont(_pdfHelper.GetFont(RHFont.Bold))
             .Add(_logoDSV.SetMaxHeight(maxHeightCol1 * 0.8F).SetMaxWidth(75)));
-       else
+      else
         tableHeader.AddCell(new Cell()
         .SetBorder(Border.NO_BORDER)
         .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
         .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
 
 
-     
-       if (!string.IsNullOrEmpty(_race.Description))
+
+      if (!string.IsNullOrEmpty(_race.Description))
         // Race Titles
         tableHeader.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.CENTER)
@@ -465,26 +462,26 @@ namespace RaceHorologyLib
           .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin)));
 
 
-    //Second line not in referee report
+      //Second line not in referee report
       if (!_displayDSVLogo)
       {
         // Second row
         if (_logo2 != null)
         {
-            tableHeader.AddCell(new Cell()
-                .SetTextAlignment(TextAlignment.LEFT)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+          tableHeader.AddCell(new Cell()
+              .SetTextAlignment(TextAlignment.LEFT)
+              .SetVerticalAlignment(VerticalAlignment.MIDDLE)
 
-                .SetBorder(Border.NO_BORDER)
-                .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
-                .SetPadding(padding)
-                .SetFont(_pdfHelper.GetFont(RHFont.Bold))
-                .Add(_logo2.SetMaxHeight(maxHeightCol2)));
+              .SetBorder(Border.NO_BORDER)
+              .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick))
+              .SetPadding(padding)
+              .SetFont(_pdfHelper.GetFont(RHFont.Bold))
+              .Add(_logo2.SetMaxHeight(maxHeightCol2)));
         }
         else
-            tableHeader.AddCell(new Cell()
-                .SetBorder(Border.NO_BORDER)
-                .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick)));
+          tableHeader.AddCell(new Cell()
+              .SetBorder(Border.NO_BORDER)
+              .SetBorderBottom(new SolidBorder(PDFHelper.SolidBorderThick)));
 
         // List Name
         tableHeader.AddCell(new Cell()
@@ -536,7 +533,7 @@ namespace RaceHorologyLib
     Image _logoRH;
     bool _isRefereeReport;
 
-    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, DateTime creationDateTime, bool displayBanner = true, bool isRefereeReport=false)
+    public ReportFooter(PdfDocument pdfDoc, Document doc, PDFHelper pdfHelper, Race race, string listName, Margins pageMargins, DateTime creationDateTime, bool displayBanner = true, bool isRefereeReport = false)
     {
       _pdfDoc = pdfDoc;
       _doc = doc;
@@ -573,14 +570,14 @@ namespace RaceHorologyLib
       var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
       float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight() - 3.0F;
 
-        if (_isRefereeReport)
-        {
-            _height = 0;
-        }
-        else
-        {
-            _height = _bannerHeight + tableHeight + 0;
-        }
+      if (_isRefereeReport)
+      {
+        _height = 0;
+      }
+      else
+      {
+        _height = _bannerHeight + tableHeight + 0;
+      }
     }
 
 
@@ -610,53 +607,53 @@ namespace RaceHorologyLib
 
     public virtual void HandleEvent(Event @event)
     {
-        //Don't add at referre report
-        if (_isRefereeReport==false)
+      //Don't add at referre report
+      if (_isRefereeReport == false)
+      {
+        PdfDocumentEvent docEvent = (PdfDocumentEvent)@event;
+        PdfDocument pdfDoc = docEvent.GetDocument();
+        PdfPage page = docEvent.GetPage();
+
+        int pageNumber = pdfDoc.GetPageNumber(page);
+        Rectangle pageSize = page.GetPageSize();
+        PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
+
+        // Footer
+        if (_banner != null)
         {
-            PdfDocumentEvent docEvent = (PdfDocumentEvent)@event;
-            PdfDocument pdfDoc = docEvent.GetDocument();
-            PdfPage page = docEvent.GetPage();
+          Rectangle area3 = new Rectangle(
+              pageSize.GetLeft() + _pageMargins.Left,
+              pageSize.GetBottom() + _pageMargins.Bottom,
+              pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right,
+              _bannerHeight);
+          Canvas canvas = new Canvas(pdfCanvas, area3).Add(_banner);
 
-            int pageNumber = pdfDoc.GetPageNumber(page);
-            Rectangle pageSize = page.GetPageSize();
-            PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
-
-            // Footer
-            if (_banner != null)
-            {
-                Rectangle area3 = new Rectangle(
-                    pageSize.GetLeft() + _pageMargins.Left,
-                    pageSize.GetBottom() + _pageMargins.Bottom,
-                    pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right,
-                    _bannerHeight);
-                Canvas canvas = new Canvas(pdfCanvas, area3).Add(_banner);
-
-                if (_debugAreas)
-                    pdfCanvas.SetStrokeColor(ColorConstants.RED)
-                                .SetLineWidth(0.5f)
-                                .Rectangle(area3)
-                                .Stroke();
-            }
-
-     
-            Table tableFooter = createFooterTable(pageNumber);
-
-            float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
-            var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
-            float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
-
-            Rectangle rectTable = new Rectangle(
-                pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _bannerHeight,
-                tableWidth, tableHeight);
-
-            new Canvas(pdfCanvas, rectTable).SetBorder(new SolidBorder(ColorConstants.GREEN, 1)).SetBackgroundColor(ColorConstants.GRAY)
-                    .Add(tableFooter
-                        );
-
-
-            pdfCanvas.Release();
-            
+          if (_debugAreas)
+            pdfCanvas.SetStrokeColor(ColorConstants.RED)
+                        .SetLineWidth(0.5f)
+                        .Rectangle(area3)
+                        .Stroke();
         }
+
+
+        Table tableFooter = createFooterTable(pageNumber);
+
+        float tableWidth = pageSize.GetWidth() - _pageMargins.Left - _pageMargins.Right;
+        var result = tableFooter.CreateRendererSubTree().SetParent(_doc.GetRenderer()).Layout(new LayoutContext(new LayoutArea(1, new Rectangle(0, 0, tableWidth, 10000.0F))));
+        float tableHeight = result.GetOccupiedArea().GetBBox().GetHeight();
+
+        Rectangle rectTable = new Rectangle(
+            pageSize.GetLeft() + _pageMargins.Left, pageSize.GetBottom() + _pageMargins.Bottom + _bannerHeight,
+            tableWidth, tableHeight);
+
+        new Canvas(pdfCanvas, rectTable).SetBorder(new SolidBorder(ColorConstants.GREEN, 1)).SetBackgroundColor(ColorConstants.GRAY)
+                .Add(tableFooter
+                    );
+
+
+        pdfCanvas.Release();
+
+      }
     }
 
 
@@ -3397,11 +3394,11 @@ namespace RaceHorologyLib
       // Year
       if (_race.IsFieldActive("Year"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
-          item.Original?.Participant != null ? string.Format("{0}",item.Original.Participant.Year) : "", font)));
+          item.Original?.Participant != null ? string.Format("{0}", item.Original.Participant.Year) : "", font)));
       // VB
       if (_race.IsFieldActive("Nation"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
-          item.Original?.Participant != null ? item.Original.Participant.Participant.Nation: "", font)));
+          item.Original?.Participant != null ? item.Original.Participant.Participant.Nation : "", font)));
       // Club
       if (_race.IsFieldActive("Club"))
         table.AddCell(createCellForTable().SetBackgroundColor(bgColor).Add(createCellParagraphForTable(
