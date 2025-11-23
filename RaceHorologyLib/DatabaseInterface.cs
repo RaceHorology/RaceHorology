@@ -102,11 +102,11 @@ namespace RaceHorologyLib
 
 
     PrintCertificateModel GetCertificateModel(Race race);
-
     void SaveCertificateModel(Race race, PrintCertificateModel model);
-       
-    void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race, bool update);
 
+
+    // TODO_REFEREE: check update flag
+    void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race, bool update);
     Dictionary<string, string> GetRefereeReportData(Race race);
 
 
