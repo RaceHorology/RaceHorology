@@ -256,9 +256,6 @@
       <Component Id="libGLESv2.dll" Guid="2be0e442-c51f-40b1-a078-0c5848c9cb5f">
         <File Id="libGLESv2.dll" Name="libGLESv2.dll" Source="$(var.RaceHorology_TargetDir)libGLESv2.dll" />
       </Component>
-      <Component Id="LICENSE.txt" Guid="226d8a3d-8eee-4a5e-867e-9a6bd76360c0">
-        <File Id="LICENSE.txt" Name="LICENSE.txt" Source="$(var.RaceHorology_TargetDir)LICENSE.txt" />
-      </Component>
       <Component Id="LiveTimingFIS.dll" Guid="ca2f58d9-4871-4b35-87a5-194f3e430604">
         <File Id="LiveTimingFIS.dll" Name="LiveTimingFIS.dll" Source="$(var.RaceHorology_TargetDir)LiveTimingFIS.dll" />
       </Component>
@@ -346,9 +343,6 @@
       <Component Id="RaceHorologyLib.pdb" Guid="47ccab44-478f-4006-ba13-2758699ada28">
         <File Id="RaceHorologyLib.pdb" Name="RaceHorologyLib.pdb" Source="$(var.RaceHorology_TargetDir)RaceHorologyLib.pdb" />
       </Component>
-      <Component Id="README.txt" Guid="da7b5dc3-389a-4d38-a34d-67dd4ee843ef">
-        <File Id="README.txt" Name="README.txt" Source="$(var.RaceHorology_TargetDir)README.txt" />
-      </Component>
       <Component Id="resources.pak" Guid="2f5772b5-8c03-4427-b213-32c30131fc19">
         <File Id="resources.pak" Name="resources.pak" Source="$(var.RaceHorology_TargetDir)resources.pak" />
       </Component>
@@ -360,9 +354,6 @@
       </Component>
       <Component Id="rmlt.dll" Guid="ff52d697-2387-4ecc-9716-a191bdded463">
         <File Id="rmlt.dll" Name="rmlt.dll" Source="$(var.RaceHorology_TargetDir)rmlt.dll" />
-      </Component>
-      <Component Id="snapshot_blob.bin" Guid="5fd94445-757b-4361-b13f-166a1d727c29">
-        <File Id="snapshot_blob.bin" Name="snapshot_blob.bin" Source="$(var.RaceHorology_TargetDir)snapshot_blob.bin" />
       </Component>
       <Component Id="StringComparison.dll" Guid="5b878adf-fd78-4a13-ba31-6acd4ca96923">
         <File Id="StringComparison.dll" Name="StringComparison.dll" Source="$(var.RaceHorology_TargetDir)StringComparison.dll" />
