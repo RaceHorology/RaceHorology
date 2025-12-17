@@ -314,6 +314,24 @@ namespace RaceHorology
         OverlayCanvas.Children.Add(CreateDraggable(_certificateModel.TextItems[i]));
     }
 
+    private static double GetAnchorOffsetDip(TextItem vm, double widthDip)
+    {
+        // vm.Alignment: Left = 0, Right = 1, Center = 2 (bei dir)
+        if (vm.Alignment == TextItemAlignment.Center) return widthDip / 2.0;
+        if (vm.Alignment == TextItemAlignment.Right) return widthDip;
+        return 0.0; // Left
+    }
+
+    private static double MeasureWidthDip(FrameworkElement el)
+    {
+        var w = el.ActualWidth;
+        if (w <= 0)
+        {
+            el.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            w = el.DesiredSize.Width;
+        }
+        return w;
+    }
     private void SetClampedPosition(FrameworkElement el, double x, double y)
     {
       if (OverlayCanvas == null) return;
@@ -328,45 +346,55 @@ namespace RaceHorology
       Canvas.SetTop(el, y);
     }
 
-    private void ClampVmToCanvas(TextItem vm, FrameworkElement el)
-    {
-      //if (vm == null || el == null) return;
+        private void ClampVmToCanvas(TextItem vm, FrameworkElement el)
+        {
+            if (vm == null || el == null || OverlayCanvas == null) return;
 
-      //double maxX = Math.Max(0, OverlayCanvas.Width - el.ActualWidth);
-      //double maxY = Math.Max(0, OverlayCanvas.Height - el.ActualHeight);
+            double wDip = MeasureWidthDip(el);
+            double hDip = el.ActualHeight > 0 ? el.ActualHeight : el.DesiredSize.Height;
 
-      //vm.HPos = (int)Math.Min(Math.Max(0, vm.HPos), maxX);
-      //vm.VPos = (int)Math.Min(Math.Max(0, vm.VPos), maxY);
+            // Anker in DIP
+            double ax = TenthMmToDip(vm.HPos);
+            double ay = TenthMmToDip(vm.VPos);
 
-      //Canvas.SetLeft(el, vm.HPos);
-      //Canvas.SetTop(el, vm.VPos);
-      if (vm == null || el == null) return;
+            // je nach Alignment hat der Anker andere erlaubte Grenzen
+            double minAx = 0, maxAx = OverlayCanvas.Width;
+            if (vm.Alignment == TextItemAlignment.Left)
+            {
+                minAx = 0;
+                maxAx = Math.Max(0, OverlayCanvas.Width - wDip);
+            }
+            else if (vm.Alignment == TextItemAlignment.Center)
+            {
+                minAx = wDip / 2.0;
+                maxAx = Math.Max(minAx, OverlayCanvas.Width - wDip / 2.0);
+            }
+            else if (vm.Alignment == TextItemAlignment.Right)
+            {
+                minAx = wDip;
+                maxAx = Math.Max(minAx, OverlayCanvas.Width);
+            }
 
-      // compute canvas limits (DIP)
-      double maxXdip = Math.Max(0, OverlayCanvas.Width - el.ActualWidth);
-      double maxYdip = Math.Max(0, OverlayCanvas.Height - el.ActualHeight);
+            // Y-Anker ist bei dir TOP (VerticalAlignment.TOP): top = ay
+            double maxAy = Math.Max(0, OverlayCanvas.Height - hDip);
+            ay = Math.Min(Math.Max(0, ay), maxAy);
 
-      // convert model position (tenth mm → DIP)
-      double wantedX = TenthMmToDip(vm.HPos);
-      double wantedY = TenthMmToDip(vm.VPos);
+            ax = Math.Min(Math.Max(minAx, ax), maxAx);
 
-      // clamp DIP values
-      double clampedX = Math.Min(Math.Max(0, wantedX), maxXdip);
-      double clampedY = Math.Min(Math.Max(0, wantedY), maxYdip);
+            // Canvas.Left aus Anker berechnen
+            double left = ax - GetAnchorOffsetDip(vm, wDip);
 
-      // apply to UI
-      Canvas.SetLeft(el, clampedX);
-      Canvas.SetTop(el, clampedY);
+            Canvas.SetLeft(el, left);
+            Canvas.SetTop(el, ay);
 
-      // convert DIP → tenths of mm (round!) and write back
-      int newH = DipToTenthMm(clampedX);
-      int newV = DipToTenthMm(clampedY);
+            // zurückschreiben (nur wenn geändert)
+            int newH = DipToTenthMm(ax);
+            int newV = DipToTenthMm(ay);
+            if (newH != vm.HPos) vm.HPos = newH;
+            if (newV != vm.VPos) vm.VPos = newV;
+        }
 
-      if (newH != vm.HPos) vm.HPos = newH;
-      if (newV != vm.VPos) vm.VPos = newV;
-    }
-
-    private FrameworkElement CreateDraggable(TextItem vm)
+        private FrameworkElement CreateDraggable(TextItem vm)
     {
       var text = new TextBlock();
       text.DataContext = vm;
@@ -377,17 +405,15 @@ namespace RaceHorology
       text.Foreground = Brushes.Black;
       text.TextAlignment = ToTextAlignment(CertificatesUtils.mapAlignmentInt(vm.Alignment));
 
-
       text.FontFamily = new FontFamily(CertificatesUtils.MapFontFamily(vm.Font));   // NEU
 
       // bestehende Bindings
       text.SetBinding(TextBlock.TextProperty, new Binding("Text"));      // falls Merge, weglassen
-      text.SetBinding(TextBlock.FontSizeProperty, new Binding("FontSize"));
+      text.SetBinding(TextBlock.FontSizeProperty, new Binding("FontSizeDip"));
 
 
-
-      // auf Änderungen reagieren
-      vm.PropertyChanged += delegate (object s, PropertyChangedEventArgs e)
+            // auf Änderungen reagieren
+            vm.PropertyChanged += delegate (object s, PropertyChangedEventArgs e)
       {
         if (e.PropertyName == "IsBold")
           text.FontWeight = vm.IsBold ? FontWeights.Bold : FontWeights.Normal;
@@ -395,7 +421,7 @@ namespace RaceHorology
           text.FontStyle = vm.IsItalic ? FontStyles.Italic : FontStyles.Normal;
         else if (e.PropertyName == "TextAlignment")
           text.TextAlignment = ToTextAlignment(CertificatesUtils.mapAlignmentInt(vm.Alignment));
-        else if (e.PropertyName == "FontFamilyName")       // NEU
+          else if (e.PropertyName == "FontFamilyName")       // NEU
           text.FontFamily = new FontFamily(vm.FontFamilyName);
       };
 
@@ -447,10 +473,16 @@ namespace RaceHorology
         double x = startLeft + (pos.X - dragStart.X);
         double y = startTop + (pos.Y - dragStart.Y);
         SetClampedPosition(border, x, y);
-        //vm.HPos = (int)Canvas.GetLeft(border);
-        //vm.VPos = (int)Canvas.GetTop(border);
-        vm.HPos = DipToTenthMm(Canvas.GetLeft(border));
-        vm.VPos = DipToTenthMm(Canvas.GetTop(border));
+
+        double wDip = MeasureWidthDip(border);
+        double left = Canvas.GetLeft(border);
+        double top = Canvas.GetTop(border);
+
+        double ax = left + GetAnchorOffsetDip(vm, wDip); // Anker = left + offset
+        double ay = top;
+
+        vm.HPos = DipToTenthMm(ax);
+        vm.VPos = DipToTenthMm(ay);
       };
 
       border.MouseLeftButtonUp += delegate (object s, MouseButtonEventArgs e)
@@ -476,10 +508,12 @@ namespace RaceHorology
 
       vm.PropertyChanged += delegate (object s, PropertyChangedEventArgs e)
       {
-        if (e.PropertyName == "HPos" || e.PropertyName == "VPos")
+
+        if (e.PropertyName == "HPos" || e.PropertyName == "VPos" || e.PropertyName == "Alignment")
           ClampVmToCanvas(vm, border);
 
       };
+
 
       return border;
     }
@@ -497,6 +531,8 @@ namespace RaceHorology
         }
       }
     }
+    public Array AlignmentValues => Enum.GetValues(typeof(PrintCertificateModel.TextItemAlignment));
+
     private static TextAlignment ToTextAlignment(int value)
     {
       if (value == 1) return TextAlignment.Center;
@@ -701,16 +737,43 @@ namespace RaceHorology
 
     private void CenterHorizontally(object s, RoutedEventArgs e)
     {
-      if (SelectedField == null)
-        return;
+        if (SelectedField == null) return;
 
-      double fieldWidth = GetFieldWidth(SelectedField);
-      double centerDip = (DesignFrame.ActualWidth - fieldWidth) / 2;
+        // Alignment setzen
+        SelectedField.Alignment = PrintCertificateModel.TextItemAlignment.Center;
+        // Seitenmitte in DIP -> in 1/10 mm (HPos)
+        double midDip = (DesignFrame.ActualWidth > 0 ? DesignFrame.ActualWidth : A4WidthDip) / 2.0;
+        SelectedField.HPos = DipToTenthMm(midDip);
 
-      SelectedField.HPos = DipToTenthMm(centerDip);
     }
 
-    private double GetFieldWidth(TextItem vm)
+    private void AllignLeft(object s, RoutedEventArgs e)
+    {
+        if (SelectedField == null) return;
+
+        // Alignment setzen
+        SelectedField.Alignment = PrintCertificateModel.TextItemAlignment.Left;
+
+        // Seitenmitte in DIP -> in 1/10 mm (HPos)
+        double midDip = ((DesignFrame.ActualWidth > 0 ? DesignFrame.ActualWidth : A4WidthDip) * 5.0)/ 100.0;
+        SelectedField.HPos = DipToTenthMm(midDip);
+
+    }
+
+    private void AllignRight(object s, RoutedEventArgs e)
+    {
+        if (SelectedField == null) return;
+
+        // Alignment setzen
+        SelectedField.Alignment = PrintCertificateModel.TextItemAlignment.Right;
+
+        // Seitenmitte in DIP -> in 1/10 mm (HPos)
+        double midDip = ((DesignFrame.ActualWidth > 0 ? DesignFrame.ActualWidth : A4WidthDip) * 95.0) / 100.0;
+        SelectedField.HPos = DipToTenthMm(midDip);
+
+    }
+
+        private double GetFieldWidth(TextItem vm)
     {
       foreach (var child in OverlayCanvas.Children.OfType<Border>())
         if (child.Tag == vm)

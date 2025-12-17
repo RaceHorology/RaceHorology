@@ -63,13 +63,16 @@
                         <GridView>
                             <GridViewColumn Header="Value" Width="125" DisplayMemberBinding="{Binding Text}" />
                             <GridViewColumn Header="Font"  Width="170" DisplayMemberBinding="{Binding Font}" />
-                            <GridViewColumn Header="Align" Width="40" DisplayMemberBinding="{Binding TextAlignment}" />
+                            <GridViewColumn Header="Align" Width="50" DisplayMemberBinding="{Binding Alignment}" />
                             <GridViewColumn Header="HPos"  Width="40" DisplayMemberBinding="{Binding HPos, StringFormat=F0}" />
                             <GridViewColumn Header="VPos"  Width="40" DisplayMemberBinding="{Binding VPos, StringFormat=F0}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
 
+                
+                
+                
 
                 <Border Grid.Row="2"
                     Margin="5"          
@@ -108,7 +111,7 @@
                             <Slider Minimum="8"
                             Maximum="96"
                             Width="200"
-                            Value="{Binding SelectedField.FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Value="{Binding SelectedField.FontSizeDip, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             TickFrequency="1"
                             IsSnapToTickEnabled="True"
                             SmallChange="1"
@@ -138,13 +141,10 @@
                                 <!-- Alignment -->
                                 <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
                                     <TextBlock Text="Ausrichtung:" Width="100"/>
-                                    <ComboBox Width="100"
-                                    SelectedValuePath="Content"
-                                    SelectedValue="{Binding SelectedField.TextAlignment, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                        <ComboBoxItem Content="Left"/>
-                                        <ComboBoxItem Content="Center"/>
-                                        <ComboBoxItem Content="Right"/>
-                                    </ComboBox>
+
+                                    <ComboBox Width="80"
+                                              ItemsSource="{Binding AlignmentValues, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              SelectedItem="{Binding SelectedField.Alignment, Mode=TwoWay}"/>
                                 </StackPanel>
 
                                 <!-- X/Y -->
@@ -179,31 +179,35 @@
                                         <ColumnDefinition Width="30"/>
                                         <ColumnDefinition Width="30"/>
                                         <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
                                     </Grid.ColumnDefinitions>
 
 
-                                    <Button Margin="1" Grid.Row="0" Grid.Column="0" Content="↖↖"  Click="MoveUpLeftLarge"/>
-                                    <Button Margin="1" Grid.Row="0" Grid.Column="2" Content="↑↑"   Click="MoveUpLarge"/>
-                                    <Button Margin="1" Grid.Row="0" Grid.Column="4" Content="↗↗"  Click="MoveUpRightLarge"/>
+                                    <Button Margin="1" Grid.Row="0" Grid.Column="1" Content="↖↖"  Click="MoveUpLeftLarge"/>
+                                    <Button Margin="1" Grid.Row="0" Grid.Column="3" Content="↑↑"   Click="MoveUpLarge"/>
+                                    <Button Margin="1" Grid.Row="0" Grid.Column="5" Content="↗↗"  Click="MoveUpRightLarge"/>
 
-                                    <Button Margin="1" Grid.Row="1" Grid.Column="1" Content="↖" Click="MoveUpLeftSmall"/>
-                                    <Button Margin="1" Grid.Row="1" Grid.Column="2" Content="↑" Click="MoveUpSmall"/>
-                                    <Button Margin="1" Grid.Row="1" Grid.Column="3" Content="↗" Click="MoveUpRightSmall"/>
+                                    <Button Margin="1" Grid.Row="1" Grid.Column="2" Content="↖" Click="MoveUpLeftSmall"/>
+                                    <Button Margin="1" Grid.Row="1" Grid.Column="3" Content="↑" Click="MoveUpSmall"/>
+                                    <Button Margin="1" Grid.Row="1" Grid.Column="4" Content="↗" Click="MoveUpRightSmall"/>
 
-                                    <!-- Row 2 — small left/down/right -->
-                                    <Button Margin="1" Grid.Row="2" Grid.Column="0" Content="←←" Click="MoveLeftLarge"/>
-                                    <Button Margin="1" Grid.Row="2" Grid.Column="1" Content="←"  Click="MoveLeftSmall"/>
-                                    <Button Margin="1" Grid.Row="2" Grid.Column="2" Content="C" Click="CenterHorizontally"/>
-                                    <Button Margin="1" Grid.Row="2" Grid.Column="3" Content="→"  Click="MoveRightSmall"/>
-                                    <Button Margin="1" Grid.Row="2" Grid.Column="4" Content="→→" Click="MoveRightLarge"/>
+                                    <!-- Row 2 — small left/down/right -->           
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="0" Content="L" Click="AllignLeft"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="1" Content="←←" Click="MoveLeftLarge"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="2" Content="←"  Click="MoveLeftSmall"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="3" Content="C" Click="CenterHorizontally"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="4" Content="→"  Click="MoveRightSmall"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="5" Content="→→" Click="MoveRightLarge"/>
+                                    <Button Margin="1" Grid.Row="2" Grid.Column="6" Content="R" Click="AllignRight"/>
 
-                                    <Button Margin="1" Grid.Row="3" Grid.Column="1" Content="↙" Click="MoveDownLeftSmall"/>
-                                    <Button Margin="1" Grid.Row="3" Grid.Column="2" Content="↓" Click="MoveDownSmall"/>
-                                    <Button Margin="1" Grid.Row="3" Grid.Column="3" Content="↘" Click="MoveDownRightSmall"/>
+                                    <Button Margin="1" Grid.Row="3" Grid.Column="2" Content="↙" Click="MoveDownLeftSmall"/>
+                                    <Button Margin="1" Grid.Row="3" Grid.Column="3" Content="↓" Click="MoveDownSmall"/>
+                                    <Button Margin="1" Grid.Row="3" Grid.Column="4" Content="↘" Click="MoveDownRightSmall"/>
 
-                                    <Button Margin="1" Grid.Row="4" Grid.Column="0" Content="↙↙" Click="MoveDownLeftLarge"/>
-                                    <Button Margin="1" Grid.Row="4" Grid.Column="2" Content="↓↓" Click="MoveDownLarge"/>
-                                    <Button Margin="1" Grid.Row="4" Grid.Column="4" Content="↘↘" Click="MoveDownRightLarge"/>
+                                    <Button Margin="1" Grid.Row="4" Grid.Column="1" Content="↙↙" Click="MoveDownLeftLarge"/>
+                                    <Button Margin="1" Grid.Row="4" Grid.Column="3" Content="↓↓" Click="MoveDownLarge"/>
+                                    <Button Margin="1" Grid.Row="4" Grid.Column="5" Content="↘↘" Click="MoveDownRightLarge"/>
 
                                 </Grid>
 

@@ -33,8 +33,21 @@ namespace RaceHorologyLib
         public class TextItem : INotifyPropertyChanged
         {
 
-            public TextItemAlignment Alignment;
-
+            [IgnoreDataMember]
+            public double FontSizeDip
+            {
+                get { return FontSize * 96.0 / 72.0; }      // pt -> DIP
+                set
+                {
+                    // DIP -> pt
+                    var pt = value * 72.0 / 96.0;
+                    if (SetField(ref _fontSize, pt, nameof(FontSize))) // setzt FontSize ohne Rekursion
+                    {
+                        RebuildFontIfNeeded();
+                        OnPropertyChanged(nameof(FontSizeDip));
+                    }
+                }
+            }
 
             protected bool SetField<T>(ref T storage, T value, [CallerMemberName] string prop = null)
             {
@@ -53,10 +66,15 @@ namespace RaceHorologyLib
             private int _vPos;
             [DataMember(Order = 2)] public int VPos { get => _vPos; set => SetField(ref _vPos, value); }
 
-            private TextAlignment _textAlignment = TextAlignment.LEFT; // "Left", "Center", "Right"
-            [DataMember(Order = 3)] public TextAlignment TextAlignment { get { return _textAlignment; } set { _textAlignment = value; OnPropertyChanged(); } }
+            private TextItemAlignment _alignment;
 
-   
+            [DataMember(Order = 3)]
+            public TextItemAlignment Alignment
+            {
+                get => _alignment;
+                set => SetField(ref _alignment, value);
+            }
+
             // ===== Composite font string from DB =====
             private string _font = "Segoe UI, 12";
             [DataMember(Order = 4)]
@@ -112,14 +130,12 @@ namespace RaceHorologyLib
             [DataMember(Order = 7)]
             public double FontSize
             {
-                get
-                {
-                    return _fontSize;
-                }
+                get { return _fontSize; }
                 set
                 {
                     if (!SetField(ref _fontSize, value)) return;
                     RebuildFontIfNeeded();
+                    OnPropertyChanged(nameof(FontSizeDip)); // <<< WICHTIG
                 }
             }
 
@@ -385,7 +401,7 @@ namespace RaceHorologyLib
       float mm = tenthMilliMeter / 10.0F;
       //PdfNumber userUnit = null;// pdf.GetFirstPage().GetPdfObject().GetAsNumber(PdfName.UserUnit);
       //float userUnitValue = userUnit == null ? 72f : userUnit.FloatValue();
-      return mm * 2.83F;// Manually calculated out of page size and compared with DIN A4
+      return mm * 72f / 25.4f;// Manually calculated out of page size and compared with DIN A4
     }
 
   }
