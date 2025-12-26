@@ -33,12 +33,11 @@
  * 
  */
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace RaceHorologyLibTest
@@ -408,7 +407,7 @@ namespace RaceHorologyLibTest
       run.SetStartTime(race.GetParticipant(1), new TimeSpan(8, 0, 0));
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
-      
+
       Assert.IsFalse(run.HasResults());
       Assert.IsFalse(RaceRunUtil.IsComplete(run));
       Assert.IsFalse(run.IsComplete);
@@ -668,11 +667,11 @@ namespace RaceHorologyLibTest
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
-      AppDataModel dm= new AppDataModel(db);
+      AppDataModel dm = new AppDataModel(db);
       var race = dm.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.GiantSlalom);
 
       // Check correct initial assumptions
-      Assert.AreEqual(4, dm.GetRaces().Count); 
+      Assert.AreEqual(4, dm.GetRaces().Count);
       Assert.AreEqual(2, race.GetMaxRun());
 
       RaceParticipant p1 = race.GetParticipant(1);
@@ -832,7 +831,7 @@ namespace RaceHorologyLibTest
         DateStartList = new DateTime(2021, 01, 01),
         DateResultList = new DateTime(2021, 02, 01),
 
-        Analyzer = "Analyzer 1",
+        Analyzer = new AdditionalRaceProperties.Person { Name = "Analyzer 1", Club = "Club 1" },
         Organizer = "Organizer 1",
 
         RaceReferee = new AdditionalRaceProperties.Person { Name = "RaceReferee 1", Club = "Club 1" },
@@ -867,7 +866,7 @@ namespace RaceHorologyLibTest
       prop1.Description = "Description 2";
       prop1.DateStartList = new DateTime(2021, 01, 02);
       prop1.DateResultList = new DateTime(2021, 02, 02);
-      prop1.Analyzer = "Analyzer 2";
+      prop1.Analyzer = new AdditionalRaceProperties.Person { Name = "Analyzer 2", Club = "Club 2" };
       prop1.Organizer = "Organizer 2";
       prop1.RaceReferee = new AdditionalRaceProperties.Person { Name = "RaceReferee 2", Club = "Club 2" };
       prop1.RaceManager = new AdditionalRaceProperties.Person { Name = "RaceManager 2", Club = "Club 2" };
@@ -894,7 +893,9 @@ namespace RaceHorologyLibTest
       Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
       prop1.DateResultList = new DateTime(2021, 02, 01);
       Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
-      prop1.Analyzer = "Analyzer 1";
+      prop1.Analyzer.Name = "Analyzer 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.Analyzer.Club = "Club 1";
       Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
       prop1.Organizer = "Organizer 1";
       Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));

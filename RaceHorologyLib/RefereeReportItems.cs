@@ -54,7 +54,7 @@ namespace RaceHorologyLib
       new RefereeReportItem("Trainervertreter",      false,     "Trainervertreter"),
       new RefereeReportItem("Trainervertreter_V",    false,     "Trainervertreter Verein"),
       new RefereeReportItem("EDVKR",                 false,     "EDV-KR")  ,
-      new RefereeReportItem("EDVKR_V",               true,      "EDV-KR Verein"),
+      new RefereeReportItem("EDVKR_V",               false,     "EDV-KR Verein"),
       new RefereeReportItem("EDVKR_Email",           true,      "EDV-KR Email")  ,
       new RefereeReportItem("EDVKR_Telefon",         true,      "EDV-KR Telefon"),
       new RefereeReportItem("Startrichter",          false,     "Startrichter"),
@@ -181,7 +181,8 @@ namespace RaceHorologyLib
       UpdateItemValue("Trainervertreter", r.AdditionalProperties.TrainerRepresentative.Name);
       UpdateItemValue("Trainervertreter_V", r.AdditionalProperties.TrainerRepresentative.Club);
 
-      UpdateItemValue("EDVKR", r.AdditionalProperties.Analyzer);
+      UpdateItemValue("EDVKR", r.AdditionalProperties.Analyzer.Name);
+      UpdateItemValue("EDVKR_V", r.AdditionalProperties.Analyzer.Club);
 
       UpdateItemValue("Disziplin", getDisciplin(r));
 

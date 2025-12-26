@@ -963,7 +963,8 @@ namespace RaceHorologyLib
           {
             switch (id)
             {
-              case 0: props.Analyzer = value; break;
+              case 0: props.Analyzer.Name = value; break;
+              case 100001: props.Analyzer.Club = value; break;
               case 1: break; // Skip, is TimingDevice, read in another function
               case 2: props.Organizer = value; break;
               case 3: props.RaceReferee.Name = value; break;
@@ -1060,7 +1061,8 @@ namespace RaceHorologyLib
       // Location is stored in tblBewerb
       storeRacePropertyInternal(race, props.Location);
 
-      storeRacePropertyInternal(race, 0, props.Analyzer);
+      storeRacePropertyInternal(race, 0, props.Analyzer.Name);
+      storeRacePropertyInternal(race, 100001, props.Analyzer.Club);
       storeRacePropertyInternal(race, 2, props.Organizer);
       storeRacePropertyInternal(race, 3, props.RaceReferee.Name);
       storeRacePropertyInternal(race, 4, props.RaceReferee.Club);

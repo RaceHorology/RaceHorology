@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -252,10 +252,22 @@ namespace RaceHorologyLib
       _writer.WriteValue("Alge TdC8000/8001"); // TODO: make variable
       _writer.WriteEndElement();
 
-      if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer))
+      if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Club) && !string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Name))
       {
         _writer.WriteStartElement("dataprocessing_by");
-        _writer.WriteValue(race.AdditionalProperties?.Analyzer);
+        _writer.WriteValue(string.Format("{0}, {1}", race.AdditionalProperties?.Analyzer.Name, race.AdditionalProperties?.Analyzer.Club));
+        _writer.WriteEndElement();
+      }
+      else if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Club))
+      {
+        _writer.WriteStartElement("dataprocessing_by");
+        _writer.WriteValue(race.AdditionalProperties?.Analyzer.Club);
+        _writer.WriteEndElement();
+      }
+      else if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Name))
+      {
+        _writer.WriteStartElement("dataprocessing_by");
+        _writer.WriteValue(race.AdditionalProperties?.Analyzer.Name);
         _writer.WriteEndElement();
       }
 

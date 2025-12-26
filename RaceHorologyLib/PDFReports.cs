@@ -1148,8 +1148,10 @@ namespace RaceHorologyLib
       table.AddCell(createCell()
         .Add(new Paragraph("Auswertung / Zeitnahme:")
           .SetFont(fontBold)));
-      table.AddCell(createCell(1, 2)
-        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Analyzer))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Analyzer.Name))));
+      table.AddCell(createCell()
+        .Add(new Paragraph(stringOrEmpty(_race.AdditionalProperties.Analyzer.Club))));
       if (string.IsNullOrEmpty(_race.AdditionalProperties.CoarseHomologNo))
       {
         table.AddCell(createCell(1, 2));
