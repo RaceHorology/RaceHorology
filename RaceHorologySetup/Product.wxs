@@ -1199,6 +1199,9 @@
 
   <Fragment>
     <ComponentGroup Id="resources_pdf_files" Directory="resources_pdf">
+      <Component Id="libresources_pdf_DSV_Logo.pn" Guid="FBF724DA-AACF-4919-B403-9B383F22A03A">
+        <File Id="libresources_pdf_DSV_Logo.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\DSV_Logo.png" />
+      </Component>
       <Component Id="libresources_pdf_LogoRH.pn" Guid="b7011b6a-4658-47e6-a91f-37291cebe210">
         <File Id="libresources_pdf_LogoRH.png" KeyPath="yes" Source="$(var.HarvestPath)\resources\pdf\LogoRH.png" />
       </Component>
