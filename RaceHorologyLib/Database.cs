@@ -2244,7 +2244,7 @@ namespace RaceHorologyLib
     }
 
 
-    public void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race)
+    private void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race)
     {
       int disziplin = (int)race.RaceType;
 
@@ -2285,7 +2285,7 @@ namespace RaceHorologyLib
       }
     }
 
-    public Dictionary<string, string> GetRefereeReportData(Race race)
+    private Dictionary<string, string> GetRefereeReportData(Race race)
     {
       var pcm = new PrintCertificateModel();
 
