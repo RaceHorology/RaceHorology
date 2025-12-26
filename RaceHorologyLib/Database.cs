@@ -2244,39 +2244,31 @@ namespace RaceHorologyLib
     }
 
 
-    // TODO_REFEREE: check update flag
-    public void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race, bool update)
+    public void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race)
     {
+      int disziplin = (int)race.RaceType;
+
+      // 1) Delete all old rows for this Disziplin and Feld
+      string deleteSql =
+          @"DELETE FROM XtblSRBericht WHERE Disziplin = @d and Feld = @Feld";
+      using (var deleteCmd = new OleDbCommand(deleteSql, _conn))
+      {
+        deleteCmd.Parameters.Add(new OleDbParameter("@d", disziplin));
+        deleteCmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
+        deleteCmd.ExecuteNonQuery();
+      }
+
       OleDbCommand cmd;
-      if (update)
-      {
-        string sql = @"UPDATE XtblSRBericht " +
-                     @"SET Wert = @Wert " +
-                     @"WHERE Disziplin = @Disziplin AND Feld = @Feld";
-        cmd = new OleDbCommand(sql, _conn);
+      string sql = @"INSERT INTO XtblSRBericht (Disziplin, Feld, Wert) " +
+                   @"VALUES (@Disziplin, @Feld, @Wert) ";
+      cmd = new OleDbCommand(sql, _conn);
 
-        if (string.IsNullOrEmpty(rrItem.Value))
-          cmd.Parameters.Add(new OleDbParameter("@Wert", ""));
-        else
-          cmd.Parameters.Add(new OleDbParameter("@Wert", rrItem.Value));
-
-        cmd.Parameters.Add(new OleDbParameter("@Disziplin", (int)race.RaceType));
-        cmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
-      }
+      cmd.Parameters.Add(new OleDbParameter("@Disziplin", (int)race.RaceType));
+      cmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
+      if (string.IsNullOrEmpty(rrItem.Value))
+        cmd.Parameters.Add(new OleDbParameter("@Wert", ""));
       else
-      {
-        string sql = @"INSERT INTO XtblSRBericht (Disziplin, Feld, Wert) " +
-                     @"VALUES (@Disziplin, @Feld, @Wert) ";
-        cmd = new OleDbCommand(sql, _conn);
-
-        cmd.Parameters.Add(new OleDbParameter("@Disziplin", (int)race.RaceType));
-        cmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
-
-        if (string.IsNullOrEmpty(rrItem.Value))
-          cmd.Parameters.Add(new OleDbParameter("@Wert", ""));
-        else
-          cmd.Parameters.Add(new OleDbParameter("@Wert", rrItem.Value));
-      }
+        cmd.Parameters.Add(new OleDbParameter("@Wert", rrItem.Value));
 
       cmd.CommandType = CommandType.Text;
       try
@@ -2326,6 +2318,23 @@ namespace RaceHorologyLib
 
       return dict;
     }
+
+    public RefereeReportItems GetRefereeReport(Race race)
+    {
+      Dictionary<string, string> d = GetRefereeReportData(race);
+      var report = new RefereeReportItems(d);
+      report.updateList(race);
+      return report;
+    }
+
+    public void SaveRefereeReport(Race race, RefereeReportItems report)
+    {
+      foreach (RefereeReportItem item in report.RefReportItemList)
+      {
+        CreateOrUpdateReferreReportItem(item, race);
+      }
+    }
+
 
 
     public PrintCertificateModel GetCertificateModel(Race race)

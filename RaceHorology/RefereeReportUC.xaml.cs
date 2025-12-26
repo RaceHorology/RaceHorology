@@ -21,16 +21,17 @@ namespace RaceHorology
       ucSaveOrReset.Init("SR Bericht", null, null, null, storeData, resetData);
 
       _race = race;
-      ReportItems = new RefereeReportItems(_race);
-      this.DataContext = ReportItems;
+      resetData();
     }
 
     private void storeData()
     {
-      ReportItems.updateList(_race);
+      _race.GetDataModel().GetDB().SaveRefereeReport(_race, ReportItems);
     }
     private void resetData()
     {
+      ReportItems = _race.GetDataModel().GetDB().GetRefereeReport(_race);
+      this.DataContext = ReportItems;
     }
   }
 }

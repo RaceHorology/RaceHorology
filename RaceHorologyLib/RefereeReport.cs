@@ -5,89 +5,13 @@ using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using System;
-using System.Collections.Generic;
 
 namespace RaceHorologyLib
 {
 
   public class RefereeReport : PDFRaceReport
   {
-    private List<string> Keys = new List<string>()
-        {
-            "Anz_Klassifizierte",
-            "Anz_NichtamStartDG1",
-            "Anz_Teilnehmer",
-            "Aussteller_Email",
-            //"Aussteller_KrNr",
-            "Aussteller_Name",
-            "Aussteller_Telefon",
-            "Bem_Bestzeit",
-            "Bem_Hoehendifferenz",
-            "Bem_Kurssetzer",
-            "Bem_Streckenlaenge",
-            "Bem_Tore",
-            //"Bemerkungen",
-            "Datum",
-            "DG1_Bestzeit",
-            "DG1_Hoehendifferenz",
-            "DG1_Kurssetzer",
-            "DG1_Richtaend",
-            "DG1_Streckenlaenge",
-            "DG1_Tore",
-            "DG2_Bestzeit",
-            "DG2_Hoehendifferenz",
-            "DG2_Kurssetzer",
-            "DG2_Richtaend",
-            "DG2_Streckenlaenge",
-            "DG2_Tore",
-            "Disziplin",
-            "EDVKR",
-            "EDVKR_V",
-            "EDVKR_Email",
-            "EDVKR_Telefon",
-            "Einschaltzeit",
-            "Funkverbindung",
-            "homologiert",
-            "Kabelverbindung",
-            "Landesverband",
-            "Org_Auslosung",
-            "Org_MedLeiter",
-            "Org_Siegerehrung",
-            "Org_Torrichter",
-            "Organisator",
-            "ProblemeZeitmessung",
-            "Proteste",
-            "Punkteberechnung",
-            "Rennleiter",
-            "Rennleiter_V",
-            "RennNr",
-            "Rennstrecke",
-            "Rettungsdienst",
-            "Sanktionen",
-            "Schiedsrichter",
-            "Schiedsrichter_V",
-            "Stangen",
-            "StartersterLaeufer",
-            "Startrichter",
-            "Startrichter_V",
-            "StreckeGefahren",
-            "Streckenverbesserung",
-            "Streckenzustand",
-            "Synchronzeit",
-            "SyncZeit1Min",
-            "Trainervertreter",
-            "Trainervertreter_V",
-            "Unfaelle",
-            //"Unterstuetzung",
-            "Veranstaltung",
-            "Witterung",
-            "Zeitmessgeraet",
-            "Zeitmessstreifen",
-            "Zielrichter",
-            "Zielrichter_V"
-        };
-
-    private Dictionary<string, string> d;
+    private RefereeReportItems report;
 
     RaceRun _raceRun;
     public RefereeReport(RaceRun rr)
@@ -96,7 +20,7 @@ namespace RaceHorologyLib
       _raceRun = rr;
 
       Race r = rr.GetRace();
-      d = r.GetDataModel().GetDB().GetRefereeReportData(r);
+      report = r.GetDataModel().GetDB().GetRefereeReport(r);
 
     }
 
@@ -129,146 +53,146 @@ namespace RaceHorologyLib
 
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Organisator", d["Organisator"]),
-            ("Landesverband", d["Landesverband"]),
-            ("Datum", d["Datum"])
+            ("Organisator", report.Data("Organisator")),
+            ("Landesverband", report.Data("Landesverband")),
+            ("Datum", report.Data("Datum"))
             }, GenerateColumnWidths(3, 0.4f));
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Veranstaltung", d["Veranstaltung"]),
-            ("Disziplin", d["Disziplin"]),
-            ("Renn-Nr.", d["RennNr"])
+            ("Veranstaltung", report.Data("Veranstaltung")),
+            ("Disziplin", report.Data("Disziplin")),
+            ("Renn-Nr.", report.Data("RennNr"))
             }, GenerateColumnWidths(3, 0.4f));
 
       doc.Add(new Paragraph("Jury / Wettkampfkomitee").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
-      AddJuryTable(doc, fontSize, d);
+      AddJuryTable(doc, fontSize, report);
 
 
       doc.Add(new Paragraph("Organisation").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Auslosung", d["Org_Auslosung"]),
-            ("Siegerehrung", d["Org_Siegerehrung"])
+            ("Auslosung", report.Data("Org_Auslosung")),
+            ("Siegerehrung", report.Data("Org_Siegerehrung"))
             }, GenerateColumnWidths(2, 0.25f));
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Med. Leiter", d["Org_MedLeiter"]),
-            ("Torrichter", d["Org_Torrichter"])
+            ("Med. Leiter", report.Data("Org_MedLeiter")),
+            ("Torrichter", report.Data("Org_Torrichter"))
             }, GenerateColumnWidths(2, 0.25f));
 
       doc.Add(new Paragraph("Zeitmessung und Auswertung").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("DSV-Punkteberechnung?",d["Punkteberechnung"]),
+            ("DSV-Punkteberechnung?",report.Data("Punkteberechnung")),
             ("", ""),
-            ("Einschaltzeit", d["Einschaltzeit"]),
+            ("Einschaltzeit", report.Data("Einschaltzeit")),
 
             }, GenerateColumnWidths(3, 0.5f));
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Zeitmessgerät", d["Zeitmessgeraet"]),
-            ("Teilnehmer", d["Anz_Teilnehmer"]),
-            ("Synchronzeit", d["Synchronzeit"])
+            ("Zeitmessgerät", report.Data("Zeitmessgeraet")),
+            ("Teilnehmer", report.Data("Anz_Teilnehmer")),
+            ("Synchronzeit", report.Data("Synchronzeit"))
             }, GenerateColumnWidths(3, 0.50f));
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Kabel", d["Kabelverbindung"]),
-            ("Nicht am Start", d["Anz_NichtamStartDG1"]),
-            ("Klassifizierte", d["Anz_Klassifizierte"]),
+            ("Kabel", report.Data("Kabelverbindung")),
+            ("Nicht am Start", report.Data("Anz_NichtamStartDG1")),
+            ("Klassifizierte", report.Data("Anz_Klassifizierte")),
 
             }, GenerateColumnWidths(3, 0.50f));
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Kabellose Verbindung", d["Funkverbindung"]),
-            ("Sync-Zeit nach 1. Min.", d["SyncZeit1Min"]),
-            ("Zeitmessstreifen liegt vor?", d["Zeitmessstreifen"]),
+            ("Kabellose Verbindung", report.Data("Funkverbindung")),
+            ("Sync-Zeit nach 1. Min.", report.Data("SyncZeit1Min")),
+            ("Zeitmessstreifen liegt vor?", report.Data("Zeitmessstreifen")),
             }, GenerateColumnWidths(3, 0.50f));
 
       //AddRowCustomWidths(doc, fontSize, new[] {
-      //("DSV-Punkteberechnung?",d["Punkteberechnung"]),
-      //("Start 1. Läufer", d["StartersterLaeufer"]),
+      //("DSV-Punkteberechnung?",report.Data("Punkteberechnung")),
+      //("Start 1. Läufer", report.Data("StartersterLaeufer")),
 
       //}, GenerateColumnWidths(2, 0.5f));
 
       //AddRowCustomWidths(doc, fontSize, new[] {
-      //("Zeitmessgerät", d["Zeitmessgeraet"]),
-      //("Einschaltzeit", d["Einschaltzeit"]),
-      //("Synchronzeit", d["Synchronzeit"])
+      //("Zeitmessgerät", report.Data("Zeitmessgeraet")),
+      //("Einschaltzeit", report.Data("Einschaltzeit")),
+      //("Synchronzeit", report.Data("Synchronzeit"))
       //}, GenerateColumnWidths(3, 0.50f));
 
       //AddRowCustomWidths(doc, fontSize, new[] {
-      //("Kabel", d["Kabelverbindung"]),
-      //("Funk", d["Funkverbindung"]),
-      //("Probleme Zeitmessung", d["ProblemeZeitmessung"])
+      //("Kabel", report.Data("Kabelverbindung")),
+      //("Funk", report.Data("Funkverbindung")),
+      //("Probleme Zeitmessung", report.Data("ProblemeZeitmessung"))
       //}, GenerateColumnWidths(3, 0.50f));
 
       //AddRowCustomWidths(doc, fontSize, new[] {
-      //("Teilnehmer", d["Anz_Teilnehmer"]),
-      //("Nicht am Start", d["Anz_NichtamStartDG1"]),
-      //("Klassifizierte", d["Anz_Klassifizierte"]),
+      //("Teilnehmer", report.Data("Anz_Teilnehmer")),
+      //("Nicht am Start", report.Data("Anz_NichtamStartDG1")),
+      //("Klassifizierte", report.Data("Anz_Klassifizierte")),
       //}, GenerateColumnWidths(3, 0.50f));
 
       doc.Add(new Paragraph("Rennstrecke").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Ort und Name der Rennstrecke", d["Rennstrecke"]),
-            ("FIS homologiert?", d["homologiert"]),
+            ("Ort und Name der Rennstrecke", report.Data("Rennstrecke")),
+            ("FIS homologiert?", report.Data("homologiert")),
             }, new float[4] { 0.45f, 0.55f, 0.25f, 0.25f });
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Vorbereitung und Schneeverhältnisse", d["Streckenzustand"])
+            ("Vorbereitung und Schneeverhältnisse", report.Data("Streckenzustand"))
             }, GenerateColumnWidths(1, 0.30f));
 
 
 
-      AddStreckenInfoTable(doc, fontSize, d);
+      AddStreckenInfoTable(doc, fontSize, report);
 
 
       doc.Add(new Paragraph("Sicherheit").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Spezielle Gefahren der Strecke", d["StreckeGefahren"])
+            ("Spezielle Gefahren der Strecke", report.Data("StreckeGefahren"))
             }, GenerateColumnWidths(1, 0.30f));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Verwendete Stangen und Torflaggen", d["Stangen"])
+            ("Verwendete Stangen und Torflaggen", report.Data("Stangen"))
             }, GenerateColumnWidths(1, 0.30f));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Streckenverbesserung durch die Jury?", d["Streckenverbesserung"])
+            ("Streckenverbesserung durch die Jury?", report.Data("Streckenverbesserung"))
             }, GenerateColumnWidths(1, 0.30f));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("War der Rettungsdienst ausreichend?", d["Rettungsdienst"])
+            ("War der Rettungsdienst ausreichend?", report.Data("Rettungsdienst"))
             }, GenerateColumnWidths(1, 0.30f));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Gab es Unfälle während des Rennens?\r\n(Zusatzbericht erforderlich)", d["Unfaelle"])
+            ("Gab es Unfälle während des Rennens?\r\n(Zusatzbericht erforderlich)", report.Data("Unfaelle"))
             }, GenerateColumnWidths(1, 0.30f));
 
 
       doc.Add(new Paragraph("Rennabwicklung").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Witterungs- und Sichtverhältnisse", d["Witterung"])
+            ("Witterungs- und Sichtverhältnisse", report.Data("Witterung"))
             }, GenerateColumnWidths(1, 0.30f));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Wurden Proteste eingereicht?", d["Proteste"])
+            ("Wurden Proteste eingereicht?", report.Data("Proteste"))
             }, GenerateColumnWidths(1, 0.30f));
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Sanktionen gegen Athleten?", d["Sanktionen"])
+            ("Sanktionen gegen Athleten?", report.Data("Sanktionen"))
             }, GenerateColumnWidths(1, 0.30f));
       //Entfernt Saison 25-26
       //AddRowCustomWidths(doc, fontSize, new[] {
-      //("Unterstützung der Jury durch Organisator?", d["Unterstuetzung"])
+      //("Unterstützung der Jury durch Organisator?", report.Data("Unterstuetzung"))
       //}, GenerateColumnWidths(1, 0.30f));
 
       //AddRowCustomWidths(doc, fontSize, new[] {
-      //("Bemerkungen\r\nSonstiges ", d["Bemerkungen"])
+      //("Bemerkungen\r\nSonstiges ", report.Data("Bemerkungen"))
       //}, GenerateColumnWidths(1, 0.10f));
 
       doc.Add(new Paragraph("Angaben / Unterschrift Zeitnehemer").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
       AddParagraphRow(doc, "Mit seiner Unterschrift bestätigt der Zeitnehmer alle Zeiten nach Vorgabe des DSV gemessen und dokumentiert zu haben", "", fontSize);
 
-      AddSignTable(doc, fontSize, d, true);
+      AddSignTable(doc, fontSize, report, true);
 
 
       doc.Add(new Paragraph("Angaben / Unterschrift Schiedsrichter / TD").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
       AddParagraphRow(doc, "Mit seiner Unterschrift bestätigt der Schiedsrichter / TD, das alle Angaben im Schiedsrichterbericht kontrolliert wurden", "", fontSize);
-      AddSignTable(doc, fontSize, d, false);
+      AddSignTable(doc, fontSize, report, false);
 
 
       doc.Add(new Paragraph("Der Bericht ist vom Schiedsrichter/TD oder Zeitnehmer zu erstellen als PDF-Datei abzuspeichern und mit Angabe von Renn-Nr. an den einteilenden Kampfrichter-Referenzenten zu senden.").SetMargin(0).SetPadding(0).SetFontSize(fontSize));
@@ -388,7 +312,7 @@ namespace RaceHorologyLib
 
     }
 
-    static void AddJuryTable(Document doc, float fontSize, Dictionary<string, string> d)
+    static void AddJuryTable(Document doc, float fontSize, RefereeReportItems report)
     {
       Table t = new Table(UnitValue.CreatePercentArray(new float[] { 2, 3, 3, 2 })).UseAllAvailableWidth();
       t.AddCell(Header("Funktion", fontSize));
@@ -396,12 +320,12 @@ namespace RaceHorologyLib
       t.AddCell(Header("Verband/Verein", fontSize));
       t.AddCell(Header("Rolle", fontSize));
 
-      AddJury(t, fontSize, "TD/Schiedsrichter", d["Schiedsrichter"], d["Schiedsrichter_V"], "Jury");
-      AddJury(t, fontSize, "Rennleiter", d["Rennleiter"], d["Rennleiter_V"], "Jury");
-      AddJury(t, fontSize, "Trainer-Vertreter", d["Trainervertreter"], d["Trainervertreter_V"], "Jury");
-      AddJury(t, fontSize, "Zeitnehmer", d["EDVKR"], d["EDVKR_V"], "Kampfrichter");
-      AddJury(t, fontSize, "Startrichter", d["Startrichter"], d["Startrichter_V"], "Kampfrichter");
-      AddJury(t, fontSize, "Zielrichter", d["Zielrichter"], d["Zielrichter_V"], "Kampfrichter");
+      AddJury(t, fontSize, "TD/Schiedsrichter", report.Data("Schiedsrichter"), report.Data("Schiedsrichter_V"), "Jury");
+      AddJury(t, fontSize, "Rennleiter", report.Data("Rennleiter"), report.Data("Rennleiter_V"), "Jury");
+      AddJury(t, fontSize, "Trainer-Vertreter", report.Data("Trainervertreter"), report.Data("Trainervertreter_V"), "Jury");
+      AddJury(t, fontSize, "Zeitnehmer", report.Data("EDVKR"), report.Data("EDVKR_V"), "Kampfrichter");
+      AddJury(t, fontSize, "Startrichter", report.Data("Startrichter"), report.Data("Startrichter_V"), "Kampfrichter");
+      AddJury(t, fontSize, "Zielrichter", report.Data("Zielrichter"), report.Data("Zielrichter_V"), "Kampfrichter");
 
       doc.Add(t);
     }
@@ -414,7 +338,7 @@ namespace RaceHorologyLib
     }
 
 
-    static void AddStreckenInfoTable(Document doc, float fontSize, Dictionary<string, string> d)
+    static void AddStreckenInfoTable(Document doc, float fontSize, RefereeReportItems report)
     {
       Table t = new Table(UnitValue.CreatePercentArray(new float[] { 1.6f, 2.8f, 2.8f, 2.8f })).UseAllAvailableWidth();
       t.AddCell(Header("Streckeninfo", fontSize));
@@ -422,17 +346,17 @@ namespace RaceHorologyLib
       t.AddCell(Header("2. Lauf/DG", fontSize));
       t.AddCell(Header("Bemerkungen", fontSize));
 
-      AddJury(t, fontSize, "Kurssetzer", d["DG1_Kurssetzer"], d["DG2_Kurssetzer"], d["Bem_Kurssetzer"]);
-      AddJury(t, fontSize, "Streckenlänge", d["DG1_Streckenlaenge"], d["DG2_Streckenlaenge"], d["Bem_Streckenlaenge"]);
-      AddJury(t, fontSize, "Höhendifferenz", d["DG1_Hoehendifferenz"], d["DG2_Hoehendifferenz"], d["Bem_Hoehendifferenz"]);
-      AddJury(t, fontSize, "# Tore / Richtg. Änderung", d["DG1_Tore"] + "/" + d["DG1_Richtaend"], d["DG2_Tore"] + "/" + d["DG2_Richtaend"], d["Bem_Tore"]);
-      AddJury(t, fontSize, "Bestzeit", d["DG1_Bestzeit"], d["DG2_Bestzeit"], d["Bem_Bestzeit"]);
+      AddJury(t, fontSize, "Kurssetzer", report.Data("DG1_Kurssetzer"), report.Data("DG2_Kurssetzer"), report.Data("Bem_Kurssetzer"));
+      AddJury(t, fontSize, "Streckenlänge", report.Data("DG1_Streckenlaenge"), report.Data("DG2_Streckenlaenge"), report.Data("Bem_Streckenlaenge"));
+      AddJury(t, fontSize, "Höhendifferenz", report.Data("DG1_Hoehendifferenz"), report.Data("DG2_Hoehendifferenz"), report.Data("Bem_Hoehendifferenz"));
+      AddJury(t, fontSize, "# Tore / Richtg. Änderung", report.Data("DG1_Tore") + "/" + report.Data("DG1_Richtaend"), report.Data("DG2_Tore") + "/" + report.Data("DG2_Richtaend"), report.Data("Bem_Tore"));
+      AddJury(t, fontSize, "Bestzeit", report.Data("DG1_Bestzeit"), report.Data("DG2_Bestzeit"), report.Data("Bem_Bestzeit"));
 
       doc.Add(t);
     }
 
 
-    static void AddSignTable(Document doc, float fontSize, Dictionary<string, string> d, bool isEDV)
+    static void AddSignTable(Document doc, float fontSize, RefereeReportItems report, bool isEDV)
     {
       Table t = new Table(UnitValue.CreatePercentArray(new float[] { 2, 2, 3, 3 })).UseAllAvailableWidth();
       t.AddCell(Header("Name, Vorname", fontSize));
@@ -443,13 +367,13 @@ namespace RaceHorologyLib
       {
         t.AddCell(Header("Unterschrift Zeitnehmer", fontSize));
 
-        AddSign(t, fontSize, d["EDVKR"], d["EDVKR_Telefon"], d["EDVKR_Email"], "");
+        AddSign(t, fontSize, report.Data("EDVKR"), report.Data("EDVKR_Telefon"), report.Data("EDVKR_Email"), "");
       }
       else
       {
         t.AddCell(Header("Unterschrift Schiedsrichter / TD", fontSize));
 
-        AddSign(t, fontSize, d["Aussteller_Name"], d["Aussteller_Telefon"], d["Aussteller_Email"], "");
+        AddSign(t, fontSize, report.Data("Aussteller_Name"), report.Data("Aussteller_Telefon"), report.Data("Aussteller_Email"), "");
       }
 
 

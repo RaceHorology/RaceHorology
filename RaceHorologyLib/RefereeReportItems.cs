@@ -126,25 +126,23 @@ namespace RaceHorologyLib
       //new RefereeReportItem("Aussteller_KrNr",       true,      "KR-Nr."),
     };
 
-    public RefereeReportItems(Race race)
+    public RefereeReportItems(Dictionary<string, string> d)
     {
       RefReportItemList = new ObservableCollection<RefereeReportItem>(defaultItemList);
-
-      Dictionary<string, string> d = race.GetDataModel().GetDB().GetRefereeReportData(race);
-
       foreach (RefereeReportItem rritem in RefReportItemList)
       {
         if (d.ContainsKey(rritem.Key))
         {
           rritem.Value = d[rritem.Key];
         }
-        else
-        {
-          race.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(rritem, race, false);
-        }
       }
-
     }
+
+    public string Data(string key)
+    {
+      return this.Item(key)?.Value ?? string.Empty;
+    }
+
 
     /// <summary>
     /// Returns string for racetype 
@@ -171,8 +169,6 @@ namespace RaceHorologyLib
 
     public void updateList(Race r)
     {
-
-
       UpdateItemValue("Organisator", r.AdditionalProperties.Organizer);
       UpdateItemValue("Veranstaltung", r.AdditionalProperties.Description);
       UpdateItemValue("RennNr", r.AdditionalProperties.RaceNumber);
@@ -245,19 +241,19 @@ namespace RaceHorologyLib
       var runRes = rr.GetResultList().Where(res => res.ResultCode == RunResult.EResultCode.NaS);
 
       UpdateItemValue("Anz_NichtamStartDG1", runRes.Count().ToString());
+    }
 
-      foreach (RefereeReportItem item in RefReportItemList)
-      {
-        r.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(item, r, true);
-      }
+    private RefereeReportItem Item(string key)
+    {
+      return RefReportItemList.FirstOrDefault(i => i.Key == key);
     }
 
     public void UpdateItemValue(string key, string newValue)
     {
-      var item = RefReportItemList.FirstOrDefault(i => i.Key == key);
-      if (item != null)
+      var i = this.Item(key);
+      if (i != null)
       {
-        item.Value = newValue;
+        i.Value = newValue;
       }
     }
   }

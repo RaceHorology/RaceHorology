@@ -269,21 +269,12 @@ namespace RaceHorologyLibTest
     public string GetTimingDevice(Race race) { return "Alge TdC8000/8001"; }
     public void StoreTimingDevice(Race race, string timingDevice) { }
 
-    public Dictionary<string, string> GetRefereeReportData(Race race)
+    public RefereeReportItems GetRefereeReport(Race race)
     {
-
-      Dictionary<string, string> dict = new Dictionary<string, string>();
-
-
-      return dict;
+      var report = new RefereeReportItems(new Dictionary<string, string>());
+      return report;
     }
-
-
-
-    public void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race, bool update)
-    {
-    }
-
+    public void SaveRefereeReport(Race race, RefereeReportItems report) { }
 
     public PrintCertificateModel GetCertificateModel(Race race)
     {

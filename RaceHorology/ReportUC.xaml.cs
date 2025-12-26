@@ -100,17 +100,6 @@ namespace RaceHorology
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
     {
-      // TODO_REFEREE: this looks strange
-      if (cmbReport.SelectedItem is ReportItem ri)
-      {
-
-        if (ri.Text == "Schiedsrichterbericht")
-        {
-          RefereeReportItems ReportItems = new RefereeReportItems(_race);
-          ReportItems.updateList(_race);
-        }
-      }
-
       refreshPdf();
     }
 
@@ -119,13 +108,6 @@ namespace RaceHorology
       if (cmbReport.SelectedItem is ReportItem ri)
       {
         cmbRaceRun.IsEnabled = ri.NeedsRaceRun;
-
-        if (ri.Text == "Schiedsrichterbericht")
-        {
-          RefereeReportItems ReportItems = new RefereeReportItems(_race);
-          ReportItems.updateList(_race);
-        }
-
         triggerRefresh();
       }
     }
