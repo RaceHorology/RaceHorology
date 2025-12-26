@@ -7,11 +7,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-    </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel>
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+  </UserControl.Resources>
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel>
             <ItemsControl ItemsSource="{Binding RefReportItemList}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -24,11 +24,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
-                <Button x:Name="btnApply" Content="Speichern" ToolTip="STRG + S" Margin="5,0,5,0" Padding="0" MinWidth="100" Click="btnApply_Click"/>
-                <Label Content="{Binding SavedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="434" Margin="5" Padding="0" VerticalAlignment="Center"/>
-                <Button x:Name="btnReset" Content="Zurücksetzen" Margin="0,0,5,0" Padding="5" MinWidth="100" Click="btnReset_Click"/>
-            </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
+      <local:SaveOrResetUC x:Name="ucSaveOrReset" HorizontalAlignment="Left" Margin="10,15,0,0"/>
+    </StackPanel>
+  </ScrollViewer>
 </UserControl>

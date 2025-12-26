@@ -31,13 +31,6 @@ namespace RaceHorologyLib
   {
     public ObservableCollection<RefereeReportItem> RefReportItemList { get; set; }
 
-
-    public string SavedText
-    {
-      get;
-      set;
-    }
-
     /// <summary>
     /// Default items with key from DSVAlpinX, a label text and the indicator if this value can be found in 
     /// existing properties
@@ -131,8 +124,7 @@ namespace RaceHorologyLib
       new RefereeReportItem("Aussteller_Telefon",    true,      "Tel."),
       new RefereeReportItem("Aussteller_Email",      true,      "E-Mail"),
       //new RefereeReportItem("Aussteller_KrNr",       true,      "KR-Nr."),
-
-        };
+    };
 
     public RefereeReportItems(Race race)
     {
@@ -258,8 +250,6 @@ namespace RaceHorologyLib
       {
         r.GetDataModel().GetDB().CreateOrUpdateReferreReportItem(item, r, true);
       }
-
-      SavedText = "Angaben gespeichert";
     }
 
     public void UpdateItemValue(string key, string newValue)

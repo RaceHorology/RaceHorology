@@ -1,5 +1,4 @@
 ﻿using RaceHorologyLib;
-using System.Windows;
 using System.Windows.Controls;
 
 namespace RaceHorology
@@ -19,17 +18,18 @@ namespace RaceHorology
 
     public void Init(Race race)
     {
+      ucSaveOrReset.Init("SR Bericht", null, null, null, storeData, resetData);
+
       _race = race;
       ReportItems = new RefereeReportItems(_race);
       this.DataContext = ReportItems;
     }
 
-    private void btnApply_Click(object sender, RoutedEventArgs e)
+    private void storeData()
     {
       ReportItems.updateList(_race);
     }
-
-    private void btnReset_Click(object sender, RoutedEventArgs e)
+    private void resetData()
     {
     }
   }
