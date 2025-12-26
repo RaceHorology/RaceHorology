@@ -2708,7 +2708,7 @@ namespace RaceHorologyLib
 
       {
         document.Add(
-          new Paragraph(string.Format("Die besten 5 gestarten Teilnehmer des Bewerbs (laut Punkteliste):"))
+          new Paragraph(string.Format("Die besten 5 gestarteten Teilnehmer des Bewerbs (laut Punkteliste):"))
           .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetFontSize(fontSizeNormal)
           .SetHorizontalAlignment(HorizontalAlignment.CENTER)
@@ -3047,7 +3047,7 @@ namespace RaceHorologyLib
 
       {
         document.Add(
-          new Paragraph(string.Format("Die besten 5 gestarten Teilnehmer des Bewerbs (laut Punkteliste):"))
+          new Paragraph(string.Format("Die besten 5 gestarteten Teilnehmer des Bewerbs (laut Punkteliste):"))
           .SetFont(_pdfHelper.GetFont(RHFont.Normal))
           .SetFontSize(fontSizeNormal)
           .SetHorizontalAlignment(HorizontalAlignment.CENTER)
