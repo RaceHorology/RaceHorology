@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -222,6 +222,7 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/category", s, "SO");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/racename", s, "Test Race");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/raceplace", s, "Test Location");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/timing", s, "Alge TdC8000/8001");
 
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/useddsvlist", s, "123");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/fvalue", s, "720");
@@ -317,7 +318,7 @@ namespace RaceHorologyLibTest
     public void VerifyXML_Run1()
     {
       TestDataGenerator tg = new TestDataGenerator();
-      
+
       fillMandatoryFields(tg.Model);
 
       // Run 1

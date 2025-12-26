@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2024 by Sven Flossmann
  *  
  *  This file is part of Race Horology.
@@ -249,7 +249,7 @@ namespace RaceHorologyLib
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("timing");
-      _writer.WriteValue("Alge TdC8000/8001"); // TODO: make variable
+      _writer.WriteValue(string.IsNullOrWhiteSpace(race.TimingDevice) ? "Race Horology" : race.TimingDevice);
       _writer.WriteEndElement();
 
       if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Club) && !string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Name))
