@@ -11,18 +11,18 @@
     <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
   </UserControl.Resources>
   <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <StackPanel>
-            <ItemsControl ItemsSource="{Binding RefReportItemList}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="5"
-                            Visibility="{Binding IsAdditional, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="{Binding Text}" Width="300" VerticalAlignment="Center"/>
-                            <TextBox IsEnabled="{Binding IsAdditional}" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+    <StackPanel Margin="0 10">
+      <ItemsControl ItemsSource="{Binding RefReportItemList}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal" Margin="10 3"
+              Visibility="{Binding IsAdditional, Converter={StaticResource BoolToVisibilityConverter}}">
+              <TextBlock Text="{Binding Text}" Width="300" VerticalAlignment="Center"/>
+              <TextBox IsEnabled="{Binding IsAdditional}" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
 
       <local:SaveOrResetUC x:Name="ucSaveOrReset" HorizontalAlignment="Left" Margin="10,15,0,0"/>
     </StackPanel>
