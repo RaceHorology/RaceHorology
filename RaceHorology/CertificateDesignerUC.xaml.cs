@@ -60,7 +60,7 @@ namespace RaceHorology
 
       ApplyA4DesignSurface();
 
-      ucSaveOrReset.Init("Urkundendesign", null, null, null, storeCertificateDesign, restoreCertificateDesign);
+      ucSaveOrReset.Init("Urkundendesign", null, null, HasChanges, StoreCertificateDesign, RestoreCertificateDesign);
 
       DesignFrame.SizeChanged += (_, __) => DrawHelperLines();
     }
@@ -80,14 +80,20 @@ namespace RaceHorology
     }
 
 
-    public void storeCertificateDesign()
+    public void StoreCertificateDesign()
     {
       _race.GetDataModel().GetDB().SaveCertificateModel(_race, _certificateModel);
     }
-    public void restoreCertificateDesign()
+    public void RestoreCertificateDesign()
     {
       _certificateModel = _race.GetDataModel().GetDB().GetCertificateModel(_race);
       RebuildOverlay();
+    }
+
+    public bool HasChanges()
+    {
+      var orgModel = _race.GetDataModel().GetDB().GetCertificateModel(_race);
+      return !PrintCertificateModel.AreEqual(orgModel, _certificateModel);
     }
 
     // Handler: überschreibt sofort den Freitext von SelectedField

@@ -30,6 +30,8 @@ namespace RaceHorology
 
     private void Window_Closing(object sender, CancelEventArgs e)
     {
+      if (!ucCertDesigner.HasChanges())
+        return;
 
       var result = MessageBox.Show(
           "Ja = \tSchließen und Layout Speichern\r\nNein =\tSchließen\r\n",
@@ -40,7 +42,7 @@ namespace RaceHorology
       switch (result)
       {
         case MessageBoxResult.Yes:
-          ucCertDesigner.storeCertificateDesign();
+          ucCertDesigner.StoreCertificateDesign();
           // allow close
           break;
 
