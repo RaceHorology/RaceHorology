@@ -27,7 +27,6 @@ namespace RaceHorologyLib
   {
     public enum TextItemAlignment { Left = 0, Center = 2, Right = 1 };
 
-    [DataContract]
     public class TextItem : INotifyPropertyChanged
     {
 
@@ -56,17 +55,16 @@ namespace RaceHorologyLib
       }
 
       private string _text = string.Empty;
-      [DataMember(Order = 0)] public string Text { get { return _text; } set { _text = value; OnPropertyChanged(); } }
+      public string Text { get { return _text; } set { _text = value; OnPropertyChanged(); } }
 
       private int _hPos;
-      [DataMember(Order = 1)] public int HPos { get => _hPos; set => SetField(ref _hPos, value); }
+      public int HPos { get => _hPos; set => SetField(ref _hPos, value); }
 
       private int _vPos;
-      [DataMember(Order = 2)] public int VPos { get => _vPos; set => SetField(ref _vPos, value); }
+      public int VPos { get => _vPos; set => SetField(ref _vPos, value); }
 
       private TextItemAlignment _alignment;
 
-      [DataMember(Order = 3)]
       public TextItemAlignment Alignment
       {
         get => _alignment;
@@ -75,7 +73,6 @@ namespace RaceHorologyLib
 
       // ===== Composite font string from DB =====
       private string _font = "Segoe UI, 12";
-      [DataMember(Order = 4)]
       public string Font
       {
         get => _font;
@@ -101,7 +98,6 @@ namespace RaceHorologyLib
 
 
       private bool _isBold;
-      [DataMember(Order = 5)]
       public bool IsBold
       {
         get => _isBold;
@@ -113,7 +109,6 @@ namespace RaceHorologyLib
       }
 
       private bool _isItalic;
-      [DataMember(Order = 6)]
       public bool IsItalic
       {
         get => _isItalic;
@@ -125,7 +120,6 @@ namespace RaceHorologyLib
       }
 
       private double _fontSize = 24.0;
-      [DataMember(Order = 7)]
       public double FontSize
       {
         get { return _fontSize; }
@@ -138,7 +132,6 @@ namespace RaceHorologyLib
       }
 
       // In FieldVM:
-      [DataMember(Order = 8)]
       public string FontFamilyName
       {
         get { return _fontFamilyName; }
