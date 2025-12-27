@@ -60,6 +60,8 @@ namespace RaceHorology
 
       ApplyA4DesignSurface();
 
+      ucSaveOrReset.Init("Urkundendesign", null, null, null, storeCertificateDesign, restoreCertificateDesign);
+
       DesignFrame.SizeChanged += (_, __) => DrawHelperLines();
     }
 
@@ -70,14 +72,6 @@ namespace RaceHorology
       _race = race;
 
       _certificateModel = _race.GetDataModel().GetDB().GetCertificateModel(_race);
-      if (_certificateModel.TextItems.Count > 0)
-      {
-        FeedBackText = "Design Felder geladen";
-      }
-      else
-      {
-        FeedBackText = "Keine Felder vorhanden";
-      }
 
 
       RebuildOverlay();
@@ -86,23 +80,14 @@ namespace RaceHorology
     }
 
 
-    public void SaveToLayoutToDatabase()
+    public void storeCertificateDesign()
     {
-      try
-      {
-        _race.GetDataModel().GetDB().SaveCertificateModel(_race, _certificateModel);
-
-        FeedBackText = "Speichern erfolgreich";
-      }
-      catch (Exception ex)
-      {
-        FeedBackText = ex.Message;
-      }
+      _race.GetDataModel().GetDB().SaveCertificateModel(_race, _certificateModel);
     }
-
-    private void btnSave_Click(object sender, RoutedEventArgs e)
+    public void restoreCertificateDesign()
     {
-      SaveToLayoutToDatabase();
+      _certificateModel = _race.GetDataModel().GetDB().GetCertificateModel(_race);
+      RebuildOverlay();
     }
 
     // Handler: überschreibt sofort den Freitext von SelectedField

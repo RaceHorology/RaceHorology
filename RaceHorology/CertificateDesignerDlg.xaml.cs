@@ -40,7 +40,7 @@ namespace RaceHorology
       switch (result)
       {
         case MessageBoxResult.Yes:
-          ucCertDesigner.SaveToLayoutToDatabase();
+          ucCertDesigner.storeCertificateDesign();
           // allow close
           break;
 
