@@ -542,35 +542,6 @@ namespace RaceHorology
       }
     }
 
-
-    private void OnSaveLayout_Click(object sender, RoutedEventArgs e)
-    {
-      var dlg = new Microsoft.Win32.SaveFileDialog { Filter = "Layout JSON|*.json" };
-      if (dlg.ShowDialog() == true)
-      {
-        try
-        {
-          using (var fs = new FileStream(dlg.FileName, FileMode.Create))
-            SaveLayout(fs);
-        }
-        catch (Exception ex) { MessageBox.Show("Save failed: " + ex.Message); }
-      }
-    }
-
-    private void OnLoadLayout_Click(object sender, RoutedEventArgs e)
-    {
-      var dlg = new Microsoft.Win32.OpenFileDialog { Filter = "Layout JSON|*.json" };
-      if (dlg.ShowDialog() == true)
-      {
-        try
-        {
-          using (var fs = new FileStream(dlg.FileName, FileMode.Open, FileAccess.Read))
-            LoadLayout(fs);
-        }
-        catch (Exception ex) { MessageBox.Show("Load failed: " + ex.Message); }
-      }
-    }
-
     private void OnAddField(object sender, RoutedEventArgs e)
     {
 

@@ -21,9 +21,6 @@
       <ToolBar>
         <Button Content="Hintergrundbild Laden" Click="OnLoadImageBackground_Click"/>
         <Separator/>
-        <Button Content="JSON Layout Speichern" Click="OnSaveLayout_Click"/>
-        <Separator/>
-        <Button Content="JSON Layout Laden" Click="OnLoadLayout_Click"/>
       </ToolBar>
     </ToolBarTray>
 
