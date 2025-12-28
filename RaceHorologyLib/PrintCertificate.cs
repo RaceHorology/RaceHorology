@@ -30,21 +30,21 @@ namespace RaceHorologyLib
     public class TextItem : INotifyPropertyChanged
     {
 
-      [IgnoreDataMember]
-      public double FontSizeDip
-      {
-        get { return FontSize * 96.0 / 72.0; }      // pt -> DIP
-        set
-        {
-          // DIP -> pt
-          var pt = value * 72.0 / 96.0;
-          if (SetField(ref _fontSize, pt, nameof(FontSize))) // setzt FontSize ohne Rekursion
-          {
-            RebuildFontIfNeeded();
-            OnPropertyChanged(nameof(FontSizeDip));
-          }
-        }
-      }
+            [IgnoreDataMember]
+            public double FontSizeDip
+            {
+                get { return Math.Round(FontSize * 96.0 / 72.0); }      // pt -> DIP
+                set
+                {
+                    // DIP -> pt
+                    var pt = Math.Round(value * 72.0 / 96.0);
+                    if (SetField(ref _fontSize, pt, nameof(FontSize))) // setzt FontSize ohne Rekursion
+                    {
+                        RebuildFontIfNeeded();
+                        OnPropertyChanged(nameof(FontSizeDip));
+                    }
+                }
+            }
 
       protected bool SetField<T>(ref T storage, T value, [CallerMemberName] string prop = null)
       {
