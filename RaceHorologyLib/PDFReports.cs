@@ -384,19 +384,7 @@ namespace RaceHorologyLib
       int fontSizeHeadLine = 14;
       int fontSizeNormal = 10;
 
-
-      if (_logo1 != null)
-        tableHeader.AddCell(new Cell()
-          .SetTextAlignment(TextAlignment.LEFT)
-          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          //.SetMaxHeight(maxHeightCol1)
-          .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
-          .SetPadding(padding)
-          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
-          .Add(_logo1.SetMaxHeight(maxHeightCol1)));
-      else if (_logoDSV != null && _displayDSVLogo == true)
+      if (_logoDSV != null && _displayDSVLogo == true)
         tableHeader.AddCell(new Cell()
             .SetTextAlignment(TextAlignment.LEFT)
             .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -407,6 +395,17 @@ namespace RaceHorologyLib
             .SetPadding(padding)
             .SetFont(_pdfHelper.GetFont(RHFont.Bold))
             .Add(_logoDSV.SetMaxHeight(maxHeightCol1 * 0.8F).SetMaxWidth(75)));
+      else if (_logo1 != null)
+        tableHeader.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.LEFT)
+          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+          //.SetMaxHeight(maxHeightCol1)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          .SetPadding(padding)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
+          .Add(_logo1.SetMaxHeight(maxHeightCol1)));
       else
         tableHeader.AddCell(new Cell()
         .SetBorder(Border.NO_BORDER)
@@ -415,7 +414,18 @@ namespace RaceHorologyLib
 
 
 
-      if (!string.IsNullOrEmpty(_race.Description))
+       if (!string.IsNullOrEmpty(_headline) && _displayDSVLogo == true)
+        tableHeader.AddCell(new Cell()
+          .SetTextAlignment(TextAlignment.CENTER)
+          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+          .SetBorder(Border.NO_BORDER)
+          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
+          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
+          .SetPadding(padding)
+          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
+          .SetFontSize(fontSizeHeadLine)
+          .Add(new Paragraph(_headline)));
+      else if (!string.IsNullOrEmpty(_race.Description))
         // Race Titles
         tableHeader.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.CENTER)
@@ -427,17 +437,7 @@ namespace RaceHorologyLib
           .SetFont(_pdfHelper.GetFont(RHFont.Bold))
           .SetFontSize(fontSizeTitle)
           .Add(new Paragraph(_race.Description)));
-      else if (!string.IsNullOrEmpty(_headline) && _displayDSVLogo == true)
-        tableHeader.AddCell(new Cell()
-          .SetTextAlignment(TextAlignment.CENTER)
-          .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-          .SetBorder(Border.NO_BORDER)
-          .SetBorderTop(new SolidBorder(PDFHelper.SolidBorderThick))
-          .SetBorderBottom(new SolidBorder(PDFHelper.ColorRHFG1, PDFHelper.SolidBorderThin))
-          .SetPadding(padding)
-          .SetFont(_pdfHelper.GetFont(RHFont.Bold))
-          .SetFontSize(fontSizeHeadLine)
-          .Add(new Paragraph(_headline)));
+
       else
         tableHeader.AddCell(new Cell()
           .SetBorder(Border.NO_BORDER)
