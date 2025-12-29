@@ -40,12 +40,12 @@ namespace RaceHorologyLib
       {
         if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
         storage = value;
-        OnPropertyChanged(prop);
+        NotifyPropertyChanged(prop);
         return true;
       }
 
       private string _text = string.Empty;
-      public string Text { get { return _text; } set { _text = value; OnPropertyChanged(); } }
+      public string Text { get { return _text; } set { _text = value; NotifyPropertyChanged(); } }
 
       private int _hPos;
       public int HPos { get => _hPos; set => SetField(ref _hPos, value); }
@@ -70,8 +70,8 @@ namespace RaceHorologyLib
         {
           if (value == _font) return;
           _font = value ?? "";
-          OnPropertyChanged();      // notify Font changed
-                                    // Parse into parts without causing loops:
+          NotifyPropertyChanged();      // notify Font changed
+                                        // Parse into parts without causing loops:
           ParseFontString(_font, out var fam, out var bold, out var italic, out var size);
           _updatingFromComposite = true;
           try
@@ -117,7 +117,7 @@ namespace RaceHorologyLib
         {
           if (!SetField(ref _fontSize, value)) return;
           RebuildFontIfNeeded();
-          OnPropertyChanged(nameof(FontSizeDip)); // <<< WICHTIG
+          NotifyPropertyChanged(nameof(FontSizeDip)); // <<< WICHTIG
         }
       }
 
@@ -149,7 +149,7 @@ namespace RaceHorologyLib
         try
         {
           _font = composed;
-          OnPropertyChanged(nameof(Font)); // raise once after rebuild
+          NotifyPropertyChanged(nameof(Font)); // raise once after rebuild
         }
         finally { _updatingComposite = false; }
       }
@@ -194,9 +194,19 @@ namespace RaceHorologyLib
         return sb.ToString();
       }
 
+      #region INotifyPropertyChanged implementation
       public event PropertyChangedEventHandler PropertyChanged;
-      private void OnPropertyChanged([CallerMemberName] string n = null)
-      { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
+      // This method is called by the Set accessor of each property.  
+      // The CallerMemberName attribute that is applied to the optional propertyName  
+      // parameter causes the property name of the caller to be substituted as an argument.  
+      private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+      {
+        PropertyChangedEventHandler handler = PropertyChanged;
+        if (handler != null)
+          handler(this, new PropertyChangedEventArgs(propertyName));
+      }
+      #endregion
+
 
     }
 
