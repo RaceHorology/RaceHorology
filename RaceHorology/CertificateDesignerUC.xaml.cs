@@ -1,4 +1,5 @@
-﻿using RaceHorologyLib;
+﻿using Microsoft.Win32;
+using RaceHorologyLib;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -747,6 +748,23 @@ namespace RaceHorology
     public event PropertyChangedEventHandler PropertyChanged;
     private void OnPropertyChanged([CallerMemberName] string n = null)
     { var h = PropertyChanged; if (h != null) h(this, new PropertyChangedEventArgs(n)); }
-  }
 
+    private void btnImport_Click(object sender, RoutedEventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+      openFileDialog.Filter =
+        "Race Horology Daten|*.mdb|DSValpin Daten|*.mdb";
+      if (openFileDialog.ShowDialog() == true)
+      {
+        Database importDB = new Database();
+        importDB.Connect(openFileDialog.FileName);
+        AppDataModel importModel = new AppDataModel(importDB);
+        var races = importModel.GetRaces();
+
+        var dlg = new CertificateDesignerImportDlg(importModel);
+        dlg.Owner = Window.GetWindow(this);
+        dlg.ShowDialog();
+      }
+    }
+  }
 }

@@ -170,6 +170,9 @@
     <Compile Include="CertificateDesignerDlg.xaml.cs">
       <DependentUpon>CertificateDesignerDlg.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CertificateDesignerImportDlg.xaml.cs">
+      <DependentUpon>CertificateDesignerImportDlg.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CertificateDesignerUC.xaml.cs">
       <DependentUpon>CertificateDesignerUC.xaml</DependentUpon>
     </Compile>
@@ -296,6 +299,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CertificateDesignerDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CertificateDesignerImportDlg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -220,7 +220,11 @@
           </StackPanel>
         </Border>
 
-        <local:SaveOrResetUC x:Name="ucSaveOrReset" Grid.Row="4" HorizontalAlignment="Left" Margin="10,15,0,0"/>
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="10,15,0,0">
+        <local:SaveOrResetUC x:Name="ucSaveOrReset"  HorizontalAlignment="Left" />
+          <Button x:Name="btnImport" Content="Importieren" Click="btnImport_Click"/>
+        </StackPanel>
+
       </Grid>
 
       <StackPanel Grid.Column="1">
