@@ -233,7 +233,7 @@ namespace RaceHorology
 
 
     // ===================== Public API =====================
-    public void SetBackground(BitmapSource bmp)
+    public void SetBackground(ImageSource bmp)
     {
       if (bmp == null) throw new ArgumentNullException("bmp");
       BackgroundImage.Source = bmp;
@@ -243,7 +243,9 @@ namespace RaceHorology
 
     public void LoadBackground(string filePath)
     {
-      if (string.IsNullOrEmpty(filePath)) throw new ArgumentException("filePath is null or empty");
+      if (string.IsNullOrEmpty(filePath))
+        throw new ArgumentException("filePath is null or empty");
+
       var ext = System.IO.Path.GetExtension(filePath).ToLowerInvariant();
 
       if (ext == ".png" || ext == ".jpg" || ext == ".jpeg")
@@ -517,7 +519,7 @@ namespace RaceHorology
     }
 
     // ============ OPTIONAL: handlers for toolbar/buttons ============
-    private void OnLoadImageBackground_Click(object sender, RoutedEventArgs e)
+    private void btnImageFromFile_Click(object sender, RoutedEventArgs e)
     {
       var dlg = new Microsoft.Win32.OpenFileDialog { Filter = "Images|*.png;*.jpg;*.jpeg" };
       if (dlg.ShowDialog() == true)
@@ -776,6 +778,13 @@ namespace RaceHorology
           RebuildOverlay();
         }
       }
+    }
+
+    private void btnImageFromClipboard_Click(object sender, RoutedEventArgs e)
+    {
+      var img = Clipboard.GetImage();
+      if (img != null)
+        SetBackground(img);
     }
   }
 }

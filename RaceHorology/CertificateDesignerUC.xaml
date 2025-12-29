@@ -10,35 +10,26 @@
   <UserControl.Resources>
     <racehorologylib:TimeSpanConverter x:Key="TimeSpanConverter" />
   </UserControl.Resources>
-  <Grid>
+  <Grid Margin="5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <!-- Toolbar -->
-    <ToolBarTray Grid.Row="0">
-      <ToolBar>
-        <Button Content="Hintergrundbild Laden" Click="OnLoadImageBackground_Click"/>
-        <Separator/>
-      </ToolBar>
-    </ToolBarTray>
-
     <!-- Main area -->
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="450"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
       <!-- Property panel -->
-      <Grid Grid.Column="0">
+      <Grid Grid.Column="0" Margin="0 0 0 5">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -211,44 +202,61 @@
 
           </StackPanel>
         </GroupBox>
-
-        <Grid Grid.Row="4" Margin="5 0 5 0">
+        
+        <Grid Grid.Row="4" Margin="5 0 5 12">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <local:SaveOrResetUC x:Name="ucSaveOrReset"  HorizontalAlignment="Left" />
-          <Button x:Name="btnImport" Content="Importieren" Click="btnImport_Click" Grid.Column="2"/>          
+          <Button x:Name="btnImport" Content="Importieren" Click="btnImport_Click" Grid.Column="2" Padding="5"/>
         </Grid>
         
       </Grid>
 
-      <Grid Grid.Column="1">
+      <Grid Grid.Column="1" >
         <Grid.RowDefinitions>
-          <RowDefinition Height="Auto" />
           <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <Grid Grid.Row="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
 
-          <TextBlock Text="Zoom" FontSize="16" Margin="12"/>
-          <ComboBox Width="80" SelectedValuePath="Tag" SelectionChanged="OnZoomPresetChanged" Height="25" SelectedIndex="0">
-            <ComboBoxItem Content="50%" Tag="0.5"/>
-            <ComboBoxItem Content="75%" Tag="0.75"/>
-            <ComboBoxItem Content="100%" Tag="1"/>
-          </ComboBox>
+          <GroupBox Header="Ansicht" Grid.Row="3" Margin="5" Padding="3" >
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="Zoom" Margin="0 0 3 0" VerticalAlignment="Center"/>
+              <ComboBox Width="80" SelectedValuePath="Tag" SelectionChanged="OnZoomPresetChanged" Height="25" SelectedIndex="0">
+                <ComboBoxItem Content="50%" Tag="0.5"/>
+                <ComboBoxItem Content="75%" Tag="0.75"/>
+                <ComboBoxItem Content="100%" Tag="1"/>
+              </ComboBox>
 
-
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-            <TextBlock Text="Hilfslinien anzeigen" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <CheckBox x:Name="cbHelperLines"
+              <CheckBox Margin="5 0 0 0" x:Name="cbHelperLines"
                   VerticalAlignment="Center"
                   Checked="OnHelperLinesToggled"
-                  Unchecked="OnHelperLinesToggled"/>
-          </StackPanel>
-        </StackPanel>
+                  Unchecked="OnHelperLinesToggled"
+                        Content="Hilfslinien anzeigen"
+                        />
+            </StackPanel>
+          </GroupBox>
+          <GroupBox Header="Hintergrundbild" Grid.Column="1" Margin="5"  Padding="3">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Button x:Name="btnImageFromFile" Content="Laden von File" Click="btnImageFromFile_Click" Grid.Column="0" Padding="5" Margin="5" />
+              <Button x:Name="btnImageFromClipboard" Content="Laden von Clipboard" Click="btnImageFromClipboard_Click" Grid.Column="1" Padding="5" Margin="5"/>
+            </Grid>
+          </GroupBox>
+        </Grid>
         <!-- Design surface -->
-        <ScrollViewer Grid.Row="1" Margin="5"                      
+        <ScrollViewer Grid.Row="0" Margin="5"                      
                       HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto"
                       Background="#3f434b">
