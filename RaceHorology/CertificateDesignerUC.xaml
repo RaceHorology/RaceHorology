@@ -100,7 +100,7 @@
               <Slider Minimum="8"
                 Maximum="96"
                 Width="200"
-                Value="{Binding SelectedField.FontSizeDip, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Value="{Binding SelectedField.FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 TickFrequency="1"
                 IsSnapToTickEnabled="True"
                 SmallChange="1"

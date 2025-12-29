@@ -383,16 +383,16 @@ namespace RaceHorology
 
       // auf Änderungen reagieren
       vm.PropertyChanged += delegate (object s, PropertyChangedEventArgs e)
-{
-  if (e.PropertyName == "IsBold")
-    text.FontWeight = vm.IsBold ? FontWeights.Bold : FontWeights.Normal;
-  else if (e.PropertyName == "IsItalic")
-    text.FontStyle = vm.IsItalic ? FontStyles.Italic : FontStyles.Normal;
-  else if (e.PropertyName == "TextAlignment")
-    text.TextAlignment = ToTextAlignment(CertificatesUtils.mapAlignmentInt(vm.Alignment));
-  else if (e.PropertyName == "FontFamilyName")       // NEU
-    text.FontFamily = new FontFamily(vm.FontFamilyName);
-};
+      {
+        if (e.PropertyName == "IsBold")
+          text.FontWeight = vm.IsBold ? FontWeights.Bold : FontWeights.Normal;
+        else if (e.PropertyName == "IsItalic")
+          text.FontStyle = vm.IsItalic ? FontStyles.Italic : FontStyles.Normal;
+        else if (e.PropertyName == "TextAlignment")
+          text.TextAlignment = ToTextAlignment(CertificatesUtils.mapAlignmentInt(vm.Alignment));
+        else if (e.PropertyName == "FontFamilyName")       // NEU
+          text.FontFamily = new FontFamily(vm.FontFamilyName);
+      };
 
       // Drag behavior on a Border container  
       var border = new Border
@@ -402,7 +402,6 @@ namespace RaceHorology
         Padding = new Thickness(2),
         BorderBrush = Brushes.Transparent,   // default = no visible border
         BorderThickness = new Thickness(1)
-
       };
 
       border.Tag = vm;
