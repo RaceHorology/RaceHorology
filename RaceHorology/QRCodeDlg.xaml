@@ -6,8 +6,13 @@
         xmlns:local="clr-namespace:RaceHorology"
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d"
-        Title="QR Code für Sprecheransicht" Height="300" Width="300">
-    <Grid>
-      <Image x:Name="imgQRCode" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Stretch="Uniform" PreviewMouseDown="onClickQRCode"/>
-    </Grid>
+        Title="QR Code für Sprecheransicht" SizeToContent="WidthAndHeight">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Image x:Name="imgQRCode" Grid.Row="0" Grid.Column="0" Height="300" Width="300" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Stretch="Uniform" PreviewMouseDown="onClickQRCode"/>
+    <TextBlock x:Name="txtUrl" Text="http://..." Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" FontSize="14" Margin="0,0,0,10" PreviewMouseDown="onClickQRCode"/>
+  </Grid>
 </Window>
