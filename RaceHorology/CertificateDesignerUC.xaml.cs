@@ -2,10 +2,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -253,26 +251,6 @@ namespace RaceHorology
       }
 
       throw new NotSupportedException("Unsupported background format: " + ext);
-    }
-
-    public void SaveLayout(Stream stream)
-    {
-      if (stream == null) throw new ArgumentNullException("stream");
-      var ser = new DataContractJsonSerializer(typeof(ObservableCollection<TextItem>));
-      ser.WriteObject(stream, _certificateModel.TextItems);
-    }
-
-    public void LoadLayout(Stream stream)
-    {
-      if (stream == null) throw new ArgumentNullException("stream");
-      var ser = new DataContractJsonSerializer(typeof(ObservableCollection<TextItem>));
-      var loaded = ser.ReadObject(stream) as ObservableCollection<TextItem>;
-      if (loaded != null)
-      {
-        _certificateModel.TextItems.Clear();
-        foreach (var f in loaded) _certificateModel.TextItems.Add(f);
-        RebuildOverlay();
-      }
     }
 
     public RenderTargetBitmap RenderComposite(double dpi)
