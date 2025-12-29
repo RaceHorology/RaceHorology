@@ -756,18 +756,20 @@ namespace RaceHorology
 
     private void btnImport_Click(object sender, RoutedEventArgs e)
     {
-      OpenFileDialog openFileDialog = new OpenFileDialog();
-      openFileDialog.Filter =
-        "Race Horology Daten|*.mdb|DSValpin Daten|*.mdb";
+      OpenFileDialog openFileDialog = new OpenFileDialog
+      {
+        Filter =
+          "Race Horology Daten|*.mdb|DSValpin Daten|*.mdb"
+      };
       if (openFileDialog.ShowDialog() == true)
       {
         Database importDB = new Database();
         importDB.Connect(openFileDialog.FileName);
         AppDataModel importModel = new AppDataModel(importDB);
-        var races = importModel.GetRaces();
-
-        var dlg = new CertificateDesignerImportDlg(importModel);
-        dlg.Owner = Window.GetWindow(this);
+        var dlg = new CertificateDesignerImportDlg(importModel)
+        {
+          Owner = Window.GetWindow(this)
+        };
         if (dlg.ShowDialog() == true)
         {
           _certificateModel = importModel.GetDB().GetCertificateModel(dlg.SelectedRace);
