@@ -25,6 +25,14 @@ namespace RaceHorology
         if (cm.TextItems.Count > 0)
         {
           cbRace.Items.Add(new CBItem { Text = race.RaceType.ToString(), Value = race });
+          cbRace.SelectedIndex = 0;
+        }
+        else
+        {
+          cbRace.Items.Add("keine Urkunden enthalten");
+          cbRace.SelectedIndex = 0;
+          cbRace.IsEnabled = false;
+          btnImport.IsEnabled = false;
         }
       }
     }
