@@ -1,4 +1,4 @@
-using RaceHorologyLib;
+﻿using RaceHorologyLib;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -17,11 +17,8 @@ namespace RaceHorology
 {
   public partial class CertificateDesignerUC : UserControl, INotifyPropertyChanged
   {
-
     private AppDataModel _dm;
     private Race _race;
-    public event EventHandler Finished;
-
 
     private string _feedBackText = string.Empty;
     public string FeedBackText { get { return _feedBackText; } set { _feedBackText = value; OnPropertyChanged(); } }
