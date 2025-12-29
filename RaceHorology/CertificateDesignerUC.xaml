@@ -220,11 +220,16 @@
           </StackPanel>
         </Border>
 
-        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="10,15,0,0">
-        <local:SaveOrResetUC x:Name="ucSaveOrReset"  HorizontalAlignment="Left" />
-          <Button x:Name="btnImport" Content="Importieren" Click="btnImport_Click"/>
-        </StackPanel>
-
+        <Grid Grid.Row="4" Margin="5 0 5 0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <local:SaveOrResetUC x:Name="ucSaveOrReset"  HorizontalAlignment="Left" />
+          <Button x:Name="btnImport" Content="Importieren" Click="btnImport_Click" Grid.Column="2"/>          
+        </Grid>
+        
       </Grid>
 
       <Grid Grid.Column="1">
