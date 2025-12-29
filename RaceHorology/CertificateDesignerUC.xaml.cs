@@ -763,7 +763,11 @@ namespace RaceHorology
 
         var dlg = new CertificateDesignerImportDlg(importModel);
         dlg.Owner = Window.GetWindow(this);
-        dlg.ShowDialog();
+        if (dlg.ShowDialog() == true)
+        {
+          _certificateModel = importModel.GetDB().GetCertificateModel(dlg.SelectedRace);
+          RebuildOverlay();
+        }
       }
     }
   }
