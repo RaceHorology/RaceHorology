@@ -22,30 +22,21 @@ using static RaceHorologyLib.PrintCertificateModel;
 
 namespace RaceHorologyLib
 {
-
+  // Make this nice
   public class PrintCertificateModel : INotifyPropertyChanged
   {
     public enum TextItemAlignment { Left = 0, Center = 2, Right = 1 };
 
     public class TextItem : INotifyPropertyChanged
     {
-
       [IgnoreDataMember]
       public double FontSizeDip
       {
         get { return Math.Round(FontSize * 96.0 / 72.0); }      // pt -> DIP
       }
 
-      protected bool SetField<T>(ref T storage, T value, [CallerMemberName] string prop = null)
-      {
-        if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
-        storage = value;
-        NotifyPropertyChanged(prop);
-        return true;
-      }
-
       private string _text = string.Empty;
-      public string Text { get { return _text; } set { _text = value; NotifyPropertyChanged(); } }
+      public string Text { get { return _text; } set => SetField(ref _text, value); }
 
       private int _hPos;
       public int HPos { get => _hPos; set => SetField(ref _hPos, value); }
@@ -54,7 +45,6 @@ namespace RaceHorologyLib
       public int VPos { get => _vPos; set => SetField(ref _vPos, value); }
 
       private TextItemAlignment _alignment;
-
       public TextItemAlignment Alignment
       {
         get => _alignment;
@@ -68,21 +58,14 @@ namespace RaceHorologyLib
         get => _font;
         set
         {
-          if (value == _font) return;
-          _font = value ?? "";
-          NotifyPropertyChanged();      // notify Font changed
-                                        // Parse into parts without causing loops:
+          if (!SetField(ref _font, value)) return;
+
+          // Parse into parts without causing loops:
           ParseFontString(_font, out var fam, out var bold, out var italic, out var size);
-          _updatingFromComposite = true;
-          try
-          {
-            // Only set if changed to avoid redundant events
-            FontFamilyName = fam;
-            IsBold = bold;
-            IsItalic = italic;
-            FontSize = size;
-          }
-          finally { _updatingFromComposite = false; }
+          FontFamilyName = fam;
+          IsBold = bold;
+          IsItalic = italic;
+          FontSize = size;
         }
       }
 
@@ -117,11 +100,10 @@ namespace RaceHorologyLib
         {
           if (!SetField(ref _fontSize, value)) return;
           RebuildFontIfNeeded();
-          NotifyPropertyChanged(nameof(FontSizeDip)); // <<< WICHTIG
+          NotifyPropertyChanged(nameof(FontSizeDip));
         }
       }
 
-      // In FieldVM:
       public string FontFamilyName
       {
         get { return _fontFamilyName; }
@@ -134,24 +116,12 @@ namespace RaceHorologyLib
 
       private string _fontFamilyName = "Segoe UI"; // Default
 
-      // ===== Loop prevention =====
-      private bool _updatingFromComposite;   // set when parsing Font->parts
-      private bool _updatingComposite;       // set when composing parts->Font
-
       private void RebuildFontIfNeeded()
       {
-        if (_updatingFromComposite) return; // don't echo while parsing
-
         var composed = ComposeFontString(FontFamilyName, IsBold, IsItalic, FontSize);
         if (string.Equals(composed, _font, System.StringComparison.Ordinal)) return;
 
-        _updatingComposite = true;
-        try
-        {
-          _font = composed;
-          NotifyPropertyChanged(nameof(Font)); // raise once after rebuild
-        }
-        finally { _updatingComposite = false; }
+        SetField(ref _font, composed, "Font");
       }
 
 
@@ -204,6 +174,15 @@ namespace RaceHorologyLib
         PropertyChangedEventHandler handler = PropertyChanged;
         if (handler != null)
           handler(this, new PropertyChangedEventArgs(propertyName));
+      }
+      private bool SetField<T>(ref T storage, T value, [CallerMemberName] String propertyName = "")
+      {
+        if (EqualityComparer<T>.Default.Equals(storage, value))
+          return false;
+
+        storage = value;
+        NotifyPropertyChanged(propertyName);
+        return true;
       }
       #endregion
 
