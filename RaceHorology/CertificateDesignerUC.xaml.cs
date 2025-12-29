@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RaceHorologyLib;
 using System;
 using System.Collections.ObjectModel;
@@ -46,7 +46,12 @@ namespace RaceHorology
     private bool _showHelperLines = false;
 
 
-    public PrintCertificateModel _certificateModel { get; set; }
+    private PrintCertificateModel _certificateModelField;
+    public PrintCertificateModel _certificateModel
+    {
+      get { return _certificateModelField; }
+      set { _certificateModelField = value; OnPropertyChanged(); }
+    }
 
     public CertificateDesignerUC()
     {
