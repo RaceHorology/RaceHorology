@@ -59,10 +59,16 @@ namespace RaceHorologyLib
             }, GenerateColumnWidths(3, 0.4f));
 
       AddRowCustomWidths(doc, fontSize, new[] {
-            ("Veranstaltung", report.Data("Veranstaltung")),
-            ("Disziplin", report.Data("Disziplin")),
-            ("Renn-Nr.", report.Data("RennNr"))
+            ("Disziplin",     report.Data("Disziplin")),
+            ("Renn-Nr.",      report.Data("RennNr")),
+            (" ", " " )
             }, GenerateColumnWidths(3, 0.4f));
+
+
+      AddRowCustomWidths(doc, fontSize, new[] {
+            ("Veranstaltung", report.Data("Veranstaltung")),
+            }, GenerateColumnWidths(1, 0.1335f));
+
 
       doc.Add(new Paragraph("Jury / Wettkampfkomitee").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
       AddJuryTable(doc, fontSize, report);
@@ -183,22 +189,36 @@ namespace RaceHorologyLib
       //AddRowCustomWidths(doc, fontSize, new[] {
       //("Bemerkungen\r\nSonstiges ", report.Data("Bemerkungen"))
       //}, GenerateColumnWidths(1, 0.10f));
+      Paragraph p = new Paragraph()
+        .SetMargin(0)
+        .SetPadding(0)
+        .SetFontSize(fontSize)
+        .SetFontColor(ColorConstants.RED);
+      p.Add(new Text("Angaben / Unterschrift Zeitnehemer").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
+      p.Add(new Text("   Mit seiner Unterschrift bestätigt der Zeitnehmer alle Zeiten nach Vorgabe des DSV gemessen und dokumentiert zu haben"));
 
-      doc.Add(new Paragraph("Angaben / Unterschrift Zeitnehemer").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
-      AddParagraphRow(doc, "Mit seiner Unterschrift bestätigt der Zeitnehmer alle Zeiten nach Vorgabe des DSV gemessen und dokumentiert zu haben", "", fontSize);
-
-      AddSignTable(doc, fontSize, report, true);
+      doc.Add(p);
 
 
-      doc.Add(new Paragraph("Angaben / Unterschrift Schiedsrichter / TD").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
-      AddParagraphRow(doc, "Mit seiner Unterschrift bestätigt der Schiedsrichter / TD, das alle Angaben im Schiedsrichterbericht kontrolliert wurden", "", fontSize);
+     AddSignTable(doc, fontSize, report, true);
+
+      p = new Paragraph()
+        .SetMargin(0)
+        .SetPadding(0)
+        .SetFontSize(fontSize)
+        .SetFontColor(ColorConstants.RED);
+      p.Add(new Text("Angaben / Unterschrift Schiedsrichter / TD").SetBold().SetFontSize(fontSize).SetFontColor(iText.Kernel.Colors.ColorConstants.RED));
+      p.Add(new Text("   Mit seiner Unterschrift bestätigt der Schiedsrichter / TD, das alle Angaben im Schiedsrichterbericht kontrolliert wurden"));
+
+      doc.Add(p);
+
       AddSignTable(doc, fontSize, report, false);
 
 
       doc.Add(new Paragraph("Der Bericht ist vom Schiedsrichter/TD oder Zeitnehmer zu erstellen als PDF-Datei abzuspeichern und mit Angabe von Renn-Nr. an den einteilenden Kampfrichter-Referenzenten zu senden.").SetMargin(0).SetPadding(0).SetFontSize(fontSize));
 
 
-      Paragraph p = new Paragraph()
+      p = new Paragraph()
           .SetMargin(0)
           .SetPadding(0)
           .SetFontSize(fontSize)
