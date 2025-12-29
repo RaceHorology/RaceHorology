@@ -1,4 +1,4 @@
-﻿using RaceHorologyLib;
+using RaceHorologyLib;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -58,7 +58,7 @@ namespace RaceHorology
 
       ApplyA4DesignSurface();
 
-      ucSaveOrReset.Init("Urkundendesign", null, null, HasChanges, StoreCertificateDesign, RestoreCertificateDesign);
+      ucSaveOrReset.Init("Urkunde", null, null, HasChanges, StoreCertificateDesign, RestoreCertificateDesign, true);
 
       DesignFrame.SizeChanged += (_, __) => DrawHelperLines();
     }
@@ -92,6 +92,11 @@ namespace RaceHorology
     {
       var orgModel = _race.GetDataModel().GetDB().GetCertificateModel(_race);
       return !PrintCertificateModel.AreEqual(orgModel, _certificateModel);
+    }
+
+    public void SaveOrResetNow()
+    {
+      ucSaveOrReset.SaveOrResetNow();
     }
 
     // Handler: überschreibt sofort den Freitext von SelectedField

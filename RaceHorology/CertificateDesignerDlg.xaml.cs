@@ -30,30 +30,7 @@ namespace RaceHorology
 
     private void Window_Closing(object sender, CancelEventArgs e)
     {
-      if (!ucCertDesigner.HasChanges())
-        return;
-
-      var result = MessageBox.Show(
-          "Ja = \tSchließen und Layout Speichern\r\nNein =\tSchließen\r\n",
-          "Urkunden Designer",
-          MessageBoxButton.YesNoCancel,
-          MessageBoxImage.Warning);
-
-      switch (result)
-      {
-        case MessageBoxResult.Yes:
-          ucCertDesigner.StoreCertificateDesign();
-          // allow close
-          break;
-
-        case MessageBoxResult.No:
-          break;
-
-        case MessageBoxResult.Cancel:
-          e.Cancel = true;   // keep window open
-          break;
-      }
-
+      ucCertDesigner.SaveOrResetNow();
     }
   }
 }

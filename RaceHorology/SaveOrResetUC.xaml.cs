@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace RaceHorology
 {
@@ -49,9 +40,9 @@ namespace RaceHorology
         saveChanges();
     }
 
-    public void Init( string functionDescription,
+    public void Init(string functionDescription,
                       TabControl parent, TabItem thisTabItem,
-                      ExistingChanges existingChangesCallback, SaveChanges saveChangesCallback, ResetChanges resetChangesCallback)
+                      ExistingChanges existingChangesCallback, SaveChanges saveChangesCallback, ResetChanges resetChangesCallback, bool manualTrigger = false)
     {
       _functionDescription = functionDescription;
       _existingChangesCallback = existingChangesCallback;
@@ -66,7 +57,7 @@ namespace RaceHorology
         var p = thisTabItem.Parent;
         _tabControl.SelectionChanged += parent_SelectionChanged;
       }
-      else
+      else if (!manualTrigger)
       {
         IsVisibleChanged += SaveOrResetUC_IsVisibleChanged;
       }
@@ -74,7 +65,7 @@ namespace RaceHorology
 
     private void SaveOrResetUC_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-      
+
       if (IsVisible == false) // Became invisible
       {
         if (existingChanges())
@@ -82,9 +73,9 @@ namespace RaceHorology
           Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, (Action)(() =>
           {
             var result = MessageBox.Show(
-              string.Format("Sollen die {0} gespeichert werden?", _functionDescription), 
-              "Speichern?", 
-              MessageBoxButton.YesNo, 
+              string.Format("Sollen die {0} gespeichert werden?", _functionDescription),
+              "Speichern?",
+              MessageBoxButton.YesNo,
               MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
@@ -95,6 +86,26 @@ namespace RaceHorology
               resetChanges(); // Reset changes
             }
           }));
+        }
+      }
+    }
+
+    public void SaveOrResetNow()
+    {
+      if (existingChanges())
+      {
+        var result = MessageBox.Show(
+          string.Format("Sollen die {0} gespeichert werden?", _functionDescription),
+          "Speichern?",
+          MessageBoxButton.YesNo,
+          MessageBoxImage.Question);
+        if (result == MessageBoxResult.Yes)
+        {
+          saveChanges();  // Save changes
+        }
+        else if (result == MessageBoxResult.No)
+        {
+          resetChanges(); // Reset changes
         }
       }
     }
@@ -115,9 +126,9 @@ namespace RaceHorology
             _tabControl.SelectedItem = _thisTabItem;
 
             var result = MessageBox.Show(
-              string.Format("Sollen die {0} gespeichert werden?", _functionDescription), 
-              "Speichern?", 
-              MessageBoxButton.YesNoCancel, 
+              string.Format("Sollen die {0} gespeichert werden?", _functionDescription),
+              "Speichern?",
+              MessageBoxButton.YesNoCancel,
               MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
@@ -139,7 +150,7 @@ namespace RaceHorology
 
     private bool existingChanges()
     {
-      return _existingChangesCallback!=null && _existingChangesCallback();
+      return _existingChangesCallback != null && _existingChangesCallback();
     }
 
     private void saveChanges()
@@ -170,7 +181,7 @@ namespace RaceHorology
       }
 
       lbSaved.Visibility = Visibility.Visible;
-      Task.Delay(2000).ContinueWith(t => 
+      Task.Delay(2000).ContinueWith(t =>
       {
         lbSaved.Visibility = Visibility.Hidden;
       }, TaskScheduler.FromCurrentSynchronizationContext());
