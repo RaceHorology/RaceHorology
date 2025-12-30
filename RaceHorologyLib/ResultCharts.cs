@@ -34,13 +34,9 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace RaceHorologyLib
@@ -50,13 +46,13 @@ namespace RaceHorologyLib
     protected string workaroundGermanUmlaut(string str)
     {
       return str
-        .Replace("�", "ae")
-        .Replace("�", "oe")
-        .Replace("�", "ue")
-        .Replace("�", "Ae")
-        .Replace("�", "Oe")
-        .Replace("�", "Ue")
-        .Replace("�", "ss");
+        .Replace("ä", "ae")
+        .Replace("ö", "oe")
+        .Replace("ü", "ue")
+        .Replace("Ä", "Ae")
+        .Replace("Ö", "Oe")
+        .Replace("Ü", "Ue")
+        .Replace("ß", "ss");
     }
 
     //Base10Exponent returns the integer exponent (N) that would yield a
@@ -361,7 +357,7 @@ namespace RaceHorologyLib
       if (sender is Chart chart)
       {
         int x = 1;
-        foreach( var s in chart.Series )
+        foreach (var s in chart.Series)
         {
           if (s.Name.Contains("BoxPlot"))
           {
