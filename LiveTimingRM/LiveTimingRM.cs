@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -100,7 +100,7 @@ public class LiveTimingDelegator : IDisposable
     _liveTiming = liveTiming;
 
     _notifier = new List<IDisposable>();
-    
+
     ObserveRace();
   }
 
@@ -370,7 +370,7 @@ public class LiveTimingRM : ILiveTiming
     _currentLvStruct.TypZeiten = "add";
     if (!string.IsNullOrEmpty(_race.RaceConfiguration.RaceResultView))
       if (_race.RaceConfiguration.RaceResultView.Contains("BestOfTwo"))
-        _currentLvStruct.TypZeiten = "diff"; 
+        _currentLvStruct.TypZeiten = "diff";
 
     // "Klasse", "Gruppe", "Kategorie"
     _currentLvStruct.Gruppierung = "Kategorie";
@@ -509,10 +509,10 @@ public class LiveTimingRM : ILiveTiming
     // Start - Nr Start - Nr des Teilnehmers
     // Code leer/ Code / DSV - Id des Teilnehmers
     // Name Name des Teilnehmers(NACHANME Vorname)
-    // Jahrgang Jahrgang des Teilnehmers(4 - stellig) 
+    // Jahrgang Jahrgang des Teilnehmers(4 - stellig)
     // Verband leer/ Verband / Nation des Teilnehmers
     // Verein Verein des Teilnehmers
-    // Punkte leer/ Punkte des Teilnehmers(mit Komma und 2 Nachkommastellen) 
+    // Punkte leer/ Punkte des Teilnehmers(mit Komma und 2 Nachkommastellen)
 
     string data = getParticipantsData();
     if (data != lastSendParticipantData)
@@ -554,10 +554,10 @@ public class LiveTimingRM : ILiveTiming
     // Start - Nr Start - Nr des Teilnehmers
     // Code leer/ Code / DSV - Id des Teilnehmers
     // Name Name des Teilnehmers(NACHANME Vorname)
-    // Jahrgang Jahrgang des Teilnehmers(4 - stellig) 
+    // Jahrgang Jahrgang des Teilnehmers(4 - stellig)
     // Verband leer/ Verband / Nation des Teilnehmers
     // Verein Verein des Teilnehmers
-    // Punkte leer/ Punkte des Teilnehmers(mit Komma und 2 Nachkommastellen) 
+    // Punkte leer/ Punkte des Teilnehmers(mit Komma und 2 Nachkommastellen)
     string item;
 
     var customFormat = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
@@ -613,7 +613,7 @@ public class LiveTimingRM : ILiveTiming
       string item;
 
       item = string.Format("{0,3}", sle.Participant.Id);
-      
+
       if (!string.IsNullOrEmpty(result))
         result += "\n";
 
@@ -703,7 +703,7 @@ public class LiveTimingRM : ILiveTiming
             // No useful data => skip
             continue;
         }
-        
+
       }
 
       item = string.Format("{0,3}{1,1}{2}{3}", r.Participant.Id, eCode, time, distext);
@@ -728,7 +728,7 @@ public class LiveTimingRM : ILiveTiming
   List<LTTransfer> _transfers = new List<LTTransfer>();
   object _transferLock = new object();
   bool _transferInProgress = false;
-    
+
   private void scheduleTransfer(LTTransfer transfer)
   {
     lock (_transferLock)
@@ -761,7 +761,7 @@ public class LiveTimingRM : ILiveTiming
     if (nextItem != null)
     {
       // Trigger execution of transfers
-      Task.Run( () => 
+      Task.Run( () =>
         {
           Logger.Debug("process transfer: " + nextItem.ToString());
           nextItem.performTask();
@@ -820,7 +820,7 @@ public class LTTransferStatus : LTTransfer
   {
     return "LTTransfer(" + _type + "," + _data + ")";
   }
-   
+
   public override bool IsEqual(LTTransfer other)
   {
     if (IsSameType(other) && other is LTTransferStatus otherStatus)

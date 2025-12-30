@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -85,7 +85,7 @@ namespace RaceHorologyLibTest
     // [ClassCleanup()]
     // public static void MyClassCleanup() { }
     //
-    // Use TestInitialize to run code before running each test 
+    // Use TestInitialize to run code before running each test
     // [TestInitialize()]
     // public void MyTestInitialize() { }
     //
@@ -112,7 +112,7 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578), parser.ParseTime(@"08:48:00.578"));
       Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578).AddMicroseconds(900), parser.ParseTime(@"08:48:00.5789"));
       Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 578).AddMicroseconds(910), parser.ParseTime(@"08:48:00.57891"));
-      
+
       // Comma ","
       Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 500), parser.ParseTime(@"08:48:00,5"));
       Assert.AreEqual(new TimeSpan(0, 8, 48, 0, 570), parser.ParseTime(@"08:48:00,57"));

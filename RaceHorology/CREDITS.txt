@@ -1,6 +1,6 @@
 ﻿Besonderen Dank gilt folgenden Mitwirkenden
 
-Programmierbeiträge
+Programmierbeiträge / Co-Autoren
   Michael Stenz
   Thomas Marx
 
@@ -10,7 +10,7 @@ Race Horology Logo
 Beratung und Consulting während der Entwicklung
   Bernd Altmann - http://www.rennmeldung.de
 
-Benutzerhandbuch (online) 
+Benutzerhandbuch (online)
   Michael Stenz
 
 Testen und Ausprobieren während der Entwicklung

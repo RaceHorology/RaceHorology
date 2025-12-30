@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using RaceHorologyLib;
@@ -82,7 +82,7 @@ namespace RaceHorologyLibTest
     // [ClassCleanup()]
     // public static void MyClassCleanup() { }
     //
-    // Use TestInitialize to run code before running each test 
+    // Use TestInitialize to run code before running each test
     // [TestInitialize()]
     // public void MyTestInitialize() { }
     //
@@ -138,7 +138,7 @@ namespace RaceHorologyLibTest
         var ir = new ImportReader(@"Teilnehmer_V1_202001301844.xls");
         checkColumns(ir.Columns);
       }
-      { 
+      {
         var ir = new ImportReader(@"Teilnehmer_V1_202001301844.xlsx");
         checkColumns(ir.Columns);
       }
@@ -398,7 +398,7 @@ namespace RaceHorologyLibTest
         RaceParticipant rp = tg.Model.GetRace(0).GetParticipants()[i];
 
         Assert.AreEqual(string.Format("Name {0}", i + 1), p.Name);
-      
+
         Assert.AreEqual(string.Format("Name {0}", i + 1), rp.Name);
 
         if (i==0)

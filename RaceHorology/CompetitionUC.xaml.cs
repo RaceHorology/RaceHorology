@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using Microsoft.Win32;
@@ -336,7 +336,7 @@ namespace RaceHorology
         dgParticipants.Columns.Add(new DataGridTextColumn
         {
           Binding = createPointsBinding(i),
-          
+
           Header = string.Format("Points {0}", race.RaceType.ToString())
         });
       }
@@ -712,12 +712,12 @@ namespace RaceHorology
 
     public bool this[int i]
     {
-      get 
+      get
       {
         if (i >= _races.Count)
           return false;
-        
-        return _races[i].GetParticipants().FirstOrDefault(rp => rp.Participant == _participant) != null; 
+
+        return _races[i].GetParticipants().FirstOrDefault(rp => rp.Participant == _participant) != null;
       }
 
       set
@@ -742,9 +742,9 @@ namespace RaceHorology
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -849,9 +849,9 @@ namespace RaceHorology
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -926,9 +926,9 @@ namespace RaceHorology
       get => _participant;
     }
 
-    public string Id 
-    { 
-      get => _participant.Id; 
+    public string Id
+    {
+      get => _participant.Id;
     }
 
     public string Name
@@ -1036,9 +1036,9 @@ namespace RaceHorology
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -1064,7 +1064,7 @@ namespace RaceHorology
   /// </summary>
   public class ParticipantList : CopyObservableCollection<ParticipantEdit,Participant>
   {
-    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider[] importList) 
+    public ParticipantList(ObservableCollection<Participant> particpants, AppDataModel dm, IImportListProvider[] importList)
       : base(particpants, p => new ParticipantEdit(p, dm.GetRaces(), importList, dm), false)
     { }
 

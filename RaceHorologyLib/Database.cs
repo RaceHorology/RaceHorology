@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -171,16 +171,16 @@ namespace RaceHorologyLib
       if (existsTable("XtblUrkunde"))
         return;
 
-      // Create TABLE 
+      // Create TABLE
       string sql = @"
         CREATE TABLE XtblUrkunde (
-          [Disziplin] LONG NOT NULL, 
-          [id] LONG NOT NULL, 
+          [Disziplin] LONG NOT NULL,
+          [id] LONG NOT NULL,
           [TxText] TEXT(150),
-          [TxFont] TEXT(50), 
-          [TxAlign] SMALLINT,   
-          [TxVpos] SMALLINT,   
-          [TxHpos] SMALLINT    
+          [TxFont] TEXT(50),
+          [TxAlign] SMALLINT,
+          [TxVpos] SMALLINT,
+          [TxHpos] SMALLINT
         )";
 
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
@@ -192,12 +192,12 @@ namespace RaceHorologyLib
       if (existsTable("XtblSRBericht"))
         return;
 
-      // Create TABLE 
+      // Create TABLE
       string sql = @"
         CREATE TABLE XtblSRBericht (
-          [Disziplin] BYTE NOT NULL, 
+          [Disziplin] BYTE NOT NULL,
           [Feld] LONGTEXT,
-          [Wert] LONGTEXT    
+          [Wert] LONGTEXT
         )";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
@@ -208,7 +208,7 @@ namespace RaceHorologyLib
       if (existsTable("RHMisc"))
         return;
 
-      // Create TABLE RHMisc 
+      // Create TABLE RHMisc
       string sql = @"CREATE TABLE RHMisc ([key] TEXT(255) NOT NULL, [val] LONGTEXT, PRIMARY KEY ([key]) )";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
@@ -220,7 +220,7 @@ namespace RaceHorologyLib
       if (existsColumn("tblKategorie", "RHSynonyms"))
         return;
 
-      // Create TABLE RHMisc 
+      // Create TABLE RHMisc
       string sql = @"ALTER TABLE tblKategorie ADD RHSynonyms TEXT(255) DEFAULT NULL";
       OleDbCommand cmd = new OleDbCommand(sql, _conn);
       int res = cmd.ExecuteNonQuery();
@@ -232,12 +232,12 @@ namespace RaceHorologyLib
       if (existsTable("RHTimestamps"))
         return;
 
-      // Create TABLE 
+      // Create TABLE
       string sql = @"
         CREATE TABLE RHTimestamps (
-          [disziplin] BYTE NOT NULL, 
-          [durchgang] BYTE NOT NULL, 
-          [zeit] DOUBLE NOT NULL, 
+          [disziplin] BYTE NOT NULL,
+          [durchgang] BYTE NOT NULL,
+          [zeit] DOUBLE NOT NULL,
           [startnummer] LONG,
           [valid] BIT,
           [kanal] TEXT(10) NOT NULL
@@ -313,7 +313,7 @@ namespace RaceHorologyLib
       string sql = @"SELECT * FROM tblTeilnehmer";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -394,7 +394,7 @@ namespace RaceHorologyLib
       string sql = @"SELECT * FROM tblDisziplin WHERE aktiv = true";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -461,7 +461,7 @@ namespace RaceHorologyLib
         sql += " WHERE " + activeField + " = true";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -492,7 +492,7 @@ namespace RaceHorologyLib
       command.Parameters.Add(new OleDbParameter("@durchgang", run));
       command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -735,7 +735,7 @@ namespace RaceHorologyLib
       // Test whether the participant exists
       uint id = GetParticipantId(raceParticipant.Participant);
 
-      if (id == 0) // Particpant not existing => no updates 
+      if (id == 0) // Particpant not existing => no updates
         return;
 
       string sql = @"UPDATE tblTeilnehmer SET ";
@@ -951,7 +951,7 @@ namespace RaceHorologyLib
       OleDbCommand command = new OleDbCommand(sql, _conn);
       command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -1190,7 +1190,7 @@ namespace RaceHorologyLib
       OleDbCommand command = new OleDbCommand(sql, _conn);
       command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
@@ -1449,7 +1449,7 @@ namespace RaceHorologyLib
       command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
       command.Parameters.Add(new OleDbParameter("@durchgang", run));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -1517,7 +1517,7 @@ namespace RaceHorologyLib
       OleDbCommand command = new OleDbCommand(sql, _conn);
       command.Parameters.Add(new OleDbParameter("@key", key));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
@@ -1580,7 +1580,7 @@ namespace RaceHorologyLib
       string sql = @"SELECT * FROM tblGruppe";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -1707,7 +1707,7 @@ namespace RaceHorologyLib
 
       string sql = @"SELECT * FROM tblKlasse";
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -1845,7 +1845,7 @@ namespace RaceHorologyLib
       string sql = @"SELECT * FROM tblKategorie";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -1995,7 +1995,7 @@ namespace RaceHorologyLib
       string sql = @"SELECT * FROM tblGrpMannschaft";
 
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -2121,7 +2121,7 @@ namespace RaceHorologyLib
 
       string sql = @"SELECT * FROM tblMannschaft";
       OleDbCommand command = new OleDbCommand(sql, _conn);
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
@@ -2301,7 +2301,7 @@ namespace RaceHorologyLib
 
       try
       {
-        // Execute command  
+        // Execute command
         using (OleDbDataReader reader = command.ExecuteReader())
         {
           while (reader.Read())
@@ -2352,7 +2352,7 @@ namespace RaceHorologyLib
 
       try
       {
-        // Execute command  
+        // Execute command
         using (OleDbDataReader reader = command.ExecuteReader())
         {
           while (reader.Read())

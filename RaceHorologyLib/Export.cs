@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using ClosedXML.Excel;
@@ -109,7 +109,7 @@ namespace RaceHorologyLib
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public struct BaseType {
-      public Race race; 
+      public Race race;
       public RaceParticipant rp;
     }
 
@@ -331,9 +331,9 @@ namespace RaceHorologyLib
       foreach (RaceRun rr in _race.GetRuns())
       {
         AddField(
-          string.Format("Runtime_{0}", rr.Run), 
-          typeof(TimeSpan), 
-          (item) => 
+          string.Format("Runtime_{0}", rr.Run),
+          typeof(TimeSpan),
+          (item) =>
           {
             if (rr.GetRunResult(item.rp) is RunResult runRes)
               return runRes.RuntimeWOResultCode;
@@ -391,9 +391,9 @@ namespace RaceHorologyLib
       AddField("LPkte", typeof(string), (item) => { return string.Format(new System.Globalization.CultureInfo("de-DE"), "{0:0.00}", item.rp.Points); });
 
       AddField(
-        "Total", 
-        typeof(string), 
-        (item) => 
+        "Total",
+        typeof(string),
+        (item) =>
         {
           var vp = item.race.GetResultViewProvider();
           var raceResult = vp.GetViewList().FirstOrDefault(r => r.Participant == item.rp);
@@ -415,7 +415,7 @@ namespace RaceHorologyLib
               return resultCode;
             }
           }
-          return null; 
+          return null;
         }
       );
 

@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using Newtonsoft.Json;
@@ -247,7 +247,7 @@ namespace RaceHorologyLib
         writer.WriteEndObject();
       }
       writer.WriteEndArray();
-      
+
       writer.WritePropertyName("JustModified");
       writer.WriteValue(value.JustModified);
       writer.WriteEndObject();
@@ -330,7 +330,7 @@ namespace RaceHorologyLib
     }
 
     public static string GetGroupBy(ICollectionView cv)
-    { 
+    {
       string groupby = "";
       if (cv.GroupDescriptions.Count > 0)
       {
@@ -462,8 +462,8 @@ namespace RaceHorologyLib
       for (uint i = 1; i <= runs; i++)
         fieldsRuns.Add(string.Format("Runtime{0}", i), string.Format("Zeit {0}", i));
 
-      var fields = new Dictionary<string, object> 
-      { 
+      var fields = new Dictionary<string, object>
+      {
         { "Id", "Id" },
         { "Position", "Platz" },
         { "StartNumber", "Startnummer" },

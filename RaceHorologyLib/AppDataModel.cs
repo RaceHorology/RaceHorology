@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -48,10 +48,10 @@ namespace RaceHorologyLib
   /// <summary>
   /// Main Application Data Model - all data shall be get through this instance, also modification shall be done on this instance
   /// </summary>
-  /// 
+  ///
   /// Data is loaded from the data base
   /// Data is written back to the data base in case it is needed
-  /// 
+  ///
   /// <remarks>not yet fully implemented</remarks>
   public class AppDataModel : ILiveDateTimeProvider, INotifyPropertyChanged
   {
@@ -175,7 +175,7 @@ namespace RaceHorologyLib
 
     /// <summary>
     /// Closes the data model
-    /// 
+    ///
     /// The object cannot be used anymore after that call.
     /// </summary>
     public void Close()
@@ -577,9 +577,9 @@ namespace RaceHorologyLib
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChangedEventHandler handler = PropertyChanged;
@@ -737,7 +737,7 @@ namespace RaceHorologyLib
   /// Represents a race / contest.
   /// A race typically consists out of 1 or 2 runs.
   /// </summary>
-  /// 
+  ///
   public class Race : INotifyPropertyChanged
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -1034,7 +1034,7 @@ namespace RaceHorologyLib
 
 
     /// <summary>
-    /// Creates a new RaceRun structure. 
+    /// Creates a new RaceRun structure.
     /// </summary>
     /// <seealso cref="GetRun()"/>
     public void AddRaceRun()
@@ -1072,7 +1072,7 @@ namespace RaceHorologyLib
     }
 
     /// <summary>
-    /// Deletes the RaceRun with highest run number. 
+    /// Deletes the RaceRun with highest run number.
     /// </summary>
     /// <seealso cref="GetRun()"/>
     public void DeleteRaceRun()
@@ -1314,9 +1314,9 @@ namespace RaceHorologyLib
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChangedEventHandler handler = PropertyChanged;
@@ -1490,7 +1490,7 @@ namespace RaceHorologyLib
     /// <remarks>
     /// This object is usually created by the method AppDataModel.CreateRaceRun()
     /// </remarks>
-    /// 
+    ///
     public RaceRun(uint run, Race race, AppDataModel appDataModel)
     {
       _run = run;
@@ -2047,9 +2047,9 @@ namespace RaceHorologyLib
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChangedEventHandler handler = PropertyChanged;
