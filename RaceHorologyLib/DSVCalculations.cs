@@ -196,7 +196,7 @@ namespace RaceHorologyLib
         if (i == 0)
           _bestTime = items[i].TotalTime;
 
-        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), CalculatePoints(items[i], false)));
+        _topTen.Add(new TopTenResult(items[i], cutOffPoints(items[i].Participant.Points), cutOffPoints(CalculatePoints(items[i], false))));
 
         // Remember time of 10th
         if (_topTen.Count == 10)
@@ -269,7 +269,7 @@ namespace RaceHorologyLib
 
       foreach (var rri in _topFiveDSV)
       {
-        valueB += rri.Participant.Points;
+        valueB += cutOffPoints(rri.Participant.Points);
       }
 
       _penaltyB = Math.Round(valueB, 2, MidpointRounding.AwayFromZero);
