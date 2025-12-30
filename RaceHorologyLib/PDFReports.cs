@@ -414,7 +414,7 @@ namespace RaceHorologyLib
 
 
 
-       if (!string.IsNullOrEmpty(_headline) && _displayDSVLogo == true)
+      if (!string.IsNullOrEmpty(_headline) && _displayDSVLogo == true)
         tableHeader.AddCell(new Cell()
           .SetTextAlignment(TextAlignment.CENTER)
           .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -2753,22 +2753,22 @@ namespace RaceHorologyLib
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createParagraph(string.Format("{0}", item.TotalTime.ToRaceTimeString()))));
+            .Add(createParagraph(string.Format("{0}", item.RRI.TotalTime.ToRaceTimeString()))));
 
           table.AddCell(createCellForTable(TextAlignment.CENTER)
             .SetBackgroundColor(bgColor)
-            .Add(createParagraph(item.Participant.Participant.CodeOrSvId)));
+            .Add(createParagraph(item.RRI.Participant.Participant.CodeOrSvId)));
           table.AddCell(createCellForTable()
             .SetBackgroundColor(bgColor)
-            .Add(createParagraph(item.Participant.Participant.Fullname)));
+            .Add(createParagraph(item.RRI.Participant.Participant.Fullname)));
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createParagraph(formatPoints(item.Participant.Points))));
+            .Add(createParagraph(formatPoints(item.DSVPoints))));
 
           table.AddCell(createCellForTable(TextAlignment.RIGHT)
             .SetBackgroundColor(bgColor)
-            .Add(createParagraph(formatRang(item))));
+            .Add(createParagraph(formatRang(item.RRI))));
         }
 
         table.AddCell(createCellForTable(4)

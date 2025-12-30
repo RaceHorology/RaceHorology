@@ -84,7 +84,7 @@ namespace RaceHorologyLib
 
     TimeSpan? _bestTime;
     List<TopTenResult> _topTen;
-    List<RaceResultItem> _topFiveDSV;
+    List<TopTenResult> _topFiveDSV;
 
 
 
@@ -104,7 +104,7 @@ namespace RaceHorologyLib
     public double PenaltyC { get { return _penaltyC; } }
 
     public List<TopTenResult> TopTen { get { return _topTen; } }
-    public List<RaceResultItem> TopFiveDSV { get { return _topFiveDSV; } }
+    public List<TopTenResult> TopFiveDSV { get { return _topFiveDSV; } }
 
 
     public DSVRaceCalculation(Race race, RaceResultViewProvider vpSource, char sex)
@@ -269,7 +269,7 @@ namespace RaceHorologyLib
 
       foreach (var rri in _topFiveDSV)
       {
-        valueB += cutOffPoints(rri.Participant.Points);
+        valueB += cutOffPoints(rri.DSVPoints);
       }
 
       _penaltyB = Math.Round(valueB, 2, MidpointRounding.AwayFromZero);
@@ -286,7 +286,7 @@ namespace RaceHorologyLib
 
     void findBestFiveDSV()
     {
-      _topFiveDSV = new List<RaceResultItem>();
+      _topFiveDSV = new List<TopTenResult>();
 
 
       for (int i = 0; i < 5; i++)
@@ -307,7 +307,7 @@ namespace RaceHorologyLib
               if (rri.Participant.Points < bestPoints)
               {
                 // Esnure not yet added
-                if (!_topFiveDSV.Exists(x => x == rri))
+                if (!_topFiveDSV.Exists(x => x.RRI == rri))
                 {
                   bestPoints = rri.Participant.Points;
                   bestRRI = rri;
@@ -318,7 +318,7 @@ namespace RaceHorologyLib
         }
 
         if (bestRRI != null)
-          _topFiveDSV.Add(bestRRI);
+          _topFiveDSV.Add(new TopTenResult(bestRRI, cutOffPoints(bestRRI.Participant.Points), cutOffPoints(bestRRI.Points)));
       }
     }
 
