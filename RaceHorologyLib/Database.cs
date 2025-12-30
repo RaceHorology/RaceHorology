@@ -33,7 +33,6 @@
  * 
  */
 
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -161,7 +160,47 @@ namespace RaceHorologyLib
       checkOrUpgradeSchema_RHMisc();
       checkOrUpgradeSchema_tblKategorie();
       checkOrUpgradeSchema_RHTimestamps();
+      checkOrUpgradeSchema_ReferreReport();
+      checkOrUpgradeSchema_Certifiate();
       checkOrUpgradeDBVersion();
+    }
+
+
+    void checkOrUpgradeSchema_Certifiate()
+    {
+      if (existsTable("XtblUrkunde"))
+        return;
+
+      // Create TABLE 
+      string sql = @"
+        CREATE TABLE XtblUrkunde (
+          [Disziplin] LONG NOT NULL, 
+          [id] LONG NOT NULL, 
+          [TxText] TEXT(150),
+          [TxFont] TEXT(50), 
+          [TxAlign] SMALLINT,   
+          [TxVpos] SMALLINT,   
+          [TxHpos] SMALLINT    
+        )";
+
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
+    }
+
+    void checkOrUpgradeSchema_ReferreReport()
+    {
+      if (existsTable("XtblSRBericht"))
+        return;
+
+      // Create TABLE 
+      string sql = @"
+        CREATE TABLE XtblSRBericht (
+          [Disziplin] BYTE NOT NULL, 
+          [Feld] LONGTEXT,
+          [Wert] LONGTEXT    
+        )";
+      OleDbCommand cmd = new OleDbCommand(sql, _conn);
+      int res = cmd.ExecuteNonQuery();
     }
 
     void checkOrUpgradeSchema_RHMisc()
@@ -558,7 +597,7 @@ namespace RaceHorologyLib
         cmd.Parameters.Add(new OleDbParameter("@klasse", DBNull.Value));
       else
         cmd.Parameters.Add(new OleDbParameter("@klasse", GetParticipantClassId(participant.Class)));
-      
+
       if (participant.Team == null)
         cmd.Parameters.Add(new OleDbParameter("@mannschaft", DBNull.Value));
       else
@@ -924,7 +963,8 @@ namespace RaceHorologyLib
           {
             switch (id)
             {
-              case 0: props.Analyzer = value; break;
+              case 0: props.Analyzer.Name = value; break;
+              case 100001: props.Analyzer.Club = value; break;
               case 1: break; // Skip, is TimingDevice, read in another function
               case 2: props.Organizer = value; break;
               case 3: props.RaceReferee.Name = value; break;
@@ -1021,7 +1061,8 @@ namespace RaceHorologyLib
       // Location is stored in tblBewerb
       storeRacePropertyInternal(race, props.Location);
 
-      storeRacePropertyInternal(race, 0, props.Analyzer);
+      storeRacePropertyInternal(race, 0, props.Analyzer.Name);
+      storeRacePropertyInternal(race, 100001, props.Analyzer.Club);
       storeRacePropertyInternal(race, 2, props.Organizer);
       storeRacePropertyInternal(race, 3, props.RaceReferee.Name);
       storeRacePropertyInternal(race, 4, props.RaceReferee.Club);
@@ -2205,6 +2246,97 @@ namespace RaceHorologyLib
     }
 
 
+    private void CreateOrUpdateReferreReportItem(RefereeReportItem rrItem, Race race)
+    {
+      int disziplin = (int)race.RaceType;
+
+      // 1) Delete all old rows for this Disziplin and Feld
+      string deleteSql =
+          @"DELETE FROM XtblSRBericht WHERE Disziplin = @d and Feld = @Feld";
+      using (var deleteCmd = new OleDbCommand(deleteSql, _conn))
+      {
+        deleteCmd.Parameters.Add(new OleDbParameter("@d", disziplin));
+        deleteCmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
+        deleteCmd.ExecuteNonQuery();
+      }
+
+      OleDbCommand cmd;
+      string sql = @"INSERT INTO XtblSRBericht (Disziplin, Feld, Wert) " +
+                   @"VALUES (@Disziplin, @Feld, @Wert) ";
+      cmd = new OleDbCommand(sql, _conn);
+
+      cmd.Parameters.Add(new OleDbParameter("@Disziplin", (int)race.RaceType));
+      cmd.Parameters.Add(new OleDbParameter("@Feld", rrItem.Key));
+      if (string.IsNullOrEmpty(rrItem.Value))
+        cmd.Parameters.Add(new OleDbParameter("@Wert", ""));
+      else
+        cmd.Parameters.Add(new OleDbParameter("@Wert", rrItem.Value));
+
+      cmd.CommandType = CommandType.Text;
+      try
+      {
+        Logger.Debug("CreateOrUpdateReferreReportItem(), SQL: {0}", GetDebugSqlString(cmd));
+
+        int temp = cmd.ExecuteNonQuery();
+        Debug.Assert(temp == 1, "Database could not be updated" + GetDebugSqlString(cmd));
+
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "CreateOrUpdateReferreReportItem failed, SQL: {0}", GetDebugSqlString(cmd));
+      }
+    }
+
+    private Dictionary<string, string> GetRefereeReportData(Race race)
+    {
+      var pcm = new PrintCertificateModel();
+
+      string sql = @"SELECT * " +
+                   @"FROM XtblSRBericht " +
+                   @"WHERE Disziplin = @disziplin";
+
+      OleDbCommand command = new OleDbCommand(sql, _conn);
+      command.Parameters.Add(new OleDbParameter("@disziplin", (int)race.RaceType));
+      Dictionary<string, string> dict = new Dictionary<string, string>();
+
+      try
+      {
+        // Execute command  
+        using (OleDbDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            if (!reader.IsDBNull(reader.GetOrdinal("Feld")) && !reader.IsDBNull(reader.GetOrdinal("Wert")))
+            {
+              dict.Add(reader["Feld"].ToString().Trim(), reader["Wert"].ToString().Trim());
+            }
+          }
+        }
+      }
+      catch (System.Data.OleDb.OleDbException)
+      {
+        return dict;
+      }
+
+      return dict;
+    }
+
+    public RefereeReportItems GetRefereeReport(Race race)
+    {
+      Dictionary<string, string> d = GetRefereeReportData(race);
+      var report = new RefereeReportItems(d);
+      report.updateList(race);
+      return report;
+    }
+
+    public void SaveRefereeReport(Race race, RefereeReportItems report)
+    {
+      foreach (RefereeReportItem item in report.RefReportItemList)
+      {
+        CreateOrUpdateReferreReportItem(item, race);
+      }
+    }
+
 
 
     public PrintCertificateModel GetCertificateModel(Race race)
@@ -2248,7 +2380,47 @@ namespace RaceHorologyLib
       return pcm;
     }
 
+    public void SaveCertificateModel(Race race, PrintCertificateModel model)
+    {
+      int disziplin = (int)race.RaceType;
 
+      // 1) Delete all old rows for this Disziplin
+      string deleteSql =
+          @"DELETE FROM XtblUrkunde WHERE Disziplin = @d";
+
+      using (var deleteCmd = new OleDbCommand(deleteSql, _conn))
+      {
+        deleteCmd.Parameters.Add(new OleDbParameter("@d", disziplin));
+        deleteCmd.ExecuteNonQuery();
+      }
+
+      // 2) Insert each TextItem in order
+      string insertSql =
+          @"INSERT INTO XtblUrkunde
+            (Disziplin, id, TxText, TxFont, TxAlign, TxVpos, TxHpos)
+          VALUES
+            (@d, @id, @text, @font, @align, @vpos, @hpos)";
+
+      int id = 1;
+
+      foreach (var item in model.TextItems)
+      {
+        using (var insertCmd = new OleDbCommand(insertSql, _conn))
+        {
+          insertCmd.Parameters.Add(new OleDbParameter("@d", disziplin));
+          insertCmd.Parameters.Add(new OleDbParameter("@id", id));
+          insertCmd.Parameters.Add(new OleDbParameter("@text", item.Text ?? ""));
+          insertCmd.Parameters.Add(new OleDbParameter("@font", item.Font ?? ""));
+          insertCmd.Parameters.Add(new OleDbParameter("@align", (short)item.Alignment));
+          insertCmd.Parameters.Add(new OleDbParameter("@vpos", (short)item.VPos));
+          insertCmd.Parameters.Add(new OleDbParameter("@hpos", (short)item.HPos));
+
+          insertCmd.ExecuteNonQuery();
+
+          id++;
+        }
+      }
+    }
 
     private static int GetLatestAutonumber(OleDbConnection connection)
     {

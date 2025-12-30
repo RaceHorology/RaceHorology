@@ -248,6 +248,18 @@ namespace RaceHorology
       dlg.Show();
     }
 
+    private void CertificateDesignerCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      var race = _dataModel.GetCurrentRace();
+
+      if (race == null)
+        return;
+
+      CertificateDesignerDlg dlg = new CertificateDesignerDlg();
+      dlg.Init(_dataModel, race);
+      dlg.Owner = this;
+      dlg.Show();
+    }
 
     private void ImportTimeCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {

@@ -1,15 +1,11 @@
 ﻿using CefSharp;
 using CefSharp.Wpf;
-using RaceHorology.Properties;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Web;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace RaceHorology
 {
@@ -81,6 +77,7 @@ namespace RaceHorology
       items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => new CertificatesPrintUC() });
       items.Add(new ReportItem { Text = "Zeitnehmer Checkliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new TimerReport(rr) : (IPDFReport)new TimerReport(rr); } });
       items.Add(new ReportItem { Text = "Schiedsrichter Protokoll", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
+      items.Add(new ReportItem { Text = "Schiedsrichterbericht", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeReport(rr); } });
 
       cmbReport.ItemsSource = items;
       cmbReport.SelectedIndex = 0;
@@ -111,7 +108,6 @@ namespace RaceHorology
       if (cmbReport.SelectedItem is ReportItem ri)
       {
         cmbRaceRun.IsEnabled = ri.NeedsRaceRun;
-
         triggerRefresh();
       }
     }

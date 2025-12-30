@@ -56,6 +56,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.DataVisualization" />
     <Reference Include="System.Windows.Forms" />
@@ -75,6 +76,8 @@
     <Compile Include="AppDataModelCalculations.cs" />
     <Compile Include="AppDataModelDB.cs" />
     <Compile Include="AppDataModelViews.cs" />
+    <Compile Include="RefereeReport.cs" />
+    <Compile Include="RefereeReportItems.cs" />
     <Compile Include="Teams.cs" />
     <Compile Include="ClassesGroupsCategories.cs" />
     <Compile Include="COMPortViewModel.cs" />
@@ -231,6 +234,11 @@
     <None Include="raceconfigpresets\Vielseitigkeit %28Punkte%29.preset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\pdf\DSV_Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
