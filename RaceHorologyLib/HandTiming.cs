@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using iText.Kernel.Colors;
@@ -62,23 +62,23 @@ namespace RaceHorologyLib
 
     internal RunResult OriginalRunResult { get { return _runResult; } }
 
-    public uint? StartNumber 
-    { 
+    public uint? StartNumber
+    {
       get { return _startNumber; }
       set { if (_startNumber != value) { _startNumber = value; notifyPropertyChanged(); } }
     }
-    public TimeSpan? StartTime 
-    { 
+    public TimeSpan? StartTime
+    {
       get { return _startTime; }
       set { if (_startTime != value) { _startTime = value; notifyPropertyChanged(); } }
     }
-    public TimeSpan? FinishTime 
-    { 
+    public TimeSpan? FinishTime
+    {
       get { return _finishTime; }
       set { if (_finishTime != value) { _finishTime = value; notifyPropertyChanged(); } }
     }
-    public TimeSpan? RunTime 
-    { 
+    public TimeSpan? RunTime
+    {
       get { return _runTime; }
       set { if (_runTime != value) { _runTime = value; notifyPropertyChanged(); } }
     }
@@ -115,7 +115,7 @@ namespace RaceHorologyLib
     public ETimeModus TimeModus
     {
       get { return _timeModus; }
-      set 
+      set
       {
         if (_timeModus != value)
         {
@@ -223,9 +223,9 @@ namespace RaceHorologyLib
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void notifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -287,8 +287,8 @@ namespace RaceHorologyLib
     public HandTimingVMEntry.ETimeModus TimeModus
     {
       get { return _timeModus; }
-      set 
-      { 
+      set
+      {
         if (_timeModus != value)
         {
           _timeModus = value;
@@ -335,7 +335,7 @@ namespace RaceHorologyLib
 
 
     public void AddRunResults(IEnumerable<RunResult> runResults)
-    { 
+    {
       foreach(var rr in runResults)
       {
         HandTimingVMEntry e = findEntry(rr);
@@ -668,7 +668,7 @@ namespace RaceHorologyLib
       var keyParts = key.Split('_');
       if (keyParts.Length != 3)
         return false;
-      
+
       foreach(var r in _dm.GetRaces())
       {
         if (r.RaceType.ToString() == keyParts[0])
@@ -714,7 +714,7 @@ namespace RaceHorologyLib
 
     protected override string getReportName()
     {
-      return string.Format("Handzeitberechnung - StNr {0} - {1}", 
+      return string.Format("Handzeitberechnung - StNr {0} - {1}",
         _calculation.EntryToCalculate.StartNumber, _calculation.EntryToCalculate.TimeModus);
     }
 
@@ -762,19 +762,19 @@ namespace RaceHorologyLib
       table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Startzeit")));
-      
+
       table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Zielzeit")));
-      
+
       table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Laufzeit")));
-      
+
       table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Handzeit")));
-      
+
       table.AddHeaderCell(createCellForTable(TextAlignment.CENTER)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Differenz")));

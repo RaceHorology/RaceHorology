@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -82,7 +82,7 @@ namespace RaceHorologyLibTest
     // [ClassCleanup()]
     // public static void MyClassCleanup() { }
     //
-    // Use TestInitialize to run code before running each test 
+    // Use TestInitialize to run code before running each test
     // [TestInitialize()]
     // public void MyTestInitialize() { }
     //
@@ -374,9 +374,9 @@ namespace RaceHorologyLibTest
       TestDataGenerator testData = new TestDataGenerator();
 
       var participants = testData.createRaceParticipants(100);
-      // Point distribution based on Id: 
-      // 1..80 increasing, 
-      // 81..90: 999.9, 
+      // Point distribution based on Id:
+      // 1..80 increasing,
+      // 81..90: 999.9,
       // 91..100 equal 9999.9
       for(int i=0; i<participants.Count; i++)
       {
@@ -397,7 +397,7 @@ namespace RaceHorologyLibTest
 
         ps.AssignParticipants(participants);
 
-        // Check: 
+        // Check:
         foreach (var a in sna.ParticipantList)
         {
           int id = int.Parse(a.Participant.Id);
@@ -422,7 +422,7 @@ namespace RaceHorologyLibTest
 
         ps.AssignParticipants(participants);
 
-        // Check: 
+        // Check:
         foreach (var a in sna.ParticipantList)
         {
           int id = int.Parse(a.Participant.Id);
@@ -447,8 +447,8 @@ namespace RaceHorologyLibTest
       TestDataGenerator testData = new TestDataGenerator();
 
       var participants = testData.createRaceParticipants(20);
-      // Point distribution: 
-      //  1..10 increasing, 
+      // Point distribution:
+      //  1..10 increasing,
       // 11..15 equal 9999.9 // = no points
       // 16..20 equal -1     // = no points
       for (int i = 0; i < participants.Count; i++)
@@ -470,7 +470,7 @@ namespace RaceHorologyLibTest
 
         ps.AssignParticipants(participants);
 
-        // Check: 
+        // Check:
         foreach (var a in sna.ParticipantList)
         {
           int id = int.Parse(a.Participant.Id);

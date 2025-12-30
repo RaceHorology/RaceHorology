@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -54,9 +54,9 @@ namespace RaceHorologyLib
 
 
   /// <summary>
-  /// Main data structure to transfer the measured time data from the Live Timing Measurement Device to the application 
+  /// Main data structure to transfer the measured time data from the Live Timing Measurement Device to the application
   /// It contains all fields to identify the runner, start / finish time as well as potentailly calculated runtime.
-  /// 
+  ///
   /// Note: Intermediate not yet supported
   /// </summary>
   public class TimeMeasurementEventArgs : EventArgs
@@ -233,9 +233,9 @@ namespace RaceHorologyLib
 
     #region INotifyPropertyChanged implementation
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -405,7 +405,7 @@ namespace RaceHorologyLib
     }
 
     /// <summary>
-    /// Callback of the timing device in case of timing data received 
+    /// Callback of the timing device in case of timing data received
     /// </summary>
     private void OnTimeMeasurementReceived(object sender, TimeMeasurementEventArgs e)
     {
@@ -456,7 +456,7 @@ namespace RaceHorologyLib
 
 
     /// <summary>
-    /// Callback of the timing device in case of timing data received 
+    /// Callback of the timing device in case of timing data received
     /// </summary>
     private void OnStartnumberSelectedReceived(object sender, StartnumberSelectedEventArgs e)
     {
@@ -641,7 +641,7 @@ namespace RaceHorologyLib
           toPurge.Add(se);
         }
 
-        // Loop 
+        // Loop
         for (int i = 0; i < toPurge.Count() - Math.Abs(_startersTillAutoNaS); i++)
         {
           RaceParticipant rp = toPurge[i].Participant;

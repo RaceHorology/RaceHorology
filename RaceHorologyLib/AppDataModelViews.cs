@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -45,7 +45,7 @@ using static RaceHorologyLib.ViewProviderHelpers;
 
 namespace RaceHorologyLib
 {
-  /* Just fro Debugging 
+  /* Just fro Debugging
   class DebugSort : System.Collections.IComparer
   {
     public int Compare(object x, object y)
@@ -358,8 +358,8 @@ namespace RaceHorologyLib
   /// Provides a start list based on startnumber and points following the criterias:
   /// - Best first firstNStartnumbers (15) based on the points are randomized
   /// - Succeeding start list entries are sorted based on the points
-  /// 
-  /// Use case: 
+  ///
+  /// Use case:
   /// - Define start numbers based on DSV rules (15 random, remaining points descending)
   /// - Late registration: shall not influence first 15, however it shall be in the correct order after the first 15 starters.
   /// </summary>
@@ -634,7 +634,7 @@ namespace RaceHorologyLib
       TimeSpan? lastRuntime = null;
       foreach (var item in resultsCurGroup)
       {
-        // Maximum 
+        // Maximum
         if (firstBestN >= _reverseBestN && (item.Runtime != lastRuntime && lastRuntime != null))
           break;
 
@@ -733,7 +733,7 @@ namespace RaceHorologyLib
       _raceRun.GetResultList().CollectionChanged += OnResultsChanged;
       _raceRun.GetResultList().ItemChanged += OnResultItemChanged;
 
-      // Observe StartList 
+      // Observe StartList
       _viewList.CollectionChanged += OnStartListEntriesChanged;
       //_viewList.ItemChanged += OnStartListEntryItemChanged;
 
@@ -1615,7 +1615,7 @@ namespace RaceHorologyLib
       }
 
       // It may happen, that caused by _lastConsideredRuns a race gets removed resulting in not-updated SubResults
-      // In this casethe corresponding SubResult has to be removed 
+      // In this casethe corresponding SubResult has to be removed
       List<uint> toDelete = new List<uint>();
       foreach (var t in rri.SubResults) if (!results.ContainsKey(t.Key)) toDelete.Add(t.Key);
       foreach (var k in toDelete) rri.SubResults.Remove(k);

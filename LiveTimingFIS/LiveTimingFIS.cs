@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using RaceHorologyLib;
@@ -260,7 +260,7 @@ namespace LiveTimingFIS
   {
     protected class Utf8StringWriter : StringWriter
     {
-      // Use UTF8 encoding 
+      // Use UTF8 encoding
       public override Encoding Encoding
       {
         get { return new UTF8Encoding(false); }
@@ -324,16 +324,16 @@ namespace LiveTimingFIS
     public Race Race
     {
       set
-      { 
+      {
         if (Connected)
           throw new Exception("Race cannot be set if already connected");
 
-        _race = value; 
+        _race = value;
       }
-      
-      get 
-      { 
-        return _race; 
+
+      get
+      {
+        return _race;
       }
     }
 
@@ -387,7 +387,7 @@ namespace LiveTimingFIS
 
       _tcpClient.Dispose();
       _tcpClient = null;
-      
+
       clearScheduledTransfers();
 
       _receiveThread.Join();
@@ -761,7 +761,7 @@ namespace LiveTimingFIS
           int i = 1;
           foreach (var sle in startList)
           {
-            // Skip participants which are not "FIS compliant" 
+            // Skip participants which are not "FIS compliant"
             if (checkParticipantFisCompliant(sle.Participant))
             {
               xw.WriteStartElement("racer");
@@ -789,7 +789,7 @@ namespace LiveTimingFIS
 
     /// <summary>
     /// Checks whether the participant seems to be FIS compliant
-    /// 
+    ///
     /// - FIS does not accept participants with invalid FIS code
     /// </summary>
     private bool checkParticipantFisCompliant(RaceParticipant rp)
@@ -862,7 +862,7 @@ namespace LiveTimingFIS
 
           xw.WriteStartElement("raceevent");
 
-          // Skip participants which are not "FIS compliant" 
+          // Skip participants which are not "FIS compliant"
           if (checkParticipantFisCompliant(result.Participant))
           {
             if (result.ResultCode == RunResult.EResultCode.Normal && result.Runtime != null)

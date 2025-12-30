@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using iText.IO.Font;
@@ -805,7 +805,7 @@ namespace RaceHorologyLib
 
 
 
-  /** Base class for generating reports specific to a race 
+  /** Base class for generating reports specific to a race
    *  It does not have any page specific setups, yet.
    */
   public abstract class PDFBaseRaceReport : IPDFReport
@@ -864,7 +864,7 @@ namespace RaceHorologyLib
   }
 
 
-  /** Base class for generating reports specific to a race 
+  /** Base class for generating reports specific to a race
    *  It is intended for reports with a header / footer and has a margin set
    */
   public abstract class PDFRaceReport : PDFBaseRaceReport
@@ -2515,7 +2515,7 @@ namespace RaceHorologyLib
       //  MemoryStream chartStreamWMF = new MemoryStream();
       //  fileHelper.RenderToWmf(chartStreamWMF, _race.GetResultViewProvider());
 
-      //  // Create an iText Image 
+      //  // Create an iText Image
       //  //WmfImageData imgData = new WmfImageData(chartStreamWMF.ToArray());
       //  WmfImageData imgData = new WmfImageData(@"c:\trash\test.wmf");
       //  var pdfFormxObj = new PdfFormXObject(imgData, pdf);
@@ -2531,7 +2531,7 @@ namespace RaceHorologyLib
         MemoryStream imgStream = new MemoryStream();
         fileHelper.RenderToImage(imgStream, _race.GetResultViewProvider());
 
-        // Create an iText Image 
+        // Create an iText Image
         var imgData = new Image(ImageDataFactory.Create(imgStream.ToArray()));
         // Render the image
         PdfCanvas pdfCanvas = new PdfCanvas(page);

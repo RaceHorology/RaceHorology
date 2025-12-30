@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -64,9 +64,9 @@ namespace RaceHorologyLib
     #region INotifyPropertyChanged implementation
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -103,11 +103,11 @@ namespace RaceHorologyLib
 
     public event EventHandler NextStartnumberChanged;
     public uint NextFreeStartNumber
-    { 
-      get { return _nextFreeStartNumber; } 
+    {
+      get { return _nextFreeStartNumber; }
 
-      private set 
-      { 
+      private set
+      {
         if (_nextFreeStartNumber != value)
         {
           _nextFreeStartNumber = value;
@@ -337,7 +337,7 @@ namespace RaceHorologyLib
     public event EventHandler CurrentGroupChanged;
     public event EventHandler GroupingChanged;
 
-    public abstract class ISorting : IComparer<RaceParticipant> 
+    public abstract class ISorting : IComparer<RaceParticipant>
     {
       public abstract int Compare(RaceParticipant left, RaceParticipant right);
     }
@@ -373,7 +373,7 @@ namespace RaceHorologyLib
     public string GroupProperty
     {
       get { return _groupProperty; }
-      set 
+      set
       {
         if (_groupProperty != value)
         {
@@ -411,7 +411,7 @@ namespace RaceHorologyLib
     public object CurrentGroup
     {
       get { return _currentGroup; }
-      private set 
+      private set
       {
         if (_currentGroup != value)
         {
@@ -619,4 +619,3 @@ namespace RaceHorologyLib
 
   }
 }
-  

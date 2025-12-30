@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -87,7 +87,7 @@ namespace RaceHorologyLibTest
     // [ClassCleanup()]
     // public static void MyClassCleanup() { }
     //
-    // Use TestInitialize to run code before running each test 
+    // Use TestInitialize to run code before running each test
     // [TestInitialize()]
     // public void MyTestInitialize() { }
     //
@@ -825,7 +825,7 @@ namespace RaceHorologyLibTest
       OleDbCommand command = new OleDbCommand(sql, conn);
       command.Parameters.Add(new OleDbParameter("@id", id));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
@@ -969,7 +969,7 @@ namespace RaceHorologyLibTest
       OleDbCommand command = new OleDbCommand(sql, conn);
       command.Parameters.Add(new OleDbParameter("@id", id));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
@@ -1048,7 +1048,7 @@ namespace RaceHorologyLibTest
       OleDbCommand command = new OleDbCommand(sql, conn);
       command.Parameters.Add(new OleDbParameter("@name", name));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
@@ -1139,7 +1139,7 @@ namespace RaceHorologyLibTest
       OleDbCommand command = new OleDbCommand(sql, conn);
       command.Parameters.Add(new OleDbParameter("@id", id));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
@@ -1233,7 +1233,7 @@ namespace RaceHorologyLibTest
       OleDbCommand command = new OleDbCommand(sql, conn);
       command.Parameters.Add(new OleDbParameter("@id", id));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
@@ -1295,14 +1295,14 @@ namespace RaceHorologyLibTest
       rr1r1.SetStartTime(rr1r1.GetStartTime()); //int days, int hours, int minutes, int seconds, int milliseconds
       rr1r1.SetFinishTime(new TimeSpan(0, 12, 1, 0, 0)); //int days, int hours, int minutes, int seconds, int milliseconds
       // Test whether run time is stored in DB, Part 1/2 (Preparation)
-      Assert.IsNull(rr1.GetRunResult(participant1).GetRunTime(false, false)); 
+      Assert.IsNull(rr1.GetRunResult(participant1).GetRunTime(false, false));
       db.CreateOrUpdateRunResult(race, rr1, rr1r1);
       DBCacheWorkaround();
       rr1r1._participant = participant1 = race.GetParticipants().Where(x => x.Name == "Nachname 1").FirstOrDefault();
       Assert.IsTrue(CheckRunResult(dbFilename, rr1r1, 1, 1));
 
       // Test whether run time is stored in DB, Part 2/2
-      Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 0), rr1.GetRunResult(participant1).GetRunTime(false, false)); 
+      Assert.AreEqual(new TimeSpan(0, 0, 1, 0, 0), rr1.GetRunResult(participant1).GetRunTime(false, false));
 
       rr1r1.SetStartTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
       rr1r1.SetFinishTime(null); //int days, int hours, int minutes, int seconds, int milliseconds
@@ -1356,7 +1356,7 @@ namespace RaceHorologyLibTest
       command.Parameters.Add(new OleDbParameter("@disziplin", 2)); // TODO: Add correct disiziplin
       command.Parameters.Add(new OleDbParameter("@durchgang", raceRun));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
@@ -1569,7 +1569,7 @@ namespace RaceHorologyLibTest
       rr1.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 12, 0, 0, 1), EMeasurementPoint.Finish, 1, true));
       rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 0), EMeasurementPoint.Start, 2, true));
       rr2.GetTimestamps().Add(new Timestamp(new TimeSpan(0, 13, 0, 0, 1), EMeasurementPoint.Start, 0, false));
-        
+
       DBCacheWorkaround();
       Assert.AreEqual(2, rr1.GetTimestamps().Count);
       Assert.AreEqual(new TimeSpan(0, 12, 0, 0, 0), rr1.GetTimestamps()[0].Time);
@@ -1616,7 +1616,7 @@ namespace RaceHorologyLibTest
       command.Parameters.Add(new OleDbParameter("@durchgang", raceRun.Run));
       command.Parameters.Add(new OleDbParameter("@zeit", Database.FractionForTimeSpan(ts.Time)));
 
-      // Execute command  
+      // Execute command
       using (OleDbDataReader reader = command.ExecuteReader())
       {
         if (reader.Read())
