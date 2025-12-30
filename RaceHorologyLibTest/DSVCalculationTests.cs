@@ -33,11 +33,10 @@
  *
  */
 
-using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace RaceHorologyLibTest
@@ -173,7 +172,7 @@ namespace RaceHorologyLibTest
         race.RaceConfiguration.ValueF = valueF;
         race.RaceConfiguration.ValueA = valueA;
         race.RaceConfiguration.ValueZ = valueZ;
-        race.RaceConfiguration.MinimumPenalty= minPenalty;
+        race.RaceConfiguration.MinimumPenalty = minPenalty;
         DSVRaceCalculation raceCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
         raceCalcW.CalculatePenalty();
 
@@ -221,7 +220,7 @@ namespace RaceHorologyLibTest
         new TestData{ Points = -1.0, RunTime = 52.0},
         new TestData{ Points = -1.0, RunTime = 51.0}
       };
-      Assert.AreEqual(124.5, getCalc(td2).CalculatedPenalty);
+      Assert.AreEqual(250, getCalc(td2).CalculatedPenalty);
 
       var td3 = new List<TestData>
       {
@@ -236,7 +235,7 @@ namespace RaceHorologyLibTest
         new TestData{ Points = 11.0, RunTime = 52.0},
         new TestData{ Points = 12.0, RunTime = 51.0}
       };
-      Assert.AreEqual(56.4, getCalc(td3).CalculatedPenalty);
+      Assert.AreEqual(106, 6, getCalc(td3).CalculatedPenalty);
 
       // Test for FIS Points Rules §4.4.5 (more then 1 participant at position 10)
       var td4 = new List<TestData>
@@ -254,7 +253,7 @@ namespace RaceHorologyLibTest
         new TestData{ Points = 12.0, RunTime = 51.0}
       };
       Assert.AreEqual(11, getCalc(td4).TopTen.Count);
-      Assert.AreEqual(32.2, getCalc(td4).CalculatedPenalty);
+      Assert.AreEqual(82.4, getCalc(td4).CalculatedPenalty);
 
       // CalculationValid checks
       Assert.IsTrue(getCalc(td4).CalculationValid);
