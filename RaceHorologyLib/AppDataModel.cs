@@ -684,7 +684,7 @@ namespace RaceHorologyLib
     public DateTime? DateStartList { get; set; }
     public DateTime? DateResultList { get; set; }
 
-    public string Analyzer { get; set; }
+    public Person Analyzer { get; set; } = new Person();
     public string Organizer { get; set; }
     public Person RaceReferee { get; set; } = new Person(); // Schiedsrichter
     public Person RaceManager { get; set; } = new Person(); // Rennleiter
@@ -713,7 +713,7 @@ namespace RaceHorologyLib
         && string.Equals(p1?.Description, p2?.Description)
         && p1?.DateStartList == p2?.DateStartList
         && p1?.DateResultList == p2?.DateResultList
-        && string.Equals(p1?.Analyzer, p2?.Analyzer)
+        && Person.Equals(p1?.Analyzer, p2?.Analyzer)
         && string.Equals(p1?.Organizer, p2?.Organizer)
         && Person.Equals(p1?.RaceReferee, p2?.RaceReferee)
         && Person.Equals(p1?.RaceManager, p2?.RaceManager)

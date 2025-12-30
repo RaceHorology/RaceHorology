@@ -167,11 +167,23 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CertificateDesignerDlg.xaml.cs">
+      <DependentUpon>CertificateDesignerDlg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CertificateDesignerImportDlg.xaml.cs">
+      <DependentUpon>CertificateDesignerImportDlg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CertificateDesignerUC.xaml.cs">
+      <DependentUpon>CertificateDesignerUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CertificatesPrintUC.xaml.cs">
       <DependentUpon>CertificatesPrintUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="RaceConfigurationTeamUC.xaml.cs">
       <DependentUpon>RaceConfigurationTeamUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RefereeReportUC.xaml.cs">
+      <DependentUpon>RefereeReportUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="TeamsUC.xaml.cs">
       <DependentUpon>TeamsUC.xaml</DependentUpon>
@@ -286,11 +298,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="CertificateDesignerDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CertificateDesignerImportDlg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CertificateDesignerUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CertificatesPrintUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RaceConfigurationTeamUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RefereeReportUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
