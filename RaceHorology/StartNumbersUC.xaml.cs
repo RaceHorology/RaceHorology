@@ -137,7 +137,7 @@ namespace RaceHorology
       {
         _snaWorkspace.LoadFromRace(_race, true);
 
-        UiUtilities.FillGrouping(cmbGrouping, _race.RaceConfiguration.Run1_StartistViewGrouping);
+        UiUtilities.FillGrouping(cmbGrouping, _race.RaceConfiguration.Run1_StartistViewGrouping, _race.RaceConfiguration.ActiveFields);
         txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
 
         SetupDefaults();
