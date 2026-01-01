@@ -930,6 +930,12 @@ namespace RaceHorologyLib
         groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Group, rrY.Participant?.Participant?.Group);
       else if (_groupingPropertyName == "Participant.Sex")
         groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY.Participant?.Participant?.Sex);
+      else if (_groupingPropertyName == "Participant.Club")
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Club, rrY.Participant?.Participant?.Club);
+      else if (_groupingPropertyName == "Participant.Nation")
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Nation, rrY.Participant?.Participant?.Nation);
+      else if (_groupingPropertyName == "Participant.Team")
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Team, rrY.Participant?.Participant?.Team);
 
       return groupCompare;
     }
@@ -942,6 +948,12 @@ namespace RaceHorologyLib
         groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Group, rrY?.Participant?.Participant?.Group);
       else if (_groupingPropertyName == "Participant.Sex")
         groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY?.Participant?.Participant?.Sex);
+      else if (_groupingPropertyName == "Participant.Club")
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Club, rrY.Participant?.Participant?.Club);
+      else if (_groupingPropertyName == "Participant.Nation")
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Nation, rrY.Participant?.Participant?.Nation);
+      else if (_groupingPropertyName == "Participant.Team")
+        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Team, rrY.Participant?.Participant?.Team);
 
       return groupCompare;
     }
