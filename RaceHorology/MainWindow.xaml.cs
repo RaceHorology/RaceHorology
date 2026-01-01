@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using AutoUpdaterDotNET;
@@ -248,6 +248,18 @@ namespace RaceHorology
       dlg.Show();
     }
 
+    private void CertificateDesignerCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+      var race = _dataModel.GetCurrentRace();
+
+      if (race == null)
+        return;
+
+      CertificateDesignerDlg dlg = new CertificateDesignerDlg();
+      dlg.Init(_dataModel, race);
+      dlg.Owner = this;
+      dlg.Show();
+    }
 
     private void ImportTimeCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
     {
@@ -420,7 +432,7 @@ namespace RaceHorology
 
 
     /// <summary>
-    /// Starts the web backend for the mobile clients (e.g. for speaker) 
+    /// Starts the web backend for the mobile clients (e.g. for speaker)
     /// </summary>
     /// <remarks>
     /// Also triggers the display of the URL to use / the QR code for the mobile clients
@@ -445,7 +457,7 @@ namespace RaceHorology
     }
 
     /// <summary>
-    /// Stops the web backend for the mobile clients (e.g. for speaker) 
+    /// Stops the web backend for the mobile clients (e.g. for speaker)
     /// </summary>
     private void StopDSVAlpinServer()
     {
@@ -791,9 +803,9 @@ namespace RaceHorology
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
-    // This method is called by the Set accessor of each property.  
-    // The CallerMemberName attribute that is applied to the optional propertyName  
-    // parameter causes the property name of the caller to be substituted as an argument.  
+    // This method is called by the Set accessor of each property.
+    // The CallerMemberName attribute that is applied to the optional propertyName
+    // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

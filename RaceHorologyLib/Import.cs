@@ -1,13 +1,13 @@
-﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+/*
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using ExcelDataReader;
@@ -41,8 +41,6 @@ using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
@@ -51,7 +49,7 @@ namespace RaceHorologyLib
   {
 
     DataSet Data { get; }
-    
+
     List<string> Columns { get; }
   }
 
@@ -283,7 +281,7 @@ namespace RaceHorologyLib
     };
 
     public ParticipantMapping(List<string> availableFields) : base(_requiredField.Keys, availableFields)
-    { 
+    {
     }
 
     protected override List<string> synonyms(string field)
@@ -333,10 +331,12 @@ namespace RaceHorologyLib
   public class ImportResults
   {
     int _success = 0;
+    int _skip = 0;
     int _error = 0;
     List<string> _errors;
 
     public int SuccessCount { get { return _success; } }
+    public int SkipCount { get { return _skip; } }
     public int ErrorCount { get { return _error; } }
     public List<string> Errors { get { return _errors; } }
 
@@ -349,6 +349,10 @@ namespace RaceHorologyLib
     public void AddSuccess()
     {
       _success++;
+    }
+    public void AddSkip()
+    {
+      _skip++;
     }
 
     public void AddError()
@@ -379,6 +383,12 @@ namespace RaceHorologyLib
     {
       _mapping = mapping;
       _classAssignment = classAssignment;
+    }
+
+    public bool IsColumnAssigned(string field)
+    {
+      var columnName = _mapping.MappedField(field);
+      return !(columnName == null || columnName == "---" || columnName == "");
     }
 
     public object GetValueAsObject(DataRow row, string field)
@@ -424,7 +434,7 @@ namespace RaceHorologyLib
       {
         return Convert.ToUInt32(v);
       }
-      catch(Exception)
+      catch (Exception)
       {
         return @default;
       }
@@ -455,20 +465,27 @@ namespace RaceHorologyLib
 
     public Participant CreateParticipant(DataRow row)
     {
-      Participant p = new Participant
-      {
-        Name = getNameComaSeparated(GetValueAsString(row, "Name")),
-        Firstname = getFirstNameComaSeparated(GetValueAsString(row, "Firstname")),
-        Sex = importSex(GetValueAsString(row, "Sex")),
-        Club = GetValueAsString(row, "Club"),
-        Nation = GetValueAsString(row, "Nation"),
-        SvId = GetValueAsString(row, "SvId"),
-        Code = GetValueAsString(row, "Code"),
-        Year = GetValueAsUint(row, "Year"),
-        Class = importClass(GetValueAsString(row, "Class")),
-        Team = importTeam(GetValueAsString(row, "Team")),
-      };
-
+      Participant p = new Participant();
+      if (IsColumnAssigned("Name"))
+        p.Name = getNameComaSeparated(GetValueAsString(row, "Name"));
+      if (IsColumnAssigned("Firstname"))
+        p.Firstname = getFirstNameComaSeparated(GetValueAsString(row, "Firstname"));
+      if (IsColumnAssigned("Sex"))
+        p.Sex = importSex(GetValueAsString(row, "Sex"));
+      if (IsColumnAssigned("Club"))
+        p.Club = GetValueAsString(row, "Club");
+      if (IsColumnAssigned("Nation"))
+        p.Nation = GetValueAsString(row, "Nation");
+      if (IsColumnAssigned("SvId"))
+        p.SvId = GetValueAsString(row, "SvId");
+      if (IsColumnAssigned("Code"))
+        p.Code = GetValueAsString(row, "Code");
+      if (IsColumnAssigned("Year"))
+        p.Year = GetValueAsUint(row, "Year");
+      if (IsColumnAssigned("Class"))
+        p.Class = importClass(GetValueAsString(row, "Class"));
+      if (IsColumnAssigned("Team"))
+        p.Team = importTeam(GetValueAsString(row, "Team"));
       return p;
     }
 
@@ -516,7 +533,9 @@ namespace RaceHorologyLib
       if (!string.IsNullOrEmpty(p1.Code) && !string.IsNullOrEmpty(p2.Code))
         return p1.Code == p2.Code;
 
-      return p1.Fullname == p2.Fullname;
+      return p1.Fullname == p2.Fullname
+        && (!IsColumnAssigned("Year") || p1.Year == p2.Year)
+        && (!IsColumnAssigned("Sex") || p1.Sex == p2.Sex);
     }
 
 
@@ -525,14 +544,14 @@ namespace RaceHorologyLib
       bool bRes = false;
       try
       {
-        bRes = p1.Name == getNameComaSeparated(GetValueAsString(row, "Name"))
-          && p1.Firstname == getFirstNameComaSeparated(GetValueAsString(row, "Firstname"))
-          && p1.Sex == importSex(GetValueAsString(row, "Sex"))
-          && p1.Club == GetValueAsString(row, "Club")
-          && p1.Nation == GetValueAsString(row, "Nation")
-          && p1.SvId == GetValueAsString(row, "SvId")
-          && p1.Code == GetValueAsString(row, "Code")
-          && p1.Year == GetValueAsUint(row, "Year");
+        bRes = (!IsColumnAssigned("Name") || p1.Name == getNameComaSeparated(GetValueAsString(row, "Name")))
+          && (!IsColumnAssigned("Firstname") || p1.Firstname == getFirstNameComaSeparated(GetValueAsString(row, "Firstname")))
+          && (!IsColumnAssigned("Sex") || p1.Sex == importSex(GetValueAsString(row, "Sex")))
+          && (!IsColumnAssigned("Club") || p1.Club == GetValueAsString(row, "Club"))
+          && (!IsColumnAssigned("Nation") || p1.Nation == GetValueAsString(row, "Nation"))
+          && (!IsColumnAssigned("SvId") || p1.SvId == GetValueAsString(row, "SvId"))
+          && (!IsColumnAssigned("Code") || p1.Code == GetValueAsString(row, "Code"))
+          && (!IsColumnAssigned("Year") || p1.Year == GetValueAsUint(row, "Year"));
       }
       catch (Exception)
       { }
@@ -541,15 +560,28 @@ namespace RaceHorologyLib
     }
 
 
-    public bool EqualsParticipant(Participant p1, Participant p2)
-    {
-      return p1.IsEqualTo(p2);
-    }
-
-
     public Participant UpdateParticipant(Participant partExisting, Participant partImp)
     {
-      partExisting.Assign(partImp);
+      if (IsColumnAssigned("Name"))
+        partExisting.Name = partImp.Name;
+      if (IsColumnAssigned("Firstname"))
+        partExisting.Firstname = partImp.Firstname;
+      if (IsColumnAssigned("Sex"))
+        partExisting.Sex = partImp.Sex;
+      if (IsColumnAssigned("Year"))
+        partExisting.Year = partImp.Year;
+      if (IsColumnAssigned("Club"))
+        partExisting.Club = partImp.Club;
+      if (IsColumnAssigned("SvId"))
+        partExisting.SvId = partImp.SvId;
+      if (IsColumnAssigned("Code"))
+        partExisting.Code = partImp.Code;
+      if (IsColumnAssigned("Nation"))
+        partExisting.Nation = partImp.Nation;
+      if (IsColumnAssigned("Class"))
+        partExisting.Class = partImp.Class;
+      if (IsColumnAssigned("Team"))
+        partExisting.Team = partImp.Team;
       return partExisting;
     }
 
@@ -613,37 +645,34 @@ namespace RaceHorologyLib
 
 
 
-
-
-
-
-
-
-
   public class ParticipantImport : IImport
   {
     IList<Participant> _particpants;
     ParticipantImportUtils _partImportUtils;
 
-    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null, IList<Team> teams = null) 
+
+    public ParticipantImport(IList<Participant> particpants, Mapping mapping, IList<ParticipantCategory> categories, ClassAssignment classAssignment = null, IList<Team> teams = null)
     {
       _particpants = particpants;
       _partImportUtils = new ParticipantImportUtils(mapping, categories, classAssignment, teams);
     }
 
+    public bool OnlyUpdateExisting { get; set; } = false;
 
-    public  ImportResults DoImport(DataSet ds)
+
+    public ImportResults DoImport(DataSet ds)
     {
       ImportResults impRes = new ImportResults();
 
       var rows = ds.Tables[0].Rows;
 
-      foreach(DataRow row in rows)
+      foreach (DataRow row in rows)
       {
         try
         {
-          ImportRow(row);
-          impRes.AddSuccess();
+          var participant = ImportRow(row);
+          if (participant != null) impRes.AddSuccess();
+          else impRes.AddSkip();
         }
         catch (Exception)
         {
@@ -655,21 +684,24 @@ namespace RaceHorologyLib
     }
 
 
-    public Participant ImportRow(DataRow row) 
+    public Participant ImportRow(DataRow row)
     {
       Participant partImported = null;
 
-      Participant partCreated = _partImportUtils.CreateParticipant(row);
+      Participant partCreated = _partImportUtils.CreateParticipant(row); // Only import assigned field
 
       Participant partExisting = findExistingParticpant(partCreated);
 
       if (partExisting != null)
-        partImported = _partImportUtils.UpdateParticipant(partExisting, partCreated);
-      else
+        partImported = _partImportUtils.UpdateParticipant(partExisting, partCreated); // Only update assigned fields
+      else if (!OnlyUpdateExisting)
         partImported = insertParticpant(partCreated);
 
-      if (partImported.Class == null)
-        _partImportUtils.AssignClass(partImported);
+      if (partImported != null)
+      {
+        if (partImported.Class == null)
+          _partImportUtils.AssignClass(partImported);
+      }
 
       return partImported;
     }
@@ -700,6 +732,14 @@ namespace RaceHorologyLib
       _race = race;
       _partImportUtils = new ParticipantImportUtils(mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment, teams);
       _participantImport = new ParticipantImport(_race.GetDataModel().GetParticipants(), mapping, _race.GetDataModel().GetParticipantCategories(), classAssignment, teams);
+      _participantImport.OnlyUpdateExisting = this.OnlyUpdateExisting = false;
+    }
+
+    bool _onlyUpdateExisting;
+    public bool OnlyUpdateExisting
+    {
+      get { return _onlyUpdateExisting; }
+      set { if (_onlyUpdateExisting != value) { _onlyUpdateExisting = value; _participantImport.OnlyUpdateExisting = value; } }
     }
 
 
@@ -713,7 +753,8 @@ namespace RaceHorologyLib
         try
         {
           RaceParticipant rp = ImportRow(row);
-          impRes.AddSuccess();
+          if (rp != null) impRes.AddSuccess();
+          else impRes.AddSkip();
         }
         catch (Exception)
         {
@@ -728,13 +769,15 @@ namespace RaceHorologyLib
     public RaceParticipant ImportRow(DataRow row)
     {
       Participant importedParticipant = _participantImport.ImportRow(row);
+      if (importedParticipant != null)
+      {
+        double points = _partImportUtils.GetPoints(row);
+        uint sn = _partImportUtils.GetStartNumber(row);
 
-      double points = _partImportUtils.GetPoints(row);
-      uint sn = _partImportUtils.GetStartNumber(row);
-
-      RaceParticipant rp = _race.AddParticipant(importedParticipant, sn, points);
-
-      return rp;
+        RaceParticipant rp = _race.AddParticipant(importedParticipant, sn, points);
+        return rp;
+      }
+      return null;
     }
   }
 
@@ -763,7 +806,7 @@ namespace RaceHorologyLib
       ImportResults impRes = new ImportResults();
 
       // Update the points for all participants in the race
-      foreach(var rp in _race.GetParticipants() )
+      foreach (var rp in _race.GetParticipants())
       {
         string key = string.Format("{0}_{1}", rp.Code, rp.SvId);
 

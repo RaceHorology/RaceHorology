@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,14 +30,13 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace RaceHorologyLibTest
@@ -83,7 +82,7 @@ namespace RaceHorologyLibTest
     // [ClassCleanup()]
     // public static void MyClassCleanup() { }
     //
-    // Use TestInitialize to run code before running each test 
+    // Use TestInitialize to run code before running each test
     // [TestInitialize()]
     // public void MyTestInitialize() { }
     //
@@ -173,7 +172,7 @@ namespace RaceHorologyLibTest
         race.RaceConfiguration.ValueF = valueF;
         race.RaceConfiguration.ValueA = valueA;
         race.RaceConfiguration.ValueZ = valueZ;
-        race.RaceConfiguration.MinimumPenalty= minPenalty;
+        race.RaceConfiguration.MinimumPenalty = minPenalty;
         DSVRaceCalculation raceCalcW = new DSVRaceCalculation(race, race.GetResultViewProvider(), 'W');
         raceCalcW.CalculatePenalty();
 
@@ -221,7 +220,7 @@ namespace RaceHorologyLibTest
         new TestData{ Points = -1.0, RunTime = 52.0},
         new TestData{ Points = -1.0, RunTime = 51.0}
       };
-      Assert.AreEqual(124.5, getCalc(td2).CalculatedPenalty);
+      Assert.AreEqual(250, getCalc(td2).CalculatedPenalty);
 
       var td3 = new List<TestData>
       {
@@ -236,7 +235,7 @@ namespace RaceHorologyLibTest
         new TestData{ Points = 11.0, RunTime = 52.0},
         new TestData{ Points = 12.0, RunTime = 51.0}
       };
-      Assert.AreEqual(56.4, getCalc(td3).CalculatedPenalty);
+      Assert.AreEqual(106, 6, getCalc(td3).CalculatedPenalty);
 
       // Test for FIS Points Rules §4.4.5 (more then 1 participant at position 10)
       var td4 = new List<TestData>
@@ -254,7 +253,7 @@ namespace RaceHorologyLibTest
         new TestData{ Points = 12.0, RunTime = 51.0}
       };
       Assert.AreEqual(11, getCalc(td4).TopTen.Count);
-      Assert.AreEqual(32.2, getCalc(td4).CalculatedPenalty);
+      Assert.AreEqual(82.4, getCalc(td4).CalculatedPenalty);
 
       // CalculationValid checks
       Assert.IsTrue(getCalc(td4).CalculationValid);
@@ -266,8 +265,8 @@ namespace RaceHorologyLibTest
     }
 
 
-    class TestData 
-    { 
+    class TestData
+    {
       public double Points;
       public double RunTime;
     }

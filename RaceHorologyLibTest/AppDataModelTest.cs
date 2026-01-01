@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,15 +30,14 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace RaceHorologyLibTest
@@ -85,7 +84,7 @@ namespace RaceHorologyLibTest
     // [ClassCleanup()]
     // public static void MyClassCleanup() { }
     //
-    // Use TestInitialize to run code before running each test 
+    // Use TestInitialize to run code before running each test
     // [TestInitialize()]
     // public void MyTestInitialize() { }
     //
@@ -408,7 +407,7 @@ namespace RaceHorologyLibTest
       run.SetStartTime(race.GetParticipant(1), new TimeSpan(8, 0, 0));
       Assert.AreEqual(1, run.GetResultList().Count);
       Assert.AreEqual(1U, run.GetOnTrackList()[0].StartNumber);
-      
+
       Assert.IsFalse(run.HasResults());
       Assert.IsFalse(RaceRunUtil.IsComplete(run));
       Assert.IsFalse(run.IsComplete);
@@ -490,8 +489,8 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
-    /// Tests Race.IsComplete and RaceRun.IsComplete 
-    /// with an scenario where the 2nd run has reduced participants 
+    /// Tests Race.IsComplete and RaceRun.IsComplete
+    /// with an scenario where the 2nd run has reduced participants
     /// because of not qualified for 2nd run.
     /// </summary>
     [TestMethod]
@@ -607,7 +606,7 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
-    /// Tests: 
+    /// Tests:
     /// - AddRaceRun() and DeleteRaceRun()
     /// - PreviousRun()
     /// </summary>
@@ -668,11 +667,11 @@ namespace RaceHorologyLibTest
       RaceHorologyLib.Database db = new RaceHorologyLib.Database();
       db.Connect(dbFilename);
 
-      AppDataModel dm= new AppDataModel(db);
+      AppDataModel dm = new AppDataModel(db);
       var race = dm.GetRaces().FirstOrDefault(r => r.RaceType == Race.ERaceType.GiantSlalom);
 
       // Check correct initial assumptions
-      Assert.AreEqual(4, dm.GetRaces().Count); 
+      Assert.AreEqual(4, dm.GetRaces().Count);
       Assert.AreEqual(2, race.GetMaxRun());
 
       RaceParticipant p1 = race.GetParticipant(1);
@@ -832,7 +831,7 @@ namespace RaceHorologyLibTest
         DateStartList = new DateTime(2021, 01, 01),
         DateResultList = new DateTime(2021, 02, 01),
 
-        Analyzer = "Analyzer 1",
+        Analyzer = new AdditionalRaceProperties.Person { Name = "Analyzer 1", Club = "Club 1" },
         Organizer = "Organizer 1",
 
         RaceReferee = new AdditionalRaceProperties.Person { Name = "RaceReferee 1", Club = "Club 1" },
@@ -867,7 +866,7 @@ namespace RaceHorologyLibTest
       prop1.Description = "Description 2";
       prop1.DateStartList = new DateTime(2021, 01, 02);
       prop1.DateResultList = new DateTime(2021, 02, 02);
-      prop1.Analyzer = "Analyzer 2";
+      prop1.Analyzer = new AdditionalRaceProperties.Person { Name = "Analyzer 2", Club = "Club 2" };
       prop1.Organizer = "Organizer 2";
       prop1.RaceReferee = new AdditionalRaceProperties.Person { Name = "RaceReferee 2", Club = "Club 2" };
       prop1.RaceManager = new AdditionalRaceProperties.Person { Name = "RaceManager 2", Club = "Club 2" };
@@ -894,7 +893,9 @@ namespace RaceHorologyLibTest
       Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
       prop1.DateResultList = new DateTime(2021, 02, 01);
       Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
-      prop1.Analyzer = "Analyzer 1";
+      prop1.Analyzer.Name = "Analyzer 1";
+      Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
+      prop1.Analyzer.Club = "Club 1";
       Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));
       prop1.Organizer = "Organizer 1";
       Assert.IsFalse(AdditionalRaceProperties.Equals(prop1, prop2));

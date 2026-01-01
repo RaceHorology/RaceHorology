@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,19 +30,18 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.OleDb;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static RaceHorologyLib.PrintCertificateModel;
 
 namespace RaceHorologyLibTest
@@ -59,7 +58,7 @@ namespace RaceHorologyLibTest
       File.Copy(srcPath, dstPath);
 
       var additionalFiles = Directory.GetFiles(srcDirectory, Path.GetFileNameWithoutExtension(srcFilename) + "*");
-      foreach(var f in additionalFiles)
+      foreach (var f in additionalFiles)
       {
         if (f == srcPath)
           continue;
@@ -214,7 +213,6 @@ namespace RaceHorologyLibTest
       _basePath = basePath;
     }
 
-
     public void Close()
     {
       // Simply nothing todo
@@ -269,13 +267,19 @@ namespace RaceHorologyLibTest
     public void RemoveTeamGroup(TeamGroup tg) { }
 
     public string GetTimingDevice(Race race) { return "Alge TdC8000/8001"; }
-    public void StoreTimingDevice(Race race, string timingDevice){}
+    public void StoreTimingDevice(Race race, string timingDevice) { }
 
+    public RefereeReportItems GetRefereeReport(Race race)
+    {
+      var report = new RefereeReportItems(new Dictionary<string, string>());
+      return report;
+    }
+    public void SaveRefereeReport(Race race, RefereeReportItems report) { }
 
     public PrintCertificateModel GetCertificateModel(Race race)
     {
       var pcm = new PrintCertificateModel();
-      pcm.TextItems = new List<TextItem>()
+      pcm.TextItems = new ObservableCollection<TextItem>()
       {
         new TextItem { Text = "Test Race", Font = "TxFont\r\nMicrosoft Sans Serif, kursiv, 28", Alignment = (TextItemAlignment) 2, VPos = 1345, HPos = 1050},
         new TextItem { Text = "2022", Font = "TxFont\r\nMicrosoft Sans Serif, 28", Alignment = (TextItemAlignment) 2, VPos = 1480, HPos = 1050},
@@ -290,18 +294,22 @@ namespace RaceHorologyLibTest
       return pcm;
     }
 
+    public void SaveCertificateModel(Race race, PrintCertificateModel model)
+    {
+    }
+
 
     Dictionary<string, string> _keyValueStore = new Dictionary<string, string>();
-    public void StoreKeyValue(string key, string value) 
+    public void StoreKeyValue(string key, string value)
     {
       _keyValueStore[key] = value;
     }
 
-    public string GetKeyValue(string key) 
+    public string GetKeyValue(string key)
     {
       string value = null;
       _keyValueStore.TryGetValue(key, out value);
-      return value; 
+      return value;
     }
 
     public void CreateOrUpdateTimestamp(RaceRun raceRun, Timestamp timestamp) { }
@@ -344,7 +352,7 @@ namespace RaceHorologyLibTest
     }
     public ParticipantGroup findGroup(string name)
     {
-      return Model.GetParticipantGroups().FirstOrDefault(c => c.Name .Contains(name));
+      return Model.GetParticipantGroups().FirstOrDefault(c => c.Name.Contains(name));
     }
 
 

@@ -1,4 +1,4 @@
-﻿using CefSharp;
+using CefSharp;
 using CefSharp.Wpf;
 using RaceHorologyLib;
 using System;
@@ -92,25 +92,10 @@ namespace RaceHorology
         UserControl = () => new StdListPrintUC()
       });
       items.Add(new ReportItem { Text = "Mannschaftsergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return new TeamRaceResultReport(r); }, UserControl = () => new TeamResultsPrintUC() });
-      items.Add(new ReportItem
-      {
-        Text = "Urkunden",
-        NeedsRaceRun = false,
-        CreateReport = (r, rr) => { return new Certificates(r, 10); },
-        UserControl = () => { return new CertificatesPrintUC(); }
-      });
-      items.Add(new ReportItem
-      {
-        Text = "Zeitnehmer Checkliste",
-        NeedsRaceRun = true,
-        CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new TimerReport(rr) : (IPDFReport)new TimerReport(rr); }
-      });
-      items.Add(new ReportItem
-      {
-        Text = "Schiedsrichter Protokoll",
-        NeedsRaceRun = true,
-        CreateReport = (r, rr) => { return new RefereeProtocol(rr); }
-      });
+      items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => new CertificatesPrintUC() });
+      items.Add(new ReportItem { Text = "Zeitnehmer Checkliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new TimerReport(rr) : (IPDFReport)new TimerReport(rr); } });
+      items.Add(new ReportItem { Text = "Schiedsrichter Protokoll", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeProtocol(rr); } });
+      items.Add(new ReportItem { Text = "Schiedsrichterbericht", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RefereeReport(rr); } });
 
       cmbReport.ItemsSource = items;
       cmbReport.SelectedIndex = 0;
@@ -141,7 +126,6 @@ namespace RaceHorology
       if (cmbReport.SelectedItem is ReportItem ri)
       {
         cmbRaceRun.IsEnabled = ri.NeedsRaceRun;
-
         triggerRefresh();
       }
     }

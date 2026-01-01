@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -249,13 +249,25 @@ namespace RaceHorologyLib
       _writer.WriteEndElement();
 
       _writer.WriteStartElement("timing");
-      _writer.WriteValue("Alge TdC8000/8001"); // TODO: make variable
+      _writer.WriteValue(string.IsNullOrWhiteSpace(race.TimingDevice) ? "Race Horology" : race.TimingDevice);
       _writer.WriteEndElement();
 
-      if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer))
+      if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Club) && !string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Name))
       {
         _writer.WriteStartElement("dataprocessing_by");
-        _writer.WriteValue(race.AdditionalProperties?.Analyzer);
+        _writer.WriteValue(string.Format("{0}, {1}", race.AdditionalProperties?.Analyzer.Name, race.AdditionalProperties?.Analyzer.Club));
+        _writer.WriteEndElement();
+      }
+      else if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Club))
+      {
+        _writer.WriteStartElement("dataprocessing_by");
+        _writer.WriteValue(race.AdditionalProperties?.Analyzer.Club);
+        _writer.WriteEndElement();
+      }
+      else if (!string.IsNullOrEmpty(race.AdditionalProperties?.Analyzer.Name))
+      {
+        _writer.WriteStartElement("dataprocessing_by");
+        _writer.WriteValue(race.AdditionalProperties?.Analyzer.Name);
         _writer.WriteEndElement();
       }
 
@@ -720,7 +732,7 @@ namespace RaceHorologyLib
       writer.WriteValue(participant.Club);
       writer.WriteEndElement();
 
-      writer.WriteStartElement("association"); // TODO: currently Verband = Nation 
+      writer.WriteStartElement("association"); // TODO: currently Verband = Nation
       writer.WriteValue(participant.Nation);
       writer.WriteEndElement();
 

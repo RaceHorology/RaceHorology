@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -84,7 +84,7 @@ namespace RaceHorologyLibTest
     // [ClassCleanup()]
     // public static void MyClassCleanup() { }
     //
-    // Use TestInitialize to run code before running each test 
+    // Use TestInitialize to run code before running each test
     // [TestInitialize()]
     // public void MyTestInitialize() { }
     //
@@ -179,7 +179,7 @@ namespace RaceHorologyLibTest
 
     /// <summary>
     /// Test for DSVFirstRunStartListViewProvider
-    /// 
+    ///
     /// Which provides a start list based on startnumber and points following the criterias:
     /// - Best first firstNStartnumbers (5) based on the points are randomized
     /// - Succeeding start list entries are sorted based on the points i.e. startnumber is ignored
@@ -219,7 +219,7 @@ namespace RaceHorologyLibTest
         Assert.AreEqual((uint)(j + 11), startlist[j+10].StartNumber);
       }
 
-      // Add two additional starter, one below first 5, one within the remaining 
+      // Add two additional starter, one below first 5, one within the remaining
       tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 2.0); // StNr 21 => Pos 6
       tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"), points: 8.1); // StNr 22 => Pos 10
       tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"), points: 2.0); // StNr 23 => Pos 6
@@ -377,7 +377,7 @@ namespace RaceHorologyLibTest
 
     [TestMethod]
     public void BasedOnResultsFirstRunStartListViewProvider_Test()
-    { 
+    {
     }
 
 
@@ -589,12 +589,12 @@ namespace RaceHorologyLibTest
 
 
     /// Overview of ResultViewProvider
-    /// 
+    ///
     /// (ResultViewProvider)
     /// [X] RaceRunResultViewProvider
-    /// [X] RaceResultViewProvider 
+    /// [X] RaceResultViewProvider
     /// [ ] DSVSchoolRaceResultViewProvider <- RaceResultViewProvider
-    /// 
+    ///
     /// Basis of all:
     /// [X] RuntimeSorter
     /// [X] TotalTimeSorter
@@ -602,7 +602,7 @@ namespace RaceHorologyLibTest
 
     /// <summary>
     /// Test for RuntimeSorter
-    /// 
+    ///
     /// Compares two RunResults, taking into account:
     /// - Group (Class, Group, Category)
     /// - Runtime
@@ -644,7 +644,7 @@ namespace RaceHorologyLibTest
 
       RuntimeSorter rs = new RuntimeSorter();
 
-      // Standard order 
+      // Standard order
       Assert.AreEqual(-1, rs.Compare(rr1, rr2));
       Assert.AreEqual(1, rs.Compare(rr2, rr1));
 
@@ -691,7 +691,7 @@ namespace RaceHorologyLibTest
 
     /// <summary>
     /// Test for RaceRunResultViewProvider
-    /// 
+    ///
     /// What it does:
     /// - Checks the RunResultWithPosition of RaceRunResultViewProvider
     /// - Based on simulated race data
@@ -852,7 +852,7 @@ namespace RaceHorologyLibTest
 
     /// <summary>
     /// Test for RaceRunResultViewProvider
-    /// 
+    ///
     /// What it does:
     /// - Check correct handling directly after Init() based on simulated data
     /// </summary>
@@ -980,7 +980,7 @@ namespace RaceHorologyLibTest
 
     /// <summary>
     /// Test for RaceRunResultViewProvider
-    /// 
+    ///
     /// What it does:
     /// - Checks the RunResultWithPosition of RaceRunResultViewProvider
     /// - Based on simulated race data
@@ -1035,7 +1035,7 @@ namespace RaceHorologyLibTest
 
       // Class 2M...
       rr.SetStartFinishTime(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 1, 1));  // 1:01,00
-      checkResults(new[] { 
+      checkResults(new[] {
         new { StNr = 1U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
         new { StNr = 2U, Position = 0U, Time = (TimeSpan?)null, Code = RunResult.EResultCode.NotSet },
       });
@@ -1083,7 +1083,7 @@ namespace RaceHorologyLibTest
       rr.SetStartFinishTime(race.GetParticipant(8), new TimeSpan(8, 1, 0), new TimeSpan(8, 3, 0));  // 2:00,00
       rr.SetResultCode(race.GetParticipant(9), RunResult.EResultCode.NiZ);
       rr.SetStartFinishTime(race.GetParticipant(10), new TimeSpan(8, 10, 0), new TimeSpan(8, 14, 0));  // 4:00,00
-      rr.SetStartFinishTime(race.GetParticipant(11), new TimeSpan(8, 15, 0), new TimeSpan(8, 17, 3));  // 2:03 
+      rr.SetStartFinishTime(race.GetParticipant(11), new TimeSpan(8, 15, 0), new TimeSpan(8, 17, 3));  // 2:03
       checkResults(new[] {
         new { StNr = 2U, Position = 1U, Time = (TimeSpan?)new TimeSpan(0, 1, 0), Code = RunResult.EResultCode.Normal },
         new { StNr = 1U, Position = 2U, Time = (TimeSpan?)new TimeSpan(0, 1, 1), Code = RunResult.EResultCode.Normal },
@@ -1297,7 +1297,7 @@ namespace RaceHorologyLibTest
 
     /// <summary>
     /// Test for TotalTimeSorter
-    /// 
+    ///
     /// Compares two RunResults, taking into account:
     /// - Group (Class, Group, Category)
     /// - Runtime
@@ -1347,7 +1347,7 @@ namespace RaceHorologyLibTest
 
       TotalTimeSorter ts = new TotalTimeSorter();
 
-      // Standard order 
+      // Standard order
       Assert.AreEqual(-1, ts.Compare(rr1, rr2));
       Assert.AreEqual(1, ts.Compare(rr2, rr1));
 
@@ -1383,10 +1383,10 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
-    /// Test for 
+    /// Test for
     /// - RaceResultViewProvider.MinimumTime
     /// - RaceResultViewProvider.SumTime
-    /// 
+    ///
     /// What it does:
     /// - Combines different scenarios of run times
     /// </summary>
@@ -1523,7 +1523,7 @@ namespace RaceHorologyLibTest
 
     /// <summary>
     /// Test for RaceResultViewProvider
-    /// 
+    ///
     /// What it does:
     /// - Checks the RunResultWithPosition of RaceRunResultViewProvider
     /// - Based on simulated race data
@@ -1920,7 +1920,7 @@ namespace RaceHorologyLibTest
 
 
       // Test Case 2: Points File existing
-      System.IO.File.WriteAllText(@"PointsTable.txt", 
+      System.IO.File.WriteAllText(@"PointsTable.txt",
 @"200.0
 100.0
 50.1

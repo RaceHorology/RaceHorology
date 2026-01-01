@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
@@ -54,9 +54,9 @@ namespace RaceHorologyLib
   /// <summary>
   /// Provides the web server backend for the mobile clients
   /// </summary>
-  /// 
+  ///
   /// It starts a web server and user the provided DataModel in order to serve the data.
-  /// 
+  ///
   /// Updates are propoageted immediately via WebSockets to the client.
   public class DSVAlpin2HTTPServer
   {
@@ -68,19 +68,19 @@ namespace RaceHorologyLib
     /// Returns the URL the Application WebPage is available
     /// </summary>
     /// <returns> The URL</returns>
-    /// 
+    ///
     /// <remarks>
-    /// Connect on a UDP socket has the following effect: 
-    /// it sets the destination for Send/Recv, discards all packets from other addresses, 
-    /// and - which is what we use - transfers the socket into "connected" state, settings 
-    /// its appropriate fields.This includes checking the existence of the route to the 
-    /// destination according to the system's routing table and setting the local endpoint accordingly. 
-    /// The last part seems to be undocumented officially but it looks like an integral trait 
-    /// of Berkeley sockets API (a side effect of UDP "connected" state) that works reliably 
+    /// Connect on a UDP socket has the following effect:
+    /// it sets the destination for Send/Recv, discards all packets from other addresses,
+    /// and - which is what we use - transfers the socket into "connected" state, settings
+    /// its appropriate fields.This includes checking the existence of the route to the
+    /// destination according to the system's routing table and setting the local endpoint accordingly.
+    /// The last part seems to be undocumented officially but it looks like an integral trait
+    /// of Berkeley sockets API (a side effect of UDP "connected" state) that works reliably
     /// in both Windows and Linux across versions and distributions.
-    /// 
-    /// So, this method will give the local address that would be used to connect to the 
-    /// specified remote host. There is no real connection established, hence the specified 
+    ///
+    /// So, this method will give the local address that would be used to connect to the
+    /// specified remote host. There is no real connection established, hence the specified
     /// remote ip can be unreachable.
     /// </remarks>
     public string GetUrl()
@@ -159,7 +159,7 @@ namespace RaceHorologyLib
         return true;
       }
       catch (Exception)
-      {  
+      {
       }
       return false;
     }
@@ -237,7 +237,7 @@ namespace RaceHorologyLib
       int raceNo = -1, runNo = -1;
       parseUrlPath(req.RawUrl, out apiVersion, out listName, out raceNo, out runNo);
 
-      
+
       var r = req.QueryString;
 
 
@@ -319,7 +319,7 @@ namespace RaceHorologyLib
           i++;
           try { runNo = int.Parse(urlPathParts[i]); } catch (Exception) { runNo = -1; }
         }
-        else 
+        else
         {
           listName = urlPathParts[i];
         }
@@ -706,7 +706,7 @@ namespace RaceHorologyLib
     {
       if (_currentRace != _dm.GetCurrentRaceRun())
       {
-        
+
         if (_notifier != null)
         {
           _notifier.CollectionChanged -= StartListChanged;
@@ -789,7 +789,7 @@ namespace RaceHorologyLib
           remaingStarters.Add(item);
           c++;
         }
-               
+
         output = JsonConversion.ConvertOnStartList(remaingStarters);
       });
 

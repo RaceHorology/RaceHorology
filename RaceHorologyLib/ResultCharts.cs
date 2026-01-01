@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -18,29 +18,25 @@
  *
  *  Diese Datei ist Teil von Race Horology.
  *
- *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  Race Horology ist Freie Software: Sie kï¿½nnen es unter den Bedingungen
  *  der GNU Affero General Public License, wie von der Free Software Foundation,
  *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
- *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *  verï¿½ffentlichten Version, weiter verteilen und/oder modifizieren.
  *
- *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
- *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
- *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
- *  Siehe die GNU Affero General Public License für weitere Details.
+ *  Race Horology wird in der Hoffnung, dass es nï¿½tzlich sein wird, aber
+ *  OHNE JEDE GEWï¿½HRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewï¿½hrleistung der MARKTFï¿½HIGKEIT oder EIGNUNG Fï¿½R EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License fï¿½r weitere Details.
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace RaceHorologyLib
@@ -50,13 +46,13 @@ namespace RaceHorologyLib
     protected string workaroundGermanUmlaut(string str)
     {
       return str
-        .Replace("ä", "ae")
-        .Replace("ö", "oe")
-        .Replace("ü", "ue")
-        .Replace("Ä", "Ae")
-        .Replace("Ö", "Oe")
-        .Replace("Ü", "Ue")
-        .Replace("ß", "ss");
+        .Replace("Ã¤", "ae")
+        .Replace("Ã¶", "oe")
+        .Replace("Ã¼", "ue")
+        .Replace("Ã„", "Ae")
+        .Replace("Ã–", "Oe")
+        .Replace("Ãœ", "Ue")
+        .Replace("ÃŸ", "ss");
     }
 
     //Base10Exponent returns the integer exponent (N) that would yield a
@@ -361,7 +357,7 @@ namespace RaceHorologyLib
       if (sender is Chart chart)
       {
         int x = 1;
-        foreach( var s in chart.Series )
+        foreach (var s in chart.Series)
         {
           if (s.Name.Contains("BoxPlot"))
           {
@@ -435,8 +431,8 @@ namespace RaceHorologyLib
     {
       _chart = new Chart()
       {
-        Width = width * 300 / 72 / 2,   // Constants figured out empirically 
-        Height = height * 300 / 72 / 2, // Constants figured out empirically 
+        Width = width * 300 / 72 / 2,   // Constants figured out empirically
+        Height = height * 300 / 72 / 2, // Constants figured out empirically
         AntiAliasing = AntiAliasingStyles.All,
         TextAntiAliasingQuality = TextAntiAliasingQuality.High
       };
@@ -449,7 +445,7 @@ namespace RaceHorologyLib
       SetupChart(_chart, results);
 
       //_chart.SaveImage(path, ChartImageFormat.Png);
-  
+
       MemoryStream emfStream = new MemoryStream();
       _chart.SaveImage(emfStream, ChartImageFormat.Emf);
 
@@ -483,7 +479,7 @@ namespace RaceHorologyLib
 
     [System.Runtime.InteropServices.DllImport("gdiplus.dll", SetLastError = true)]
     static extern int GdipEmfToWmfBits(int hEmf, int uBufferSize, byte[] bBuffer, int iMappingMode, EmfToWmfBitsFlags flags);
-    
+
     void ConvertToWMF(Stream emfStream, Stream wmfStream)
     {
       const int MM_ANISOTROPIC = 8;
@@ -499,7 +495,7 @@ namespace RaceHorologyLib
 
       byte[] buf = new byte[bufferSize];
       GdipEmfToWmfBits(handle, bufferSize, buf, MM_ANISOTROPIC, EmfToWmfBitsFlags.EmfToWmfBitsFlagsIncludePlaceable);
-      
+
       wmfStream.Write(buf, 0, bufferSize);
     }
     #endregion

@@ -102,6 +102,11 @@ namespace RaceHorologyLib
 
 
     PrintCertificateModel GetCertificateModel(Race race);
+    void SaveCertificateModel(Race race, PrintCertificateModel model);
+
+
+    RefereeReportItems GetRefereeReport(Race race);
+    void SaveRefereeReport(Race race, RefereeReportItems report);
 
 
     void StoreKeyValue(string key, string value);

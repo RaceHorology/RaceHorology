@@ -1,13 +1,13 @@
 /*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -18,26 +18,24 @@
  *
  *  Diese Datei ist Teil von Race Horology.
  *
- *  Race Horology ist Freie Software: Sie können es unter den Bedingungen
+ *  Race Horology ist Freie Software: Sie kï¿½nnen es unter den Bedingungen
  *  der GNU Affero General Public License, wie von der Free Software Foundation,
  *  Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
- *  veröffentlichten Version, weiter verteilen und/oder modifizieren.
+ *  verï¿½ffentlichten Version, weiter verteilen und/oder modifizieren.
  *
- *  Race Horology wird in der Hoffnung, dass es nützlich sein wird, aber
- *  OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
- *  Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
- *  Siehe die GNU Affero General Public License für weitere Details.
+ *  Race Horology wird in der Hoffnung, dass es nï¿½tzlich sein wird, aber
+ *  OHNE JEDE GEWï¿½HRLEISTUNG, bereitgestellt; sogar ohne die implizite
+ *  Gewï¿½hrleistung der MARKTFï¿½HIGKEIT oder EIGNUNG Fï¿½R EINEN BESTIMMTEN ZWECK.
+ *  Siehe die GNU Affero General Public License fï¿½r weitere Details.
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RaceHorologyLib
 {
@@ -52,6 +50,7 @@ namespace RaceHorologyLib
       _prototypes = new Dictionary<string, ViewProvider>();
 
       _prototypes["Startlist_1stRun_StartnumberAscending"] = new FirstRunStartListViewProvider();
+      _prototypes["Startlist_1stRun_StartnumberDescending"] = new FirstRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
       _prototypes["Startlist_1stRun_Points_0"] = new DSVFirstRunStartListViewProvider(0);
       _prototypes["Startlist_1stRun_Points_15"] = new DSVFirstRunStartListViewProvider(15);
       _prototypes["Startlist_1stRun_Points_30"] = new DSVFirstRunStartListViewProvider(30);

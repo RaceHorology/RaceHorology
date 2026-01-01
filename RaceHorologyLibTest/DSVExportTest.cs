@@ -1,13 +1,13 @@
 ﻿/*
- *  Copyright (C) 2019 - 2024 by Sven Flossmann
- *  
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
+ *
  *  This file is part of Race Horology.
  *
  *  Race Horology is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  any later version.
- * 
+ *
  *  Race Horology is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,17 +30,15 @@
  *
  *  Sie sollten eine Kopie der GNU Affero General Public License zusammen mit diesem
  *  Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
-using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceHorologyLib;
+using System;
 using System.IO;
-using XmlUnit.Xunit;
 using System.Threading;
+using XmlUnit.Xunit;
 
 namespace RaceHorologyLibTest
 {
@@ -85,7 +83,7 @@ namespace RaceHorologyLibTest
     // [ClassCleanup()]
     // public static void MyClassCleanup() { }
     //
-    // Use TestInitialize to run code before running each test 
+    // Use TestInitialize to run code before running each test
     // [TestInitialize()]
     // public void MyTestInitialize() { }
     //
@@ -224,6 +222,7 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/category", s, "SO");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/racename", s, "Test Race");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/raceplace", s, "Test Location");
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/timing", s, "Alge TdC8000/8001");
 
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/useddsvlist", s, "123");
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/fvalue", s, "720");
@@ -254,6 +253,30 @@ namespace RaceHorologyLibTest
       XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedata/rundata[1]/coursedata/forerunner[1]/club", s, "WSV Glonn");
     }
 
+    [TestMethod]
+    public void VerifyXML_Analyzer()
+    {
+      var model = createTestDataModel1Race1Run();
+      fillMandatoryFields(model);
+
+      string s;
+
+      model.GetRace(0).AdditionalProperties.Analyzer = new AdditionalRaceProperties.Person { };
+      s = exportToXML(model.GetRace(0));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/dataprocessing_by", s, "");
+
+      model.GetRace(0).AdditionalProperties.Analyzer = new AdditionalRaceProperties.Person { Name = "Race Analyzer" };
+      s = exportToXML(model.GetRace(0));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/dataprocessing_by", s, "Race Analyzer");
+
+      model.GetRace(0).AdditionalProperties.Analyzer = new AdditionalRaceProperties.Person { Club = "Club" };
+      s = exportToXML(model.GetRace(0));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/dataprocessing_by", s, "Club");
+
+      model.GetRace(0).AdditionalProperties.Analyzer = new AdditionalRaceProperties.Person { Name = "Race Analyzer", Club = "Club" };
+      s = exportToXML(model.GetRace(0));
+      XmlAssertion.AssertXPathEvaluatesTo("/dsv_alpine_raceresults/racedescription/dataprocessing_by", s, "Race Analyzer, Club");
+    }
 
     [TestMethod]
     public void VerifyXML_MeteoData()
@@ -264,7 +287,7 @@ namespace RaceHorologyLibTest
       // no eather set, check if weather is absent
       string s = exportToXML(model.GetRace(0));
 
-      Assert.ThrowsException<Xunit.Sdk.TrueException>(()=> XmlAssertion.AssertXPathExists("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata", s));
+      Assert.ThrowsException<Xunit.Sdk.TrueException>(() => XmlAssertion.AssertXPathExists("/dsv_alpine_raceresults/racedata/rundata[1]/meteodata", s));
 
       model.GetRace(0).AdditionalProperties.Weather = "sunny";
       s = exportToXML(model.GetRace(0));
@@ -295,7 +318,7 @@ namespace RaceHorologyLibTest
     public void VerifyXML_Run1()
     {
       TestDataGenerator tg = new TestDataGenerator();
-      
+
       fillMandatoryFields(tg.Model);
 
       // Run 1
