@@ -37,19 +37,10 @@ using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace RaceHorology
 {
@@ -247,7 +238,7 @@ namespace RaceHorology
     {
       RaceResultViewProvider vp = _thisRace.GetResultViewProvider();
 
-      UiUtilities.FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping);
+      UiUtilities.FillGrouping(cmbTotalResultGrouping, vp.ActiveGrouping, _thisRace.RaceConfiguration.ActiveFields);
       cmbTotalResultGrouping.Items.Add(new CBItem { Text = "Mannschafts-Gruppe", Value = "Team.Group" });
 
 
@@ -257,7 +248,7 @@ namespace RaceHorology
       cmbTotalResult.Items.Add(new CBItem { Text = "Rennergebnis", Value = new CBObjectTotalResults { Type = "raceresults" } });
       cmbTotalResult.SelectedIndex = cmbTotalResult.Items.Count - 1;
 
-      if (_thisRace.GetTeamResultsViewProvider()!= null)
+      if (_thisRace.GetTeamResultsViewProvider() != null)
         cmbTotalResult.Items.Add(new CBItem { Text = "Mannschaftswertung", Value = new CBObjectTotalResults { Type = "teamresults" } });
     }
 
@@ -641,7 +632,7 @@ namespace RaceHorology
       if (cmbTotalResult.SelectedValue is CBItem selected)
       {
         CBObjectTotalResults selObj = selected.Value as CBObjectTotalResults;
-        if ( selObj == null                     // Fallback
+        if (selObj == null                     // Fallback
           || selObj.Type == "raceresults")      // ResultList
         {
           if (_thisRace.GetResultViewProvider() is DSVSchoolRaceResultViewProvider)
