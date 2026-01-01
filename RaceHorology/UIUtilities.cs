@@ -95,13 +95,17 @@ namespace RaceHorology
       cmb.SelectedIndex = 0;
     }
 
-    public static void FillGrouping(ComboBox comboBox, string selected = null)
+    public static void FillGrouping(ComboBox comboBox, string selected = null, List<string> activeFields = null)
     {
       comboBox.Items.Clear();
       comboBox.Items.Add(new CBItem { Text = "---", Value = null });
       comboBox.Items.Add(new CBItem { Text = "Klasse", Value = "Participant.Class" });
       comboBox.Items.Add(new CBItem { Text = "Gruppe", Value = "Participant.Group" });
       comboBox.Items.Add(new CBItem { Text = "Kategorie", Value = "Participant.Sex" });
+      if (activeFields == null || activeFields?.Contains("Points") == true)
+        comboBox.Items.Add(new CBItem { Text = "Verein", Value = "Participant.Club" });
+      if (activeFields == null || activeFields?.Contains("Nation") == true)
+        comboBox.Items.Add(new CBItem { Text = "Nation/Verband", Value = "Participant.Nation" });
 
       if (string.IsNullOrEmpty(selected))
         comboBox.SelectedIndex = 0;
@@ -125,7 +129,7 @@ namespace RaceHorology
 
     public static void EnableOrDisableColumn(Race race, DataGrid dg, string columnName)
     {
-      foreach(var col in dg.ColumnsByName(columnName))
+      foreach (var col in dg.ColumnsByName(columnName))
       {
         if (col != null)
         {
@@ -181,7 +185,7 @@ namespace RaceHorology
   internal class VisibilityConfig
   {
     class Internal : Dictionary<string, Dictionary<string, bool>>
-    {};
+    { };
 
     Internal _representation;
 

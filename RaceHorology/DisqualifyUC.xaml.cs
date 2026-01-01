@@ -85,7 +85,7 @@ namespace RaceHorology
       _race.RunsChanged += OnRaceRunsChanged;
 
       UiUtilities.FillCmbRaceRun(cmbRaceRun, _race);
-      UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping);
+      UiUtilities.FillGrouping(cmbResultGrouping, _currentRaceRun.GetResultViewProvider().ActiveGrouping, _race.RaceConfiguration.ActiveFields);
 
       cmbFilter.Items.Clear();
       cmbFilter.Items.Add(new CBItem { Text = "alle Teilnehmer", Value = "all" });

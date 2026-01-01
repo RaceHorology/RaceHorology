@@ -47,7 +47,7 @@ namespace RaceHorology
       cmbConfigPenalty.Items.Add(new CBItem { Text = "Bestzeit + Prozent", Value = RaceConfiguration.EPenaltyMode.BestPlusPercentage });
 
       // Result
-      UiUtilities.FillGrouping(cmbConfigErgebnisGrouping);
+      UiUtilities.FillGrouping(cmbConfigErgebnisGrouping, null, raceConfig.ActiveFields);
 
       cmbConfigErgebnis.Items.Clear();
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Bester Durchgang", Value = "RaceResult_BestOfTwo" });
@@ -60,7 +60,7 @@ namespace RaceHorology
       cmbConfigErgebnis.Items.Add(new CBItem { Text = "Summe + Punkte nach Tabelle pro Lauf", Value = "RaceResult_SumPointsViaTablePerRun" });
 
       // Run 1
-      UiUtilities.FillGrouping(cmbConfigStartlist1Grouping);
+      UiUtilities.FillGrouping(cmbConfigStartlist1Grouping, null, raceConfig.ActiveFields);
       cmbConfigStartlist1.Items.Clear();
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_1stRun_StartnumberAscending" });
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Startnummer (absteigend)", Value = "Startlist_1stRun_StartnumberDescending" });
@@ -69,7 +69,7 @@ namespace RaceHorology
       cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 30 gelost)", Value = "Startlist_1stRun_Points_30" });
 
       // Run 2
-      UiUtilities.FillGrouping(cmbConfigStartlist2Grouping);
+      UiUtilities.FillGrouping(cmbConfigStartlist2Grouping, null, raceConfig.ActiveFields);
       cmbConfigStartlist2.Items.Clear();
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_2nd_StartnumberAscending" });
       //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberAscending" });
