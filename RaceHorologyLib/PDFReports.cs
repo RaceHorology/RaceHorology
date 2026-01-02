@@ -1035,7 +1035,15 @@ namespace RaceHorologyLib
           document.Add(raceProperties);
       }
 
-      Table table = getResultsTable();
+
+      var breaks = new List<int>();
+      Table table = getResultsTable(breaks);
+
+      TableRenderer tableRenderer;
+      if (OneGroupPerPage) tableRenderer = new ForceSplitTableAtSpecificRowRenderer(table, breaks);
+      else tableRenderer = new SplitTableAtSpecificRowRenderer(table, breaks);
+      table.SetNextRenderer(tableRenderer);
+
       document.Add(table);
     }
 
@@ -1329,7 +1337,7 @@ namespace RaceHorologyLib
       _tableFontSizeHeader = _tableFontSize + 1;
     }
 
-    protected virtual Table getResultsTable()
+    protected virtual Table getResultsTable(List<int> breaks)
     {
       calcNumOptFields(); // Ensures the member _nOptFields is correct (used by getTableColumnsWidths())
       determineTableFontAndSize();
@@ -1347,7 +1355,6 @@ namespace RaceHorologyLib
 
       var results = getView();
       var lr = results as System.Windows.Data.ListCollectionView;
-      var breaks = new List<int>();
       var row = -1;
       if (results.Groups != null)
       {
@@ -1385,10 +1392,6 @@ namespace RaceHorologyLib
         breaks.Add(row);
       }
 
-      TableRenderer tableRenderer;
-      if (OneGroupPerPage) tableRenderer = new ForceSplitTableAtSpecificRowRenderer(table, breaks);
-      else tableRenderer = new SplitTableAtSpecificRowRenderer(table, breaks);
-      table.SetNextRenderer(tableRenderer);
       return table;
     }
   }
@@ -1709,7 +1712,7 @@ namespace RaceHorologyLib
       WithRaceHeader = false;
     }
 
-    protected override Table getResultsTable()
+    protected override Table getResultsTable(List<int> breaks)
     {
       //calcNumOptFields(); // Ensures the member _nOptFields is correct (used by getTableColumnsWidths())
       //determineTableFontAndSize();
@@ -2207,9 +2210,9 @@ namespace RaceHorologyLib
     }
 
 
-    protected override Table getResultsTable()
+    protected override Table getResultsTable(List<int> breaks)
     {
-      Table table = base.getResultsTable();
+      Table table = base.getResultsTable(breaks);
 
       addNotStartedTable(table, _raceRun);
       addNotFinishedPart(table, _raceRun);
@@ -2448,9 +2451,9 @@ namespace RaceHorologyLib
     }
 
 
-    protected override Table getResultsTable()
+    protected override Table getResultsTable(List<int> breaks)
     {
-      Table table = base.getResultsTable();
+      Table table = base.getResultsTable(breaks);
 
       for (int i = 0; i < _race.GetMaxRun(); i++)
       {
@@ -3485,9 +3488,9 @@ namespace RaceHorologyLib
     }
 
 
-    protected override Table getResultsTable()
+    protected override Table getResultsTable(List<int> breaks)
     {
-      Table table = base.getResultsTable();
+      Table table = base.getResultsTable(breaks);
       return table;
     }
 
