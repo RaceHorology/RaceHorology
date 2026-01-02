@@ -75,21 +75,21 @@ namespace RaceHorology
         Text = "Startliste",
         NeedsRaceRun = true,
         CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new StartListReport(rr) : (IPDFReport)new StartListReport2ndRun(rr); },
-        UserControl = () => new StdListPrintUC()
+        UserControl = () => new StdListPrintUC(false)
       });
       items.Add(new ReportItem
       {
         Text = "Teilergebnisliste",
         NeedsRaceRun = true,
         CreateReport = (r, rr) => { return new RaceRunResultReport(rr); },
-        UserControl = () => new StdListPrintUC()
+        UserControl = () => new StdListPrintUC(false)
       });
       items.Add(new ReportItem
       {
         Text = "Ergebnisliste",
         NeedsRaceRun = false,
         CreateReport = (r, rr) => { return (r.GetResultViewProvider() is DSVSchoolRaceResultViewProvider) ? new DSVSchoolRaceResultReport(r) : (r.GetResultViewProvider() is FISRaceResultViewProvider) ? new FISRaceResultReport(r) : new RaceResultReport(r); },
-        UserControl = () => new StdListPrintUC()
+        UserControl = () => new StdListPrintUC(true)
       });
       items.Add(new ReportItem { Text = "Mannschaftsergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return new TeamRaceResultReport(r); }, UserControl = () => new TeamResultsPrintUC() });
       items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => new CertificatesPrintUC() });

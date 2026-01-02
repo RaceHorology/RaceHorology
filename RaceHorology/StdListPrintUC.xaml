@@ -6,13 +6,17 @@
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="500">
-  <Grid VerticalAlignment="Center">
+  <Grid VerticalAlignment="Center" Margin="5 5 20 5">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
-    <CheckBox x:Name="cbOneGroupPerPage" Content="Neue Seite beim Gruppenwechsel" />
+    <CheckBox x:Name="cbWithRaceHeader" Content="Mit Rennkopf" Grid.Row="0" />
+    <CheckBox x:Name="cbWithDiagram" Content="Mit Ergebnisgraph" Grid.Row="1" />
+    <CheckBox x:Name="cbOneGroupPerPage" Content="Neue Seite beim Gruppenwechsel" Grid.Row="2" />
   </Grid>
 </UserControl>
