@@ -30,14 +30,16 @@
     <Grid x:Name="grdBottom" Width="Auto" Grid.Row="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Button x:Name="btnRefresh" Margin="5" Padding="5" Grid.Column="1" Content="Aktualisieren" Click="btnRefresh_Click" />
-      <Button x:Name="btnSave" Margin="5" Padding="5" Grid.Column="3" Content="Speichern (PDF)" Click="btnSave_Click"/>
-      <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="4" Content="Drucken" Click="btnPrint_Click"/>
+      <Button x:Name="btnRefresh" Margin="5" Padding="5" Grid.Column="0" Content="Aktualisieren" Click="btnRefresh_Click" VerticalAlignment="Center"/>
+      <Button x:Name="btnSave" Margin="5" Padding="5" Grid.Column="4" Content="Speichern (PDF)" Click="btnSave_Click" VerticalAlignment="Center"/>
+      <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="5" Content="Drucken" Click="btnPrint_Click" VerticalAlignment="Center"/>
+      <ContentControl x:Name="addOptions" Grid.Column="2" Background="Red" />
     </Grid>
 
     <wpf:ChromiumWebBrowser x:Name="cefBrowser" Grid.Row="1" Margin="5" />

@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
  *
  *  This file is part of Race Horology.
@@ -47,6 +47,7 @@ using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Layout;
 using iText.Layout.Properties;
+using iText.Layout.Renderer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -875,7 +876,10 @@ namespace RaceHorologyLib
       : base(race)
     {
       _pointsConverter = new PointsConverter();
+      OneGroupPerPage = false;
     }
+
+    public bool OneGroupPerPage { get; set; }
 
     protected abstract string getTitle();
     protected abstract void addContent(PdfDocument pdf, Document document);
@@ -1031,9 +1035,18 @@ namespace RaceHorologyLib
           document.Add(raceProperties);
       }
 
-      Table table = getResultsTable();
-      document.Add(table);
 
+      var breaks = new List<int>();
+      Table table = getResultsTable(breaks);
+
+      TableRenderer tableRenderer = null;
+      if (OneGroupPerPage) tableRenderer = new ForceSplitTableAtSpecificRowRenderer(table, breaks);
+      //else tableRenderer = new SplitTableAtSpecificRowRenderer(table, breaks);
+
+      if (tableRenderer != null)
+        table.SetNextRenderer(tableRenderer);
+
+      document.Add(table);
     }
 
 
@@ -1326,13 +1339,12 @@ namespace RaceHorologyLib
       _tableFontSizeHeader = _tableFontSize + 1;
     }
 
-    protected virtual Table getResultsTable()
+    protected virtual Table getResultsTable(List<int> breaks)
     {
       calcNumOptFields(); // Ensures the member _nOptFields is correct (used by getTableColumnsWidths())
       determineTableFontAndSize();
 
       var table = new Table(getTableColumnsWidths());
-
 
       table.SetWidth(UnitValue.CreatePercentValue(100));
       table.SetBorder(Border.NO_BORDER);
@@ -1345,20 +1357,29 @@ namespace RaceHorologyLib
 
       var results = getView();
       var lr = results as System.Windows.Data.ListCollectionView;
+      var row = -1;
       if (results.Groups != null)
       {
         foreach (var group in results.Groups)
         {
           System.Windows.Data.CollectionViewGroup cvGroup = group as System.Windows.Data.CollectionViewGroup;
           addLineToTable(table, cvGroup.GetName());
+          row++;
 
           int i = 0;
           foreach (var result in cvGroup.Items)
             if (addLineToTable(table, result, i))
+            {
               i++;
+              row++;
+            }
 
           if (i == 0)
+          {
             addCommentLineToTable(table, "keine Teilnehmer");
+            row++;
+          }
+          breaks.Add(row);
         }
       }
       else
@@ -1366,15 +1387,15 @@ namespace RaceHorologyLib
         int i = 0;
         foreach (var result in results.SourceCollection)
           if (addLineToTable(table, result, i))
+          {
             i++;
+            row++;
+          }
+        breaks.Add(row);
       }
 
       return table;
     }
-
-
-
-
   }
 
   public class StartListReport : PDFReport
@@ -1693,7 +1714,7 @@ namespace RaceHorologyLib
       WithRaceHeader = false;
     }
 
-    protected override Table getResultsTable()
+    protected override Table getResultsTable(List<int> breaks)
     {
       //calcNumOptFields(); // Ensures the member _nOptFields is correct (used by getTableColumnsWidths())
       //determineTableFontAndSize();
@@ -2191,9 +2212,9 @@ namespace RaceHorologyLib
     }
 
 
-    protected override Table getResultsTable()
+    protected override Table getResultsTable(List<int> breaks)
     {
-      Table table = base.getResultsTable();
+      Table table = base.getResultsTable(breaks);
 
       addNotStartedTable(table, _raceRun);
       addNotFinishedPart(table, _raceRun);
@@ -2432,9 +2453,9 @@ namespace RaceHorologyLib
     }
 
 
-    protected override Table getResultsTable()
+    protected override Table getResultsTable(List<int> breaks)
     {
-      Table table = base.getResultsTable();
+      Table table = base.getResultsTable(breaks);
 
       for (int i = 0; i < _race.GetMaxRun(); i++)
       {
@@ -3469,9 +3490,9 @@ namespace RaceHorologyLib
     }
 
 
-    protected override Table getResultsTable()
+    protected override Table getResultsTable(List<int> breaks)
     {
-      Table table = base.getResultsTable();
+      Table table = base.getResultsTable(breaks);
       return table;
     }
 
@@ -3481,4 +3502,176 @@ namespace RaceHorologyLib
       base.addContent(pdf, document);
     }
   }
+  class SplitTableAtSpecificRowRenderer : TableRenderer
+  {
+    private readonly List<int> breakPoints;
+    private int amountOfRowsThatAreGoingToBeRendered = 0;
+
+    public SplitTableAtSpecificRowRenderer(Table modelElement, List<int> breakPoints) : base(modelElement)
+    {
+      this.breakPoints = breakPoints;
+    }
+
+    public override IRenderer GetNextRenderer()
+    {
+      return new SplitTableAtSpecificRowRenderer((Table)modelElement, this.breakPoints);
+    }
+
+    public override LayoutResult Layout(LayoutContext layoutContext)
+    {
+      LayoutResult result = null;
+      while (result == null)
+        result = AttemptLayout(layoutContext, this.breakPoints);
+
+      for (var index = 0; index < this.breakPoints.Count; index++)
+        this.breakPoints[index] -= amountOfRowsThatAreGoingToBeRendered;
+
+      return result;
+    }
+
+    private LayoutResult AttemptLayout(LayoutContext layoutContext, List<int> breakPoints)
+    {
+      LayoutResult layoutResult = base.Layout(layoutContext);
+      if (layoutResult.GetStatus() == LayoutResult.FULL || breakPoints.Count == 0)
+      {
+        this.amountOfRowsThatAreGoingToBeRendered = GetAmountOfRows(layoutResult);
+        return layoutResult;
+      }
+
+      int breakPointToFix = CalculateBreakPoint(layoutContext);
+      if (breakPointToFix >= 0)
+      {
+        ForceAreaBreak(breakPointToFix);
+        this.amountOfRowsThatAreGoingToBeRendered = breakPointToFix - 1;
+        return null;
+      }
+
+      return layoutResult;
+    }
+
+
+    private int CalculateBreakPoint(LayoutContext layoutContext)
+    {
+      LayoutResult layoutResultWithoutSplits = AttemptLayout(layoutContext, new List<int>());
+      if (layoutResultWithoutSplits == null)
+        return int.MinValue;
+
+      int amountOfRowsThatFitWithoutSplit = GetAmountOfRows(layoutResultWithoutSplits);
+      int breakPointToFix = int.MinValue;
+      foreach (int breakPoint in new List<int>(breakPoints))
+      {
+        if (breakPoint <= amountOfRowsThatFitWithoutSplit)
+        {
+          breakPoints.Remove(breakPoint);
+          if (breakPoint < amountOfRowsThatFitWithoutSplit && breakPoint > breakPointToFix)
+          {
+            breakPointToFix = breakPoint;
+          }
+        }
+      }
+      return breakPointToFix;
+    }
+
+    private void ForceAreaBreak(int rowIndex)
+    {
+      rowIndex++;
+      if (rowIndex >= rows.Count)
+        return;
+
+      foreach (CellRenderer cellRenderer in rows[rowIndex])
+      {
+        if (cellRenderer != null)
+        {
+          cellRenderer.GetChildRenderers().Insert(0, new AreaBreakRenderer(new AreaBreak(AreaBreakType.NEXT_PAGE)));
+          break;
+        }
+      }
+    }
+
+    private static int GetAmountOfRows(LayoutResult layoutResult)
+    {
+      if (layoutResult.GetSplitRenderer() == null)
+        return 0;
+
+      return ((SplitTableAtSpecificRowRenderer)layoutResult.GetSplitRenderer()).rows.Count;
+    }
+  }
+
+
+  class ForceSplitTableAtSpecificRowRenderer : TableRenderer
+  {
+    private readonly List<int> breakPoints;
+
+    public ForceSplitTableAtSpecificRowRenderer(Table modelElement, List<int> breakPoints)
+      : base(modelElement)
+    {
+      this.breakPoints = breakPoints;
+    }
+
+    public override IRenderer GetNextRenderer()
+    {
+      return new ForceSplitTableAtSpecificRowRenderer((Table)modelElement, this.breakPoints);
+    }
+
+    public override LayoutResult Layout(LayoutContext layoutContext)
+    {
+      // If nothing to break => call base class
+      if (this.breakPoints.Count == 0)
+        return base.Layout(layoutContext);
+
+      // Check whether the rows would fit in the next page, if so, force a manual break
+      var rowsOnPage = determineRowsFittingOnPage(layoutContext);
+      var renderedRows = rowsOnPage;
+      if (rowsOnPage > this.breakPoints[0])
+      {
+        ForceAreaBreak(this.breakPoints[0]);
+        renderedRows = this.breakPoints[0] + 1;
+        this.breakPoints.RemoveAt(0);
+      }
+
+      // Layout the page
+      var result = base.Layout(layoutContext);
+
+      // Adapt the remaining breakpoints
+      for (var index = 0; index < this.breakPoints.Count; index++)
+        this.breakPoints[index] -= renderedRows;
+
+      return result;
+    }
+
+    private int determineRowsFittingOnPage(LayoutContext layoutContext)
+    {
+      LayoutResult layoutResult = base.Layout(layoutContext);
+      if (layoutResult == null)
+        return int.MinValue;
+
+      var rows = GetAmountOfRows(layoutResult);
+      return rows;
+    }
+
+    private int GetAmountOfRows(LayoutResult layoutResult)
+    {
+      if (layoutResult.GetSplitRenderer() == null)
+        return this.rows.Count;
+
+      return ((ForceSplitTableAtSpecificRowRenderer)layoutResult.GetSplitRenderer()).rows.Count;
+    }
+
+    private void ForceAreaBreak(int rowIndex)
+    {
+      rowIndex++;
+      if (rowIndex >= rows.Count)
+        return;
+
+      foreach (CellRenderer cellRenderer in rows[rowIndex])
+      {
+        if (cellRenderer != null)
+        {
+          cellRenderer.GetChildRenderers().Insert(0, new AreaBreakRenderer(new AreaBreak(AreaBreakType.NEXT_PAGE)));
+          break;
+        }
+      }
+    }
+  }
+
 }

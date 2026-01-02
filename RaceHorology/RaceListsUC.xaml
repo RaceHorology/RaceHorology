@@ -87,12 +87,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <RibbonMenuButton x:Name="mbtnExport" Label="Ansichts-Export" Margin="5" Background="#FFDDDDDD" BorderBrush="#FF707070" BorderThickness="1" />
-
-      <Button x:Name="btnPrint" Content="Drucken" Margin="5" Padding="5" Grid.Row="0" Grid.Column="5" Click="BtnPrint_Click"/>
-      <CheckBox x:Name="chkPrintOptionWithRaceHeader" Content="Rennkopf drucken" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2"/>
-      <CheckBox x:Name="chkPrintOptionWithDiagram" Content="Diagramm drucken" Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="2"/>
-      
+      <RibbonMenuButton x:Name="mbtnExport" Label="Ansichts-Export" Margin="5" Padding="5" Background="#FFDDDDDD" BorderBrush="#FF707070" BorderThickness="1" />      
     </Grid>
   </Grid>
 </UserControl>

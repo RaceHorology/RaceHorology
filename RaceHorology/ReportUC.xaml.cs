@@ -1,4 +1,4 @@
-﻿using CefSharp;
+using CefSharp;
 using CefSharp.Wpf;
 using RaceHorologyLib;
 using System;
@@ -70,9 +70,27 @@ namespace RaceHorology
       _race = race;
 
       List<ReportItem> items = new List<ReportItem>();
-      items.Add(new ReportItem { Text = "Startliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new StartListReport(rr) : (IPDFReport)new StartListReport2ndRun(rr); } });
-      items.Add(new ReportItem { Text = "Teilergebnisliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return new RaceRunResultReport(rr); } });
-      items.Add(new ReportItem { Text = "Ergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return (r.GetResultViewProvider() is DSVSchoolRaceResultViewProvider) ? new DSVSchoolRaceResultReport(r) : (r.GetResultViewProvider() is FISRaceResultViewProvider) ? new FISRaceResultReport(r) : new RaceResultReport(r); } });
+      items.Add(new ReportItem
+      {
+        Text = "Startliste",
+        NeedsRaceRun = true,
+        CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new StartListReport(rr) : (IPDFReport)new StartListReport2ndRun(rr); },
+        UserControl = () => new StdListPrintUC(false)
+      });
+      items.Add(new ReportItem
+      {
+        Text = "Teilergebnisliste",
+        NeedsRaceRun = true,
+        CreateReport = (r, rr) => { return new RaceRunResultReport(rr); },
+        UserControl = () => new StdListPrintUC(false)
+      });
+      items.Add(new ReportItem
+      {
+        Text = "Ergebnisliste",
+        NeedsRaceRun = false,
+        CreateReport = (r, rr) => { return (r.GetResultViewProvider() is DSVSchoolRaceResultViewProvider) ? new DSVSchoolRaceResultReport(r) : (r.GetResultViewProvider() is FISRaceResultViewProvider) ? new FISRaceResultReport(r) : new RaceResultReport(r); },
+        UserControl = () => new StdListPrintUC(true)
+      });
       items.Add(new ReportItem { Text = "Mannschaftsergebnisliste", NeedsRaceRun = false, CreateReport = (r, rr) => { return new TeamRaceResultReport(r); }, UserControl = () => new TeamResultsPrintUC() });
       items.Add(new ReportItem { Text = "Urkunden", NeedsRaceRun = false, CreateReport = (r, rr) => { return new Certificates(r, 10); }, UserControl = () => new CertificatesPrintUC() });
       items.Add(new ReportItem { Text = "Zeitnehmer Checkliste", NeedsRaceRun = true, CreateReport = (r, rr) => { return (rr.Run == 1) ? (IPDFReport)new TimerReport(rr) : (IPDFReport)new TimerReport(rr); } });
@@ -183,24 +201,24 @@ namespace RaceHorology
           CBItem selected = cmbRaceRun.SelectedValue as CBItem;
           selectedRaceRun = selected?.Value as RaceRun;
         }
-        if (_currentRI == ri && (!ri.NeedsRaceRun || ri.NeedsRaceRun && _currentRIRun == selectedRaceRun))
+        if (_currentRI == ri && (!ri.NeedsRaceRun || (ri.NeedsRaceRun && _currentRIRun == selectedRaceRun)))
           return _currentReport;
 
         if (_currentSubUC != null)
         {
-          grdBottom.Children.Remove(_currentSubUC);
           _currentSubUC = null;
+          addOptions.Content = null;
         }
 
         _currentRI = ri;
+        _currentRIRun = selectedRaceRun;
         _currentReport = ri.CreateReport(_race, selectedRaceRun);
 
         if (ri.UserControl != null)
         {
           var uc = ri.UserControl();
-          grdBottom.Children.Add(uc);
-          Grid.SetRow(uc, 0);
-          Grid.SetColumn(uc, 0);
+
+          addOptions.Content = uc;
           _currentSubUC = uc;
 
           var reportSubUC = _currentSubUC as IReportSubUC;

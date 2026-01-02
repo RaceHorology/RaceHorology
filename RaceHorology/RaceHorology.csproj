@@ -201,6 +201,9 @@
     <Compile Include="ReportUC.xaml.cs">
       <DependentUpon>ReportUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StdListPrintUC.xaml.cs">
+      <DependentUpon>StdListPrintUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TeamResultsPrintUC.xaml.cs">
       <DependentUpon>TeamResultsPrintUC.xaml</DependentUpon>
     </Compile>
@@ -339,6 +342,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ReportUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StdListPrintUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
