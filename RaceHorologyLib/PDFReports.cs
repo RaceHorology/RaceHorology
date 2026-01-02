@@ -1039,10 +1039,12 @@ namespace RaceHorologyLib
       var breaks = new List<int>();
       Table table = getResultsTable(breaks);
 
-      TableRenderer tableRenderer;
+      TableRenderer tableRenderer = null;
       if (OneGroupPerPage) tableRenderer = new ForceSplitTableAtSpecificRowRenderer(table, breaks);
-      else tableRenderer = new SplitTableAtSpecificRowRenderer(table, breaks);
-      table.SetNextRenderer(tableRenderer);
+      //else tableRenderer = new SplitTableAtSpecificRowRenderer(table, breaks);
+
+      if (tableRenderer != null)
+        table.SetNextRenderer(tableRenderer);
 
       document.Add(table);
     }
