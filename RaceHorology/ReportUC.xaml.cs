@@ -206,8 +206,8 @@ namespace RaceHorology
 
         if (_currentSubUC != null)
         {
-          grdBottom.Children.Remove(_currentSubUC);
           _currentSubUC = null;
+          addOptions.Content = null;
         }
 
         _currentRI = ri;
@@ -217,9 +217,8 @@ namespace RaceHorology
         if (ri.UserControl != null)
         {
           var uc = ri.UserControl();
-          grdBottom.Children.Add(uc);
-          Grid.SetRow(uc, 0);
-          Grid.SetColumn(uc, 0);
+
+          addOptions.Content = uc;
           _currentSubUC = uc;
 
           var reportSubUC = _currentSubUC as IReportSubUC;
