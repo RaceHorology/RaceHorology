@@ -39,7 +39,7 @@
       <Button x:Name="btnRefresh" Margin="5" Padding="5" Grid.Column="0" Content="Aktualisieren" Click="btnRefresh_Click" VerticalAlignment="Center"/>
       <Button x:Name="btnSave" Margin="5" Padding="5" Grid.Column="4" Content="Speichern (PDF)" Click="btnSave_Click" VerticalAlignment="Center"/>
       <Button x:Name="btnPrint" Margin="5" Padding="5" Grid.Column="5" Content="Drucken" Click="btnPrint_Click" VerticalAlignment="Center"/>
-      <ContentControl x:Name="addOptions" Grid.Column="2" Background="Red" />
+      <ContentControl x:Name="addOptions" Grid.Column="2" VerticalAlignment="Center" />
     </Grid>
 
     <wpf:ChromiumWebBrowser x:Name="cefBrowser" Grid.Row="1" Margin="5" />
