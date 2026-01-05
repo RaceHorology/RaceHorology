@@ -27,15 +27,17 @@ namespace RaceHorology
     // in der Klasse CertificateDesigner hinzufügen:
     public ObservableCollection<string> Presets { get; } =
       new ObservableCollection<string>(new[] { "<Vorname Name>",
-                                                "<Vorname>",
-                                                "<Nachname>",
-                                                "<Verein>",
-                                                "<Klasse>",
-                                                "<Disziplin>",
-                                                "<Platz>",
-                                                "<Zeit>",
-                                                "<Berwerbsdatum>",
-                                                "<Datum>",
+                                               "<Vorname>",
+                                               "<Nachname>",
+                                               "<Verein>",
+                                               "<Klasse>",
+                                               "<Gruppe>",
+                                               "<Kategorie>",
+                                               "<Disziplin>",
+                                               "<Platz>",
+                                               "<Zeit>",
+                                               "<Berwerbsdatum>",
+                                               "<Datum>",
       });
 
 
