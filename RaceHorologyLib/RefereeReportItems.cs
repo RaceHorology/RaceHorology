@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 
 namespace RaceHorologyLib
@@ -40,7 +41,7 @@ namespace RaceHorologyLib
     {
       //Info
       new RefereeReportItem("Organisator",           false,     "Organisator"),
-      new RefereeReportItem("Landesverband",         false,     "Landesverband"),
+      new RefereeReportItem("Landesverband",         true,      "Landesverband"),
       new RefereeReportItem("Datum",                 false,     "Datum"),
       new RefereeReportItem("Veranstaltung",         false,     "Veranstaltung"),
       new RefereeReportItem("Disziplin",             false,     "Disziplin"),
@@ -57,8 +58,8 @@ namespace RaceHorologyLib
       new RefereeReportItem("EDVKR_V",               false,     "EDV-KR Verein"),
       new RefereeReportItem("EDVKR_Email",           true,      "EDV-KR Email")  ,
       new RefereeReportItem("EDVKR_Telefon",         true,      "EDV-KR Telefon"),
-      new RefereeReportItem("Startrichter",          false,     "Startrichter"),
-      new RefereeReportItem("Startrichter_V",        false,     "Startrichter Verein"),
+      new RefereeReportItem("Startrichter",          true,      "Startrichter"),
+      new RefereeReportItem("Startrichter_V",        true,      "Startrichter Verein"),
       new RefereeReportItem("Zielrichter",           true,      "Zielrichter"),
       new RefereeReportItem("Zielrichter_V",         true,      "Zielrichter Verein"),
 
@@ -169,6 +170,8 @@ namespace RaceHorologyLib
 
     public void updateList(Race r)
     {
+
+      UpdateItemValue("Datum", ((DateTime)r.AdditionalProperties.DateStartList).Date.ToString("d"));
       UpdateItemValue("Organisator", r.AdditionalProperties.Organizer);
       UpdateItemValue("Veranstaltung", r.AdditionalProperties.Description);
       UpdateItemValue("RennNr", r.AdditionalProperties.RaceNumber);
