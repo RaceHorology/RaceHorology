@@ -102,7 +102,7 @@ namespace RaceHorology
       comboBox.Items.Add(new CBItem { Text = "Klasse", Value = "Participant.Class" });
       comboBox.Items.Add(new CBItem { Text = "Gruppe", Value = "Participant.Group" });
       comboBox.Items.Add(new CBItem { Text = "Kategorie", Value = "Participant.Sex" });
-      if (activeFields == null || activeFields?.Contains("Points") == true)
+      if (activeFields == null || activeFields?.Contains("Club") == true)
         comboBox.Items.Add(new CBItem { Text = "Verein", Value = "Participant.Club" });
       if (activeFields == null || activeFields?.Contains("Nation") == true)
         comboBox.Items.Add(new CBItem { Text = "Nation/Verband", Value = "Participant.Nation" });
