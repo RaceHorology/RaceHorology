@@ -171,7 +171,7 @@ namespace RaceHorologyLib
     public void updateList(Race r)
     {
 
-      UpdateItemValue("Datum", ((DateTime)r.AdditionalProperties.DateStartList).Date.ToString("d"));
+      UpdateItemValue("Datum", r.AdditionalProperties.DateStartList?.Date.ToString("d"));
       UpdateItemValue("Organisator", r.AdditionalProperties.Organizer);
       UpdateItemValue("Veranstaltung", r.AdditionalProperties.Description);
       UpdateItemValue("RennNr", r.AdditionalProperties.RaceNumber);
