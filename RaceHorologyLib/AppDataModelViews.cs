@@ -686,6 +686,225 @@ namespace RaceHorologyLib
   }
 
 
+  // basierend auf (bestem DG aller vorherigen Läufe) Ergebnisliste: rückwärts, ersten n gelost, mit/ohne disqualifizierten vorwärts oder rückwärts
+  public class BasedOnResultsBestRunStartListViewProvider : SecondRunStartListViewProvider
+  {
+    int _reverseBestN;
+    bool _allowNonResults;
+    RuntimeSorter _resultsComparer;
+    RaceRun _previousRun;
+
+    List<RaceRun> _allPreviousRuns;
+    List<ItemsChangeObservableCollection<RunResultWithPosition>> _allPreviousResults;
+
+
+    public RaceRun BasedOnRun { get { return _previousRun; } }
+
+    public BasedOnResultsBestRunStartListViewProvider(int reverseBestN, bool allowNonResults)
+    {
+      _reverseBestN = reverseBestN;
+      _allowNonResults = allowNonResults;
+
+      _resultsComparer = new RuntimeSorter(startNumberAscending: false);
+    }
+
+
+    public override ViewProvider Clone()
+    {
+      return new BasedOnResultsBestRunStartListViewProvider(_reverseBestN, _allowNonResults);
+    }
+
+
+    public override void Init(RaceRun previousRun)
+    {
+      _viewList = new ObservableCollection<StartListEntry>();
+
+      _previousRun = previousRun;
+
+      // Collect all runs up to and including previousRun
+      Race race = previousRun.GetRace();
+      _allPreviousRuns = new List<RaceRun>();
+      _allPreviousResults = new List<ItemsChangeObservableCollection<RunResultWithPosition>>();
+      foreach (var rr in race.GetRuns())
+      {
+        if (rr.Run > previousRun.Run)
+          break;
+
+        _allPreviousRuns.Add(rr);
+        var results = (rr.GetResultViewProvider() as RaceRunResultViewProvider).GetViewList();
+        _allPreviousResults.Add(results);
+
+        results.CollectionChanged += OnSourceChanged;
+        results.ItemChanged += OnSourceItemChanged;
+      }
+
+      UpdateStartList();
+
+      FinalizeInit();
+    }
+
+
+    private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      UpdateStartList();
+    }
+    private void OnSourceItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      UpdateStartList();
+    }
+
+
+    protected override void OnChangeGrouping(string propertyName)
+    {
+      _resultsComparer.SetGrouping(propertyName);
+      UpdateStartList();
+    }
+
+
+    class SortByStartnumberDesc : IComparer<RunResult>
+    {
+      public int Compare(RunResult rrX, RunResult rrY)
+      {
+        return rrX.Participant.StartNumber.CompareTo(rrY.Participant.StartNumber) * -1;
+      }
+
+    }
+
+
+    /// <summary>
+    /// Compiles the best valid result per participant across all previous runs.
+    /// For each participant, picks the run with the fastest valid runtime.
+    /// Participants without any valid result in any run are included with their
+    /// result from the last run (to preserve participant/result code information).
+    /// </summary>
+    private List<RunResult> CompileBestResults()
+    {
+      // Collect best result per participant across all runs
+      Dictionary<RaceParticipant, RunResult> bestPerParticipant = new Dictionary<RaceParticipant, RunResult>();
+
+      foreach (var results in _allPreviousResults)
+      {
+        foreach (RunResultWithPosition rr in results)
+        {
+          bool isValid = rr.Runtime != null
+            && rr.ResultCode == RunResult.EResultCode.Normal
+            && (rr as PenaltyRunResultWithPosition)?.PenaltyApplied != true;
+
+          if (bestPerParticipant.TryGetValue(rr.Participant, out RunResult existing))
+          {
+            bool existingIsValid = existing.Runtime != null
+              && existing.ResultCode == RunResult.EResultCode.Normal
+              && (existing as PenaltyRunResultWithPosition)?.PenaltyApplied != true;
+
+            if (isValid && (!existingIsValid || rr.Runtime < existing.Runtime))
+              bestPerParticipant[rr.Participant] = rr;
+            else if (!existingIsValid && !isValid)
+              bestPerParticipant[rr.Participant] = rr; // keep latest non-result
+          }
+          else
+          {
+            bestPerParticipant[rr.Participant] = rr;
+          }
+        }
+      }
+
+      return bestPerParticipant.Values.ToList();
+    }
+
+
+    private void UpdateStartList()
+    {
+      // Not yet initialized
+      if (_allPreviousResults == null || _allPreviousResults.Count == 0)
+        return;
+
+      List<StartListEntry> newStartList = new List<StartListEntry>();
+
+      // Compile best results across all previous runs
+      List<RunResult> srcResults = CompileBestResults();
+      srcResults.Sort(_resultsComparer);
+
+      // Process each group separately
+      object curGroup = null;
+      List<RunResult> resultsCurGroup = new List<RunResult>();
+      foreach (var curSortedItem in srcResults)
+      {
+        object itemGroup = PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping);
+        if (!Equals(PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping), curGroup))
+        {
+          ProcessGroup(resultsCurGroup, newStartList);
+          curGroup = itemGroup;
+        }
+        resultsCurGroup.Add(curSortedItem);
+      }
+      ProcessGroup(resultsCurGroup, newStartList);
+
+      // Copy at once to trigger only one change notification
+      _viewList.Clear();
+      _viewList.InsertRange(newStartList);
+    }
+
+
+    protected void ProcessGroup(List<RunResult> resultsCurGroup, List<StartListEntry> newStartList)
+    {
+      // Find how many valid results are there (could be less or more than _reverseBestN)
+      // depending on:
+      // a) less qualified participants then _reverseBestN => return only number of qualified participants
+      // b) there are several participants at rank _reverseBestN
+      int firstBestN = 0;
+      TimeSpan? lastRuntime = null;
+      foreach (var item in resultsCurGroup)
+      {
+        // Maximum
+        if (firstBestN >= _reverseBestN && (item.Runtime != lastRuntime && lastRuntime != null))
+          break;
+
+        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal || (item as PenaltyRunResultWithPosition)?.PenaltyApplied == true)
+          break;
+
+        lastRuntime = item.Runtime;
+        firstBestN++;
+      }
+
+      // Pick best n starter in reverse order
+      for (int i = firstBestN - 1; i >= 0; --i)
+      {
+        if (i >= resultsCurGroup.Count())
+          continue;
+
+        newStartList.Add(CreateStartListEntry(resultsCurGroup[i]));
+      }
+
+      // Separate remaining results and remember omitted results for appending to list
+      List<RunResult> omittedResults = new List<RunResult>();
+      for (int i = firstBestN; i < resultsCurGroup.Count(); ++i)
+      {
+        RunResult result = resultsCurGroup[i];
+        if (result.Runtime == null || result.ResultCode != RunResult.EResultCode.Normal)
+          omittedResults.Add(result);
+        else
+          newStartList.Add(CreateStartListEntry(result));
+      }
+
+      if (_allowNonResults)
+      {
+        // Add remaining starters with reverse startnumber order
+        omittedResults.Sort(new SortByStartnumberDesc());
+        foreach (RunResult result in omittedResults)
+        {
+          newStartList.Add(CreateStartListEntry(result));
+        }
+      }
+
+      resultsCurGroup.Clear();
+    }
+
+    StartListEntry CreateStartListEntry(RunResult result)
+    {
+      return new StartListEntryAdditionalRun(result);
+    }
+
+  }
 
 
   /// <summary>
@@ -1834,8 +2053,8 @@ namespace RaceHorologyLib
           {
             TimeSpan? time = res.Value?.Runtime;
 
-            // check if run is in the correct block, +1 as keys start with 1
-            if (res.Key >= m * numberN + 1 && res.Key < (m + 1) * numberN + 1)
+            // check if run is in the correct block, keys start @ 0
+            if (res.Key >= m * numberN && res.Key < (m + 1) * numberN)
             {
               if (bestTime == null || bestTime > time)
               {

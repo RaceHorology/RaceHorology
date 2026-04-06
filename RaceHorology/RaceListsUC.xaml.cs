@@ -611,6 +611,11 @@ namespace RaceHorology
           dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
           setWarningLabelHandler(new RaceRunCompletedWarningLabelHandler(slVP2.BasedOnRun, lblWarning));
         }
+        else if (_viewProvider is BasedOnResultsBestRunStartListViewProvider slVPBest)
+        {
+          dgView.Columns.Add(createColumnTime("Zeit", "Runtime", "ResultCode"));
+          setWarningLabelHandler(new RaceRunCompletedWarningLabelHandler(slVPBest.BasedOnRun, lblWarning));
+        }
         else
         {
           setWarningLabelHandler(new RaceWarningLabelHandler(_thisRace, lblWarning));

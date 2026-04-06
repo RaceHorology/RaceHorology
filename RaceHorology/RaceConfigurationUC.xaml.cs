@@ -83,6 +83,14 @@ namespace RaceHorology
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 30 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_30_AlsoWithoutResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht)", Value = "Startlist_2nd_PreviousRun_all_OnlyWithResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_all_AlsoWithoutResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Bester Lauf nach Zeit (nicht gedreht)", Value = "Startlist_2nd_BestRun_0_OnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Bester Lauf nach Zeit (nicht gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_BestRun_0_AlsoWithoutResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Bester Lauf nach Zeit (ersten 15 gedreht)", Value = "Startlist_2nd_BestRun_15_OnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Bester Lauf nach Zeit (ersten 15 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_BestRun_15_AlsoWithoutResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Bester Lauf nach Zeit (ersten 30 gedreht)", Value = "Startlist_2nd_BestRun_30_OnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Bester Lauf nach Zeit (ersten 30 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_BestRun_30_AlsoWithoutResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Bester Lauf nach Zeit (alle gedreht)", Value = "Startlist_2nd_BestRun_all_OnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Bester Lauf nach Zeit (alle gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_BestRun_all_AlsoWithoutResults" });
 
       chkTeam.Checked += ChkTeam_CheckChanged;
       chkTeam.Unchecked += ChkTeam_CheckChanged;
