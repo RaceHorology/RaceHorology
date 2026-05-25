@@ -279,6 +279,115 @@ namespace RaceHorology
     }
 
 
+    private static ISendListToTimingDevice findSendableDevice(LiveTimingMeasurement ltm)
+    {
+      if (ltm == null)
+        return null;
+      foreach (var d in ltm.GetTimingDevices())
+      {
+        if (d is MicrogateV2TimeMeasurementBase mg)
+          return mg;
+      }
+      return null;
+    }
+
+    public static string SendMicrogateV2AthletesList(Race race, ICollectionView view, LiveTimingMeasurement ltm)
+    {
+      var device = findSendableDevice(ltm);
+      if (device == null)
+      {
+        MessageBox.Show(
+          "Es ist kein Microgate-Zeitmessgerät verbunden.",
+          "Senden nicht möglich",
+          MessageBoxButton.OK, MessageBoxImage.Warning);
+        return null;
+      }
+
+      var athletes = new List<MicrogateV2AthleteEntry>();
+      foreach (var p in race.GetParticipants())
+      {
+        athletes.Add(new MicrogateV2AthleteEntry
+        {
+          Bib = p.StartNumber,
+          Nation = p.Nation,
+          Lastname = p.Name,
+          Firstname = p.Firstname,
+        });
+      }
+
+      Task.Run(() =>
+      {
+        try
+        {
+          device.SendAthletesList(athletes);
+          Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            MessageBox.Show(
+              string.Format("{0} Athleten wurden an das Microgate-Gerät gesendet.", athletes.Count),
+              "Senden erfolgreich",
+              MessageBoxButton.OK, MessageBoxImage.Information)));
+        }
+        catch (Exception ex)
+        {
+          Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            MessageBox.Show(
+              "Senden an Microgate fehlgeschlagen.\n\n" + ex.Message,
+              "Fehler",
+              MessageBoxButton.OK, MessageBoxImage.Exclamation)));
+        }
+      });
+      return null;
+    }
+
+    public static string SendMicrogateV2StartList(Race race, ICollectionView view, LiveTimingMeasurement ltm, RaceRun raceRun)
+    {
+      var device = findSendableDevice(ltm);
+      if (device == null)
+      {
+        MessageBox.Show(
+          "Es ist kein Microgate-Zeitmessgerät verbunden.",
+          "Senden nicht möglich",
+          MessageBoxButton.OK, MessageBoxImage.Warning);
+        return null;
+      }
+
+      if (raceRun == null)
+      {
+        MessageBox.Show(
+          "Kein Durchgang ausgewählt.",
+          "Senden nicht möglich",
+          MessageBoxButton.OK, MessageBoxImage.Warning);
+        return null;
+      }
+
+      var bibs = new List<uint>();
+      foreach (var entry in raceRun.GetStartListProvider().GetViewList())
+      {
+        bibs.Add(entry.StartNumber);
+      }
+      int runNumber = (int)raceRun.Run;
+
+      Task.Run(() =>
+      {
+        try
+        {
+          device.SendStartList(runNumber, bibs);
+          Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            MessageBox.Show(
+              string.Format("Startliste für Durchgang {0} ({1} Einträge) wurde an das Microgate-Gerät gesendet.", runNumber, bibs.Count),
+              "Senden erfolgreich",
+              MessageBoxButton.OK, MessageBoxImage.Information)));
+        }
+        catch (Exception ex)
+        {
+          Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            MessageBox.Show(
+              "Senden an Microgate fehlgeschlagen.\n\n" + ex.Message,
+              "Fehler",
+              MessageBoxButton.OK, MessageBoxImage.Exclamation)));
+        }
+      });
+      return null;
+    }
 
 
   }
