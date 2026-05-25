@@ -719,6 +719,7 @@ namespace RaceHorology
     {
       List<ExportConfig> exportConfigs = new List<ExportConfig> {
         { new ExportConfig { Name = "DSV (XML Format)", ExportFunc = ExportUI.ExportDsv } },
+        { new ExportConfig { Name = "FIS (XML Format)", ExportFunc = ExportUI.ExportFis } },
         { new ExportConfig { Name = "RaceEngine (ZIP Format)", ExportFunc = ExportUI.ExportRaceEngine } },
         { new ExportConfig { Name = "rennmeldung.de", ExportFunc = ExportUI.ExportDsvAlpin } },
         { new ExportConfig { Name = "Excel", ExportFunc = ExportUI.ExportXLSX } },
