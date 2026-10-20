@@ -61,6 +61,8 @@ namespace RaceHorologyLib
       //_prototypes["Startlist_2nd_StartnumberDescending"] = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
       _prototypes["Startlist_2nd_PreviousRun_0_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(0, false);
       _prototypes["Startlist_2nd_PreviousRun_0_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(0, true);
+      _prototypes["Startlist_2nd_PreviousRun_5_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(5, false);
+      _prototypes["Startlist_2nd_PreviousRun_5_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(5, true);
       _prototypes["Startlist_2nd_PreviousRun_15_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(15, false);
       _prototypes["Startlist_2nd_PreviousRun_15_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(15, true);
       _prototypes["Startlist_2nd_PreviousRun_30_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(30, false);
@@ -88,6 +90,18 @@ namespace RaceHorologyLib
       if (_prototypes.TryGetValue(viewKey, out prototype))
       {
         return prototype.Clone();
+      }
+
+      // Issue #475: dynamically configured reversed top-N start lists.
+      // The existing fixed keys stay valid, including all historical presets.
+      var parts = viewKey.Split('_');
+      if (parts.Length == 5 && parts[0] == "Startlist" && parts[1] == "2nd"
+          && (parts[2] == "PreviousRun" || parts[2] == "Cumulative")
+          && int.TryParse(parts[3], out int reverseBestN) && reverseBestN >= 0
+          && (parts[4] == "OnlyWithResults" || parts[4] == "AlsoWithoutResults"))
+      {
+        return new BasedOnResultsFirstRunStartListViewProvider(
+          reverseBestN, parts[4] == "AlsoWithoutResults", parts[2] == "Cumulative");
       }
 
       return null;
