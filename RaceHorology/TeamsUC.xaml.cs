@@ -1,5 +1,5 @@
 ﻿/*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
  *  
  *  This file is part of Race Horology.
  *
@@ -34,17 +34,9 @@
  */
 
 using GongSolutions.Wpf.DragDrop;
-using Microsoft.Win32;
 using RaceHorologyLib;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace RaceHorology
 {
@@ -66,7 +58,7 @@ namespace RaceHorology
     {
       _dm = dm;
 
-      ucSaveOrReset.Init( "Team- und Teamänderungen", null, null, changed, save, reset);
+      ucSaveOrReset.Init("Team- und Teamänderungen", null, null, changed, save, reset);
     }
 
 
@@ -80,7 +72,8 @@ namespace RaceHorology
       else if ((bool)e.OldValue && !(bool)e.NewValue)
       {
         // Become invisible
-        if (_cgVM != null && !_cgVM.DifferentToDataModel()) {
+        if (_cgVM != null && !_cgVM.DifferentToDataModel())
+        {
           _cgVM = null;
         }
       }
@@ -92,7 +85,7 @@ namespace RaceHorology
       if (_cgVM == null)
       {
         _cgVM = new TeamsEditViewModel(_dm);
-        DataContext = _cgVM; 
+        DataContext = _cgVM;
       }
     }
 

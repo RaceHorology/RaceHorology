@@ -233,10 +233,25 @@ namespace RaceHorologyLib
   public class CertificatesUtils
   {
     protected Dictionary<string, PdfFont> _fontCache;
+    protected Func<string, string> _fontFileResolver;
 
-    public CertificatesUtils()
+    /// <param name="fontFileResolver">Maps a font name to the font file to embed; null uses the installed system fonts</param>
+    public CertificatesUtils(Func<string, string> fontFileResolver = null)
     {
       _fontCache = new Dictionary<string, PdfFont>();
+      _fontFileResolver = fontFileResolver ?? GetSystemFontFilePath;
+    }
+
+    /// <summary>
+    /// Returns the path of the installed system font file for the font name, or null if not found
+    /// </summary>
+    public static string GetSystemFontFilePath(string fontName)
+    {
+      var fXC = new System.Drawing.Font(fontName, 1, FontStyle.Regular);
+      var fXCFile = getSystemFontFileName(fXC);
+      if (fXCFile != null)
+        return @"c:\windows\fonts\" + fXCFile;
+      return null;
     }
 
     // Taken from: https://stackoverflow.com/questions/21525377/retrieve-filename-of-a-font
@@ -374,11 +389,10 @@ namespace RaceHorologyLib
 
       try
       {
-        var fXC = new System.Drawing.Font(fontParts[0], fontSize, fontStyle);
-        var fXCFile = getSystemFontFileName(fXC);
-        if (fXCFile != null)
+        var fontFile = _fontFileResolver(fontName);
+        if (fontFile != null)
         {
-          var pdfFont = PdfFontFactory.CreateFont(@"c:\windows\fonts\" + fXCFile, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED, true);
+          var pdfFont = PdfFontFactory.CreateFont(fontFile, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED, true);
           _fontCache.Add(fontCacheKey, pdfFont);
           return pdfFont;
         }
@@ -442,6 +456,11 @@ namespace RaceHorologyLib
       _variableReplacements.Add("<Datum>", (rc, result) => { return DateTime.Now.ToShortDateString(); });
     }
 
+    /// <summary>
+    /// Maps a font name to the font file to embed; null uses the installed system fonts
+    /// </summary>
+    public Func<string, string> FontFileResolver { get; set; }
+
     public int MaxCertificatesPerGroup
     {
       get { return _maxCertificatesPerGroup; }
@@ -450,7 +469,7 @@ namespace RaceHorologyLib
 
     protected override void GenerateImpl(PdfDocument pdf, Document document, DateTime? creationDateTime = null)
     {
-      _utils = new CertificatesUtils();
+      _utils = new CertificatesUtils(FontFileResolver);
 
       _firstPage = true;
 

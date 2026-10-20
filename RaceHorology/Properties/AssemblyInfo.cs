@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 
@@ -10,9 +8,9 @@ using System.Windows;
 [assembly: AssemblyTitle("Race Horology")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Sven Flossmann")]
+[assembly: AssemblyCompany("Sven Flossmann et al.")]
 [assembly: AssemblyProduct("Race Horology")]
-[assembly: AssemblyCopyright("Copyright ©  2019-2023")]
+[assembly: AssemblyCopyright("Copyright ©  2019-2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

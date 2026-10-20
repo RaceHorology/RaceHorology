@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("RaceHorologyLib")]
-[assembly: AssemblyCopyright("Copyright ©  2019-2023")]
+[assembly: AssemblyCopyright("Copyright ©  2019-2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
