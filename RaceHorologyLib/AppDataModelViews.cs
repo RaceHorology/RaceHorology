@@ -1247,6 +1247,8 @@ namespace RaceHorologyLib
     }
 
     public virtual TimeSpan? OrgRuntime { get { return base.GetRunTime(); } }
+    public virtual EResultCode OrgResultCode { get { return base.ResultCode; } }
+
     public virtual bool PenaltyApplied { get { return applyPenaltyByTime() || applyPenaltyByResultCode(); } }
 
     /** Override to return the cut off time or the original time */

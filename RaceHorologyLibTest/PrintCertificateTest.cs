@@ -59,7 +59,18 @@ namespace RaceHorologyLibTest
     //
     #endregion
 
+    /// <summary>
+    /// Creates the certificates report with all fonts mapped to the bundled FreeSans,
+    /// so the generated PDF does not depend on the Windows fonts installed on the machine
+    /// </summary>
+    static Certificates createCertificates(Race race, bool generateTemplate = false)
+    {
+      string freeSans = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(Certificates).Assembly.Location), @"resources\FreeSans.ttf");
+      return new Certificates(race, 10, generateTemplate) { FontFileResolver = (fontName) => freeSans };
+    }
+
     [TestMethod]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
     [DeploymentItem(@"TestOutputs\Certificate_Empty.pdf")]
     public void Certificate_Empty()
     {
@@ -67,12 +78,13 @@ namespace RaceHorologyLibTest
 
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
-        IPDFReport report = new Certificates(tg.Model.GetRace(0), 10);
+        IPDFReport report = createCertificates(tg.Model.GetRace(0));
         Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Empty.pdf", 0));
       }
     }
 
     [TestMethod]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS.mdb")]
     [DeploymentItem(@"TestDataBases\FullTestCases\Case2\1554MSBS_Slalom.config")]
     [DeploymentItem(@"TestOutputs\1554MSBS\1554MSBS - Urkunden.pdf")]
@@ -85,13 +97,14 @@ namespace RaceHorologyLibTest
 
       Race race = model.GetRace(0);
       {
-        IPDFReport report = new Certificates(race, 10);
+        IPDFReport report = createCertificates(race);
         Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"1554MSBS - Urkunden.pdf", 1));
       }
     }
 
 
     [TestMethod]
+    [DeploymentItem(@"resources\FreeSans.ttf", @"resources")]
     [DeploymentItem(@"TestOutputs\Certificate_Template.pdf")]
     public void Certificate_Template()
     {
@@ -99,7 +112,7 @@ namespace RaceHorologyLibTest
 
       TestDataGenerator tg = new TestDataGenerator(workingDir);
       {
-        IPDFReport report = new Certificates(tg.Model.GetRace(0), 10, true);
+        IPDFReport report = createCertificates(tg.Model.GetRace(0), true);
         Assert.IsTrue(TestUtilities.GenerateAndCompareAgainstPdf(TestContext, report, @"Certificate_Template.pdf", 1));
       }
     }

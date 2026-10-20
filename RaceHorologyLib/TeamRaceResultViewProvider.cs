@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 - 2023 by Sven Flossmann
+ *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
  *  
  *  This file is part of Race Horology.
  *
@@ -34,7 +34,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -284,7 +283,7 @@ namespace RaceHorologyLib
 
       if (_config.Penalty_NumberOfMembersMinDifferentSex > 0 && sexCounts.Count < 2)
         return false;
-      foreach(var s in sexCounts)
+      foreach (var s in sexCounts)
       {
         if (s.Value < _config.Penalty_NumberOfMembersMinDifferentSex)
           return false;
