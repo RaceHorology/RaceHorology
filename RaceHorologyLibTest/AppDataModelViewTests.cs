@@ -481,6 +481,47 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// Race configuration "Summe aller vorherigen Läufe" applies to all runs >= 2: run 3 is based on the sum of runs 1 + 2 (Issue #253)
+    /// </summary>
+    [TestMethod]
+    public void ViewConfigurator_CumulativeStartList_ThirdRun_Test()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      race.AddRaceRun();
+      race.AddRaceRun();
+      for (int i = 0; i < 5; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+      var run3 = race.GetRun(2);
+      // Sum: 1 => 100, 2 => 98, 3 => 96, 4 => 94, 5 => 92 (run 2 alone would give the opposite order)
+      for (int i = 1; i <= 5; i++)
+      {
+        run1.SetRunTime(race.GetParticipant((uint)i), TimeSpan.FromSeconds(60 - 4 * (i - 1)));
+        run2.SetRunTime(race.GetParticipant((uint)i), TimeSpan.FromSeconds(40 + 2 * (i - 1)));
+      }
+      foreach (var run in new[] { run1, run2 })
+      {
+        var results = new RaceRunResultViewProvider();
+        results.Init(run, tg.Model);
+        run.SetResultViewProvider(results);
+      }
+
+      var cfg = race.RaceConfiguration.Copy();
+      cfg.Run2_StartistView = StartlistViewConfig.Run2_Cumulative;
+      cfg.Run2_StartistViewParams = new Dictionary<string, object> { { StartlistViewConfig.ParamReverseBestN, 3 }, { StartlistViewConfig.ParamAllowNonResults, false } };
+      race.RaceConfiguration = cfg;
+
+      var provider = new ViewConfigurator(race).GetStartlistViewProvider(run3);
+      // Best 3 by sum (5, 4, 3) reversed, then the rest by sum
+      CollectionAssert.AreEqual(new uint[] { 3, 4, 5, 2, 1 },
+        new List<uint>(System.Linq.Enumerable.Select(provider.GetViewList(), x => x.StartNumber)));
+    }
+
+
+    /// <summary>
     /// RemainingStartListViewProvider compares the StartNumber based on Sorting and Grouping
     /// </summary>
     [TestMethod]
