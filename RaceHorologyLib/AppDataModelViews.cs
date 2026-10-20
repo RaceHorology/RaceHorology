@@ -572,6 +572,7 @@ namespace RaceHorologyLib
 
 
     public RaceRun BasedOnRun { get { return _previousRun; } }
+    public bool UseCumulativeResults { get { return _useCumulativeResults; } }
 
     public BasedOnResultsFirstRunStartListViewProvider(int reverseBestN, bool allowNonResults,
                                                       bool useCumulativeResults = false)
@@ -684,25 +685,38 @@ namespace RaceHorologyLib
     }
 
 
+    /// <summary>
+    /// Sum of the runs of a participant; PenaltyApplied if a penalty time is part of the sum
+    /// </summary>
+    class CumulativeRunResult : RunResult
+    {
+      public CumulativeRunResult(RaceParticipant rp) : base(rp) { }
+
+      public bool PenaltyApplied { get; set; }
+    }
+
+
     private List<RunResult> GetCumulativeResults()
     {
       var result = new List<RunResult>();
       // Every result provider holds an entry for every participant, even without a time.
       foreach (var participantResult in _resultsCumulativeRuns.Last())
       {
-        var cumulative = new RunResult(participantResult.Participant);
+        var cumulative = new CumulativeRunResult(participantResult.Participant);
         TimeSpan total = TimeSpan.Zero;
         bool valid = true;
         foreach (var runResults in _resultsCumulativeRuns)
         {
+          // A penalty result has ResultCode Normal and the penalty time as Runtime
           var sub = runResults.FirstOrDefault(r => r.Participant == participantResult.Participant);
-          if (sub == null || sub.ResultCode != RunResult.EResultCode.Normal
-              || sub.Runtime == null || (sub as PenaltyRunResultWithPosition)?.PenaltyApplied == true)
+          if (sub == null || sub.ResultCode != RunResult.EResultCode.Normal || sub.Runtime == null)
           {
             valid = false;
             break;
           }
           total += sub.Runtime.Value;
+          if ((sub as PenaltyRunResultWithPosition)?.PenaltyApplied == true)
+            cumulative.PenaltyApplied = true;
         }
         if (valid)
           cumulative.SetRunTime(total);
@@ -714,44 +728,59 @@ namespace RaceHorologyLib
     }
 
 
+    static bool IsPenaltyApplied(RunResult result)
+    {
+      return (result as PenaltyRunResultWithPosition)?.PenaltyApplied == true
+        || (result as CumulativeRunResult)?.PenaltyApplied == true;
+    }
+
+
     protected void ProcessGroup(List<RunResult> resultsCurGroup, List<StartListEntry> newStartList)
     {
-      // Find how many valid results are there (could be less or more than _reverseBestN)
+      // Find the best n valid results to reverse (could be less or more than _reverseBestN)
       // depending on:
       // a) less qualified participants then _reverseBestN => return only number of qualified participants
       // b) there are several participants at rank _reverseBestN
-      int firstBestN = 0;
+      // Participants with penalty time are never reversed. With a single run, their (penalty) time
+      // is the slowest anyway, so reversing stops there. With cumulative results, they can be ranked
+      // in between and are skipped instead.
+      var reversedResults = new List<RunResult>();
       TimeSpan? lastRuntime = null;
       foreach (var item in resultsCurGroup)
       {
         // When zero starters should be reversed, do not extend a tied group.
         if (_reverseBestN == 0)
           break;
-        // Maximum (include ties on the boundary, as in the existing logic)
-        if (firstBestN >= _reverseBestN && (item.Runtime != lastRuntime && lastRuntime != null))
+
+        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal)
           break;
 
-        if (item.Runtime == null || item.ResultCode != RunResult.EResultCode.Normal || (item as PenaltyRunResultWithPosition)?.PenaltyApplied == true)
+        if (IsPenaltyApplied(item))
+        {
+          if (_useCumulativeResults)
+            continue;
+          break;
+        }
+
+        // Maximum (include ties on the boundary, as in the existing logic)
+        if (reversedResults.Count >= _reverseBestN && (item.Runtime != lastRuntime && lastRuntime != null))
           break;
 
         lastRuntime = item.Runtime;
-        firstBestN++;
+        reversedResults.Add(item);
       }
 
       // Pick best n starter in reverse order
-      for (int i = firstBestN - 1; i >= 0; --i)
-      {
-        if (i >= resultsCurGroup.Count())
-          continue;
-
-        newStartList.Add(CreateStartListEntry(resultsCurGroup[i]));
-      }
+      for (int i = reversedResults.Count - 1; i >= 0; --i)
+        newStartList.Add(CreateStartListEntry(reversedResults[i]));
 
       // Separate remaining results and remember omitted results for appending to list
       List<RunResult> omittedResults = new List<RunResult>();
-      for (int i = firstBestN; i < resultsCurGroup.Count(); ++i)
+      foreach (RunResult result in resultsCurGroup)
       {
-        RunResult result = resultsCurGroup[i];
+        if (reversedResults.Contains(result))
+          continue;
+
         if (result.Runtime == null || result.ResultCode != RunResult.EResultCode.Normal)
           omittedResults.Add(result);
         else
