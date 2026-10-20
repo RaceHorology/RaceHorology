@@ -1618,10 +1618,23 @@ namespace RaceHorologyLib
           .Add(createHeaderCellParagraphForTable("Punkte")));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
-        .Add(createHeaderCellParagraphForTable("Zeit-1")));
+        .Add(createHeaderCellParagraphForTable(getPreviousTimeHeader())));
       table.AddHeaderCell(createCellForTable(TextAlignment.RIGHT)
         .ConfigureHeaderCell()
         .Add(createHeaderCellParagraphForTable("Laufzeit")));
+    }
+
+
+    /// <summary>
+    /// Header of the column with the time the start order is based on: time of previous run or sum of all previous runs
+    /// </summary>
+    string getPreviousTimeHeader()
+    {
+      uint previousRun = _raceRun.Run - 1;
+      if (previousRun > 1 && (_raceRun.GetStartListProvider() as BasedOnResultsFirstRunStartListViewProvider)?.UseCumulativeResults == true)
+        return string.Format("Summe 1-{0}", previousRun);
+
+      return string.Format("Zeit-{0}", previousRun);
     }
 
 
