@@ -35,81 +35,158 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace RaceHorologyLib
 {
 
-
-  internal class ViewFactory
+  /// <summary>
+  /// Keys and parameters of the start list views (RaceConfiguration.Run1_StartistView / Run2_StartistView).
+  ///
+  /// Older configurations encoded the parameters within the key (e.g. "Startlist_2nd_PreviousRun_30_OnlyWithResults").
+  /// Normalize() maps these legacy keys onto a base key plus parameters.
+  /// </summary>
+  public static class StartlistViewConfig
   {
-    protected Dictionary<string, ViewProvider> _prototypes;
+    public const string Run1_StartnumberAscending = "Startlist_1stRun_StartnumberAscending";
+    public const string Run1_StartnumberDescending = "Startlist_1stRun_StartnumberDescending";
+    public const string Run1_Points = "Startlist_1stRun_Points";
 
-    public ViewFactory()
+    public const string Run2_StartnumberAscending = "Startlist_2nd_StartnumberAscending";
+    public const string Run2_StartnumberDescending = "Startlist_2nd_StartnumberDescending";
+    public const string Run2_PreviousRun = "Startlist_2nd_PreviousRun";
+    /// <summary>Like Run2_PreviousRun, but based on the sum of all previous runs (Issue #475)</summary>
+    public const string Run2_Cumulative = "Startlist_2nd_Cumulative";
+
+    /// <summary>Run1_Points: number of participants (best points) whose start order is drawn</summary>
+    public const string ParamDrawFirstN = "DrawFirstN";
+    /// <summary>Run2_PreviousRun / Run2_Cumulative: number of best participants starting in reversed order (int.MaxValue = all)</summary>
+    public const string ParamReverseBestN = "ReverseBestN";
+    /// <summary>Run2_PreviousRun / Run2_Cumulative: participants without result are part of the start list as well</summary>
+    public const string ParamAllowNonResults = "AllowNonResults";
+
+    static readonly Regex _legacyRun1Points = new Regex(@"^Startlist_1stRun_Points_(\d+)$");
+    static readonly Regex _legacyRun2BasedOnResults = new Regex(@"^Startlist_2nd_(PreviousRun|Cumulative)_(\d+|all)_(OnlyWithResults|AlsoWithoutResults)$");
+
+
+    /// <summary>
+    /// Maps legacy keys onto base key + parameters. The returned parameters are always a new (non-null) dictionary.
+    /// </summary>
+    public static void Normalize(string viewKey, Dictionary<string, object> viewParams, out string normKey, out Dictionary<string, object> normParams)
     {
-      _prototypes = new Dictionary<string, ViewProvider>();
+      normKey = viewKey;
+      normParams = viewParams != null ? new Dictionary<string, object>(viewParams) : new Dictionary<string, object>();
 
-      _prototypes["Startlist_1stRun_StartnumberAscending"] = new FirstRunStartListViewProvider();
-      _prototypes["Startlist_1stRun_StartnumberDescending"] = new FirstRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
-      _prototypes["Startlist_1stRun_Points_0"] = new DSVFirstRunStartListViewProvider(0);
-      _prototypes["Startlist_1stRun_Points_15"] = new DSVFirstRunStartListViewProvider(15);
-      _prototypes["Startlist_1stRun_Points_30"] = new DSVFirstRunStartListViewProvider(30);
+      if (viewKey == null)
+        return;
 
-      _prototypes["Startlist_2nd_StartnumberAscending"] = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending);
-      //_prototypes["Startlist_2nd_StartnumberAscending"] = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending);
-      _prototypes["Startlist_2nd_StartnumberDescending"] = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
-      //_prototypes["Startlist_2nd_StartnumberDescending"] = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
-      _prototypes["Startlist_2nd_PreviousRun_0_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(0, false);
-      _prototypes["Startlist_2nd_PreviousRun_0_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(0, true);
-      _prototypes["Startlist_2nd_PreviousRun_5_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(5, false);
-      _prototypes["Startlist_2nd_PreviousRun_5_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(5, true);
-      _prototypes["Startlist_2nd_PreviousRun_15_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(15, false);
-      _prototypes["Startlist_2nd_PreviousRun_15_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(15, true);
-      _prototypes["Startlist_2nd_PreviousRun_30_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(30, false);
-      _prototypes["Startlist_2nd_PreviousRun_30_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(30, true);
-      _prototypes["Startlist_2nd_PreviousRun_all_OnlyWithResults"] = new BasedOnResultsFirstRunStartListViewProvider(int.MaxValue, false);
-      _prototypes["Startlist_2nd_PreviousRun_all_AlsoWithoutResults"] = new BasedOnResultsFirstRunStartListViewProvider(int.MaxValue, true);
+      var m = _legacyRun1Points.Match(viewKey);
+      if (m.Success)
+      {
+        normKey = Run1_Points;
+        normParams[ParamDrawFirstN] = int.Parse(m.Groups[1].Value);
+        return;
+      }
 
-      _prototypes["RaceResult_BestOfTwo"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
-      _prototypes["RaceResult_Sum"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
-      _prototypes["RaceResult_SumBest2"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumBest2);
-      _prototypes["RaceResult_2xBestOf2"] = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumMxBestOfN);
-      _prototypes["RaceResult_SumDSVPointsSchool"] = new DSVSchoolRaceResultViewProvider();
-      _prototypes["RaceResult_SumFISPoints"] = new FISRaceResultViewProvider();
-      _prototypes["RaceResult_SumPointsViaTable"] = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
-      _prototypes["RaceResult_SumPointsViaTablePerRun"] = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
+      m = _legacyRun2BasedOnResults.Match(viewKey);
+      if (m.Success)
+      {
+        normKey = m.Groups[1].Value == "Cumulative" ? Run2_Cumulative : Run2_PreviousRun;
+        normParams[ParamReverseBestN] = m.Groups[2].Value == "all" ? int.MaxValue : int.Parse(m.Groups[2].Value);
+        normParams[ParamAllowNonResults] = m.Groups[3].Value == "AlsoWithoutResults";
+      }
     }
 
 
-    public ViewProvider Create(string viewKey)
+    /// <summary>
+    /// Compares two view configurations taking legacy keys into account.
+    /// </summary>
+    public static bool AreEqual(string viewKey1, Dictionary<string, object> viewParams1, string viewKey2, Dictionary<string, object> viewParams2)
+    {
+      Normalize(viewKey1, viewParams1, out string key1, out var params1);
+      Normalize(viewKey2, viewParams2, out string key2, out var params2);
+
+      if (key1 != key2 || params1.Count != params2.Count)
+        return false;
+
+      // Value types might differ (e.g. int vs. long after JSON deserialization)
+      string toString(object o) => Convert.ToString(o, CultureInfo.InvariantCulture);
+      foreach (var p in params1)
+        if (!params2.TryGetValue(p.Key, out object v2) || toString(p.Value) != toString(v2))
+          return false;
+
+      return true;
+    }
+
+
+    public static int GetInt(Dictionary<string, object> viewParams, string name, int defaultValue)
+    {
+      if (viewParams != null && viewParams.TryGetValue(name, out object value) && value != null)
+        try { return Convert.ToInt32(value, CultureInfo.InvariantCulture); } catch (Exception) { }
+      return defaultValue;
+    }
+
+    public static bool GetBool(Dictionary<string, object> viewParams, string name, bool defaultValue)
+    {
+      if (viewParams != null && viewParams.TryGetValue(name, out object value) && value != null)
+        try { return Convert.ToBoolean(value, CultureInfo.InvariantCulture); } catch (Exception) { }
+      return defaultValue;
+    }
+  }
+
+
+  internal class ViewFactory
+  {
+    protected Dictionary<string, Func<Dictionary<string, object>, ViewProvider>> _creators;
+
+    public ViewFactory()
+    {
+      _creators = new Dictionary<string, Func<Dictionary<string, object>, ViewProvider>>();
+
+      _creators[StartlistViewConfig.Run1_StartnumberAscending] = p => new FirstRunStartListViewProvider();
+      _creators[StartlistViewConfig.Run1_StartnumberDescending] = p => new FirstRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
+      _creators[StartlistViewConfig.Run1_Points] = p => new DSVFirstRunStartListViewProvider(
+        StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamDrawFirstN, 0));
+
+      _creators[StartlistViewConfig.Run2_StartnumberAscending] = p => new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending);
+      _creators[StartlistViewConfig.Run2_StartnumberDescending] = p => new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
+      _creators[StartlistViewConfig.Run2_PreviousRun] = p => new BasedOnResultsFirstRunStartListViewProvider(
+        StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, 0),
+        StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false));
+      _creators[StartlistViewConfig.Run2_Cumulative] = p => new BasedOnResultsFirstRunStartListViewProvider(
+        StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, 0),
+        StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false),
+        useCumulativeResults: true);
+
+      _creators["RaceResult_BestOfTwo"] = p => new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
+      _creators["RaceResult_Sum"] = p => new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
+      _creators["RaceResult_SumBest2"] = p => new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumBest2);
+      _creators["RaceResult_2xBestOf2"] = p => new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumMxBestOfN);
+      _creators["RaceResult_SumDSVPointsSchool"] = p => new DSVSchoolRaceResultViewProvider();
+      _creators["RaceResult_SumFISPoints"] = p => new FISRaceResultViewProvider();
+      _creators["RaceResult_SumPointsViaTable"] = p => new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
+      _creators["RaceResult_SumPointsViaTablePerRun"] = p => new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
+    }
+
+
+    public ViewProvider Create(string viewKey, Dictionary<string, object> viewParams = null)
     {
       if (viewKey == null)
         return null;
 
-      ViewProvider prototype;
-      if (_prototypes.TryGetValue(viewKey, out prototype))
-      {
-        return prototype.Clone();
-      }
+      StartlistViewConfig.Normalize(viewKey, viewParams, out string key, out var normParams);
 
-      // Issue #475: dynamically configured reversed top-N start lists.
-      // The existing fixed keys stay valid, including all historical presets.
-      var parts = viewKey.Split('_');
-      if (parts.Length == 5 && parts[0] == "Startlist" && parts[1] == "2nd"
-          && (parts[2] == "PreviousRun" || parts[2] == "Cumulative")
-          && int.TryParse(parts[3], out int reverseBestN) && reverseBestN >= 0
-          && (parts[4] == "OnlyWithResults" || parts[4] == "AlsoWithoutResults"))
-      {
-        return new BasedOnResultsFirstRunStartListViewProvider(
-          reverseBestN, parts[4] == "AlsoWithoutResults", parts[2] == "Cumulative");
-      }
+      if (_creators.TryGetValue(key, out var creator))
+        return creator(normParams);
 
       return null;
     }
 
-    public T Create<T>(string viewKey) where T : ViewProvider
+    public T Create<T>(string viewKey, Dictionary<string, object> viewParams = null) where T : ViewProvider
     {
-      T instance = Create(viewKey) as T;
+      T instance = Create(viewKey, viewParams) as T;
       return instance;
     }
 
@@ -141,7 +218,7 @@ namespace RaceHorologyLib
       // First Run
       if (1 == rr.Run)
       {
-        FirstRunStartListViewProvider frslVP = factory.Create<FirstRunStartListViewProvider>(_config.Run1_StartistView);
+        FirstRunStartListViewProvider frslVP = factory.Create<FirstRunStartListViewProvider>(_config.Run1_StartistView, _config.Run1_StartistViewParams);
 
         // Backup if nothing has been created
         if (frslVP == null)
@@ -158,7 +235,7 @@ namespace RaceHorologyLib
         // Figure out previous run
         RaceRun rrPrevious = rr.GetRace().GetRuns().Where(r => r.Run == (rr.Run - 1U)).First();
 
-        SecondRunStartListViewProvider srslVP = factory.Create<SecondRunStartListViewProvider>(_config.Run2_StartistView);
+        SecondRunStartListViewProvider srslVP = factory.Create<SecondRunStartListViewProvider>(_config.Run2_StartistView, _config.Run2_StartistViewParams);
 
         if (srslVP == null)
           srslVP = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending);
