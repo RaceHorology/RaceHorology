@@ -186,10 +186,10 @@ namespace RaceHorologyLib
       res &= config1.RaceResultView_PenaltyRuleMode == config2.RaceResultView_PenaltyRuleMode;
       res &= config1.RaceResultView_PenaltyRuleCutOffValue == config2.RaceResultView_PenaltyRuleCutOffValue;
 
-      res &= config1.Run1_StartistView == config2.Run1_StartistView;
+      res &= StartlistViewConfig.AreEqual(config1.Run1_StartistView, config1.Run1_StartistViewParams, config2.Run1_StartistView, config2.Run1_StartistViewParams);
       res &= config1.Run1_StartistViewGrouping == config2.Run1_StartistViewGrouping;
 
-      res &= config1.Run2_StartistView == config2.Run2_StartistView;
+      res &= StartlistViewConfig.AreEqual(config1.Run2_StartistView, config1.Run2_StartistViewParams, config2.Run2_StartistView, config2.Run2_StartistViewParams);
       res &= config1.Run2_StartistViewGrouping == config2.Run2_StartistViewGrouping;
 
       return res;

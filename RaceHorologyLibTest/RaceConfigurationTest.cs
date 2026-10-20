@@ -567,5 +567,64 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(db.GetCompetitionProperties().FieldActiveYear);
       Assert.IsTrue(db.GetCompetitionProperties().FieldActiveNation);
     }
+
+
+    [TestMethod]
+    public void StartlistViewConfig_NormalizeLegacyKeys()
+    {
+      StartlistViewConfig.Normalize("Startlist_1stRun_Points_15", null, out string key, out var p);
+      Assert.AreEqual(StartlistViewConfig.Run1_Points, key);
+      Assert.AreEqual(15, StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamDrawFirstN, -1));
+
+      StartlistViewConfig.Normalize("Startlist_2nd_PreviousRun_30_OnlyWithResults", null, out key, out p);
+      Assert.AreEqual(StartlistViewConfig.Run2_PreviousRun, key);
+      Assert.AreEqual(30, StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, -1));
+      Assert.IsFalse(StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, true));
+
+      StartlistViewConfig.Normalize("Startlist_2nd_PreviousRun_all_AlsoWithoutResults", null, out key, out p);
+      Assert.AreEqual(StartlistViewConfig.Run2_PreviousRun, key);
+      Assert.AreEqual(int.MaxValue, StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, -1));
+      Assert.IsTrue(StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false));
+
+      // Dynamic keys written by Issue #475 (arbitrary N, cumulative mode)
+      StartlistViewConfig.Normalize("Startlist_2nd_Cumulative_7_AlsoWithoutResults", null, out key, out p);
+      Assert.AreEqual(StartlistViewConfig.Run2_Cumulative, key);
+      Assert.AreEqual(7, StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, -1));
+      Assert.IsTrue(StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false));
+
+      // Non-legacy keys stay untouched
+      StartlistViewConfig.Normalize(StartlistViewConfig.Run2_StartnumberDescending, null, out key, out p);
+      Assert.AreEqual(StartlistViewConfig.Run2_StartnumberDescending, key);
+      Assert.AreEqual(0, p.Count);
+    }
+
+
+    [TestMethod]
+    public void StartlistViewConfig_CompareAndCreate()
+    {
+      var newParams = new Dictionary<string, object>
+      {
+        { StartlistViewConfig.ParamReverseBestN, 30 },
+        { StartlistViewConfig.ParamAllowNonResults, false }
+      };
+
+      // Legacy key equals base key + params
+      Assert.IsTrue(StartlistViewConfig.AreEqual("Startlist_2nd_PreviousRun_30_OnlyWithResults", null, StartlistViewConfig.Run2_PreviousRun, newParams));
+      Assert.IsFalse(StartlistViewConfig.AreEqual("Startlist_2nd_PreviousRun_15_OnlyWithResults", null, StartlistViewConfig.Run2_PreviousRun, newParams));
+      Assert.IsTrue(StartlistViewConfig.AreEqual(StartlistViewConfig.Run1_StartnumberAscending, null, StartlistViewConfig.Run1_StartnumberAscending, new Dictionary<string, object>()));
+
+      // Params survive JSON round trip (ints become longs)
+      var cfg = new RaceConfiguration { Run2_StartistView = StartlistViewConfig.Run2_PreviousRun, Run2_StartistViewParams = newParams };
+      var cfgLoaded = new RaceConfiguration();
+      Newtonsoft.Json.JsonConvert.PopulateObject(Newtonsoft.Json.JsonConvert.SerializeObject(cfg), cfgLoaded);
+      Assert.IsTrue(StartlistViewConfig.AreEqual(cfg.Run2_StartistView, cfg.Run2_StartistViewParams, cfgLoaded.Run2_StartistView, cfgLoaded.Run2_StartistViewParams));
+
+      var factory = new ViewFactory();
+      Assert.IsInstanceOfType(factory.Create(StartlistViewConfig.Run2_PreviousRun, cfgLoaded.Run2_StartistViewParams), typeof(BasedOnResultsFirstRunStartListViewProvider));
+      Assert.IsInstanceOfType(factory.Create("Startlist_2nd_PreviousRun_all_AlsoWithoutResults"), typeof(BasedOnResultsFirstRunStartListViewProvider));
+      Assert.IsInstanceOfType(factory.Create("Startlist_1stRun_Points_30"), typeof(DSVFirstRunStartListViewProvider));
+      Assert.IsInstanceOfType(factory.Create(StartlistViewConfig.Run1_Points), typeof(DSVFirstRunStartListViewProvider));
+      Assert.IsNull(factory.Create("Unknown"));
+    }
   }
 }
