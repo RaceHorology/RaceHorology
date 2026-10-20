@@ -375,6 +375,54 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Test for SimpleSecondRunStartListViewProvider without participants lacking a valid result in the previous run (Issue #613)
+    /// </summary>
+    [TestMethod]
+    public void SimpleSecondRunStartListViewProvider_Test_OnlyWithResults()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      for (int i = 0; i < 6; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      FirstRunStartListViewProvider provider1strun = new FirstRunStartListViewProvider();
+      provider1strun.Init(race.GetParticipants());
+      run1.SetStartListProvider(provider1strun);
+
+      for (int i = 1; i <= 6; i++)
+        run1.SetRunTime(race.GetParticipant((uint)i), TimeSpan.FromSeconds(50 + i));
+      run1.SetResultCode(race.GetParticipant(2), RunResult.EResultCode.NaS);
+      run1.SetResultCode(race.GetParticipant(4), RunResult.EResultCode.DIS);
+      var run1Results = new RaceRunResultViewProvider();
+      run1Results.Init(run1, tg.Model);
+      run1.SetResultViewProvider(run1Results);
+
+      List<uint> startNumbers(StartListViewProvider p) => new List<uint>(System.Linq.Enumerable.Select(p.GetViewList(), x => x.StartNumber));
+
+      var provider = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending, allowNonResults: false);
+      provider.Init(run1);
+      CollectionAssert.AreEqual(new uint[] { 6, 5, 3, 1 }, startNumbers(provider));
+
+      // Later changes of the previous run are reflected
+      run1.SetResultCode(race.GetParticipant(5), RunResult.EResultCode.NiZ);
+      CollectionAssert.AreEqual(new uint[] { 6, 3, 1 }, startNumbers(provider));
+      run1.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(60));
+      CollectionAssert.AreEqual(new uint[] { 6, 3, 2, 1 }, startNumbers(provider));
+
+      // Ascending order works the same way
+      var providerAsc = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending, allowNonResults: false);
+      providerAsc.Init(run1);
+      CollectionAssert.AreEqual(new uint[] { 1, 2, 3, 6 }, startNumbers(providerAsc));
+
+      // Default still contains all participants
+      var providerAll = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
+      providerAll.Init(run1);
+      CollectionAssert.AreEqual(new uint[] { 6, 5, 4, 3, 2, 1 }, startNumbers(providerAll));
+    }
+
+
     [TestMethod]
     public void BasedOnResultsFirstRunStartListViewProvider_Test()
     {

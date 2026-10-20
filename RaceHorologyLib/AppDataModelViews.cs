@@ -435,27 +435,31 @@ namespace RaceHorologyLib
   /// Simplest form of a start list provider for 2nd run. Supports:
   /// - Based startnumber ascending
   /// - Based startnumber descending
+  /// - Optionally without participants lacking a valid result in the previous run (NaS, NiZ, DIS, ...)
   /// </summary>
   public class SimpleSecondRunStartListViewProvider : SecondRunStartListViewProvider
   {
     // Input
     protected ObservableCollection<StartListEntry> _startList1stRun;
     protected StartListEntryComparer.Direction _direction;
+    protected bool _allowNonResults;
+    ItemsChangeObservableCollection<RunResultWithPosition> _resultsPreviousRun;
 
     // Working
     ItemsChangedNotifier _sourceItemChangedNotifier;
     StartListEntryComparer _comparer;
 
 
-    public SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction direction)
+    public SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction direction, bool allowNonResults = true)
     {
       _direction = direction;
+      _allowNonResults = allowNonResults;
       _comparer = new StartListEntryComparer(direction);
     }
 
     public override ViewProvider Clone()
     {
-      return new SimpleSecondRunStartListViewProvider(_direction);
+      return new SimpleSecondRunStartListViewProvider(_direction, _allowNonResults);
     }
 
 
@@ -465,6 +469,22 @@ namespace RaceHorologyLib
 
       StartListViewProvider slPR1st = previousRun.GetStartListProvider();
       _startList1stRun = slPR1st.GetViewList();
+
+      if (!_allowNonResults)
+      {
+        // Only participants with a valid result in the previous run (Issue #613)
+        // The list gets rebuilt on every change of start list or results (e.g. a later disqualification)
+        _resultsPreviousRun = (previousRun.GetResultViewProvider() as RaceRunResultViewProvider).GetViewList();
+        _resultsPreviousRun.CollectionChanged += (s, e) => UpdateFilteredStartList();
+        _resultsPreviousRun.ItemChanged += (s, e) => UpdateFilteredStartList();
+        _startList1stRun.CollectionChanged += (s, e) => UpdateFilteredStartList();
+        _sourceItemChangedNotifier = new ItemsChangedNotifier(_startList1stRun);
+        _sourceItemChangedNotifier.ItemChanged += (s, e) => UpdateFilteredStartList();
+
+        UpdateFilteredStartList();
+        FinalizeInit();
+        return;
+      }
 
       // Initialize and observe source list
       PopulateInitially<StartListEntry, StartListEntry>(_viewList, _startList1stRun, _comparer, CreateStartListEntry);
@@ -506,6 +526,24 @@ namespace RaceHorologyLib
     private StartListEntry CreateStartListEntry(StartListEntry sleSRC)
     {
       return new StartListEntry(sleSRC.Participant);
+    }
+
+
+    private void UpdateFilteredStartList()
+    {
+      var validParticipants = new HashSet<RaceParticipant>(_resultsPreviousRun
+        .Where(r => r.Runtime != null && r.ResultCode == RunResult.EResultCode.Normal)
+        .Select(r => r.Participant));
+
+      var newStartList = _startList1stRun
+        .Where(sle => validParticipants.Contains(sle.Participant))
+        .Select(CreateStartListEntry)
+        .ToList();
+      newStartList.Sort(_comparer);
+
+      // Copy at once to trigger only one change notification
+      _viewList.Clear();
+      _viewList.InsertRange(newStartList);
     }
 
 
