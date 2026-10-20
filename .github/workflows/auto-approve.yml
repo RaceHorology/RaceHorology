@@ -1,0 +1,26 @@
+name: Auto-approve maintainer PRs
+
+# Approves pull requests opened by the repository maintainer, so auto-merge only
+# waits for the required CI checks. Uses pull_request_target, so the workflow
+# always runs in the version from main and never checks out the PR's code.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  approve:
+    # Only approve if the maintainer opened the PR and also made the latest push
+    if: >-
+      github.event.pull_request.user.login == 'svenflossmann' &&
+      github.event.sender.login == 'svenflossmann' &&
+      !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve
+        run: gh pr review "$PR_URL" --approve --body "Auto-approved: pull request by the repository maintainer."
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
