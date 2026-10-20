@@ -97,7 +97,7 @@ namespace RaceHorology
 
       InitializeTiming();
 
-      ucRaceLists.Init(_thisRace);
+      ucRaceLists.Init(_thisRace, _liveTimingMeasurement);
       ucReports.Init(_thisRace);
       ucRefereeReport.Init(_thisRace);
 

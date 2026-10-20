@@ -209,6 +209,7 @@ namespace RaceHorology
   public partial class RaceListsUC : UserControl
   {
     Race _thisRace;
+    LiveTimingMeasurement _liveTimingMeasurement;
 
     IWarningLabelHandler _lblHandler;
 
@@ -220,9 +221,10 @@ namespace RaceHorology
       InitializeComponent();
     }
 
-    public void Init(Race race)
+    public void Init(Race race, LiveTimingMeasurement liveTimingMeasurement = null)
     {
       _thisRace = race;
+      _liveTimingMeasurement = liveTimingMeasurement;
 
       initialize();
       configureExport(null);
@@ -642,12 +644,36 @@ namespace RaceHorology
 
     private void configureExport(CBItem selectedList)
     {
-      List<ExportConfig> exportConfigs = new List<ExportConfig>
+      var ltm = _liveTimingMeasurement;
+      var capturedSelection = selectedList;
+      List<ExportConfig> alpenhundeConfigs = new List<ExportConfig>
       {
         { new ExportConfig { Name = "Alpenhunde - Startliste", ExportFunc = ExportUI.ExportAlpenhundeStartList, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
+      };
+      List<ExportConfig> microgateConfigs = new List<ExportConfig>
+      {
+        { new ExportConfig { Name = "Microgate - Athletenliste senden", ExportFunc = (race, view) => ExportUI.SendMicrogateV2AthletesList(race, view, ltm), MatchSelectedListFunc = (selList) => MatchSelected(selList, "participants") } },
+        { new ExportConfig { Name = "Microgate - Startliste senden", ExportFunc = (race, view) => ExportUI.SendMicrogateV2StartList(race, view, ltm, getRaceRunOfSelection(capturedSelection)), MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
+      };
+      List<ExportConfig> genericConfigs = new List<ExportConfig>
+      {
         { new ExportConfig { Name = "Excel - Startliste", ExportFunc = ExportUI.ExportGenericStartListXLSX, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
         { new ExportConfig { Name = "CSV - Startliste", ExportFunc = ExportUI.ExportGenericStartListCSV, MatchSelectedListFunc = (selList) => MatchSelected(selList, "startlist_run") } },
       };
+
+      List<ExportConfig> exportConfigs = new List<ExportConfig>();
+      if (isActiveDeviceMicrogateV2())
+      {
+        exportConfigs.AddRange(microgateConfigs);
+        exportConfigs.AddRange(alpenhundeConfigs);
+      }
+      else
+      {
+        exportConfigs.AddRange(alpenhundeConfigs);
+        exportConfigs.AddRange(microgateConfigs);
+      }
+      exportConfigs.AddRange(genericConfigs);
+
       mbtnExport.Items.Clear();
       foreach (var config in exportConfigs)
       {
@@ -659,6 +685,37 @@ namespace RaceHorology
         item.IsEnabled = enabled;
         mbtnExport.Items.Add(item);
       }
+    }
+
+    private bool isActiveDeviceAlpenhunde()
+    {
+      if (_liveTimingMeasurement == null)
+        return false;
+      foreach (var d in _liveTimingMeasurement.GetTimingDevices())
+      {
+        if (d is TimingDeviceAlpenhunde)
+          return true;
+      }
+      return false;
+    }
+
+    private bool isActiveDeviceMicrogateV2()
+    {
+      if (_liveTimingMeasurement == null)
+        return false;
+      foreach (var d in _liveTimingMeasurement.GetTimingDevices())
+      {
+        if (d is MicrogateV2TimeMeasurementBase)
+          return true;
+      }
+      return false;
+    }
+
+    private RaceRun getRaceRunOfSelection(CBItem selectedList)
+    {
+      if (selectedList?.Value is CBObjectTotalResults selObj)
+        return selObj.RaceRun;
+      return null;
     }
 
     private void ExportItem_Click(object sender, RoutedEventArgs e)
