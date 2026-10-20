@@ -1,6 +1,7 @@
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -77,6 +78,12 @@ namespace RaceHorology
       //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberDescending" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (nicht gedreht)", Value = "Startlist_2nd_PreviousRun_0_OnlyWithResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (nicht gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_0_AlsoWithoutResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (erste 5 gedreht)", Value = "Startlist_2nd_PreviousRun_5_OnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (erste 5 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_5_AlsoWithoutResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (erste N gedreht; Anzahl eingeben)", Value = "Startlist_2nd_PreviousRun_Custom_OnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (erste N gedreht; inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_Custom_AlsoWithoutResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Summe aller vorherigen Läufe (erste N gedreht; Anzahl eingeben)", Value = "Startlist_2nd_Cumulative_Custom_OnlyWithResults" });
+      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Summe aller vorherigen Läufe (erste N gedreht; inkl. ohne Ergebnis)", Value = "Startlist_2nd_Cumulative_Custom_AlsoWithoutResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 15 gedreht)", Value = "Startlist_2nd_PreviousRun_15_OnlyWithResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 15 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_15_AlsoWithoutResults" });
       cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 30 gedreht)", Value = "Startlist_2nd_PreviousRun_30_OnlyWithResults" });
@@ -86,6 +93,11 @@ namespace RaceHorology
 
       chkTeam.Checked += ChkTeam_CheckChanged;
       chkTeam.Unchecked += ChkTeam_CheckChanged;
+      cmbConfigStartlist2.SelectionChanged += (sender, args) =>
+      {
+        string selectedKey = (cmbConfigStartlist2.SelectedValue as CBItem)?.Value as string;
+        txtReverseBestN.IsEnabled = selectedKey != null && selectedKey.Contains("_Custom_");
+      };
 
       ResetConfigurationSelectionUI(_raceConfiguration);
     }
@@ -187,7 +199,24 @@ namespace RaceHorology
 
       cmbConfigStartlist1.SelectCBItem(cfg.Run1_StartistView);
       cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
-      cmbConfigStartlist2.SelectCBItem(cfg.Run2_StartistView);
+      // Convert a saved numeric dynamic key into the corresponding UI choice.
+      string selectedStartlist2 = cfg.Run2_StartistView;
+      txtReverseBestN.Text = "5";
+      if (selectedStartlist2 != null &&
+          !cmbConfigStartlist2.Items.Cast<CBItem>().Any(i => (string)i.Value == selectedStartlist2))
+      {
+        var parts = selectedStartlist2.Split('_');
+        if (parts.Length == 5 && parts[0] == "Startlist" && parts[1] == "2nd"
+            && (parts[2] == "PreviousRun" || parts[2] == "Cumulative")
+            && int.TryParse(parts[3], out int configuredN) && configuredN >= 0)
+        {
+          txtReverseBestN.Text = configuredN.ToString();
+          parts[3] = "Custom";
+          selectedStartlist2 = string.Join("_", parts);
+        }
+      }
+      cmbConfigStartlist2.SelectCBItem(selectedStartlist2);
+      txtReverseBestN.IsEnabled = selectedStartlist2 != null && selectedStartlist2.Contains("_Custom_");
       cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
       txtValueF.Text = cfg.ValueF.ToString();
       txtValueA.Text = cfg.ValueA.ToString();
@@ -243,7 +272,17 @@ namespace RaceHorology
         cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
 
       if (cmbConfigStartlist2.SelectedIndex >= 0)
-        cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
+      {
+        string key = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
+        if (key.Contains("_Custom_"))
+        {
+          // Save a numeric key, not the UI-only placeholder.
+          if (!int.TryParse(txtReverseBestN.Text, out int n) || n < 0)
+            n = 5;
+          key = key.Replace("_Custom_", "_" + n + "_");
+        }
+        cfg.Run2_StartistView = key;
+      }
 
       if (cmbConfigStartlist2Grouping.SelectedIndex >= 0)
         cfg.Run2_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist2Grouping.SelectedValue).Value;

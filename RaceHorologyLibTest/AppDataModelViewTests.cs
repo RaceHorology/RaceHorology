@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
  *
  *  This file is part of Race Horology.
@@ -378,6 +378,57 @@ namespace RaceHorologyLibTest
     [TestMethod]
     public void BasedOnResultsFirstRunStartListViewProvider_Test()
     {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      for (int i = 0; i < 7; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      for (int i = 1; i <= 7; i++)
+        run1.SetRunTime(race.GetParticipant((uint)i), TimeSpan.FromSeconds(50 + 4 * (i - 1)));
+      var run1Results = new RaceRunResultViewProvider();
+      run1Results.Init(run1, tg.Model);
+      run1.SetResultViewProvider(run1Results);
+
+      var provider = new BasedOnResultsFirstRunStartListViewProvider(5, false);
+      provider.Init(run1);
+      CollectionAssert.AreEqual(new uint[] { 5, 4, 3, 2, 1, 6, 7 },
+        new List<uint>(System.Linq.Enumerable.Select(provider.GetViewList(), x => x.StartNumber)));
+    }
+
+    [TestMethod]
+    public void BasedOnCumulativeResultsStartListViewProvider_ThirdRun_Test()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      race.AddRaceRun();
+      race.AddRaceRun();
+      for (int i = 0; i < 7; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+      for (int i = 1; i <= 7; i++)
+      {
+        run1.SetRunTime(race.GetParticipant((uint)i), TimeSpan.FromSeconds(50 + 4 * (i - 1)));
+        run2.SetRunTime(race.GetParticipant((uint)i), TimeSpan.FromSeconds(74 - 2 * (i - 1)));
+      }
+      var run1Results = new RaceRunResultViewProvider();
+      run1Results.Init(run1, tg.Model);
+      run1.SetResultViewProvider(run1Results);
+      var run2Results = new RaceRunResultViewProvider();
+      run2Results.Init(run2, tg.Model);
+      run2.SetResultViewProvider(run2Results);
+
+      var provider = new BasedOnResultsFirstRunStartListViewProvider(5, false, true);
+      provider.Init(run2); // Generates the start list for run 3, using runs 1+2.
+      CollectionAssert.AreEqual(new uint[] { 5, 4, 3, 2, 1, 6, 7 },
+        new List<uint>(System.Linq.Enumerable.Select(provider.GetViewList(), x => x.StartNumber)));
+
+      // A correction to an earlier run must update the start order immediately.
+      run2.SetRunTime(race.GetParticipant(7), TimeSpan.FromSeconds(40));
+      CollectionAssert.AreEqual(new uint[] { 4, 3, 2, 1, 7, 5, 6 },
+        new List<uint>(System.Linq.Enumerable.Select(provider.GetViewList(), x => x.StartNumber)));
     }
 
 
