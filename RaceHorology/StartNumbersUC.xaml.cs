@@ -104,24 +104,9 @@ namespace RaceHorology
       int nVerlosung = int.MaxValue;
       string grouping = _race.RaceConfiguration.Run1_StartistViewGrouping;
 
-      switch (_race.RaceConfiguration.Run1_StartistView)
-      {
-        case "Startlist_1stRun_StartnumberAscending":
-          nVerlosung = int.MaxValue;
-          break;
-        case "Startlist_1stRun_StartnumberDescending":
-          nVerlosung = int.MaxValue;
-          break;
-        case "Startlist_1stRun_Points_0":
-          nVerlosung = 0;
-          break;
-        case "Startlist_1stRun_Points_15":
-          nVerlosung = 15;
-          break;
-        case "Startlist_1stRun_Points_30":
-          nVerlosung = 30;
-          break;
-      }
+      StartlistViewConfig.Normalize(_race.RaceConfiguration.Run1_StartistView, _race.RaceConfiguration.Run1_StartistViewParams, out string viewKey, out var viewParams);
+      if (viewKey == StartlistViewConfig.Run1_Points)
+        nVerlosung = StartlistViewConfig.GetInt(viewParams, StartlistViewConfig.ParamDrawFirstN, 0);
 
       if (nVerlosung != int.MaxValue)
         txtVerlosung.Text = nVerlosung.ToString();
