@@ -1,12 +1,45 @@
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace RaceHorology
 {
+  /// <summary>
+  /// Sub UI to edit the parameters of a view (e.g. number of participants to reverse)
+  /// </summary>
+  interface IViewParamsUC
+  {
+    void SetParams(Dictionary<string, object> viewParams);
+    Dictionary<string, object> GetParams();
+  }
+
+  /// <summary>
+  /// ComboBox item for a view, optionally with a sub UI for its parameters
+  /// </summary>
+  internal class ViewCBItem : CBItem
+  {
+    public Func<UserControl> ParamsUC;
+
+    UserControl _paramsUCInstance;
+
+    /// <summary>
+    /// Returns the sub UI, created once (initialized with default parameters) and then reused,
+    /// so entered values survive switching to another view and back.
+    /// </summary>
+    public UserControl GetParamsUC()
+    {
+      if (_paramsUCInstance == null && ParamsUC != null)
+      {
+        _paramsUCInstance = ParamsUC();
+        (_paramsUCInstance as IViewParamsUC)?.SetParams(null);
+      }
+      return _paramsUCInstance;
+    }
+  }
+
+
   /// <summary>
   /// Interaction logic for RaceConfigurationUC.xaml
   /// </summary>
@@ -63,41 +96,20 @@ namespace RaceHorology
       // Run 1
       UiUtilities.FillGrouping(cmbConfigStartlist1Grouping, null, raceConfig.ActiveFields);
       cmbConfigStartlist1.Items.Clear();
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_1stRun_StartnumberAscending" });
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Startnummer (absteigend)", Value = "Startlist_1stRun_StartnumberDescending" });
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (nicht gelost)", Value = "Startlist_1stRun_Points_0" });
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 15 gelost)", Value = "Startlist_1stRun_Points_15" });
-      cmbConfigStartlist1.Items.Add(new CBItem { Text = "Punkte (ersten 30 gelost)", Value = "Startlist_1stRun_Points_30" });
+      cmbConfigStartlist1.Items.Add(new ViewCBItem { Text = "Startnummer (aufsteigend)", Value = StartlistViewConfig.Run1_StartnumberAscending });
+      cmbConfigStartlist1.Items.Add(new ViewCBItem { Text = "Startnummer (absteigend)", Value = StartlistViewConfig.Run1_StartnumberDescending });
+      cmbConfigStartlist1.Items.Add(new ViewCBItem { Text = "Punkte", Value = StartlistViewConfig.Run1_Points, ParamsUC = () => new StartlistPointsParamsUC() });
 
       // Run 2
       UiUtilities.FillGrouping(cmbConfigStartlist2Grouping, null, raceConfig.ActiveFields);
       cmbConfigStartlist2.Items.Clear();
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (aufsteigend)", Value = "Startlist_2nd_StartnumberAscending" });
-      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (aufsteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberAscending" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Startnummer (absteigend)", Value = "Startlist_2nd_StartnumberDescending" });
-      //cmbConfigStartlist2.Items.Add(new GroupingCBItem { Text = "Startnummer (absteigend, inkl. ohne Ergebnis)", Value = "Startlist_2nd_StartnumberDescending" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (nicht gedreht)", Value = "Startlist_2nd_PreviousRun_0_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (nicht gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_0_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (erste 5 gedreht)", Value = "Startlist_2nd_PreviousRun_5_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (erste 5 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_5_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (erste N gedreht; Anzahl eingeben)", Value = "Startlist_2nd_PreviousRun_Custom_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (erste N gedreht; inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_Custom_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Summe aller vorherigen Läufe (erste N gedreht; Anzahl eingeben)", Value = "Startlist_2nd_Cumulative_Custom_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Summe aller vorherigen Läufe (erste N gedreht; inkl. ohne Ergebnis)", Value = "Startlist_2nd_Cumulative_Custom_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 15 gedreht)", Value = "Startlist_2nd_PreviousRun_15_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 15 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_15_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 30 gedreht)", Value = "Startlist_2nd_PreviousRun_30_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (ersten 30 gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_30_AlsoWithoutResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht)", Value = "Startlist_2nd_PreviousRun_all_OnlyWithResults" });
-      cmbConfigStartlist2.Items.Add(new CBItem { Text = "Vorheriger Lauf nach Zeit (alle gedreht, inkl. ohne Ergebnis)", Value = "Startlist_2nd_PreviousRun_all_AlsoWithoutResults" });
+      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Startnummer (aufsteigend)", Value = StartlistViewConfig.Run2_StartnumberAscending });
+      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Startnummer (absteigend)", Value = StartlistViewConfig.Run2_StartnumberDescending });
+      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Vorheriger Lauf nach Zeit", Value = StartlistViewConfig.Run2_PreviousRun, ParamsUC = () => new StartlistPreviousRunParamsUC() });
+      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Summe aller vorherigen Läufe", Value = StartlistViewConfig.Run2_Cumulative, ParamsUC = () => new StartlistPreviousRunParamsUC() });
 
       chkTeam.Checked += ChkTeam_CheckChanged;
       chkTeam.Unchecked += ChkTeam_CheckChanged;
-      cmbConfigStartlist2.SelectionChanged += (sender, args) =>
-      {
-        string selectedKey = (cmbConfigStartlist2.SelectedValue as CBItem)?.Value as string;
-        txtReverseBestN.IsEnabled = selectedKey != null && selectedKey.Contains("_Custom_");
-      };
 
       ResetConfigurationSelectionUI(_raceConfiguration);
     }
@@ -197,26 +209,9 @@ namespace RaceHorology
         chkConfigPenalty.IsChecked = false;
       chkConfigPenalty_CheckChanged(null, null);
 
-      cmbConfigStartlist1.SelectCBItem(cfg.Run1_StartistView);
+      selectView(cmbConfigStartlist1, ccConfigStartlist1Params, cfg.Run1_StartistView, cfg.Run1_StartistViewParams);
       cmbConfigStartlist1Grouping.SelectCBItem(cfg.Run1_StartistViewGrouping);
-      // Convert a saved numeric dynamic key into the corresponding UI choice.
-      string selectedStartlist2 = cfg.Run2_StartistView;
-      txtReverseBestN.Text = "5";
-      if (selectedStartlist2 != null &&
-          !cmbConfigStartlist2.Items.Cast<CBItem>().Any(i => (string)i.Value == selectedStartlist2))
-      {
-        var parts = selectedStartlist2.Split('_');
-        if (parts.Length == 5 && parts[0] == "Startlist" && parts[1] == "2nd"
-            && (parts[2] == "PreviousRun" || parts[2] == "Cumulative")
-            && int.TryParse(parts[3], out int configuredN) && configuredN >= 0)
-        {
-          txtReverseBestN.Text = configuredN.ToString();
-          parts[3] = "Custom";
-          selectedStartlist2 = string.Join("_", parts);
-        }
-      }
-      cmbConfigStartlist2.SelectCBItem(selectedStartlist2);
-      txtReverseBestN.IsEnabled = selectedStartlist2 != null && selectedStartlist2.Contains("_Custom_");
+      selectView(cmbConfigStartlist2, ccConfigStartlist2Params, cfg.Run2_StartistView, cfg.Run2_StartistViewParams);
       cmbConfigStartlist2Grouping.SelectCBItem(cfg.Run2_StartistViewGrouping);
       txtValueF.Text = cfg.ValueF.ToString();
       txtValueA.Text = cfg.ValueA.ToString();
@@ -266,22 +261,18 @@ namespace RaceHorology
         cfg.RaceResultView_PenaltyRuleMode = RaceConfiguration.EPenaltyMode.Off;
 
       if (cmbConfigStartlist1.SelectedIndex >= 0)
+      {
         cfg.Run1_StartistView = (string)((CBItem)cmbConfigStartlist1.SelectedValue).Value;
+        cfg.Run1_StartistViewParams = (ccConfigStartlist1Params.Content as IViewParamsUC)?.GetParams();
+      }
 
       if (cmbConfigStartlist1Grouping.SelectedIndex >= 0)
         cfg.Run1_StartistViewGrouping = (string)((CBItem)cmbConfigStartlist1Grouping.SelectedValue).Value;
 
       if (cmbConfigStartlist2.SelectedIndex >= 0)
       {
-        string key = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
-        if (key.Contains("_Custom_"))
-        {
-          // Save a numeric key, not the UI-only placeholder.
-          if (!int.TryParse(txtReverseBestN.Text, out int n) || n < 0)
-            n = 5;
-          key = key.Replace("_Custom_", "_" + n + "_");
-        }
-        cfg.Run2_StartistView = key;
+        cfg.Run2_StartistView = (string)((CBItem)cmbConfigStartlist2.SelectedValue).Value;
+        cfg.Run2_StartistViewParams = (ccConfigStartlist2Params.Content as IViewParamsUC)?.GetParams();
       }
 
       if (cmbConfigStartlist2Grouping.SelectedIndex >= 0)
@@ -347,6 +338,44 @@ namespace RaceHorology
     {
       txtValuePenaltyCutOff.IsEnabled = chkConfigPenalty.IsChecked == true;
       cmbConfigPenalty.IsEnabled = chkConfigPenalty.IsChecked == true;
+    }
+
+
+    private ContentControl getParamsContentControl(ComboBox cmb)
+    {
+      if (cmb == cmbConfigStartlist1)
+        return ccConfigStartlist1Params;
+      if (cmb == cmbConfigStartlist2)
+        return ccConfigStartlist2Params;
+      return null;
+    }
+
+    private void cmbConfigStartlist_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (sender is ComboBox cmb)
+        updateParamsUC(cmb, getParamsContentControl(cmb));
+    }
+
+    /// <summary>
+    /// Shows the sub UI for the parameters of the selected view
+    /// </summary>
+    private void updateParamsUC(ComboBox cmb, ContentControl ccParams)
+    {
+      if (ccParams == null)
+        return;
+
+      ccParams.Content = (cmb.SelectedItem as ViewCBItem)?.GetParamsUC();
+    }
+
+    /// <summary>
+    /// Selects the view in the ComboBox and sets its parameters in the sub UI (legacy view keys are mapped)
+    /// </summary>
+    private void selectView(ComboBox cmb, ContentControl ccParams, string viewKey, Dictionary<string, object> viewParams)
+    {
+      StartlistViewConfig.Normalize(viewKey, viewParams, out string normKey, out var normParams);
+
+      cmb.SelectCBItem(normKey);
+      (ccParams.Content as IViewParamsUC)?.SetParams(normParams);
     }
   }
 }

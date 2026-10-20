@@ -201,6 +201,12 @@
     <Compile Include="ReportUC.xaml.cs">
       <DependentUpon>ReportUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StartlistPointsParamsUC.xaml.cs">
+      <DependentUpon>StartlistPointsParamsUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StartlistPreviousRunParamsUC.xaml.cs">
+      <DependentUpon>StartlistPreviousRunParamsUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="StdListPrintUC.xaml.cs">
       <DependentUpon>StdListPrintUC.xaml</DependentUpon>
     </Compile>
@@ -342,6 +348,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ReportUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StartlistPointsParamsUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StartlistPreviousRunParamsUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="RaceHorology.StartlistPointsParamsUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:RaceHorology"
+             mc:Ignorable="d"
+             d:DesignHeight="30" d:DesignWidth="500">
+  <WrapPanel>
+    <Label Content="Anzahl gelost (erste N nach Punkten):" Margin="5 0" VerticalAlignment="Center"/>
+    <ComboBox x:Name="cmbDrawFirstN" Width="70" Margin="5 0" IsEditable="True" VerticalContentAlignment="Center">
+      <ComboBoxItem Content="0"/>
+      <ComboBoxItem Content="15"/>
+      <ComboBoxItem Content="30"/>
+    </ComboBox>
+  </WrapPanel>
+</UserControl>
