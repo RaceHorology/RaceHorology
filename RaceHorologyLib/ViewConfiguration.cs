@@ -64,15 +64,27 @@ namespace RaceHorologyLib
     public const string ParamDrawFirstN = "DrawFirstN";
     /// <summary>Run2_PreviousRun / Run2_Cumulative: number of best participants starting in reversed order (int.MaxValue = all)</summary>
     public const string ParamReverseBestN = "ReverseBestN";
-    /// <summary>Run2_PreviousRun / Run2_Cumulative: participants without result are part of the start list as well</summary>
+    /// <summary>Run2_Startnumber* / Run2_PreviousRun / Run2_Cumulative: participants without valid result in the previous run(s) are part of the start list as well</summary>
     public const string ParamAllowNonResults = "AllowNonResults";
 
     static readonly Regex _legacyRun1Points = new Regex(@"^Startlist_1stRun_Points_(\d+)$");
     static readonly Regex _legacyRun2BasedOnResults = new Regex(@"^Startlist_2nd_(PreviousRun|Cumulative)_(\d+|all)_(OnlyWithResults|AlsoWithoutResults)$");
 
+    // Parameters not stored (e.g. by older versions) get these values
+    static readonly Dictionary<string, Dictionary<string, object>> _defaultParams = new Dictionary<string, Dictionary<string, object>>
+    {
+      { Run1_Points, new Dictionary<string, object> { { ParamDrawFirstN, 0 } } },
+      // Before Issue #613, start number based start lists always contained all participants
+      { Run2_StartnumberAscending, new Dictionary<string, object> { { ParamAllowNonResults, true } } },
+      { Run2_StartnumberDescending, new Dictionary<string, object> { { ParamAllowNonResults, true } } },
+      { Run2_PreviousRun, new Dictionary<string, object> { { ParamReverseBestN, 0 }, { ParamAllowNonResults, false } } },
+      { Run2_Cumulative, new Dictionary<string, object> { { ParamReverseBestN, 0 }, { ParamAllowNonResults, false } } },
+    };
+
 
     /// <summary>
-    /// Maps legacy keys onto base key + parameters. The returned parameters are always a new (non-null) dictionary.
+    /// Maps legacy keys onto base key + parameters and fills in default values for missing parameters.
+    /// The returned parameters are always a new (non-null) dictionary.
     /// </summary>
     public static void Normalize(string viewKey, Dictionary<string, object> viewParams, out string normKey, out Dictionary<string, object> normParams)
     {
@@ -87,7 +99,6 @@ namespace RaceHorologyLib
       {
         normKey = Run1_Points;
         normParams[ParamDrawFirstN] = int.Parse(m.Groups[1].Value);
-        return;
       }
 
       m = _legacyRun2BasedOnResults.Match(viewKey);
@@ -97,6 +108,11 @@ namespace RaceHorologyLib
         normParams[ParamReverseBestN] = m.Groups[2].Value == "all" ? int.MaxValue : int.Parse(m.Groups[2].Value);
         normParams[ParamAllowNonResults] = m.Groups[3].Value == "AlsoWithoutResults";
       }
+
+      if (_defaultParams.TryGetValue(normKey, out var defaults))
+        foreach (var d in defaults)
+          if (!normParams.ContainsKey(d.Key))
+            normParams[d.Key] = d.Value;
     }
 
 
@@ -150,8 +166,10 @@ namespace RaceHorologyLib
       _creators[StartlistViewConfig.Run1_Points] = p => new DSVFirstRunStartListViewProvider(
         StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamDrawFirstN, 0));
 
-      _creators[StartlistViewConfig.Run2_StartnumberAscending] = p => new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending);
-      _creators[StartlistViewConfig.Run2_StartnumberDescending] = p => new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending);
+      _creators[StartlistViewConfig.Run2_StartnumberAscending] = p => new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending,
+        StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, true));
+      _creators[StartlistViewConfig.Run2_StartnumberDescending] = p => new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Descending,
+        StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, true));
       _creators[StartlistViewConfig.Run2_PreviousRun] = p => new BasedOnResultsFirstRunStartListViewProvider(
         StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, 0),
         StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false));

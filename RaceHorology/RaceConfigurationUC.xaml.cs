@@ -33,7 +33,8 @@ namespace RaceHorology
       if (_paramsUCInstance == null && ParamsUC != null)
       {
         _paramsUCInstance = ParamsUC();
-        (_paramsUCInstance as IViewParamsUC)?.SetParams(null);
+        StartlistViewConfig.Normalize(Value as string, null, out _, out var defaultParams);
+        (_paramsUCInstance as IViewParamsUC)?.SetParams(defaultParams);
       }
       return _paramsUCInstance;
     }
@@ -103,8 +104,8 @@ namespace RaceHorology
       // Run 2
       UiUtilities.FillGrouping(cmbConfigStartlist2Grouping, null, raceConfig.ActiveFields);
       cmbConfigStartlist2.Items.Clear();
-      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Startnummer (aufsteigend)", Value = StartlistViewConfig.Run2_StartnumberAscending });
-      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Startnummer (absteigend)", Value = StartlistViewConfig.Run2_StartnumberDescending });
+      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Startnummer (aufsteigend)", Value = StartlistViewConfig.Run2_StartnumberAscending, ParamsUC = () => new StartlistStartnumberParamsUC() });
+      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Startnummer (absteigend)", Value = StartlistViewConfig.Run2_StartnumberDescending, ParamsUC = () => new StartlistStartnumberParamsUC() });
       cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Vorheriger Lauf nach Zeit", Value = StartlistViewConfig.Run2_PreviousRun, ParamsUC = () => new StartlistPreviousRunParamsUC() });
       cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Summe aller vorherigen Läufe", Value = StartlistViewConfig.Run2_Cumulative, ParamsUC = () => new StartlistPreviousRunParamsUC() });
 

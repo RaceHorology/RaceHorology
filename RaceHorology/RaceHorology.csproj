@@ -207,6 +207,9 @@
     <Compile Include="StartlistPreviousRunParamsUC.xaml.cs">
       <DependentUpon>StartlistPreviousRunParamsUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StartlistStartnumberParamsUC.xaml.cs">
+      <DependentUpon>StartlistStartnumberParamsUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="StdListPrintUC.xaml.cs">
       <DependentUpon>StdListPrintUC.xaml</DependentUpon>
     </Compile>
@@ -356,6 +359,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="StartlistPreviousRunParamsUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StartlistStartnumberParamsUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

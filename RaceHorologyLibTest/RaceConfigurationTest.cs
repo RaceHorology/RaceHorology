@@ -592,9 +592,13 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(7, StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, -1));
       Assert.IsTrue(StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false));
 
-      // Non-legacy keys stay untouched
+      // Non-legacy keys stay untouched, missing parameters get their defaults
       StartlistViewConfig.Normalize(StartlistViewConfig.Run2_StartnumberDescending, null, out key, out p);
       Assert.AreEqual(StartlistViewConfig.Run2_StartnumberDescending, key);
+      Assert.AreEqual(1, p.Count);
+      Assert.IsTrue(StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false));
+
+      StartlistViewConfig.Normalize(StartlistViewConfig.Run1_StartnumberAscending, null, out key, out p);
       Assert.AreEqual(0, p.Count);
     }
 
@@ -612,6 +616,12 @@ namespace RaceHorologyLibTest
       Assert.IsTrue(StartlistViewConfig.AreEqual("Startlist_2nd_PreviousRun_30_OnlyWithResults", null, StartlistViewConfig.Run2_PreviousRun, newParams));
       Assert.IsFalse(StartlistViewConfig.AreEqual("Startlist_2nd_PreviousRun_15_OnlyWithResults", null, StartlistViewConfig.Run2_PreviousRun, newParams));
       Assert.IsTrue(StartlistViewConfig.AreEqual(StartlistViewConfig.Run1_StartnumberAscending, null, StartlistViewConfig.Run1_StartnumberAscending, new Dictionary<string, object>()));
+
+      // Configuration of older versions (no params) equals the default parameters set via UI
+      Assert.IsTrue(StartlistViewConfig.AreEqual(StartlistViewConfig.Run2_StartnumberAscending, null,
+        StartlistViewConfig.Run2_StartnumberAscending, new Dictionary<string, object> { { StartlistViewConfig.ParamAllowNonResults, true } }));
+      Assert.IsFalse(StartlistViewConfig.AreEqual(StartlistViewConfig.Run2_StartnumberAscending, null,
+        StartlistViewConfig.Run2_StartnumberAscending, new Dictionary<string, object> { { StartlistViewConfig.ParamAllowNonResults, false } }));
 
       // Params survive JSON round trip (ints become longs)
       var cfg = new RaceConfiguration { Run2_StartistView = StartlistViewConfig.Run2_PreviousRun, Run2_StartistViewParams = newParams };
