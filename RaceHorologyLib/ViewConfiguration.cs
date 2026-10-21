@@ -59,12 +59,14 @@ namespace RaceHorologyLib
     public const string Run2_PreviousRun = "Startlist_2nd_PreviousRun";
     /// <summary>Like Run2_PreviousRun, but based on the sum of all previous runs (Issue #475)</summary>
     public const string Run2_Cumulative = "Startlist_2nd_Cumulative";
+    /// <summary>Like Run2_PreviousRun, but based on the best single run of all previous runs (PR #690)</summary>
+    public const string Run2_BestRun = "Startlist_2nd_BestRun";
 
     /// <summary>Run1_Points: number of participants (best points) whose start order is drawn</summary>
     public const string ParamDrawFirstN = "DrawFirstN";
-    /// <summary>Run2_PreviousRun / Run2_Cumulative: number of best participants starting in reversed order (int.MaxValue = all)</summary>
+    /// <summary>Run2_PreviousRun / Run2_Cumulative / Run2_BestRun: number of best participants starting in reversed order (int.MaxValue = all)</summary>
     public const string ParamReverseBestN = "ReverseBestN";
-    /// <summary>Run2_Startnumber* / Run2_PreviousRun / Run2_Cumulative: participants without valid result in the previous run(s) are part of the start list as well</summary>
+    /// <summary>Run2_Startnumber* / Run2_PreviousRun / Run2_Cumulative / Run2_BestRun: participants without valid result in the previous run(s) are part of the start list as well</summary>
     public const string ParamAllowNonResults = "AllowNonResults";
 
     static readonly Regex _legacyRun1Points = new Regex(@"^Startlist_1stRun_Points_(\d+)$");
@@ -79,6 +81,7 @@ namespace RaceHorologyLib
       { Run2_StartnumberDescending, new Dictionary<string, object> { { ParamAllowNonResults, true } } },
       { Run2_PreviousRun, new Dictionary<string, object> { { ParamReverseBestN, 0 }, { ParamAllowNonResults, false } } },
       { Run2_Cumulative, new Dictionary<string, object> { { ParamReverseBestN, 0 }, { ParamAllowNonResults, false } } },
+      { Run2_BestRun, new Dictionary<string, object> { { ParamReverseBestN, 0 }, { ParamAllowNonResults, false } } },
     };
 
 
@@ -176,7 +179,11 @@ namespace RaceHorologyLib
       _creators[StartlistViewConfig.Run2_Cumulative] = p => new BasedOnResultsFirstRunStartListViewProvider(
         StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, 0),
         StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false),
-        useCumulativeResults: true);
+        BasedOnResultsFirstRunStartListViewProvider.EBasedOn.SumOfPreviousRuns);
+      _creators[StartlistViewConfig.Run2_BestRun] = p => new BasedOnResultsFirstRunStartListViewProvider(
+        StartlistViewConfig.GetInt(p, StartlistViewConfig.ParamReverseBestN, 0),
+        StartlistViewConfig.GetBool(p, StartlistViewConfig.ParamAllowNonResults, false),
+        BasedOnResultsFirstRunStartListViewProvider.EBasedOn.BestOfPreviousRuns);
 
       _creators["RaceResult_BestOfTwo"] = p => new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
       _creators["RaceResult_Sum"] = p => new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);

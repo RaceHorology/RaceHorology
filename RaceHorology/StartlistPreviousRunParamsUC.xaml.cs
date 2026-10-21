@@ -6,7 +6,7 @@ using System.Windows.Controls;
 namespace RaceHorology
 {
   /// <summary>
-  /// Parameters for start list based on previous run results (StartlistViewConfig.Run2_PreviousRun / Run2_Cumulative)
+  /// Parameters for start list based on previous run results (StartlistViewConfig.Run2_PreviousRun / Run2_Cumulative / Run2_BestRun)
   /// </summary>
   public partial class StartlistPreviousRunParamsUC : UserControl, IViewParamsUC
   {
