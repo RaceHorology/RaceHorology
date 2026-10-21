@@ -47,13 +47,12 @@ namespace RHAlgeTimyUSB
 
     enum EInternalStatus { Stopped, Initializing, NoDevice, Running };
     private EInternalStatus _internalStatus;
-    private string _internalProtocol;
+    private TimingDeviceProtocol _protocol = new TimingDeviceProtocol();
 
     Alge.TimyUsb _timy;
 
     public AlgeTimyUSB()
     {
-      _internalProtocol = string.Empty;
       _deviceInfo = new DeviceInfo
       {
         Manufacturer = "ALGE",
@@ -104,7 +103,7 @@ namespace RHAlgeTimyUSB
       _timy.DeviceDisconnected += _timy_DeviceDisconnected;
       _timy.LineReceived += _timy_LineReceived;
       _timy.Start();
-      _internalProtocol = string.Empty;
+      _protocol.Clear();
     }
 
     public override void Stop()
@@ -176,17 +175,20 @@ namespace RHAlgeTimyUSB
 
     public string GetProtocol()
     {
-      return _internalProtocol;
+      return _protocol.GetText();
+    }
+
+    public void ClearProtocol()
+    {
+      _protocol.Clear();
     }
 
     void debugLine(string dataLine)
     {
-      if (!string.IsNullOrEmpty(_internalProtocol))
-        _internalProtocol += "\n";
-      _internalProtocol += dataLine;
+      string protocolLine = _protocol.Add(dataLine);
 
       RawMessageReceivedEventHandler handler = RawMessageReceived;
-      handler?.Invoke(this, dataLine);
+      handler?.Invoke(this, protocolLine);
     }
     #endregion
   }
