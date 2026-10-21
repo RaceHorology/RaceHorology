@@ -197,6 +197,46 @@ namespace RaceHorologyLib
   }
 
 
+  /// <summary>
+  /// Checks a race configuration for combinations that do not fit together (e.g. "2x Best of 2" with less than 4 runs).
+  /// The results are hints for the user, the configuration stays usable.
+  /// </summary>
+  public static class RaceConfigurationValidator
+  {
+    class Rule
+    {
+      public Func<RaceConfiguration, bool> IsViolated;
+      public string Message;
+    }
+
+    static readonly List<Rule> _rules = new List<Rule>
+    {
+      new Rule
+      {
+        IsViolated = cfg => cfg.RaceResultView == "RaceResult_2xBestOf2" && cfg.Runs != 4,
+        Message = "Die Berechnung \"2x Best of 2\" benötigt genau 4 Durchgänge."
+      },
+      new Rule
+      {
+        IsViolated = cfg => cfg.RaceResultView == "RaceResult_SumBest2" && cfg.Runs < 2,
+        Message = "Die Berechnung \"Summe der besten 2 Durchgänge\" benötigt mindestens 2 Durchgänge."
+      },
+    };
+
+
+    /// <summary>
+    /// Returns the hints for all violated rules (empty if the configuration is fine)
+    /// </summary>
+    public static List<string> Validate(RaceConfiguration cfg)
+    {
+      if (cfg == null)
+        return new List<string>();
+
+      return _rules.Where(r => r.IsViolated(cfg)).Select(r => r.Message).ToList();
+    }
+  }
+
+
   public class RaceConfigurationPresets
   {
     private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

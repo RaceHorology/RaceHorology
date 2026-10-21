@@ -636,5 +636,30 @@ namespace RaceHorologyLibTest
       Assert.IsInstanceOfType(factory.Create(StartlistViewConfig.Run1_Points), typeof(DSVFirstRunStartListViewProvider));
       Assert.IsNull(factory.Create("Unknown"));
     }
+
+
+    [TestMethod]
+    public void RaceConfigurationValidator_Test()
+    {
+      List<string> validate(string resultView, int runs)
+        => RaceConfigurationValidator.Validate(new RaceConfiguration { RaceResultView = resultView, Runs = runs });
+
+      // "2x Best of 2" needs exactly 4 runs
+      Assert.AreEqual(0, validate("RaceResult_2xBestOf2", 4).Count);
+      Assert.AreEqual(1, validate("RaceResult_2xBestOf2", 2).Count);
+      Assert.AreEqual(1, validate("RaceResult_2xBestOf2", 3).Count);
+      Assert.AreEqual(1, validate("RaceResult_2xBestOf2", 5).Count);
+      StringAssert.Contains(validate("RaceResult_2xBestOf2", 2)[0], "4 Durchgänge");
+
+      // "Summe der besten 2 Durchgänge" needs at least 2 runs
+      Assert.AreEqual(1, validate("RaceResult_SumBest2", 1).Count);
+      Assert.AreEqual(0, validate("RaceResult_SumBest2", 2).Count);
+      Assert.AreEqual(0, validate("RaceResult_SumBest2", 3).Count);
+
+      // Other calculations: no hints
+      Assert.AreEqual(0, validate("RaceResult_Sum", 1).Count);
+      Assert.AreEqual(0, validate("RaceResult_BestOfTwo", 2).Count);
+      Assert.AreEqual(0, RaceConfigurationValidator.Validate(null).Count);
+    }
   }
 }
