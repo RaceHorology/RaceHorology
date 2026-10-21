@@ -151,7 +151,8 @@ namespace RaceHorology
   }
 
   /// <summary>
-  /// Watches out a race and sets the corresponding warning text if, e.g. race is not yet completed.
+  /// Watches out a race and sets the corresponding warning text if, e.g. race is not yet completed
+  /// or the race configuration does not fit together (see RaceConfigurationValidator).
   /// </summary>
   internal class RaceCompletedWarningLabelHandler : IWarningLabelHandler
   {
@@ -170,10 +171,11 @@ namespace RaceHorology
 
     private void OnChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (_race.IsComplete)
-        _label.Content = "";
-      else
-        _label.Content = string.Format("Das Rennen ist noch nicht abgeschlossen.");
+      var warnings = RaceConfigurationValidator.Validate(_race.RaceConfiguration);
+      if (!_race.IsComplete)
+        warnings.Insert(0, "Das Rennen ist noch nicht abgeschlossen.");
+
+      _label.Content = string.Join(" ", warnings);
     }
 
 
