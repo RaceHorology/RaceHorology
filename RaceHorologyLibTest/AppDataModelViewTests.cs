@@ -531,6 +531,68 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// Start list based on the best single run of all previous runs (idea from PR #690), incl. penalty rule
+    /// </summary>
+    [TestMethod]
+    public void BasedOnBestRunResultsStartListViewProvider_Test()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      race.AddRaceRun();
+      race.AddRaceRun();
+      for (int i = 0; i < 7; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+
+      // Penalty: best + 10s
+      // Run 1: best 50 => cut off 60
+      run1.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+      run1.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(60));
+      run1.SetRunTime(race.GetParticipant(3), TimeSpan.FromSeconds(52));
+      run1.SetResultCode(race.GetParticipant(4), RunResult.EResultCode.DIS);  // penalty 60
+      run1.SetRunTime(race.GetParticipant(5), TimeSpan.FromSeconds(54));
+      run1.SetResultCode(race.GetParticipant(6), RunResult.EResultCode.NaS);
+      run1.SetResultCode(race.GetParticipant(7), RunResult.EResultCode.NaS);
+      // Run 2: best 45 => cut off 55
+      run2.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(55));
+      run2.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(45));
+      run2.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);  // penalty 55
+      run2.SetRunTime(race.GetParticipant(4), TimeSpan.FromSeconds(49));
+      run2.SetRunTime(race.GetParticipant(5), TimeSpan.FromSeconds(47));
+      run2.SetResultCode(race.GetParticipant(6), RunResult.EResultCode.NiZ);  // penalty 55, only valid run
+      run2.SetResultCode(race.GetParticipant(7), RunResult.EResultCode.NaS);  // no valid run at all
+      foreach (var run in new[] { run1, run2 })
+      {
+        var results = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusSeconds, 10);
+        results.Init(run, tg.Model);
+        run.SetResultViewProvider(results);
+      }
+
+      List<uint> startNumbers(StartListViewProvider p) => new List<uint>(System.Linq.Enumerable.Select(p.GetViewList(), x => x.StartNumber));
+
+      // Best run: 2 => 45, 5 => 47, 4 => 49, 1 => 50, 3 => 52, 6 => 55 (penalty)
+      var provider = new BasedOnResultsFirstRunStartListViewProvider(3, false, BasedOnResultsFirstRunStartListViewProvider.EBasedOn.BestOfPreviousRuns);
+      provider.Init(run2);
+      // Best 3 reversed, then the rest by best run; 6 stays (penalty, not reversed), 7 without any valid run is omitted
+      CollectionAssert.AreEqual(new uint[] { 4, 5, 2, 1, 3, 6 }, startNumbers(provider));
+
+      var entry1 = System.Linq.Enumerable.First(provider.GetViewList(), x => x.StartNumber == 1) as StartListEntryAdditionalRun;
+      Assert.AreEqual(TimeSpan.FromSeconds(50), entry1.Runtime);
+
+      // Participants without any valid run are appended if requested
+      var providerAll = new BasedOnResultsFirstRunStartListViewProvider(3, true, BasedOnResultsFirstRunStartListViewProvider.EBasedOn.BestOfPreviousRuns);
+      providerAll.Init(run2);
+      CollectionAssert.AreEqual(new uint[] { 4, 5, 2, 1, 3, 6, 7 }, startNumbers(providerAll));
+
+      // A later correction of an earlier run updates the start order
+      run1.SetRunTime(race.GetParticipant(3), TimeSpan.FromSeconds(44));
+      CollectionAssert.AreEqual(new uint[] { 5, 2, 3, 4, 1, 6 }, startNumbers(provider));
+    }
+
+
+    /// <summary>
     /// Race configuration "Summe aller vorherigen Läufe" applies to all runs >= 2: run 3 is based on the sum of runs 1 + 2 (Issue #253)
     /// </summary>
     [TestMethod]
