@@ -36,8 +36,9 @@ namespace RaceHorology
       _debugableTimingDevice = timingDevice;
 
       connectToAlge();
-      tbAlgeLog.Text = _debugableTimingDevice.GetProtocol();
-      ensureNewLineAtEnd();
+      string protocol = _debugableTimingDevice.GetProtocol();
+      tbAlgeLog.Text = string.IsNullOrEmpty(protocol) ? "" : protocol + "\n";
+      scrollToEndIfEnabled();
     }
 
     public override void Closes()
@@ -57,18 +58,30 @@ namespace RaceHorology
 
     private void Alge_OnMessageReceived(object sender, string message)
     {
+      // message is one protocol line (incl. timestamp)
       Application.Current.Dispatcher.Invoke(() =>
       {
-        tbAlgeLog.Text += message;
-        ensureNewLineAtEnd();
-        tbAlgeLog.ScrollToEnd();
+        // AppendText instead of Text += to avoid copying the whole (possibly long) protocol per message
+        tbAlgeLog.AppendText(message + "\n");
+        scrollToEndIfEnabled();
       });
     }
 
-    private void ensureNewLineAtEnd()
+    private void scrollToEndIfEnabled()
     {
-      if (tbAlgeLog.Text.Length > 0 && !tbAlgeLog.Text.EndsWith("\n"))
-        tbAlgeLog.Text += "\n";
+      if (chkAutoScroll.IsChecked == true)
+        tbAlgeLog.ScrollToEnd();
+    }
+
+    private void chkAutoScroll_Checked(object sender, RoutedEventArgs e)
+    {
+      tbAlgeLog.ScrollToEnd();
+    }
+
+    private void btnClear_Click(object sender, RoutedEventArgs e)
+    {
+      _debugableTimingDevice?.ClearProtocol();
+      tbAlgeLog.Clear();
     }
 
   }
