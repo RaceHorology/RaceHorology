@@ -1797,6 +1797,14 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(TimeSpan.FromSeconds(100), sum(40, 50, 60, 70));
       // Runs 1..4: 50, 40 | 70, 60 => 40 + 60
       Assert.AreEqual(TimeSpan.FromSeconds(100), sum(50, 40, 70, 60));
+
+      // Interim results: only runs with results are passed in
+      // Runs 1..3: 50, 40 | 70 => 40 + 70
+      Assert.AreEqual(TimeSpan.FromSeconds(110), sum(50, 40, 70));
+      // Runs 1..2: 50, 40 => 40
+      Assert.AreEqual(TimeSpan.FromSeconds(40), sum(50, 40));
+      // Runs 1..2: 40, 50 => 40
+      Assert.AreEqual(TimeSpan.FromSeconds(40), sum(40, 50));
     }
 
     /// <summary>

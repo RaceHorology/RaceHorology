@@ -1999,8 +1999,8 @@ namespace RaceHorologyLib
 
       for (int m = 0; m < numberM; m++)
       {
-        // in each block look reset the best run
-        uint bestKey = 0;
+        // in each block look reset the best run (none, if the block has no run yet, e.g. interim results after run 2)
+        uint? bestKey = null;
         TimeSpan? bestTime = null;
 
         // in each block find the best result
@@ -2021,10 +2021,10 @@ namespace RaceHorologyLib
             }
           }
 
-          if (bestNIn.ContainsKey(bestKey))
+          if (bestKey != null && bestNIn.ContainsKey(bestKey.Value))
           {
-            bestN.Add(bestKey, bestNIn[bestKey]);
-            bestNIn.Remove(bestKey);
+            bestN.Add(bestKey.Value, bestNIn[bestKey.Value]);
+            bestNIn.Remove(bestKey.Value);
           }
         }
       }
