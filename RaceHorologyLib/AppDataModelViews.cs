@@ -1956,8 +1956,8 @@ namespace RaceHorologyLib
           {
             TimeSpan? time = res.Value?.Runtime;
 
-            // check if run is in the correct block, +1 as keys start with 1
-            if (res.Key >= m * numberN + 1 && res.Key < (m + 1) * numberN + 1)
+            // check if run is in the correct block, keys start with 0
+            if (res.Key >= m * numberN && res.Key < (m + 1) * numberN)
             {
               if (bestTime == null || bestTime > time)
               {

@@ -1711,6 +1711,32 @@ namespace RaceHorologyLibTest
 
     }
 
+
+    /// <summary>
+    /// Test for RaceResultViewProvider.SumTimeMxBestofN ("2x Best of 2"):
+    /// best of runs 1+2 plus best of runs 3+4 (fix taken from PR #690)
+    /// </summary>
+    [TestMethod]
+    public void RaceResultViewProviderTest_SumTimeMxBestofN()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createRaceParticipant();
+      Race race = tg.Model.GetRace(0);
+
+      RunResultWithPosition result(int seconds)
+        => new RunResultWithPosition(tg.createRunResult(race.GetParticipant(1), new TimeSpan(8, 0, 0), new TimeSpan(8, 0, 0) + TimeSpan.FromSeconds(seconds)));
+
+      TimeSpan? sum(params int[] runTimes)
+        => RaceResultViewProvider.SumTimeMxBestofN(System.Linq.Enumerable.Select(runTimes, result), out _, out _);
+
+      // Runs 1..4: 40, 50 | 70, 65 => 40 + 65
+      Assert.AreEqual(TimeSpan.FromSeconds(105), sum(40, 50, 70, 65));
+      // Runs 1..4: 40, 50 | 60, 70 => 40 + 60
+      Assert.AreEqual(TimeSpan.FromSeconds(100), sum(40, 50, 60, 70));
+      // Runs 1..4: 50, 40 | 70, 60 => 40 + 60
+      Assert.AreEqual(TimeSpan.FromSeconds(100), sum(50, 40, 70, 60));
+    }
+
     /// <summary>
     /// Test for RaceResultViewProvider
     ///
