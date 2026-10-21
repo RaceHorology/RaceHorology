@@ -108,6 +108,7 @@ namespace RaceHorology
       cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Startnummer (absteigend)", Value = StartlistViewConfig.Run2_StartnumberDescending, ParamsUC = () => new StartlistStartnumberParamsUC() });
       cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Vorheriger Lauf nach Zeit", Value = StartlistViewConfig.Run2_PreviousRun, ParamsUC = () => new StartlistPreviousRunParamsUC() });
       cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Summe aller vorherigen Läufe", Value = StartlistViewConfig.Run2_Cumulative, ParamsUC = () => new StartlistPreviousRunParamsUC() });
+      cmbConfigStartlist2.Items.Add(new ViewCBItem { Text = "Bester Lauf aller vorherigen Läufe", Value = StartlistViewConfig.Run2_BestRun, ParamsUC = () => new StartlistPreviousRunParamsUC() });
 
       chkTeam.Checked += ChkTeam_CheckChanged;
       chkTeam.Unchecked += ChkTeam_CheckChanged;
