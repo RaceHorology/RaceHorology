@@ -230,6 +230,8 @@ namespace RaceHorology
       chkTeam.IsChecked = cfg.TeamRaceResultConfig != null;
       ucTeam.SetConfig(cfg.TeamRaceResultConfig);
 
+      updateConfigHints();
+
     }
 
     private bool StoreConfigurationSelectionUI(ref RaceConfiguration cfg)
@@ -334,6 +336,26 @@ namespace RaceHorology
       ResetConfigurationSelectionUI(_raceConfiguration);
       refreshConfigPresetsUI();
     }
+
+    private void cmbConfigHintsRelevant_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      updateConfigHints();
+    }
+
+    /// <summary>
+    /// Shows hints for settings that do not fit together (e.g. "2x Best of 2" with less than 4 runs)
+    /// </summary>
+    private void updateConfigHints()
+    {
+      // Not yet initialized
+      if (_raceConfigurationPresets == null)
+        return;
+
+      var hints = RaceConfigurationValidator.Validate(GetConfig());
+      txtConfigHints.Text = string.Join(Environment.NewLine, hints);
+      txtConfigHints.Visibility = hints.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
 
     private void chkConfigPenalty_CheckChanged(object sender, RoutedEventArgs e)
     {
