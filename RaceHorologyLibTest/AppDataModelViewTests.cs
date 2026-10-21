@@ -481,6 +481,56 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// Cumulative mode with penalty rule: participants with penalty time stay in the start list,
+    /// placed by their sum incl. penalty time, but are never reversed (Issue #253)
+    /// </summary>
+    [TestMethod]
+    public void BasedOnCumulativeResultsStartListViewProvider_Penalty_Test()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      race.AddRaceRun();
+      race.AddRaceRun();
+      for (int i = 0; i < 5; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+
+      // Penalty: best + 10s
+      // Run 1: best 50 => cut off 60: 5 (80s) and 4 (DIS) get 60s penalty time
+      run1.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+      run1.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(52));
+      run1.SetRunTime(race.GetParticipant(3), TimeSpan.FromSeconds(54));
+      run1.SetResultCode(race.GetParticipant(4), RunResult.EResultCode.DIS);
+      run1.SetRunTime(race.GetParticipant(5), TimeSpan.FromSeconds(80));
+      // Run 2: best 41 => cut off 51: no penalty
+      run2.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+      run2.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(50));
+      run2.SetRunTime(race.GetParticipant(3), TimeSpan.FromSeconds(50));
+      run2.SetRunTime(race.GetParticipant(4), TimeSpan.FromSeconds(50));
+      run2.SetRunTime(race.GetParticipant(5), TimeSpan.FromSeconds(41));
+      foreach (var run in new[] { run1, run2 })
+      {
+        var results = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusSeconds, 10);
+        results.Init(run, tg.Model);
+        run.SetResultViewProvider(results);
+      }
+
+      // Sum: 1 => 100, 5 => 101 (penalty), 2 => 102, 3 => 104, 4 => 110 (penalty)
+      var provider = new BasedOnResultsFirstRunStartListViewProvider(3, false, true);
+      provider.Init(run2);
+      // Best 3 without penalty (1, 2, 3) reversed, 5 is skipped but stays in the list by its sum
+      CollectionAssert.AreEqual(new uint[] { 3, 2, 1, 5, 4 },
+        new List<uint>(System.Linq.Enumerable.Select(provider.GetViewList(), x => x.StartNumber)));
+
+      // Shown time is the sum incl. penalty time
+      var entry5 = System.Linq.Enumerable.First(provider.GetViewList(), x => x.StartNumber == 5) as StartListEntryAdditionalRun;
+      Assert.AreEqual(TimeSpan.FromSeconds(101), entry5.Runtime);
+    }
+
+
+    /// <summary>
     /// Race configuration "Summe aller vorherigen Läufe" applies to all runs >= 2: run 3 is based on the sum of runs 1 + 2 (Issue #253)
     /// </summary>
     [TestMethod]
