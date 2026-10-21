@@ -633,6 +633,12 @@ namespace RaceHorologyLibTest
       Assert.IsInstanceOfType(factory.Create(StartlistViewConfig.Run2_PreviousRun, cfgLoaded.Run2_StartistViewParams), typeof(BasedOnResultsFirstRunStartListViewProvider));
       Assert.IsInstanceOfType(factory.Create("Startlist_2nd_PreviousRun_all_AlsoWithoutResults"), typeof(BasedOnResultsFirstRunStartListViewProvider));
       Assert.IsInstanceOfType(factory.Create("Startlist_1stRun_Points_30"), typeof(DSVFirstRunStartListViewProvider));
+      Assert.AreEqual(BasedOnResultsFirstRunStartListViewProvider.EBasedOn.SumOfPreviousRuns,
+        factory.Create<BasedOnResultsFirstRunStartListViewProvider>(StartlistViewConfig.Run2_Cumulative).BasedOn);
+      Assert.AreEqual(BasedOnResultsFirstRunStartListViewProvider.EBasedOn.BestOfPreviousRuns,
+        factory.Create<BasedOnResultsFirstRunStartListViewProvider>(StartlistViewConfig.Run2_BestRun).BasedOn);
+      Assert.AreEqual(BasedOnResultsFirstRunStartListViewProvider.EBasedOn.PreviousRun,
+        factory.Create<BasedOnResultsFirstRunStartListViewProvider>("Startlist_2nd_PreviousRun_30_OnlyWithResults").BasedOn);
       Assert.IsInstanceOfType(factory.Create(StartlistViewConfig.Run1_Points), typeof(DSVFirstRunStartListViewProvider));
       Assert.IsNull(factory.Create("Unknown"));
     }
