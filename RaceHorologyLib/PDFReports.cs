@@ -1626,13 +1626,21 @@ namespace RaceHorologyLib
 
 
     /// <summary>
-    /// Header of the column with the time the start order is based on: time of previous run or sum of all previous runs
+    /// Header of the column with the time the start order is based on: time of previous run, sum or best of all previous runs
     /// </summary>
     string getPreviousTimeHeader()
     {
       uint previousRun = _raceRun.Run - 1;
-      if (previousRun > 1 && (_raceRun.GetStartListProvider() as BasedOnResultsFirstRunStartListViewProvider)?.UseCumulativeResults == true)
-        return string.Format("Summe 1-{0}", previousRun);
+      if (previousRun > 1)
+      {
+        switch ((_raceRun.GetStartListProvider() as BasedOnResultsFirstRunStartListViewProvider)?.BasedOn)
+        {
+          case BasedOnResultsFirstRunStartListViewProvider.EBasedOn.SumOfPreviousRuns:
+            return string.Format("Summe 1-{0}", previousRun);
+          case BasedOnResultsFirstRunStartListViewProvider.EBasedOn.BestOfPreviousRuns:
+            return string.Format("Beste 1-{0}", previousRun);
+        }
+      }
 
       return string.Format("Zeit-{0}", previousRun);
     }
