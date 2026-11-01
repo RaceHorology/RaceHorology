@@ -77,6 +77,10 @@ namespace RaceHorology
       chkAutoAddParticipant.IsChecked = Properties.Settings.Default.AutoAddParticipants;
 
       txtNotToBeAssigned.Text = Properties.Settings.Default.StartNumbersNotToBeAssigned;
+
+      txtDSVOnlineUsername.Text = DSVOnlineCredentials.Username;
+      pwdDSVOnlinePassword.Password = DSVOnlineCredentials.Password;
+
       cbUpdateChannel.Items.Add("Stabil");
       cbUpdateChannel.Items.Add("Test");
       cbUpdateChannel.SelectedValue = Properties.Settings.Default.UpdateChannel;
@@ -143,6 +147,9 @@ namespace RaceHorology
       Properties.Settings.Default.AutoAddParticipants = chkAutoAddParticipant.IsChecked == true;
 
       Properties.Settings.Default.StartNumbersNotToBeAssigned = txtNotToBeAssigned.Text;
+
+      DSVOnlineCredentials.Username = txtDSVOnlineUsername.Text.Trim();
+      DSVOnlineCredentials.Password = pwdDSVOnlinePassword.Password;
 
       Properties.Settings.Default.Save();
 

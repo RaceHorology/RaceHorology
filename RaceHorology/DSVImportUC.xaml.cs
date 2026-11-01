@@ -251,7 +251,7 @@ namespace RaceHorology
     {
       try
       {
-        _dsvData.UpdateDSVList(new DSVImportReaderOnline(type));
+        _dsvData.UpdateDSVList(new DSVImportReaderOnline(type, DSVOnlineCredentials.Username, DSVOnlineCredentials.Password));
       }
       catch(Exception e)
       {
