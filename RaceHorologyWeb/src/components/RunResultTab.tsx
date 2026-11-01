@@ -6,19 +6,30 @@ import type { Grouping, MetaData, RunResultEntry, RunResultList } from '../api/t
 import { startNumber } from './format'
 import GroupedTable, { type Column } from './GroupedTable'
 import ListOptions from './ListOptions'
+import { NarrowRemark } from './raceResultColumns'
+import { participantColumns, ShortHeader } from './participantColumns'
 
 const columns: Column<RunResultEntry>[] = [
-  { header: 'Platz', render: (e) => e.Position || '', className: 'text-center' },
+  {
+    header: 'Platz',
+    headerContent: <ShortHeader long="Platz" short="Pl." />,
+    render: (e) => e.Position || '',
+    className: 'text-center',
+  },
   { header: 'StNr', render: startNumber, className: 'text-center' },
-  { header: 'Name', render: (e) => e.Name },
-  { header: 'Vorname', render: (e) => e.Firstname },
-  { header: 'Kategorie', render: (e) => e.Sex, className: 'text-center' },
-  { header: 'Jahrgang', render: (e) => e.Year, className: 'text-center' },
-  { header: 'Verein', render: (e) => e.Club },
-  { header: 'Klasse', render: (e) => e.Class },
-  { header: 'Zeit', render: (e) => e.Runtime, className: 'text-end fw-bold' },
+  ...participantColumns<RunResultEntry>(true),
+  {
+    header: 'Zeit',
+    render: (e) => (
+      <>
+        {e.Runtime}
+        <NarrowRemark text={e.DisqualText} />
+      </>
+    ),
+    className: 'text-end fw-bold',
+  },
   { header: 'Diff', render: (e) => e.DiffToFirst, className: 'text-end' },
-  { header: 'Bemerkung', render: (e) => e.DisqualText },
+  { header: 'Bemerkung', render: (e) => e.DisqualText, className: 'rh-wide-only' },
 ]
 
 export default function RunResultTab({ liveData, meta }: { liveData: LiveData; meta: MetaData['data'] | null }) {

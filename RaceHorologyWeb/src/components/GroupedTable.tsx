@@ -3,7 +3,10 @@ import Table from 'react-bootstrap/Table'
 import type { GroupedData } from '../api/types'
 
 export interface Column<T> {
+  /** Header text, also used as key of the column */
   header: string
+  /** Header content if it differs from the plain header text */
+  headerContent?: ReactNode
   render: (row: T) => ReactNode
   className?: string
 }
@@ -34,7 +37,7 @@ export default function GroupedTable<T>({ data, columns, rowKey, rowClassName, f
               <tr>
                 {columns.map((c) => (
                   <th key={c.header} className={c.className}>
-                    {c.header}
+                    {c.headerContent ?? c.header}
                   </th>
                 ))}
               </tr>

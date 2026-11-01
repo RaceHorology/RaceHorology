@@ -140,3 +140,29 @@
     display: none;
   }
 }
+
+/* Long participant attributes (first name, club, class): own columns on wide screens, within the name cell on narrow ones */
+@media (min-width: 768px) {
+  .rh-narrow-only {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .rh-wide-only {
+    display: none;
+  }
+
+  /* Compact lists, so that they fit on phones */
+  .rh-table {
+    font-size: 0.875rem;
+  }
+
+  .rh-table > :not(caption) > * > * {
+    padding: 0.3rem 0.3rem;
+  }
+
+  .rh-table td.rh-name {
+    overflow-wrap: anywhere;
+  }
+}
