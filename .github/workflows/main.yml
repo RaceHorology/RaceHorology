@@ -185,6 +185,10 @@ jobs:
   run_test_dsv_online:
     needs: build
     runs-on: [windows-latest]
+    # Basic auth credentials for the DSV point list download; if the secrets are not set (e.g. on forks), a plain GET is performed
+    env:
+      DSV_ONLINE_USERNAME: ${{ secrets.DSV_ONLINE_USERNAME }}
+      DSV_ONLINE_PASSWORD: ${{ secrets.DSV_ONLINE_PASSWORD }}
     steps:
       - name: Download Test Programm
         uses: actions/download-artifact@v4
@@ -195,7 +199,7 @@ jobs:
       - name: Setup VSTest Path
         uses: darenm/Setup-VSTest@v1
       
-      # Optional for now: the DSV points list download currently answers with HTTP 401
+      # Optional: without the DSV_ONLINE_* secrets the DSV points list download answers with HTTP 401
       - name: VSTest_Debug
         continue-on-error: true
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory=IntegrationDsvOnline" /logger:trx

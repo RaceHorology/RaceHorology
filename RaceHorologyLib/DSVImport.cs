@@ -346,15 +346,26 @@ namespace RaceHorologyLib
   public class DSVImportReaderOnline : DSVImportReaderZipBase
   {
 
-    public DSVImportReaderOnline(EDSVListType listType)
+    /// <summary>
+    /// Downloads the DSV point lists.
+    /// If a username is given, the request is sent with HTTP Basic authentication; otherwise a plain GET is performed.
+    /// </summary>
+    public DSVImportReaderOnline(EDSVListType listType, string username = null, string password = null)
     {
-      parseZip(getZipOnlineStream(), listType);
+      parseZip(getZipOnlineStream(username, password), listType);
     }
 
 
-    protected static Stream getZipOnlineStream()
+    protected static Stream getZipOnlineStream(string username, string password)
     {
       WebClient client = new WebClient();
+
+      if (!string.IsNullOrEmpty(username))
+      {
+        // Send credentials preemptively instead of waiting for the 401 challenge
+        string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(username + ":" + (password ?? "")));
+        client.Headers[HttpRequestHeader.Authorization] = "Basic " + credentials;
+      }
 
       Stream stream = client.OpenRead("https://alpin.rennverwaltung.de/punktelisten/zip");
 

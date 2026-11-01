@@ -136,6 +136,7 @@
     </Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Extensions" />
@@ -191,6 +192,7 @@
     <Compile Include="ExportResultDlg.xaml.cs">
       <DependentUpon>ExportResultDlg.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DSVOnlineCredentials.cs" />
     <Compile Include="ExportUI.cs" />
     <Compile Include="QRCodeDlg.xaml.cs">
       <DependentUpon>QRCodeDlg.xaml</DependentUpon>

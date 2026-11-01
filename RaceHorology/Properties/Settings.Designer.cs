@@ -202,5 +202,29 @@ namespace RaceHorology.Properties {
                 this["TimingDevice_PortBitRate"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DSVOnline_Username {
+            get {
+                return ((string)(this["DSVOnline_Username"]));
+            }
+            set {
+                this["DSVOnline_Username"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DSVOnline_Password {
+            get {
+                return ((string)(this["DSVOnline_Password"]));
+            }
+            set {
+                this["DSVOnline_Password"] = value;
+            }
+        }
     }
 }
