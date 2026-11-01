@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import Form from 'react-bootstrap/Form'
 import Table from 'react-bootstrap/Table'
 import { currentRunIndex, type LiveData } from '../api/liveData'
-import type { GroupedData, MetaData, Participant, RaceResultEntry, RaceResultRuntime } from '../api/types'
+import type { GroupedData, MetaData, Participant, RaceResultRuntime } from '../api/types'
 import { position, startNumber } from './format'
-import GroupedTable, { type Column } from './GroupedTable'
+import GroupedTable from './GroupedTable'
+import { raceResultColumns } from './raceResultColumns'
 
 /** Number of participants of the same group in a row after which the race result follows that group */
 const AUTO_FILTER_FINISHERS = 3
@@ -72,26 +73,6 @@ function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
       ))}
     </tbody>
   )
-}
-
-function raceResultColumns(runs: number): Column<RaceResultEntry>[] {
-  return [
-    { header: 'Platz', render: (e) => e.Position || '', className: 'text-center' },
-    { header: 'StNr', render: startNumber, className: 'text-center' },
-    { header: 'Name', render: (e) => e.Name },
-    { header: 'Vorname', render: (e) => e.Firstname },
-    { header: 'Kategorie', render: (e) => e.Sex, className: 'text-center' },
-    { header: 'Jahrgang', render: (e) => e.Year, className: 'text-center' },
-    { header: 'Verein', render: (e) => e.Club },
-    ...Array.from({ length: runs }, (_, i): Column<RaceResultEntry> => ({
-      header: `Zeit ${i + 1}`,
-      render: (e) => `${e.Runtimes[i]?.Runtime ?? ''} ${position(e.Runtimes[i]?.Position)}`,
-      className: 'text-end text-nowrap',
-    })),
-    { header: 'Zeit', render: (e) => e.Totaltime, className: 'text-end fw-bold' },
-    { header: 'Diff', render: (e) => e.DiffToFirst, className: 'text-end' },
-    { header: 'Bemerkung', render: (e) => e.DisqualText },
-  ]
 }
 
 export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: MetaData['data'] | null }) {
