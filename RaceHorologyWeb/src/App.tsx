@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { fetchMetaData, fetchStartList, type MetaData, type StartList } from './api'
+import { fetchMetaData, fetchStartList } from './api/http'
+import type { MetaData, StartList } from './api/types'
 
 export default function App() {
   const [meta, setMeta] = useState<MetaData | null>(null)
@@ -7,7 +8,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([fetchMetaData(), fetchStartList()])
+    Promise.all([fetchMetaData(), fetchStartList(0)])
       .then(([m, s]) => {
         setMeta(m)
         setStartList(s)
