@@ -2424,5 +2424,56 @@ namespace RaceHorologyLibTest
 
 
     }
+
+
+    /// <summary>
+    /// Team results in points mode must get positions based on the points (more points = better)
+    /// </summary>
+    [TestMethod]
+    public void TeamRaceResultViewProvider_PointsMode_Positions()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      Race race = tg.Model.GetRace(0);
+      RaceRun rr1 = race.GetRun(0);
+
+      var teamA = new Team("1", null, "Team A", 1);
+      var teamB = new Team("2", null, "Team B", 2);
+      var teamC = new Team("3", null, "Team C", 3);
+      var participants = tg.createRaceParticipants(6);
+      participants[0].Participant.Team = teamB;
+      participants[1].Participant.Team = teamB;
+      participants[2].Participant.Team = teamA;
+      participants[3].Participant.Team = teamA;
+      participants[4].Participant.Team = teamC;
+      participants[5].Participant.Team = teamC;
+
+      // Positions 1..6 => points 15, 12, 10, 8, 6, 5
+      rr1.SetRunTime(participants[0], TimeSpan.FromSeconds(10)); // B: 15
+      rr1.SetRunTime(participants[2], TimeSpan.FromSeconds(20)); // A: 12
+      rr1.SetRunTime(participants[3], TimeSpan.FromSeconds(30)); // A: 10
+      rr1.SetRunTime(participants[1], TimeSpan.FromSeconds(40)); // B: 8
+      rr1.SetRunTime(participants[4], TimeSpan.FromSeconds(50)); // C: 6
+      rr1.SetRunTime(participants[5], TimeSpan.FromSeconds(60)); // C: 5
+
+      var raceVP = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
+      raceVP.Init(race, tg.Model);
+      race.SetResultViewProvider(raceVP);
+
+      var teamVP = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Points, NumberOfMembersMin = 1, NumberOfMembersMax = 2 });
+      teamVP.Init(race, tg.Model);
+
+      var teams = new List<TeamResultViewItem>(System.Linq.Enumerable.OfType<TeamResultViewItem>(teamVP.GetView().SourceCollection));
+      Assert.AreEqual(3, teams.Count);
+      // A: 22, B: 23, C: 11
+      Assert.AreEqual("Team B", teams[0].Name);
+      Assert.AreEqual(23.0, teams[0].Points);
+      Assert.AreEqual(1U, teams[0].Position);
+      Assert.AreEqual("Team A", teams[1].Name);
+      Assert.AreEqual(22.0, teams[1].Points);
+      Assert.AreEqual(2U, teams[1].Position);
+      Assert.AreEqual("Team C", teams[2].Name);
+      Assert.AreEqual(11.0, teams[2].Points);
+      Assert.AreEqual(3U, teams[2].Position);
+    }
   }
 }
