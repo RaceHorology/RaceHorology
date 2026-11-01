@@ -2578,5 +2578,39 @@ namespace RaceHorologyLibTest
       GC.KeepAlive(notifier);
       GC.KeepAlive(remaining);
     }
+
+
+    /// <summary>
+    /// A new time moves the participant in the result lists with a single Move each,
+    /// and the moves within the run results do not trigger any recalculation of the race results
+    /// </summary>
+    [TestMethod]
+    public void ResultViewProviders_NewTime_SingleMove()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      for (int i = 0; i < 20; i++)
+        tg.createRaceParticipant();
+      for (uint i = 1; i < 20; i++)
+        run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+
+      var runResults = (run1.GetResultViewProvider() as RaceRunResultViewProvider).GetViewList();
+      var raceResults = race.GetResultViewProvider().GetViewList();
+      var runEvents = new List<System.Collections.Specialized.NotifyCollectionChangedAction>();
+      var raceEvents = new List<System.Collections.Specialized.NotifyCollectionChangedAction>();
+      runResults.CollectionChanged += (s, e) => runEvents.Add(e.Action);
+      raceResults.CollectionChanged += (s, e) => raceEvents.Add(e.Action);
+
+      // Participant 20 (no time yet, last) becomes the fastest
+      run1.SetRunTime(race.GetParticipant(20), TimeSpan.FromSeconds(50));
+
+      CollectionAssert.AreEqual(new[] { System.Collections.Specialized.NotifyCollectionChangedAction.Move }, runEvents);
+      CollectionAssert.AreEqual(new[] { System.Collections.Specialized.NotifyCollectionChangedAction.Move }, raceEvents);
+      Assert.AreEqual(20U, runResults[0].StartNumber);
+      Assert.AreEqual(20U, raceResults[0].Participant.StartNumber);
+      Assert.AreEqual(1U, raceResults[0].Position);
+      Assert.AreEqual(2U, raceResults[1].Position);
+    }
   }
 }

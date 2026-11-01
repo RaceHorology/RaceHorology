@@ -472,7 +472,11 @@ namespace RaceHorologyLib
     }
 
     /// <summary>
-    /// Sorts the collection in-place
+    /// Sorts the collection in-place (stable)
+    ///
+    /// Optimized for collections being sorted already except a few items (typically, a single value changed
+    /// during a race): a sorted collection takes O(n) comparisons and every misplaced item is moved directly
+    /// to its position. Thus, an ObservableCollection notifies one Move per misplaced item.
     /// </summary>
     /// <typeparam name="TC"></typeparam>
     /// <param name="collection">The collection to sort.</param>
@@ -489,24 +493,55 @@ namespace RaceHorologyLib
       if (last >= 0)
         lastElement = Math.Min(last, collection.Count - 1);
 
-      int n = lastElement;
-      bool swapped;
-      do
+      // Every move passes only items the moved item is in wrong order to, so the number of
+      // wrongly ordered pairs decreases with each move and equal items keep their order.
+      int i = firstElement;
+      while (i < lastElement)
       {
-        swapped = false;
-        for (int i = firstElement; i < n; ++i)
+        if (comparer.Compare(collection[i], collection[i + 1]) <= 0)
         {
-          if (comparer.Compare(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
-          {
-            TC temp = collection.ElementAt(i);
-            collection.RemoveAt(i);
-            collection.Insert(i + 1, temp);
-            swapped = true;
-          }
+          ++i;
+          continue;
         }
-        n--;
+
+        int from, to;
+        if (i + 2 <= lastElement && comparer.Compare(collection[i], collection[i + 2]) > 0)
+        {
+          // collection[i] is too big: move it behind all following smaller items
+          from = i;
+          to = i + 1;
+          while (to < lastElement && comparer.Compare(collection[from], collection[to + 1]) > 0)
+            ++to;
+        }
+        else
+        {
+          // collection[i + 1] is too small: move it in front of all preceding bigger items
+          from = i + 1;
+          to = i;
+          while (to > firstElement && comparer.Compare(collection[to - 1], collection[from]) > 0)
+            --to;
+        }
+
+        collection.MoveItem(from, to);
+
+        // Items in front of the moved range are still sorted
+        i = Math.Max(firstElement, Math.Min(from, to) - 1);
       }
-      while (swapped);
+    }
+
+    /// <summary>
+    /// Moves an item; uses ObservableCollection.Move() if possible to get a single Move notification
+    /// </summary>
+    static void MoveItem<TC>(this IList<TC> collection, int from, int to)
+    {
+      if (collection is ObservableCollection<TC> observable)
+        observable.Move(from, to);
+      else
+      {
+        TC item = collection[from];
+        collection.RemoveAt(from);
+        collection.Insert(to, item);
+      }
     }
 
 

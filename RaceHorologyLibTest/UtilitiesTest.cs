@@ -234,6 +234,88 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Sort() is stable and gives the same result as a regular stable sort, for complete lists and ranges
+    /// </summary>
+    [TestMethod]
+    public void ObservableCollectionExtensions_Sort_Random()
+    {
+      var random = new Random(4711);
+      // Compares the key only, the index tells the original order (stability)
+      var comparer = Comparer<(int key, int index)>.Create((x, y) => x.key.CompareTo(y.key));
+
+      for (int run = 0; run < 500; run++)
+      {
+        int count = random.Next(0, 30);
+        var items = new List<(int key, int index)>();
+        for (int i = 0; i < count; i++)
+          items.Add((random.Next(0, 10), i));
+
+        int first = count > 0 ? random.Next(0, count) : 0;
+        int last = run % 2 == 0 ? -1 : (count > 0 ? random.Next(first, count) : -1);
+        int end = last < 0 ? count - 1 : last;
+
+        var expected = new List<(int key, int index)>(items);
+        if (count > 0)
+        {
+          var sortedRange = System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderBy(expected.GetRange(first, end - first + 1), x => x.key));
+          for (int i = first; i <= end; i++)
+            expected[i] = sortedRange[i - first];
+        }
+
+        var collection = new ObservableCollection<(int key, int index)>(items);
+        collection.Sort(comparer, first, last);
+        CollectionAssert.AreEqual(expected, collection, string.Format("run {0}", run));
+      }
+    }
+
+
+    /// <summary>
+    /// A single changed value in a sorted list results in a single Move with O(n) comparisons
+    /// </summary>
+    [TestMethod]
+    public void ObservableCollectionExtensions_Sort_SingleChange()
+    {
+      int comparisons = 0;
+      var comparer = Comparer<int>.Create((x, y) => { comparisons++; return x.CompareTo(y); });
+
+      void check(int index, int newValue, int expectedNewIndex)
+      {
+        var collection = new ObservableCollection<int>();
+        for (int i = 0; i < 100; i++)
+          collection.Add(i * 10);
+        collection[index] = newValue;
+
+        var events = new List<System.Collections.Specialized.NotifyCollectionChangedEventArgs>();
+        collection.CollectionChanged += (s, e) => events.Add(e);
+        comparisons = 0;
+
+        collection.Sort(comparer);
+
+        Assert.AreEqual(1, events.Count);
+        Assert.AreEqual(System.Collections.Specialized.NotifyCollectionChangedAction.Move, events[0].Action);
+        Assert.AreEqual(index, events[0].OldStartingIndex);
+        Assert.AreEqual(expectedNewIndex, events[0].NewStartingIndex);
+        Assert.IsTrue(comparisons <= 3 * collection.Count, string.Format("{0} comparisons", comparisons));
+
+        for (int i = 1; i < collection.Count; i++)
+          Assert.IsTrue(collection[i - 1] <= collection[i]);
+      }
+
+      check(80, 5, 1);     // gets better
+      check(10, 995, 99);  // gets worse
+      check(0, 995, 99);   // first becomes last
+      check(99, -1, 0);    // last becomes first
+
+      // Sorted already => no event
+      var sorted = new ObservableCollection<int> { 1, 2, 2, 3 };
+      int sortedEvents = 0;
+      sorted.CollectionChanged += (s, e) => sortedEvents++;
+      sorted.Sort(comparer);
+      Assert.AreEqual(0, sortedEvents);
+    }
+
+
 
     [TestMethod]
     public void ToRaceTimeStringTest()
