@@ -2432,5 +2432,51 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, senders.Count);
       Assert.AreEqual(0, raceResultChanges);
     }
+
+
+    /// <summary>
+    /// A new race configuration replaces all view providers; the replaced ones get disposed, the new ones work
+    /// </summary>
+    [TestMethod]
+    public void ViewConfigurator_ConfigureRace_DisposesReplacedProviders()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      (new ViewConfigurator(race)).ConfigureRace(race);
+      for (int i = 0; i < 3; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+
+      var oldProviders = new List<ViewProvider> { run1.GetStartListProvider(), run1.GetResultViewProvider(), run2.GetStartListProvider(), run2.GetResultViewProvider(), race.GetResultViewProvider() };
+      int oldChanges = 0;
+      foreach (var p in oldProviders)
+        ((System.Collections.Specialized.INotifyCollectionChanged)p.GetView().SourceCollection).CollectionChanged += (s, e) => oldChanges++;
+
+      (new ViewConfigurator(race)).ConfigureRace(race);
+      foreach (var p in oldProviders)
+        CollectionAssert.DoesNotContain(new ViewProvider[] { run1.GetStartListProvider(), run1.GetResultViewProvider(), run2.GetStartListProvider(), run2.GetResultViewProvider(), race.GetResultViewProvider() }, p);
+
+      tg.createRaceParticipant();
+      run1.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+
+      // Old providers do not calculate anymore, the new ones do
+      Assert.AreEqual(0, oldChanges);
+      Assert.AreEqual(4, run1.GetStartListProvider().GetViewList().Count);
+      var raceResults = race.GetResultViewProvider().GetView().ViewToList<RaceResultItem>();
+      Assert.AreEqual(4, raceResults.Count);
+      Assert.AreEqual(TimeSpan.FromSeconds(50), raceResults[0].TotalTime);
+
+      // Deleting a run disposes its providers
+      var run2StartList = run2.GetStartListProvider();
+      int run2Changes = 0;
+      ((System.Collections.Specialized.INotifyCollectionChanged)run2StartList.GetView().SourceCollection).CollectionChanged += (s, e) => run2Changes++;
+      race.DeleteRaceRun();
+      tg.createRaceParticipant();
+      Assert.AreEqual(0, run2Changes);
+    }
   }
 }

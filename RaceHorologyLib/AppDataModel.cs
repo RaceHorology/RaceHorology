@@ -1092,6 +1092,10 @@ namespace RaceHorologyLib
       // Un-Observe properties
       rr.PropertyChanged -= raceRun_PropertyChanged;
 
+      // The view providers of the run would keep on calculating otherwise
+      rr.GetStartListProvider()?.Dispose();
+      rr.GetResultViewProvider()?.Dispose();
+
       // TODO
       //rr.Dispose();
       //ddrr.Dispose();
@@ -1269,8 +1273,12 @@ namespace RaceHorologyLib
       if (_raceResultsProvider == raceVP)
         return;
 
+      var oldVP = _raceResultsProvider;
       _raceResultsProvider = raceVP;
       NotifyPropertyChanged(ResultViewProviderProperty);
+
+      // Observers switched to the new provider, the old one would keep on calculating otherwise
+      oldVP?.Dispose();
     }
 
 
@@ -1283,8 +1291,12 @@ namespace RaceHorologyLib
       if (_teamResultsProvider == vp)
         return;
 
+      var oldVP = _teamResultsProvider;
       _teamResultsProvider = vp;
       NotifyPropertyChanged(TeamResultsViewProviderProperty);
+
+      // Observers switched to the new provider, the old one would keep on calculating otherwise
+      oldVP?.Dispose();
     }
 
 
@@ -1602,6 +1614,7 @@ namespace RaceHorologyLib
 
     public void SetStartListProvider(StartListViewProvider slp)
     {
+      var oldVP = _slVP;
       if (_slVP != null)
         _slVP.GetViewList().CollectionChanged -= startListVP_CollectionChanged;
 
@@ -1613,6 +1626,10 @@ namespace RaceHorologyLib
       sortInFinish();
 
       NotifyPropertyChanged(StartListProviderProperty);
+
+      // Observers switched to the new provider, the old one would keep on calculating otherwise
+      if (oldVP != slp)
+        oldVP?.Dispose();
     }
 
     private void startListVP_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -1630,10 +1647,14 @@ namespace RaceHorologyLib
       if (_rvp == rvp)
         return;
 
+      var oldVP = _rvp;
       _rvp = rvp;
       _UpdateInternals();
 
       NotifyPropertyChanged(ResultViewProviderProperty);
+
+      // Observers switched to the new provider, the old one would keep on calculating otherwise
+      oldVP?.Dispose();
     }
 
     public ResultViewProvider GetResultViewProvider()
