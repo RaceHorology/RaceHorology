@@ -8,7 +8,7 @@ import { participantColumns } from './participantColumns'
 
 const columns: Column<StartListEntry>[] = [
   { header: 'StNr', render: (e) => e.StartNumber, className: 'text-center' },
-  ...participantColumns<StartListEntry>(true),
+  ...participantColumns<StartListEntry>(),
 ]
 
 export default function StartListTab({ meta }: { meta: MetaData['data'] | null }) {
