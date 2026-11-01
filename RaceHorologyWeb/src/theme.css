@@ -33,6 +33,11 @@
   background-color: var(--rh-bg4);
 }
 
+/* The lists are compact (attributes and run times stacked), so they need no more than this width */
+.rh-content {
+  max-width: 60rem;
+}
+
 /* Tabs */
 .nav-tabs {
   background-color: var(--rh-bg1);
@@ -141,7 +146,7 @@
   }
 }
 
-/* Long participant attributes (first name, club, class): own columns on wide screens, within the name cell on narrow ones */
+/* Column headers are abbreviated on narrow screens (see ShortHeader) */
 @media (min-width: 768px) {
   .rh-narrow-only {
     display: none;

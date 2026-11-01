@@ -26,7 +26,7 @@ export default function App() {
           <ConnectionStatus liveData={liveData} />
         </Container>
       </Navbar>
-      <Container fluid>
+      <Container fluid className="rh-content">
         <Tabs defaultActiveKey="live" className="mb-3" mountOnEnter>
           <Tab eventKey="live" title="Live">
             <LiveTab liveData={liveData} meta={meta} />

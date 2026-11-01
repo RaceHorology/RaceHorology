@@ -6,7 +6,7 @@ import type { Grouping, MetaData, RunResultEntry, RunResultList } from '../api/t
 import { startNumber } from './format'
 import GroupedTable, { type Column } from './GroupedTable'
 import ListOptions from './ListOptions'
-import { NarrowRemark } from './raceResultColumns'
+import { Remark } from './raceResultColumns'
 import { participantColumns, ShortHeader } from './participantColumns'
 
 const columns: Column<RunResultEntry>[] = [
@@ -23,13 +23,12 @@ const columns: Column<RunResultEntry>[] = [
     render: (e) => (
       <>
         {e.Runtime}
-        <NarrowRemark text={e.DisqualText} />
+        <Remark text={e.DisqualText} />
       </>
     ),
     className: 'text-end fw-bold',
   },
   { header: 'Diff', render: (e) => e.DiffToFirst, className: 'text-end' },
-  { header: 'Bemerkung', render: (e) => e.DisqualText, className: 'rh-wide-only' },
 ]
 
 export default function RunResultTab({ liveData, meta }: { liveData: LiveData; meta: MetaData['data'] | null }) {

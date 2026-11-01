@@ -6,7 +6,7 @@ import type { GroupedData, MetaData, Participant, RaceResultRuntime } from '../a
 import { position, startNumber } from './format'
 import GroupedTable from './GroupedTable'
 import { NameCell, NameHeader, ShortHeader } from './participantColumns'
-import { NarrowRemark, NarrowRunTimes, raceResultColumns } from './raceResultColumns'
+import { raceResultColumns, Remark, RunTimes } from './raceResultColumns'
 
 /** Number of participants of the same group in a row after which the race result follows that group */
 const AUTO_FILTER_FINISHERS = 3
@@ -37,10 +37,10 @@ interface LiveSectionProps {
   runs: number
 }
 
-/** Number of columns with participant data (name, first name, category, year, club) */
-const PARTICIPANT_COLUMNS = 5
+/** Number of data columns: start number, name (with first name and club), category, year, time */
+const DATA_COLUMNS = 5
 
-function LiveHeaderRow({ runs }: { runs: number }) {
+function LiveHeaderRow() {
   return (
     <tr>
       <th className="rh-label-col"></th>
@@ -48,21 +48,13 @@ function LiveHeaderRow({ runs }: { runs: number }) {
       <th>
         <NameHeader />
       </th>
-      <th className="rh-wide-only">Vorname</th>
       <th className="text-center">
         <ShortHeader long="Kategorie" short="Kat." />
       </th>
       <th className="text-center">
         <ShortHeader long="Jahrgang" short="Jg." />
       </th>
-      <th className="rh-wide-only">Verein</th>
-      {Array.from({ length: runs }, (_, i) => (
-        <th key={i} className="text-end rh-wide-only">
-          Zeit {i + 1}
-        </th>
-      ))}
       <th className="text-end">Zeit</th>
-      <th className="rh-wide-only"></th>
       <th className="rh-label-col"></th>
     </tr>
   )
@@ -81,7 +73,7 @@ function SectionLabel({ title, rows }: { title: string; rows: number }) {
 }
 
 function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
-  const columns = 1 + PARTICIPANT_COLUMNS + runs + 2
+  const columns = DATA_COLUMNS
   const label = <SectionLabel title={title} rows={Math.max(rows.length, 1)} />
   return (
     <tbody className="rh-section">
@@ -104,21 +96,13 @@ function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
           <td className="rh-name">
             <NameCell p={p} />
           </td>
-          <td className="rh-wide-only">{p.Firstname}</td>
           <td className="text-center">{p.Sex}</td>
           <td className="text-center">{p.Year}</td>
-          <td className="rh-wide-only">{p.Club}</td>
-          {Array.from({ length: runs }, (_, i) => (
-            <td key={i} className="text-end text-nowrap rh-wide-only">
-              {runtimes[i]?.Runtime} {position(runtimes[i]?.Position)}
-            </td>
-          ))}
           <td className="text-end text-nowrap fw-bold">
             {time} {position(pos)}
-            <NarrowRemark text={remark} />
-            <NarrowRunTimes runtimes={runtimes} runs={runs} />
+            <Remark text={remark} />
+            <RunTimes runtimes={runtimes} runs={runs} />
           </td>
-          <td className="rh-wide-only">{remark}</td>
           {i === 0 && label}
         </tr>
       ))}
@@ -168,7 +152,7 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
     <>
       <Table hover bordered size="sm" responsive className="rh-table mb-4">
         <thead>
-          <LiveHeaderRow runs={runs} />
+          <LiveHeaderRow />
         </thead>
         <LiveSection
           title="Am Start"
@@ -185,7 +169,7 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
         <LiveSection title="Im Ziel" rows={finishedRows} emptyText="noch kein Läufer im Ziel" runs={runs} />
         {/* Repeated below, so that header, footer and the vertical section labels frame the table */}
         <tfoot>
-          <LiveHeaderRow runs={runs} />
+          <LiveHeaderRow />
         </tfoot>
       </Table>
 

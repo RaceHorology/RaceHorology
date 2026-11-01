@@ -3,13 +3,10 @@ import { position, startNumber } from './format'
 import type { Column } from './GroupedTable'
 import { participantColumns, ShortHeader } from './participantColumns'
 
-/**
- * Times of the single runs below the total time, shown on narrow screens instead of a column per run
- * (see .rh-narrow-only in theme.css)
- */
-export function NarrowRunTimes({ runtimes, runs }: { runtimes: RaceResultRuntime[]; runs: number }) {
+/** Times of the single runs, shown below the total time */
+export function RunTimes({ runtimes, runs }: { runtimes: RaceResultRuntime[]; runs: number }) {
   return (
-    <div className="rh-narrow-only small fw-normal text-body-secondary">
+    <div className="small fw-normal text-body-secondary">
       {Array.from({ length: runs }, (_, i) =>
         runtimes[i]?.Runtime ? (
           <div key={i}>
@@ -21,12 +18,12 @@ export function NarrowRunTimes({ runtimes, runs }: { runtimes: RaceResultRuntime
   )
 }
 
-/** Remark (e.g. disqualification) below the time, shown on narrow screens instead of an own column */
-export function NarrowRemark({ text }: { text: string | null | undefined }) {
-  return text ? <div className="rh-narrow-only fw-normal">{text}</div> : null
+/** Remark (e.g. disqualification), shown below the time */
+export function Remark({ text }: { text: string | null | undefined }) {
+  return text ? <div className="fw-normal">{text}</div> : null
 }
 
-/** Columns of the race result; the times of the single runs are shown for the given number of runs */
+/** Columns of the race result; the times of the single runs are shown below the total time for the given number of runs */
 export function raceResultColumns(runs: number, withClass = false): Column<RaceResultEntry>[] {
   return [
     {
@@ -37,23 +34,17 @@ export function raceResultColumns(runs: number, withClass = false): Column<RaceR
     },
     { header: 'StNr', render: startNumber, className: 'text-center' },
     ...participantColumns<RaceResultEntry>(withClass),
-    ...Array.from({ length: runs }, (_, i): Column<RaceResultEntry> => ({
-      header: `Zeit ${i + 1}`,
-      render: (e) => `${e.Runtimes[i]?.Runtime ?? ''} ${position(e.Runtimes[i]?.Position)}`,
-      className: 'text-end text-nowrap rh-wide-only',
-    })),
     {
       header: 'Zeit',
       render: (e) => (
         <>
           {e.Totaltime}
-          <NarrowRemark text={e.DisqualText} />
-          <NarrowRunTimes runtimes={e.Runtimes} runs={runs} />
+          <Remark text={e.DisqualText} />
+          <RunTimes runtimes={e.Runtimes} runs={runs} />
         </>
       ),
       className: 'text-end text-nowrap fw-bold',
     },
     { header: 'Diff', render: (e) => e.DiffToFirst, className: 'text-end' },
-    { header: 'Bemerkung', render: (e) => e.DisqualText, className: 'rh-wide-only' },
   ]
 }
