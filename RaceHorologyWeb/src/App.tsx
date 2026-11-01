@@ -19,14 +19,14 @@ export default function App() {
   return (
     <>
       <Navbar className="rh-navbar mb-3">
-        <Container>
+        <Container fluid>
           <Navbar.Brand>
             <img src={logo} alt="Race Horology" height={40} />
           </Navbar.Brand>
           <ConnectionStatus liveData={liveData} />
         </Container>
       </Navbar>
-      <Container>
+      <Container fluid>
         <Tabs defaultActiveKey="live" className="mb-3" mountOnEnter>
           <Tab eventKey="live" title="Live">
             <LiveTab liveData={liveData} meta={meta} />

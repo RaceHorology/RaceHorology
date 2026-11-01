@@ -98,3 +98,7 @@
   font-weight: bold;
   text-align: center;
 }
+
+.rh-table > tbody > tr > td {
+  white-space: nowrap;
+}
