@@ -5,7 +5,9 @@ import { currentRunIndex, type LiveData } from '../api/liveData'
 import type { GroupedData, MetaData, Participant, RaceResultRuntime } from '../api/types'
 import { position, startNumber } from './format'
 import GroupedTable from './GroupedTable'
-import { raceResultColumns } from './raceResultColumns'
+import { NameCell, NameHeader, ShortHeader } from './participantColumns'
+import { raceResultColumns, Remark, RunTimes } from './raceResultColumns'
+import { useCompactLevel } from './useCompactLevel'
 
 /** Number of participants of the same group in a row after which the race result follows that group */
 const AUTO_FILTER_FINISHERS = 3
@@ -36,13 +38,40 @@ interface LiveSectionProps {
   runs: number
 }
 
-const participantHeaders = ['Name', 'Vorname', 'Kategorie', 'Jahrgang', 'Verein']
+/** Number of columns without the run times: start number, name, first name, category, year, club, time, remark */
+const FIXED_COLUMNS = 8
+
+function LiveHeaderRow({ runs }: { runs: number }) {
+  return (
+    <tr>
+      <th className="text-center">StNr</th>
+      <th>
+        <NameHeader />
+      </th>
+      <th className="rh-c1-col">Vorname</th>
+      <th className="text-center">
+        <ShortHeader long="Kategorie" short="Kat." />
+      </th>
+      <th className="text-center">
+        <ShortHeader long="Jahrgang" short="Jg." />
+      </th>
+      <th className="rh-c1-col">Verein</th>
+      {Array.from({ length: runs }, (_, i) => (
+        <th key={i} className="text-end rh-c2-col">
+          Zeit {i + 1}
+        </th>
+      ))}
+      <th className="text-end">Zeit</th>
+      <th className="rh-c2-col"></th>
+    </tr>
+  )
+}
 
 function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
-  const columns = 1 + participantHeaders.length + runs + 2
+  const columns = FIXED_COLUMNS + runs
   return (
     <tbody>
-      <tr className="table-secondary">
+      <tr className="rh-section-heading">
         <th colSpan={columns}>{title}</th>
       </tr>
       {rows.length === 0 && (
@@ -55,20 +84,24 @@ function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
       {rows.map(({ participant: p, runtimes, time, position: pos, remark }) => (
         <tr key={p.Id}>
           <td className="text-center">{startNumber(p)}</td>
-          <td>{p.Name}</td>
-          <td>{p.Firstname}</td>
+          <td className="rh-name">
+            <NameCell p={p} />
+          </td>
+          <td className="rh-c1-col">{p.Firstname}</td>
           <td className="text-center">{p.Sex}</td>
           <td className="text-center">{p.Year}</td>
-          <td>{p.Club}</td>
+          <td className="rh-c1-col">{p.Club}</td>
           {Array.from({ length: runs }, (_, i) => (
-            <td key={i} className="text-end text-nowrap">
+            <td key={i} className="text-end text-nowrap rh-c2-col">
               {runtimes[i]?.Runtime} {position(runtimes[i]?.Position)}
             </td>
           ))}
           <td className="text-end text-nowrap fw-bold">
             {time} {position(pos)}
+            <Remark text={remark} />
+            <RunTimes runtimes={runtimes} runs={runs} />
           </td>
-          <td>{remark}</td>
+          <td className="rh-c2-col">{remark}</td>
         </tr>
       ))}
     </tbody>
@@ -110,43 +143,33 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
       setFilterBy(autoFilter)
   }, [autoFilter])
 
+  const compact = useCompactLevel([onStart, onTrack, justFinished, raceResult, runs])
+
   const groups = Object.keys(raceResult?.data ?? {}).filter((g) => g !== '')
   const activeFilter = groups.includes(filterBy) ? filterBy : ''
 
   return (
     <>
-      <Table size="sm" responsive className="mb-4">
-        <thead>
-          <tr>
-            <th className="text-center">StNr</th>
-            {participantHeaders.map((h) => (
-              <th key={h} className={h === 'Kategorie' || h === 'Jahrgang' ? 'text-center' : undefined}>
-                {h}
-              </th>
-            ))}
-            {Array.from({ length: runs }, (_, i) => (
-              <th key={i} className="text-end">
-                Zeit {i + 1}
-              </th>
-            ))}
-            <th className="text-end">Zeit</th>
-            <th></th>
-          </tr>
-        </thead>
-        <LiveSection
-          title="Am Start"
-          rows={[...onStart].reverse().map(withRuntimes)}
-          emptyText="keine weiteren Starter"
-          runs={runs}
-        />
-        <LiveSection
-          title="Im Lauf"
-          rows={[...onTrack].reverse().map((p) => ({ ...withRuntimes(p), time: p.Runtime, remark: p.DisqualText }))}
-          emptyText="keine Läufer gestartet"
-          runs={runs}
-        />
-        <LiveSection title="Im Ziel" rows={finishedRows} emptyText="noch kein Läufer im Ziel" runs={runs} />
-      </Table>
+      <div ref={compact.ref} className={compact.className}>
+        <Table hover bordered size="sm" responsive className="rh-table mb-4">
+          <thead>
+            <LiveHeaderRow runs={runs} />
+          </thead>
+          <LiveSection
+            title="Am Start"
+            rows={[...onStart].reverse().map(withRuntimes)}
+            emptyText="keine weiteren Starter"
+            runs={runs}
+          />
+          <LiveSection
+            title="Im Lauf"
+            rows={[...onTrack].reverse().map((p) => ({ ...withRuntimes(p), time: p.Runtime, remark: p.DisqualText }))}
+            emptyText="keine Läufer gestartet"
+            runs={runs}
+          />
+          <LiveSection title="Im Ziel" rows={finishedRows} emptyText="noch kein Läufer im Ziel" runs={runs} />
+        </Table>
+      </div>
 
       {raceResult && (
         <section>
@@ -171,7 +194,7 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
             data={raceResult.data}
             columns={raceResultColumns(runs)}
             rowKey={(e) => e.Id}
-            rowClassName={(e) => (e.JustModified ? 'table-warning' : undefined)}
+            rowClassName={(e) => (e.JustModified ? 'just-modified' : undefined)}
             filterBy={activeFilter}
           />
         </section>

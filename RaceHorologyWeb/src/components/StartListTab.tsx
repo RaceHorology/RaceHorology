@@ -4,15 +4,11 @@ import { fetchStartList } from '../api/http'
 import type { Grouping, MetaData, StartList, StartListEntry } from '../api/types'
 import GroupedTable, { type Column } from './GroupedTable'
 import ListOptions from './ListOptions'
+import { participantColumns } from './participantColumns'
 
 const columns: Column<StartListEntry>[] = [
   { header: 'StNr', render: (e) => e.StartNumber, className: 'text-center' },
-  { header: 'Name', render: (e) => e.Name },
-  { header: 'Vorname', render: (e) => e.Firstname },
-  { header: 'Kategorie', render: (e) => e.Sex, className: 'text-center' },
-  { header: 'Jahrgang', render: (e) => e.Year, className: 'text-center' },
-  { header: 'Verein', render: (e) => e.Club },
-  { header: 'Klasse', render: (e) => e.Class },
+  ...participantColumns<StartListEntry>(),
 ]
 
 export default function StartListTab({ meta }: { meta: MetaData['data'] | null }) {

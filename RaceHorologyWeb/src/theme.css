@@ -1,0 +1,142 @@
+/*
+ * Race Horology corporate design, taken over from the previous web client (webroot/css/styles.css)
+ * and the desktop application (dialog background #e6eee5, highlighted rows #b8c9d6).
+ */
+:root {
+  --rh-bg1: #f8faf7;
+  --rh-bg2: #eff5f0;
+  --rh-bg3: #eaf1ea;
+  --rh-bg4: #e6eee5;
+
+  --rh-fg1: #3f434b;
+  --rh-fg2: #667583;
+  --rh-fg3: #8b9faf;
+  --rh-fg4: #b8c9d6;
+
+  --rh-just-modified: coral;
+
+  --bs-body-font-family: 'Trebuchet MS', Arial, Helvetica, sans-serif;
+  --bs-body-color: var(--rh-fg1);
+  --bs-body-color-rgb: 63, 67, 75;
+  --bs-emphasis-color: var(--rh-fg1);
+  --bs-heading-color: var(--rh-fg1);
+  --bs-secondary-color: var(--rh-fg2);
+  --bs-link-color: var(--rh-fg2);
+  --bs-link-color-rgb: 102, 117, 131;
+  --bs-link-hover-color: var(--rh-fg1);
+  --bs-link-hover-color-rgb: 63, 67, 75;
+  --bs-border-color: #ddd;
+  --bs-focus-ring-color: rgba(102, 117, 131, 0.25);
+}
+
+.rh-navbar {
+  background-color: var(--rh-bg4);
+}
+
+/* Tabs */
+.nav-tabs {
+  background-color: var(--rh-bg1);
+}
+
+.nav-tabs .nav-link {
+  color: var(--rh-fg2);
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--rh-fg1);
+  font-weight: bold;
+}
+
+/* Form controls and buttons */
+.form-select:focus {
+  border-color: var(--rh-fg3);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--rh-fg2);
+  --bs-btn-border-color: var(--rh-fg2);
+  --bs-btn-hover-bg: var(--rh-fg2);
+  --bs-btn-hover-border-color: var(--rh-fg2);
+  --bs-btn-active-bg: var(--rh-fg1);
+  --bs-btn-active-border-color: var(--rh-fg1);
+}
+
+/* Lists */
+.rh-table {
+  --bs-table-color: var(--rh-fg1);
+  --bs-table-bg: var(--rh-bg1);
+  --bs-table-border-color: #ddd;
+  --bs-table-striped-color: var(--rh-fg1);
+  --bs-table-striped-bg: var(--rh-bg2);
+  --bs-table-hover-color: var(--rh-fg1);
+  --bs-table-hover-bg: var(--rh-fg4);
+}
+
+.rh-table > :not(caption) > * > * {
+  padding: 0.4rem 0.5rem;
+}
+
+.rh-table > thead > tr > th {
+  --bs-table-bg: var(--rh-fg2);
+  --bs-table-color: white;
+  --bs-table-bg-state: var(--rh-fg2);
+  color: white;
+  vertical-align: middle;
+}
+
+.rh-table > tbody > tr.just-modified > * {
+  --bs-table-bg-state: var(--rh-just-modified);
+}
+
+.rh-group-heading {
+  font-style: italic;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Section heading rows of the live table ("Am Start", "Im Lauf", "Im Ziel") */
+.rh-table > tbody > tr.rh-section-heading > th {
+  --bs-table-bg: var(--rh-bg4);
+  --bs-table-bg-state: var(--rh-bg4);
+  color: var(--rh-fg1);
+  font-style: italic;
+  font-weight: bold;
+  border-left: 4px solid var(--rh-fg2);
+}
+
+/*
+ * Compact levels of the lists, set by useCompactLevel only as far as needed for the lists to fit:
+ *   1: first name, club and class within the name cell (.rh-c1-*)
+ *   2: run times and remark within the time cell (.rh-c2-*)
+ *   3: abbreviated column headers, smaller font (.rh-c3-*)
+ * .rh-cN-col is hidden from level N on, .rh-cN-inline is shown from level N on.
+ */
+.rh-c1-inline,
+.rh-c2-inline,
+.rh-c3-inline {
+  display: none;
+}
+
+.rh-compact-1 .rh-c1-col,
+.rh-compact-2 .rh-c2-col,
+.rh-compact-3 .rh-c3-col {
+  display: none;
+}
+
+.rh-compact-1 .rh-c1-inline,
+.rh-compact-2 .rh-c2-inline,
+.rh-compact-3 .rh-c3-inline {
+  display: revert;
+}
+
+.rh-compact-3 .rh-table {
+  font-size: 0.875rem;
+}
+
+.rh-compact-3 .rh-table > :not(caption) > * > * {
+  padding: 0.3rem 0.3rem;
+}
+
+.rh-compact-3 .rh-table td.rh-name {
+  overflow-wrap: anywhere;
+}

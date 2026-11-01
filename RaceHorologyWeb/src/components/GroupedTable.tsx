@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react'
 import Table from 'react-bootstrap/Table'
 import type { GroupedData } from '../api/types'
+import { useCompactLevel } from './useCompactLevel'
 
 export interface Column<T> {
+  /** Header text, also used as key of the column */
   header: string
+  /** Header content if it differs from the plain header text */
+  headerContent?: ReactNode
   render: (row: T) => ReactNode
   className?: string
 }
@@ -17,24 +21,25 @@ export interface GroupedTableProps<T> {
   filterBy: string
 }
 
-/** Renders a list grouped by the server as one table per group */
+/** Renders a list grouped by the server as one table per group, as compact as needed to fit the width */
 export default function GroupedTable<T>({ data, columns, rowKey, rowClassName, filterBy }: GroupedTableProps<T>) {
   const groups = Object.entries(data).filter(([group]) => !filterBy || group === filterBy)
-
-  if (groups.every(([, rows]) => rows.length === 0))
-    return <p className="text-center text-body-secondary">Keine Einträge</p>
+  const compact = useCompactLevel([data, filterBy])
 
   return (
-    <>
+    <div ref={compact.ref} className={compact.className}>
+      {groups.every(([, rows]) => rows.length === 0) && (
+        <p className="text-center text-body-secondary">Keine Einträge</p>
+      )}
       {groups.map(([group, rows]) => (
         <section key={group} className="mb-4">
-          {group && <h2 className="h5">{group}</h2>}
-          <Table striped hover size="sm" responsive>
+          {group && <h2 className="h5 rh-group-heading">{group}</h2>}
+          <Table striped hover bordered size="sm" responsive className="rh-table">
             <thead>
               <tr>
                 {columns.map((c) => (
                   <th key={c.header} className={c.className}>
-                    {c.header}
+                    {c.headerContent ?? c.header}
                   </th>
                 ))}
               </tr>
@@ -53,6 +58,6 @@ export default function GroupedTable<T>({ data, columns, rowKey, rowClassName, f
           </Table>
         </section>
       ))}
-    </>
+    </div>
   )
 }

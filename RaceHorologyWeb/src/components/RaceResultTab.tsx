@@ -50,9 +50,9 @@ export default function RaceResultTab({ liveData, meta }: { liveData: LiveData; 
       {results && (
         <GroupedTable
           data={results.data}
-          columns={raceResultColumns(runs, true)}
+          columns={raceResultColumns(runs)}
           rowKey={(e) => e.Id}
-          rowClassName={(e) => (e.JustModified ? 'table-warning' : undefined)}
+          rowClassName={(e) => (e.JustModified ? 'just-modified' : undefined)}
           filterBy={activeFilter}
         />
       )}
