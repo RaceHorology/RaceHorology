@@ -1,60 +1,35 @@
-import { useEffect, useState } from 'react'
-import { fetchMetaData, fetchStartList, type MetaData, type StartList } from './api'
+import Container from 'react-bootstrap/Container'
+import Navbar from 'react-bootstrap/Navbar'
+import Tab from 'react-bootstrap/Tab'
+import Tabs from 'react-bootstrap/Tabs'
+import { useLiveData } from './api/liveData'
+import { useMetaData } from './api/metaData'
+import logo from './assets/rh-logo.svg'
+import ConnectionStatus from './components/ConnectionStatus'
+import StartListTab from './components/StartListTab'
 
 export default function App() {
-  const [meta, setMeta] = useState<MetaData | null>(null)
-  const [startList, setStartList] = useState<StartList | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    Promise.all([fetchMetaData(), fetchStartList()])
-      .then(([m, s]) => {
-        setMeta(m)
-        setStartList(s)
-      })
-      .catch((e: unknown) => setError(String(e)))
-  }, [])
+  const liveData = useLiveData()
+  // Reload the metadata (classes, runs, ...) whenever the current race or run changes
+  const meta = useMetaData(JSON.stringify(liveData.currentRaceRun))
 
   return (
-    <main>
-      <h1>Race Horology</h1>
-      <p>Neuer Web-Client (Vorschau)</p>
-      {error && <p role="alert">Fehler: {error}</p>}
-      {meta && (
-        <p>
-          {meta.data.runs} Durchgänge, {meta.data.classes.length} Klassen, {meta.data.groups.length} Gruppen
-        </p>
-      )}
-      {startList &&
-        Object.entries(startList.data).map(([group, entries]) => (
-          <section key={group}>
-            {group && <h2>{group}</h2>}
-            <table>
-              <thead>
-                <tr>
-                  <th>StNr</th>
-                  <th>Name</th>
-                  <th>Jahrgang</th>
-                  <th>Verein</th>
-                  <th>Klasse</th>
-                </tr>
-              </thead>
-              <tbody>
-                {entries.map((e) => (
-                  <tr key={e.StartNumber}>
-                    <td>{e.StartNumber}</td>
-                    <td>
-                      {e.Name} {e.Firstname}
-                    </td>
-                    <td>{e.Year}</td>
-                    <td>{e.Club}</td>
-                    <td>{e.Class}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        ))}
-    </main>
+    <>
+      <Navbar className="bg-body-tertiary mb-3">
+        <Container>
+          <Navbar.Brand>
+            <img src={logo} alt="Race Horology" height={40} />
+          </Navbar.Brand>
+          <ConnectionStatus liveData={liveData} />
+        </Container>
+      </Navbar>
+      <Container>
+        <Tabs defaultActiveKey="startlist" className="mb-3" mountOnEnter>
+          <Tab eventKey="startlist" title="Startliste">
+            <StartListTab meta={meta} />
+          </Tab>
+        </Tabs>
+      </Container>
+    </>
   )
 }
