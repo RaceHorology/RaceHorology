@@ -599,57 +599,6 @@
     <EmbeddedResource Include="resources\error_offline.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <Content Include="webroot\css\bootstrap-vue.min.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\css\bootstrap.min.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\css\styles.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Resource Include="webroot\img\icon_running.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="webroot\img\icon_starthouse.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Content Include="webroot\img\RH-LOGO.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\index.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\bootstrap-vue.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\bootstrap.bundle.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\bootstrap.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\DSVAlpin2.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\echotest.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\jquery-3.4.1.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\jquery-3.4.1.slim.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\popper.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\vue.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="webroot\Js\vue.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
@@ -665,12 +614,12 @@
     </ItemGroup>
   </Target>
   <!--
-    New web client (RaceHorologyWeb, React + Vite). It is built via npm and copied to webroot\next\.
-    Pass /p:SkipWebBuild=true to build without Node.js; the new client is then missing.
+    Web client (RaceHorologyWeb, React + Vite). It is built via npm and copied to webroot\.
+    Pass /p:SkipWebBuild=true to build without Node.js; the web client is then missing.
   -->
   <PropertyGroup>
     <WebClientDir>$(MSBuildProjectDirectory)\..\RaceHorologyWeb\</WebClientDir>
-    <WebClientOutDir>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)webroot-next\</WebClientOutDir>
+    <WebClientOutDir>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)webclient\</WebClientOutDir>
     <!-- npm ci recreates node_modules, so a stamp inside it also detects a deleted node_modules -->
     <WebClientNpmCiStamp>$(WebClientDir)node_modules\.racehorology-npm-ci.stamp</WebClientNpmCiStamp>
   </PropertyGroup>
@@ -689,7 +638,7 @@
     <ItemGroup>
       <_WebClientFile Include="$(WebClientOutDir)**\*" />
       <Content Include="@(_WebClientFile)">
-        <Link>webroot\next\%(_WebClientFile.RecursiveDir)%(_WebClientFile.Filename)%(_WebClientFile.Extension)</Link>
+        <Link>webroot\%(_WebClientFile.RecursiveDir)%(_WebClientFile.Filename)%(_WebClientFile.Extension)</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

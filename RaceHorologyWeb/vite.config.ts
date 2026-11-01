@@ -7,8 +7,8 @@ const rhServer = process.env.RH_SERVER ?? 'http://localhost:8081'
 
 export default defineConfig({
   plugins: [react()],
-  // The new client is served next to the old one under <AppDir>\webroot\next\
-  base: '/next/',
+  // Served by RaceHorology from <AppDir>\webroot\
+  base: '/',
   build: {
     // The MSBuild target in RaceHorology.csproj passes the output folder via RH_WEB_OUTDIR
     outDir: process.env.RH_WEB_OUTDIR ?? 'dist',

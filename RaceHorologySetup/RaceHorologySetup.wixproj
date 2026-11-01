@@ -32,17 +32,19 @@
     <Compile Include="Product.wxs" />
   </ItemGroup>
   <!--
-    The new web client (RaceHorologyWeb) is built by Vite with content-hashed file names,
+    The web client (RaceHorologyWeb) is built by Vite with content-hashed file names,
     so its files are harvested by Heat instead of being listed in Product.wxs.
+    They are taken from the Vite output folder (WebClientOutDir in RaceHorology.csproj), as the webroot
+    folder in bin may still contain files of the previous web client from older builds.
   -->
   <PropertyGroup>
-    <WebClientHarvestDir>$(MSBuildProjectDirectory)\..\RaceHorology\bin\x86\$(Configuration)\webroot\next</WebClientHarvestDir>
+    <WebClientHarvestDir>$(MSBuildProjectDirectory)\..\RaceHorology\obj\x86\$(Configuration)\webclient</WebClientHarvestDir>
     <DefineConstants>$(DefineConstants);WebClientDir=$(WebClientHarvestDir)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <HarvestDirectory Include="$(WebClientHarvestDir)">
-      <DirectoryRefId>webroot_next</DirectoryRefId>
-      <ComponentGroupName>webroot_next_files</ComponentGroupName>
+      <DirectoryRefId>webroot</DirectoryRefId>
+      <ComponentGroupName>webroot_files</ComponentGroupName>
       <PreprocessorVariable>var.WebClientDir</PreprocessorVariable>
       <SuppressRootDirectory>true</SuppressRootDirectory>
       <SuppressCom>true</SuppressCom>
