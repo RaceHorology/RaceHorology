@@ -2389,6 +2389,113 @@ namespace RaceHorologyLib
 
 
 
+  /// <summary>
+  /// Observes the list of a view provider owned by a Race or RaceRun.
+  ///
+  /// The owner replaces its view providers if the race configuration changes. This class then
+  /// switches to the list of the new provider and signals a Reset, so observers keep on getting
+  /// notified without caring about the replacement.
+  /// </summary>
+  public class ViewProviderListObserver : INotifyCollectionChanged, IDisposable
+  {
+    INotifyPropertyChanged _owner;
+    string _providerPropertyName;
+    Func<INotifyCollectionChanged> _getList;
+    ItemsChangedNotifier _notifier;
+
+    public ViewProviderListObserver(INotifyPropertyChanged owner, string providerPropertyName, Func<INotifyCollectionChanged> getList)
+    {
+      _owner = owner;
+      _providerPropertyName = providerPropertyName;
+      _getList = getList;
+
+      _owner.PropertyChanged += OnOwnerPropertyChanged;
+      attach();
+    }
+
+    public static ViewProviderListObserver ForStartList(RaceRun raceRun)
+    {
+      return new ViewProviderListObserver(raceRun, RaceRun.StartListProviderProperty, () => raceRun.GetStartListProvider()?.GetViewList());
+    }
+
+    public static ViewProviderListObserver ForResults(RaceRun raceRun)
+    {
+      return new ViewProviderListObserver(raceRun, RaceRun.ResultViewProviderProperty, () => raceRun.GetResultViewProvider()?.GetView());
+    }
+
+    public static ViewProviderListObserver ForResults(Race race)
+    {
+      return new ViewProviderListObserver(race, Race.ResultViewProviderProperty, () => race.GetResultViewProvider()?.GetView());
+    }
+
+
+    /// <summary>
+    /// If the list changed (including the replacement of the view provider)
+    /// </summary>
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+    /// <summary>
+    /// If an item of the list changed its properties
+    /// </summary>
+    public event ItemsChangedNotifier.ItemChangedEventHandler ItemChanged;
+
+
+    public void Dispose()
+    {
+      if (_owner == null)
+        return;
+
+      _owner.PropertyChanged -= OnOwnerPropertyChanged;
+      _owner = null;
+      detach();
+    }
+
+
+    private void OnOwnerPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName != _providerPropertyName)
+        return;
+
+      detach();
+      attach();
+      CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+
+    private void attach()
+    {
+      var list = _getList();
+      if (list == null)
+        return;
+
+      _notifier = new ItemsChangedNotifier(list);
+      _notifier.CollectionChanged += OnListChanged;
+      _notifier.ItemChanged += OnListItemChanged;
+    }
+
+    private void detach()
+    {
+      if (_notifier == null)
+        return;
+
+      _notifier.CollectionChanged -= OnListChanged;
+      _notifier.ItemChanged -= OnListItemChanged;
+      _notifier.Dispose();
+      _notifier = null;
+    }
+
+    private void OnListChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      CollectionChanged?.Invoke(sender, e);
+    }
+
+    private void OnListItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      ItemChanged?.Invoke(sender, e);
+    }
+  }
+
+
+
   public static class ViewProviderHelpers
   {
 

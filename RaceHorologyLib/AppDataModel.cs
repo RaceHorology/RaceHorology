@@ -767,6 +767,10 @@ namespace RaceHorologyLib
     private RaceResultViewProvider _raceResultsProvider;
     private TeamRaceResultViewProvider _teamResultsProvider;
 
+    /// <summary>PropertyChanged is raised with these names if a view provider has been replaced (e.g. new race configuration)</summary>
+    public const string ResultViewProviderProperty = "ResultViewProvider";
+    public const string TeamResultsViewProviderProperty = "TeamResultsViewProvider";
+
 
     public ERaceType RaceType { get { return _properties.RaceType; } }
     public string RaceNumber { get { return _addProperties?.RaceNumber; } }
@@ -1262,7 +1266,11 @@ namespace RaceHorologyLib
 
     public void SetResultViewProvider(RaceResultViewProvider raceVP)
     {
+      if (_raceResultsProvider == raceVP)
+        return;
+
       _raceResultsProvider = raceVP;
+      NotifyPropertyChanged(ResultViewProviderProperty);
     }
 
 
@@ -1272,7 +1280,11 @@ namespace RaceHorologyLib
     }
     public void SetTeamResultsViewProvider(TeamRaceResultViewProvider vp)
     {
+      if (_teamResultsProvider == vp)
+        return;
+
       _teamResultsProvider = vp;
+      NotifyPropertyChanged(TeamResultsViewProviderProperty);
     }
 
 
@@ -1482,6 +1494,10 @@ namespace RaceHorologyLib
     private StartListViewProvider _slVP;
     private ResultViewProvider _rvp;
 
+    /// <summary>PropertyChanged is raised with these names if a view provider has been replaced (e.g. new race configuration)</summary>
+    public const string StartListProviderProperty = "StartListProvider";
+    public const string ResultViewProviderProperty = "ResultViewProvider";
+
 
     /// <summary>
     /// Constructor
@@ -1595,6 +1611,8 @@ namespace RaceHorologyLib
 
       _UpdateInternals();
       sortInFinish();
+
+      NotifyPropertyChanged(StartListProviderProperty);
     }
 
     private void startListVP_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -1609,8 +1627,13 @@ namespace RaceHorologyLib
 
     public void SetResultViewProvider(ResultViewProvider rvp)
     {
+      if (_rvp == rvp)
+        return;
+
       _rvp = rvp;
       _UpdateInternals();
+
+      NotifyPropertyChanged(ResultViewProviderProperty);
     }
 
     public ResultViewProvider GetResultViewProvider()

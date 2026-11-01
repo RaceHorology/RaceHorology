@@ -2377,5 +2377,60 @@ namespace RaceHorologyLibTest
       Assert.IsFalse(notOwning.GetViewList()[0].Started);
       Assert.IsFalse(owning.GetViewList()[0].Started);
     }
+
+
+    /// <summary>
+    /// ViewProviderListObserver follows the view provider of a race run, even if it gets replaced (new race configuration)
+    /// </summary>
+    [TestMethod]
+    public void ViewProviderListObserver_FollowsReplacedProvider()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      tg.createRaceParticipant();
+
+      var senders = new List<object>();
+      var actions = new List<System.Collections.Specialized.NotifyCollectionChangedAction>();
+      var observer = ViewProviderListObserver.ForStartList(run1);
+      observer.CollectionChanged += (s, e) => { senders.Add(s); actions.Add(e.Action); };
+
+      var oldList = run1.GetStartListProvider().GetViewList();
+      tg.createRaceParticipant();
+      CollectionAssert.Contains(senders, oldList);
+
+      // Replace the provider => Reset
+      var newProvider = new FirstRunStartListViewProvider();
+      newProvider.Init(race.GetParticipants());
+      senders.Clear(); actions.Clear();
+      run1.SetStartListProvider(newProvider);
+      CollectionAssert.AreEqual(new[] { System.Collections.Specialized.NotifyCollectionChangedAction.Reset }, actions);
+
+      // Changes of the new list are forwarded, the old list is not observed anymore
+      senders.Clear(); actions.Clear();
+      tg.createRaceParticipant();
+      CollectionAssert.Contains(senders, newProvider.GetViewList());
+      CollectionAssert.DoesNotContain(senders, oldList);
+
+      // Results of the race follow as well
+      int raceResultChanges = 0;
+      var raceObserver = ViewProviderListObserver.ForResults(race);
+      raceObserver.CollectionChanged += (s, e) => raceResultChanges++;
+      var newRaceResults = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
+      newRaceResults.Init(race, tg.Model);
+      race.SetResultViewProvider(newRaceResults);
+      Assert.AreEqual(1, raceResultChanges);
+
+      // Disposed observer does not forward anything anymore
+      observer.Dispose();
+      raceObserver.Dispose();
+      senders.Clear(); raceResultChanges = 0;
+      tg.createRaceParticipant();
+      var anotherProvider = new FirstRunStartListViewProvider();
+      anotherProvider.Init(race.GetParticipants());
+      run1.SetStartListProvider(anotherProvider);
+      Assert.AreEqual(0, senders.Count);
+      Assert.AreEqual(0, raceResultChanges);
+    }
   }
 }

@@ -160,7 +160,8 @@ public class LiveTimingDelegator : IDisposable
     // => Startlist needs to be send in following cases:
     // a) Start list itself changes
     // b) The previous run completed so that the next run needs to be send
-    ItemsChangedNotifier startListNotifier = new ItemsChangedNotifier(raceRun.GetStartListProvider().GetViewList());
+    // Follows the start list provider, even if it gets replaced due to a new race configuration
+    ViewProviderListObserver startListNotifier = ViewProviderListObserver.ForStartList(raceRun);
     startListNotifier.CollectionChanged += (o, e) =>
     {
       updateStartList(previousRaceRun, raceRun);
