@@ -688,7 +688,12 @@ namespace RaceHorologyLib
     public string Organizer { get; set; }
     public Person RaceReferee { get; set; } = new Person(); // Schiedsrichter
     public Person RaceManager { get; set; } = new Person(); // Rennleiter
-    public Person TrainerRepresentative { get; set; } = new Person(); // Trainer Vertreter
+    public Person TrainerRepresentative { get; set; } = new Person(); // Trainer Vertreter / TD
+    public string TDNumber { get; set; }
+    public Person AssistantReferee { get; set; } = new Person(); // Schiedsrichterassistent (FIS only)
+
+    public string RaceNation { get; set; }
+    public string FISCategory { get; set; }
 
     public string CoarseName { get; set; }
     public int CoarseLength { get; set; } // m
@@ -718,6 +723,10 @@ namespace RaceHorologyLib
         && Person.Equals(p1?.RaceReferee, p2?.RaceReferee)
         && Person.Equals(p1?.RaceManager, p2?.RaceManager)
         && Person.Equals(p1?.TrainerRepresentative, p2?.TrainerRepresentative)
+        && string.Equals(p1?.TDNumber, p2?.TDNumber)
+        && Person.Equals(p1?.AssistantReferee, p2?.AssistantReferee)
+        && string.Equals(p1?.RaceNation, p2?.RaceNation)
+        && string.Equals(p1?.FISCategory, p2?.FISCategory)
         && string.Equals(p1?.CoarseName, p2?.CoarseName)
         && p1?.CoarseLength == p2?.CoarseLength
         && string.Equals(p1?.CoarseHomologNo, p2?.CoarseHomologNo)
