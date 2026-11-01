@@ -5,7 +5,6 @@ import type {
   OnTrackEntry,
   Participant,
   RaceResultList,
-  RunResultList,
   StartListEntry,
 } from './types'
 
@@ -18,11 +17,15 @@ export interface LiveData {
   onTrack: OnTrackEntry[]
   /** Participants who finished most recently, newest first */
   justFinished: Participant[]
-  /** Results of the current run */
-  runResult: RunResultList | null
   raceResult: RaceResultList | null
   currentRaceRun: CurrentRaceRunMessage['data'] | null
   lastUpdate: Date | null
+}
+
+/** Index (counted from 0) of the run currently timed; the server sends it counted from 1 */
+export function currentRunIndex(liveData: LiveData): number | undefined {
+  const run = Number(liveData.currentRaceRun?.run)
+  return run > 0 ? run - 1 : undefined
 }
 
 const MAX_JUST_FINISHED = 3
@@ -33,7 +36,6 @@ const initialState: LiveData = {
   onStart: [],
   onTrack: [],
   justFinished: [],
-  runResult: null,
   raceResult: null,
   currentRaceRun: null,
   lastUpdate: null,
@@ -47,8 +49,6 @@ function reduceMessage(state: LiveData, message: LiveDataMessage): LiveData {
       return { ...state, onStart: message.data }
     case 'ontrack':
       return { ...state, onTrack: message.data }
-    case 'racerunresult':
-      return { ...state, runResult: message }
     case 'raceresult':
       return { ...state, raceResult: message }
     case 'currentracerun':

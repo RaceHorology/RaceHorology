@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Form from 'react-bootstrap/Form'
 import Table from 'react-bootstrap/Table'
-import type { LiveData } from '../api/liveData'
+import { currentRunIndex, type LiveData } from '../api/liveData'
 import type { GroupedData, MetaData, Participant, RaceResultEntry, RaceResultRuntime } from '../api/types'
 import GroupedTable, { type Column } from './GroupedTable'
 
@@ -102,7 +102,8 @@ function raceResultColumns(runs: number): Column<RaceResultEntry>[] {
 }
 
 export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: MetaData['data'] | null }) {
-  const { onStart, onTrack, justFinished, runResult, raceResult } = liveData
+  const { onStart, onTrack, justFinished, raceResult } = liveData
+  const currentRun = currentRunIndex(liveData)
   const [filterBy, setFilterBy] = useState('')
 
   // Times of the single runs are only of interest if the race has more than one run
@@ -119,8 +120,8 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
     const race = findEntry(raceResult?.data, p)?.[1]
     if (race?.Totaltime || race?.DisqualText)
       return { ...withRuntimes(p), time: race.Totaltime, position: race.Position, remark: race.DisqualText }
-    const run = findEntry(runResult?.data, p)?.[1]
-    return { ...withRuntimes(p), time: run?.Runtime, position: run?.Position, remark: run?.DisqualText }
+    const run = currentRun !== undefined ? race?.Runtimes[currentRun] : undefined
+    return { ...withRuntimes(p), time: run?.Runtime, position: run?.Position }
   })
 
   // Follow the group (e.g. class) of the participants who finished last
