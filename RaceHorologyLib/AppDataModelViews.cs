@@ -824,19 +824,38 @@ namespace RaceHorologyLib
     }
 
 
+    /// <summary>
+    /// Results of the previous runs per participant (instead of searching each list per participant)
+    /// </summary>
+    private List<Dictionary<RaceParticipant, RunResultWithPosition>> GetResultsPerParticipant()
+    {
+      var resultsPerRun = new List<Dictionary<RaceParticipant, RunResultWithPosition>>();
+      foreach (var runResults in _resultsPreviousRuns)
+      {
+        var byParticipant = new Dictionary<RaceParticipant, RunResultWithPosition>();
+        foreach (var r in runResults)
+          if (!byParticipant.ContainsKey(r.Participant)) // first one wins, like FirstOrDefault()
+            byParticipant.Add(r.Participant, r);
+        resultsPerRun.Add(byParticipant);
+      }
+      return resultsPerRun;
+    }
+
+
     private List<RunResult> GetCumulativeResults()
     {
       var result = new List<RunResult>();
+      var resultsPerRun = GetResultsPerParticipant();
       // Every result provider holds an entry for every participant, even without a time.
       foreach (var participantResult in _resultsPreviousRuns.Last())
       {
         var cumulative = new CombinedRunResult(participantResult.Participant);
         TimeSpan total = TimeSpan.Zero;
         bool valid = true;
-        foreach (var runResults in _resultsPreviousRuns)
+        foreach (var runResults in resultsPerRun)
         {
           // A penalty result has ResultCode Normal and the penalty time as Runtime
-          var sub = runResults.FirstOrDefault(r => r.Participant == participantResult.Participant);
+          runResults.TryGetValue(participantResult.Participant, out var sub);
           if (sub == null || sub.ResultCode != RunResult.EResultCode.Normal || sub.Runtime == null)
           {
             valid = false;
@@ -859,15 +878,16 @@ namespace RaceHorologyLib
     private List<RunResult> GetBestRunResults()
     {
       var result = new List<RunResult>();
+      var resultsPerRun = GetResultsPerParticipant();
       // Every result provider holds an entry for every participant, even without a time.
       foreach (var participantResult in _resultsPreviousRuns.Last())
       {
         var best = new CombinedRunResult(participantResult.Participant);
         RunResultWithPosition bestSub = null;
-        foreach (var runResults in _resultsPreviousRuns)
+        foreach (var runResults in resultsPerRun)
         {
           // A penalty result has ResultCode Normal and the penalty time as Runtime
-          var sub = runResults.FirstOrDefault(r => r.Participant == participantResult.Participant);
+          runResults.TryGetValue(participantResult.Participant, out var sub);
           if (sub == null || sub.ResultCode != RunResult.EResultCode.Normal || sub.Runtime == null)
             continue;
           if (bestSub == null || sub.Runtime < bestSub.Runtime)
