@@ -117,3 +117,26 @@
   font-weight: bold;
   text-align: center;
 }
+
+/* Section heading rows of the live table, only shown on phones instead of the vertical labels */
+.rh-table > tbody > tr.rh-section-heading > th {
+  --bs-table-bg: var(--rh-bg4);
+  --bs-table-bg-state: var(--rh-bg4);
+  color: var(--rh-fg1);
+  font-style: italic;
+  font-weight: bold;
+  border-left: 4px solid var(--rh-fg2);
+}
+
+@media (min-width: 768px) {
+  .rh-table > tbody > tr.rh-section-heading {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .rh-table .rh-label-col,
+  .rh-table > tfoot {
+    display: none;
+  }
+}

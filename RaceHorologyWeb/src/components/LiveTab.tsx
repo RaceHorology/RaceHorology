@@ -41,7 +41,7 @@ const participantHeaders = ['Name', 'Vorname', 'Kategorie', 'Jahrgang', 'Verein'
 function LiveHeaderRow({ runs }: { runs: number }) {
   return (
     <tr>
-      <th></th>
+      <th className="rh-label-col"></th>
       <th className="text-center">StNr</th>
       {participantHeaders.map((h) => (
         <th key={h} className={h === 'Kategorie' || h === 'Jahrgang' ? 'text-center' : undefined}>
@@ -55,15 +55,18 @@ function LiveHeaderRow({ runs }: { runs: number }) {
       ))}
       <th className="text-end">Zeit</th>
       <th></th>
-      <th></th>
+      <th className="rh-label-col"></th>
     </tr>
   )
 }
 
-/** Vertical section label on both sides of the table, spanning all rows of the section (as in the previous client) */
+/**
+ * Vertical section label on both sides of the table, spanning all rows of the section (as in the previous client).
+ * Phones show a heading row above the section instead (see theme.css).
+ */
 function SectionLabel({ title, rows }: { title: string; rows: number }) {
   return (
-    <th rowSpan={rows} className="rh-section-label">
+    <th rowSpan={rows} className="rh-section-label rh-label-col">
       <span>{title}</span>
     </th>
   )
@@ -74,6 +77,9 @@ function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
   const label = <SectionLabel title={title} rows={Math.max(rows.length, 1)} />
   return (
     <tbody className="rh-section">
+      <tr className="rh-section-heading">
+        <th colSpan={columns + 2}>{title}</th>
+      </tr>
       {rows.length === 0 && (
         <tr>
           {label}
