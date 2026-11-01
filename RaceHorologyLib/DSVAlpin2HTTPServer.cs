@@ -507,10 +507,14 @@ namespace RaceHorologyLib
       OnDataModelChanged(_server.DataModel);
     }
 
+    /// <remarks>Called multiple times (on close, on error and by the finalizer)</remarks>
     protected virtual void TearDown()
     {
-      _server.DataModelChanged -= OnDataModelChanged;
-      _server = null;
+      if (_server != null)
+      {
+        _server.DataModelChanged -= OnDataModelChanged;
+        _server = null;
+      }
     }
 
     protected abstract void OnDataModelChanged(AppDataModel dm);
@@ -565,6 +569,9 @@ namespace RaceHorologyLib
     {
       while (_liveProvider.Count() > 0)
         Remove(_liveProvider[_liveProvider.Count() - 1]);
+
+      // Otherwise closed connections keep on getting their providers re-created whenever a database is opened
+      base.TearDown();
     }
 
 
@@ -584,6 +591,11 @@ namespace RaceHorologyLib
         Add(new OnTrackEventsProvider(dm));
         //Add(new RaceRunDataProvider(dm));
         Add(new RaceResultDataProvider(dm));
+
+        // Clients connected before the database was opened already asked for the initial data
+        if (State == WebSocketState.Open)
+          foreach (var p in _liveProvider)
+            p.SendInitial();
       }
     }
 
@@ -723,7 +735,8 @@ namespace RaceHorologyLib
           _currentRace.PropertyChanged -= OnRaceRunPropertyChanged;
 
         _currentRace = _dm.GetCurrentRaceRun();
-        _currentRace.PropertyChanged += OnRaceRunPropertyChanged;
+        if (_currentRace != null)
+          _currentRace.PropertyChanged += OnRaceRunPropertyChanged;
 
         ObserveRemainingStartList();
 
@@ -753,6 +766,11 @@ namespace RaceHorologyLib
       Application.Current.Dispatcher.Invoke(() =>
       {
         _rslVP?.Dispose();
+        _rslVP = null;
+
+        // No current race run, e.g. a database without any race
+        if (_currentRace == null)
+          return;
 
         _rslVP = new RemainingStartListViewProvider();
         _rslVP.Init(_currentRace.GetStartListProvider(), _currentRace);
@@ -769,8 +787,11 @@ namespace RaceHorologyLib
       if (_currentRace != null)
         _currentRace.PropertyChanged -= OnRaceRunPropertyChanged;
 
-      _notifier.CollectionChanged -= StartListChanged;
-      _notifier.ItemChanged -= StartListItemChanged;
+      if (_notifier != null)
+      {
+        _notifier.CollectionChanged -= StartListChanged;
+        _notifier.ItemChanged -= StartListItemChanged;
+      }
       Application.Current?.Dispatcher.Invoke(() => _rslVP?.Dispose());
       _rslVP = null;
       _notifier = null;
@@ -813,7 +834,7 @@ namespace RaceHorologyLib
       {
         List<object> remaingStarters = new List<object>();
         int c = 0;
-        foreach (var item in _rslVP.GetView())
+        foreach (var item in (System.Collections.IEnumerable)_rslVP?.GetView() ?? new object[0])
         {
           if (_limit >= 0 && c >= _limit)
             break;
@@ -953,9 +974,12 @@ namespace RaceHorologyLib
     {
       _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
 
-      _notifier.CollectionChanged -= ResultListChanged;
-      _notifier.ItemChanged -= ResultListItemChanged;
-      _notifier = null;
+      if (_notifier != null)
+      {
+        _notifier.CollectionChanged -= ResultListChanged;
+        _notifier.ItemChanged -= ResultListItemChanged;
+        _notifier = null;
+      }
     }
 
     private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
@@ -975,14 +999,18 @@ namespace RaceHorologyLib
           _notifier = null;
         }
 
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-          _notifier = new ItemsChangedNotifier(_dm.GetCurrentRaceRun().GetOnTrackList());
-          _notifier.CollectionChanged += ResultListChanged;
-          _notifier.ItemChanged += ResultListItemChanged;
-        });
-
         _currentRace = _dm.GetCurrentRaceRun();
+
+        // No current race run, e.g. a database without any race
+        if (_currentRace != null)
+        {
+          Application.Current.Dispatcher.Invoke(() =>
+          {
+            _notifier = new ItemsChangedNotifier(_currentRace.GetOnTrackList());
+            _notifier.CollectionChanged += ResultListChanged;
+            _notifier.ItemChanged += ResultListItemChanged;
+          });
+        }
 
         SendResultList();
       }
@@ -1010,7 +1038,7 @@ namespace RaceHorologyLib
       string output = null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConversion.ConvertOnTrack(_dm.GetCurrentRaceRun().GetOnTrackList());
+        output = JsonConversion.ConvertOnTrack((System.Collections.IEnumerable)_dm.GetCurrentRaceRun()?.GetOnTrackList() ?? new object[0]);
       });
 
       OnNewDataToSend(this, new NewDataEventArgs { Data = output });
@@ -1037,7 +1065,8 @@ namespace RaceHorologyLib
     public override void Dispose()
     {
       _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
-      _currentRace.OnTrackChanged -= OnSomethingChanged;
+      if (_currentRace != null)
+        _currentRace.OnTrackChanged -= OnSomethingChanged;
     }
 
     private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
@@ -1095,27 +1124,62 @@ namespace RaceHorologyLib
   public class RaceResultDataProvider : LiveDataProvider
   {
     AppDataModel _dm;
+    Race _currentRace;
     ViewProviderListObserver _notifier;
     System.Timers.Timer _timer;
 
     public RaceResultDataProvider(AppDataModel dm)
     {
       _dm = dm;
-      Application.Current.Dispatcher.Invoke(() =>
-      {
-        _notifier = ViewProviderListObserver.ForResults(_dm.GetCurrentRace());
-        _notifier.CollectionChanged += DataListChanged;
-        _notifier.ItemChanged += DataListItemChanged;
-      });
+      _dm.CurrentRaceChanged += OnCurrentRaceChanged;
+
+      ListenToCurrentRace();
     }
 
     public override void Dispose()
     {
-      _notifier.CollectionChanged -= DataListChanged;
-      _notifier.ItemChanged -= DataListItemChanged;
-      _notifier.Dispose();
-      _notifier = null;
+      _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+      stopObserving();
       _timer = null;
+    }
+
+    private void OnCurrentRaceChanged(object sender, AppDataModel.CurrentRaceEventArgs args)
+    {
+      ListenToCurrentRace();
+    }
+
+    private void ListenToCurrentRace()
+    {
+      if (_currentRace != _dm.GetCurrentRace())
+      {
+        stopObserving();
+
+        _currentRace = _dm.GetCurrentRace();
+
+        // No current race, e.g. a database without any race
+        if (_currentRace != null)
+        {
+          Application.Current.Dispatcher.Invoke(() =>
+          {
+            _notifier = ViewProviderListObserver.ForResults(_currentRace);
+            _notifier.CollectionChanged += DataListChanged;
+            _notifier.ItemChanged += DataListItemChanged;
+          });
+
+          SendResultList();
+        }
+      }
+    }
+
+    private void stopObserving()
+    {
+      if (_notifier != null)
+      {
+        _notifier.CollectionChanged -= DataListChanged;
+        _notifier.ItemChanged -= DataListItemChanged;
+        _notifier.Dispose();
+        _notifier = null;
+      }
     }
 
     public override void SendInitial()
@@ -1152,10 +1216,13 @@ namespace RaceHorologyLib
       string output = null;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        output = JsonConversion.ConvertRaceResults(_dm.GetCurrentRace().GetResultViewProvider().GetView(), (uint)_dm.GetCurrentRace().GetMaxRun());
+        Race race = _dm.GetCurrentRace();
+        if (race != null)
+          output = JsonConversion.ConvertRaceResults(race.GetResultViewProvider().GetView(), (uint)race.GetMaxRun());
       });
 
-      OnNewDataToSend(this, new NewDataEventArgs { Data = output });
+      if (output != null)
+        OnNewDataToSend(this, new NewDataEventArgs { Data = output });
     }
   }
 
