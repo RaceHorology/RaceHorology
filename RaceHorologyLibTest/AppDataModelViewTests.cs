@@ -2531,5 +2531,52 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(0, changed.Count);
     }
 
+
+    /// <summary>
+    /// A start list being rebuilt on every change (based on results) does not keep its previous entries alive,
+    /// also if observed like by the live timing (ItemsChangedNotifier) and the remaining starters (RemainingStartListViewProvider)
+    /// </summary>
+    [TestMethod]
+    public void BasedOnResultsStartListViewProvider_RebuildReleasesOldEntries()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      for (int i = 0; i < 3; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      run1.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+      run1.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(51));
+
+      var provider = new BasedOnResultsFirstRunStartListViewProvider(0, true);
+      provider.Init(run1);
+      provider.ChangeGrouping("Participant.Class");
+
+      var notifier = new ItemsChangedNotifier(provider.GetViewList());
+      var itemChangedSenders = new List<object>();
+      notifier.ItemChanged += (s, e) => itemChangedSenders.Add(s);
+      var remaining = new RemainingStartListViewProvider();
+      remaining.Init(provider, race.GetRun(1));
+
+      var oldEntries = WeakReferencesTo(provider.GetViewList());
+      Assert.AreEqual(3, oldEntries.Count);
+
+      // Rebuilds the start list
+      run1.SetRunTime(race.GetParticipant(3), TimeSpan.FromSeconds(49));
+      CollectGarbage();
+      foreach (var e in oldEntries)
+        Assert.IsFalse(e.IsAlive);
+
+      // The entries created by the rebuild are observed
+      var entry1 = System.Linq.Enumerable.First(provider.GetViewList(), x => x.StartNumber == 1);
+      itemChangedSenders.Clear();
+      entry1.Started = true;
+      CollectionAssert.Contains(itemChangedSenders, entry1);
+
+      GC.KeepAlive(notifier);
+      GC.KeepAlive(remaining);
+    }
   }
 }

@@ -89,6 +89,15 @@ namespace RaceHorologyLib
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // Reset does not provide the old and new items (e.g. Clear() or InsertRange()) => observe all items anew
+      if (e.Action == NotifyCollectionChangedAction.Reset)
+      {
+        foreach (var item in _observedItems)
+          item.PropertyChanged -= ItemPropertyChanged;
+        _observedItems.Clear();
+        Initialize();
+      }
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -226,6 +235,8 @@ namespace RaceHorologyLib
     protected ObservableCollection<T> _source;
     protected Cloner<TC, T> _cloner;
     protected bool _cloneOnPropertyChanged;
+    // Source items whose PropertyChanged is observed (needed to unhook on Reset, which does not provide the old items)
+    List<INotifyPropertyChanged> _observedItems = new List<INotifyPropertyChanged>();
 
     public delegate TClone Cloner<TClone, TSource>(TSource source);
     public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC, T> cloner, bool cloneOnPropertyChanged)
@@ -248,9 +259,9 @@ namespace RaceHorologyLib
         return;
 
       _source.CollectionChanged -= OnCollectionChanged;
-      foreach (var item in _source)
-        if (item is INotifyPropertyChanged item2)
-          item2.PropertyChanged -= ItemPropertyChanged;
+      foreach (var item in _observedItems)
+        item.PropertyChanged -= ItemPropertyChanged;
+      _observedItems.Clear();
       _source = null;
     }
 
@@ -272,8 +283,17 @@ namespace RaceHorologyLib
         foreach (T item in e.OldItems)
         {
           if (item is INotifyPropertyChanged item2)
+          {
             item2.PropertyChanged -= ItemPropertyChanged;
+            _observedItems.Remove(item2);
+          }
         }
+      if (e.Action == NotifyCollectionChangedAction.Reset)
+      {
+        foreach (var item in _observedItems)
+          item.PropertyChanged -= ItemPropertyChanged;
+        _observedItems.Clear();
+      }
 
       // Sync Lists
       int i, j;
@@ -313,7 +333,10 @@ namespace RaceHorologyLib
         foreach (T item in e.NewItems)
         {
           if (item is INotifyPropertyChanged item2)
+          {
             item2.PropertyChanged += ItemPropertyChanged;
+            _observedItems.Add(item2);
+          }
         }
     }
 
