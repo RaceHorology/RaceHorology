@@ -139,6 +139,10 @@ namespace RaceHorologyLib
 
     private void OnRaceResults_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // Sorting the race results moves items; the team results do not change by that
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       bool bSomethingChanged = false;
 
       if (e.OldItems != null)

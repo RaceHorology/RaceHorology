@@ -98,21 +98,25 @@ namespace RaceHorologyLib
         Initialize();
       }
 
-      if (e.OldItems != null)
-        foreach (INotifyPropertyChanged item in e.OldItems)
-        {
-          _observedItems.Remove(item);
-          item.PropertyChanged -= ItemPropertyChanged;
-        }
-      if (e.NewItems != null)
-        foreach (INotifyPropertyChanged item in e.NewItems)
-        {
-          _observedItems.Add(item);
-          item.PropertyChanged += ItemPropertyChanged;
+      // Move provides the moved item as old and new item, but it neither leaves nor enters the collection
+      if (e.Action != NotifyCollectionChangedAction.Move)
+      {
+        if (e.OldItems != null)
+          foreach (INotifyPropertyChanged item in e.OldItems)
+          {
+            _observedItems.Remove(item);
+            item.PropertyChanged -= ItemPropertyChanged;
+          }
+        if (e.NewItems != null)
+          foreach (INotifyPropertyChanged item in e.NewItems)
+          {
+            _observedItems.Add(item);
+            item.PropertyChanged += ItemPropertyChanged;
 
-          ItemChangedEventHandler handler2 = ItemChanged;
-          handler2?.Invoke(item, null);//e = {System.ComponentModel.PropertyChangedEventArgs}
-        }
+            ItemChangedEventHandler handler2 = ItemChanged;
+            handler2?.Invoke(item, null);//e = {System.ComponentModel.PropertyChangedEventArgs}
+          }
+      }
       NotifyCollectionChangedEventHandler handler = CollectionChanged;
       handler?.Invoke(sender, e);
     }
@@ -323,7 +327,7 @@ namespace RaceHorologyLib
 
           break;
         case NotifyCollectionChangedAction.Move:
-          // Move a block of items; if moved backwards, start with the last item so that the indices of the others stay valid
+          // Move a block of items; if moved forwards, start with the last item so that the indices of the others stay valid
           if (e.NewStartingIndex > e.OldStartingIndex)
             for (i = e.OldItems.Count - 1; i >= 0; i--)
               Move(e.OldStartingIndex + i, e.NewStartingIndex + i);

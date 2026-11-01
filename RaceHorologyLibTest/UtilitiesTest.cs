@@ -188,6 +188,36 @@ namespace RaceHorologyLibTest
     }
 
 
+    public class NotifyingTestClass : System.ComponentModel.INotifyPropertyChanged
+    {
+      int _attr1;
+      public int Attr1 { get => _attr1; set { _attr1 = value; PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Attr1))); } }
+
+      public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+    }
+
+
+    [TestMethod]
+    public void ItemsChangedNotifier_Move()
+    {
+      var sc = new ObservableCollection<NotifyingTestClass> { new NotifyingTestClass { Attr1 = 1 }, new NotifyingTestClass { Attr1 = 2 } };
+      var notifier = new ItemsChangedNotifier(sc);
+      var actions = new List<System.Collections.Specialized.NotifyCollectionChangedAction>();
+      var itemChanges = new List<string>();
+      notifier.CollectionChanged += (s, e) => actions.Add(e.Action);
+      notifier.ItemChanged += (s, e) => itemChanges.Add(e?.PropertyName);
+
+      // Move is passed through, but is no item change
+      sc.Move(0, 1);
+      CollectionAssert.AreEqual(new[] { System.Collections.Specialized.NotifyCollectionChangedAction.Move }, actions);
+      Assert.AreEqual(0, itemChanges.Count);
+
+      // The moved item is still observed (once)
+      sc[1].Attr1 = 10;
+      CollectionAssert.AreEqual(new[] { "Attr1" }, itemChanges);
+    }
+
+
     [TestMethod]
     public void ObservableCollectionExtensions_Sort()
     {

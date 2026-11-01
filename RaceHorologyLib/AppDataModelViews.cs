@@ -307,6 +307,10 @@ namespace RaceHorologyLib
 
     private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the participants does not matter, the start list is sorted on its own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -560,6 +564,10 @@ namespace RaceHorologyLib
 
     private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the source start list does not matter, the start list is sorted on its own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -583,6 +591,10 @@ namespace RaceHorologyLib
 
     private void OnFilterSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the sources does not matter, the start list is sorted on its own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       UpdateFilteredStartList();
     }
 
@@ -722,6 +734,10 @@ namespace RaceHorologyLib
 
     private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the results does not matter, the start list is sorted on its own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       UpdateStartList();
     }
     private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
@@ -1096,6 +1112,10 @@ namespace RaceHorologyLib
 
     private void OnResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the results does not matter for the started flag
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -1122,6 +1142,10 @@ namespace RaceHorologyLib
 
     private void OnStartListEntriesChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // A moved entry keeps its state
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -1421,6 +1445,10 @@ namespace RaceHorologyLib
 
     private void Participants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the participants does not matter, the results are sorted on their own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
       {
         foreach (INotifyPropertyChanged item in e.OldItems)
@@ -1453,6 +1481,10 @@ namespace RaceHorologyLib
 
     void OnOriginalResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the results does not matter, the results are sorted on their own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -1825,6 +1857,10 @@ namespace RaceHorologyLib
 
     private void OnResultListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // Sorting the run results moves items; the race result of the participant does not change by that
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       bool bSomethingChanged = false;
 
       if (e.OldItems != null)
