@@ -18,7 +18,7 @@ export default function App() {
 
   return (
     <>
-      <Navbar className="bg-body-tertiary mb-3">
+      <Navbar className="rh-navbar mb-3">
         <Container>
           <Navbar.Brand>
             <img src={logo} alt="Race Horology" height={40} />

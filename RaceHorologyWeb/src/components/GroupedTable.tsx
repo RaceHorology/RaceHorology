@@ -28,8 +28,8 @@ export default function GroupedTable<T>({ data, columns, rowKey, rowClassName, f
     <>
       {groups.map(([group, rows]) => (
         <section key={group} className="mb-4">
-          {group && <h2 className="h5">{group}</h2>}
-          <Table striped hover size="sm" responsive>
+          {group && <h2 className="h5 rh-group-heading">{group}</h2>}
+          <Table striped hover bordered size="sm" responsive className="rh-table">
             <thead>
               <tr>
                 {columns.map((c) => (

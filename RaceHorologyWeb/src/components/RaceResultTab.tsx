@@ -52,7 +52,7 @@ export default function RaceResultTab({ liveData, meta }: { liveData: LiveData; 
           data={results.data}
           columns={raceResultColumns(runs, true)}
           rowKey={(e) => e.Id}
-          rowClassName={(e) => (e.JustModified ? 'table-warning' : undefined)}
+          rowClassName={(e) => (e.JustModified ? 'just-modified' : undefined)}
           filterBy={activeFilter}
         />
       )}

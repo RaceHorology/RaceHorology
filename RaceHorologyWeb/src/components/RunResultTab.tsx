@@ -68,7 +68,7 @@ export default function RunResultTab({ liveData, meta }: { liveData: LiveData; m
           data={results.data}
           columns={columns}
           rowKey={(e) => e.Id}
-          rowClassName={(e) => (e.JustModified ? 'table-warning' : undefined)}
+          rowClassName={(e) => (e.JustModified ? 'just-modified' : undefined)}
           filterBy={activeFilter}
         />
       )}

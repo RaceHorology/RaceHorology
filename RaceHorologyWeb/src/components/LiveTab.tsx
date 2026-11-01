@@ -42,7 +42,7 @@ function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
   const columns = 1 + participantHeaders.length + runs + 2
   return (
     <tbody>
-      <tr className="table-secondary">
+      <tr className="rh-section">
         <th colSpan={columns}>{title}</th>
       </tr>
       {rows.length === 0 && (
@@ -115,7 +115,7 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
 
   return (
     <>
-      <Table size="sm" responsive className="mb-4">
+      <Table hover bordered size="sm" responsive className="rh-table mb-4">
         <thead>
           <tr>
             <th className="text-center">StNr</th>
@@ -171,7 +171,7 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
             data={raceResult.data}
             columns={raceResultColumns(runs)}
             rowKey={(e) => e.Id}
-            rowClassName={(e) => (e.JustModified ? 'table-warning' : undefined)}
+            rowClassName={(e) => (e.JustModified ? 'just-modified' : undefined)}
             filterBy={activeFilter}
           />
         </section>
