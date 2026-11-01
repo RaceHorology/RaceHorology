@@ -1389,6 +1389,50 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// A single change that modifies the cut off time (here: the best participant gets disqualified)
+    /// must result in a list that is sorted according to the new cut off time.
+    /// </summary>
+    [TestMethod]
+    public void PenaltyRaceRunResultViewProviderTest_CutOffChangeBySingleUpdate()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      tg.createRaceParticipants(3);
+
+      RaceRunResultViewProvider vp = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusPercentage, 30.0);
+      vp.Init(rr, tg.Model);
+
+      rr.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(30));
+      rr.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(60));
+      rr.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);
+
+      // Cut off time 39s: all except StNr 1 get the cut off time
+      var results = vp.GetView().ViewToList<RunResultWithPosition>();
+      Assert.AreEqual(1U, results[0].StartNumber);
+      Assert.AreEqual(1U, results[0].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(39), results[1].Runtime);
+      Assert.AreEqual(TimeSpan.FromSeconds(39), results[2].Runtime);
+
+      // Disqualifying the best one raises the cut off time to 78s (single property change)
+      rr.SetResultCode(race.GetParticipant(1), RunResult.EResultCode.DIS);
+      results = vp.GetView().ViewToList<RunResultWithPosition>();
+      Assert.AreEqual(2U, results[0].StartNumber);
+      Assert.AreEqual(1U, results[0].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(60), results[0].Runtime);
+      Assert.AreEqual(1U, results[1].StartNumber);
+      Assert.AreEqual(2U, results[1].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(78), results[1].Runtime);
+      Assert.AreEqual(3U, results[2].StartNumber);
+      Assert.AreEqual(2U, results[2].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(78), results[2].Runtime);
+    }
+
+
+    /// <summary>
     /// Tests whether the positions are correct in case two or more participants have the same runtime
     /// </summary>
     [TestMethod]

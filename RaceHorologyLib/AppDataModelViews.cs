@@ -1531,7 +1531,10 @@ namespace RaceHorologyLib
 
     protected override void updatePositions()
     {
+      // A changed cut off time changes the runtimes of other participants as well,
+      // so the list has to be sorted again after the cut off time got updated
       updateCutOffTime();
+      _viewList.Sort(_comparer);
       base.updatePositions();
     }
 
