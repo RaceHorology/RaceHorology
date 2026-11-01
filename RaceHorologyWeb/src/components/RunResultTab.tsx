@@ -17,7 +17,7 @@ const columns: Column<RunResultEntry>[] = [
     className: 'text-center',
   },
   { header: 'StNr', render: startNumber, className: 'text-center' },
-  ...participantColumns<RunResultEntry>(true),
+  ...participantColumns<RunResultEntry>(),
   {
     header: 'Zeit',
     render: (e) => (

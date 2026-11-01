@@ -24,7 +24,7 @@ export function Remark({ text }: { text: string | null | undefined }) {
 }
 
 /** Columns of the race result; the times of the single runs are shown for the given number of runs */
-export function raceResultColumns(runs: number, withClass = false): Column<RaceResultEntry>[] {
+export function raceResultColumns(runs: number): Column<RaceResultEntry>[] {
   return [
     {
       header: 'Platz',
@@ -33,7 +33,7 @@ export function raceResultColumns(runs: number, withClass = false): Column<RaceR
       className: 'text-center',
     },
     { header: 'StNr', render: startNumber, className: 'text-center' },
-    ...participantColumns<RaceResultEntry>(withClass),
+    ...participantColumns<RaceResultEntry>(),
     ...Array.from({ length: runs }, (_, i): Column<RaceResultEntry> => ({
       header: `Zeit ${i + 1}`,
       render: (e) => `${e.Runtimes[i]?.Runtime ?? ''} ${position(e.Runtimes[i]?.Position)}`,
