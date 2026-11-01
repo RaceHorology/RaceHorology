@@ -34,13 +34,28 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using WebSocketSharp;
 
 namespace RaceHorologyLib
 {
-  public abstract class MicrogateV2TimeMeasurementBase : ILiveTimeMeasurementDevice, ILiveDateTimeProvider
+  public class MicrogateV2AthleteEntry
+  {
+    public uint Bib;
+    public string Nation;
+    public string Lastname;
+    public string Firstname;
+  }
+
+  public interface ISendListToTimingDevice
+  {
+    void SendAthletesList(IEnumerable<MicrogateV2AthleteEntry> athletes);
+    void SendStartList(int run, IEnumerable<uint> bibs);
+  }
+
+  public abstract class MicrogateV2TimeMeasurementBase : ILiveTimeMeasurementDevice, ILiveDateTimeProvider, ISendListToTimingDevice
   {
     public event TimeMeasurementEventHandler TimeMeasurementReceived;
     public event StartnumberSelectedEventHandler StartnumberSelectedReceived;
@@ -83,6 +98,45 @@ namespace RaceHorologyLib
 
     public abstract void Start();
     public abstract void Stop();
+
+    /// <summary>
+    /// Writes a raw string to the timing device. Must be implemented by concrete devices.
+    /// </summary>
+    protected abstract void WriteRaw(string data);
+
+    public virtual void SendAthletesList(IEnumerable<MicrogateV2AthleteEntry> athletes)
+    {
+      if (athletes == null)
+        return;
+
+      var sb = new System.Text.StringBuilder();
+      sb.Append("$STARTL\r");
+      foreach (var a in athletes)
+      {
+        sb.AppendFormat("{0:D}\t{1}\t{2}\t{3}\r",
+          a.Bib,
+          a.Nation ?? string.Empty,
+          a.Lastname ?? string.Empty,
+          a.Firstname ?? string.Empty);
+      }
+      sb.Append("$STOPL\r");
+      WriteRaw(sb.ToString());
+    }
+
+    public virtual void SendStartList(int run, IEnumerable<uint> bibs)
+    {
+      if (bibs == null)
+        return;
+
+      var sb = new System.Text.StringBuilder();
+      sb.AppendFormat("$CLEARM{0:D}\r$STARTP\rMS\t{0:D}\r", run);
+      foreach (var bib in bibs)
+      {
+        sb.AppendFormat("{0:D}\r", bib);
+      }
+      sb.Append("$STOPP\r");
+      WriteRaw(sb.ToString());
+    }
 
     protected StatusType _onlineStatus;
     public StatusType OnlineStatus
@@ -240,6 +294,8 @@ namespace RaceHorologyLib
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
 
+    private readonly object _writeLock = new object();
+
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
@@ -353,7 +409,7 @@ namespace RaceHorologyLib
         try
         {
           _serialPort.Open();
-          _serialPort.Write("\u0013R 0A000000000006000000000000000000000000100T\r");
+          //_serialPort.Write("\u0013R 0A000000000006000000000000000000000000100T\r");
           _serialPort.Close();
         }
         catch (System.IO.IOException) { };
@@ -444,6 +500,44 @@ namespace RaceHorologyLib
         }
       }
       return true;
+    }
+
+
+    protected override void WriteRaw(string data)
+    {
+      if (string.IsNullOrEmpty(data))
+        return;
+
+      lock (_writeLock)
+      {
+        if (_serialPort == null || !_serialPort.IsOpen)
+        {
+          Logger.Warn("WriteRaw: serial port not open, cannot send: {0}", data);
+          throw new InvalidOperationException("Serial port not open");
+        }
+
+        Handshake previousHandshake = _serialPort.Handshake;
+        int previousWriteTimeout = _serialPort.WriteTimeout;
+        try
+        {
+          // The device opens with RequestToSend handshake to flow-control incoming
+          // timing data; outgoing writes would otherwise block on CTS. Drop the
+          // handshake while we send list data, then restore it.
+          _serialPort.Handshake = Handshake.None;
+          _serialPort.WriteTimeout = 2000;
+          _serialPort.Write(data);
+        }
+        catch (Exception ex)
+        {
+          Logger.Error(ex, "WriteRaw failed");
+          throw;
+        }
+        finally
+        {
+          _serialPort.WriteTimeout = previousWriteTimeout;
+          _serialPort.Handshake = previousHandshake;
+        }
+      }
     }
 
 
