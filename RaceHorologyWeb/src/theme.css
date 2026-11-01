@@ -77,6 +77,7 @@
 }
 
 .rh-table > thead > tr > th,
+.rh-table > tfoot > tr > th,
 .rh-table > tbody > tr > th.rh-section-label {
   --bs-table-bg: var(--rh-fg2);
   --bs-table-color: white;
@@ -100,6 +101,10 @@
 }
 
 .rh-table > tbody.rh-section + tbody.rh-section {
+  border-top: 4px solid var(--rh-fg2);
+}
+
+.rh-table > tfoot {
   border-top: 4px solid var(--rh-fg2);
 }
 

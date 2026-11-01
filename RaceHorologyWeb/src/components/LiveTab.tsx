@@ -38,6 +38,28 @@ interface LiveSectionProps {
 
 const participantHeaders = ['Name', 'Vorname', 'Kategorie', 'Jahrgang', 'Verein']
 
+function LiveHeaderRow({ runs }: { runs: number }) {
+  return (
+    <tr>
+      <th></th>
+      <th className="text-center">StNr</th>
+      {participantHeaders.map((h) => (
+        <th key={h} className={h === 'Kategorie' || h === 'Jahrgang' ? 'text-center' : undefined}>
+          {h}
+        </th>
+      ))}
+      {Array.from({ length: runs }, (_, i) => (
+        <th key={i} className="text-end">
+          Zeit {i + 1}
+        </th>
+      ))}
+      <th className="text-end">Zeit</th>
+      <th></th>
+      <th></th>
+    </tr>
+  )
+}
+
 /** Vertical section label on both sides of the table, spanning all rows of the section (as in the previous client) */
 function SectionLabel({ title, rows }: { title: string; rows: number }) {
   return (
@@ -128,23 +150,7 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
     <>
       <Table hover bordered size="sm" responsive className="rh-table mb-4">
         <thead>
-          <tr>
-            <th></th>
-            <th className="text-center">StNr</th>
-            {participantHeaders.map((h) => (
-              <th key={h} className={h === 'Kategorie' || h === 'Jahrgang' ? 'text-center' : undefined}>
-                {h}
-              </th>
-            ))}
-            {Array.from({ length: runs }, (_, i) => (
-              <th key={i} className="text-end">
-                Zeit {i + 1}
-              </th>
-            ))}
-            <th className="text-end">Zeit</th>
-            <th></th>
-            <th></th>
-          </tr>
+          <LiveHeaderRow runs={runs} />
         </thead>
         <LiveSection
           title="Am Start"
@@ -159,6 +165,10 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
           runs={runs}
         />
         <LiveSection title="Im Ziel" rows={finishedRows} emptyText="noch kein Läufer im Ziel" runs={runs} />
+        {/* Repeated below, so that header, footer and the vertical section labels frame the table */}
+        <tfoot>
+          <LiveHeaderRow runs={runs} />
+        </tfoot>
       </Table>
 
       {raceResult && (
