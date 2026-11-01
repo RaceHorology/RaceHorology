@@ -244,12 +244,6 @@
       <Component Id="libcef.dll" Guid="62d2cabc-b65d-4049-9326-35d20b6659cb">
         <File Id="libcef.dll" Name="libcef.dll" Source="$(var.RaceHorology_TargetDir)libcef.dll" />
       </Component>
-      <Component Id="libEGL.dll" Guid="ac1b46c8-838d-4344-a391-495af223ca07">
-        <File Id="libEGL.dll" Name="libEGL.dll" Source="$(var.RaceHorology_TargetDir)libEGL.dll" />
-      </Component>
-      <Component Id="libGLESv2.dll" Guid="2be0e442-c51f-40b1-a078-0c5848c9cb5f">
-        <File Id="libGLESv2.dll" Name="libGLESv2.dll" Source="$(var.RaceHorology_TargetDir)libGLESv2.dll" />
-      </Component>
       <Component Id="LiveTimingFIS.dll" Guid="ca2f58d9-4871-4b35-87a5-194f3e430604">
         <File Id="LiveTimingFIS.dll" Name="LiveTimingFIS.dll" Source="$(var.RaceHorology_TargetDir)LiveTimingFIS.dll" />
       </Component>
