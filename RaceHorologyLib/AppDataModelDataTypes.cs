@@ -999,6 +999,13 @@ namespace RaceHorologyLib
 
     public virtual void UpdateRunResult(RunResult original)
     {
+      // Notify only real changes: observers (e.g. start lists based on results) recalculate on each notification
+      var oldRuntime = Runtime;
+      var oldStartTime = StartTime;
+      var oldFinishTime = FinishTime;
+      var oldResultCode = ResultCode;
+      var oldDisqualText = DisqualText;
+
       if (original != null)
       {
         System.Diagnostics.Debug.Assert(_participant == original._participant);
@@ -1018,11 +1025,16 @@ namespace RaceHorologyLib
         _disqualText = null;
       }
 
-      NotifyPropertyChanged(propertyName: nameof(Runtime));
-      NotifyPropertyChanged(propertyName: nameof(StartTime));
-      NotifyPropertyChanged(propertyName: nameof(FinishTime));
-      NotifyPropertyChanged(propertyName: nameof(ResultCode));
-      NotifyPropertyChanged(propertyName: nameof(DisqualText));
+      if (oldRuntime != Runtime)
+        NotifyPropertyChanged(propertyName: nameof(Runtime));
+      if (oldStartTime != StartTime)
+        NotifyPropertyChanged(propertyName: nameof(StartTime));
+      if (oldFinishTime != FinishTime)
+        NotifyPropertyChanged(propertyName: nameof(FinishTime));
+      if (oldResultCode != ResultCode)
+        NotifyPropertyChanged(propertyName: nameof(ResultCode));
+      if (oldDisqualText != DisqualText)
+        NotifyPropertyChanged(propertyName: nameof(DisqualText));
     }
 
     virtual public bool IsEmpty()
