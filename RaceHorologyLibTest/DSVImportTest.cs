@@ -184,10 +184,20 @@ namespace RaceHorologyLibTest
       }
     }
 
+    /// <summary>
+    /// Creates the online reader; uses Basic authentication if DSV_ONLINE_USERNAME / DSV_ONLINE_PASSWORD are set (e.g. via CI secrets).
+    /// </summary>
+    static IDSVImportReaderFile createOnlineReader(DSVImportReaderZipBase.EDSVListType listType)
+    {
+      return new DSVImportReaderOnline(listType,
+        Environment.GetEnvironmentVariable("DSV_ONLINE_USERNAME"),
+        Environment.GetEnvironmentVariable("DSV_ONLINE_PASSWORD"));
+    }
+
     [TestMethod, TestCategory("IntegrationDsvOnline")]
     public void ImportPointListViaWeb_U14U16()
     {
-      IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
+      IDSVImportReaderFile fileReader = createOnlineReader(DSVImportReaderZipBase.EDSVListType.Pupils_U14U16);
       DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.IsTrue(reader.UsedDSVList.StartsWith("DSVSA"));
@@ -209,7 +219,7 @@ namespace RaceHorologyLibTest
     [TestMethod, TestCategory("IntegrationDsvOnline")]
     public void ImportPointListViaWeb_U12()
     {
-      IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger);
+      IDSVImportReaderFile fileReader = createOnlineReader(DSVImportReaderZipBase.EDSVListType.Kids_U12AndYounger);
       DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.IsTrue(reader.UsedDSVList.StartsWith("DSVKA"));
@@ -232,7 +242,7 @@ namespace RaceHorologyLibTest
     [TestMethod, TestCategory("HardwareDependent")]
     public void ImportPointListViaWeb_U18()
     {
-      IDSVImportReaderFile fileReader = new DSVImportReaderOnline(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);
+      IDSVImportReaderFile fileReader = createOnlineReader(DSVImportReaderZipBase.EDSVListType.Youth_U18AndOlder);
       DSVImportReader reader = new DSVImportReader(fileReader);
 
       Assert.IsTrue(reader.UsedDSVList.StartsWith("DSVA"));
