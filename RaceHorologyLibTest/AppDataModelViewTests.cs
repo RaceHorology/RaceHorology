@@ -255,6 +255,48 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Changing the grouping of an empty start list (e.g. new race without participants) must not throw
+    /// </summary>
+    [TestMethod]
+    public void DSVFirstRunStartListViewProvider_EmptyStartList()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      DSVFirstRunStartListViewProvider provider = new DSVFirstRunStartListViewProvider(5);
+      provider.Init(tg.Model.GetRace(0).GetParticipants());
+      provider.ChangeGrouping("Participant.Class");
+
+      Assert.AreEqual(0, provider.GetViewList().Count);
+    }
+
+
+    /// <summary>
+    /// Grouping a start list by club must sort the entries by club first (as it is done for class, group and category)
+    /// </summary>
+    [TestMethod]
+    public void FirstRunStartListViewProvider_GroupingByClub()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      var participants = tg.createRaceParticipants(4);
+      participants[0].Participant.Club = "SC B";
+      participants[1].Participant.Club = "SC A";
+      participants[2].Participant.Club = "SC B";
+      participants[3].Participant.Club = "SC A";
+
+      FirstRunStartListViewProvider provider = new FirstRunStartListViewProvider();
+      provider.Init(tg.Model.GetRace(0).GetParticipants());
+      provider.ChangeGrouping("Participant.Club");
+
+      var startlist = provider.GetViewList();
+      Assert.AreEqual(2U, startlist[0].StartNumber);
+      Assert.AreEqual(4U, startlist[1].StartNumber);
+      Assert.AreEqual(1U, startlist[2].StartNumber);
+      Assert.AreEqual(3U, startlist[3].StartNumber);
+    }
+
+
 
     /// <summary>
     /// Test for SimpleSecondRunStartListViewProvider, descending start numbers
@@ -1389,6 +1431,85 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// A single change that modifies the cut off time (here: the best participant gets disqualified)
+    /// must result in a list that is sorted according to the new cut off time.
+    /// </summary>
+    [TestMethod]
+    public void PenaltyRaceRunResultViewProviderTest_CutOffChangeBySingleUpdate()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      tg.createRaceParticipants(3);
+
+      RaceRunResultViewProvider vp = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusPercentage, 30.0);
+      vp.Init(rr, tg.Model);
+
+      rr.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(30));
+      rr.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(60));
+      rr.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);
+
+      // Cut off time 39s: all except StNr 1 get the cut off time
+      var results = vp.GetView().ViewToList<RunResultWithPosition>();
+      Assert.AreEqual(1U, results[0].StartNumber);
+      Assert.AreEqual(1U, results[0].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(39), results[1].Runtime);
+      Assert.AreEqual(TimeSpan.FromSeconds(39), results[2].Runtime);
+
+      // Disqualifying the best one raises the cut off time to 78s (single property change)
+      rr.SetResultCode(race.GetParticipant(1), RunResult.EResultCode.DIS);
+      results = vp.GetView().ViewToList<RunResultWithPosition>();
+      Assert.AreEqual(2U, results[0].StartNumber);
+      Assert.AreEqual(1U, results[0].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(60), results[0].Runtime);
+      Assert.AreEqual(1U, results[1].StartNumber);
+      Assert.AreEqual(2U, results[1].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(78), results[1].Runtime);
+      Assert.AreEqual(3U, results[2].StartNumber);
+      Assert.AreEqual(2U, results[2].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(78), results[2].Runtime);
+    }
+
+
+    /// <summary>
+    /// Grouping by a string property (e.g. club) must work although the participants
+    /// hold different string instances for the same club (as read from the database).
+    /// </summary>
+    [TestMethod]
+    public void PenaltyRaceRunResultViewProviderTest_GroupingByClub()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.createRaceParticipants(3);
+      foreach (var rp in participants)
+        rp.Participant.Club = new string("SC Test".ToCharArray());
+
+      RaceRunResultViewProvider vp = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusPercentage, 30.0);
+      vp.ChangeGrouping("Participant.Club");
+      vp.Init(rr, tg.Model);
+
+      rr.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(30));
+      rr.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(60));
+      rr.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);
+
+      var results = vp.GetView().ViewToList<RunResultWithPosition>();
+      Assert.AreEqual(1U, results[0].StartNumber);
+      Assert.AreEqual(1U, results[0].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(39), results[1].Runtime);
+      Assert.AreEqual(2U, results[1].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(39), results[2].Runtime);
+      Assert.AreEqual(2U, results[2].Position);
+    }
+
+
+    /// <summary>
     /// Tests whether the positions are correct in case two or more participants have the same runtime
     /// </summary>
     [TestMethod]
@@ -1805,6 +1926,41 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(TimeSpan.FromSeconds(40), sum(50, 40));
       // Runs 1..2: 40, 50 => 40
       Assert.AreEqual(TimeSpan.FromSeconds(40), sum(40, 50));
+    }
+
+
+    /// <summary>
+    /// "2x Best of 2" must assign the runs to the blocks by run number, even if the results
+    /// of a run got deleted and entered again (the run is then considered again as the last one).
+    /// </summary>
+    [TestMethod]
+    public void RaceResultViewProviderTest_SumMxBestOfN_RunOrder()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      Race race = tg.Model.GetRace(0);
+      race.UpdateNumberOfRuns(4);
+      new ViewConfigurator(race).ConfigureRace(race); // View providers for the added runs
+      tg.createRaceParticipant();
+      var rp = race.GetParticipant(1);
+
+      race.GetRun(0).SetRunTime(rp, TimeSpan.FromSeconds(40));
+      race.GetRun(1).SetRunTime(rp, TimeSpan.FromSeconds(50));
+      race.GetRun(2).SetRunTime(rp, TimeSpan.FromSeconds(70));
+      race.GetRun(3).SetRunTime(rp, TimeSpan.FromSeconds(65));
+
+      RaceResultViewProvider vp = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumMxBestOfN);
+      vp.Init(race, tg.Model);
+
+      // 40, 50 | 70, 65 => 40 + 65
+      Assert.AreEqual(TimeSpan.FromSeconds(105), vp.GetViewList()[0].TotalTime);
+
+      race.GetRun(0).DeleteRunResults();
+      // -, 50 | 70, 65 => 50 + 65
+      Assert.AreEqual(TimeSpan.FromSeconds(115), vp.GetViewList()[0].TotalTime);
+
+      race.GetRun(0).SetRunTime(rp, TimeSpan.FromSeconds(40));
+      // 40, 50 | 70, 65 => 40 + 65
+      Assert.AreEqual(TimeSpan.FromSeconds(105), vp.GetViewList()[0].TotalTime);
     }
 
     /// <summary>
@@ -2340,6 +2496,57 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// Team results in points mode must get positions based on the points (more points = better)
+    /// </summary>
+    [TestMethod]
+    public void TeamRaceResultViewProvider_PointsMode_Positions()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      Race race = tg.Model.GetRace(0);
+      RaceRun rr1 = race.GetRun(0);
+
+      var teamA = new Team("1", null, "Team A", 1);
+      var teamB = new Team("2", null, "Team B", 2);
+      var teamC = new Team("3", null, "Team C", 3);
+      var participants = tg.createRaceParticipants(6);
+      participants[0].Participant.Team = teamB;
+      participants[1].Participant.Team = teamB;
+      participants[2].Participant.Team = teamA;
+      participants[3].Participant.Team = teamA;
+      participants[4].Participant.Team = teamC;
+      participants[5].Participant.Team = teamC;
+
+      // Positions 1..6 => points 15, 12, 10, 8, 6, 5
+      rr1.SetRunTime(participants[0], TimeSpan.FromSeconds(10)); // B: 15
+      rr1.SetRunTime(participants[2], TimeSpan.FromSeconds(20)); // A: 12
+      rr1.SetRunTime(participants[3], TimeSpan.FromSeconds(30)); // A: 10
+      rr1.SetRunTime(participants[1], TimeSpan.FromSeconds(40)); // B: 8
+      rr1.SetRunTime(participants[4], TimeSpan.FromSeconds(50)); // C: 6
+      rr1.SetRunTime(participants[5], TimeSpan.FromSeconds(60)); // C: 5
+
+      var raceVP = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
+      raceVP.Init(race, tg.Model);
+      race.SetResultViewProvider(raceVP);
+
+      var teamVP = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Points, NumberOfMembersMin = 1, NumberOfMembersMax = 2 });
+      teamVP.Init(race, tg.Model);
+
+      var teams = new List<TeamResultViewItem>(System.Linq.Enumerable.OfType<TeamResultViewItem>(teamVP.GetView().SourceCollection));
+      Assert.AreEqual(3, teams.Count);
+      // A: 22, B: 23, C: 11
+      Assert.AreEqual("Team B", teams[0].Name);
+      Assert.AreEqual(23.0, teams[0].Points);
+      Assert.AreEqual(1U, teams[0].Position);
+      Assert.AreEqual("Team A", teams[1].Name);
+      Assert.AreEqual(22.0, teams[1].Points);
+      Assert.AreEqual(2U, teams[1].Position);
+      Assert.AreEqual("Team C", teams[2].Name);
+      Assert.AreEqual(11.0, teams[2].Points);
+      Assert.AreEqual(3U, teams[2].Position);
+    }
+
+
+    /// <summary>
     /// RemainingStartListViewProvider stops observing on Dispose() and disposes its source provider only if requested
     /// </summary>
     [TestMethod]
@@ -2859,6 +3066,41 @@ namespace RaceHorologyLibTest
       {
         System.IO.Directory.Delete(folder, true);
       }
+    }
+
+
+    /// <summary>
+    /// A participant added without any time must be sorted into the race result
+    /// (here: into its class, not appended at the end of the list)
+    /// </summary>
+    [TestMethod]
+    public void RaceResultViewProvider_AddParticipantWithoutTime()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+      Race race = tg.Model.GetRace(0);
+      RaceRun rr1 = race.GetRun(0);
+
+      tg.createRaceParticipant(cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cla: tg.findClass("2W (2010)"));
+      for (uint stnr = 1; stnr <= 4; ++stnr)
+        rr1.SetRunTime(race.GetParticipant(stnr), TimeSpan.FromSeconds(10 * stnr));
+
+      RaceResultViewProvider vp = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
+      vp.ChangeGrouping("Participant.Class");
+      vp.Init(race, tg.Model);
+
+      tg.createRaceParticipant(cla: tg.findClass("2M (2010)")); // StNr 5, no time
+
+      var results = vp.GetViewList();
+      Assert.AreEqual(5, results.Count);
+      Assert.AreEqual(1U, results[0].Participant.StartNumber);
+      Assert.AreEqual(2U, results[1].Participant.StartNumber);
+      Assert.AreEqual(5U, results[2].Participant.StartNumber);
+      Assert.AreEqual(3U, results[3].Participant.StartNumber);
+      Assert.AreEqual(4U, results[4].Participant.StartNumber);
     }
   }
 }

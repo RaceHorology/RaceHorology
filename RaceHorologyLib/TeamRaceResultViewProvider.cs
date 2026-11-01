@@ -227,7 +227,10 @@ namespace RaceHorologyLib
 
       // Group, Sort and Rank the teams
       _teamResults.Sort(_comparer);
-      ViewProviderHelpers.updatePositions<TeamResultViewItem>(_teamResults, _activeGrouping, (item) => { });
+      if (_config.Modus == PointOrTime.Time)
+        ViewProviderHelpers.updatePositions<TeamResultViewItem>(_teamResults, _activeGrouping, (item) => { });
+      else
+        updatePositionsByPoints();
 
       // Build viewable List (Flatten)
       _teamViewResults.Clear();
@@ -238,6 +241,39 @@ namespace RaceHorologyLib
         {
           _teamViewResults.Add(participants);
         }
+      }
+    }
+
+    /// <summary>
+    /// Sets the positions of the (already sorted) teams based on their points; same points => same position
+    /// </summary>
+    protected void updatePositionsByPoints()
+    {
+      uint curPosition = 0;
+      uint samePosition = 1;
+      object curGroup = null;
+      double? lastPoints = null;
+      foreach (var item in _teamResults)
+      {
+        // New group
+        if (!Equals(PropertyUtilities.GetPropertyValue(item, _activeGrouping), curGroup))
+        {
+          curGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
+          curPosition = 0;
+          samePosition = 1;
+          lastPoints = null;
+        }
+
+        if (item.Points == lastPoints)
+          samePosition++;
+        else
+        {
+          curPosition += samePosition;
+          samePosition = 1;
+        }
+
+        item.Position = curPosition;
+        lastPoints = item.Points;
       }
     }
 
