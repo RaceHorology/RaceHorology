@@ -57,13 +57,19 @@ namespace RaceHorologyLib
 
   /// <summary>
   /// BaseClass for all ViewProvider
+  ///
+  /// A view provider observes its sources (participants, results, other providers) via events.
+  /// Thus, it stays alive and keeps on calculating as long as its sources are alive.
+  /// Call Dispose() if the provider is not needed anymore.
   /// </summary>
-  public abstract class ViewProvider
+  public abstract class ViewProvider : IDisposable
   {
     protected CollectionViewSource _view;
 
     protected string _defaultGrouping;
     protected string _activeGrouping;
+
+    bool _disposed;
 
 
     public ViewProvider()
@@ -72,6 +78,24 @@ namespace RaceHorologyLib
     }
 
     public abstract ViewProvider Clone();
+
+
+    /// <summary>
+    /// Stops observing the sources. The view list keeps its last state, but does not get updated anymore.
+    /// </summary>
+    public void Dispose()
+    {
+      if (_disposed)
+        return;
+
+      _disposed = true;
+      Uninit();
+    }
+
+    /// <summary>
+    /// Unsubscribes from all events subscribed in Init()
+    /// </summary>
+    protected virtual void Uninit() { }
 
 
     protected void FinalizeInit()
@@ -260,6 +284,16 @@ namespace RaceHorologyLib
       _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
 
       FinalizeInit();
+    }
+
+
+    protected override void Uninit()
+    {
+      if (_participants != null)
+        _participants.CollectionChanged -= OnParticipantsChanged;
+      _sourceItemChangedNotifier?.Dispose();
+
+      base.Uninit();
     }
 
 
@@ -475,11 +509,11 @@ namespace RaceHorologyLib
         // Only participants with a valid result in the previous run (Issue #613)
         // The list gets rebuilt on every change of start list or results (e.g. a later disqualification)
         _resultsPreviousRun = (previousRun.GetResultViewProvider() as RaceRunResultViewProvider).GetViewList();
-        _resultsPreviousRun.CollectionChanged += (s, e) => UpdateFilteredStartList();
-        _resultsPreviousRun.ItemChanged += (s, e) => UpdateFilteredStartList();
-        _startList1stRun.CollectionChanged += (s, e) => UpdateFilteredStartList();
+        _resultsPreviousRun.CollectionChanged += OnFilterSourceChanged;
+        _resultsPreviousRun.ItemChanged += OnFilterSourceItemChanged;
+        _startList1stRun.CollectionChanged += OnFilterSourceChanged;
         _sourceItemChangedNotifier = new ItemsChangedNotifier(_startList1stRun);
-        _sourceItemChangedNotifier.ItemChanged += (s, e) => UpdateFilteredStartList();
+        _sourceItemChangedNotifier.ItemChanged += OnFilterSourceItemChanged;
 
         UpdateFilteredStartList();
         FinalizeInit();
@@ -493,6 +527,24 @@ namespace RaceHorologyLib
       _sourceItemChangedNotifier.ItemChanged += _sourceItemChangedNotifier_ItemChanged;
 
       FinalizeInit();
+    }
+
+
+    protected override void Uninit()
+    {
+      if (_resultsPreviousRun != null)
+      {
+        _resultsPreviousRun.CollectionChanged -= OnFilterSourceChanged;
+        _resultsPreviousRun.ItemChanged -= OnFilterSourceItemChanged;
+      }
+      if (_startList1stRun != null)
+      {
+        _startList1stRun.CollectionChanged -= OnFilterSourceChanged;
+        _startList1stRun.CollectionChanged -= OnSourceChanged;
+      }
+      _sourceItemChangedNotifier?.Dispose();
+
+      base.Uninit();
     }
 
 
@@ -528,6 +580,16 @@ namespace RaceHorologyLib
       return new StartListEntry(sleSRC.Participant);
     }
 
+
+    private void OnFilterSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      UpdateFilteredStartList();
+    }
+
+    private void OnFilterSourceItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      UpdateFilteredStartList();
+    }
 
     private void UpdateFilteredStartList()
     {
@@ -637,6 +699,24 @@ namespace RaceHorologyLib
       UpdateStartList();
 
       FinalizeInit();
+    }
+
+
+    protected override void Uninit()
+    {
+      var sources = new List<ItemsChangeObservableCollection<RunResultWithPosition>>();
+      if (_resultsPreviousRuns != null)
+        sources.AddRange(_resultsPreviousRuns);
+      if (_resultsPreviousRun != null)
+        sources.Add(_resultsPreviousRun);
+
+      foreach (var results in sources)
+      {
+        results.CollectionChanged -= OnSourceChanged;
+        results.ItemChanged -= _sourceItemChangedNotifier_ItemChanged;
+      }
+
+      base.Uninit();
     }
 
 
@@ -869,12 +949,13 @@ namespace RaceHorologyLib
   /// If the starter already started, the flag Started of the StartListEntry is set to true.
   /// The view provided by GetView() is filtered to only contain entries with the flag Started set to false.
   /// </summary>
-  public class RemainingStartListViewProvider : IStartListViewProvider
+  public class RemainingStartListViewProvider : IStartListViewProvider, IDisposable
   {
     StartListViewProvider _srcStartListProvider;
+    bool _disposeStartListProvider;
     RaceRun _raceRun;
 
-    ObservableCollection<StartListEntry> _viewList;
+    CopyObservableCollection<StartListEntry, StartListEntry> _viewList;
     CollectionViewSource _view;
 
     protected string _defaultGrouping;
@@ -891,10 +972,12 @@ namespace RaceHorologyLib
     /// </summary>
     /// <param name="startListProvider">A StartListViewProvider that is the source to proxy.</param>
     /// <param name="raceRun">The corresonding race run to consider whether a specific starter already started.</param>
-    public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
+    /// <param name="disposeStartListProvider">If true, startListProvider is disposed together with this provider (use if startListProvider has been created just for this provider).</param>
+    public void Init(StartListViewProvider startListProvider, RaceRun raceRun, bool disposeStartListProvider = false)
     {
       // Remember the source
       _srcStartListProvider = startListProvider;
+      _disposeStartListProvider = disposeStartListProvider;
       SetDefaultGrouping(_srcStartListProvider.ActiveGrouping);
 
       _raceRun = raceRun;
@@ -922,6 +1005,27 @@ namespace RaceHorologyLib
       _view.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
       _view.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
       _view.IsLiveFilteringRequested = true;
+    }
+
+
+    /// <summary>
+    /// Stops observing the start list and the race run.
+    /// </summary>
+    public void Dispose()
+    {
+      if (_raceRun == null)
+        return;
+
+      _raceRun.GetResultList().CollectionChanged -= OnResultsChanged;
+      _raceRun.GetResultList().ItemChanged -= OnResultItemChanged;
+      _raceRun.PropertyChanged -= OnRaceRun_PropertyChanged;
+      _raceRun = null;
+
+      _viewList.CollectionChanged -= OnStartListEntriesChanged;
+      _viewList.Dispose();
+
+      if (_disposeStartListProvider)
+        _srcStartListProvider.Dispose();
     }
 
     private void OnRaceRun_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1248,6 +1352,23 @@ namespace RaceHorologyLib
 
       updatePositions();
       FinalizeInit();
+    }
+
+
+    protected override void Uninit()
+    {
+      if (_participants != null)
+      {
+        _participants.CollectionChanged -= Participants_CollectionChanged;
+        _participants.ItemChanged -= Participants_ItemChanged;
+      }
+      if (_originalResults != null)
+      {
+        _originalResults.CollectionChanged -= OnOriginalResultsChanged;
+        _originalResults.ItemChanged -= OnOriginalResultItemChanged;
+      }
+
+      base.Uninit();
     }
 
 
@@ -1589,6 +1710,8 @@ namespace RaceHorologyLib
     protected ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
     protected List<RaceRun> _lastConsideredRuns;
+    // Result lists of the runs observed since Init()
+    List<ItemsChangeObservableCollection<RunResultWithPosition>> _observedRunResults;
     //protected List<ItemsChangedNotifier> _runResultsNotifier;
 
 
@@ -1638,12 +1761,14 @@ namespace RaceHorologyLib
       _appDataModel = appDataModel;
 
       _viewList = new ItemsChangeObservableCollection<RaceResultItem>();
+      _observedRunResults = new List<ItemsChangeObservableCollection<RunResultWithPosition>>();
 
       foreach (RaceRun r in _raceRuns)
       {
         RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
         // Watch for changes
         rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
+        _observedRunResults.Add(rrVP.GetViewList());
         // Initial update
         OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
@@ -1651,6 +1776,20 @@ namespace RaceHorologyLib
       UpdateAll();
 
       FinalizeInit();
+    }
+
+
+    protected override void Uninit()
+    {
+      if (_observedRunResults != null)
+        foreach (var runResults in _observedRunResults)
+        {
+          runResults.CollectionChanged -= OnResultListCollectionChanged;
+          foreach (var item in runResults)
+            item.PropertyChanged -= OnRunResultItemChanged;
+        }
+
+      base.Uninit();
     }
 
 

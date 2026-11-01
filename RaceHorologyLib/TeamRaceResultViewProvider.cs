@@ -111,6 +111,19 @@ namespace RaceHorologyLib
     }
 
 
+    protected override void Uninit()
+    {
+      if (_raceResults != null)
+      {
+        _raceResults.CollectionChanged -= OnRaceResults_CollectionChanged;
+        foreach (var item in _raceResults)
+          item.PropertyChanged -= OnRaceResultItem_Changed;
+      }
+
+      base.Uninit();
+    }
+
+
     public override void ChangeGrouping(string propertyName)
     {
       base.ChangeGrouping(propertyName != "" ? "Team.Group" : "");

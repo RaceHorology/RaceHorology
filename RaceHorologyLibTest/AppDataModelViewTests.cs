@@ -2268,5 +2268,114 @@ namespace RaceHorologyLibTest
 
 
     }
+
+
+    /// <summary>
+    /// A disposed view provider does not observe its sources anymore (no calculation, no memory leak via event handlers)
+    /// </summary>
+    [TestMethod]
+    public void ViewProviders_Dispose_StopObserving()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      for (int i = 0; i < 3; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      run1.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+
+      List<ViewProvider> createProviders()
+      {
+        var firstRun = new FirstRunStartListViewProvider();
+        firstRun.Init(race.GetParticipants());
+        var secondRunAll = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending, true);
+        secondRunAll.Init(run1);
+        var secondRunFiltered = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending, false);
+        secondRunFiltered.Init(run1);
+        var basedOnPrevious = new BasedOnResultsFirstRunStartListViewProvider(2, true);
+        basedOnPrevious.Init(run1);
+        var basedOnSum = new BasedOnResultsFirstRunStartListViewProvider(2, true, BasedOnResultsFirstRunStartListViewProvider.EBasedOn.SumOfPreviousRuns);
+        basedOnSum.Init(run1);
+        var runResults = new RaceRunResultViewProvider();
+        runResults.Init(run1, tg.Model);
+        var raceResults = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
+        raceResults.Init(race, tg.Model);
+        var teamResults = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Time, NumberOfMembersMax = 3 });
+        teamResults.Init(race, tg.Model);
+        return new List<ViewProvider> { firstRun, secondRunAll, secondRunFiltered, basedOnPrevious, basedOnSum, runResults, raceResults, teamResults };
+      }
+
+      // Counts the changes of the provider's view list
+      int[] observeChanges(List<ViewProvider> providers)
+      {
+        var counts = new int[providers.Count];
+        for (int i = 0; i < providers.Count; i++)
+        {
+          int index = i;
+          ((System.Collections.Specialized.INotifyCollectionChanged)providers[i].GetView().SourceCollection).CollectionChanged += (s, e) => counts[index]++;
+        }
+        return counts;
+      }
+
+      var active = createProviders();
+      var disposed = createProviders();
+      disposed.ForEach(p => p.Dispose());
+      disposed.ForEach(p => p.Dispose()); // Disposing twice is fine
+
+      int[] activeChanges = observeChanges(active);
+      int[] disposedChanges = observeChanges(disposed);
+
+      tg.createRaceParticipant();
+      run1.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(49));
+
+      for (int i = 0; i < active.Count; i++)
+      {
+        Assert.IsTrue(activeChanges[i] > 0, "active " + active[i].GetType().Name);
+        Assert.AreEqual(0, disposedChanges[i], "disposed " + disposed[i].GetType().Name);
+      }
+      Assert.AreEqual(3, disposed[0].GetView().ViewToList<StartListEntry>().Count, "disposed provider keeps its last state");
+    }
+
+
+    /// <summary>
+    /// RemainingStartListViewProvider stops observing on Dispose() and disposes its source provider only if requested
+    /// </summary>
+    [TestMethod]
+    public void RemainingStartListViewProvider_Dispose()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      for (int i = 0; i < 3; i++)
+        tg.createRaceParticipant();
+
+      var sharedStartList = new FirstRunStartListViewProvider();
+      sharedStartList.Init(race.GetParticipants());
+      var notOwning = new RemainingStartListViewProvider();
+      notOwning.Init(sharedStartList, run1);
+
+      var ownedStartList = new FirstRunStartListViewProvider();
+      ownedStartList.Init(race.GetParticipants());
+      var owning = new RemainingStartListViewProvider();
+      owning.Init(ownedStartList, run1, disposeStartListProvider: true);
+
+      notOwning.Dispose();
+      owning.Dispose();
+
+      tg.createRaceParticipant();
+      run1.SetStartTime(race.GetParticipant(1), TimeSpan.FromSeconds(10));
+
+      // Shared source is still alive, owned source has been disposed
+      Assert.AreEqual(4, sharedStartList.GetViewList().Count);
+      Assert.AreEqual(3, ownedStartList.GetViewList().Count);
+
+      // Remaining lists do not follow the source and the results anymore
+      Assert.AreEqual(3, notOwning.GetViewList().Count);
+      Assert.AreEqual(3, owning.GetViewList().Count);
+      Assert.IsFalse(notOwning.GetViewList()[0].Started);
+      Assert.IsFalse(owning.GetViewList()[0].Started);
+    }
   }
 }

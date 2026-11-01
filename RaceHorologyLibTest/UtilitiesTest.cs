@@ -165,6 +165,23 @@ namespace RaceHorologyLibTest
 
 
     [TestMethod]
+    public void CopyObservableCollection_Dispose()
+    {
+      ObservableCollection<TestClass> sc = new ObservableCollection<TestClass> { new TestClass { Attr1 = 10 } };
+      CopyObservableCollection<TestClass, TestClass> coc = new CopyObservableCollection<TestClass, TestClass>(sc, item => item.ShallowCopy(), true);
+
+      coc.Dispose();
+      coc.Dispose(); // Disposing twice is fine
+
+      // Not following the source anymore
+      sc.Add(new TestClass { Attr1 = 20 });
+      sc.RemoveAt(0);
+      Assert.AreEqual(1, coc.Count);
+      Assert.AreEqual(10, coc[0].Attr1);
+    }
+
+
+    [TestMethod]
     public void ObservableCollectionExtensions_Sort()
     {
       Collection<int> collection = new Collection<int> { 2, 3, 1, 8, 7, 9, 4, 6, 5 };

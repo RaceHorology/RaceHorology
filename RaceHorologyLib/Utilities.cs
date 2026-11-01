@@ -221,7 +221,7 @@ namespace RaceHorologyLib
 
 
 
-  public class CopyObservableCollection<TC, T> : ObservableCollection<TC> where T : class where TC : class
+  public class CopyObservableCollection<TC, T> : ObservableCollection<TC>, IDisposable where T : class where TC : class
   {
     protected ObservableCollection<T> _source;
     protected Cloner<TC, T> _cloner;
@@ -239,9 +239,19 @@ namespace RaceHorologyLib
       FillInitially();
     }
 
-    ~CopyObservableCollection()
+    /// <summary>
+    /// Stops copying from the source. Needed, because the source keeps this collection alive via its events.
+    /// </summary>
+    public void Dispose()
     {
+      if (_source == null)
+        return;
+
       _source.CollectionChanged -= OnCollectionChanged;
+      foreach (var item in _source)
+        if (item is INotifyPropertyChanged item2)
+          item2.PropertyChanged -= ItemPropertyChanged;
+      _source = null;
     }
 
 
