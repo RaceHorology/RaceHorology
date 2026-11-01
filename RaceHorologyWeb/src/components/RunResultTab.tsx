@@ -29,6 +29,7 @@ const columns: Column<RunResultEntry>[] = [
     className: 'text-end fw-bold',
   },
   { header: 'Diff', render: (e) => e.DiffToFirst, className: 'text-end' },
+  { header: 'Bemerkung', render: (e) => e.DisqualText, className: 'rh-c2-col' },
 ]
 
 export default function RunResultTab({ liveData, meta }: { liveData: LiveData; meta: MetaData['data'] | null }) {
