@@ -2799,5 +2799,38 @@ namespace RaceHorologyLibTest
       race.GetParticipant(1).Participant.Club = null;
       Assert.IsTrue(ParticipantGroupComparer.Compare("Participant.Club", race.GetParticipant(1), race.GetParticipant(2)) > 0);
     }
+
+
+    /// <summary>
+    /// RemainingStartListViewProvider takes over the active grouping of its source,
+    /// but must not overwrite the source's default grouping (e.g. the start list of a run shown in the UI)
+    /// </summary>
+    [TestMethod]
+    public void RemainingStartListViewProvider_KeepsDefaultGroupingOfSource()
+    {
+      var tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+      var race = tg.Model.GetRace(0);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+
+      var source = new FirstRunStartListViewProvider();
+      source.SetDefaultGrouping("Participant.Class");
+      source.Init(race.GetParticipants());
+      source.ChangeGrouping("Participant.Sex");
+
+      var remaining = new RemainingStartListViewProvider();
+      remaining.Init(source, race.GetRun(0));
+      Assert.AreEqual("Participant.Sex", remaining.ActiveGrouping);
+      Assert.AreEqual(1, remaining.GetView().GroupDescriptions.Count);
+
+      source.ResetToDefaultGrouping();
+      Assert.AreEqual("Participant.Class", source.ActiveGrouping);
+
+      // Grouping of the remaining starters changes the grouping (i.e. the order) of the source
+      remaining.ChangeGrouping(null);
+      Assert.IsNull(source.ActiveGrouping);
+      Assert.AreEqual(0, remaining.GetView().GroupDescriptions.Count);
+    }
   }
 }

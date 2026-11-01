@@ -119,23 +119,7 @@ namespace RaceHorologyLib
       if (_activeGrouping == propertyName)
         return;
 
-      if (!string.IsNullOrEmpty(_activeGrouping))
-      {
-        _view.GroupDescriptions.Clear();
-        _view.LiveGroupingProperties.Clear();
-        _view.IsLiveGroupingRequested = false;
-      }
-
-      if (!string.IsNullOrEmpty(propertyName))
-      {
-        GroupDescription gd = new PropertyGroupDescription(propertyName);
-        gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-        _view.GroupDescriptions.Add(gd);
-
-        _view.LiveGroupingProperties.Add(propertyName);
-        _view.IsLiveGroupingRequested = true;
-      }
-
+      ApplyGrouping(_view, _activeGrouping, propertyName);
       _activeGrouping = propertyName;
 
       OnChangeGrouping(propertyName);
@@ -1039,7 +1023,9 @@ namespace RaceHorologyLib
       // Remember the source
       _srcStartListProvider = startListProvider;
       _disposeStartListProvider = disposeStartListProvider;
-      SetDefaultGrouping(_srcStartListProvider.ActiveGrouping);
+      // Same grouping as the source (without touching the source's default grouping)
+      _defaultGrouping = _srcStartListProvider.ActiveGrouping;
+      ChangeGrouping(_defaultGrouping);
 
       _raceRun = raceRun;
 
@@ -1100,41 +1086,26 @@ namespace RaceHorologyLib
 
     public void SetDefaultGrouping(string propertyName)
     {
-      _srcStartListProvider.SetDefaultGrouping(propertyName);
       _defaultGrouping = propertyName;
       ResetToDefaultGrouping();
     }
 
+    /// <summary>
+    /// Changes the grouping of the view and of the source as well (the source determines the order within the groups)
+    /// </summary>
     public void ChangeGrouping(string propertyName)
     {
+      _srcStartListProvider.ChangeGrouping(propertyName);
+
       if (_activeGrouping == propertyName)
         return;
 
-      _srcStartListProvider.ChangeGrouping(propertyName);
-
-      if (!string.IsNullOrEmpty(_activeGrouping))
-      {
-        _view.GroupDescriptions.Clear();
-        _view.LiveGroupingProperties.Clear();
-        _view.IsLiveGroupingRequested = false;
-      }
-
-      if (!string.IsNullOrEmpty(propertyName))
-      {
-        GroupDescription gd = new PropertyGroupDescription(propertyName);
-        gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-        //gd.CustomSort = new DebugSort();
-        _view.GroupDescriptions.Add(gd);
-        _view.LiveGroupingProperties.Add(propertyName);
-        _view.IsLiveGroupingRequested = true;
-      }
-
+      ApplyGrouping(_view, _activeGrouping, propertyName);
       _activeGrouping = propertyName;
     }
 
     public void ResetToDefaultGrouping()
     {
-      _srcStartListProvider.ChangeGrouping(_defaultGrouping);
       ChangeGrouping(_defaultGrouping);
     }
 
@@ -2580,6 +2551,29 @@ namespace RaceHorologyLib
 
   public static class ViewProviderHelpers
   {
+    /// <summary>
+    /// Replaces the grouping of a view (live grouping, groups sorted by name)
+    /// </summary>
+    public static void ApplyGrouping(CollectionViewSource view, string activeGrouping, string newGrouping)
+    {
+      if (!string.IsNullOrEmpty(activeGrouping))
+      {
+        view.GroupDescriptions.Clear();
+        view.LiveGroupingProperties.Clear();
+        view.IsLiveGroupingRequested = false;
+      }
+
+      if (!string.IsNullOrEmpty(newGrouping))
+      {
+        GroupDescription gd = new PropertyGroupDescription(newGrouping);
+        gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+        view.GroupDescriptions.Add(gd);
+
+        view.LiveGroupingProperties.Add(newGrouping);
+        view.IsLiveGroupingRequested = true;
+      }
+    }
+
     // Calculated by updatePositions() from the order of a result list, see IsPositionProperty()
     static readonly HashSet<string> _positionProperties = new HashSet<string>
     {
