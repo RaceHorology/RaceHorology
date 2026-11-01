@@ -600,6 +600,10 @@ namespace RaceHorologyLib
 
     private void OnFilterSourceItemChanged(object sender, PropertyChangedEventArgs e)
     {
+      // Only valid results matter, not their position
+      if (IsPositionProperty(e))
+        return;
+
       UpdateFilteredStartList();
     }
 
@@ -742,6 +746,10 @@ namespace RaceHorologyLib
     }
     private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
     {
+      // The start list is based on the times, the position is calculated on its own
+      if (IsPositionProperty(e))
+        return;
+
       UpdateStartList();
     }
 
@@ -1742,8 +1750,8 @@ namespace RaceHorologyLib
     protected ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
     protected List<RaceRun> _lastConsideredRuns;
-    // Result lists of the runs observed since Init()
-    List<ItemsChangeObservableCollection<RunResultWithPosition>> _observedRunResults;
+    // Result lists of the runs observed since Init() and the handlers for their item changes
+    List<(ItemsChangeObservableCollection<RunResultWithPosition> list, ItemsChangeObservableCollection<RunResultWithPosition>.ItemChangedEventHandler itemChanged)> _observedRunResults;
     //protected List<ItemsChangedNotifier> _runResultsNotifier;
 
 
@@ -1793,14 +1801,17 @@ namespace RaceHorologyLib
       _appDataModel = appDataModel;
 
       _viewList = new ItemsChangeObservableCollection<RaceResultItem>();
-      _observedRunResults = new List<ItemsChangeObservableCollection<RunResultWithPosition>>();
+      _observedRunResults = new List<(ItemsChangeObservableCollection<RunResultWithPosition>, ItemsChangeObservableCollection<RunResultWithPosition>.ItemChangedEventHandler)>();
 
       foreach (RaceRun r in _raceRuns)
       {
         RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
         // Watch for changes
+        RaceRun run = r;
+        ItemsChangeObservableCollection<RunResultWithPosition>.ItemChangedEventHandler itemChanged = (s, e) => OnRunResultItemChanged(run, s, e);
         rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
-        _observedRunResults.Add(rrVP.GetViewList());
+        rrVP.GetViewList().ItemChanged += itemChanged;
+        _observedRunResults.Add((rrVP.GetViewList(), itemChanged));
         // Initial update
         OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
@@ -1816,9 +1827,8 @@ namespace RaceHorologyLib
       if (_observedRunResults != null)
         foreach (var runResults in _observedRunResults)
         {
-          runResults.CollectionChanged -= OnResultListCollectionChanged;
-          foreach (var item in runResults)
-            item.PropertyChanged -= OnRunResultItemChanged;
+          runResults.list.CollectionChanged -= OnResultListCollectionChanged;
+          runResults.list.ItemChanged -= runResults.itemChanged;
         }
 
       base.Uninit();
@@ -1844,15 +1854,23 @@ namespace RaceHorologyLib
       ResortResults();
     }
 
-    private void OnRunResultItemChanged(object sender, PropertyChangedEventArgs e)
+    private void OnRunResultItemChanged(RaceRun run, object sender, PropertyChangedEventArgs e)
     {
       RunResultWithPosition rr = sender as RunResultWithPosition;
+      if (rr == null)
+        return;
 
-      if (rr != null)
+      if (IsPositionProperty(e))
       {
-        if (UpdateResultsFor(rr.Participant))
-          ResortResults();
+        // A new time changes the position within the run of many participants, but not their race result
+        // => just take over the position into the sub result (no recalculation and resorting)
+        if (_lastConsideredRuns.Contains(run))
+          _viewList.FirstOrDefault(x => x.Participant == rr.Participant)?.SetRunResult(run.Run, rr);
+        return;
       }
+
+      if (UpdateResultsFor(rr.Participant))
+        ResortResults();
     }
 
     private void OnResultListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -1867,7 +1885,6 @@ namespace RaceHorologyLib
       {
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
-          item.PropertyChanged -= OnRunResultItemChanged;
           RunResultWithPosition rr = item as RunResultWithPosition;
           if (UpdateResultsFor(rr?.Participant))
             bSomethingChanged = true;
@@ -1878,7 +1895,6 @@ namespace RaceHorologyLib
       {
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
-          item.PropertyChanged += OnRunResultItemChanged;
           RunResultWithPosition rr = item as RunResultWithPosition;
           if (UpdateResultsFor(rr?.Participant))
             bSomethingChanged = true;
@@ -2534,6 +2550,26 @@ namespace RaceHorologyLib
 
   public static class ViewProviderHelpers
   {
+    // Calculated by updatePositions() from the order of a result list, see IsPositionProperty()
+    static readonly HashSet<string> _positionProperties = new HashSet<string>
+    {
+      nameof(IHasPositions.Position),
+      nameof(IHasPositions.DiffToFirst),
+      nameof(IHasPositions.DiffToFirstPercentage),
+      nameof(RunResultWithPosition.JustModified)
+    };
+
+    /// <summary>
+    /// Whether the property changed is calculated from the order of a result list (position, difference to first, ...).
+    /// A single new time changes them for many items, but they never change the time or result of an item itself.
+    /// Thus, observers depending on times and results only can ignore them.
+    /// </summary>
+    /// <param name="e">The event args; null (e.g. ItemsChangedNotifier for a new item) is never a position property</param>
+    public static bool IsPositionProperty(PropertyChangedEventArgs e)
+    {
+      return e?.PropertyName != null && _positionProperties.Contains(e.PropertyName);
+    }
+
 
     public delegate void AdditionalCallback<Type>(Type item);
     public static void updatePositions<Type>(IEnumerable<Type> viewList, string groupingProperty, AdditionalCallback<Type> additionalCB) where Type : IHasPositions

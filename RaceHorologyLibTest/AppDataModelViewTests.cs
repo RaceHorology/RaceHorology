@@ -2612,5 +2612,63 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(1U, raceResults[0].Position);
       Assert.AreEqual(2U, raceResults[1].Position);
     }
+
+
+    /// <summary>
+    /// A new best time changes position and difference to the first of every participant.
+    /// The providers depending on the run results must not recalculate for each of these changes.
+    /// </summary>
+    [TestMethod]
+    public void ViewProviders_NewBestTime_NoRecalculationPerPositionChange()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      (new ViewConfigurator(race)).ConfigureRace(race);
+      for (int i = 0; i < 20; i++)
+        tg.createRaceParticipant();
+      var run1 = race.GetRun(0);
+      for (uint i = 1; i < 20; i++)
+        run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+
+      var basedOnPrevious = new BasedOnResultsFirstRunStartListViewProvider(0, true);
+      basedOnPrevious.Init(run1);
+      var basedOnSum = new BasedOnResultsFirstRunStartListViewProvider(0, true, BasedOnResultsFirstRunStartListViewProvider.EBasedOn.SumOfPreviousRuns);
+      basedOnSum.Init(run1);
+      var secondRunFiltered = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending, false);
+      secondRunFiltered.Init(run1);
+      var teamResults = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Time, NumberOfMembersMax = 3 });
+      teamResults.Init(race, tg.Model);
+
+      // Each of them rebuilds its list completely (Reset) when recalculating
+      var lists = new Dictionary<string, System.Collections.IEnumerable>
+      {
+        { "basedOnPrevious", basedOnPrevious.GetViewList() },
+        { "basedOnSum", basedOnSum.GetViewList() },
+        { "secondRunFiltered", secondRunFiltered.GetViewList() },
+        { "teamResults", (System.Collections.IEnumerable)teamResults.GetView().SourceCollection },
+      };
+      var resets = new Dictionary<string, int>();
+      foreach (var l in lists)
+        resets[l.Key] = 0;
+      foreach (var l in lists)
+        ((System.Collections.Specialized.INotifyCollectionChanged)l.Value).CollectionChanged += (s, e) => { if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) resets[l.Key]++; };
+
+      // Participant 20 becomes the fastest
+      run1.SetRunTime(race.GetParticipant(20), TimeSpan.FromSeconds(50));
+
+      string counts = string.Join(", ", System.Linq.Enumerable.Select(resets, r => r.Key + "=" + r.Value));
+      foreach (var r in resets)
+        Assert.IsTrue(r.Value <= 4, counts); // Was 138 resets for each start list and 130 for the team results
+
+      // Still correct: the new best starts last (no reverse), the positions within the run are copied into the race results
+      Assert.AreEqual(20U, basedOnPrevious.GetViewList()[0].StartNumber);
+      Assert.AreEqual(20U, basedOnSum.GetViewList()[0].StartNumber);
+      var raceResults = race.GetResultViewProvider().GetViewList();
+      var rri1 = System.Linq.Enumerable.First(raceResults, r => r.Participant.StartNumber == 1);
+      Assert.AreEqual(2U, rri1.SubResults[1].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(1), rri1.SubResults[1].DiffToFirst);
+    }
   }
 }

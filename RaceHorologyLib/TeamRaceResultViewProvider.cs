@@ -316,6 +316,10 @@ namespace RaceHorologyLib
 
     private void OnRaceResultItem_Changed(object sender, PropertyChangedEventArgs e)
     {
+      // Teams are based on time, points and result of their members, not on positions (neither in the race nor in the runs)
+      if (ViewProviderHelpers.IsPositionProperty(e) || e?.PropertyName == nameof(RaceResultItem.SubResults))
+        return;
+
       Calculate();
     }
 
