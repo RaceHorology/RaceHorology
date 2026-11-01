@@ -7,6 +7,7 @@ import { useMetaData } from './api/metaData'
 import logo from './assets/rh-logo.svg'
 import ConnectionStatus from './components/ConnectionStatus'
 import LiveTab from './components/LiveTab'
+import RaceResultTab from './components/RaceResultTab'
 import RunResultTab from './components/RunResultTab'
 import StartListTab from './components/StartListTab'
 
@@ -35,6 +36,9 @@ export default function App() {
           </Tab>
           <Tab eventKey="runresults" title="Einzelergebnisse">
             <RunResultTab liveData={liveData} meta={meta} />
+          </Tab>
+          <Tab eventKey="raceresults" title="Rennergebnis">
+            <RaceResultTab liveData={liveData} meta={meta} />
           </Tab>
         </Tabs>
       </Container>
