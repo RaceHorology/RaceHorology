@@ -33,11 +33,6 @@
   background-color: var(--rh-bg4);
 }
 
-/* The lists are compact (attributes and run times stacked), so they need no more than this width */
-.rh-content {
-  max-width: 60rem;
-}
-
 /* Tabs */
 .nav-tabs {
   background-color: var(--rh-bg1);
@@ -81,36 +76,12 @@
   padding: 0.4rem 0.5rem;
 }
 
-.rh-table > thead > tr > th,
-.rh-table > tfoot > tr > th,
-.rh-table > tbody > tr > th.rh-section-label {
+.rh-table > thead > tr > th {
   --bs-table-bg: var(--rh-fg2);
   --bs-table-color: white;
   --bs-table-bg-state: var(--rh-fg2);
   color: white;
   vertical-align: middle;
-}
-
-/* Sections of the live table: label written vertically on both sides, divider between the sections */
-.rh-table > tbody > tr > th.rh-section-label {
-  width: 1px;
-  padding: 0.4rem 0.25rem;
-  text-align: center;
-}
-
-.rh-section-label > span {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-style: italic;
-  white-space: nowrap;
-}
-
-.rh-table > tbody.rh-section + tbody.rh-section {
-  border-top: 4px solid var(--rh-fg2);
-}
-
-.rh-table > tfoot {
-  border-top: 4px solid var(--rh-fg2);
 }
 
 .rh-table > tbody > tr.just-modified > * {
@@ -123,7 +94,7 @@
   text-align: center;
 }
 
-/* Section heading rows of the live table, only shown on phones instead of the vertical labels */
+/* Section heading rows of the live table ("Am Start", "Im Lauf", "Im Ziel") */
 .rh-table > tbody > tr.rh-section-heading > th {
   --bs-table-bg: var(--rh-bg4);
   --bs-table-bg-state: var(--rh-bg4);
@@ -133,41 +104,39 @@
   border-left: 4px solid var(--rh-fg2);
 }
 
-@media (min-width: 768px) {
-  .rh-table > tbody > tr.rh-section-heading {
-    display: none;
-  }
+/*
+ * Compact levels of the lists, set by useCompactLevel only as far as needed for the lists to fit:
+ *   1: first name, club and class within the name cell (.rh-c1-*)
+ *   2: run times and remark within the time cell (.rh-c2-*)
+ *   3: abbreviated column headers, smaller font (.rh-c3-*)
+ * .rh-cN-col is hidden from level N on, .rh-cN-inline is shown from level N on.
+ */
+.rh-c1-inline,
+.rh-c2-inline,
+.rh-c3-inline {
+  display: none;
 }
 
-@media (max-width: 767.98px) {
-  .rh-table .rh-label-col,
-  .rh-table > tfoot {
-    display: none;
-  }
+.rh-compact-1 .rh-c1-col,
+.rh-compact-2 .rh-c2-col,
+.rh-compact-3 .rh-c3-col {
+  display: none;
 }
 
-/* Column headers are abbreviated on narrow screens (see ShortHeader) */
-@media (min-width: 768px) {
-  .rh-narrow-only {
-    display: none;
-  }
+.rh-compact-1 .rh-c1-inline,
+.rh-compact-2 .rh-c2-inline,
+.rh-compact-3 .rh-c3-inline {
+  display: revert;
 }
 
-@media (max-width: 767.98px) {
-  .rh-wide-only {
-    display: none;
-  }
+.rh-compact-3 .rh-table {
+  font-size: 0.875rem;
+}
 
-  /* Compact lists, so that they fit on phones */
-  .rh-table {
-    font-size: 0.875rem;
-  }
+.rh-compact-3 .rh-table > :not(caption) > * > * {
+  padding: 0.3rem 0.3rem;
+}
 
-  .rh-table > :not(caption) > * > * {
-    padding: 0.3rem 0.3rem;
-  }
-
-  .rh-table td.rh-name {
-    overflow-wrap: anywhere;
-  }
+.rh-compact-3 .rh-table td.rh-name {
+  overflow-wrap: anywhere;
 }

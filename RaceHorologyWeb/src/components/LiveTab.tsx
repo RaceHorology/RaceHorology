@@ -7,6 +7,7 @@ import { position, startNumber } from './format'
 import GroupedTable from './GroupedTable'
 import { NameCell, NameHeader, ShortHeader } from './participantColumns'
 import { raceResultColumns, Remark, RunTimes } from './raceResultColumns'
+import { useCompactLevel } from './useCompactLevel'
 
 /** Number of participants of the same group in a row after which the race result follows that group */
 const AUTO_FILTER_FINISHERS = 3
@@ -37,73 +38,70 @@ interface LiveSectionProps {
   runs: number
 }
 
-/** Number of data columns: start number, name (with first name and club), category, year, time */
-const DATA_COLUMNS = 5
+/** Number of columns without the run times: start number, name, first name, category, year, club, time, remark */
+const FIXED_COLUMNS = 8
 
-function LiveHeaderRow() {
+function LiveHeaderRow({ runs }: { runs: number }) {
   return (
     <tr>
-      <th className="rh-label-col"></th>
       <th className="text-center">StNr</th>
       <th>
         <NameHeader />
       </th>
+      <th className="rh-c1-col">Vorname</th>
       <th className="text-center">
         <ShortHeader long="Kategorie" short="Kat." />
       </th>
       <th className="text-center">
         <ShortHeader long="Jahrgang" short="Jg." />
       </th>
+      <th className="rh-c1-col">Verein</th>
+      {Array.from({ length: runs }, (_, i) => (
+        <th key={i} className="text-end rh-c2-col">
+          Zeit {i + 1}
+        </th>
+      ))}
       <th className="text-end">Zeit</th>
-      <th className="rh-label-col"></th>
+      <th className="rh-c2-col"></th>
     </tr>
   )
 }
 
-/**
- * Vertical section label on both sides of the table, spanning all rows of the section (as in the previous client).
- * Phones show a heading row above the section instead (see theme.css).
- */
-function SectionLabel({ title, rows }: { title: string; rows: number }) {
-  return (
-    <th rowSpan={rows} className="rh-section-label rh-label-col">
-      <span>{title}</span>
-    </th>
-  )
-}
-
 function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
-  const columns = DATA_COLUMNS
-  const label = <SectionLabel title={title} rows={Math.max(rows.length, 1)} />
+  const columns = FIXED_COLUMNS + runs
   return (
-    <tbody className="rh-section">
+    <tbody>
       <tr className="rh-section-heading">
-        <th colSpan={columns + 2}>{title}</th>
+        <th colSpan={columns}>{title}</th>
       </tr>
       {rows.length === 0 && (
         <tr>
-          {label}
           <td colSpan={columns} className="text-center text-body-secondary fst-italic">
             {emptyText}
           </td>
-          {label}
         </tr>
       )}
-      {rows.map(({ participant: p, runtimes, time, position: pos, remark }, i) => (
+      {rows.map(({ participant: p, runtimes, time, position: pos, remark }) => (
         <tr key={p.Id}>
-          {i === 0 && label}
           <td className="text-center">{startNumber(p)}</td>
           <td className="rh-name">
             <NameCell p={p} />
           </td>
+          <td className="rh-c1-col">{p.Firstname}</td>
           <td className="text-center">{p.Sex}</td>
           <td className="text-center">{p.Year}</td>
+          <td className="rh-c1-col">{p.Club}</td>
+          {Array.from({ length: runs }, (_, i) => (
+            <td key={i} className="text-end text-nowrap rh-c2-col">
+              {runtimes[i]?.Runtime} {position(runtimes[i]?.Position)}
+            </td>
+          ))}
           <td className="text-end text-nowrap fw-bold">
             {time} {position(pos)}
             <Remark text={remark} />
             <RunTimes runtimes={runtimes} runs={runs} />
           </td>
-          {i === 0 && label}
+          <td className="rh-c2-col">{remark}</td>
         </tr>
       ))}
     </tbody>
@@ -145,33 +143,33 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
       setFilterBy(autoFilter)
   }, [autoFilter])
 
+  const compact = useCompactLevel([onStart, onTrack, justFinished, raceResult, runs])
+
   const groups = Object.keys(raceResult?.data ?? {}).filter((g) => g !== '')
   const activeFilter = groups.includes(filterBy) ? filterBy : ''
 
   return (
     <>
-      <Table hover bordered size="sm" responsive className="rh-table mb-4">
-        <thead>
-          <LiveHeaderRow />
-        </thead>
-        <LiveSection
-          title="Am Start"
-          rows={[...onStart].reverse().map(withRuntimes)}
-          emptyText="keine weiteren Starter"
-          runs={runs}
-        />
-        <LiveSection
-          title="Im Lauf"
-          rows={[...onTrack].reverse().map((p) => ({ ...withRuntimes(p), time: p.Runtime, remark: p.DisqualText }))}
-          emptyText="keine Läufer gestartet"
-          runs={runs}
-        />
-        <LiveSection title="Im Ziel" rows={finishedRows} emptyText="noch kein Läufer im Ziel" runs={runs} />
-        {/* Repeated below, so that header, footer and the vertical section labels frame the table */}
-        <tfoot>
-          <LiveHeaderRow />
-        </tfoot>
-      </Table>
+      <div ref={compact.ref} className={compact.className}>
+        <Table hover bordered size="sm" responsive className="rh-table mb-4">
+          <thead>
+            <LiveHeaderRow runs={runs} />
+          </thead>
+          <LiveSection
+            title="Am Start"
+            rows={[...onStart].reverse().map(withRuntimes)}
+            emptyText="keine weiteren Starter"
+            runs={runs}
+          />
+          <LiveSection
+            title="Im Lauf"
+            rows={[...onTrack].reverse().map((p) => ({ ...withRuntimes(p), time: p.Runtime, remark: p.DisqualText }))}
+            emptyText="keine Läufer gestartet"
+            runs={runs}
+          />
+          <LiveSection title="Im Ziel" rows={finishedRows} emptyText="noch kein Läufer im Ziel" runs={runs} />
+        </Table>
+      </div>
 
       {raceResult && (
         <section>
