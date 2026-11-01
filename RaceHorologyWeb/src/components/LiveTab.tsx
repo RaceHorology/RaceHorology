@@ -38,22 +38,32 @@ interface LiveSectionProps {
 
 const participantHeaders = ['Name', 'Vorname', 'Kategorie', 'Jahrgang', 'Verein']
 
+/** Vertical section label on both sides of the table, spanning all rows of the section (as in the previous client) */
+function SectionLabel({ title, rows }: { title: string; rows: number }) {
+  return (
+    <th rowSpan={rows} className="rh-section-label">
+      <span>{title}</span>
+    </th>
+  )
+}
+
 function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
   const columns = 1 + participantHeaders.length + runs + 2
+  const label = <SectionLabel title={title} rows={Math.max(rows.length, 1)} />
   return (
-    <tbody>
-      <tr className="rh-section">
-        <th colSpan={columns}>{title}</th>
-      </tr>
+    <tbody className="rh-section">
       {rows.length === 0 && (
         <tr>
+          {label}
           <td colSpan={columns} className="text-center text-body-secondary fst-italic">
             {emptyText}
           </td>
+          {label}
         </tr>
       )}
-      {rows.map(({ participant: p, runtimes, time, position: pos, remark }) => (
+      {rows.map(({ participant: p, runtimes, time, position: pos, remark }, i) => (
         <tr key={p.Id}>
+          {i === 0 && label}
           <td className="text-center">{startNumber(p)}</td>
           <td>{p.Name}</td>
           <td>{p.Firstname}</td>
@@ -69,6 +79,7 @@ function LiveSection({ title, rows, emptyText, runs }: LiveSectionProps) {
             {time} {position(pos)}
           </td>
           <td>{remark}</td>
+          {i === 0 && label}
         </tr>
       ))}
     </tbody>
@@ -118,6 +129,7 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
       <Table hover bordered size="sm" responsive className="rh-table mb-4">
         <thead>
           <tr>
+            <th></th>
             <th className="text-center">StNr</th>
             {participantHeaders.map((h) => (
               <th key={h} className={h === 'Kategorie' || h === 'Jahrgang' ? 'text-center' : undefined}>
@@ -130,6 +142,7 @@ export default function LiveTab({ liveData, meta }: { liveData: LiveData; meta: 
               </th>
             ))}
             <th className="text-end">Zeit</th>
+            <th></th>
             <th></th>
           </tr>
         </thead>
