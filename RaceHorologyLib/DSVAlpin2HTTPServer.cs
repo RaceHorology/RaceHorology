@@ -507,10 +507,14 @@ namespace RaceHorologyLib
       OnDataModelChanged(_server.DataModel);
     }
 
+    /// <remarks>Called multiple times (on close, on error and by the finalizer)</remarks>
     protected virtual void TearDown()
     {
-      _server.DataModelChanged -= OnDataModelChanged;
-      _server = null;
+      if (_server != null)
+      {
+        _server.DataModelChanged -= OnDataModelChanged;
+        _server = null;
+      }
     }
 
     protected abstract void OnDataModelChanged(AppDataModel dm);
@@ -565,6 +569,9 @@ namespace RaceHorologyLib
     {
       while (_liveProvider.Count() > 0)
         Remove(_liveProvider[_liveProvider.Count() - 1]);
+
+      // Otherwise closed connections keep on getting their providers re-created whenever a database is opened
+      base.TearDown();
     }
 
 
@@ -584,6 +591,11 @@ namespace RaceHorologyLib
         Add(new OnTrackEventsProvider(dm));
         //Add(new RaceRunDataProvider(dm));
         Add(new RaceResultDataProvider(dm));
+
+        // Clients connected before the database was opened already asked for the initial data
+        if (State == WebSocketState.Open)
+          foreach (var p in _liveProvider)
+            p.SendInitial();
       }
     }
 
