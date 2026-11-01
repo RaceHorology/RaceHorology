@@ -33,6 +33,9 @@ export default function StartListTab({ meta }: { meta: MetaData['data'] | null }
 
   useEffect(load, [load])
 
+  // A filter for a group that no longer exists (e.g. after changing the run) shows everything
+  const activeFilter = startList && filterBy in startList.data ? filterBy : ''
+
   return (
     <>
       <ListOptions
@@ -44,14 +47,14 @@ export default function StartListTab({ meta }: { meta: MetaData['data'] | null }
           setGroupBy(g)
           setFilterBy('')
         }}
-        effectiveGroupBy={startList?.groupby ?? ''}
-        filterBy={filterBy}
+        filterItems={startList ? Object.keys(startList.data) : []}
+        filterBy={activeFilter}
         onFilterByChange={setFilterBy}
         onRefresh={load}
       />
       {error && <Alert variant="warning">{error}</Alert>}
       {startList && (
-        <GroupedTable data={startList.data} columns={columns} rowKey={(e) => e.Id} filterBy={filterBy} />
+        <GroupedTable data={startList.data} columns={columns} rowKey={(e) => e.Id} filterBy={activeFilter} />
       )}
     </>
   )

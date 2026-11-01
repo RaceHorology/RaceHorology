@@ -9,20 +9,6 @@ const groupingNames: Record<Grouping, string> = {
   Sex: 'Kategorie',
 }
 
-/** Names of the groups the list can be filtered by, for the given grouping */
-function filterItems(meta: MetaData['data'], grouping: string): string[] {
-  switch (grouping) {
-    case 'Class':
-      return meta.classes.map((c) => c.Name)
-    case 'Group':
-      return meta.groups.map((g) => g.Name)
-    case 'Sex':
-      return meta.sex
-    default:
-      return []
-  }
-}
-
 export interface ListOptionsProps {
   meta: MetaData['data'] | null
   /** Selected run (0-based); omit to hide the run selection */
@@ -30,8 +16,8 @@ export interface ListOptionsProps {
   onRunChange?: (run: number) => void
   groupBy: Grouping | ''
   onGroupByChange: (groupBy: Grouping | '') => void
-  /** Grouping the server actually applied (its default if groupBy is empty) */
-  effectiveGroupBy: string
+  /** Group names of the current list to filter by */
+  filterItems: string[]
   filterBy: string
   onFilterByChange: (filterBy: string) => void
   onRefresh: () => void
@@ -39,7 +25,8 @@ export interface ListOptionsProps {
 
 export default function ListOptions(props: ListOptionsProps) {
   const { meta } = props
-  const items = meta ? filterItems(meta, props.effectiveGroupBy) : []
+  // Ungrouped lists only have the empty group name
+  const items = props.filterItems.filter((i) => i !== '')
 
   return (
     <Stack direction="horizontal" gap={2} className="flex-wrap justify-content-center mb-3">
