@@ -185,6 +185,12 @@ namespace RaceHorologyLib
         groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
       else if (_groupingPropertyName == "Participant.Sex")
         groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
+      else if (_groupingPropertyName == "Participant.Club")
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Club, rrY.Participant.Participant.Club);
+      else if (_groupingPropertyName == "Participant.Nation")
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Nation, rrY.Participant.Participant.Nation);
+      else if (_groupingPropertyName == "Participant.Team")
+        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Team, rrY.Participant.Participant.Team);
 
       return groupCompare;
     }
@@ -379,7 +385,7 @@ namespace RaceHorologyLib
 
     protected override void sortViewList()
     {
-      if (_viewList == null)
+      if (_viewList == null || _viewList.Count == 0)
         return;
 
       // Re-Sort based on DSV Strategy per Group
@@ -1514,10 +1520,12 @@ namespace RaceHorologyLib
           g2.Key,
           g2.BestTime,
           CutOffTime = g2.BestTime == null ? (TimeSpan?)null : getCutOffTime((TimeSpan)g2.BestTime)
-        });
+        })
+        .ToList();
 
+      // Equals() instead of ==, since the keys are boxed objects (e.g. strings for club or nation)
       foreach (PenaltyRunResultWithPosition item in _viewList)
-        item.SetCutOffTime(groups.Where(g => g.Key == PropertyUtilities.GetPropertyValue(item, _activeGrouping)).First().CutOffTime);
+        item.SetCutOffTime(groups.First(g => Equals(g.Key, PropertyUtilities.GetPropertyValue(item, _activeGrouping))).CutOffTime);
     }
 
     protected TimeSpan getCutOffTime(TimeSpan referenceTime)
@@ -1531,7 +1539,10 @@ namespace RaceHorologyLib
 
     protected override void updatePositions()
     {
+      // A changed cut off time changes the runtimes of other participants as well,
+      // so the list has to be sorted again after the cut off time got updated
       updateCutOffTime();
+      _viewList.Sort(_comparer);
       base.updatePositions();
     }
 
@@ -1749,7 +1760,11 @@ namespace RaceHorologyLib
       }
 
       if (updateAll)
+      {
+        // Keep the runs ordered by run number, the time combination may depend on it (e.g. SumMxBestOfN)
+        _lastConsideredRuns.Sort((a, b) => a.Run.CompareTo(b.Run));
         UpdateAll();
+      }
     }
 
     private void UpdateAll()
@@ -1780,18 +1795,20 @@ namespace RaceHorologyLib
       }
       var includeParticipant = _race.GetParticipants().SingleOrDefault(x => x == participant) != null;
 
+      bool entryAdded = false;
       RaceResultItem rri = _viewList.SingleOrDefault(x => x.Participant == participant);
       if (rri == null && includeParticipant)
       { // Add Entry
         rri = new RaceResultItem(participant);
         _viewList.Add(rri);
         significantChange = true;
+        entryAdded = true;
       }
       else if (rri != null && !includeParticipant)
       {
-        // Remove Entry
+        // Remove Entry, positions of the remaining entries have to be updated
         _viewList.Remove(rri);
-        significantChange = true;
+        return true;
       }
 
       if (rri == null)
@@ -1832,7 +1849,8 @@ namespace RaceHorologyLib
         "no significant change but time did change!!!"
         );
 
-      if (significantChange && rri.TotalTime == oldTime)
+      // A new entry has been appended at the end and has to be sorted in, even without a time
+      if (significantChange && rri.TotalTime == oldTime && !entryAdded)
       {
         Logger.Debug("Significant change although time did not change: {0}", rri.TotalTime);
         return false;
