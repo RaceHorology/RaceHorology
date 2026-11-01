@@ -17,12 +17,8 @@
       <ComponentRef Id="ApplicationShortcut" />
       <ComponentGroupRef Id="locales_files" />
       <ComponentGroupRef Id="runtimes_win_x86_native_files" />
-      <ComponentGroupRef Id="webroot_css_files" />
-      <ComponentGroupRef Id="webroot_img_files" />
-      <ComponentGroupRef Id="webroot_files" />
-      <ComponentGroupRef Id="webroot_Js_files" />
       <!-- Harvested by Heat from the RaceHorologyWeb build output, see RaceHorologySetup.wixproj -->
-      <ComponentGroupRef Id="webroot_next_files" />
+      <ComponentGroupRef Id="webroot_files" />
       <ComponentGroupRef Id="INSTALLFOLDER_files" />
       <ComponentGroupRef Id="raceconfigpresets_files" />
       <ComponentGroupRef Id="dbtemplates_files" />
@@ -58,12 +54,7 @@
             </Directory>
           </Directory>
           <Directory Id="locales" Name="locales" />
-          <Directory Id="webroot" Name="webroot">
-            <Directory Id="webroot_css" Name="css" />
-            <Directory Id="webroot_img" Name="img" />
-            <Directory Id="webroot_Js" Name="Js" />
-            <Directory Id="webroot_next" Name="next" />
-          </Directory>
+          <Directory Id="webroot" Name="webroot" />
           <Directory Id="ExtSources" Name="ExtSources" />
           <Directory Id="raceconfigpresets" Name="raceconfigpresets" />
           <Directory Id="dbtemplates" Name="dbtemplates" />
@@ -1137,36 +1128,6 @@
   </Fragment>
 
   <Fragment>
-    <ComponentGroup Id="webroot_css_files" Directory="webroot_css">
-      <Component Id="webroot_css_bootstrap.min.css" Guid="1f0af17d-0ab2-4c8b-9d8d-2472f57ad294">
-        <File Id="webroot_css_bootstrap.min.css" Name="bootstrap.min.css" Source="$(var.RaceHorology_TargetDir)webroot\css\bootstrap.min.css" />
-      </Component>
-      <Component Id="webroot_css_bootstrap_vue.min.css" Guid="6f09fde2-0a89-43cc-bf1a-ac25613e41be">
-        <File Id="webroot_css_bootstrap_vue.min.css" Name="bootstrap-vue.min.css" Source="$(var.RaceHorology_TargetDir)webroot\css\bootstrap-vue.min.css" />
-      </Component>
-      <Component Id="webroot_css_styles.css" Guid="1ce54bdd-9882-4dff-93c4-3fdca17e117f">
-        <File Id="webroot_css_styles.css" Name="styles.css" Source="$(var.RaceHorology_TargetDir)webroot\css\styles.css" />
-      </Component>
-    </ComponentGroup>
-  </Fragment>
-
-  <Fragment>
-    <ComponentGroup Id="webroot_img_files" Directory="webroot_img">
-      <Component Id="webroot_img_RH_LOGO.svg" Guid="7ea022e6-cc64-4ac0-a830-faded4227508">
-        <File Id="webroot_img_RH_LOGO.svg" Name="RH-LOGO.svg" Source="$(var.RaceHorology_TargetDir)webroot\img\RH-LOGO.svg" />
-      </Component>
-    </ComponentGroup>
-  </Fragment>
-
-  <Fragment>
-    <ComponentGroup Id="webroot_files" Directory="webroot">
-      <Component Id="webroot_index.html" Guid="2f768f6c-5b94-4985-8b20-6f4a35956af1">
-        <File Id="webroot_index.html" Name="index.html" Source="$(var.RaceHorology_TargetDir)webroot\index.html" />
-      </Component>
-    </ComponentGroup>
-  </Fragment>
-
-  <Fragment>
     <ComponentGroup Id="dbtemplates_files" Directory="dbtemplates">
       <Component Id="dbtemplates_TemplateDB_Standard.mdb" Guid="40eba8ff-d986-4c32-91f1-6ef06577954d">
         <File Id="dbtemplates_TemplateDB_Standard.mdb" Name="TemplateDB_Standard.mdb" KeyPath="yes" Source="$(var.HarvestPath)\dbtemplates\TemplateDB_Standard.mdb" />
@@ -1269,41 +1230,6 @@
       </Component>
       <Component Id="raceconfigpresets_Vielseitigkeit_Punkte.preset" Guid="33a70d88-6a3e-4712-afdc-3d6f784b6031">
         <File Id="raceconfigpresets_Vielseitigkeit_Punkte.preset" KeyPath="yes" Source="$(var.HarvestPath)\raceconfigpresets\Vielseitigkeit (Punkte).preset" />
-      </Component>
-    </ComponentGroup>
-  </Fragment>
-
-  <Fragment>
-    <ComponentGroup Id="webroot_Js_files" Directory="webroot_Js">
-      <Component Id="webroot_Js_bootstrap.bundle.min.js" Guid="e493d423-4d1d-4093-b6c9-622aecb3fcf4">
-        <File Id="webroot_Js_bootstrap.bundle.min.js" Name="bootstrap.bundle.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\bootstrap.bundle.min.js" />
-      </Component>
-      <Component Id="webroot_Js_bootstrap.min.js" Guid="b77fc248-b55a-4d28-887a-479275b2da4c">
-        <File Id="webroot_Js_bootstrap.min.js" Name="bootstrap.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\bootstrap.min.js" />
-      </Component>
-      <Component Id="webroot_Js_bootstrap_vue.min.js" Guid="e462332d-3faf-4e77-b305-dae5db09e4a9">
-        <File Id="webroot_Js_bootstrap_vue.min.js" Name="bootstrap-vue.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\bootstrap-vue.min.js" />
-      </Component>
-      <Component Id="webroot_Js_DSVAlpin2.js" Guid="8ac1a7c5-ae90-44b4-aeb8-d5b59bb97ae8">
-        <File Id="webroot_Js_DSVAlpin2.js" Name="DSVAlpin2.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\DSVAlpin2.js" />
-      </Component>
-      <Component Id="webroot_Js_echotest.js" Guid="0c77922e-25a9-436c-aec2-5e5d72d5b0a7">
-        <File Id="webroot_Js_echotest.js" Name="echotest.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\echotest.js" />
-      </Component>
-      <Component Id="webroot_Js_jquery_3.4.1.min.js" Guid="d039c2f0-f057-4a8c-a75e-af58e0213ee3">
-        <File Id="webroot_Js_jquery_3.4.1.min.js" Name="jquery-3.4.1.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\jquery-3.4.1.min.js" />
-      </Component>
-      <Component Id="webroot_Js_jquery_3.4.1.slim.min.js" Guid="0cfc49ab-c2d7-4219-882c-d688c9fa6d00">
-        <File Id="webroot_Js_jquery_3.4.1.slim.min.js" Name="jquery-3.4.1.slim.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\jquery-3.4.1.slim.min.js" />
-      </Component>
-      <Component Id="webroot_Js_popper.min.js" Guid="b33904db-b0bf-4eb7-8d4b-13c470ca343c">
-        <File Id="webroot_Js_popper.min.js" Name="popper.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\popper.min.js" />
-      </Component>
-      <Component Id="webroot_Js_vue.js" Guid="10d6e086-e2aa-456b-a97f-d9d07d796dc2">
-        <File Id="webroot_Js_vue.js" Name="vue.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\vue.js" />
-      </Component>
-      <Component Id="webroot_Js_vue.min.js" Guid="04c1df54-9e26-49ab-bc16-3ebd33f09bb0">
-        <File Id="webroot_Js_vue.min.js" Name="vue.min.js" Source="$(var.RaceHorology_TargetDir)webroot\Js\vue.min.js" />
       </Component>
     </ComponentGroup>
   </Fragment>
