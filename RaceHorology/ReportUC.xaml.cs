@@ -205,6 +205,11 @@ namespace RaceHorology
       var settings = pdfViewer.CoreWebView2.Settings;
       settings.AreDevToolsEnabled = false;
       settings.IsStatusBarEnabled = false;
+      // Printing and saving are done with the buttons below the preview
+      settings.HiddenPdfToolbarItems =
+        CoreWebView2PdfToolbarItems.Print | CoreWebView2PdfToolbarItems.Save | CoreWebView2PdfToolbarItems.SaveAs |
+        CoreWebView2PdfToolbarItems.FullScreen | CoreWebView2PdfToolbarItems.Rotate | CoreWebView2PdfToolbarItems.PageLayout |
+        CoreWebView2PdfToolbarItems.MoreSettings;
 
       pdfViewer.CoreWebView2.AddWebResourceRequestedFilter(PdfViewerBaseUrl + "*", CoreWebView2WebResourceContext.All);
       pdfViewer.CoreWebView2.WebResourceRequested += pdfViewer_WebResourceRequested;
