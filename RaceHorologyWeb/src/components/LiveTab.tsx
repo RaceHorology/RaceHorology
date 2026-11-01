@@ -3,6 +3,7 @@ import Form from 'react-bootstrap/Form'
 import Table from 'react-bootstrap/Table'
 import { currentRunIndex, type LiveData } from '../api/liveData'
 import type { GroupedData, MetaData, Participant, RaceResultEntry, RaceResultRuntime } from '../api/types'
+import { position, startNumber } from './format'
 import GroupedTable, { type Column } from './GroupedTable'
 
 /** Number of participants of the same group in a row after which the race result follows that group */
@@ -16,14 +17,6 @@ function findEntry<T extends Participant>(data: GroupedData<T> | undefined, p: P
       return [group, entry]
   }
   return undefined
-}
-
-function startNumber(p: Participant) {
-  return p.StartNumber === 0 ? '---' : p.StartNumber
-}
-
-function position(pos: number | undefined) {
-  return pos ? `(${pos})` : ''
 }
 
 interface LiveRow {
