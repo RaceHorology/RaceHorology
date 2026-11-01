@@ -767,6 +767,10 @@ namespace RaceHorologyLib
     private RaceResultViewProvider _raceResultsProvider;
     private TeamRaceResultViewProvider _teamResultsProvider;
 
+    /// <summary>PropertyChanged is raised with these names if a view provider has been replaced (e.g. new race configuration)</summary>
+    public const string ResultViewProviderProperty = "ResultViewProvider";
+    public const string TeamResultsViewProviderProperty = "TeamResultsViewProvider";
+
 
     public ERaceType RaceType { get { return _properties.RaceType; } }
     public string RaceNumber { get { return _addProperties?.RaceNumber; } }
@@ -1088,6 +1092,10 @@ namespace RaceHorologyLib
       // Un-Observe properties
       rr.PropertyChanged -= raceRun_PropertyChanged;
 
+      // The view providers of the run would keep on calculating otherwise
+      rr.GetStartListProvider()?.Dispose();
+      rr.GetResultViewProvider()?.Dispose();
+
       // TODO
       //rr.Dispose();
       //ddrr.Dispose();
@@ -1262,7 +1270,15 @@ namespace RaceHorologyLib
 
     public void SetResultViewProvider(RaceResultViewProvider raceVP)
     {
+      if (_raceResultsProvider == raceVP)
+        return;
+
+      var oldVP = _raceResultsProvider;
       _raceResultsProvider = raceVP;
+      NotifyPropertyChanged(ResultViewProviderProperty);
+
+      // Observers switched to the new provider, the old one would keep on calculating otherwise
+      oldVP?.Dispose();
     }
 
 
@@ -1272,7 +1288,15 @@ namespace RaceHorologyLib
     }
     public void SetTeamResultsViewProvider(TeamRaceResultViewProvider vp)
     {
+      if (_teamResultsProvider == vp)
+        return;
+
+      var oldVP = _teamResultsProvider;
       _teamResultsProvider = vp;
+      NotifyPropertyChanged(TeamResultsViewProviderProperty);
+
+      // Observers switched to the new provider, the old one would keep on calculating otherwise
+      oldVP?.Dispose();
     }
 
 
@@ -1482,6 +1506,10 @@ namespace RaceHorologyLib
     private StartListViewProvider _slVP;
     private ResultViewProvider _rvp;
 
+    /// <summary>PropertyChanged is raised with these names if a view provider has been replaced (e.g. new race configuration)</summary>
+    public const string StartListProviderProperty = "StartListProvider";
+    public const string ResultViewProviderProperty = "ResultViewProvider";
+
 
     /// <summary>
     /// Constructor
@@ -1586,6 +1614,7 @@ namespace RaceHorologyLib
 
     public void SetStartListProvider(StartListViewProvider slp)
     {
+      var oldVP = _slVP;
       if (_slVP != null)
         _slVP.GetViewList().CollectionChanged -= startListVP_CollectionChanged;
 
@@ -1595,6 +1624,12 @@ namespace RaceHorologyLib
 
       _UpdateInternals();
       sortInFinish();
+
+      NotifyPropertyChanged(StartListProviderProperty);
+
+      // Observers switched to the new provider, the old one would keep on calculating otherwise
+      if (oldVP != slp)
+        oldVP?.Dispose();
     }
 
     private void startListVP_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -1609,8 +1644,17 @@ namespace RaceHorologyLib
 
     public void SetResultViewProvider(ResultViewProvider rvp)
     {
+      if (_rvp == rvp)
+        return;
+
+      var oldVP = _rvp;
       _rvp = rvp;
       _UpdateInternals();
+
+      NotifyPropertyChanged(ResultViewProviderProperty);
+
+      // Observers switched to the new provider, the old one would keep on calculating otherwise
+      oldVP?.Dispose();
     }
 
     public ResultViewProvider GetResultViewProvider()

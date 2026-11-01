@@ -89,21 +89,34 @@ namespace RaceHorologyLib
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      if (e.OldItems != null)
-        foreach (INotifyPropertyChanged item in e.OldItems)
-        {
-          _observedItems.Remove(item);
+      // Reset does not provide the old and new items (e.g. Clear() or InsertRange()) => observe all items anew
+      if (e.Action == NotifyCollectionChangedAction.Reset)
+      {
+        foreach (var item in _observedItems)
           item.PropertyChanged -= ItemPropertyChanged;
-        }
-      if (e.NewItems != null)
-        foreach (INotifyPropertyChanged item in e.NewItems)
-        {
-          _observedItems.Add(item);
-          item.PropertyChanged += ItemPropertyChanged;
+        _observedItems.Clear();
+        Initialize();
+      }
 
-          ItemChangedEventHandler handler2 = ItemChanged;
-          handler2?.Invoke(item, null);//e = {System.ComponentModel.PropertyChangedEventArgs}
-        }
+      // Move provides the moved item as old and new item, but it neither leaves nor enters the collection
+      if (e.Action != NotifyCollectionChangedAction.Move)
+      {
+        if (e.OldItems != null)
+          foreach (INotifyPropertyChanged item in e.OldItems)
+          {
+            _observedItems.Remove(item);
+            item.PropertyChanged -= ItemPropertyChanged;
+          }
+        if (e.NewItems != null)
+          foreach (INotifyPropertyChanged item in e.NewItems)
+          {
+            _observedItems.Add(item);
+            item.PropertyChanged += ItemPropertyChanged;
+
+            ItemChangedEventHandler handler2 = ItemChanged;
+            handler2?.Invoke(item, null);//e = {System.ComponentModel.PropertyChangedEventArgs}
+          }
+      }
       NotifyCollectionChangedEventHandler handler = CollectionChanged;
       handler?.Invoke(sender, e);
     }
@@ -221,11 +234,13 @@ namespace RaceHorologyLib
 
 
 
-  public class CopyObservableCollection<TC, T> : ObservableCollection<TC> where T : class where TC : class
+  public class CopyObservableCollection<TC, T> : ObservableCollection<TC>, IDisposable where T : class where TC : class
   {
     protected ObservableCollection<T> _source;
     protected Cloner<TC, T> _cloner;
     protected bool _cloneOnPropertyChanged;
+    // Source items whose PropertyChanged is observed (needed to unhook on Reset, which does not provide the old items)
+    List<INotifyPropertyChanged> _observedItems = new List<INotifyPropertyChanged>();
 
     public delegate TClone Cloner<TClone, TSource>(TSource source);
     public CopyObservableCollection(ObservableCollection<T> source, Cloner<TC, T> cloner, bool cloneOnPropertyChanged)
@@ -239,9 +254,19 @@ namespace RaceHorologyLib
       FillInitially();
     }
 
-    ~CopyObservableCollection()
+    /// <summary>
+    /// Stops copying from the source. Needed, because the source keeps this collection alive via its events.
+    /// </summary>
+    public void Dispose()
     {
+      if (_source == null)
+        return;
+
       _source.CollectionChanged -= OnCollectionChanged;
+      foreach (var item in _observedItems)
+        item.PropertyChanged -= ItemPropertyChanged;
+      _observedItems.Clear();
+      _source = null;
     }
 
 
@@ -262,11 +287,20 @@ namespace RaceHorologyLib
         foreach (T item in e.OldItems)
         {
           if (item is INotifyPropertyChanged item2)
+          {
             item2.PropertyChanged -= ItemPropertyChanged;
+            _observedItems.Remove(item2);
+          }
         }
+      if (e.Action == NotifyCollectionChangedAction.Reset)
+      {
+        foreach (var item in _observedItems)
+          item.PropertyChanged -= ItemPropertyChanged;
+        _observedItems.Clear();
+      }
 
       // Sync Lists
-      int i, j;
+      int i;
       switch (e.Action)
       {
         case NotifyCollectionChangedAction.Add:
@@ -293,8 +327,13 @@ namespace RaceHorologyLib
 
           break;
         case NotifyCollectionChangedAction.Move:
-          for (i = e.OldStartingIndex, j = e.NewStartingIndex; i < e.OldItems.Count; i++, j++)
-            Move(i, j);
+          // Move a block of items; if moved forwards, start with the last item so that the indices of the others stay valid
+          if (e.NewStartingIndex > e.OldStartingIndex)
+            for (i = e.OldItems.Count - 1; i >= 0; i--)
+              Move(e.OldStartingIndex + i, e.NewStartingIndex + i);
+          else
+            for (i = 0; i < e.OldItems.Count; i++)
+              Move(e.OldStartingIndex + i, e.NewStartingIndex + i);
           break;
       }
 
@@ -303,7 +342,10 @@ namespace RaceHorologyLib
         foreach (T item in e.NewItems)
         {
           if (item is INotifyPropertyChanged item2)
+          {
             item2.PropertyChanged += ItemPropertyChanged;
+            _observedItems.Add(item2);
+          }
         }
     }
 
@@ -430,7 +472,11 @@ namespace RaceHorologyLib
     }
 
     /// <summary>
-    /// Sorts the collection in-place
+    /// Sorts the collection in-place (stable)
+    ///
+    /// Optimized for collections being sorted already except a few items (typically, a single value changed
+    /// during a race): a sorted collection takes O(n) comparisons and every misplaced item is moved directly
+    /// to its position. Thus, an ObservableCollection notifies one Move per misplaced item.
     /// </summary>
     /// <typeparam name="TC"></typeparam>
     /// <param name="collection">The collection to sort.</param>
@@ -447,24 +493,55 @@ namespace RaceHorologyLib
       if (last >= 0)
         lastElement = Math.Min(last, collection.Count - 1);
 
-      int n = lastElement;
-      bool swapped;
-      do
+      // Every move passes only items the moved item is in wrong order to, so the number of
+      // wrongly ordered pairs decreases with each move and equal items keep their order.
+      int i = firstElement;
+      while (i < lastElement)
       {
-        swapped = false;
-        for (int i = firstElement; i < n; ++i)
+        if (comparer.Compare(collection[i], collection[i + 1]) <= 0)
         {
-          if (comparer.Compare(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
-          {
-            TC temp = collection.ElementAt(i);
-            collection.RemoveAt(i);
-            collection.Insert(i + 1, temp);
-            swapped = true;
-          }
+          ++i;
+          continue;
         }
-        n--;
+
+        int from, to;
+        if (i + 2 <= lastElement && comparer.Compare(collection[i], collection[i + 2]) > 0)
+        {
+          // collection[i] is too big: move it behind all following smaller items
+          from = i;
+          to = i + 1;
+          while (to < lastElement && comparer.Compare(collection[from], collection[to + 1]) > 0)
+            ++to;
+        }
+        else
+        {
+          // collection[i + 1] is too small: move it in front of all preceding bigger items
+          from = i + 1;
+          to = i;
+          while (to > firstElement && comparer.Compare(collection[to - 1], collection[from]) > 0)
+            --to;
+        }
+
+        collection.MoveItem(from, to);
+
+        // Items in front of the moved range are still sorted
+        i = Math.Max(firstElement, Math.Min(from, to) - 1);
       }
-      while (swapped);
+    }
+
+    /// <summary>
+    /// Moves an item; uses ObservableCollection.Move() if possible to get a single Move notification
+    /// </summary>
+    static void MoveItem<TC>(this IList<TC> collection, int from, int to)
+    {
+      if (collection is ObservableCollection<TC> observable)
+        observable.Move(from, to);
+      else
+      {
+        TC item = collection[from];
+        collection.RemoveAt(from);
+        collection.Insert(to, item);
+      }
     }
 
 

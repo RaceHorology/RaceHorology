@@ -2427,6 +2427,75 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// A disposed view provider does not observe its sources anymore (no calculation, no memory leak via event handlers)
+    /// </summary>
+    [TestMethod]
+    public void ViewProviders_Dispose_StopObserving()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      for (int i = 0; i < 3; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      run1.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+
+      List<ViewProvider> createProviders()
+      {
+        var firstRun = new FirstRunStartListViewProvider();
+        firstRun.Init(race.GetParticipants());
+        var secondRunAll = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending, true);
+        secondRunAll.Init(run1);
+        var secondRunFiltered = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending, false);
+        secondRunFiltered.Init(run1);
+        var basedOnPrevious = new BasedOnResultsFirstRunStartListViewProvider(2, true);
+        basedOnPrevious.Init(run1);
+        var basedOnSum = new BasedOnResultsFirstRunStartListViewProvider(2, true, BasedOnResultsFirstRunStartListViewProvider.EBasedOn.SumOfPreviousRuns);
+        basedOnSum.Init(run1);
+        var runResults = new RaceRunResultViewProvider();
+        runResults.Init(run1, tg.Model);
+        var raceResults = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
+        raceResults.Init(race, tg.Model);
+        var teamResults = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Time, NumberOfMembersMax = 3 });
+        teamResults.Init(race, tg.Model);
+        return new List<ViewProvider> { firstRun, secondRunAll, secondRunFiltered, basedOnPrevious, basedOnSum, runResults, raceResults, teamResults };
+      }
+
+      // Counts the changes of the provider's view list
+      int[] observeChanges(List<ViewProvider> providers)
+      {
+        var counts = new int[providers.Count];
+        for (int i = 0; i < providers.Count; i++)
+        {
+          int index = i;
+          ((System.Collections.Specialized.INotifyCollectionChanged)providers[i].GetView().SourceCollection).CollectionChanged += (s, e) => counts[index]++;
+        }
+        return counts;
+      }
+
+      var active = createProviders();
+      var disposed = createProviders();
+      disposed.ForEach(p => p.Dispose());
+      disposed.ForEach(p => p.Dispose()); // Disposing twice is fine
+
+      int[] activeChanges = observeChanges(active);
+      int[] disposedChanges = observeChanges(disposed);
+
+      tg.createRaceParticipant();
+      run1.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(49));
+
+      for (int i = 0; i < active.Count; i++)
+      {
+        Assert.IsTrue(activeChanges[i] > 0, "active " + active[i].GetType().Name);
+        Assert.AreEqual(0, disposedChanges[i], "disposed " + disposed[i].GetType().Name);
+      }
+      Assert.AreEqual(3, disposed[0].GetView().ViewToList<StartListEntry>().Count, "disposed provider keeps its last state");
+    }
+
+
+    /// <summary>
     /// Team results in points mode must get positions based on the points (more points = better)
     /// </summary>
     [TestMethod]
@@ -2474,6 +2543,529 @@ namespace RaceHorologyLibTest
       Assert.AreEqual("Team C", teams[2].Name);
       Assert.AreEqual(11.0, teams[2].Points);
       Assert.AreEqual(3U, teams[2].Position);
+    }
+
+
+    /// <summary>
+    /// RemainingStartListViewProvider stops observing on Dispose() and disposes its source provider only if requested
+    /// </summary>
+    [TestMethod]
+    public void RemainingStartListViewProvider_Dispose()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      for (int i = 0; i < 3; i++)
+        tg.createRaceParticipant();
+
+      var sharedStartList = new FirstRunStartListViewProvider();
+      sharedStartList.Init(race.GetParticipants());
+      var notOwning = new RemainingStartListViewProvider();
+      notOwning.Init(sharedStartList, run1);
+
+      var ownedStartList = new FirstRunStartListViewProvider();
+      ownedStartList.Init(race.GetParticipants());
+      var owning = new RemainingStartListViewProvider();
+      owning.Init(ownedStartList, run1, disposeStartListProvider: true);
+
+      notOwning.Dispose();
+      owning.Dispose();
+
+      tg.createRaceParticipant();
+      run1.SetStartTime(race.GetParticipant(1), TimeSpan.FromSeconds(10));
+
+      // Shared source is still alive, owned source has been disposed
+      Assert.AreEqual(4, sharedStartList.GetViewList().Count);
+      Assert.AreEqual(3, ownedStartList.GetViewList().Count);
+
+      // Remaining lists do not follow the source and the results anymore
+      Assert.AreEqual(3, notOwning.GetViewList().Count);
+      Assert.AreEqual(3, owning.GetViewList().Count);
+      Assert.IsFalse(notOwning.GetViewList()[0].Started);
+      Assert.IsFalse(owning.GetViewList()[0].Started);
+    }
+
+
+    /// <summary>
+    /// ViewProviderListObserver follows the view provider of a race run, even if it gets replaced (new race configuration)
+    /// </summary>
+    [TestMethod]
+    public void ViewProviderListObserver_FollowsReplacedProvider()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      tg.createRaceParticipant();
+
+      var senders = new List<object>();
+      var actions = new List<System.Collections.Specialized.NotifyCollectionChangedAction>();
+      var observer = ViewProviderListObserver.ForStartList(run1);
+      observer.CollectionChanged += (s, e) => { senders.Add(s); actions.Add(e.Action); };
+
+      var oldList = run1.GetStartListProvider().GetViewList();
+      tg.createRaceParticipant();
+      CollectionAssert.Contains(senders, oldList);
+
+      // Replace the provider => Reset
+      var newProvider = new FirstRunStartListViewProvider();
+      newProvider.Init(race.GetParticipants());
+      senders.Clear(); actions.Clear();
+      run1.SetStartListProvider(newProvider);
+      CollectionAssert.AreEqual(new[] { System.Collections.Specialized.NotifyCollectionChangedAction.Reset }, actions);
+
+      // Changes of the new list are forwarded, the old list is not observed anymore
+      senders.Clear(); actions.Clear();
+      tg.createRaceParticipant();
+      CollectionAssert.Contains(senders, newProvider.GetViewList());
+      CollectionAssert.DoesNotContain(senders, oldList);
+
+      // Results of the race follow as well
+      int raceResultChanges = 0;
+      var raceObserver = ViewProviderListObserver.ForResults(race);
+      raceObserver.CollectionChanged += (s, e) => raceResultChanges++;
+      var newRaceResults = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.BestRun);
+      newRaceResults.Init(race, tg.Model);
+      race.SetResultViewProvider(newRaceResults);
+      Assert.AreEqual(1, raceResultChanges);
+
+      // Disposed observer does not forward anything anymore
+      observer.Dispose();
+      raceObserver.Dispose();
+      senders.Clear(); raceResultChanges = 0;
+      tg.createRaceParticipant();
+      var anotherProvider = new FirstRunStartListViewProvider();
+      anotherProvider.Init(race.GetParticipants());
+      run1.SetStartListProvider(anotherProvider);
+      Assert.AreEqual(0, senders.Count);
+      Assert.AreEqual(0, raceResultChanges);
+    }
+
+
+    /// <summary>
+    /// A new race configuration replaces all view providers; the replaced ones get disposed, the new ones work
+    /// </summary>
+    [TestMethod]
+    public void ViewConfigurator_ConfigureRace_DisposesReplacedProviders()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      (new ViewConfigurator(race)).ConfigureRace(race);
+      for (int i = 0; i < 3; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+
+      var oldProviders = new List<ViewProvider> { run1.GetStartListProvider(), run1.GetResultViewProvider(), run2.GetStartListProvider(), run2.GetResultViewProvider(), race.GetResultViewProvider() };
+      int oldChanges = 0;
+      foreach (var p in oldProviders)
+        ((System.Collections.Specialized.INotifyCollectionChanged)p.GetView().SourceCollection).CollectionChanged += (s, e) => oldChanges++;
+
+      (new ViewConfigurator(race)).ConfigureRace(race);
+      foreach (var p in oldProviders)
+        CollectionAssert.DoesNotContain(new ViewProvider[] { run1.GetStartListProvider(), run1.GetResultViewProvider(), run2.GetStartListProvider(), run2.GetResultViewProvider(), race.GetResultViewProvider() }, p);
+
+      tg.createRaceParticipant();
+      run1.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+
+      // Old providers do not calculate anymore, the new ones do
+      Assert.AreEqual(0, oldChanges);
+      Assert.AreEqual(4, run1.GetStartListProvider().GetViewList().Count);
+      var raceResults = race.GetResultViewProvider().GetView().ViewToList<RaceResultItem>();
+      Assert.AreEqual(4, raceResults.Count);
+      Assert.AreEqual(TimeSpan.FromSeconds(50), raceResults[0].TotalTime);
+
+      // Deleting a run disposes its providers
+      var run2StartList = run2.GetStartListProvider();
+      int run2Changes = 0;
+      ((System.Collections.Specialized.INotifyCollectionChanged)run2StartList.GetView().SourceCollection).CollectionChanged += (s, e) => run2Changes++;
+      race.DeleteRaceRun();
+      tg.createRaceParticipant();
+      Assert.AreEqual(0, run2Changes);
+    }
+
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    static WeakReference CreateUnobservedStartListEntry(RaceParticipant rp)
+    {
+      return new WeakReference(new StartListEntry(rp));
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    static List<WeakReference> WeakReferencesTo(IEnumerable<StartListEntry> entries)
+    {
+      var refs = new List<WeakReference>();
+      foreach (var e in entries)
+        refs.Add(new WeakReference(e));
+      return refs;
+    }
+
+    static void CollectGarbage()
+    {
+      GC.Collect();
+      GC.WaitForPendingFinalizers();
+      GC.Collect();
+    }
+
+
+    /// <summary>
+    /// A StartListEntry observes its participant only while it is observed itself.
+    /// Otherwise, the participant keeps every entry ever created alive.
+    /// </summary>
+    [TestMethod]
+    public void StartListEntry_ObservesParticipantOnlyWhileObserved()
+    {
+      var tg = new TestDataGenerator();
+      var rp = tg.createRaceParticipant();
+
+      var unobserved = CreateUnobservedStartListEntry(rp);
+      CollectGarbage();
+      Assert.IsFalse(unobserved.IsAlive);
+
+      // Observed entry passes through the participant's changes
+      var entry = new StartListEntry(rp);
+      var changed = new List<string>();
+      System.ComponentModel.PropertyChangedEventHandler handler = (s, e) => changed.Add(e.PropertyName);
+      entry.PropertyChanged += handler;
+      rp.Participant.Name = "Changed";
+      CollectionAssert.Contains(changed, "Name");
+
+      entry.PropertyChanged -= handler;
+      changed.Clear();
+      rp.Participant.Name = "Changed again";
+      Assert.AreEqual(0, changed.Count);
+    }
+
+
+    /// <summary>
+    /// A start list being rebuilt on every change (based on results) does not keep its previous entries alive,
+    /// also if observed like by the live timing (ItemsChangedNotifier) and the remaining starters (RemainingStartListViewProvider)
+    /// </summary>
+    [TestMethod]
+    public void BasedOnResultsStartListViewProvider_RebuildReleasesOldEntries()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      for (int i = 0; i < 3; i++)
+        tg.createRaceParticipant();
+
+      var run1 = race.GetRun(0);
+      run1.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+      run1.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(51));
+
+      var provider = new BasedOnResultsFirstRunStartListViewProvider(0, true);
+      provider.Init(run1);
+      provider.ChangeGrouping("Participant.Class");
+
+      var notifier = new ItemsChangedNotifier(provider.GetViewList());
+      var itemChangedSenders = new List<object>();
+      notifier.ItemChanged += (s, e) => itemChangedSenders.Add(s);
+      var remaining = new RemainingStartListViewProvider();
+      remaining.Init(provider, race.GetRun(1));
+
+      var oldEntries = WeakReferencesTo(provider.GetViewList());
+      Assert.AreEqual(3, oldEntries.Count);
+
+      // Rebuilds the start list
+      run1.SetRunTime(race.GetParticipant(3), TimeSpan.FromSeconds(49));
+      CollectGarbage();
+      foreach (var e in oldEntries)
+        Assert.IsFalse(e.IsAlive);
+
+      // The entries created by the rebuild are observed
+      var entry1 = System.Linq.Enumerable.First(provider.GetViewList(), x => x.StartNumber == 1);
+      itemChangedSenders.Clear();
+      entry1.Started = true;
+      CollectionAssert.Contains(itemChangedSenders, entry1);
+
+      GC.KeepAlive(notifier);
+      GC.KeepAlive(remaining);
+    }
+
+
+    /// <summary>
+    /// A new time moves the participant in the result lists with a single Move each,
+    /// and the moves within the run results do not trigger any recalculation of the race results
+    /// </summary>
+    [TestMethod]
+    public void ResultViewProviders_NewTime_SingleMove()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      for (int i = 0; i < 20; i++)
+        tg.createRaceParticipant();
+      for (uint i = 1; i < 20; i++)
+        run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+
+      var runResults = (run1.GetResultViewProvider() as RaceRunResultViewProvider).GetViewList();
+      var raceResults = race.GetResultViewProvider().GetViewList();
+      var runEvents = new List<System.Collections.Specialized.NotifyCollectionChangedAction>();
+      var raceEvents = new List<System.Collections.Specialized.NotifyCollectionChangedAction>();
+      runResults.CollectionChanged += (s, e) => runEvents.Add(e.Action);
+      raceResults.CollectionChanged += (s, e) => raceEvents.Add(e.Action);
+
+      // Participant 20 (no time yet, last) becomes the fastest
+      run1.SetRunTime(race.GetParticipant(20), TimeSpan.FromSeconds(50));
+
+      CollectionAssert.AreEqual(new[] { System.Collections.Specialized.NotifyCollectionChangedAction.Move }, runEvents);
+      CollectionAssert.AreEqual(new[] { System.Collections.Specialized.NotifyCollectionChangedAction.Move }, raceEvents);
+      Assert.AreEqual(20U, runResults[0].StartNumber);
+      Assert.AreEqual(20U, raceResults[0].Participant.StartNumber);
+      Assert.AreEqual(1U, raceResults[0].Position);
+      Assert.AreEqual(2U, raceResults[1].Position);
+    }
+
+
+    // Count the recalculations of the race results
+    class CountingRaceResultViewProvider : RaceResultViewProvider
+    {
+      public int Resorts;
+      public CountingRaceResultViewProvider() : base(TimeCombination.Sum) { }
+      protected override void ResortResults() { Resorts++; base.ResortResults(); }
+    }
+
+    class CountingDSVSchoolRaceResultViewProvider : DSVSchoolRaceResultViewProvider
+    {
+      public int Resorts;
+      protected override void ResortResults() { Resorts++; base.ResortResults(); }
+    }
+
+
+    /// <summary>
+    /// A new best time changes position and difference to the first of every participant.
+    /// The providers depending on the run results must not recalculate for each of these changes.
+    /// </summary>
+    [TestMethod]
+    public void ViewProviders_NewBestTime_NoRecalculationPerPositionChange()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      (new ViewConfigurator(race)).ConfigureRace(race);
+      for (int i = 0; i < 20; i++)
+        tg.createRaceParticipant(cat: tg.findCat(i % 2 == 0 ? 'M' : 'W'), points: 10.0 * i);
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+      for (uint i = 1; i < 20; i++)
+      {
+        run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+        run2.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(60 + i));
+      }
+      run2.SetRunTime(race.GetParticipant(20), TimeSpan.FromSeconds(80));
+
+      var basedOnPrevious = new BasedOnResultsFirstRunStartListViewProvider(0, true);
+      basedOnPrevious.Init(run1);
+      var basedOnSum = new BasedOnResultsFirstRunStartListViewProvider(0, true, BasedOnResultsFirstRunStartListViewProvider.EBasedOn.SumOfPreviousRuns);
+      basedOnSum.Init(run1);
+      var secondRunFiltered = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending, false);
+      secondRunFiltered.Init(run1);
+      var raceResults = new CountingRaceResultViewProvider();
+      raceResults.Init(race, tg.Model);
+      race.RaceConfiguration.ValueF = 720.0; // Factor for DSV points
+      var dsvResults = new CountingDSVSchoolRaceResultViewProvider();
+      dsvResults.Init(race, tg.Model);
+      var teamResults = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Time, NumberOfMembersMax = 3 });
+      teamResults.Init(race, tg.Model);
+
+      // The start lists and the team results rebuild their lists completely (Reset) when recalculating
+      var lists = new Dictionary<string, System.Collections.IEnumerable>
+      {
+        { "basedOnPrevious", basedOnPrevious.GetViewList() },
+        { "basedOnSum", basedOnSum.GetViewList() },
+        { "secondRunFiltered", secondRunFiltered.GetViewList() },
+        { "teamResults", (System.Collections.IEnumerable)teamResults.GetView().SourceCollection },
+      };
+      var resets = new Dictionary<string, int>();
+      foreach (var l in lists)
+        resets[l.Key] = 0;
+      foreach (var l in lists)
+        ((System.Collections.Specialized.INotifyCollectionChanged)l.Value).CollectionChanged += (s, e) => { if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) resets[l.Key]++; };
+      raceResults.Resorts = 0;
+      dsvResults.Resorts = 0;
+
+      // Participant 20 becomes the fastest in run 1 and moves up in the race results (from last to the middle)
+      run1.SetRunTime(race.GetParticipant(20), TimeSpan.FromSeconds(50));
+
+      string counts = string.Join(", ", System.Linq.Enumerable.Select(resets, r => r.Key + "=" + r.Value))
+        + string.Format(", raceResults={0}, dsvResults={1}", raceResults.Resorts, dsvResults.Resorts);
+      foreach (var r in resets)
+        Assert.IsTrue(r.Value <= 4, counts); // Was 138 resets for each start list and 130 for the team results
+      // A single recalculation (incl. DSV points) for the new time
+      Assert.AreEqual(1, raceResults.Resorts, counts);
+      Assert.AreEqual(1, dsvResults.Resorts, counts);
+
+      // Still correct: the new best starts first (no reverse)
+      Assert.AreEqual(20U, basedOnPrevious.GetViewList()[0].StartNumber);
+      Assert.AreEqual(20U, basedOnSum.GetViewList()[0].StartNumber);
+
+      // Incrementally updated race results equal the ones of newly created providers (incl. positions within the runs and DSV points)
+      void assertSameAsNew(RaceResultViewProvider incremental, RaceResultViewProvider fresh)
+      {
+        fresh.Init(race, tg.Model);
+        var expected = fresh.GetViewList();
+        var actual = incremental.GetViewList();
+        Assert.AreEqual(expected.Count, actual.Count);
+        for (int i = 0; i < expected.Count; i++)
+        {
+          Assert.AreSame(expected[i].Participant, actual[i].Participant);
+          Assert.AreEqual(expected[i].TotalTime, actual[i].TotalTime);
+          Assert.AreEqual(expected[i].Position, actual[i].Position);
+          Assert.AreEqual(expected[i].Points, actual[i].Points);
+          foreach (var sr in expected[i].SubResults)
+          {
+            Assert.AreEqual(sr.Value.Position, actual[i].SubResults[sr.Key].Position);
+            Assert.AreEqual(sr.Value.DiffToFirst, actual[i].SubResults[sr.Key].DiffToFirst);
+          }
+        }
+      }
+      assertSameAsNew(raceResults, new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum));
+      assertSameAsNew(dsvResults, new DSVSchoolRaceResultViewProvider());
+      Assert.IsTrue(System.Linq.Enumerable.Any(dsvResults.GetViewList(), r => r.Points > 0), "DSV points calculated");
+
+      var rri1 = System.Linq.Enumerable.First(raceResults.GetViewList(), r => r.Participant.StartNumber == 1);
+      Assert.AreEqual(2U, rri1.SubResults[1].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(1), rri1.SubResults[1].DiffToFirst);
+    }
+
+
+    /// <summary>
+    /// Points per run depend on the position within the run. A new time shifts other participants
+    /// in the run, their points have to follow immediately.
+    /// </summary>
+    [TestMethod]
+    public void PointsViaTableRaceResultViewProvider_PerRun_FollowsPositionChanges()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      (new ViewConfigurator(race)).ConfigureRace(race);
+      for (int i = 0; i < 5; i++)
+        tg.createRaceParticipant();
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+      for (uint i = 1; i <= 5; i++)
+      {
+        run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+        run2.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(60 + i));
+      }
+
+      var vp = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
+      vp.Init(race, tg.Model);
+
+      double pointsOf(PointsViaTableRaceResultViewProvider p, uint startNumber)
+        => System.Linq.Enumerable.First(p.GetViewList(), r => r.Participant.StartNumber == startNumber).Points;
+
+      // Participant 1: 1st in both runs => 15 + 15
+      Assert.AreEqual(30.0, pointsOf(vp, 1));
+
+      // Participant 5 gets the best time in run 2 (total stays the slowest): all others move down one position in run 2
+      run2.SetRunTime(race.GetParticipant(5), TimeSpan.FromSeconds(55));
+
+      var fresh = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
+      fresh.Init(race, tg.Model);
+      Assert.AreEqual(27.0, pointsOf(fresh, 1)); // 15 (run 1) + 12 (run 2)
+      for (uint sn = 1; sn <= 5; sn++)
+        Assert.AreEqual(pointsOf(fresh, sn), pointsOf(vp, sn), string.Format("start number {0}", sn));
+    }
+
+
+    /// <summary>
+    /// Start lists and results group by the same properties (one shared group comparison)
+    /// </summary>
+    [TestMethod]
+    public void ParticipantGroupComparer_SameGroupingForStartListsAndResults()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      string[] clubs = { "B", "A", "B", "A" };
+      for (int i = 0; i < clubs.Length; i++)
+        tg.createRaceParticipant().Participant.Club = clubs[i];
+      for (uint i = 1; i <= 4; i++)
+        run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+
+      var startList = new FirstRunStartListViewProvider();
+      startList.Init(race.GetParticipants());
+      startList.ChangeGrouping("Participant.Club");
+      var results = new RaceRunResultViewProvider();
+      results.Init(run1, tg.Model);
+      results.ChangeGrouping("Participant.Club");
+
+      CollectionAssert.AreEqual(new uint[] { 2, 4, 1, 3 }, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(startList.GetViewList(), e => e.StartNumber)));
+      CollectionAssert.AreEqual(new uint[] { 2, 4, 1, 3 }, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(results.GetViewList(), e => e.StartNumber)));
+
+      // Without a group, nulls go last
+      Assert.AreEqual(0, ParticipantGroupComparer.Compare(null, race.GetParticipant(1), race.GetParticipant(2)));
+      race.GetParticipant(1).Participant.Club = null;
+      Assert.IsTrue(ParticipantGroupComparer.Compare("Participant.Club", race.GetParticipant(1), race.GetParticipant(2)) > 0);
+    }
+
+
+    /// <summary>
+    /// RemainingStartListViewProvider takes over the active grouping of its source,
+    /// but must not overwrite the source's default grouping (e.g. the start list of a run shown in the UI)
+    /// </summary>
+    [TestMethod]
+    public void RemainingStartListViewProvider_KeepsDefaultGroupingOfSource()
+    {
+      var tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+      var race = tg.Model.GetRace(0);
+      tg.createRaceParticipant(cat: tg.findCat('M'), cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cat: tg.findCat('W'), cla: tg.findClass("2W (2010)"));
+
+      var source = new FirstRunStartListViewProvider();
+      source.SetDefaultGrouping("Participant.Class");
+      source.Init(race.GetParticipants());
+      source.ChangeGrouping("Participant.Sex");
+
+      var remaining = new RemainingStartListViewProvider();
+      remaining.Init(source, race.GetRun(0));
+      Assert.AreEqual("Participant.Sex", remaining.ActiveGrouping);
+      Assert.AreEqual(1, remaining.GetView().GroupDescriptions.Count);
+
+      source.ResetToDefaultGrouping();
+      Assert.AreEqual("Participant.Class", source.ActiveGrouping);
+
+      // Grouping of the remaining starters changes the grouping (i.e. the order) of the source
+      remaining.ChangeGrouping(null);
+      Assert.IsNull(source.ActiveGrouping);
+      Assert.AreEqual(0, remaining.GetView().GroupDescriptions.Count);
+    }
+
+
+    /// <summary>
+    /// An unreadable PointsTable.txt falls back to the default points table (and gets logged)
+    /// </summary>
+    [TestMethod]
+    public void PointsViaTableRaceResultViewProvider_InvalidPointsTable_UsesDefault()
+    {
+      string folder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "RH_PointsTable_" + Guid.NewGuid().ToString("N"));
+      System.IO.Directory.CreateDirectory(folder);
+      try
+      {
+        System.IO.File.WriteAllText(System.IO.Path.Combine(folder, "PointsTable.txt"), "not a number");
+
+        var tg = new TestDataGenerator(folder);
+        var race = tg.Model.GetRace(0);
+        tg.createRaceParticipant();
+        race.GetRun(0).SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+
+        var vp = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
+        vp.Init(race, tg.Model);
+        Assert.AreEqual(15.0, vp.GetViewList()[0].Points);
+      }
+      finally
+      {
+        System.IO.Directory.Delete(folder, true);
+      }
     }
 
 

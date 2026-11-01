@@ -402,11 +402,13 @@ namespace RaceHorologyLib
       Application.Current.Dispatcher.Invoke(() =>
       {
         ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-        StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun);
-        if (grouping != null)
-          vp.ChangeGrouping(grouping);
+        using (StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun))
+        {
+          if (grouping != null)
+            vp.ChangeGrouping(grouping);
 
-        output = JsonConversion.ConvertStartList(vp.GetView());
+          output = JsonConversion.ConvertStartList(vp.GetView());
+        }
       });
 
       return output;
@@ -420,22 +422,24 @@ namespace RaceHorologyLib
       Application.Current.Dispatcher.Invoke(() =>
       {
         ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-        var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun);
-        if (grouping != null)
-          vp.ChangeGrouping(grouping);
-
-        List<object> remaingStarters = new List<object>();
-        int c = 0;
-        foreach (var item in vp.GetView())
+        using (var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun))
         {
-          if (limit >= 0 && c >= limit)
-            break;
+          if (grouping != null)
+            vp.ChangeGrouping(grouping);
 
-          remaingStarters.Add(item);
-          c++;
+          List<object> remaingStarters = new List<object>();
+          int c = 0;
+          foreach (var item in vp.GetView())
+          {
+            if (limit >= 0 && c >= limit)
+              break;
+
+            remaingStarters.Add(item);
+            c++;
+          }
+
+          output = JsonConversion.ConvertOnStartList(remaingStarters);
         }
-
-        output = JsonConversion.ConvertOnStartList(remaingStarters);
       });
 
       return output;
@@ -449,11 +453,13 @@ namespace RaceHorologyLib
       Application.Current.Dispatcher.Invoke(() =>
       {
         ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-        RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun);
-        if (grouping != null)
-          vp.ChangeGrouping(grouping);
+        using (RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun))
+        {
+          if (grouping != null)
+            vp.ChangeGrouping(grouping);
 
-        output = JsonConversion.ConvertRunResults(vp.GetView());
+          output = JsonConversion.ConvertRunResults(vp.GetView());
+        }
       });
 
       return output;
@@ -467,11 +473,13 @@ namespace RaceHorologyLib
         Application.Current.Dispatcher.Invoke(() =>
         {
           ViewConfigurator viewConfigurator = new ViewConfigurator(race);
-          RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race);
-          if (grouping != null)
-            vp.ChangeGrouping(grouping);
+          using (RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race))
+          {
+            if (grouping != null)
+              vp.ChangeGrouping(grouping);
 
-          output = JsonConversion.ConvertRaceResults(vp.GetView(), (uint)race.GetMaxRun());
+            output = JsonConversion.ConvertRaceResults(vp.GetView(), (uint)race.GetMaxRun());
+          }
         });
 
       return output;
@@ -615,7 +623,7 @@ namespace RaceHorologyLib
   public class StartListDataProvider : LiveDataProvider
   {
     AppDataModel _dm;
-    ItemsChangedNotifier _notifier;
+    ViewProviderListObserver _notifier;
     System.Timers.Timer _timer;
 
     public StartListDataProvider(AppDataModel dm)
@@ -623,7 +631,7 @@ namespace RaceHorologyLib
       _dm = dm;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        _notifier = new ItemsChangedNotifier(_dm.GetCurrentRace().GetRun(0).GetStartList());
+        _notifier = ViewProviderListObserver.ForStartList(_dm.GetCurrentRace().GetRun(0));
         _notifier.CollectionChanged += StartListChanged;
         _notifier.ItemChanged += StartListItemChanged;
       });
@@ -633,6 +641,7 @@ namespace RaceHorologyLib
     {
       _notifier.CollectionChanged -= StartListChanged;
       _notifier.ItemChanged -= StartListItemChanged;
+      _notifier.Dispose();
       _notifier = null;
       _timer = null;
     }
@@ -708,40 +717,59 @@ namespace RaceHorologyLib
     {
       if (_currentRace != _dm.GetCurrentRaceRun())
       {
-
-        if (_notifier != null)
-        {
-          _notifier.CollectionChanged -= StartListChanged;
-          _notifier.ItemChanged -= StartListItemChanged;
-          _notifier = null;
-        }
-        _rslVP = null;
-
-
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-          RaceRun raceRun = _dm.GetCurrentRaceRun();
-          _rslVP = new RemainingStartListViewProvider();
-          _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
-
-          _notifier = new ItemsChangedNotifier(_rslVP.GetView());
-          _notifier.CollectionChanged += StartListChanged;
-          _notifier.ItemChanged += StartListItemChanged;
-        });
+        if (_currentRace != null)
+          _currentRace.PropertyChanged -= OnRaceRunPropertyChanged;
 
         _currentRace = _dm.GetCurrentRaceRun();
+        _currentRace.PropertyChanged += OnRaceRunPropertyChanged;
+
+        ObserveRemainingStartList();
 
         SendStartList();
       }
     }
 
+    // The start list provider gets replaced in case of a new race configuration
+    private void OnRaceRunPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == RaceRun.StartListProviderProperty)
+      {
+        ObserveRemainingStartList();
+        SendStartList();
+      }
+    }
+
+    private void ObserveRemainingStartList()
+    {
+      if (_notifier != null)
+      {
+        _notifier.CollectionChanged -= StartListChanged;
+        _notifier.ItemChanged -= StartListItemChanged;
+        _notifier = null;
+      }
+
+      Application.Current.Dispatcher.Invoke(() =>
+      {
+        _rslVP?.Dispose();
+
+        _rslVP = new RemainingStartListViewProvider();
+        _rslVP.Init(_currentRace.GetStartListProvider(), _currentRace);
+
+        _notifier = new ItemsChangedNotifier(_rslVP.GetView());
+        _notifier.CollectionChanged += StartListChanged;
+        _notifier.ItemChanged += StartListItemChanged;
+      });
+    }
+
     public override void Dispose()
     {
       _dm.CurrentRaceChanged -= OnCurrentRaceChanged;
+      if (_currentRace != null)
+        _currentRace.PropertyChanged -= OnRaceRunPropertyChanged;
 
       _notifier.CollectionChanged -= StartListChanged;
       _notifier.ItemChanged -= StartListItemChanged;
+      Application.Current?.Dispatcher.Invoke(() => _rslVP?.Dispose());
       _rslVP = null;
       _notifier = null;
       _timer = null;
@@ -807,7 +835,7 @@ namespace RaceHorologyLib
   {
     AppDataModel _dm;
     RaceRun _currentRace;
-    ItemsChangedNotifier _notifier;
+    ViewProviderListObserver _notifier;
     System.Timers.Timer _timer;
 
     public RaceRunDataProvider(AppDataModel dm)
@@ -824,6 +852,7 @@ namespace RaceHorologyLib
 
       _notifier.CollectionChanged -= ResultListChanged;
       _notifier.ItemChanged -= ResultListItemChanged;
+      _notifier.Dispose();
       _notifier = null;
       _timer = null;
     }
@@ -842,12 +871,13 @@ namespace RaceHorologyLib
         {
           _notifier.CollectionChanged -= ResultListChanged;
           _notifier.ItemChanged -= ResultListItemChanged;
+          _notifier.Dispose();
           _notifier = null;
         }
 
         Application.Current.Dispatcher.Invoke(() =>
         {
-          _notifier = new ItemsChangedNotifier(_dm.GetCurrentRaceRun().GetResultView());
+          _notifier = ViewProviderListObserver.ForResults(_dm.GetCurrentRaceRun());
           _notifier.CollectionChanged += ResultListChanged;
           _notifier.ItemChanged += ResultListItemChanged;
         });
@@ -1063,7 +1093,7 @@ namespace RaceHorologyLib
   public class RaceResultDataProvider : LiveDataProvider
   {
     AppDataModel _dm;
-    ItemsChangedNotifier _notifier;
+    ViewProviderListObserver _notifier;
     System.Timers.Timer _timer;
 
     public RaceResultDataProvider(AppDataModel dm)
@@ -1071,7 +1101,7 @@ namespace RaceHorologyLib
       _dm = dm;
       Application.Current.Dispatcher.Invoke(() =>
       {
-        _notifier = new ItemsChangedNotifier(_dm.GetCurrentRace().GetResultViewProvider().GetView());
+        _notifier = ViewProviderListObserver.ForResults(_dm.GetCurrentRace());
         _notifier.CollectionChanged += DataListChanged;
         _notifier.ItemChanged += DataListItemChanged;
       });
@@ -1081,6 +1111,7 @@ namespace RaceHorologyLib
     {
       _notifier.CollectionChanged -= DataListChanged;
       _notifier.ItemChanged -= DataListItemChanged;
+      _notifier.Dispose();
       _notifier = null;
       _timer = null;
     }

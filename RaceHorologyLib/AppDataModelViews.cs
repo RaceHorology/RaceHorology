@@ -45,25 +45,21 @@ using static RaceHorologyLib.ViewProviderHelpers;
 
 namespace RaceHorologyLib
 {
-  /* Just fro Debugging
-  class DebugSort : System.Collections.IComparer
-  {
-    public int Compare(object x, object y)
-    {
-      return 0;
-    }
-  }
-  */
-
   /// <summary>
   /// BaseClass for all ViewProvider
+  ///
+  /// A view provider observes its sources (participants, results, other providers) via events.
+  /// Thus, it stays alive and keeps on calculating as long as its sources are alive.
+  /// Call Dispose() if the provider is not needed anymore.
   /// </summary>
-  public abstract class ViewProvider
+  public abstract class ViewProvider : IDisposable
   {
     protected CollectionViewSource _view;
 
     protected string _defaultGrouping;
     protected string _activeGrouping;
+
+    bool _disposed;
 
 
     public ViewProvider()
@@ -72,6 +68,24 @@ namespace RaceHorologyLib
     }
 
     public abstract ViewProvider Clone();
+
+
+    /// <summary>
+    /// Stops observing the sources. The view list keeps its last state, but does not get updated anymore.
+    /// </summary>
+    public void Dispose()
+    {
+      if (_disposed)
+        return;
+
+      _disposed = true;
+      Uninit();
+    }
+
+    /// <summary>
+    /// Unsubscribes from all events subscribed in Init()
+    /// </summary>
+    protected virtual void Uninit() { }
 
 
     protected void FinalizeInit()
@@ -95,23 +109,7 @@ namespace RaceHorologyLib
       if (_activeGrouping == propertyName)
         return;
 
-      if (!string.IsNullOrEmpty(_activeGrouping))
-      {
-        _view.GroupDescriptions.Clear();
-        _view.LiveGroupingProperties.Clear();
-        _view.IsLiveGroupingRequested = false;
-      }
-
-      if (!string.IsNullOrEmpty(propertyName))
-      {
-        GroupDescription gd = new PropertyGroupDescription(propertyName);
-        gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-        _view.GroupDescriptions.Add(gd);
-
-        _view.LiveGroupingProperties.Add(propertyName);
-        _view.IsLiveGroupingRequested = true;
-      }
-
+      ApplyGrouping(_view, _activeGrouping, propertyName);
       _activeGrouping = propertyName;
 
       OnChangeGrouping(propertyName);
@@ -140,6 +138,32 @@ namespace RaceHorologyLib
 
     protected abstract object GetViewSource();
 
+  }
+
+
+  /// <summary>
+  /// Compares the group of two participants according to the grouping property (e.g. "Participant.Class").
+  /// All sorters compare the group first, so that the entries of a group are next to each other.
+  /// </summary>
+  public static class ParticipantGroupComparer
+  {
+    static readonly NullEnabledComparer _nullEnabledComparer = new NullEnabledComparer();
+
+    public static int Compare(string groupingPropertyName, RaceParticipant x, RaceParticipant y)
+    {
+      Participant px = x?.Participant;
+      Participant py = y?.Participant;
+      switch (groupingPropertyName)
+      {
+        case "Participant.Class": return _nullEnabledComparer.Compare(px?.Class, py?.Class);
+        case "Participant.Group": return _nullEnabledComparer.Compare(px?.Group, py?.Group);
+        case "Participant.Sex": return _nullEnabledComparer.Compare(px?.Sex, py?.Sex);
+        case "Participant.Club": return _nullEnabledComparer.Compare(px?.Club, py?.Club);
+        case "Participant.Nation": return _nullEnabledComparer.Compare(px?.Nation, py?.Nation);
+        case "Participant.Team": return _nullEnabledComparer.Compare(px?.Team, py?.Team);
+        default: return 0;
+      }
+    }
   }
 
 
@@ -175,24 +199,9 @@ namespace RaceHorologyLib
     }
 
 
-    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(StartListEntry rrX, StartListEntry rrY)
     {
-      int groupCompare = 0;
-      if (_groupingPropertyName == "Participant.Class")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
-      else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
-      else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
-      else if (_groupingPropertyName == "Participant.Club")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Club, rrY.Participant.Participant.Club);
-      else if (_groupingPropertyName == "Participant.Nation")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Nation, rrY.Participant.Participant.Nation);
-      else if (_groupingPropertyName == "Participant.Team")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Team, rrY.Participant.Participant.Team);
-
-      return groupCompare;
+      return ParticipantGroupComparer.Compare(_groupingPropertyName, rrX.Participant, rrY.Participant);
     }
   }
 
@@ -269,6 +278,16 @@ namespace RaceHorologyLib
     }
 
 
+    protected override void Uninit()
+    {
+      if (_participants != null)
+        _participants.CollectionChanged -= OnParticipantsChanged;
+      _sourceItemChangedNotifier?.Dispose();
+
+      base.Uninit();
+    }
+
+
     protected override void OnChangeGrouping(string propertyName)
     {
       _comparer.SetGrouping(propertyName);
@@ -279,6 +298,10 @@ namespace RaceHorologyLib
 
     private void OnParticipantsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the participants does not matter, the start list is sorted on its own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -407,7 +430,7 @@ namespace RaceHorologyLib
       {
         var item = _viewList[i];
         object itemGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
-        if (!Equals(PropertyUtilities.GetPropertyValue(item, _activeGrouping), curGroup))
+        if (!Equals(itemGroup, curGroup))
         {
           // New group starts
           sortGroup(curGroupStart, curGroupEnd);
@@ -481,11 +504,11 @@ namespace RaceHorologyLib
         // Only participants with a valid result in the previous run (Issue #613)
         // The list gets rebuilt on every change of start list or results (e.g. a later disqualification)
         _resultsPreviousRun = (previousRun.GetResultViewProvider() as RaceRunResultViewProvider).GetViewList();
-        _resultsPreviousRun.CollectionChanged += (s, e) => UpdateFilteredStartList();
-        _resultsPreviousRun.ItemChanged += (s, e) => UpdateFilteredStartList();
-        _startList1stRun.CollectionChanged += (s, e) => UpdateFilteredStartList();
+        _resultsPreviousRun.CollectionChanged += OnFilterSourceChanged;
+        _resultsPreviousRun.ItemChanged += OnFilterSourceItemChanged;
+        _startList1stRun.CollectionChanged += OnFilterSourceChanged;
         _sourceItemChangedNotifier = new ItemsChangedNotifier(_startList1stRun);
-        _sourceItemChangedNotifier.ItemChanged += (s, e) => UpdateFilteredStartList();
+        _sourceItemChangedNotifier.ItemChanged += OnFilterSourceItemChanged;
 
         UpdateFilteredStartList();
         FinalizeInit();
@@ -502,6 +525,24 @@ namespace RaceHorologyLib
     }
 
 
+    protected override void Uninit()
+    {
+      if (_resultsPreviousRun != null)
+      {
+        _resultsPreviousRun.CollectionChanged -= OnFilterSourceChanged;
+        _resultsPreviousRun.ItemChanged -= OnFilterSourceItemChanged;
+      }
+      if (_startList1stRun != null)
+      {
+        _startList1stRun.CollectionChanged -= OnFilterSourceChanged;
+        _startList1stRun.CollectionChanged -= OnSourceChanged;
+      }
+      _sourceItemChangedNotifier?.Dispose();
+
+      base.Uninit();
+    }
+
+
     protected override void OnChangeGrouping(string propertyName)
     {
       _comparer.SetGrouping(propertyName);
@@ -514,6 +555,10 @@ namespace RaceHorologyLib
 
     private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the source start list does not matter, the start list is sorted on its own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -534,6 +579,24 @@ namespace RaceHorologyLib
       return new StartListEntry(sleSRC.Participant);
     }
 
+
+    private void OnFilterSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      // The order of the sources does not matter, the start list is sorted on its own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
+      UpdateFilteredStartList();
+    }
+
+    private void OnFilterSourceItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      // Only valid results matter, not their position
+      if (IsPositionProperty(e))
+        return;
+
+      UpdateFilteredStartList();
+    }
 
     private void UpdateFilteredStartList()
     {
@@ -646,12 +709,38 @@ namespace RaceHorologyLib
     }
 
 
+    protected override void Uninit()
+    {
+      var sources = new List<ItemsChangeObservableCollection<RunResultWithPosition>>();
+      if (_resultsPreviousRuns != null)
+        sources.AddRange(_resultsPreviousRuns);
+      if (_resultsPreviousRun != null)
+        sources.Add(_resultsPreviousRun);
+
+      foreach (var results in sources)
+      {
+        results.CollectionChanged -= OnSourceChanged;
+        results.ItemChanged -= _sourceItemChangedNotifier_ItemChanged;
+      }
+
+      base.Uninit();
+    }
+
+
     private void OnSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the results does not matter, the start list is sorted on its own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       UpdateStartList();
     }
     private void _sourceItemChangedNotifier_ItemChanged(object sender, PropertyChangedEventArgs e)
     {
+      // The start list is based on the times, the position is calculated on its own
+      if (IsPositionProperty(e))
+        return;
+
       UpdateStartList();
     }
 
@@ -699,7 +788,7 @@ namespace RaceHorologyLib
       foreach (var curSortedItem in srcResults)
       {
         object itemGroup = PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping);
-        if (!Equals(PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping), curGroup))
+        if (!Equals(itemGroup, curGroup))
         {
           ProcessGroup(resultsCurGroup, newStartList);
           curGroup = itemGroup;
@@ -726,19 +815,38 @@ namespace RaceHorologyLib
     }
 
 
+    /// <summary>
+    /// Results of the previous runs per participant (instead of searching each list per participant)
+    /// </summary>
+    private List<Dictionary<RaceParticipant, RunResultWithPosition>> GetResultsPerParticipant()
+    {
+      var resultsPerRun = new List<Dictionary<RaceParticipant, RunResultWithPosition>>();
+      foreach (var runResults in _resultsPreviousRuns)
+      {
+        var byParticipant = new Dictionary<RaceParticipant, RunResultWithPosition>();
+        foreach (var r in runResults)
+          if (!byParticipant.ContainsKey(r.Participant)) // first one wins, like FirstOrDefault()
+            byParticipant.Add(r.Participant, r);
+        resultsPerRun.Add(byParticipant);
+      }
+      return resultsPerRun;
+    }
+
+
     private List<RunResult> GetCumulativeResults()
     {
       var result = new List<RunResult>();
+      var resultsPerRun = GetResultsPerParticipant();
       // Every result provider holds an entry for every participant, even without a time.
       foreach (var participantResult in _resultsPreviousRuns.Last())
       {
         var cumulative = new CombinedRunResult(participantResult.Participant);
         TimeSpan total = TimeSpan.Zero;
         bool valid = true;
-        foreach (var runResults in _resultsPreviousRuns)
+        foreach (var runResults in resultsPerRun)
         {
           // A penalty result has ResultCode Normal and the penalty time as Runtime
-          var sub = runResults.FirstOrDefault(r => r.Participant == participantResult.Participant);
+          runResults.TryGetValue(participantResult.Participant, out var sub);
           if (sub == null || sub.ResultCode != RunResult.EResultCode.Normal || sub.Runtime == null)
           {
             valid = false;
@@ -761,15 +869,16 @@ namespace RaceHorologyLib
     private List<RunResult> GetBestRunResults()
     {
       var result = new List<RunResult>();
+      var resultsPerRun = GetResultsPerParticipant();
       // Every result provider holds an entry for every participant, even without a time.
       foreach (var participantResult in _resultsPreviousRuns.Last())
       {
         var best = new CombinedRunResult(participantResult.Participant);
         RunResultWithPosition bestSub = null;
-        foreach (var runResults in _resultsPreviousRuns)
+        foreach (var runResults in resultsPerRun)
         {
           // A penalty result has ResultCode Normal and the penalty time as Runtime
-          var sub = runResults.FirstOrDefault(r => r.Participant == participantResult.Participant);
+          runResults.TryGetValue(participantResult.Participant, out var sub);
           if (sub == null || sub.ResultCode != RunResult.EResultCode.Normal || sub.Runtime == null)
             continue;
           if (bestSub == null || sub.Runtime < bestSub.Runtime)
@@ -875,12 +984,13 @@ namespace RaceHorologyLib
   /// If the starter already started, the flag Started of the StartListEntry is set to true.
   /// The view provided by GetView() is filtered to only contain entries with the flag Started set to false.
   /// </summary>
-  public class RemainingStartListViewProvider : IStartListViewProvider
+  public class RemainingStartListViewProvider : IStartListViewProvider, IDisposable
   {
     StartListViewProvider _srcStartListProvider;
+    bool _disposeStartListProvider;
     RaceRun _raceRun;
 
-    ObservableCollection<StartListEntry> _viewList;
+    CopyObservableCollection<StartListEntry, StartListEntry> _viewList;
     CollectionViewSource _view;
 
     protected string _defaultGrouping;
@@ -897,11 +1007,15 @@ namespace RaceHorologyLib
     /// </summary>
     /// <param name="startListProvider">A StartListViewProvider that is the source to proxy.</param>
     /// <param name="raceRun">The corresonding race run to consider whether a specific starter already started.</param>
-    public void Init(StartListViewProvider startListProvider, RaceRun raceRun)
+    /// <param name="disposeStartListProvider">If true, startListProvider is disposed together with this provider (use if startListProvider has been created just for this provider).</param>
+    public void Init(StartListViewProvider startListProvider, RaceRun raceRun, bool disposeStartListProvider = false)
     {
       // Remember the source
       _srcStartListProvider = startListProvider;
-      SetDefaultGrouping(_srcStartListProvider.ActiveGrouping);
+      _disposeStartListProvider = disposeStartListProvider;
+      // Same grouping as the source (without touching the source's default grouping)
+      _defaultGrouping = _srcStartListProvider.ActiveGrouping;
+      ChangeGrouping(_defaultGrouping);
 
       _raceRun = raceRun;
 
@@ -917,7 +1031,6 @@ namespace RaceHorologyLib
 
       // Observe StartList
       _viewList.CollectionChanged += OnStartListEntriesChanged;
-      //_viewList.ItemChanged += OnStartListEntryItemChanged;
 
       // Observe additional properties
       _raceRun.PropertyChanged += OnRaceRun_PropertyChanged;
@@ -928,6 +1041,27 @@ namespace RaceHorologyLib
       _view.Filter += new FilterEventHandler(delegate (object s, FilterEventArgs ea) { ea.Accepted = ((StartListEntry)ea.Item).Started == false; });
       _view.LiveFilteringProperties.Add(nameof(StartListEntry.Started));
       _view.IsLiveFilteringRequested = true;
+    }
+
+
+    /// <summary>
+    /// Stops observing the start list and the race run.
+    /// </summary>
+    public void Dispose()
+    {
+      if (_raceRun == null)
+        return;
+
+      _raceRun.GetResultList().CollectionChanged -= OnResultsChanged;
+      _raceRun.GetResultList().ItemChanged -= OnResultItemChanged;
+      _raceRun.PropertyChanged -= OnRaceRun_PropertyChanged;
+      _raceRun = null;
+
+      _viewList.CollectionChanged -= OnStartListEntriesChanged;
+      _viewList.Dispose();
+
+      if (_disposeStartListProvider)
+        _srcStartListProvider.Dispose();
     }
 
     private void OnRaceRun_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -941,41 +1075,26 @@ namespace RaceHorologyLib
 
     public void SetDefaultGrouping(string propertyName)
     {
-      _srcStartListProvider.SetDefaultGrouping(propertyName);
       _defaultGrouping = propertyName;
       ResetToDefaultGrouping();
     }
 
+    /// <summary>
+    /// Changes the grouping of the view and of the source as well (the source determines the order within the groups)
+    /// </summary>
     public void ChangeGrouping(string propertyName)
     {
+      _srcStartListProvider.ChangeGrouping(propertyName);
+
       if (_activeGrouping == propertyName)
         return;
 
-      _srcStartListProvider.ChangeGrouping(propertyName);
-
-      if (!string.IsNullOrEmpty(_activeGrouping))
-      {
-        _view.GroupDescriptions.Clear();
-        _view.LiveGroupingProperties.Clear();
-        _view.IsLiveGroupingRequested = false;
-      }
-
-      if (!string.IsNullOrEmpty(propertyName))
-      {
-        GroupDescription gd = new PropertyGroupDescription(propertyName);
-        gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-        //gd.CustomSort = new DebugSort();
-        _view.GroupDescriptions.Add(gd);
-        _view.LiveGroupingProperties.Add(propertyName);
-        _view.IsLiveGroupingRequested = true;
-      }
-
+      ApplyGrouping(_view, _activeGrouping, propertyName);
       _activeGrouping = propertyName;
     }
 
     public void ResetToDefaultGrouping()
     {
-      _srcStartListProvider.ChangeGrouping(_defaultGrouping);
       ChangeGrouping(_defaultGrouping);
     }
 
@@ -998,6 +1117,10 @@ namespace RaceHorologyLib
 
     private void OnResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the results does not matter for the started flag
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -1024,6 +1147,10 @@ namespace RaceHorologyLib
 
     private void OnStartListEntriesChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // A moved entry keeps its state
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -1039,12 +1166,6 @@ namespace RaceHorologyLib
           StartListEntry sle = (StartListEntry)item;
           UpdateStartListEntry(sle);
         }
-    }
-
-    private void OnStartListEntryItemChanged(object sender, PropertyChangedEventArgs e)
-    {
-      StartListEntry sle = (StartListEntry)sender;
-      UpdateStartListEntry(sle);
     }
 
     private void SetStartListEntryStartedFalse(RunResult result)
@@ -1102,44 +1223,17 @@ namespace RaceHorologyLib
     }
 
 
-    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(RunResult rrX, RunResult rrY)
     {
-      int groupCompare = 0;
-      if (_groupingPropertyName == "Participant.Class")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Class, rrY.Participant?.Participant?.Class);
-      else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Group, rrY.Participant?.Participant?.Group);
-      else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY.Participant?.Participant?.Sex);
-      else if (_groupingPropertyName == "Participant.Club")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Club, rrY.Participant?.Participant?.Club);
-      else if (_groupingPropertyName == "Participant.Nation")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Nation, rrY.Participant?.Participant?.Nation);
-      else if (_groupingPropertyName == "Participant.Team")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Team, rrY.Participant?.Participant?.Team);
-
-      return groupCompare;
+      return ParticipantGroupComparer.Compare(_groupingPropertyName, rrX?.Participant, rrY?.Participant);
     }
+
     protected int CompareGroup(RaceResultItem rrX, RaceResultItem rrY)
     {
-      int groupCompare = 0;
-      if (_groupingPropertyName == "Participant.Class")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Class, rrY?.Participant?.Participant?.Class);
-      else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Group, rrY?.Participant?.Participant?.Group);
-      else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY?.Participant?.Participant?.Sex);
-      else if (_groupingPropertyName == "Participant.Club")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Club, rrY.Participant?.Participant?.Club);
-      else if (_groupingPropertyName == "Participant.Nation")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Nation, rrY.Participant?.Participant?.Nation);
-      else if (_groupingPropertyName == "Participant.Team")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Team, rrY.Participant?.Participant?.Team);
-
-      return groupCompare;
+      return ParticipantGroupComparer.Compare(_groupingPropertyName, rrX?.Participant, rrY?.Participant);
     }
 
+    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(TeamResultViewItem tX, TeamResultViewItem tY)
     {
       int groupCompare = 0;
@@ -1257,6 +1351,23 @@ namespace RaceHorologyLib
     }
 
 
+    protected override void Uninit()
+    {
+      if (_participants != null)
+      {
+        _participants.CollectionChanged -= Participants_CollectionChanged;
+        _participants.ItemChanged -= Participants_ItemChanged;
+      }
+      if (_originalResults != null)
+      {
+        _originalResults.CollectionChanged -= OnOriginalResultsChanged;
+        _originalResults.ItemChanged -= OnOriginalResultItemChanged;
+      }
+
+      base.Uninit();
+    }
+
+
     // Output: List<RunResultWithPosition>
     protected override object GetViewSource()
     {
@@ -1306,6 +1417,10 @@ namespace RaceHorologyLib
 
     private void Participants_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the participants does not matter, the results are sorted on their own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
       {
         foreach (INotifyPropertyChanged item in e.OldItems)
@@ -1330,14 +1445,16 @@ namespace RaceHorologyLib
     private void Participants_ItemChanged(object sender, PropertyChangedEventArgs e)
     {
       RaceParticipant rp = (RaceParticipant)sender;
-      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == rp);
-
       updateRunResult(rp, _raceRun.GetRunResult(rp));
     }
 
 
     void OnOriginalResultsChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // The order of the results does not matter, the results are sorted on their own
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       if (e.OldItems != null)
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
@@ -1600,7 +1717,8 @@ namespace RaceHorologyLib
     protected ResultSorter<RaceResultItem> _comparer;
     RunResultCombiner _combineTime;
     protected List<RaceRun> _lastConsideredRuns;
-    //protected List<ItemsChangedNotifier> _runResultsNotifier;
+    // Result lists of the runs observed since Init() and the handlers for their item changes
+    List<(ItemsChangeObservableCollection<RunResultWithPosition> list, ItemsChangeObservableCollection<RunResultWithPosition>.ItemChangedEventHandler itemChanged)> _observedRunResults;
 
 
     protected virtual double calculatePoints(RaceResultItem rri)
@@ -1631,7 +1749,6 @@ namespace RaceHorologyLib
       }
 
       _lastConsideredRuns = new List<RaceRun>();
-      //_runResultsNotifier = new List<ItemsChangedNotifier>();
     }
 
 
@@ -1649,12 +1766,17 @@ namespace RaceHorologyLib
       _appDataModel = appDataModel;
 
       _viewList = new ItemsChangeObservableCollection<RaceResultItem>();
+      _observedRunResults = new List<(ItemsChangeObservableCollection<RunResultWithPosition>, ItemsChangeObservableCollection<RunResultWithPosition>.ItemChangedEventHandler)>();
 
       foreach (RaceRun r in _raceRuns)
       {
         RaceRunResultViewProvider rrVP = (r.GetResultViewProvider() as RaceRunResultViewProvider);
         // Watch for changes
+        RaceRun run = r;
+        ItemsChangeObservableCollection<RunResultWithPosition>.ItemChangedEventHandler itemChanged = (s, e) => OnRunResultItemChanged(run, s, e);
         rrVP.GetViewList().CollectionChanged += OnResultListCollectionChanged;
+        rrVP.GetViewList().ItemChanged += itemChanged;
+        _observedRunResults.Add((rrVP.GetViewList(), itemChanged));
         // Initial update
         OnResultListCollectionChanged(rrVP.GetViewList(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rrVP.GetViewList().ToList()));
       }
@@ -1662,6 +1784,19 @@ namespace RaceHorologyLib
       UpdateAll();
 
       FinalizeInit();
+    }
+
+
+    protected override void Uninit()
+    {
+      if (_observedRunResults != null)
+        foreach (var runResults in _observedRunResults)
+        {
+          runResults.list.CollectionChanged -= OnResultListCollectionChanged;
+          runResults.list.ItemChanged -= runResults.itemChanged;
+        }
+
+      base.Uninit();
     }
 
 
@@ -1684,26 +1819,50 @@ namespace RaceHorologyLib
       ResortResults();
     }
 
-    private void OnRunResultItemChanged(object sender, PropertyChangedEventArgs e)
+    private void OnRunResultItemChanged(RaceRun run, object sender, PropertyChangedEventArgs e)
     {
       RunResultWithPosition rr = sender as RunResultWithPosition;
+      if (rr == null)
+        return;
 
-      if (rr != null)
+      if (IsPositionProperty(e))
       {
-        if (UpdateResultsFor(rr.Participant))
-          ResortResults();
+        // A new time changes the position within the run of many participants, but not their race result
+        // => just take over the position into the sub result (no recalculation and resorting)
+        if (_lastConsideredRuns.Contains(run))
+        {
+          var rri = _viewList.FirstOrDefault(x => x.Participant == rr.Participant);
+          if (rri != null)
+          {
+            rri.SetRunResult(run.Run, rr);
+            OnSubResultPositionChanged(rri);
+          }
+        }
+        return;
       }
+
+      if (UpdateResultsFor(rr.Participant))
+        ResortResults();
     }
+
+    /// <summary>
+    /// Called if the position within a run (sub result) changed without changing the race result itself
+    /// </summary>
+    protected virtual void OnSubResultPositionChanged(RaceResultItem rri) { }
+
 
     private void OnResultListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // Sorting the run results moves items; the race result of the participant does not change by that
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       bool bSomethingChanged = false;
 
       if (e.OldItems != null)
       {
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
-          item.PropertyChanged -= OnRunResultItemChanged;
           RunResultWithPosition rr = item as RunResultWithPosition;
           if (UpdateResultsFor(rr?.Participant))
             bSomethingChanged = true;
@@ -1714,7 +1873,6 @@ namespace RaceHorologyLib
       {
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
-          item.PropertyChanged += OnRunResultItemChanged;
           RunResultWithPosition rr = item as RunResultWithPosition;
           if (UpdateResultsFor(rr?.Participant))
             bSomethingChanged = true;
@@ -1723,14 +1881,6 @@ namespace RaceHorologyLib
 
       if (bSomethingChanged)
         ResortResults();
-    }
-
-
-    private void OnResultListItemChanged(object sender, PropertyChangedEventArgs e)
-    {
-      if (sender is RunResultWithPosition rr)
-        if (UpdateResultsFor(rr?.Participant))
-          ResortResults();
     }
 
 
@@ -1816,10 +1966,7 @@ namespace RaceHorologyLib
 
       // Combine and update the race result
       foreach (var res in results)
-      {
-        bool sigCh = rri.SetRunResult(res.Key, res.Value);
-        //significantChange = significantChange || sigCh;
-      }
+        rri.SetRunResult(res.Key, res.Value);
 
       // It may happen, that caused by _lastConsideredRuns a race gets removed resulting in not-updated SubResults
       // In this casethe corresponding SubResult has to be removed
@@ -2098,7 +2245,10 @@ namespace RaceHorologyLib
         _dsvCalcM.CalculatePenalty();
         _dsvCalcW.CalculatePenalty();
       }
-      catch (Exception) { }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "DSV penalty calculation failed");
+      }
 
       // Re-Update points
       foreach (var sortedItem in _viewList)
@@ -2157,8 +2307,14 @@ namespace RaceHorologyLib
         string filePath = System.IO.Path.Combine(appDataModel.GetDB().GetDBPathDirectory(), "PointsTable.txt");
         _pointsTable = readPointsTable(filePath);
       }
-      catch (Exception)
-      { }
+      catch (Exception e) when (e is FileNotFoundException || e is DirectoryNotFoundException)
+      {
+        Logger.Info("no PointsTable.txt, using the default points table");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "PointsTable.txt could not be read, using the default points table");
+      }
 
       base.Init(race, appDataModel);
     }
@@ -2194,6 +2350,13 @@ namespace RaceHorologyLib
       {
         sortedItem.Points = calculatePoints(sortedItem);
       }
+    }
+
+    protected override void OnSubResultPositionChanged(RaceResultItem rri)
+    {
+      // Points per run depend on the positions within the runs
+      if (_mode == EMode.ApplyPointsPerRun)
+        rri.Points = calculatePoints(rri);
     }
 
     protected override double calculatePoints(RaceResultItem rri)
@@ -2251,7 +2414,10 @@ namespace RaceHorologyLib
       {
         _fisCalc.CalculatePenalty();
       }
-      catch (Exception) { }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "FIS penalty calculation failed");
+      }
 
       // Re-Update points
       foreach (var sortedItem in _viewList)
@@ -2268,8 +2434,158 @@ namespace RaceHorologyLib
 
 
 
+  /// <summary>
+  /// Observes the list of a view provider owned by a Race or RaceRun.
+  ///
+  /// The owner replaces its view providers if the race configuration changes. This class then
+  /// switches to the list of the new provider and signals a Reset, so observers keep on getting
+  /// notified without caring about the replacement.
+  /// </summary>
+  public class ViewProviderListObserver : INotifyCollectionChanged, IDisposable
+  {
+    INotifyPropertyChanged _owner;
+    string _providerPropertyName;
+    Func<INotifyCollectionChanged> _getList;
+    ItemsChangedNotifier _notifier;
+
+    public ViewProviderListObserver(INotifyPropertyChanged owner, string providerPropertyName, Func<INotifyCollectionChanged> getList)
+    {
+      _owner = owner;
+      _providerPropertyName = providerPropertyName;
+      _getList = getList;
+
+      _owner.PropertyChanged += OnOwnerPropertyChanged;
+      attach();
+    }
+
+    public static ViewProviderListObserver ForStartList(RaceRun raceRun)
+    {
+      return new ViewProviderListObserver(raceRun, RaceRun.StartListProviderProperty, () => raceRun.GetStartListProvider()?.GetViewList());
+    }
+
+    public static ViewProviderListObserver ForResults(RaceRun raceRun)
+    {
+      return new ViewProviderListObserver(raceRun, RaceRun.ResultViewProviderProperty, () => raceRun.GetResultViewProvider()?.GetView());
+    }
+
+    public static ViewProviderListObserver ForResults(Race race)
+    {
+      return new ViewProviderListObserver(race, Race.ResultViewProviderProperty, () => race.GetResultViewProvider()?.GetView());
+    }
+
+
+    /// <summary>
+    /// If the list changed (including the replacement of the view provider)
+    /// </summary>
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+    /// <summary>
+    /// If an item of the list changed its properties
+    /// </summary>
+    public event ItemsChangedNotifier.ItemChangedEventHandler ItemChanged;
+
+
+    public void Dispose()
+    {
+      if (_owner == null)
+        return;
+
+      _owner.PropertyChanged -= OnOwnerPropertyChanged;
+      _owner = null;
+      detach();
+    }
+
+
+    private void OnOwnerPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName != _providerPropertyName)
+        return;
+
+      detach();
+      attach();
+      CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+
+    private void attach()
+    {
+      var list = _getList();
+      if (list == null)
+        return;
+
+      _notifier = new ItemsChangedNotifier(list);
+      _notifier.CollectionChanged += OnListChanged;
+      _notifier.ItemChanged += OnListItemChanged;
+    }
+
+    private void detach()
+    {
+      if (_notifier == null)
+        return;
+
+      _notifier.CollectionChanged -= OnListChanged;
+      _notifier.ItemChanged -= OnListItemChanged;
+      _notifier.Dispose();
+      _notifier = null;
+    }
+
+    private void OnListChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      CollectionChanged?.Invoke(sender, e);
+    }
+
+    private void OnListItemChanged(object sender, PropertyChangedEventArgs e)
+    {
+      ItemChanged?.Invoke(sender, e);
+    }
+  }
+
+
+
   public static class ViewProviderHelpers
   {
+    /// <summary>
+    /// Replaces the grouping of a view (live grouping, groups sorted by name)
+    /// </summary>
+    public static void ApplyGrouping(CollectionViewSource view, string activeGrouping, string newGrouping)
+    {
+      if (!string.IsNullOrEmpty(activeGrouping))
+      {
+        view.GroupDescriptions.Clear();
+        view.LiveGroupingProperties.Clear();
+        view.IsLiveGroupingRequested = false;
+      }
+
+      if (!string.IsNullOrEmpty(newGrouping))
+      {
+        GroupDescription gd = new PropertyGroupDescription(newGrouping);
+        gd.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+        view.GroupDescriptions.Add(gd);
+
+        view.LiveGroupingProperties.Add(newGrouping);
+        view.IsLiveGroupingRequested = true;
+      }
+    }
+
+    // Calculated by updatePositions() from the order of a result list, see IsPositionProperty()
+    static readonly HashSet<string> _positionProperties = new HashSet<string>
+    {
+      nameof(IHasPositions.Position),
+      nameof(IHasPositions.DiffToFirst),
+      nameof(IHasPositions.DiffToFirstPercentage),
+      nameof(RunResultWithPosition.JustModified)
+    };
+
+    /// <summary>
+    /// Whether the property changed is calculated from the order of a result list (position, difference to first, ...).
+    /// A single new time changes them for many items, but they never change the time or result of an item itself.
+    /// Thus, observers depending on times and results only can ignore them.
+    /// </summary>
+    /// <param name="e">The event args; null (e.g. ItemsChangedNotifier for a new item) is never a position property</param>
+    public static bool IsPositionProperty(PropertyChangedEventArgs e)
+    {
+      return e?.PropertyName != null && _positionProperties.Contains(e.PropertyName);
+    }
+
 
     public delegate void AdditionalCallback<Type>(Type item);
     public static void updatePositions<Type>(IEnumerable<Type> viewList, string groupingProperty, AdditionalCallback<Type> additionalCB) where Type : IHasPositions
@@ -2327,8 +2643,6 @@ namespace RaceHorologyLib
           item.DiffToFirstPercentage = 0.0;
         }
 
-        // Set the JustModified flag to highlight new results
-        //item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
         additionalCB(item);
       }
     }

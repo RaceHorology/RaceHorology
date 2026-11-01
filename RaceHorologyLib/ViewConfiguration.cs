@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (C) 2019 - 2026 by Sven Flossmann & Co-Authors (CREDITS.TXT)
  *
  *  This file is part of Race Horology.
@@ -282,8 +282,9 @@ namespace RaceHorologyLib
       if (slVP == null)
         return null;
 
+      // slVP has been created just for rslVP => rslVP disposes it
       var rslVP = new RemainingStartListViewProvider();
-      rslVP.Init(slVP, rr);
+      rslVP.Init(slVP, rr, disposeStartListProvider: true);
 
       return rslVP;
     }

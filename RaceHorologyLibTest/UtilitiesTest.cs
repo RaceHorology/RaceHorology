@@ -158,9 +158,63 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(10, coc[0].Attr1);
       Assert.AreEqual(20, coc[1].Attr1);
 
+      // Test move not starting at the first item, forwards and backwards
+      sc.Add(new TestClass { Attr1 = 40 });
+      sc.Move(1, 2);
+      CollectionAssert.AreEqual(new[] { 10, 40, 20 }, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(coc, x => x.Attr1)));
+      sc.Move(2, 1);
+      CollectionAssert.AreEqual(new[] { 10, 20, 40 }, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(coc, x => x.Attr1)));
+
       sc.Clear();
       Assert.AreEqual(0, sc.Count);
       Assert.AreEqual(0, coc.Count);
+    }
+
+
+    [TestMethod]
+    public void CopyObservableCollection_Dispose()
+    {
+      ObservableCollection<TestClass> sc = new ObservableCollection<TestClass> { new TestClass { Attr1 = 10 } };
+      CopyObservableCollection<TestClass, TestClass> coc = new CopyObservableCollection<TestClass, TestClass>(sc, item => item.ShallowCopy(), true);
+
+      coc.Dispose();
+      coc.Dispose(); // Disposing twice is fine
+
+      // Not following the source anymore
+      sc.Add(new TestClass { Attr1 = 20 });
+      sc.RemoveAt(0);
+      Assert.AreEqual(1, coc.Count);
+      Assert.AreEqual(10, coc[0].Attr1);
+    }
+
+
+    public class NotifyingTestClass : System.ComponentModel.INotifyPropertyChanged
+    {
+      int _attr1;
+      public int Attr1 { get => _attr1; set { _attr1 = value; PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Attr1))); } }
+
+      public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+    }
+
+
+    [TestMethod]
+    public void ItemsChangedNotifier_Move()
+    {
+      var sc = new ObservableCollection<NotifyingTestClass> { new NotifyingTestClass { Attr1 = 1 }, new NotifyingTestClass { Attr1 = 2 } };
+      var notifier = new ItemsChangedNotifier(sc);
+      var actions = new List<System.Collections.Specialized.NotifyCollectionChangedAction>();
+      var itemChanges = new List<string>();
+      notifier.CollectionChanged += (s, e) => actions.Add(e.Action);
+      notifier.ItemChanged += (s, e) => itemChanges.Add(e?.PropertyName);
+
+      // Move is passed through, but is no item change
+      sc.Move(0, 1);
+      CollectionAssert.AreEqual(new[] { System.Collections.Specialized.NotifyCollectionChangedAction.Move }, actions);
+      Assert.AreEqual(0, itemChanges.Count);
+
+      // The moved item is still observed (once)
+      sc[1].Attr1 = 10;
+      CollectionAssert.AreEqual(new[] { "Attr1" }, itemChanges);
     }
 
 
@@ -177,6 +231,88 @@ namespace RaceHorologyLibTest
 
       collection.Sort(Comparer<int>.Default);
       CollectionAssert.AreEqual(new Collection<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, collection);
+    }
+
+
+    /// <summary>
+    /// Sort() is stable and gives the same result as a regular stable sort, for complete lists and ranges
+    /// </summary>
+    [TestMethod]
+    public void ObservableCollectionExtensions_Sort_Random()
+    {
+      var random = new Random(4711);
+      // Compares the key only, the index tells the original order (stability)
+      var comparer = Comparer<(int key, int index)>.Create((x, y) => x.key.CompareTo(y.key));
+
+      for (int run = 0; run < 500; run++)
+      {
+        int count = random.Next(0, 30);
+        var items = new List<(int key, int index)>();
+        for (int i = 0; i < count; i++)
+          items.Add((random.Next(0, 10), i));
+
+        int first = count > 0 ? random.Next(0, count) : 0;
+        int last = run % 2 == 0 ? -1 : (count > 0 ? random.Next(first, count) : -1);
+        int end = last < 0 ? count - 1 : last;
+
+        var expected = new List<(int key, int index)>(items);
+        if (count > 0)
+        {
+          var sortedRange = System.Linq.Enumerable.ToList(System.Linq.Enumerable.OrderBy(expected.GetRange(first, end - first + 1), x => x.key));
+          for (int i = first; i <= end; i++)
+            expected[i] = sortedRange[i - first];
+        }
+
+        var collection = new ObservableCollection<(int key, int index)>(items);
+        collection.Sort(comparer, first, last);
+        CollectionAssert.AreEqual(expected, collection, string.Format("run {0}", run));
+      }
+    }
+
+
+    /// <summary>
+    /// A single changed value in a sorted list results in a single Move with O(n) comparisons
+    /// </summary>
+    [TestMethod]
+    public void ObservableCollectionExtensions_Sort_SingleChange()
+    {
+      int comparisons = 0;
+      var comparer = Comparer<int>.Create((x, y) => { comparisons++; return x.CompareTo(y); });
+
+      void check(int index, int newValue, int expectedNewIndex)
+      {
+        var collection = new ObservableCollection<int>();
+        for (int i = 0; i < 100; i++)
+          collection.Add(i * 10);
+        collection[index] = newValue;
+
+        var events = new List<System.Collections.Specialized.NotifyCollectionChangedEventArgs>();
+        collection.CollectionChanged += (s, e) => events.Add(e);
+        comparisons = 0;
+
+        collection.Sort(comparer);
+
+        Assert.AreEqual(1, events.Count);
+        Assert.AreEqual(System.Collections.Specialized.NotifyCollectionChangedAction.Move, events[0].Action);
+        Assert.AreEqual(index, events[0].OldStartingIndex);
+        Assert.AreEqual(expectedNewIndex, events[0].NewStartingIndex);
+        Assert.IsTrue(comparisons <= 3 * collection.Count, string.Format("{0} comparisons", comparisons));
+
+        for (int i = 1; i < collection.Count; i++)
+          Assert.IsTrue(collection[i - 1] <= collection[i]);
+      }
+
+      check(80, 5, 1);     // gets better
+      check(10, 995, 99);  // gets worse
+      check(0, 995, 99);   // first becomes last
+      check(99, -1, 0);    // last becomes first
+
+      // Sorted already => no event
+      var sorted = new ObservableCollection<int> { 1, 2, 2, 3 };
+      int sortedEvents = 0;
+      sorted.CollectionChanged += (s, e) => sortedEvents++;
+      sorted.Sort(comparer);
+      Assert.AreEqual(0, sortedEvents);
     }
 
 

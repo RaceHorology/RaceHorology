@@ -111,6 +111,19 @@ namespace RaceHorologyLib
     }
 
 
+    protected override void Uninit()
+    {
+      if (_raceResults != null)
+      {
+        _raceResults.CollectionChanged -= OnRaceResults_CollectionChanged;
+        foreach (var item in _raceResults)
+          item.PropertyChanged -= OnRaceResultItem_Changed;
+      }
+
+      base.Uninit();
+    }
+
+
     public override void ChangeGrouping(string propertyName)
     {
       base.ChangeGrouping(propertyName != "" ? "Team.Group" : "");
@@ -126,6 +139,10 @@ namespace RaceHorologyLib
 
     private void OnRaceResults_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+      // Sorting the race results moves items; the team results do not change by that
+      if (e.Action == NotifyCollectionChangedAction.Move)
+        return;
+
       bool bSomethingChanged = false;
 
       if (e.OldItems != null)
@@ -133,7 +150,6 @@ namespace RaceHorologyLib
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
           item.PropertyChanged -= OnRaceResultItem_Changed;
-          RunResultWithPosition rr = item as RunResultWithPosition;
           bSomethingChanged = true;
         }
       }
@@ -143,7 +159,6 @@ namespace RaceHorologyLib
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
           item.PropertyChanged += OnRaceResultItem_Changed; ;
-          RunResultWithPosition rr = item as RunResultWithPosition;
           bSomethingChanged = true;
         }
       }
@@ -335,6 +350,10 @@ namespace RaceHorologyLib
 
     private void OnRaceResultItem_Changed(object sender, PropertyChangedEventArgs e)
     {
+      // Teams are based on time, points and result of their members, not on positions (neither in the race nor in the runs)
+      if (ViewProviderHelpers.IsPositionProperty(e) || e?.PropertyName == nameof(RaceResultItem.SubResults))
+        return;
+
       Calculate();
     }
 

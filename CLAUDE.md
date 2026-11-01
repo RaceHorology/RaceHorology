@@ -67,6 +67,7 @@ vstest.console.exe /Platform:x86 RaceHorologyLibTest\bin\x86\Debug\RaceHorologyL
 - Indentation: 2 spaces (`.editorconfig`), braces on their own line.
 - UI text, many comments and DB field names are German (e.g. `Vorname`, `Nachname`, `Durchgang` = run). DSV = Deutscher Skiverband, FIS = International Ski Federation.
 - `Documents/` contains specs (DSV points calculation, DSV results XML, JSON API, user manual).
+- Commit messages and PR descriptions contain no `Co-Authored-By` or other Claude attribution lines, neither added automatically (disabled in `.claude/settings.json`) nor written by hand.
 
 ## CI and branches
 

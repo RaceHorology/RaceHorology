@@ -790,7 +790,6 @@ namespace RaceHorologyLib
       _participant = participant;
       _started = false;
       _markedForMeasurement = null;
-      _participant.PropertyChanged += OnParticipantPropertyChanged;
     }
 
 
@@ -854,13 +853,35 @@ namespace RaceHorologyLib
 
     #region INotifyPropertyChanged implementation
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    PropertyChangedEventHandler _propertyChanged;
+    /// <summary>
+    /// Passes through the property changes of the participant as well.
+    ///
+    /// The participant is only observed as long as someone observes this entry. Otherwise, the participant
+    /// would keep every entry ever created alive (start lists get rebuilt on every change).
+    /// </summary>
+    public event PropertyChangedEventHandler PropertyChanged
+    {
+      add
+      {
+        if (_propertyChanged == null)
+          _participant.PropertyChanged += OnParticipantPropertyChanged;
+        _propertyChanged += value;
+      }
+      remove
+      {
+        _propertyChanged -= value;
+        if (_propertyChanged == null)
+          _participant.PropertyChanged -= OnParticipantPropertyChanged;
+      }
+    }
+
     // This method is called by the Set accessor of each property.
     // The CallerMemberName attribute that is applied to the optional propertyName
     // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+      _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     // Pass through the property change
@@ -978,6 +999,13 @@ namespace RaceHorologyLib
 
     public virtual void UpdateRunResult(RunResult original)
     {
+      // Notify only real changes: observers (e.g. start lists based on results) recalculate on each notification
+      var oldRuntime = Runtime;
+      var oldStartTime = StartTime;
+      var oldFinishTime = FinishTime;
+      var oldResultCode = ResultCode;
+      var oldDisqualText = DisqualText;
+
       if (original != null)
       {
         System.Diagnostics.Debug.Assert(_participant == original._participant);
@@ -997,11 +1025,16 @@ namespace RaceHorologyLib
         _disqualText = null;
       }
 
-      NotifyPropertyChanged(propertyName: nameof(Runtime));
-      NotifyPropertyChanged(propertyName: nameof(StartTime));
-      NotifyPropertyChanged(propertyName: nameof(FinishTime));
-      NotifyPropertyChanged(propertyName: nameof(ResultCode));
-      NotifyPropertyChanged(propertyName: nameof(DisqualText));
+      if (oldRuntime != Runtime)
+        NotifyPropertyChanged(propertyName: nameof(Runtime));
+      if (oldStartTime != StartTime)
+        NotifyPropertyChanged(propertyName: nameof(StartTime));
+      if (oldFinishTime != FinishTime)
+        NotifyPropertyChanged(propertyName: nameof(FinishTime));
+      if (oldResultCode != ResultCode)
+        NotifyPropertyChanged(propertyName: nameof(ResultCode));
+      if (oldDisqualText != DisqualText)
+        NotifyPropertyChanged(propertyName: nameof(DisqualText));
     }
 
     virtual public bool IsEmpty()
