@@ -1433,6 +1433,41 @@ namespace RaceHorologyLibTest
 
 
     /// <summary>
+    /// Grouping by a string property (e.g. club) must work although the participants
+    /// hold different string instances for the same club (as read from the database).
+    /// </summary>
+    [TestMethod]
+    public void PenaltyRaceRunResultViewProviderTest_GroupingByClub()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.Model.SetCurrentRace(tg.Model.GetRace(0));
+      tg.Model.SetCurrentRaceRun(tg.Model.GetCurrentRace().GetRun(0));
+      Race race = tg.Model.GetCurrentRace();
+      RaceRun rr = tg.Model.GetCurrentRaceRun();
+
+      var participants = tg.createRaceParticipants(3);
+      foreach (var rp in participants)
+        rp.Participant.Club = new string("SC Test".ToCharArray());
+
+      RaceRunResultViewProvider vp = new PenaltyRaceRunResultViewProvider(PenaltyRaceRunResultViewProvider.EMode.BestPlusPercentage, 30.0);
+      vp.ChangeGrouping("Participant.Club");
+      vp.Init(rr, tg.Model);
+
+      rr.SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(30));
+      rr.SetRunTime(race.GetParticipant(2), TimeSpan.FromSeconds(60));
+      rr.SetResultCode(race.GetParticipant(3), RunResult.EResultCode.NiZ);
+
+      var results = vp.GetView().ViewToList<RunResultWithPosition>();
+      Assert.AreEqual(1U, results[0].StartNumber);
+      Assert.AreEqual(1U, results[0].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(39), results[1].Runtime);
+      Assert.AreEqual(2U, results[1].Position);
+      Assert.AreEqual(TimeSpan.FromSeconds(39), results[2].Runtime);
+      Assert.AreEqual(2U, results[2].Position);
+    }
+
+
+    /// <summary>
     /// Tests whether the positions are correct in case two or more participants have the same runtime
     /// </summary>
     [TestMethod]

@@ -1514,10 +1514,12 @@ namespace RaceHorologyLib
           g2.Key,
           g2.BestTime,
           CutOffTime = g2.BestTime == null ? (TimeSpan?)null : getCutOffTime((TimeSpan)g2.BestTime)
-        });
+        })
+        .ToList();
 
+      // Equals() instead of ==, since the keys are boxed objects (e.g. strings for club or nation)
       foreach (PenaltyRunResultWithPosition item in _viewList)
-        item.SetCutOffTime(groups.Where(g => g.Key == PropertyUtilities.GetPropertyValue(item, _activeGrouping)).First().CutOffTime);
+        item.SetCutOffTime(groups.First(g => Equals(g.Key, PropertyUtilities.GetPropertyValue(item, _activeGrouping))).CutOffTime);
     }
 
     protected TimeSpan getCutOffTime(TimeSpan referenceTime)
