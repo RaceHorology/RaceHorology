@@ -3,7 +3,7 @@ using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Printing;
+using System.Drawing.Printing;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -124,37 +124,33 @@ namespace RaceHorology
       if (!await initPdfViewer())
         return;
 
-      // The classic Windows print dialog is more compact than the one of WebView2; the preview is shown above anyway
-      var dlg = new PrintDialog { UserPageRangeEnabled = true };
-      if (dlg.ShowDialog() != true)
+      // The classic Windows print dialog is more compact than the one of WebView2; the preview is shown above anyway.
+      // Only the WinForms dialog without UseEXDialog gets the classic one, Windows 11 replaces the newer API (used by WPF) with its modern dialog.
+      var printer = new PrinterSettings { MinimumPage = 1, MaximumPage = 9999, FromPage = 1, ToPage = 1 };
+      var dlg = new System.Windows.Forms.PrintDialog { PrinterSettings = printer, UseEXDialog = false, AllowSomePages = true };
+      if (dlg.ShowDialog() != System.Windows.Forms.DialogResult.OK)
         return;
 
-      var ticket = dlg.PrintTicket;
+      var page = printer.DefaultPageSettings;
       var settings = pdfViewer.CoreWebView2.Environment.CreatePrintSettings();
-      settings.PrinterName = dlg.PrintQueue.FullName;
-      settings.Copies = ticket.CopyCount ?? 1;
-      settings.Orientation = ticket.PageOrientation == PageOrientation.Landscape ? CoreWebView2PrintOrientation.Landscape : CoreWebView2PrintOrientation.Portrait;
+      settings.PrinterName = printer.PrinterName;
+      settings.Copies = printer.Copies;
+      settings.Collation = printer.Collate ? CoreWebView2PrintCollation.Collated : CoreWebView2PrintCollation.Uncollated;
+      settings.Orientation = page.Landscape ? CoreWebView2PrintOrientation.Landscape : CoreWebView2PrintOrientation.Portrait;
       // WebView2 defaults to Letter with 1 cm margins; the report brings its own margins
-      if (ticket.PageMediaSize?.Width != null && ticket.PageMediaSize?.Height != null)
-      {
-        // PrintTicket sizes are in 1/96 inch, WebView2 expects inch
-        settings.PageWidth = ticket.PageMediaSize.Width.Value / 96;
-        settings.PageHeight = ticket.PageMediaSize.Height.Value / 96;
-      }
+      // PaperSize is in 1/100 inch, WebView2 expects inch
+      settings.PageWidth = page.PaperSize.Width / 100.0;
+      settings.PageHeight = page.PaperSize.Height / 100.0;
       settings.MarginTop = settings.MarginBottom = settings.MarginLeft = settings.MarginRight = 0;
       settings.ShouldPrintHeaderAndFooter = false;
-      if (ticket.Duplexing == Duplexing.TwoSidedLongEdge)
-        settings.Duplex = CoreWebView2PrintDuplex.TwoSidedLongEdge;
-      else if (ticket.Duplexing == Duplexing.TwoSidedShortEdge)
-        settings.Duplex = CoreWebView2PrintDuplex.TwoSidedShortEdge;
-      else if (ticket.Duplexing == Duplexing.OneSided)
+      if (printer.Duplex == Duplex.Simplex)
         settings.Duplex = CoreWebView2PrintDuplex.OneSided;
-      if (ticket.Collation == Collation.Collated)
-        settings.Collation = CoreWebView2PrintCollation.Collated;
-      else if (ticket.Collation == Collation.Uncollated)
-        settings.Collation = CoreWebView2PrintCollation.Uncollated;
-      if (dlg.PageRangeSelection == PageRangeSelection.UserPages)
-        settings.PageRanges = dlg.PageRange.PageFrom + "-" + dlg.PageRange.PageTo;
+      else if (printer.Duplex == Duplex.Vertical)
+        settings.Duplex = CoreWebView2PrintDuplex.TwoSidedLongEdge;
+      else if (printer.Duplex == Duplex.Horizontal)
+        settings.Duplex = CoreWebView2PrintDuplex.TwoSidedShortEdge;
+      if (printer.PrintRange == PrintRange.SomePages)
+        settings.PageRanges = printer.FromPage + "-" + printer.ToPage;
 
       var status = await pdfViewer.CoreWebView2.PrintAsync(settings);
       if (status != CoreWebView2PrintStatus.Succeeded)

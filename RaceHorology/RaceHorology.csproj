@@ -115,7 +115,6 @@
     <Reference Include="SharpVectors.Runtime.Wpf, Version=1.8.4.0, Culture=neutral, PublicKeyToken=d16e717f0a981fb9, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpVectors.1.8.4\lib\net48\SharpVectors.Runtime.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="ReachFramework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -124,7 +123,6 @@
       <HintPath>..\packages\System.Drawing.Common.6.0.0\lib\net461\System.Drawing.Common.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Printing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
