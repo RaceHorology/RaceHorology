@@ -1885,13 +1885,26 @@ namespace RaceHorologyLib
         // A new time changes the position within the run of many participants, but not their race result
         // => just take over the position into the sub result (no recalculation and resorting)
         if (_lastConsideredRuns.Contains(run))
-          _viewList.FirstOrDefault(x => x.Participant == rr.Participant)?.SetRunResult(run.Run, rr);
+        {
+          var rri = _viewList.FirstOrDefault(x => x.Participant == rr.Participant);
+          if (rri != null)
+          {
+            rri.SetRunResult(run.Run, rr);
+            OnSubResultPositionChanged(rri);
+          }
+        }
         return;
       }
 
       if (UpdateResultsFor(rr.Participant))
         ResortResults();
     }
+
+    /// <summary>
+    /// Called if the position within a run (sub result) changed without changing the race result itself
+    /// </summary>
+    protected virtual void OnSubResultPositionChanged(RaceResultItem rri) { }
+
 
     private void OnResultListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
@@ -2387,6 +2400,13 @@ namespace RaceHorologyLib
       {
         sortedItem.Points = calculatePoints(sortedItem);
       }
+    }
+
+    protected override void OnSubResultPositionChanged(RaceResultItem rri)
+    {
+      // Points per run depend on the positions within the runs
+      if (_mode == EMode.ApplyPointsPerRun)
+        rri.Points = calculatePoints(rri);
     }
 
     protected override double calculatePoints(RaceResultItem rri)

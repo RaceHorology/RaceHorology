@@ -2725,5 +2725,47 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(2U, rri1.SubResults[1].Position);
       Assert.AreEqual(TimeSpan.FromSeconds(1), rri1.SubResults[1].DiffToFirst);
     }
+
+
+    /// <summary>
+    /// Points per run depend on the position within the run. A new time shifts other participants
+    /// in the run, their points have to follow immediately.
+    /// </summary>
+    [TestMethod]
+    public void PointsViaTableRaceResultViewProvider_PerRun_FollowsPositionChanges()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      while (race.GetMaxRun() < 2)
+        race.AddRaceRun();
+      (new ViewConfigurator(race)).ConfigureRace(race);
+      for (int i = 0; i < 5; i++)
+        tg.createRaceParticipant();
+      var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
+      for (uint i = 1; i <= 5; i++)
+      {
+        run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+        run2.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(60 + i));
+      }
+
+      var vp = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
+      vp.Init(race, tg.Model);
+
+      double pointsOf(PointsViaTableRaceResultViewProvider p, uint startNumber)
+        => System.Linq.Enumerable.First(p.GetViewList(), r => r.Participant.StartNumber == startNumber).Points;
+
+      // Participant 1: 1st in both runs => 15 + 15
+      Assert.AreEqual(30.0, pointsOf(vp, 1));
+
+      // Participant 5 gets the best time in run 2 (total stays the slowest): all others move down one position in run 2
+      run2.SetRunTime(race.GetParticipant(5), TimeSpan.FromSeconds(55));
+
+      var fresh = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsPerRun);
+      fresh.Init(race, tg.Model);
+      Assert.AreEqual(27.0, pointsOf(fresh, 1)); // 15 (run 1) + 12 (run 2)
+      for (uint sn = 1; sn <= 5; sn++)
+        Assert.AreEqual(pointsOf(fresh, sn), pointsOf(vp, sn), string.Format("start number {0}", sn));
+    }
   }
 }
