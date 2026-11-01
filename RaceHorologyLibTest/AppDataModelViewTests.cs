@@ -2767,5 +2767,37 @@ namespace RaceHorologyLibTest
       for (uint sn = 1; sn <= 5; sn++)
         Assert.AreEqual(pointsOf(fresh, sn), pointsOf(vp, sn), string.Format("start number {0}", sn));
     }
+
+
+    /// <summary>
+    /// Start lists and results group by the same properties (one shared group comparison)
+    /// </summary>
+    [TestMethod]
+    public void ParticipantGroupComparer_SameGroupingForStartListsAndResults()
+    {
+      var tg = new TestDataGenerator();
+      var race = tg.Model.GetRace(0);
+      var run1 = race.GetRun(0);
+      string[] clubs = { "B", "A", "B", "A" };
+      for (int i = 0; i < clubs.Length; i++)
+        tg.createRaceParticipant().Participant.Club = clubs[i];
+      for (uint i = 1; i <= 4; i++)
+        run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+
+      var startList = new FirstRunStartListViewProvider();
+      startList.Init(race.GetParticipants());
+      startList.ChangeGrouping("Participant.Club");
+      var results = new RaceRunResultViewProvider();
+      results.Init(run1, tg.Model);
+      results.ChangeGrouping("Participant.Club");
+
+      CollectionAssert.AreEqual(new uint[] { 2, 4, 1, 3 }, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(startList.GetViewList(), e => e.StartNumber)));
+      CollectionAssert.AreEqual(new uint[] { 2, 4, 1, 3 }, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(results.GetViewList(), e => e.StartNumber)));
+
+      // Without a group, nulls go last
+      Assert.AreEqual(0, ParticipantGroupComparer.Compare(null, race.GetParticipant(1), race.GetParticipant(2)));
+      race.GetParticipant(1).Participant.Club = null;
+      Assert.IsTrue(ParticipantGroupComparer.Compare("Participant.Club", race.GetParticipant(1), race.GetParticipant(2)) > 0);
+    }
   }
 }

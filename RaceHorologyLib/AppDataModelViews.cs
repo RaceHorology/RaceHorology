@@ -167,6 +167,32 @@ namespace RaceHorologyLib
   }
 
 
+  /// <summary>
+  /// Compares the group of two participants according to the grouping property (e.g. "Participant.Class").
+  /// All sorters compare the group first, so that the entries of a group are next to each other.
+  /// </summary>
+  public static class ParticipantGroupComparer
+  {
+    static readonly NullEnabledComparer _nullEnabledComparer = new NullEnabledComparer();
+
+    public static int Compare(string groupingPropertyName, RaceParticipant x, RaceParticipant y)
+    {
+      Participant px = x?.Participant;
+      Participant py = y?.Participant;
+      switch (groupingPropertyName)
+      {
+        case "Participant.Class": return _nullEnabledComparer.Compare(px?.Class, py?.Class);
+        case "Participant.Group": return _nullEnabledComparer.Compare(px?.Group, py?.Group);
+        case "Participant.Sex": return _nullEnabledComparer.Compare(px?.Sex, py?.Sex);
+        case "Participant.Club": return _nullEnabledComparer.Compare(px?.Club, py?.Club);
+        case "Participant.Nation": return _nullEnabledComparer.Compare(px?.Nation, py?.Nation);
+        case "Participant.Team": return _nullEnabledComparer.Compare(px?.Team, py?.Team);
+        default: return 0;
+      }
+    }
+  }
+
+
   public class StartListEntryComparer : System.Collections.Generic.IComparer<StartListEntry>
   {
     public enum Direction : int { Ascending = 1, Descending = -1 };
@@ -199,18 +225,9 @@ namespace RaceHorologyLib
     }
 
 
-    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(StartListEntry rrX, StartListEntry rrY)
     {
-      int groupCompare = 0;
-      if (_groupingPropertyName == "Participant.Class")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Class, rrY.Participant.Participant.Class);
-      else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Group, rrY.Participant.Participant.Group);
-      else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = nullEnabledComparer.Compare(rrX.Participant.Participant.Sex, rrY.Participant.Participant.Sex);
-
-      return groupCompare;
+      return ParticipantGroupComparer.Compare(_groupingPropertyName, rrX.Participant, rrY.Participant);
     }
   }
 
@@ -1252,44 +1269,17 @@ namespace RaceHorologyLib
     }
 
 
-    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(RunResult rrX, RunResult rrY)
     {
-      int groupCompare = 0;
-      if (_groupingPropertyName == "Participant.Class")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Class, rrY.Participant?.Participant?.Class);
-      else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Group, rrY.Participant?.Participant?.Group);
-      else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY.Participant?.Participant?.Sex);
-      else if (_groupingPropertyName == "Participant.Club")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Club, rrY.Participant?.Participant?.Club);
-      else if (_groupingPropertyName == "Participant.Nation")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Nation, rrY.Participant?.Participant?.Nation);
-      else if (_groupingPropertyName == "Participant.Team")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Team, rrY.Participant?.Participant?.Team);
-
-      return groupCompare;
+      return ParticipantGroupComparer.Compare(_groupingPropertyName, rrX?.Participant, rrY?.Participant);
     }
+
     protected int CompareGroup(RaceResultItem rrX, RaceResultItem rrY)
     {
-      int groupCompare = 0;
-      if (_groupingPropertyName == "Participant.Class")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Class, rrY?.Participant?.Participant?.Class);
-      else if (_groupingPropertyName == "Participant.Group")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Group, rrY?.Participant?.Participant?.Group);
-      else if (_groupingPropertyName == "Participant.Sex")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Sex, rrY?.Participant?.Participant?.Sex);
-      else if (_groupingPropertyName == "Participant.Club")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Club, rrY.Participant?.Participant?.Club);
-      else if (_groupingPropertyName == "Participant.Nation")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Nation, rrY.Participant?.Participant?.Nation);
-      else if (_groupingPropertyName == "Participant.Team")
-        groupCompare = nullEnabledComparer.Compare(rrX?.Participant?.Participant?.Team, rrY.Participant?.Participant?.Team);
-
-      return groupCompare;
+      return ParticipantGroupComparer.Compare(_groupingPropertyName, rrX?.Participant, rrY?.Participant);
     }
 
+    NullEnabledComparer nullEnabledComparer = new NullEnabledComparer();
     protected int CompareGroup(TeamResultViewItem tX, TeamResultViewItem tY)
     {
       int groupCompare = 0;
