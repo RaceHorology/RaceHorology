@@ -1754,7 +1754,11 @@ namespace RaceHorologyLib
       }
 
       if (updateAll)
+      {
+        // Keep the runs ordered by run number, the time combination may depend on it (e.g. SumMxBestOfN)
+        _lastConsideredRuns.Sort((a, b) => a.Run.CompareTo(b.Run));
         UpdateAll();
+      }
     }
 
     private void UpdateAll()

@@ -1886,6 +1886,41 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(TimeSpan.FromSeconds(40), sum(40, 50));
     }
 
+
+    /// <summary>
+    /// "2x Best of 2" must assign the runs to the blocks by run number, even if the results
+    /// of a run got deleted and entered again (the run is then considered again as the last one).
+    /// </summary>
+    [TestMethod]
+    public void RaceResultViewProviderTest_SumMxBestOfN_RunOrder()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      Race race = tg.Model.GetRace(0);
+      race.UpdateNumberOfRuns(4);
+      new ViewConfigurator(race).ConfigureRace(race); // View providers for the added runs
+      tg.createRaceParticipant();
+      var rp = race.GetParticipant(1);
+
+      race.GetRun(0).SetRunTime(rp, TimeSpan.FromSeconds(40));
+      race.GetRun(1).SetRunTime(rp, TimeSpan.FromSeconds(50));
+      race.GetRun(2).SetRunTime(rp, TimeSpan.FromSeconds(70));
+      race.GetRun(3).SetRunTime(rp, TimeSpan.FromSeconds(65));
+
+      RaceResultViewProvider vp = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.SumMxBestOfN);
+      vp.Init(race, tg.Model);
+
+      // 40, 50 | 70, 65 => 40 + 65
+      Assert.AreEqual(TimeSpan.FromSeconds(105), vp.GetViewList()[0].TotalTime);
+
+      race.GetRun(0).DeleteRunResults();
+      // -, 50 | 70, 65 => 50 + 65
+      Assert.AreEqual(TimeSpan.FromSeconds(115), vp.GetViewList()[0].TotalTime);
+
+      race.GetRun(0).SetRunTime(rp, TimeSpan.FromSeconds(40));
+      // 40, 50 | 70, 65 => 40 + 65
+      Assert.AreEqual(TimeSpan.FromSeconds(105), vp.GetViewList()[0].TotalTime);
+    }
+
     /// <summary>
     /// Test for RaceResultViewProvider
     ///
