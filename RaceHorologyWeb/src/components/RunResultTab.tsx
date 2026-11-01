@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Alert from 'react-bootstrap/Alert'
 import { fetchRunResultList } from '../api/http'
-import type { LiveData } from '../api/liveData'
+import { currentRunIndex, type LiveData } from '../api/liveData'
 import type { Grouping, MetaData, RunResultEntry, RunResultList } from '../api/types'
 import { startNumber } from './format'
 import GroupedTable, { type Column } from './GroupedTable'
@@ -21,12 +21,6 @@ const columns: Column<RunResultEntry>[] = [
   { header: 'Bemerkung', render: (e) => e.DisqualText },
 ]
 
-/** Index (counted from 0) of the run currently timed, the server sends it counted from 1 */
-function currentRunIndex(liveData: LiveData): number | undefined {
-  const run = Number(liveData.currentRaceRun?.run)
-  return run > 0 ? run - 1 : undefined
-}
-
 export default function RunResultTab({ liveData, meta }: { liveData: LiveData; meta: MetaData['data'] | null }) {
   const currentRun = currentRunIndex(liveData)
   const [run, setRun] = useState(currentRun ?? 0)
@@ -44,9 +38,10 @@ export default function RunResultTab({ liveData, meta }: { liveData: LiveData; m
       .catch((e: unknown) => setError(String(e)))
   }, [run, groupBy])
 
-  // The server pushes new results of the current run; reload them with the selected grouping
-  const liveRunResult = run === currentRun ? liveData.runResult : null
-  useEffect(load, [load, liveRunResult])
+  // The server pushes the race result whenever a time changes, but not the results of the run;
+  // reload them if the current run is shown
+  const liveUpdate = run === currentRun ? liveData.raceResult : null
+  useEffect(load, [load, liveUpdate])
 
   // A filter for a group that no longer exists (e.g. after changing the run) shows everything
   const activeFilter = results && filterBy in results.data ? filterBy : ''
