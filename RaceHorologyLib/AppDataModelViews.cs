@@ -45,16 +45,6 @@ using static RaceHorologyLib.ViewProviderHelpers;
 
 namespace RaceHorologyLib
 {
-  /* Just fro Debugging
-  class DebugSort : System.Collections.IComparer
-  {
-    public int Compare(object x, object y)
-    {
-      return 0;
-    }
-  }
-  */
-
   /// <summary>
   /// BaseClass for all ViewProvider
   ///
@@ -440,7 +430,7 @@ namespace RaceHorologyLib
       {
         var item = _viewList[i];
         object itemGroup = PropertyUtilities.GetPropertyValue(item, _activeGrouping);
-        if (!Equals(PropertyUtilities.GetPropertyValue(item, _activeGrouping), curGroup))
+        if (!Equals(itemGroup, curGroup))
         {
           // New group starts
           sortGroup(curGroupStart, curGroupEnd);
@@ -798,7 +788,7 @@ namespace RaceHorologyLib
       foreach (var curSortedItem in srcResults)
       {
         object itemGroup = PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping);
-        if (!Equals(PropertyUtilities.GetPropertyValue(curSortedItem, _activeGrouping), curGroup))
+        if (!Equals(itemGroup, curGroup))
         {
           ProcessGroup(resultsCurGroup, newStartList);
           curGroup = itemGroup;
@@ -1041,7 +1031,6 @@ namespace RaceHorologyLib
 
       // Observe StartList
       _viewList.CollectionChanged += OnStartListEntriesChanged;
-      //_viewList.ItemChanged += OnStartListEntryItemChanged;
 
       // Observe additional properties
       _raceRun.PropertyChanged += OnRaceRun_PropertyChanged;
@@ -1177,12 +1166,6 @@ namespace RaceHorologyLib
           StartListEntry sle = (StartListEntry)item;
           UpdateStartListEntry(sle);
         }
-    }
-
-    private void OnStartListEntryItemChanged(object sender, PropertyChangedEventArgs e)
-    {
-      StartListEntry sle = (StartListEntry)sender;
-      UpdateStartListEntry(sle);
     }
 
     private void SetStartListEntryStartedFalse(RunResult result)
@@ -1462,8 +1445,6 @@ namespace RaceHorologyLib
     private void Participants_ItemChanged(object sender, PropertyChangedEventArgs e)
     {
       RaceParticipant rp = (RaceParticipant)sender;
-      RunResultWithPosition rrWP = _viewList.FirstOrDefault(r => r.Participant == rp);
-
       updateRunResult(rp, _raceRun.GetRunResult(rp));
     }
 
@@ -1733,7 +1714,6 @@ namespace RaceHorologyLib
     protected List<RaceRun> _lastConsideredRuns;
     // Result lists of the runs observed since Init() and the handlers for their item changes
     List<(ItemsChangeObservableCollection<RunResultWithPosition> list, ItemsChangeObservableCollection<RunResultWithPosition>.ItemChangedEventHandler itemChanged)> _observedRunResults;
-    //protected List<ItemsChangedNotifier> _runResultsNotifier;
 
 
     protected virtual double calculatePoints(RaceResultItem rri)
@@ -1764,7 +1744,6 @@ namespace RaceHorologyLib
       }
 
       _lastConsideredRuns = new List<RaceRun>();
-      //_runResultsNotifier = new List<ItemsChangedNotifier>();
     }
 
 
@@ -1900,14 +1879,6 @@ namespace RaceHorologyLib
     }
 
 
-    private void OnResultListItemChanged(object sender, PropertyChangedEventArgs e)
-    {
-      if (sender is RunResultWithPosition rr)
-        if (UpdateResultsFor(rr?.Participant))
-          ResortResults();
-    }
-
-
     private void CheckRunConsideration()
     {
       bool updateAll = false;
@@ -1984,10 +1955,7 @@ namespace RaceHorologyLib
 
       // Combine and update the race result
       foreach (var res in results)
-      {
-        bool sigCh = rri.SetRunResult(res.Key, res.Value);
-        //significantChange = significantChange || sigCh;
-      }
+        rri.SetRunResult(res.Key, res.Value);
 
       // It may happen, that caused by _lastConsideredRuns a race gets removed resulting in not-updated SubResults
       // In this casethe corresponding SubResult has to be removed
@@ -2651,8 +2619,6 @@ namespace RaceHorologyLib
           item.DiffToFirstPercentage = 0.0;
         }
 
-        // Set the JustModified flag to highlight new results
-        //item.JustModified = _appDataModel.JustMeasured(item.Participant.Participant);
         additionalCB(item);
       }
     }

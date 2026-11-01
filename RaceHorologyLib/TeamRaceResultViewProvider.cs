@@ -150,7 +150,6 @@ namespace RaceHorologyLib
         foreach (INotifyPropertyChanged item in e.OldItems)
         {
           item.PropertyChanged -= OnRaceResultItem_Changed;
-          RunResultWithPosition rr = item as RunResultWithPosition;
           bSomethingChanged = true;
         }
       }
@@ -160,7 +159,6 @@ namespace RaceHorologyLib
         foreach (INotifyPropertyChanged item in e.NewItems)
         {
           item.PropertyChanged += OnRaceResultItem_Changed; ;
-          RunResultWithPosition rr = item as RunResultWithPosition;
           bSomethingChanged = true;
         }
       }
