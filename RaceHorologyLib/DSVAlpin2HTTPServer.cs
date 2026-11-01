@@ -400,11 +400,13 @@ namespace RaceHorologyLib
       Application.Current.Dispatcher.Invoke(() =>
       {
         ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-        StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun);
-        if (grouping != null)
-          vp.ChangeGrouping(grouping);
+        using (StartListViewProvider vp = viewConfigurator.GetStartlistViewProvider(raceRun))
+        {
+          if (grouping != null)
+            vp.ChangeGrouping(grouping);
 
-        output = JsonConversion.ConvertStartList(vp.GetView());
+          output = JsonConversion.ConvertStartList(vp.GetView());
+        }
       });
 
       return output;
@@ -418,22 +420,24 @@ namespace RaceHorologyLib
       Application.Current.Dispatcher.Invoke(() =>
       {
         ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-        var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun);
-        if (grouping != null)
-          vp.ChangeGrouping(grouping);
-
-        List<object> remaingStarters = new List<object>();
-        int c = 0;
-        foreach (var item in vp.GetView())
+        using (var vp = viewConfigurator.GetRemainingStartersViewProvider(raceRun))
         {
-          if (limit >= 0 && c >= limit)
-            break;
+          if (grouping != null)
+            vp.ChangeGrouping(grouping);
 
-          remaingStarters.Add(item);
-          c++;
+          List<object> remaingStarters = new List<object>();
+          int c = 0;
+          foreach (var item in vp.GetView())
+          {
+            if (limit >= 0 && c >= limit)
+              break;
+
+            remaingStarters.Add(item);
+            c++;
+          }
+
+          output = JsonConversion.ConvertOnStartList(remaingStarters);
         }
-
-        output = JsonConversion.ConvertOnStartList(remaingStarters);
       });
 
       return output;
@@ -447,11 +451,13 @@ namespace RaceHorologyLib
       Application.Current.Dispatcher.Invoke(() =>
       {
         ViewConfigurator viewConfigurator = new ViewConfigurator(raceRun.GetRace());
-        RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun);
-        if (grouping != null)
-          vp.ChangeGrouping(grouping);
+        using (RaceRunResultViewProvider vp = viewConfigurator.GetRaceRunResultViewProvider(raceRun))
+        {
+          if (grouping != null)
+            vp.ChangeGrouping(grouping);
 
-        output = JsonConversion.ConvertRunResults(vp.GetView());
+          output = JsonConversion.ConvertRunResults(vp.GetView());
+        }
       });
 
       return output;
@@ -465,11 +471,13 @@ namespace RaceHorologyLib
         Application.Current.Dispatcher.Invoke(() =>
         {
           ViewConfigurator viewConfigurator = new ViewConfigurator(race);
-          RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race);
-          if (grouping != null)
-            vp.ChangeGrouping(grouping);
+          using (RaceResultViewProvider vp = viewConfigurator.GetRaceResultViewProvider(race))
+          {
+            if (grouping != null)
+              vp.ChangeGrouping(grouping);
 
-          output = JsonConversion.ConvertRaceResults(vp.GetView(), (uint)race.GetMaxRun());
+            output = JsonConversion.ConvertRaceResults(vp.GetView(), (uint)race.GetMaxRun());
+          }
         });
 
       return output;
@@ -713,12 +721,13 @@ namespace RaceHorologyLib
           _notifier.ItemChanged -= StartListItemChanged;
           _notifier = null;
         }
-        _rslVP = null;
 
 
 
         Application.Current.Dispatcher.Invoke(() =>
         {
+          _rslVP?.Dispose();
+
           RaceRun raceRun = _dm.GetCurrentRaceRun();
           _rslVP = new RemainingStartListViewProvider();
           _rslVP.Init(raceRun.GetStartListProvider(), raceRun);
@@ -740,6 +749,7 @@ namespace RaceHorologyLib
 
       _notifier.CollectionChanged -= StartListChanged;
       _notifier.ItemChanged -= StartListItemChanged;
+      Application.Current?.Dispatcher.Invoke(() => _rslVP?.Dispose());
       _rslVP = null;
       _notifier = null;
       _timer = null;

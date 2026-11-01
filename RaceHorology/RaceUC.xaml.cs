@@ -645,6 +645,8 @@ namespace RaceHorology
     {
       if (raceRun != null)
       {
+        // The previous provider would keep on calculating otherwise
+        _rslVP?.Dispose();
         _rslVP = (new ViewConfigurator(_thisRace)).GetRemainingStartersViewProvider(raceRun);
         dgRemainingStarters.ItemsSource = _rslVP.GetView();
         UiUtilities.EnableOrDisableColumns(_thisRace, dgRemainingStarters);
