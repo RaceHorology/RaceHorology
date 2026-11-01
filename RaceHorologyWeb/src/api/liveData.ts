@@ -5,6 +5,7 @@ import type {
   OnTrackEntry,
   Participant,
   RaceResultList,
+  RunResultList,
   StartListEntry,
 } from './types'
 
@@ -17,6 +18,8 @@ export interface LiveData {
   onTrack: OnTrackEntry[]
   /** Participants who finished most recently, newest first */
   justFinished: Participant[]
+  /** Results of the current run */
+  runResult: RunResultList | null
   raceResult: RaceResultList | null
   currentRaceRun: CurrentRaceRunMessage['data'] | null
   lastUpdate: Date | null
@@ -30,6 +33,7 @@ const initialState: LiveData = {
   onStart: [],
   onTrack: [],
   justFinished: [],
+  runResult: null,
   raceResult: null,
   currentRaceRun: null,
   lastUpdate: null,
@@ -43,6 +47,8 @@ function reduceMessage(state: LiveData, message: LiveDataMessage): LiveData {
       return { ...state, onStart: message.data }
     case 'ontrack':
       return { ...state, onTrack: message.data }
+    case 'racerunresult':
+      return { ...state, runResult: message }
     case 'raceresult':
       return { ...state, raceResult: message }
     case 'currentracerun':
