@@ -664,6 +664,36 @@
       <Compile Include="$(IntermediateOutputPath)Version.cs" />
     </ItemGroup>
   </Target>
+  <!--
+    New web client (RaceHorologyWeb, React + Vite). It is built via npm and copied to webroot\next\.
+    Pass /p:SkipWebBuild=true to build without Node.js; the new client is then missing.
+  -->
+  <PropertyGroup>
+    <WebClientDir>$(MSBuildProjectDirectory)\..\RaceHorologyWeb\</WebClientDir>
+    <WebClientOutDir>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)webroot-next\</WebClientOutDir>
+    <!-- npm ci recreates node_modules, so a stamp inside it also detects a deleted node_modules -->
+    <WebClientNpmCiStamp>$(WebClientDir)node_modules\.racehorology-npm-ci.stamp</WebClientNpmCiStamp>
+  </PropertyGroup>
+  <Target Name="WebClientNpmCi" Condition="'$(SkipWebBuild)' != 'true'" Inputs="$(WebClientDir)package.json;$(WebClientDir)package-lock.json" Outputs="$(WebClientNpmCiStamp)">
+    <Exec Command="npm ci --no-audit --no-fund" WorkingDirectory="$(WebClientDir)" />
+    <Touch Files="$(WebClientNpmCiStamp)" AlwaysCreate="true" />
+  </Target>
+  <Target Name="WebClientBuild" Condition="'$(SkipWebBuild)' != 'true'" DependsOnTargets="WebClientNpmCi" Inputs="@(WebClientSource);$(WebClientNpmCiStamp)" Outputs="$(WebClientOutDir)index.html">
+    <Exec Command="npm run build" WorkingDirectory="$(WebClientDir)" EnvironmentVariables="RH_WEB_OUTDIR=$(WebClientOutDir)" />
+  </Target>
+  <ItemGroup>
+    <WebClientSource Include="$(WebClientDir)src\**\*;$(WebClientDir)public\**\*;$(WebClientDir)index.html;$(WebClientDir)vite.config.ts;$(WebClientDir)tsconfig*.json;$(WebClientDir)package.json;$(WebClientDir)package-lock.json" />
+  </ItemGroup>
+  <!-- Static wildcards are evaluated before the build, so the build output is added as Content here -->
+  <Target Name="WebClientAddContent" BeforeTargets="BeforeBuild" DependsOnTargets="WebClientBuild" Condition="'$(SkipWebBuild)' != 'true'">
+    <ItemGroup>
+      <_WebClientFile Include="$(WebClientOutDir)**\*" />
+      <Content Include="@(_WebClientFile)">
+        <Link>webroot\next\%(_WebClientFile.RecursiveDir)%(_WebClientFile.Filename)%(_WebClientFile.Extension)</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

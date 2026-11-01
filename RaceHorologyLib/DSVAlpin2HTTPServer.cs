@@ -193,8 +193,10 @@ namespace RaceHorologyLib
       var req = e.Request;
       var res = e.Response;
 
-      var path = req.RawUrl;
-      if (path == "/")
+      // Ignore the query string, e.g. cache busters
+      var path = req.RawUrl.Split('?')[0];
+      // Directories (e.g. "/" or "/next/") resolve to their index.html
+      if (path.EndsWith("/"))
         path += "index.html";
 
       byte[] contents;
@@ -204,29 +206,29 @@ namespace RaceHorologyLib
         return;
       }
 
-      if (path.EndsWith(".html"))
+      if (_mimeTypes.TryGetValue(System.IO.Path.GetExtension(path), out var mimeType))
       {
-        res.ContentType = "text/html";
-        res.ContentEncoding = Encoding.UTF8;
-      }
-      else if (path.EndsWith(".js"))
-      {
-        res.ContentType = "application/javascript";
-        res.ContentEncoding = Encoding.UTF8;
-      }
-      else if (path.EndsWith(".css"))
-      {
-        res.ContentType = "text/css";
-        res.ContentEncoding = Encoding.UTF8;
-      }
-      else if (path.EndsWith(".svg"))
-      {
-        res.ContentType = "image/svg+xml";
-        res.ContentEncoding = Encoding.UTF8;
+        res.ContentType = mimeType.ContentType;
+        if (mimeType.IsText)
+          res.ContentEncoding = Encoding.UTF8;
       }
 
       res.WriteContent(contents);
     }
+
+    static readonly Dictionary<string, (string ContentType, bool IsText)> _mimeTypes =
+      new Dictionary<string, (string ContentType, bool IsText)>(StringComparer.OrdinalIgnoreCase)
+      {
+        { ".html",  ("text/html", true) },
+        { ".js",    ("application/javascript", true) },
+        { ".css",   ("text/css", true) },
+        { ".svg",   ("image/svg+xml", true) },
+        { ".json",  ("application/json", true) },
+        { ".map",   ("application/json", true) },
+        { ".png",   ("image/png", false) },
+        { ".ico",   ("image/x-icon", false) },
+        { ".woff2", ("font/woff2", false) },
+      };
 
     protected void HandleAPIRequest(HttpRequestEventArgs e)
     {
