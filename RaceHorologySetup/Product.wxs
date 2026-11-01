@@ -21,6 +21,8 @@
       <ComponentGroupRef Id="webroot_img_files" />
       <ComponentGroupRef Id="webroot_files" />
       <ComponentGroupRef Id="webroot_Js_files" />
+      <!-- Harvested by Heat from the RaceHorologyWeb build output, see RaceHorologySetup.wixproj -->
+      <ComponentGroupRef Id="webroot_next_files" />
       <ComponentGroupRef Id="INSTALLFOLDER_files" />
       <ComponentGroupRef Id="raceconfigpresets_files" />
       <ComponentGroupRef Id="dbtemplates_files" />
@@ -60,6 +62,7 @@
             <Directory Id="webroot_css" Name="css" />
             <Directory Id="webroot_img" Name="img" />
             <Directory Id="webroot_Js" Name="Js" />
+            <Directory Id="webroot_next" Name="next" />
           </Directory>
           <Directory Id="ExtSources" Name="ExtSources" />
           <Directory Id="raceconfigpresets" Name="raceconfigpresets" />
