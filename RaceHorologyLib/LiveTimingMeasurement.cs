@@ -187,12 +187,63 @@ namespace RaceHorologyLib
   }
 
 
+  /// <param name="message">The protocol line of the received message, i.e. prefixed with the time it was received</param>
   public delegate void RawMessageReceivedEventHandler(object sender, string message);
   public interface ILiveTimeMeasurementDeviceDebugInfo
   {
     string GetProtocol();
+    void ClearProtocol();
     event RawMessageReceivedEventHandler RawMessageReceived;
 
+  }
+
+
+  /// <summary>
+  /// Protocol of the raw messages of a timing device (for debugging).
+  /// Each message is one line, prefixed with the time it was received (Issue #328).
+  /// Thread safe: messages are added by the device thread, the protocol is read by the UI.
+  /// </summary>
+  public class TimingDeviceProtocol
+  {
+    readonly System.Text.StringBuilder _protocol = new System.Text.StringBuilder();
+    readonly object _lock = new object();
+
+    public static string FormatLine(DateTime received, string message)
+    {
+      return string.Format("{0:dd.MM.yyyy HH:mm:ss.fff} | {1}", received, message);
+    }
+
+    /// <summary>
+    /// Adds the message and returns the protocol line
+    /// </summary>
+    public string Add(string message)
+    {
+      return Add(message, DateTime.Now);
+    }
+
+    public string Add(string message, DateTime received)
+    {
+      string line = FormatLine(received, message);
+      lock (_lock)
+      {
+        if (_protocol.Length > 0)
+          _protocol.Append('\n');
+        _protocol.Append(line);
+      }
+      return line;
+    }
+
+    public string GetText()
+    {
+      lock (_lock)
+        return _protocol.ToString();
+    }
+
+    public void Clear()
+    {
+      lock (_lock)
+        _protocol.Clear();
+    }
   }
 
 

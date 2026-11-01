@@ -14,8 +14,13 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <Label Content="Protokoll:" Grid.Row="0"/>
-    <TextBox x:Name="tbAlgeLog" Grid.Row="1" Margin="5" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="True"/>
+    <TextBox x:Name="tbAlgeLog" Grid.Row="1" Margin="5" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5,0,5,5">
+      <CheckBox x:Name="chkAutoScroll" Content="Automatisch scrollen" IsChecked="True" VerticalAlignment="Center" Margin="0,0,10,0" Checked="chkAutoScroll_Checked"/>
+      <Button x:Name="btnClear" Content="Leeren" Width="75" Click="btnClear_Click"/>
+    </StackPanel>
   </Grid>
 </local:TimingDeviceBaseUC>

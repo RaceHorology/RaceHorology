@@ -63,8 +63,6 @@ namespace RaceHorologyLib
       _baseUrlWs = String.Format("ws://{0}/ws/events", hostname);
       _parser = new AlpenhundeParser();
 
-      _internalProtocol = String.Empty;
-
       _systemInfo = new AlpenhundeSystemInfo();
       _webClient = new HttpClient()
       {
@@ -439,21 +437,24 @@ namespace RaceHorologyLib
 
     public event RawMessageReceivedEventHandler RawMessageReceived;
 
-    private string _internalProtocol;
+    private TimingDeviceProtocol _protocol = new TimingDeviceProtocol();
 
     public string GetProtocol()
     {
-      return _internalProtocol;
+      return _protocol.GetText();
+    }
+
+    public void ClearProtocol()
+    {
+      _protocol.Clear();
     }
 
     void debugMessage(string message)
     {
-      if (!string.IsNullOrEmpty(_internalProtocol))
-        _internalProtocol += "\n";
-      _internalProtocol += message;
+      string protocolLine = _protocol.Add(message);
 
       RawMessageReceivedEventHandler handler = RawMessageReceived;
-      handler?.Invoke(this, message);
+      handler?.Invoke(this, protocolLine);
     }
 
     #endregion

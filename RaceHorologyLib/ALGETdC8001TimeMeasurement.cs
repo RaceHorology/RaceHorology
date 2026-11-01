@@ -294,7 +294,7 @@ namespace RaceHorologyLib
     private EInternalStatus _internalStatus;
     private string _dumpDir;
     System.IO.StreamWriter _dumpFile;
-    private string _internalProtocol;
+    private TimingDeviceProtocol _protocol = new TimingDeviceProtocol();
 
     System.Threading.Thread _instanceCaller;
     bool _stopRequest;
@@ -308,7 +308,6 @@ namespace RaceHorologyLib
       _comBitRate = comBitRate;
       _internalStatus = EInternalStatus.Stopped;
       _dumpDir = dumpDir;
-      _internalProtocol = string.Empty;
     }
 
     public override void Start()
@@ -487,7 +486,12 @@ namespace RaceHorologyLib
 
     public string GetProtocol()
     {
-      return _internalProtocol;
+      return _protocol.GetText();
+    }
+
+    public void ClearProtocol()
+    {
+      _protocol.Clear();
     }
 
     void debugLine(string dataLine)
@@ -495,12 +499,10 @@ namespace RaceHorologyLib
       _dumpFile?.WriteLine(dataLine);
       _dumpFile?.Flush();
 
-      if (!string.IsNullOrEmpty(_internalProtocol))
-        _internalProtocol += "\n";
-      _internalProtocol += dataLine;
+      string protocolLine = _protocol.Add(dataLine);
 
       RawMessageReceivedEventHandler handler = RawMessageReceived;
-      handler?.Invoke(this, dataLine);
+      handler?.Invoke(this, protocolLine);
     }
     #endregion
 

@@ -825,4 +825,32 @@ namespace RaceHorologyLibTest
       }
     }
   }
+
+
+  [TestClass]
+  public class TimingDeviceProtocolTests
+  {
+    [TestMethod]
+    public void TimingDeviceProtocol_AddGetClear()
+    {
+      var protocol = new TimingDeviceProtocol();
+      Assert.AreEqual("", protocol.GetText());
+
+      // Each message is one line, prefixed with the time it was received
+      var received = new DateTime(2026, 10, 21, 9, 5, 3, 42);
+      string line = protocol.Add(" 0001 C0  09:05:03.0420 00", received);
+      Assert.AreEqual("21.10.2026 09:05:03.042 |  0001 C0  09:05:03.0420 00", line);
+      Assert.AreEqual(line, protocol.GetText());
+
+      string line2 = protocol.Add("second", received.AddSeconds(1));
+      Assert.AreEqual(line + "\n" + line2, protocol.GetText());
+
+      protocol.Clear();
+      Assert.AreEqual("", protocol.GetText());
+
+      // No leading line break after clearing
+      string line3 = protocol.Add("third", received);
+      Assert.AreEqual(line3, protocol.GetText());
+    }
+  }
 }
