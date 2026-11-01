@@ -296,7 +296,7 @@ namespace RaceHorologyLib
       }
 
       // Sync Lists
-      int i, j;
+      int i;
       switch (e.Action)
       {
         case NotifyCollectionChangedAction.Add:
@@ -323,8 +323,13 @@ namespace RaceHorologyLib
 
           break;
         case NotifyCollectionChangedAction.Move:
-          for (i = e.OldStartingIndex, j = e.NewStartingIndex; i < e.OldItems.Count; i++, j++)
-            Move(i, j);
+          // Move a block of items; if moved backwards, start with the last item so that the indices of the others stay valid
+          if (e.NewStartingIndex > e.OldStartingIndex)
+            for (i = e.OldItems.Count - 1; i >= 0; i--)
+              Move(e.OldStartingIndex + i, e.NewStartingIndex + i);
+          else
+            for (i = 0; i < e.OldItems.Count; i++)
+              Move(e.OldStartingIndex + i, e.NewStartingIndex + i);
           break;
       }
 

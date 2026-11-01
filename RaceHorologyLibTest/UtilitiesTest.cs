@@ -158,6 +158,13 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(10, coc[0].Attr1);
       Assert.AreEqual(20, coc[1].Attr1);
 
+      // Test move not starting at the first item, forwards and backwards
+      sc.Add(new TestClass { Attr1 = 40 });
+      sc.Move(1, 2);
+      CollectionAssert.AreEqual(new[] { 10, 40, 20 }, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(coc, x => x.Attr1)));
+      sc.Move(2, 1);
+      CollectionAssert.AreEqual(new[] { 10, 20, 40 }, System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(coc, x => x.Attr1)));
+
       sc.Clear();
       Assert.AreEqual(0, sc.Count);
       Assert.AreEqual(0, coc.Count);
