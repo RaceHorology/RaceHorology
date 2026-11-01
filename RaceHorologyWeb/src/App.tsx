@@ -6,6 +6,7 @@ import { useLiveData } from './api/liveData'
 import { useMetaData } from './api/metaData'
 import logo from './assets/rh-logo.svg'
 import ConnectionStatus from './components/ConnectionStatus'
+import LiveTab from './components/LiveTab'
 import StartListTab from './components/StartListTab'
 
 export default function App() {
@@ -24,7 +25,10 @@ export default function App() {
         </Container>
       </Navbar>
       <Container>
-        <Tabs defaultActiveKey="startlist" className="mb-3" mountOnEnter>
+        <Tabs defaultActiveKey="live" className="mb-3" mountOnEnter>
+          <Tab eventKey="live" title="Live">
+            <LiveTab liveData={liveData} meta={meta} />
+          </Tab>
           <Tab eventKey="startlist" title="Startliste">
             <StartListTab meta={meta} />
           </Tab>

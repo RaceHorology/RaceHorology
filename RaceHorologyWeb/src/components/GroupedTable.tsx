@@ -12,12 +12,13 @@ export interface GroupedTableProps<T> {
   data: GroupedData<T>
   columns: Column<T>[]
   rowKey: (row: T) => string | number
+  rowClassName?: (row: T) => string | undefined
   /** Only show this group; empty shows all */
   filterBy: string
 }
 
 /** Renders a list grouped by the server as one table per group */
-export default function GroupedTable<T>({ data, columns, rowKey, filterBy }: GroupedTableProps<T>) {
+export default function GroupedTable<T>({ data, columns, rowKey, rowClassName, filterBy }: GroupedTableProps<T>) {
   const groups = Object.entries(data).filter(([group]) => !filterBy || group === filterBy)
 
   if (groups.every(([, rows]) => rows.length === 0))
@@ -40,7 +41,7 @@ export default function GroupedTable<T>({ data, columns, rowKey, filterBy }: Gro
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={rowKey(row)}>
+                <tr key={rowKey(row)} className={rowClassName?.(row)}>
                   {columns.map((c) => (
                     <td key={c.header} className={c.className}>
                       {c.render(row)}

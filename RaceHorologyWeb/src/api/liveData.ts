@@ -22,6 +22,12 @@ export interface LiveData {
   lastUpdate: Date | null
 }
 
+/** Index (counted from 0) of the run currently timed; the server sends it counted from 1 */
+export function currentRunIndex(liveData: LiveData): number | undefined {
+  const run = Number(liveData.currentRaceRun?.run)
+  return run > 0 ? run - 1 : undefined
+}
+
 const MAX_JUST_FINISHED = 3
 const RECONNECT_DELAY_MS = 3000
 
