@@ -3,6 +3,7 @@ using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Printing;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -120,8 +121,46 @@ namespace RaceHorology
 
     private async void btnPrint_Click(object sender, RoutedEventArgs e)
     {
-      if (await initPdfViewer())
-        pdfViewer.CoreWebView2.ShowPrintUI(CoreWebView2PrintDialogKind.Browser);
+      if (!await initPdfViewer())
+        return;
+
+      // The classic Windows print dialog is more compact than the one of WebView2; the preview is shown above anyway
+      var dlg = new PrintDialog { UserPageRangeEnabled = true };
+      if (dlg.ShowDialog() != true)
+        return;
+
+      var ticket = dlg.PrintTicket;
+      var settings = pdfViewer.CoreWebView2.Environment.CreatePrintSettings();
+      settings.PrinterName = dlg.PrintQueue.FullName;
+      settings.Copies = ticket.CopyCount ?? 1;
+      settings.Orientation = ticket.PageOrientation == PageOrientation.Landscape ? CoreWebView2PrintOrientation.Landscape : CoreWebView2PrintOrientation.Portrait;
+      // WebView2 defaults to Letter with 1 cm margins; the report brings its own margins
+      if (ticket.PageMediaSize?.Width != null && ticket.PageMediaSize?.Height != null)
+      {
+        // PrintTicket sizes are in 1/96 inch, WebView2 expects inch
+        settings.PageWidth = ticket.PageMediaSize.Width.Value / 96;
+        settings.PageHeight = ticket.PageMediaSize.Height.Value / 96;
+      }
+      settings.MarginTop = settings.MarginBottom = settings.MarginLeft = settings.MarginRight = 0;
+      settings.ShouldPrintHeaderAndFooter = false;
+      if (ticket.Duplexing == Duplexing.TwoSidedLongEdge)
+        settings.Duplex = CoreWebView2PrintDuplex.TwoSidedLongEdge;
+      else if (ticket.Duplexing == Duplexing.TwoSidedShortEdge)
+        settings.Duplex = CoreWebView2PrintDuplex.TwoSidedShortEdge;
+      else if (ticket.Duplexing == Duplexing.OneSided)
+        settings.Duplex = CoreWebView2PrintDuplex.OneSided;
+      if (ticket.Collation == Collation.Collated)
+        settings.Collation = CoreWebView2PrintCollation.Collated;
+      else if (ticket.Collation == Collation.Uncollated)
+        settings.Collation = CoreWebView2PrintCollation.Uncollated;
+      if (dlg.PageRangeSelection == PageRangeSelection.UserPages)
+        settings.PageRanges = dlg.PageRange.PageFrom + "-" + dlg.PageRange.PageTo;
+
+      var status = await pdfViewer.CoreWebView2.PrintAsync(settings);
+      if (status != CoreWebView2PrintStatus.Succeeded)
+        MessageBox.Show(
+          status == CoreWebView2PrintStatus.PrinterUnavailable ? "Der Drucker ist nicht verfügbar." : "Der Bericht konnte nicht gedruckt werden.",
+          "Drucken", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
