@@ -2614,6 +2614,21 @@ namespace RaceHorologyLibTest
     }
 
 
+    // Count the recalculations of the race results
+    class CountingRaceResultViewProvider : RaceResultViewProvider
+    {
+      public int Resorts;
+      public CountingRaceResultViewProvider() : base(TimeCombination.Sum) { }
+      protected override void ResortResults() { Resorts++; base.ResortResults(); }
+    }
+
+    class CountingDSVSchoolRaceResultViewProvider : DSVSchoolRaceResultViewProvider
+    {
+      public int Resorts;
+      protected override void ResortResults() { Resorts++; base.ResortResults(); }
+    }
+
+
     /// <summary>
     /// A new best time changes position and difference to the first of every participant.
     /// The providers depending on the run results must not recalculate for each of these changes.
@@ -2627,10 +2642,15 @@ namespace RaceHorologyLibTest
         race.AddRaceRun();
       (new ViewConfigurator(race)).ConfigureRace(race);
       for (int i = 0; i < 20; i++)
-        tg.createRaceParticipant();
+        tg.createRaceParticipant(cat: tg.findCat(i % 2 == 0 ? 'M' : 'W'), points: 10.0 * i);
       var run1 = race.GetRun(0);
+      var run2 = race.GetRun(1);
       for (uint i = 1; i < 20; i++)
+      {
         run1.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(50 + i));
+        run2.SetRunTime(race.GetParticipant(i), TimeSpan.FromSeconds(60 + i));
+      }
+      run2.SetRunTime(race.GetParticipant(20), TimeSpan.FromSeconds(80));
 
       var basedOnPrevious = new BasedOnResultsFirstRunStartListViewProvider(0, true);
       basedOnPrevious.Init(run1);
@@ -2638,10 +2658,15 @@ namespace RaceHorologyLibTest
       basedOnSum.Init(run1);
       var secondRunFiltered = new SimpleSecondRunStartListViewProvider(StartListEntryComparer.Direction.Ascending, false);
       secondRunFiltered.Init(run1);
+      var raceResults = new CountingRaceResultViewProvider();
+      raceResults.Init(race, tg.Model);
+      race.RaceConfiguration.ValueF = 720.0; // Factor for DSV points
+      var dsvResults = new CountingDSVSchoolRaceResultViewProvider();
+      dsvResults.Init(race, tg.Model);
       var teamResults = new TeamRaceResultViewProvider(new TeamRaceResultConfig { Modus = PointOrTime.Time, NumberOfMembersMax = 3 });
       teamResults.Init(race, tg.Model);
 
-      // Each of them rebuilds its list completely (Reset) when recalculating
+      // The start lists and the team results rebuild their lists completely (Reset) when recalculating
       var lists = new Dictionary<string, System.Collections.IEnumerable>
       {
         { "basedOnPrevious", basedOnPrevious.GetViewList() },
@@ -2654,19 +2679,49 @@ namespace RaceHorologyLibTest
         resets[l.Key] = 0;
       foreach (var l in lists)
         ((System.Collections.Specialized.INotifyCollectionChanged)l.Value).CollectionChanged += (s, e) => { if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) resets[l.Key]++; };
+      raceResults.Resorts = 0;
+      dsvResults.Resorts = 0;
 
-      // Participant 20 becomes the fastest
+      // Participant 20 becomes the fastest in run 1 and moves up in the race results (from last to the middle)
       run1.SetRunTime(race.GetParticipant(20), TimeSpan.FromSeconds(50));
 
-      string counts = string.Join(", ", System.Linq.Enumerable.Select(resets, r => r.Key + "=" + r.Value));
+      string counts = string.Join(", ", System.Linq.Enumerable.Select(resets, r => r.Key + "=" + r.Value))
+        + string.Format(", raceResults={0}, dsvResults={1}", raceResults.Resorts, dsvResults.Resorts);
       foreach (var r in resets)
         Assert.IsTrue(r.Value <= 4, counts); // Was 138 resets for each start list and 130 for the team results
+      // A single recalculation (incl. DSV points) for the new time
+      Assert.AreEqual(1, raceResults.Resorts, counts);
+      Assert.AreEqual(1, dsvResults.Resorts, counts);
 
-      // Still correct: the new best starts last (no reverse), the positions within the run are copied into the race results
+      // Still correct: the new best starts first (no reverse)
       Assert.AreEqual(20U, basedOnPrevious.GetViewList()[0].StartNumber);
       Assert.AreEqual(20U, basedOnSum.GetViewList()[0].StartNumber);
-      var raceResults = race.GetResultViewProvider().GetViewList();
-      var rri1 = System.Linq.Enumerable.First(raceResults, r => r.Participant.StartNumber == 1);
+
+      // Incrementally updated race results equal the ones of newly created providers (incl. positions within the runs and DSV points)
+      void assertSameAsNew(RaceResultViewProvider incremental, RaceResultViewProvider fresh)
+      {
+        fresh.Init(race, tg.Model);
+        var expected = fresh.GetViewList();
+        var actual = incremental.GetViewList();
+        Assert.AreEqual(expected.Count, actual.Count);
+        for (int i = 0; i < expected.Count; i++)
+        {
+          Assert.AreSame(expected[i].Participant, actual[i].Participant);
+          Assert.AreEqual(expected[i].TotalTime, actual[i].TotalTime);
+          Assert.AreEqual(expected[i].Position, actual[i].Position);
+          Assert.AreEqual(expected[i].Points, actual[i].Points);
+          foreach (var sr in expected[i].SubResults)
+          {
+            Assert.AreEqual(sr.Value.Position, actual[i].SubResults[sr.Key].Position);
+            Assert.AreEqual(sr.Value.DiffToFirst, actual[i].SubResults[sr.Key].DiffToFirst);
+          }
+        }
+      }
+      assertSameAsNew(raceResults, new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum));
+      assertSameAsNew(dsvResults, new DSVSchoolRaceResultViewProvider());
+      Assert.IsTrue(System.Linq.Enumerable.Any(dsvResults.GetViewList(), r => r.Points > 0), "DSV points calculated");
+
+      var rri1 = System.Linq.Enumerable.First(raceResults.GetViewList(), r => r.Participant.StartNumber == 1);
       Assert.AreEqual(2U, rri1.SubResults[1].Position);
       Assert.AreEqual(TimeSpan.FromSeconds(1), rri1.SubResults[1].DiffToFirst);
     }
