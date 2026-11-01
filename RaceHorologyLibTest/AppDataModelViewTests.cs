@@ -2478,5 +2478,58 @@ namespace RaceHorologyLibTest
       tg.createRaceParticipant();
       Assert.AreEqual(0, run2Changes);
     }
+
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    static WeakReference CreateUnobservedStartListEntry(RaceParticipant rp)
+    {
+      return new WeakReference(new StartListEntry(rp));
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    static List<WeakReference> WeakReferencesTo(IEnumerable<StartListEntry> entries)
+    {
+      var refs = new List<WeakReference>();
+      foreach (var e in entries)
+        refs.Add(new WeakReference(e));
+      return refs;
+    }
+
+    static void CollectGarbage()
+    {
+      GC.Collect();
+      GC.WaitForPendingFinalizers();
+      GC.Collect();
+    }
+
+
+    /// <summary>
+    /// A StartListEntry observes its participant only while it is observed itself.
+    /// Otherwise, the participant keeps every entry ever created alive.
+    /// </summary>
+    [TestMethod]
+    public void StartListEntry_ObservesParticipantOnlyWhileObserved()
+    {
+      var tg = new TestDataGenerator();
+      var rp = tg.createRaceParticipant();
+
+      var unobserved = CreateUnobservedStartListEntry(rp);
+      CollectGarbage();
+      Assert.IsFalse(unobserved.IsAlive);
+
+      // Observed entry passes through the participant's changes
+      var entry = new StartListEntry(rp);
+      var changed = new List<string>();
+      System.ComponentModel.PropertyChangedEventHandler handler = (s, e) => changed.Add(e.PropertyName);
+      entry.PropertyChanged += handler;
+      rp.Participant.Name = "Changed";
+      CollectionAssert.Contains(changed, "Name");
+
+      entry.PropertyChanged -= handler;
+      changed.Clear();
+      rp.Participant.Name = "Changed again";
+      Assert.AreEqual(0, changed.Count);
+    }
+
   }
 }

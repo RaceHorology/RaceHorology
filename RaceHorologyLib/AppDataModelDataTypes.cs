@@ -790,7 +790,6 @@ namespace RaceHorologyLib
       _participant = participant;
       _started = false;
       _markedForMeasurement = null;
-      _participant.PropertyChanged += OnParticipantPropertyChanged;
     }
 
 
@@ -854,13 +853,35 @@ namespace RaceHorologyLib
 
     #region INotifyPropertyChanged implementation
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    PropertyChangedEventHandler _propertyChanged;
+    /// <summary>
+    /// Passes through the property changes of the participant as well.
+    ///
+    /// The participant is only observed as long as someone observes this entry. Otherwise, the participant
+    /// would keep every entry ever created alive (start lists get rebuilt on every change).
+    /// </summary>
+    public event PropertyChangedEventHandler PropertyChanged
+    {
+      add
+      {
+        if (_propertyChanged == null)
+          _participant.PropertyChanged += OnParticipantPropertyChanged;
+        _propertyChanged += value;
+      }
+      remove
+      {
+        _propertyChanged -= value;
+        if (_propertyChanged == null)
+          _participant.PropertyChanged -= OnParticipantPropertyChanged;
+      }
+    }
+
     // This method is called by the Set accessor of each property.
     // The CallerMemberName attribute that is applied to the optional propertyName
     // parameter causes the property name of the caller to be substituted as an argument.
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
     {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+      _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     // Pass through the property change
