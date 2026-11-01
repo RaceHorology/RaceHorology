@@ -379,7 +379,7 @@ namespace RaceHorologyLib
 
     protected override void sortViewList()
     {
-      if (_viewList == null)
+      if (_viewList == null || _viewList.Count == 0)
         return;
 
       // Re-Sort based on DSV Strategy per Group

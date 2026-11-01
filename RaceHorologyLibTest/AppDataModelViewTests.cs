@@ -255,6 +255,22 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Changing the grouping of an empty start list (e.g. new race without participants) must not throw
+    /// </summary>
+    [TestMethod]
+    public void DSVFirstRunStartListViewProvider_EmptyStartList()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      DSVFirstRunStartListViewProvider provider = new DSVFirstRunStartListViewProvider(5);
+      provider.Init(tg.Model.GetRace(0).GetParticipants());
+      provider.ChangeGrouping("Participant.Class");
+
+      Assert.AreEqual(0, provider.GetViewList().Count);
+    }
+
+
 
     /// <summary>
     /// Test for SimpleSecondRunStartListViewProvider, descending start numbers
