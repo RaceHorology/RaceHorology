@@ -271,6 +271,32 @@ namespace RaceHorologyLibTest
     }
 
 
+    /// <summary>
+    /// Grouping a start list by club must sort the entries by club first (as it is done for class, group and category)
+    /// </summary>
+    [TestMethod]
+    public void FirstRunStartListViewProvider_GroupingByClub()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+
+      var participants = tg.createRaceParticipants(4);
+      participants[0].Participant.Club = "SC B";
+      participants[1].Participant.Club = "SC A";
+      participants[2].Participant.Club = "SC B";
+      participants[3].Participant.Club = "SC A";
+
+      FirstRunStartListViewProvider provider = new FirstRunStartListViewProvider();
+      provider.Init(tg.Model.GetRace(0).GetParticipants());
+      provider.ChangeGrouping("Participant.Club");
+
+      var startlist = provider.GetViewList();
+      Assert.AreEqual(2U, startlist[0].StartNumber);
+      Assert.AreEqual(4U, startlist[1].StartNumber);
+      Assert.AreEqual(1U, startlist[2].StartNumber);
+      Assert.AreEqual(3U, startlist[3].StartNumber);
+    }
+
+
 
     /// <summary>
     /// Test for SimpleSecondRunStartListViewProvider, descending start numbers
