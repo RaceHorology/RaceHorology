@@ -2475,5 +2475,40 @@ namespace RaceHorologyLibTest
       Assert.AreEqual(11.0, teams[2].Points);
       Assert.AreEqual(3U, teams[2].Position);
     }
+
+
+    /// <summary>
+    /// A participant added without any time must be sorted into the race result
+    /// (here: into its class, not appended at the end of the list)
+    /// </summary>
+    [TestMethod]
+    public void RaceResultViewProvider_AddParticipantWithoutTime()
+    {
+      TestDataGenerator tg = new TestDataGenerator();
+      tg.createCatsClassesGroups();
+      Race race = tg.Model.GetRace(0);
+      RaceRun rr1 = race.GetRun(0);
+
+      tg.createRaceParticipant(cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cla: tg.findClass("2M (2010)"));
+      tg.createRaceParticipant(cla: tg.findClass("2W (2010)"));
+      tg.createRaceParticipant(cla: tg.findClass("2W (2010)"));
+      for (uint stnr = 1; stnr <= 4; ++stnr)
+        rr1.SetRunTime(race.GetParticipant(stnr), TimeSpan.FromSeconds(10 * stnr));
+
+      RaceResultViewProvider vp = new RaceResultViewProvider(RaceResultViewProvider.TimeCombination.Sum);
+      vp.ChangeGrouping("Participant.Class");
+      vp.Init(race, tg.Model);
+
+      tg.createRaceParticipant(cla: tg.findClass("2M (2010)")); // StNr 5, no time
+
+      var results = vp.GetViewList();
+      Assert.AreEqual(5, results.Count);
+      Assert.AreEqual(1U, results[0].Participant.StartNumber);
+      Assert.AreEqual(2U, results[1].Participant.StartNumber);
+      Assert.AreEqual(5U, results[2].Participant.StartNumber);
+      Assert.AreEqual(3U, results[3].Participant.StartNumber);
+      Assert.AreEqual(4U, results[4].Participant.StartNumber);
+    }
   }
 }
