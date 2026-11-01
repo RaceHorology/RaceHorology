@@ -1,9 +1,9 @@
-using CefSharp;
-using CefSharp.Wpf;
+using Microsoft.Web.WebView2.Core;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -43,6 +43,12 @@ namespace RaceHorology
 
     IPDFReport _currentReport;
     UserControl _currentSubUC;
+
+    // Virtual URL that WebResourceRequested answers with the generated report
+    const string PdfViewerBaseUrl = "https://report.racehorology.example/";
+    Task<bool> _pdfViewerInit;
+    byte[] _pdfData;
+    int _pdfVersion;
 
 
     public ReportUC()
@@ -111,9 +117,10 @@ namespace RaceHorology
       GenerateReportPreview();
     }
 
-    private void btnPrint_Click(object sender, RoutedEventArgs e)
+    private async void btnPrint_Click(object sender, RoutedEventArgs e)
     {
-      cefBrowser.PrintCommand.Execute(null);
+      if (await initPdfViewer())
+        pdfViewer.CoreWebView2.ShowPrintUI(CoreWebView2PrintDialogKind.Browser);
     }
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
@@ -152,7 +159,7 @@ namespace RaceHorology
         _refreshDelay.Delayed(null, null);
     }
 
-    private void refreshPdf()
+    private async void refreshPdf()
     {
       var reportGenerator = getSelectedReport();
       if (reportGenerator != null)
@@ -163,27 +170,51 @@ namespace RaceHorology
 
         MemoryStream ms = new MemoryStream();
         _currentReport.Generate(ms);
+        _pdfData = ms.ToArray();
 
-        var settings = new CefSettings();
-        settings.CefCommandLineArgs.Add("no-proxy-server", "1"); //Don't use a proxy server, always make direct connections. Overrides any other proxy server flags that are passed.
-        settings.UserAgent = "Race Horology"; // RH User Agent
-        settings.CefCommandLineArgs.Add("disable-plugins-discovery", "1"); //Disable discovering third-party plugins. Effectively loading only ones shipped with the browser plus third-party ones as specified by --extra-plugin-dir and --load-plugin switches
-        settings.SetOffScreenRenderingBestPerformanceArgs();
-        settings.CefCommandLineArgs.Add("disable-direct-write", "1");
-        settings.CefCommandLineArgs.Add("disable-gpu-vsync", "1"); //Disable Vsync
-        settings.CefCommandLineArgs.Add("disable-extensions", "1"); //Extension support can be disabled
-
-        settings.WindowlessRenderingEnabled = true;
-
-        if (cefBrowser.ResourceRequestHandlerFactory == null)
-          cefBrowser.ResourceRequestHandlerFactory = new ResourceRequestHandlerFactory();
-        var handler = cefBrowser.ResourceRequestHandlerFactory as ResourceRequestHandlerFactory;
-        string url = "file://abcdef.pdf";
-        if (handler != null)
-          handler.RegisterHandler(url, ms.ToArray(), "application/pdf", true);
-
-        cefBrowser.Load(url);
+        if (await initPdfViewer())
+          // A new URL per refresh, otherwise the viewer may show a cached version
+          pdfViewer.CoreWebView2.Navigate(PdfViewerBaseUrl + "report" + (++_pdfVersion) + ".pdf");
       }
+    }
+
+    private Task<bool> initPdfViewer()
+    {
+      if (_pdfViewerInit == null)
+        _pdfViewerInit = doInitPdfViewer();
+      return _pdfViewerInit;
+    }
+
+    private async Task<bool> doInitPdfViewer()
+    {
+      try
+      {
+        // WebView2 would store its data next to the exe by default, which is not writable below Program Files
+        string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RaceHorology", "WebView2");
+        var environment = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+        await pdfViewer.EnsureCoreWebView2Async(environment);
+      }
+      catch (WebView2RuntimeNotFoundException)
+      {
+        pdfViewer.Visibility = Visibility.Collapsed;
+        txtNoPdfViewer.Visibility = Visibility.Visible;
+        btnPrint.IsEnabled = false;
+        return false;
+      }
+
+      var settings = pdfViewer.CoreWebView2.Settings;
+      settings.AreDevToolsEnabled = false;
+      settings.IsStatusBarEnabled = false;
+
+      pdfViewer.CoreWebView2.AddWebResourceRequestedFilter(PdfViewerBaseUrl + "*", CoreWebView2WebResourceContext.All);
+      pdfViewer.CoreWebView2.WebResourceRequested += pdfViewer_WebResourceRequested;
+      return true;
+    }
+
+    private void pdfViewer_WebResourceRequested(object sender, CoreWebView2WebResourceRequestedEventArgs e)
+    {
+      var stream = new MemoryStream(_pdfData ?? new byte[0], false);
+      e.Response = pdfViewer.CoreWebView2.Environment.CreateWebResourceResponse(stream, 200, "OK", "Content-Type: application/pdf");
     }
 
     private void refreshTimout(object sender, TextChangedEventArgs e)
