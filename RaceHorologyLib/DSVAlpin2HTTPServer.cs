@@ -249,10 +249,12 @@ namespace RaceHorologyLib
       else
         race = _dataModel?.GetRace(raceNo);
 
+      // An empty run number (".../runs//...") selects the current run; without "runs" in the URL
+      // (e.g. the race result list) no run is selected
       RaceRun raceRun = null;
-      if (runNo < 0)
+      if (runNo == -1)
         raceRun = _dataModel?.GetCurrentRaceRun();
-      else
+      else if (runNo >= 0)
         raceRun = race?.GetRun(runNo);
 
       string output = "";
