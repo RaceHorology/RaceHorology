@@ -116,5 +116,102 @@ namespace RaceHorologyLibTest
       //Assert.AreEqual(jsonStartExpected, jsonStart);
       //Assert.AreEqual(jsonResultExpected, jsonResult);
     }
+
+
+    static List<LiveDataProvider> createLiveDataProviders(AppDataModel dm, List<string> sentData)
+    {
+      // Same providers as LiveDataBehavior uses
+      var providers = new List<LiveDataProvider>
+      {
+        new RaceDataProvider(dm),
+        new RemainingStartListDataProvider(dm, 3),
+        new OnTrackDataProvider(dm),
+        new OnTrackEventsProvider(dm),
+        new RaceResultDataProvider(dm)
+      };
+      foreach (var p in providers)
+        p.NewDataToSend += (source, e) => { lock (sentData) sentData.Add(e.Data); };
+      return providers;
+    }
+
+    /// <summary>
+    /// Processes the dispatcher queue of the test thread (the providers send via Dispatcher.Invoke from timer threads)
+    /// until the condition is met or the timeout elapsed.
+    /// </summary>
+    static bool pumpUntil(Func<bool> condition, int timeoutMs = 3000)
+    {
+      var end = DateTime.Now.AddMilliseconds(timeoutMs);
+      while (DateTime.Now < end)
+      {
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => { }));
+        if (condition())
+          return true;
+        System.Threading.Thread.Sleep(20);
+      }
+      return condition();
+    }
+
+    static bool containsType(List<string> sentData, string type)
+    {
+      lock (sentData)
+        return sentData.Exists(d => d != null && d.Contains("\"type\":\"" + type + "\""));
+    }
+
+    /// <summary>
+    /// Web clients may already be connected when a database without any race is opened (e.g. after a restart of the app)
+    /// </summary>
+    [TestMethod]
+    public void LiveDataProviders_WithoutCurrentRace()
+    {
+      if (System.Windows.Application.Current == null)
+        new System.Windows.Application { ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown };
+
+      var dm = new AppDataModel(new DummyDataBase(".", false));
+      Assert.IsNull(dm.GetCurrentRace());
+
+      var sentData = new List<string>();
+      var providers = createLiveDataProviders(dm, sentData);
+      foreach (var p in providers)
+        p.SendInitial();
+      pumpUntil(() => false, 500);
+
+      foreach (var p in providers)
+        p.Dispose();
+    }
+
+    /// <summary>
+    /// The providers follow the current race and race run, also if there was none in the beginning
+    /// </summary>
+    [TestMethod]
+    public void LiveDataProviders_FollowCurrentRace()
+    {
+      if (System.Windows.Application.Current == null)
+        new System.Windows.Application { ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown };
+
+      var dm = new AppDataModel(new DummyDataBase(".", false));
+      var sentData = new List<string>();
+      var providers = createLiveDataProviders(dm, sentData);
+
+      Race race = dm.AddRace(new Race.RaceProperties { RaceType = Race.ERaceType.GiantSlalom, Runs = 2 });
+      dm.SetCurrentRace(race);
+      Assert.IsTrue(pumpUntil(() => containsType(sentData, "raceresult")), "race result of the new current race is sent");
+
+      // A current race without a current race run (SetCurrentRace() resets the race run)
+      Assert.IsNull(dm.GetCurrentRaceRun());
+      foreach (var p in providers)
+        p.SendInitial();
+      pumpUntil(() => false, 500);
+
+      dm.SetCurrentRaceRun(race.GetRun(0));
+      Assert.IsTrue(pumpUntil(() => containsType(sentData, "onstart") && containsType(sentData, "ontrack")), "lists of the new current race run are sent");
+
+      dm.SetCurrentRace(null);
+      foreach (var p in providers)
+        p.SendInitial();
+      pumpUntil(() => false, 500);
+
+      foreach (var p in providers)
+        p.Dispose();
+    }
   }
 }
