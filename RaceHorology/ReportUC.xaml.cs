@@ -1,11 +1,13 @@
-using CefSharp;
-using CefSharp.Wpf;
+using Microsoft.Web.WebView2.Core;
 using RaceHorologyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Drawing.Printing;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace RaceHorology
 {
@@ -43,6 +45,12 @@ namespace RaceHorology
 
     IPDFReport _currentReport;
     UserControl _currentSubUC;
+
+    // Virtual URL that WebResourceRequested answers with the generated report
+    const string PdfViewerBaseUrl = "https://report.racehorology.example/";
+    Task<bool> _pdfViewerInit;
+    byte[] _pdfData;
+    int _pdfVersion;
 
 
     public ReportUC()
@@ -111,9 +119,44 @@ namespace RaceHorology
       GenerateReportPreview();
     }
 
-    private void btnPrint_Click(object sender, RoutedEventArgs e)
+    private async void btnPrint_Click(object sender, RoutedEventArgs e)
     {
-      cefBrowser.PrintCommand.Execute(null);
+      if (!await initPdfViewer())
+        return;
+
+      // The classic Windows print dialog is more compact than the one of WebView2; the preview is shown above anyway.
+      // Only the WinForms dialog without UseEXDialog gets the classic one, Windows 11 replaces the newer API (used by WPF) with its modern dialog.
+      var printer = new PrinterSettings { MinimumPage = 1, MaximumPage = 9999, FromPage = 1, ToPage = 1 };
+      var dlg = new System.Windows.Forms.PrintDialog { PrinterSettings = printer, UseEXDialog = false, AllowSomePages = true };
+      if (dlg.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+        return;
+
+      var page = printer.DefaultPageSettings;
+      var settings = pdfViewer.CoreWebView2.Environment.CreatePrintSettings();
+      settings.PrinterName = printer.PrinterName;
+      settings.Copies = printer.Copies;
+      settings.Collation = printer.Collate ? CoreWebView2PrintCollation.Collated : CoreWebView2PrintCollation.Uncollated;
+      settings.Orientation = page.Landscape ? CoreWebView2PrintOrientation.Landscape : CoreWebView2PrintOrientation.Portrait;
+      // WebView2 defaults to Letter with 1 cm margins; the report brings its own margins
+      // PaperSize is in 1/100 inch, WebView2 expects inch
+      settings.PageWidth = page.PaperSize.Width / 100.0;
+      settings.PageHeight = page.PaperSize.Height / 100.0;
+      settings.MarginTop = settings.MarginBottom = settings.MarginLeft = settings.MarginRight = 0;
+      settings.ShouldPrintHeaderAndFooter = false;
+      if (printer.Duplex == Duplex.Simplex)
+        settings.Duplex = CoreWebView2PrintDuplex.OneSided;
+      else if (printer.Duplex == Duplex.Vertical)
+        settings.Duplex = CoreWebView2PrintDuplex.TwoSidedLongEdge;
+      else if (printer.Duplex == Duplex.Horizontal)
+        settings.Duplex = CoreWebView2PrintDuplex.TwoSidedShortEdge;
+      if (printer.PrintRange == PrintRange.SomePages)
+        settings.PageRanges = printer.FromPage + "-" + printer.ToPage;
+
+      var status = await pdfViewer.CoreWebView2.PrintAsync(settings);
+      if (status != CoreWebView2PrintStatus.Succeeded)
+        MessageBox.Show(
+          status == CoreWebView2PrintStatus.PrinterUnavailable ? "Der Drucker ist nicht verfügbar." : "Der Bericht konnte nicht gedruckt werden.",
+          "Drucken", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e)
@@ -152,7 +195,7 @@ namespace RaceHorology
         _refreshDelay.Delayed(null, null);
     }
 
-    private void refreshPdf()
+    private async void refreshPdf()
     {
       var reportGenerator = getSelectedReport();
       if (reportGenerator != null)
@@ -163,27 +206,64 @@ namespace RaceHorology
 
         MemoryStream ms = new MemoryStream();
         _currentReport.Generate(ms);
+        _pdfData = ms.ToArray();
 
-        var settings = new CefSettings();
-        settings.CefCommandLineArgs.Add("no-proxy-server", "1"); //Don't use a proxy server, always make direct connections. Overrides any other proxy server flags that are passed.
-        settings.UserAgent = "Race Horology"; // RH User Agent
-        settings.CefCommandLineArgs.Add("disable-plugins-discovery", "1"); //Disable discovering third-party plugins. Effectively loading only ones shipped with the browser plus third-party ones as specified by --extra-plugin-dir and --load-plugin switches
-        settings.SetOffScreenRenderingBestPerformanceArgs();
-        settings.CefCommandLineArgs.Add("disable-direct-write", "1");
-        settings.CefCommandLineArgs.Add("disable-gpu-vsync", "1"); //Disable Vsync
-        settings.CefCommandLineArgs.Add("disable-extensions", "1"); //Extension support can be disabled
-
-        settings.WindowlessRenderingEnabled = true;
-
-        if (cefBrowser.ResourceRequestHandlerFactory == null)
-          cefBrowser.ResourceRequestHandlerFactory = new ResourceRequestHandlerFactory();
-        var handler = cefBrowser.ResourceRequestHandlerFactory as ResourceRequestHandlerFactory;
-        string url = "file://abcdef.pdf";
-        if (handler != null)
-          handler.RegisterHandler(url, ms.ToArray(), "application/pdf", true);
-
-        cefBrowser.Load(url);
+        if (await initPdfViewer())
+          // A new URL per refresh, otherwise the viewer may show a cached version
+          pdfViewer.CoreWebView2.Navigate(PdfViewerBaseUrl + "report" + (++_pdfVersion) + ".pdf");
       }
+    }
+
+    private Task<bool> initPdfViewer()
+    {
+      if (_pdfViewerInit == null)
+        _pdfViewerInit = doInitPdfViewer();
+      return _pdfViewerInit;
+    }
+
+    private async Task<bool> doInitPdfViewer()
+    {
+      try
+      {
+        // WebView2 would store its data next to the exe by default, which is not writable below Program Files
+        string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RaceHorology", "WebView2");
+        var environment = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+        await pdfViewer.EnsureCoreWebView2Async(environment);
+      }
+      catch (WebView2RuntimeNotFoundException)
+      {
+        pdfViewer.Visibility = Visibility.Collapsed;
+        txtNoPdfViewer.Visibility = Visibility.Visible;
+        btnPrint.IsEnabled = false;
+        return false;
+      }
+
+      var settings = pdfViewer.CoreWebView2.Settings;
+      settings.AreDevToolsEnabled = false;
+      settings.IsStatusBarEnabled = false;
+      // Printing and saving are done with the buttons below the preview
+      settings.HiddenPdfToolbarItems =
+        CoreWebView2PdfToolbarItems.Print | CoreWebView2PdfToolbarItems.Save | CoreWebView2PdfToolbarItems.SaveAs |
+        CoreWebView2PdfToolbarItems.FullScreen | CoreWebView2PdfToolbarItems.Rotate | CoreWebView2PdfToolbarItems.PageLayout |
+        CoreWebView2PdfToolbarItems.MoreSettings;
+
+      pdfViewer.CoreWebView2.AddWebResourceRequestedFilter(PdfViewerBaseUrl + "*", CoreWebView2WebResourceContext.All);
+      pdfViewer.CoreWebView2.WebResourceRequested += pdfViewer_WebResourceRequested;
+      pdfViewer.PreviewKeyDown += pdfViewer_PreviewKeyDown;
+      return true;
+    }
+
+    private void pdfViewer_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+      // Same as the hidden toolbar items: printing and saving are done with the buttons below the preview
+      if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && (e.Key == Key.P || e.Key == Key.S))
+        e.Handled = true;
+    }
+
+    private void pdfViewer_WebResourceRequested(object sender, CoreWebView2WebResourceRequestedEventArgs e)
+    {
+      var stream = new MemoryStream(_pdfData ?? new byte[0], false);
+      e.Response = pdfViewer.CoreWebView2.Environment.CreateWebResourceResponse(stream, 200, "OK", "Content-Type: application/pdf");
     }
 
     private void refreshTimout(object sender, TextChangedEventArgs e)

@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
-             xmlns:cef="clr-namespace:CefSharp;assembly=CefSharp.Core"
+             xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:local="clr-namespace:RaceHorology"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -42,6 +41,8 @@
       <ContentControl x:Name="addOptions" Grid.Column="2" VerticalAlignment="Center" />
     </Grid>
 
-    <wpf:ChromiumWebBrowser x:Name="cefBrowser" Grid.Row="1" Margin="5" />
+    <wv2:WebView2 x:Name="pdfViewer" Grid.Row="1" Margin="5" />
+    <TextBlock x:Name="txtNoPdfViewer" Grid.Row="1" Margin="5" Visibility="Collapsed" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" FontSize="16"
+               Text="Die Vorschau benötigt die Microsoft Edge WebView2 Runtime, die auf diesem Rechner nicht installiert ist. Der Bericht kann über &quot;Speichern (PDF)&quot; geöffnet und gedruckt werden." />
   </Grid>
 </UserControl>
