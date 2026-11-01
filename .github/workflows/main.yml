@@ -187,10 +187,13 @@ jobs:
       - name: Setup VSTest Path
         uses: darenm/Setup-VSTest@v1
       
+      # Optional for now: the DSV points list download currently answers with HTTP 401
       - name: VSTest_Debug
+        continue-on-error: true
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Debug\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory=IntegrationDsvOnline" /logger:trx
-      
+
       - name: VSTest_Release
+        continue-on-error: true
         run: vstest.console.exe /Platform:x86 $Env:GITHUB_WORKSPACE\RaceHorologyLibTest\bin\x86\Release\RaceHorologyLibTest.dll /TestCaseFilter:"TestCategory=IntegrationDsvOnline" /logger:trx
 
       - name: Upload Test Results
