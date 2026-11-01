@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace RaceHorology
 {
@@ -213,7 +214,15 @@ namespace RaceHorology
 
       pdfViewer.CoreWebView2.AddWebResourceRequestedFilter(PdfViewerBaseUrl + "*", CoreWebView2WebResourceContext.All);
       pdfViewer.CoreWebView2.WebResourceRequested += pdfViewer_WebResourceRequested;
+      pdfViewer.PreviewKeyDown += pdfViewer_PreviewKeyDown;
       return true;
+    }
+
+    private void pdfViewer_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+      // Same as the hidden toolbar items: printing and saving are done with the buttons below the preview
+      if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && (e.Key == Key.P || e.Key == Key.S))
+        e.Handled = true;
     }
 
     private void pdfViewer_WebResourceRequested(object sender, CoreWebView2WebResourceRequestedEventArgs e)
