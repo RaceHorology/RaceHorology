@@ -2233,7 +2233,10 @@ namespace RaceHorologyLib
         _dsvCalcM.CalculatePenalty();
         _dsvCalcW.CalculatePenalty();
       }
-      catch (Exception) { }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "DSV penalty calculation failed");
+      }
 
       // Re-Update points
       foreach (var sortedItem in _viewList)
@@ -2292,8 +2295,14 @@ namespace RaceHorologyLib
         string filePath = System.IO.Path.Combine(appDataModel.GetDB().GetDBPathDirectory(), "PointsTable.txt");
         _pointsTable = readPointsTable(filePath);
       }
-      catch (Exception)
-      { }
+      catch (Exception e) when (e is FileNotFoundException || e is DirectoryNotFoundException)
+      {
+        Logger.Info("no PointsTable.txt, using the default points table");
+      }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "PointsTable.txt could not be read, using the default points table");
+      }
 
       base.Init(race, appDataModel);
     }
@@ -2393,7 +2402,10 @@ namespace RaceHorologyLib
       {
         _fisCalc.CalculatePenalty();
       }
-      catch (Exception) { }
+      catch (Exception e)
+      {
+        Logger.Warn(e, "FIS penalty calculation failed");
+      }
 
       // Re-Update points
       foreach (var sortedItem in _viewList)

@@ -2832,5 +2832,33 @@ namespace RaceHorologyLibTest
       Assert.IsNull(source.ActiveGrouping);
       Assert.AreEqual(0, remaining.GetView().GroupDescriptions.Count);
     }
+
+
+    /// <summary>
+    /// An unreadable PointsTable.txt falls back to the default points table (and gets logged)
+    /// </summary>
+    [TestMethod]
+    public void PointsViaTableRaceResultViewProvider_InvalidPointsTable_UsesDefault()
+    {
+      string folder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "RH_PointsTable_" + Guid.NewGuid().ToString("N"));
+      System.IO.Directory.CreateDirectory(folder);
+      try
+      {
+        System.IO.File.WriteAllText(System.IO.Path.Combine(folder, "PointsTable.txt"), "not a number");
+
+        var tg = new TestDataGenerator(folder);
+        var race = tg.Model.GetRace(0);
+        tg.createRaceParticipant();
+        race.GetRun(0).SetRunTime(race.GetParticipant(1), TimeSpan.FromSeconds(50));
+
+        var vp = new PointsViaTableRaceResultViewProvider(PointsViaTableRaceResultViewProvider.EMode.ApplyPointsTotally);
+        vp.Init(race, tg.Model);
+        Assert.AreEqual(15.0, vp.GetViewList()[0].Points);
+      }
+      finally
+      {
+        System.IO.Directory.Delete(folder, true);
+      }
+    }
   }
 }
