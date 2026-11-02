@@ -248,6 +248,9 @@
       <Component Id="QRCoder.dll" Guid="b5d4d866-d7bf-4524-bee0-0fdab03e846d">
         <File Id="QRCoder.dll" Name="QRCoder.dll" Source="$(var.RaceHorology_TargetDir)QRCoder.dll" />
       </Component>
+      <Component Id="QRCoder.xml" Guid="f9a2289e-ad5c-4fc0-ac0f-06e55c168478">
+        <File Id="QRCoder.xml" Name="QRCoder.xml" Source="$(var.RaceHorology_TargetDir)QRCoder.xml" />
+      </Component>
       <Component Id="RaceHorology.exe" Guid="df4ac0a1-6576-4534-ba1d-127a4ff291d9">
         <File Id="RaceHorology.exe" Name="RaceHorology.exe" Source="$(var.RaceHorology_TargetDir)RaceHorology.exe" />
       </Component>
