@@ -145,9 +145,6 @@
     <PackageReference Include="NLog">
       <Version>5.5.1</Version>
     </PackageReference>
-    <PackageReference Include="PdfSharp">
-      <Version>1.50.5147</Version>
-    </PackageReference>
     <PackageReference Include="StringComparison">
       <Version>1.0.3</Version>
     </PackageReference>
